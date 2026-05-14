@@ -94,6 +94,7 @@ def cmd_extract(args: argparse.Namespace) -> None:
         out_parent=args.out,
         skip_gemini=args.no_gemini,
         disable_walls=args.disable_walls,
+        disable_windows=args.disable_windows,
     )
 
 
@@ -139,6 +140,12 @@ def main() -> None:
         action="store_true",
         dest="disable_walls",
         help="Skip wall detection (useful when tuning window/door results)",
+    )
+    p_extract.add_argument(
+        "--disable-windows",
+        action="store_true",
+        dest="disable_windows",
+        help="Skip window detection (useful when tuning wall/door results)",
     )
     p_extract.set_defaults(func=cmd_extract)
 

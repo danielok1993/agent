@@ -1511,11 +1511,12 @@ def run_heuristics(
     page_data: PageData,
     plumber_tables: list[list[list[str | None]]],
     disable_walls: bool = False,
+    disable_windows: bool = False,
 ) -> list[Candidate]:
     all_stroke_widths = [p.stroke_width for p in page_data.paths if p.stroke_width > 0]
 
     doors = detect_doors(page_data.paths, page_data.text_spans)
-    windows = detect_windows(page_data.paths)
+    windows = [] if disable_windows else detect_windows(page_data.paths)
     walls = [] if disable_walls else detect_walls(page_data.paths)
 
     # Annotate wall candidates with relative stroke-width evidence

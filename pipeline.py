@@ -249,6 +249,7 @@ def run_extract(
     out_parent: str = "outputs",
     skip_gemini: bool = False,
     disable_walls: bool = False,
+    disable_windows: bool = False,
 ) -> str:
     path = Path(pdf_path)
     if not path.exists():
@@ -323,7 +324,7 @@ def run_extract(
 
             # 4. Heuristics
             step("heuristics")
-            candidates = run_heuristics(page_data, plumber_page.get("tables", []), disable_walls=disable_walls)
+            candidates = run_heuristics(page_data, plumber_page.get("tables", []), disable_walls=disable_walls, disable_windows=disable_windows)
             total_candidates += len(candidates)
             write_json(
                 str(Path(page_dir) / "candidates.json"),
