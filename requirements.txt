@@ -1,0 +1,6 @@
+PyMuPDF>=1.24.0
+pdfplumber>=0.11.0
+pdfminer.six>=20231228
+google-genai>=0.8.0
+Pillow>=10.3.0
+rich>=13.7.0
