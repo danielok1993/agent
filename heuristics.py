@@ -3,6 +3,7 @@ import math
 import re
 import statistics
 from collections import defaultdict
+from dataclasses import dataclass
 from itertools import combinations
 from models import PathPrimitive, TextSpan, Candidate, PageData, BBox
 
@@ -21,6 +22,13 @@ DOOR_POLYLINE_MIN_SEGMENTS  = 4
 DOOR_POLYLINE_MAX_SEGMENTS  = 24
 DOOR_POLYLINE_MAX_SEG_PX    = 18.0
 DOOR_POLYLINE_ENDPOINT_TOL  = 2.0
+DOOR_LAYER_KEYWORDS         = ["door", "a-door"]
+DOOR_ASSEMBLY_CONNECT_TOL_PX = 15.0
+DOOR_LEAF_RADIUS_RATIO_TOL   = 0.20
+DOOR_FALLBACK_CONFIDENCE     = 0.35
+DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX = 3.0
+DOOR_LINEWORK_LEAF_MIN_SEGMENTS    = 4
+DOOR_LINEWORK_LEAF_MAX_SEGMENTS    = 8
 
 # ---------------------------------------------------------------------------
 # Window detection constants
@@ -283,18 +291,35 @@ def _detect_polyline_arc_bboxes(line_paths: list[PathPrimitive]) -> list[dict]:
             continue
 
         degrees: dict[tuple[int, int], int] = defaultdict(int)
+        point_sums: dict[tuple[int, int], list[float]] = defaultdict(lambda: [0.0, 0.0, 0.0])
         for idx in component:
-            degrees[key(segs[idx][1])] += 1
-            degrees[key(segs[idx][2])] += 1
-        endpoints = sum(1 for degree in degrees.values() if degree == 1)
-        if endpoints != 2:
+            for pt in (segs[idx][1], segs[idx][2]):
+                pt_key = key(pt)
+                degrees[pt_key] += 1
+                point_sums[pt_key][0] += pt[0]
+                point_sums[pt_key][1] += pt[1]
+                point_sums[pt_key][2] += 1.0
+        endpoint_keys = [pt_key for pt_key, degree in degrees.items() if degree == 1]
+        if len(endpoint_keys) != 2:
             continue
+
+        endpoints = [
+            (
+                point_sums[pt_key][0] / point_sums[pt_key][2],
+                point_sums[pt_key][1] / point_sums[pt_key][2],
+            )
+            for pt_key in endpoint_keys
+        ]
+        layers = [segs[idx][0].layer for idx in component if segs[idx][0].layer]
 
         arc_infos.append({
             "bbox": bbox,
             "segment_count": len(component),
             "axis_like_fraction": round(axis_like, 3),
             "angle_bin_count": len(angle_bins),
+            "endpoints": endpoints,
+            "component_path_indices": sorted(segs[idx][0].path_index for idx in component),
+            "layer": layers[0] if layers else None,
         })
 
     return arc_infos
@@ -339,155 +364,401 @@ def _bboxes_overlap(a: BBox, b: BBox) -> bool:
     return a[0] < b[2] and a[2] > b[0] and a[1] < b[3] and a[3] > b[1]
 
 
+def _bbox_union(a: BBox, b: BBox) -> BBox:
+    return (min(a[0], b[0]), min(a[1], b[1]), max(a[2], b[2]), max(a[3], b[3]))
+
+
 # ---------------------------------------------------------------------------
 # Door detection
 # ---------------------------------------------------------------------------
 
-def detect_doors(paths: list[PathPrimitive], text_spans: list[TextSpan]) -> list[Candidate]:
-    door_keywords = ["door", "a-door"]
-    arc_paths  = [p for p in paths if _is_arc_like(p)]
-    leaf_paths = [p for p in paths if _is_door_leaf(p)]
+@dataclass
+class _DoorSwing:
+    source: str
+    bbox: BBox
+    radius: float
+    pairing_points: list[tuple[float, float]]
+    component_path_indices: list[int]
+    layer: str | None
+    layer_hint: bool
+    evidence: dict
+
+
+@dataclass
+class _DoorLeaf:
+    source: str
+    bbox: BBox
+    length: float
+    corners: list[tuple[float, float]]
+    component_path_indices: list[int]
+    layer: str | None
+    layer_hint: bool
+    evidence: dict
+
+
+def _layer_hint_from_layer(layer: str | None, keywords: list[str]) -> bool:
+    tokens = _layer_tokens(layer)
+    return bool(tokens and any(kw in tokens for kw in keywords))
+
+
+def _collect_door_swings(paths: list[PathPrimitive]) -> list[_DoorSwing]:
+    arc_paths = [p for p in paths if _is_arc_like(p)]
     line_paths = [p for p in paths if p.item_type == "l"]
-    polyline_arcs = _detect_polyline_arc_bboxes(line_paths)
+    swings: list[_DoorSwing] = []
 
-    candidates: list[Candidate] = []
-    cand_idx = 0
-
-    def _score_swing(bbox: BBox, size: float) -> tuple[bool, float | None]:
-        """Find a swing line near the corners of the given bbox."""
-        corners = _arc_corners(bbox)
-        for lp in line_paths:
-            ok, p1, p2 = _is_line_path(lp)
-            if not ok:
-                continue
-            if not (DOOR_MIN_SIZE_PX <= _line_length(p1, p2) <= DOOR_MAX_SIZE_PX * 1.5):
-                continue
-            for corner in corners:
-                d = min(_distance(corner, p1), _distance(corner, p2))
-                if d <= DOOR_SWING_LINE_DIST_PX:
-                    return True, d
-        return False, None
-
-    # --- Arc-based detection (swing arc + optional leaf line) ---
     for arc in arc_paths:
-        arc_size = max(_bbox_width(arc.bbox), _bbox_height(arc.bbox))
-        swing_found, swing_dist = _score_swing(arc.bbox, arc_size)
-        nearby_label = _find_nearby_label(arc.bbox, text_spans, DOOR_LABEL_SEARCH_RADIUS_PX, DOOR_LABEL_PATTERN)
-        layer_hint  = _layer_hint(arc, door_keywords)
-        layer_prior = _layer_strong_prior(arc, door_keywords)
-
-        confidence = 0.50
-        if swing_found:
-            confidence += 0.20
-        if nearby_label:
-            confidence += 0.20
-        confidence += layer_prior
-        if layer_hint and layer_prior == 0.0:
-            confidence += 0.10
-        confidence = min(confidence, 0.95)
-
-        if confidence < DOOR_MIN_CONFIDENCE:
-            continue
-
-        candidates.append(Candidate(
-            candidate_id=f"door_{cand_idx:04d}",
-            entity_type="door",
+        radius = max(_bbox_width(arc.bbox), _bbox_height(arc.bbox))
+        layer_hint = _layer_hint(arc, DOOR_LAYER_KEYWORDS)
+        swings.append(_DoorSwing(
+            source="curve_arc",
             bbox=arc.bbox,
-            confidence=round(confidence, 3),
+            radius=radius,
+            pairing_points=_arc_corners(arc.bbox),
+            component_path_indices=[arc.path_index],
+            layer=arc.layer,
+            layer_hint=layer_hint,
             evidence={
-                "method": "arc",
+                "arc_source": "curve_arc",
                 "arc_bbox_aspect": round(_bbox_width(arc.bbox) / max(_bbox_height(arc.bbox), 1e-6), 3),
-                "arc_size_px": round(arc_size, 1),
-                "swing_line_found": swing_found,
-                "swing_line_dist_px": round(swing_dist, 2) if swing_dist else None,
-                "nearby_label": nearby_label,
+                "arc_size_px": round(radius, 1),
                 "layer": arc.layer,
                 "layer_hint": layer_hint,
             },
         ))
-        cand_idx += 1
 
-    # --- Polyline arc detection (door swing arc flattened into tiny lines) ---
     arc_bboxes = [a.bbox for a in arc_paths]
-    for arc_info in polyline_arcs:
+    for arc_info in _detect_polyline_arc_bboxes(line_paths):
         bbox = arc_info["bbox"]
         if any(_bboxes_overlap(bbox, _bbox_expanded(ab, DOOR_SWING_LINE_DIST_PX)) for ab in arc_bboxes):
             continue
 
-        nearby_label = _find_nearby_label(bbox, text_spans, DOOR_LABEL_SEARCH_RADIUS_PX, DOOR_LABEL_PATTERN)
+        radius = max(_bbox_width(bbox), _bbox_height(bbox))
+        layer = arc_info.get("layer")
+        layer_hint = _layer_hint_from_layer(layer, DOOR_LAYER_KEYWORDS)
+        swings.append(_DoorSwing(
+            source="polyline_arc",
+            bbox=bbox,
+            radius=radius,
+            pairing_points=list(arc_info["endpoints"]),
+            component_path_indices=list(arc_info["component_path_indices"]),
+            layer=layer,
+            layer_hint=layer_hint,
+            evidence={
+                "arc_source": "polyline_arc",
+                "segment_count": arc_info["segment_count"],
+                "axis_like_fraction": arc_info["axis_like_fraction"],
+                "angle_bin_count": arc_info["angle_bin_count"],
+                "layer": layer,
+                "layer_hint": layer_hint,
+            },
+        ))
 
-        confidence = 0.55
+    return swings
+
+
+def _snap_key(point: tuple[float, float], tol: float) -> tuple[int, int]:
+    return (round(point[0] / tol), round(point[1] / tol))
+
+
+def _collect_linework_door_leaves(line_paths: list[PathPrimitive]) -> list[_DoorLeaf]:
+    segs: list[tuple[PathPrimitive, tuple[float, float], tuple[float, float]]] = []
+    for path in line_paths:
+        ok, p1, p2 = _is_line_path(path)
+        if ok and _line_length(p1, p2) > 1.0:
+            segs.append((path, p1, p2))
+
+    endpoint_buckets: dict[tuple[int, int], list[int]] = defaultdict(list)
+    for idx, (_, p1, p2) in enumerate(segs):
+        endpoint_buckets[_snap_key(p1, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)].append(idx)
+        endpoint_buckets[_snap_key(p2, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)].append(idx)
+
+    adjacency: list[set[int]] = [set() for _ in segs]
+    for ids in endpoint_buckets.values():
+        if len(ids) > 8:
+            continue
+        for idx in ids:
+            adjacency[idx].update(other for other in ids if other != idx)
+
+    seen: set[int] = set()
+    leaves: list[_DoorLeaf] = []
+    for start_idx in range(len(segs)):
+        if start_idx in seen:
+            continue
+        stack = [start_idx]
+        seen.add(start_idx)
+        component: list[int] = []
+        while stack:
+            idx = stack.pop()
+            component.append(idx)
+            for other in adjacency[idx]:
+                if other not in seen:
+                    seen.add(other)
+                    stack.append(other)
+
+        if not (DOOR_LINEWORK_LEAF_MIN_SEGMENTS <= len(component) <= DOOR_LINEWORK_LEAF_MAX_SEGMENTS):
+            continue
+
+        degrees: dict[tuple[int, int], int] = defaultdict(int)
+        points: list[tuple[float, float]] = []
+        for idx in component:
+            _, p1, p2 = segs[idx]
+            points.extend([p1, p2])
+            degrees[_snap_key(p1, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)] += 1
+            degrees[_snap_key(p2, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)] += 1
+
+        if any(degree > 2 for degree in degrees.values()):
+            continue
+        if not degrees or any(degree != 2 for degree in degrees.values()):
+            continue
+
+        xs = [pt[0] for pt in points]
+        ys = [pt[1] for pt in points]
+        bbox: BBox = (min(xs), min(ys), max(xs), max(ys))
+        w = _bbox_width(bbox)
+        h = _bbox_height(bbox)
+        long_side = max(w, h)
+        short_side = min(w, h)
+        if short_side < 1e-6:
+            continue
+        if not (
+            long_side / short_side >= DOOR_LEAF_ASPECT_MIN
+            and DOOR_MIN_SIZE_PX <= long_side <= DOOR_MAX_SIZE_PX
+        ):
+            continue
+
+        layers = [segs[idx][0].layer for idx in component if segs[idx][0].layer]
+        layer = layers[0] if layers else None
+        layer_hint = _layer_hint_from_layer(layer, DOOR_LAYER_KEYWORDS)
+        component_path_indices = sorted(segs[idx][0].path_index for idx in component)
+        leaves.append(_DoorLeaf(
+            source="linework_rect",
+            bbox=bbox,
+            length=long_side,
+            corners=_arc_corners(bbox),
+            component_path_indices=component_path_indices,
+            layer=layer,
+            layer_hint=layer_hint,
+            evidence={
+                "leaf_source": "linework_rect",
+                "leaf_size_px": round(long_side, 1),
+                "leaf_segment_count": len(component),
+                "layer": layer,
+                "layer_hint": layer_hint,
+            },
+        ))
+
+    return leaves
+
+
+def _collect_door_leaves(paths: list[PathPrimitive]) -> list[_DoorLeaf]:
+    leaves: list[_DoorLeaf] = []
+    for leaf in (p for p in paths if _is_door_leaf(p)):
+        w = _bbox_width(leaf.bbox)
+        h = _bbox_height(leaf.bbox)
+        long_side = max(w, h)
+        layer_hint = _layer_hint(leaf, DOOR_LAYER_KEYWORDS)
+        leaves.append(_DoorLeaf(
+            source=leaf.item_type,
+            bbox=leaf.bbox,
+            length=long_side,
+            corners=_arc_corners(leaf.bbox),
+            component_path_indices=[leaf.path_index],
+            layer=leaf.layer,
+            layer_hint=layer_hint,
+            evidence={
+                "leaf_source": leaf.item_type,
+                "leaf_size_px": round(long_side, 1),
+                "layer": leaf.layer,
+                "layer_hint": layer_hint,
+            },
+        ))
+
+    line_paths = [p for p in paths if p.item_type == "l"]
+    leaves.extend(_collect_linework_door_leaves(line_paths))
+    return leaves
+
+
+def _nearest_pair_distance(
+    a_points: list[tuple[float, float]],
+    b_points: list[tuple[float, float]],
+) -> float:
+    if not a_points or not b_points:
+        return float("inf")
+    return min(_distance(a, b) for a in a_points for b in b_points)
+
+
+def _door_fallback_candidate(
+    candidate_id: str,
+    method: str,
+    bbox: BBox,
+    nearby_label: str | None,
+    layer: str | None,
+    layer_hint: bool,
+    evidence: dict,
+) -> Candidate:
+    merged_evidence = dict(evidence)
+    merged_evidence.update({
+        "method": method,
+        "nearby_label": nearby_label,
+        "layer": layer,
+        "layer_hint": layer_hint,
+    })
+    return Candidate(
+        candidate_id=candidate_id,
+        entity_type="door",
+        bbox=bbox,
+        confidence=DOOR_FALLBACK_CONFIDENCE,
+        evidence=merged_evidence,
+    )
+
+
+def _component_indices(candidate: Candidate) -> set[int]:
+    raw = candidate.evidence.get("component_path_indices")
+    if not isinstance(raw, list):
+        return set()
+    out: set[int] = set()
+    for item in raw:
+        if isinstance(item, int):
+            out.add(item)
+    return out
+
+
+def _dedupe_door_components(candidates: list[Candidate]) -> list[Candidate]:
+    """Prefer the strongest door when two candidates use the same primitives."""
+    if not candidates:
+        return candidates
+
+    non_doors = [c for c in candidates if c.entity_type != "door"]
+    door_candidates = [c for c in candidates if c.entity_type == "door"]
+    group = sorted(
+        door_candidates,
+        key=lambda c: (
+            c.confidence,
+            1 if c.evidence.get("method") == "door_assembly" else 0,
+            _bbox_area(c.bbox),
+        ),
+        reverse=True,
+    )
+    kept: list[Candidate] = []
+    used_components: set[int] = set()
+    for candidate in group:
+        components = _component_indices(candidate)
+        if components and components.intersection(used_components):
+            continue
+        kept.append(candidate)
+        used_components.update(components)
+
+    return non_doors + kept
+
+
+def _pair_door_assemblies(
+    swings: list[_DoorSwing],
+    leaves: list[_DoorLeaf],
+    text_spans: list[TextSpan],
+) -> list[Candidate]:
+    candidates: list[Candidate] = []
+    used_swings: set[int] = set()
+    used_leaves: set[int] = set()
+    cand_idx = 0
+
+    potential_pairs: list[tuple[float, float, int, int]] = []
+    for swing_idx, swing in enumerate(swings):
+        for leaf_idx, leaf in enumerate(leaves):
+            connection_dist = _nearest_pair_distance(swing.pairing_points, leaf.corners)
+            if connection_dist > DOOR_ASSEMBLY_CONNECT_TOL_PX:
+                continue
+            if swing.radius <= 1e-6:
+                continue
+            radius_ratio = abs(leaf.length - swing.radius) / swing.radius
+            if radius_ratio > DOOR_LEAF_RADIUS_RATIO_TOL:
+                continue
+            potential_pairs.append((connection_dist, radius_ratio, swing_idx, leaf_idx))
+
+    for connection_dist, radius_ratio, swing_idx, leaf_idx in sorted(potential_pairs):
+        if swing_idx in used_swings or leaf_idx in used_leaves:
+            continue
+        swing = swings[swing_idx]
+        leaf = leaves[leaf_idx]
+        bbox = _bbox_union(swing.bbox, leaf.bbox)
+        nearby_label = _find_nearby_label(bbox, text_spans, DOOR_LABEL_SEARCH_RADIUS_PX, DOOR_LABEL_PATTERN)
+        layer_hint = swing.layer_hint or leaf.layer_hint
+
+        confidence = 0.65
         if nearby_label:
             confidence += 0.20
-        confidence = min(confidence, 0.85)
+        if layer_hint:
+            confidence += 0.40
+        confidence = min(confidence, 0.95)
 
-        if confidence < DOOR_MIN_CONFIDENCE:
-            continue
+        component_path_indices = sorted(set(swing.component_path_indices + leaf.component_path_indices))
+        evidence = {
+            "method": "door_assembly",
+            "assembly_type": "single",
+            "arc_source": swing.source,
+            "arc_bbox": list(swing.bbox),
+            "leaf_bbox": list(leaf.bbox),
+            "connection_dist_px": round(connection_dist, 2),
+            "leaf_radius_ratio": round(radius_ratio, 3),
+            "component_path_indices": component_path_indices,
+            "nearby_label": nearby_label,
+            "layer": swing.layer or leaf.layer,
+            "layer_hint": layer_hint,
+        }
+        evidence.update({f"arc_{k}": v for k, v in swing.evidence.items() if k not in evidence})
+        evidence.update({f"leaf_{k}": v for k, v in leaf.evidence.items() if k not in evidence})
 
         candidates.append(Candidate(
             candidate_id=f"door_{cand_idx:04d}",
             entity_type="door",
             bbox=bbox,
             confidence=round(confidence, 3),
-            evidence={
-                "method": "polyline_arc",
-                "segment_count": arc_info["segment_count"],
-                "axis_like_fraction": arc_info["axis_like_fraction"],
-                "angle_bin_count": arc_info["angle_bin_count"],
-                "nearby_label": nearby_label,
-                "layer": None,
-                "layer_hint": False,
-            },
+            evidence=evidence,
+        ))
+        cand_idx += 1
+        used_swings.add(swing_idx)
+        used_leaves.add(leaf_idx)
+
+    for swing_idx, swing in enumerate(swings):
+        if swing_idx in used_swings:
+            continue
+        nearby_label = _find_nearby_label(swing.bbox, text_spans, DOOR_LABEL_SEARCH_RADIUS_PX, DOOR_LABEL_PATTERN)
+        evidence = dict(swing.evidence)
+        evidence["component_path_indices"] = list(swing.component_path_indices)
+        candidates.append(_door_fallback_candidate(
+            f"door_{cand_idx:04d}",
+            "arc_fallback",
+            swing.bbox,
+            nearby_label,
+            swing.layer,
+            swing.layer_hint,
+            evidence,
         ))
         cand_idx += 1
 
-    # --- Leaf-based detection (re/qu door panel + nearby swing line or label) ---
-    arc_bboxes = arc_bboxes + [c.bbox for c in candidates if c.evidence.get("method") == "polyline_arc"]
-    for leaf in leaf_paths:
-        leaf_size = max(_bbox_width(leaf.bbox), _bbox_height(leaf.bbox))
-
-        # Skip if this leaf is already covered by an arc candidate (arc bbox overlaps)
-        if any(_bboxes_overlap(leaf.bbox, _bbox_expanded(ab, DOOR_SWING_LINE_DIST_PX)) for ab in arc_bboxes):
+    for leaf_idx, leaf in enumerate(leaves):
+        if leaf_idx in used_leaves:
             continue
-
-        swing_found, swing_dist = _score_swing(leaf.bbox, leaf_size)
         nearby_label = _find_nearby_label(leaf.bbox, text_spans, DOOR_LABEL_SEARCH_RADIUS_PX, DOOR_LABEL_PATTERN)
-        layer_hint  = _layer_hint(leaf, door_keywords)
-        layer_prior = _layer_strong_prior(leaf, door_keywords)
-
-        # Leaf alone is low confidence; requires at least swing or label or layer
-        confidence = 0.35
-        if swing_found:
-            confidence += 0.25
-        if nearby_label:
-            confidence += 0.20
-        confidence += layer_prior
-        if layer_hint and layer_prior == 0.0:
-            confidence += 0.10
-        confidence = min(confidence, 0.90)
-
-        if confidence < DOOR_MIN_CONFIDENCE:
-            continue
-
-        candidates.append(Candidate(
-            candidate_id=f"door_{cand_idx:04d}",
-            entity_type="door",
-            bbox=leaf.bbox,
-            confidence=round(confidence, 3),
-            evidence={
-                "method": "leaf_rect",
-                "leaf_type": leaf.item_type,
-                "leaf_size_px": round(leaf_size, 1),
-                "swing_line_found": swing_found,
-                "swing_line_dist_px": round(swing_dist, 2) if swing_dist else None,
-                "nearby_label": nearby_label,
-                "layer": leaf.layer,
-                "layer_hint": layer_hint,
-            },
+        evidence = dict(leaf.evidence)
+        evidence["component_path_indices"] = list(leaf.component_path_indices)
+        candidates.append(_door_fallback_candidate(
+            f"door_{cand_idx:04d}",
+            "leaf_fallback",
+            leaf.bbox,
+            nearby_label,
+            leaf.layer,
+            leaf.layer_hint,
+            evidence,
         ))
         cand_idx += 1
 
-    return candidates
+    return _dedupe_door_components(candidates)
+
+
+def detect_doors(paths: list[PathPrimitive], text_spans: list[TextSpan]) -> list[Candidate]:
+    swings = _collect_door_swings(paths)
+    leaves = _collect_door_leaves(paths)
+    return _pair_door_assemblies(swings, leaves, text_spans)
 
 
 # ---------------------------------------------------------------------------
@@ -1012,6 +1283,7 @@ def detect_schedules(
 
 CROSS_WALL_EXPAND_PX  = 20.0   # expand wall bbox when checking containment
 CROSS_NO_WALL_PENALTY = 0.08   # door/window has no wall nearby → penalty
+CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY = 0.04
 # No in-wall boost: wall and window candidates share the same raw linework,
 # so overlap is structural correlation, not independent evidence.
 
@@ -1041,7 +1313,12 @@ def _cross_validate(
             continue
 
         in_wall = any(_bboxes_overlap(c.bbox, wb) for wb in wall_bboxes)
-        delta = 0.0 if in_wall else -CROSS_NO_WALL_PENALTY
+        penalty = (
+            CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY
+            if c.entity_type == "door" and c.evidence.get("method") == "door_assembly"
+            else CROSS_NO_WALL_PENALTY
+        )
+        delta = 0.0 if in_wall else -penalty
         new_conf = round(min(max(c.confidence + delta, 0.0), 0.95), 3)
 
         new_evidence = dict(c.evidence)
@@ -1123,6 +1400,8 @@ def _suppress(candidates: list[Candidate]) -> list[Candidate]:
     gap is small (≤ NMS_PROJ_PERP_MAX_PX), preventing two parallel walls at
     different rows/columns from collapsing into one.
     """
+    candidates = _dedupe_door_components(candidates)
+
     by_type: dict[str, list[Candidate]] = {}
     for c in candidates:
         by_type.setdefault(c.entity_type, []).append(c)
