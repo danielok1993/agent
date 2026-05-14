@@ -36,72 +36,73 @@ def _color_tuple(c) -> Optional[tuple[float, float, float]]:
 
 
 def extract_paths(page: fitz.Page, scale: float = SCALE) -> list[PathPrimitive]:
+    """Explode each drawing into one PathPrimitive per atomic item (l/c/re/qu).
+
+    PyMuPDF groups items that share graphical properties into a single drawing
+    dict. Bundling them into one PathPrimitive makes points[0]/points[-1]
+    meaningless for multi-segment paths, breaking all geometric heuristics.
+    Each item becomes its own primitive so angle, length, and bbox are exact.
+    """
     paths = []
-    drawings = page.get_drawings()
-    for i, d in enumerate(drawings):
+    prim_idx = 0
+    for d in page.get_drawings():
         items = d.get("items", [])
         if not items:
             continue
 
-        all_points: list[tuple[float, float]] = []
-        types_seen: set[str] = set()
+        color = _color_tuple(d.get("color"))
+        fill = _color_tuple(d.get("fill"))
+        stroke_width = float(d.get("width", 0) or 0) * scale
+        dashes = str(d.get("dashes", "") or "")
+        layer = d.get("layer")
 
         for item in items:
             kind = item[0]
-            types_seen.add(kind)
+            points: list[tuple[float, float]] = []
+
             if kind == "l":
-                all_points.append(normalize_point(item[1], scale))
-                all_points.append(normalize_point(item[2], scale))
+                points = [normalize_point(item[1], scale), normalize_point(item[2], scale)]
             elif kind == "c":
-                for pt in item[1:]:
-                    all_points.append(normalize_point(pt, scale))
+                points = [normalize_point(pt, scale) for pt in item[1:]]
             elif kind == "re":
                 r = item[1]
-                all_points.append(normalize_point((r.x0, r.y0), scale))
-                all_points.append(normalize_point((r.x1, r.y1), scale))
+                points = [
+                    normalize_point((r.x0, r.y0), scale),
+                    normalize_point((r.x1, r.y0), scale),
+                    normalize_point((r.x1, r.y1), scale),
+                    normalize_point((r.x0, r.y1), scale),
+                ]
             elif kind == "qu":
-                for pt in item[1]:
-                    all_points.append(normalize_point(pt, scale))
+                points = [normalize_point(pt, scale) for pt in item[1]]
+            else:
+                continue
 
-        if not all_points:
-            continue
+            if not points:
+                continue
 
-        if len(types_seen) == 1:
-            item_type = next(iter(types_seen))
-        else:
-            item_type = "mixed"
+            xs = [p[0] for p in points]
+            ys = [p[1] for p in points]
+            bbox: BBox = (min(xs), min(ys), max(xs), max(ys))
 
-        raw_rect = d.get("rect")
-        if raw_rect:
-            bbox = normalize_bbox(raw_rect, scale)
-        else:
-            xs = [p[0] for p in all_points]
-            ys = [p[1] for p in all_points]
-            bbox = (min(xs), min(ys), max(xs), max(ys))
+            paths.append(PathPrimitive(
+                path_index=prim_idx,
+                item_type=kind,
+                bbox=bbox,
+                color=color,
+                fill=fill,
+                stroke_width=stroke_width,
+                dashes=dashes,
+                layer=layer,
+                points=points,
+            ))
+            prim_idx += 1
 
-        dashes = d.get("dashes", "")
-        if dashes is None:
-            dashes = ""
-
-        layer = d.get("layer")
-
-        paths.append(PathPrimitive(
-            path_index=i,
-            item_type=item_type,
-            bbox=bbox,
-            color=_color_tuple(d.get("color")),
-            fill=_color_tuple(d.get("fill")),
-            stroke_width=float(d.get("width", 0) or 0) * scale,
-            dashes=str(dashes),
-            layer=layer,
-            points=all_points,
-        ))
     return paths
 
 
 def extract_text(page: fitz.Page, scale: float = SCALE) -> list[TextSpan]:
     spans = []
-    raw = page.get_text("rawdict", flags=fitz.TEXT_PRESERVE_WHITESPACE)
+    raw = page.get_text("dict", flags=fitz.TEXT_PRESERVE_WHITESPACE)
     for block in raw.get("blocks", []):
         if block.get("type") != 0:
             continue

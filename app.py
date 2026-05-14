@@ -93,6 +93,7 @@ def cmd_extract(args: argparse.Namespace) -> None:
         page_indices=page_indices,
         out_parent=args.out,
         skip_gemini=args.no_gemini,
+        disable_walls=args.disable_walls,
     )
 
 
@@ -132,6 +133,12 @@ def main() -> None:
         action="store_true",
         dest="no_gemini",
         help="Skip Gemini calls (heuristics-only mode)",
+    )
+    p_extract.add_argument(
+        "--disable-walls",
+        action="store_true",
+        dest="disable_walls",
+        help="Skip wall detection (useful when tuning window/door results)",
     )
     p_extract.set_defaults(func=cmd_extract)
 

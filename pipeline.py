@@ -58,13 +58,38 @@ def _entity_to_dict(e: Entity) -> dict:
     }
 
 
+OFFLINE_MIN_CONFIDENCE: dict[str, float] = {
+    "door":     0.55,
+    "window":   0.50,
+    "wall":     0.55,
+    "label":    0.65,
+    "schedule": 0.50,
+}
+
+
 def merge_gemini_and_heuristics(
     candidates: list[Candidate],
     gemini_result: Optional[dict],
 ) -> tuple[list[Entity], list[dict]]:
     if not gemini_result:
-        entities = [
-            Entity(
+        # Offline path: apply stricter per-type acceptance thresholds.
+        # Without Gemini's verification, raw heuristic candidates have poor
+        # precision. Candidates below the threshold are saved as rejected for
+        # debugging but do not become final entities.
+        entities = []
+        rejected_list = []
+        for c in candidates:
+            threshold = OFFLINE_MIN_CONFIDENCE.get(c.entity_type, 0.50)
+            if c.confidence < threshold:
+                rejected_list.append({
+                    "candidate_id": c.candidate_id,
+                    "entity_type": c.entity_type,
+                    "bbox": list(c.bbox),
+                    "reason": f"offline confidence {c.confidence:.3f} < threshold {threshold}",
+                    "source": "offline_filter",
+                })
+                continue
+            entities.append(Entity(
                 entity_id=c.candidate_id,
                 entity_type=c.entity_type,
                 bbox=c.bbox,
@@ -72,10 +97,8 @@ def merge_gemini_and_heuristics(
                 source="heuristic",
                 label=c.evidence.get("nearby_label") or c.evidence.get("text"),
                 attributes={"heuristic_confidence": c.confidence},
-            )
-            for c in candidates
-        ]
-        return entities, []
+            ))
+        return entities, rejected_list
 
     candidate_map = {c.candidate_id: c for c in candidates}
     classified_ids: set[str] = set()
@@ -155,6 +178,7 @@ def collect_warnings(
     comparison: dict,
     gemini_skipped: bool,
     gemini_warnings: list[dict],
+    skip_gemini_flag: bool = False,
 ) -> list[dict]:
     warnings = []
     pn = page_data.page_number
@@ -181,7 +205,10 @@ def collect_warnings(
         warn("LOW_HEURISTIC_CONFIDENCE", "info", f"Page {pn}: all candidates have confidence < 0.40")
 
     if gemini_skipped:
-        warn("RASTER_HEAVY_SKIPPED", "info", f"Page {pn}: raster-heavy with 0 candidates — Gemini skipped")
+        if skip_gemini_flag:
+            warn("GEMINI_SKIPPED_FLAG", "info", f"Page {pn}: Gemini skipped (--no-gemini flag)")
+        else:
+            warn("RASTER_HEAVY_SKIPPED", "info", f"Page {pn}: raster-heavy with 0 candidates — Gemini skipped")
 
     for any_img in page_data.images:
         if any_img.pixel_area > 0.80:
@@ -221,6 +248,7 @@ def run_extract(
     page_indices: list[int],
     out_parent: str = "outputs",
     skip_gemini: bool = False,
+    disable_walls: bool = False,
 ) -> str:
     path = Path(pdf_path)
     if not path.exists():
@@ -295,7 +323,7 @@ def run_extract(
 
             # 4. Heuristics
             step("heuristics")
-            candidates = run_heuristics(page_data, plumber_page.get("tables", []))
+            candidates = run_heuristics(page_data, plumber_page.get("tables", []), disable_walls=disable_walls)
             total_candidates += len(candidates)
             write_json(
                 str(Path(page_dir) / "candidates.json"),
@@ -397,7 +425,8 @@ def run_extract(
 
             page_warnings = collect_warnings(
                 page_data, candidates, gemini_result,
-                comparison, gemini_skipped, gemini_warnings
+                comparison, gemini_skipped, gemini_warnings,
+                skip_gemini_flag=skip_gemini,
             )
             for w in page_warnings:
                 w.setdefault("page_number", page_num)
