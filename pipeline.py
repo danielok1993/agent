@@ -234,6 +234,7 @@ def run_extract(
             gemini_client = gc.init_client()
         except EnvironmentError as e:
             console.print(f"[red]Error: {e}[/red]")
+            console.print("[dim]Tip: run 'gcloud auth application-default login' to authenticate[/dim]")
             raise
 
     doc = fitz.open(str(path))

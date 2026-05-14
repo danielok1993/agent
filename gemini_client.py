@@ -58,13 +58,26 @@ OUTPUT SCHEMA (respond with exactly this structure):
 
 
 def init_client() -> genai.Client:
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
+    project = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("GCLOUD_PROJECT")
+    if not project:
+        import subprocess
+        try:
+            result = subprocess.run(
+                ["gcloud", "config", "get-value", "project"],
+                capture_output=True, text=True, timeout=5,
+            )
+            project = result.stdout.strip() or None
+        except Exception:
+            pass
+    if not project:
         raise EnvironmentError(
-            "GEMINI_API_KEY environment variable is not set. "
-            "Export it before running: export GEMINI_API_KEY=your_key"
+            "No GCP project found. Set GOOGLE_CLOUD_PROJECT or run:\n"
+            "  gcloud config set project YOUR_PROJECT_ID\n"
+            "Then authenticate with:\n"
+            "  gcloud auth application-default login"
         )
-    return genai.Client(api_key=api_key)
+    location = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+    return genai.Client(vertexai=True, project=project, location=location)
 
 
 def should_skip_gemini(page_data: PageData, candidates: list[Candidate]) -> bool:
