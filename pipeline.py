@@ -67,6 +67,23 @@ OFFLINE_MIN_CONFIDENCE: dict[str, float] = {
 }
 
 
+# Door-only candidate-evidence keys carried through to Entity.attributes so
+# downstream consumers of final_entities.json see the entrance-door subtype
+# without having to cross-reference candidates.json.
+_DOOR_EVIDENCE_PASSTHROUGH = ("has_threshold", "door_subtype", "threshold_path_index", "assembly_type")
+
+
+def _door_attribute_overlay(candidate: Optional[Candidate]) -> dict:
+    """Selected door-evidence keys to merge into Entity.attributes. {} for None / non-doors."""
+    if candidate is None or candidate.entity_type != "door":
+        return {}
+    return {
+        k: candidate.evidence[k]
+        for k in _DOOR_EVIDENCE_PASSTHROUGH
+        if k in candidate.evidence
+    }
+
+
 def merge_gemini_and_heuristics(
     candidates: list[Candidate],
     gemini_result: Optional[dict],
@@ -96,7 +113,7 @@ def merge_gemini_and_heuristics(
                 confidence=c.confidence,
                 source="heuristic",
                 label=c.evidence.get("nearby_label") or c.evidence.get("text"),
-                attributes={"heuristic_confidence": c.confidence},
+                attributes={"heuristic_confidence": c.confidence, **_door_attribute_overlay(c)},
             ))
         return entities, rejected_list
 
@@ -152,6 +169,7 @@ def merge_gemini_and_heuristics(
                     "thickness_px": item.get("thickness_px"),
                     "rows": item.get("rows"),
                     "cols": item.get("cols"),
+                    **_door_attribute_overlay(base),
                 },
             ))
 
@@ -165,7 +183,7 @@ def merge_gemini_and_heuristics(
                 confidence=c.confidence,
                 source="heuristic",
                 label=c.evidence.get("nearby_label") or c.evidence.get("text"),
-                attributes={"heuristic_confidence": c.confidence},
+                attributes={"heuristic_confidence": c.confidence, **_door_attribute_overlay(c)},
             ))
 
     return entities, rejected_list

@@ -29,6 +29,19 @@ DOOR_FALLBACK_CONFIDENCE     = 0.35
 DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX = 3.0
 DOOR_LINEWORK_LEAF_MIN_SEGMENTS    = 4
 DOOR_LINEWORK_LEAF_MAX_SEGMENTS    = 8
+# Subgraph-fallback bound: components larger than the clean-loop ceiling but still
+# small enough to enumerate 4-cycles inside. Captures a leaf rectangle with a few
+# attached spurs (typically a threshold line and/or 1-2 wall stubs).
+DOOR_LINEWORK_LEAF_COMPONENT_MAX_SEGMENTS = 14
+DOOR_LEAF_CYCLE_PARALLEL_TOL_DEG          = 8.0   # opposite-side ∥ tolerance for thin-rectangle 4-cycle
+DOOR_LEAF_CYCLE_PERPENDICULAR_TOL_DEG     = 12.0  # adjacent-side ⟂ tolerance for thin-rectangle 4-cycle
+DOOR_THRESHOLD_ENDPOINT_TOL_PX            = 6.0   # threshold endpoint ↔ leaf long-edge corner snap tol
+DOOR_THRESHOLD_PARALLEL_TOL_DEG           = 8.0   # threshold direction ‖ leaf long axis
+DOOR_THRESHOLD_CONFIDENCE_BOOST           = 0.10  # confirmatory boost when an entrance threshold is found
+DOOR_POLYLINE_MAX_ANGLE_BINS              = 7     # quarter-circle spans ≤7 bins of 15°; rejects furniture/appliance curves
+DOOR_DOUBLE_LEAF_GAP_PX                  = 12.0  # max gap between leaf long-axis intervals to form a double door
+DOOR_DOUBLE_LEAF_OVERLAP_PX              =  5.0  # max overlap tolerated on leaf long-axis intervals
+DOOR_DOUBLE_LEAF_CENTER_TOL_PX           =  8.0  # max offset between leaf long-axis centerlines
 
 # ---------------------------------------------------------------------------
 # Window detection constants
@@ -96,6 +109,12 @@ def _line_length(p1: tuple[float, float], p2: tuple[float, float]) -> float:
 def _line_angle_deg(p1: tuple[float, float], p2: tuple[float, float]) -> float:
     dx, dy = p2[0] - p1[0], p2[1] - p1[1]
     return math.degrees(math.atan2(dy, dx)) % 180.0
+
+
+def _angle_diff_mod180(a: float, b: float) -> float:
+    """Smaller angular distance between two directions, both already mod 180°."""
+    d = abs(a - b) % 180.0
+    return min(d, 180.0 - d)
 
 
 def _bbox_width(bbox: BBox) -> float:
@@ -219,6 +238,9 @@ def _detect_polyline_arc_bboxes(line_paths: list[PathPrimitive]) -> list[dict]:
         if not ok:
             continue
         length = _line_length(p1, p2)
+        # This length cap also makes this detector immune to threshold/sill lines
+        # bridging a door opening — those are longer than a single flattened arc segment
+        # and never enter the polyline-arc adjacency graph.
         if 2.0 <= length <= DOOR_POLYLINE_MAX_SEG_PX:
             segs.append((path, p1, p2, length, _line_angle_deg(p1, p2)))
 
@@ -287,7 +309,7 @@ def _detect_polyline_arc_bboxes(line_paths: list[PathPrimitive]) -> list[dict]:
             continue
 
         angle_bins = {int(angle // 15.0) for angle in angles}
-        if len(angle_bins) < 4:
+        if not (4 <= len(angle_bins) <= DOOR_POLYLINE_MAX_ANGLE_BINS):
             continue
 
         degrees: dict[tuple[int, int], int] = defaultdict(int)
@@ -460,8 +482,190 @@ def _snap_key(point: tuple[float, float], tol: float) -> tuple[int, int]:
     return (round(point[0] / tol), round(point[1] / tol))
 
 
+_LinkSeg = tuple[PathPrimitive, tuple[float, float], tuple[float, float]]
+
+
+def _try_linework_leaf_clean_loop(
+    component: list[int], segs: list[_LinkSeg]
+) -> _DoorLeaf | None:
+    """Existing clean-closed-loop linework leaf validation, extracted as a helper.
+
+    Requires 4–8 segments, every junction degree-2 (true closed polygon), thin-rectangle
+    bbox. Returns the `_DoorLeaf` or None. Preserved verbatim so split-side rectangles
+    (a long edge drawn as 2 collinear segments → 5–8 perimeter primitives, still a
+    clean degree-2 loop) continue to be detected exactly as before.
+    """
+    if not (DOOR_LINEWORK_LEAF_MIN_SEGMENTS <= len(component) <= DOOR_LINEWORK_LEAF_MAX_SEGMENTS):
+        return None
+
+    degrees: dict[tuple[int, int], int] = defaultdict(int)
+    points: list[tuple[float, float]] = []
+    for idx in component:
+        _, p1, p2 = segs[idx]
+        points.extend([p1, p2])
+        degrees[_snap_key(p1, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)] += 1
+        degrees[_snap_key(p2, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)] += 1
+
+    if any(degree > 2 for degree in degrees.values()):
+        return None
+    if not degrees or any(degree != 2 for degree in degrees.values()):
+        return None
+
+    xs = [pt[0] for pt in points]
+    ys = [pt[1] for pt in points]
+    bbox: BBox = (min(xs), min(ys), max(xs), max(ys))
+    w = _bbox_width(bbox)
+    h = _bbox_height(bbox)
+    long_side = max(w, h)
+    short_side = min(w, h)
+    if short_side < 1e-6:
+        return None
+    if not (
+        long_side / short_side >= DOOR_LEAF_ASPECT_MIN
+        and DOOR_MIN_SIZE_PX <= long_side <= DOOR_MAX_SIZE_PX
+    ):
+        return None
+
+    layers = [segs[idx][0].layer for idx in component if segs[idx][0].layer]
+    layer = layers[0] if layers else None
+    layer_hint = _layer_hint_from_layer(layer, DOOR_LAYER_KEYWORDS)
+    component_path_indices = sorted(segs[idx][0].path_index for idx in component)
+    return _DoorLeaf(
+        source="linework_rect",
+        bbox=bbox,
+        length=long_side,
+        corners=_arc_corners(bbox),
+        component_path_indices=component_path_indices,
+        layer=layer,
+        layer_hint=layer_hint,
+        evidence={
+            "leaf_source": "linework_rect",
+            "leaf_size_px": round(long_side, 1),
+            "leaf_segment_count": len(component),
+            "layer": layer,
+            "layer_hint": layer_hint,
+        },
+    )
+
+
+def _find_thin_rectangle_cycle(
+    component_segs: list[_LinkSeg],
+) -> tuple[BBox, list[int]] | None:
+    """Find the best thin-rectangle 4-cycle inside a (possibly messy) component.
+
+    Fallback for door leaves whose connected component is no longer a clean closed
+    loop because a threshold/sill line or wall stub touches a leaf corner. The
+    rectangle is still present as a 4-cycle of segments inside the component; this
+    helper enumerates simple 4-cycles and ranks them by thin-rectangle goodness.
+
+    Tie-break uses bbox short-side (smaller wins): when a threshold attaches at two
+    leaf corners, both the true leaf cycle and a "3 leaf sides + threshold" cycle
+    pass every shape gate; the threshold-substituted cycle's bbox stretches to
+    enclose the threshold, so its bbox short-side is larger. Preferring the
+    tighter-fitting cycle keeps the leaf intact and leaves the threshold free for
+    Step-3 evidence detection.
+
+    Acknowledged limitation: cycles are enumerated on raw primitives, so a
+    split-side rectangle (≥5 perimeter primitives) attached to a threshold won't
+    be picked up here. Real PDFs rarely combine both; if it shows up, generalise
+    cycle enumeration to merge collinear-chained edges into virtual sides.
+    """
+    if not (DOOR_LINEWORK_LEAF_MIN_SEGMENTS <= len(component_segs) <= DOOR_LINEWORK_LEAF_COMPONENT_MAX_SEGMENTS):
+        return None
+
+    edge_data: list[tuple[tuple[int, int], tuple[int, int], float, float]] = []
+    nodes: dict[tuple[int, int], list[tuple[tuple[int, int], int]]] = defaultdict(list)
+    for i, (_, p1, p2) in enumerate(component_segs):
+        k1 = _snap_key(p1, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)
+        k2 = _snap_key(p2, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)
+        edge_data.append((k1, k2, _line_length(p1, p2), _line_angle_deg(p1, p2)))
+        if k1 == k2:
+            continue  # degenerate edge — can't participate in a cycle
+        nodes[k1].append((k2, i))
+        nodes[k2].append((k1, i))
+
+    # Enumerate simple 4-cycles via bounded DFS. With ≤14 segments this is trivially cheap.
+    seen_cycles: set[frozenset[int]] = set()
+    cycles: list[tuple[int, int, int, int]] = []
+    for start_node in nodes:
+        for n1, e0 in nodes[start_node]:
+            for n2, e1 in nodes[n1]:
+                if e1 == e0 or n2 == start_node:
+                    continue
+                for n3, e2 in nodes[n2]:
+                    if e2 in (e0, e1) or n3 in (start_node, n1):
+                        continue
+                    for n4, e3 in nodes[n3]:
+                        if e3 in (e0, e1, e2) or n4 != start_node:
+                            continue
+                        key = frozenset((e0, e1, e2, e3))
+                        if key not in seen_cycles:
+                            seen_cycles.add(key)
+                            cycles.append((e0, e1, e2, e3))
+
+    if not cycles:
+        return None
+
+    best_rank: tuple[float, float, float] | None = None
+    best_bbox: BBox | None = None
+    best_indices: list[int] | None = None
+
+    for cycle in cycles:
+        lens = [edge_data[i][2] for i in cycle]
+        angles = [edge_data[i][3] for i in cycle]
+
+        xs: list[float] = []
+        ys: list[float] = []
+        for i in cycle:
+            _, p1, p2 = component_segs[i]
+            xs.extend([p1[0], p2[0]])
+            ys.extend([p1[1], p2[1]])
+        bbox: BBox = (min(xs), min(ys), max(xs), max(ys))
+        w = _bbox_width(bbox)
+        h = _bbox_height(bbox)
+        long_side_bbox = max(w, h)
+        short_side_bbox = min(w, h)
+        if short_side_bbox < 1e-6:
+            continue
+
+        # Bbox-shape gate.
+        if not (
+            long_side_bbox / short_side_bbox >= DOOR_LEAF_ASPECT_MIN
+            and DOOR_MIN_SIZE_PX <= long_side_bbox <= DOOR_MAX_SIZE_PX
+        ):
+            continue
+
+        # Side-length gate — actual thin-rectangle check, not just bbox aspect.
+        # Two shortest = short sides; two longest = long sides; long/short ≥ aspect.
+        srt = sorted(lens)
+        short_max = srt[1]
+        long_min = srt[2]
+        if short_max < 1e-6 or long_min / short_max < DOOR_LEAF_ASPECT_MIN:
+            continue
+
+        # Opposite-side parallelism (edges 0 ∥ 2, edges 1 ∥ 3 in cycle traversal order).
+        if _angle_diff_mod180(angles[0], angles[2]) > DOOR_LEAF_CYCLE_PARALLEL_TOL_DEG:
+            continue
+        if _angle_diff_mod180(angles[1], angles[3]) > DOOR_LEAF_CYCLE_PARALLEL_TOL_DEG:
+            continue
+        # Adjacent-side perpendicularity (edges 0 ⟂ 1).
+        if abs(_angle_diff_mod180(angles[0], angles[1]) - 90.0) > DOOR_LEAF_CYCLE_PERPENDICULAR_TOL_DEG:
+            continue
+
+        aspect = long_side_bbox / short_side_bbox
+        rank = (aspect, long_side_bbox, -short_side_bbox)
+        if best_rank is None or rank > best_rank:
+            best_rank = rank
+            best_bbox = bbox
+            best_indices = sorted({component_segs[i][0].path_index for i in cycle})
+
+    if best_bbox is None or best_indices is None:
+        return None
+    return best_bbox, best_indices
+
+
 def _collect_linework_door_leaves(line_paths: list[PathPrimitive]) -> list[_DoorLeaf]:
-    segs: list[tuple[PathPrimitive, tuple[float, float], tuple[float, float]]] = []
+    segs: list[_LinkSeg] = []
     for path in line_paths:
         ok, p1, p2 = _is_line_path(path)
         if ok and _line_length(p1, p2) > 1.0:
@@ -495,53 +699,47 @@ def _collect_linework_door_leaves(line_paths: list[PathPrimitive]) -> list[_Door
                     seen.add(other)
                     stack.append(other)
 
-        if not (DOOR_LINEWORK_LEAF_MIN_SEGMENTS <= len(component) <= DOOR_LINEWORK_LEAF_MAX_SEGMENTS):
+        # Path A: clean closed loop (4–8 segments, every junction degree exactly 2).
+        # Preserves the original behaviour, including split-side rectangles.
+        leaf = _try_linework_leaf_clean_loop(component, segs)
+        if leaf is not None:
+            leaves.append(leaf)
             continue
 
-        degrees: dict[tuple[int, int], int] = defaultdict(int)
-        points: list[tuple[float, float]] = []
-        for idx in component:
-            _, p1, p2 = segs[idx]
-            points.extend([p1, p2])
-            degrees[_snap_key(p1, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)] += 1
-            degrees[_snap_key(p2, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)] += 1
+        # Path B: subgraph fallback. The component may be a leaf rectangle with a
+        # threshold line and/or a few wall stubs attached (degree-3+ junctions, or
+        # 5–14 primitives). Search for a thin-rectangle 4-cycle inside it and emit
+        # only the rectangle's 4 primitives so the threshold remains free for the
+        # Step-3 threshold-line evidence detection.
+        if not (DOOR_LINEWORK_LEAF_MIN_SEGMENTS <= len(component) <= DOOR_LINEWORK_LEAF_COMPONENT_MAX_SEGMENTS):
+            continue
+        component_segs = [segs[i] for i in component]
+        result = _find_thin_rectangle_cycle(component_segs)
+        if result is None:
+            continue
+        bbox, path_indices = result
 
-        if any(degree > 2 for degree in degrees.values()):
-            continue
-        if not degrees or any(degree != 2 for degree in degrees.values()):
-            continue
-
-        xs = [pt[0] for pt in points]
-        ys = [pt[1] for pt in points]
-        bbox: BBox = (min(xs), min(ys), max(xs), max(ys))
-        w = _bbox_width(bbox)
-        h = _bbox_height(bbox)
-        long_side = max(w, h)
-        short_side = min(w, h)
-        if short_side < 1e-6:
-            continue
-        if not (
-            long_side / short_side >= DOOR_LEAF_ASPECT_MIN
-            and DOOR_MIN_SIZE_PX <= long_side <= DOOR_MAX_SIZE_PX
-        ):
-            continue
-
-        layers = [segs[idx][0].layer for idx in component if segs[idx][0].layer]
+        long_side = max(_bbox_width(bbox), _bbox_height(bbox))
+        cycle_path_index_set = set(path_indices)
+        layers = [
+            segs[i][0].layer for i in component
+            if segs[i][0].path_index in cycle_path_index_set and segs[i][0].layer
+        ]
         layer = layers[0] if layers else None
         layer_hint = _layer_hint_from_layer(layer, DOOR_LAYER_KEYWORDS)
-        component_path_indices = sorted(segs[idx][0].path_index for idx in component)
         leaves.append(_DoorLeaf(
-            source="linework_rect",
+            source="linework_rect_subgraph",
             bbox=bbox,
             length=long_side,
             corners=_arc_corners(bbox),
-            component_path_indices=component_path_indices,
+            component_path_indices=path_indices,
             layer=layer,
             layer_hint=layer_hint,
             evidence={
-                "leaf_source": "linework_rect",
+                "leaf_source": "linework_rect_subgraph",
                 "leaf_size_px": round(long_side, 1),
-                "leaf_segment_count": len(component),
+                "leaf_segment_count": 4,
+                "leaf_component_segment_count": len(component),
                 "layer": layer,
                 "layer_hint": layer_hint,
             },
@@ -651,15 +849,77 @@ def _dedupe_door_components(candidates: list[Candidate]) -> list[Candidate]:
     return non_doors + kept
 
 
+def _find_threshold_line(
+    line_paths: list[PathPrimitive],
+    leaf: _DoorLeaf,
+    assembly_bbox: BBox,
+    exclude_indices: set[int],
+) -> dict | None:
+    """Find an entrance-door threshold/sill line parallel to the leaf long axis.
+
+    The threshold runs from one wall jamb to the other (along the closed-door
+    direction at the floor), so its endpoints sit near the two corners of one of
+    the leaf's long edges. Matching against corner pairs (not long-axis midpoints)
+    keeps the fixed endpoint tolerance robust regardless of leaf thickness.
+
+    Returns ``{"path_index": int}`` on match, or ``None``.
+    """
+    x0, y0, x1, y1 = leaf.bbox
+    w = x1 - x0
+    h = y1 - y0
+    if w >= h:
+        long_axis_deg = 0.0
+        corner_pairs = [
+            ((x0, y0), (x1, y0)),  # one long edge
+            ((x0, y1), (x1, y1)),  # the other long edge
+        ]
+    else:
+        long_axis_deg = 90.0
+        corner_pairs = [
+            ((x0, y0), (x0, y1)),
+            ((x1, y0), (x1, y1)),
+        ]
+
+    search_zone = _bbox_expanded(assembly_bbox, DOOR_THRESHOLD_ENDPOINT_TOL_PX)
+    tol = DOOR_THRESHOLD_ENDPOINT_TOL_PX
+
+    best: tuple[float, dict] | None = None  # (summed_endpoint_dist, payload)
+    for path in line_paths:
+        if path.path_index in exclude_indices:
+            continue
+        if not _bboxes_overlap(path.bbox, search_zone):
+            continue
+        ok, p1, p2 = _is_line_path(path)
+        if not ok:
+            continue
+        if _angle_diff_mod180(_line_angle_deg(p1, p2), long_axis_deg) > DOOR_THRESHOLD_PARALLEL_TOL_DEG:
+            continue
+        for c_a, c_b in corner_pairs:
+            d_aa = _distance(p1, c_a) + _distance(p2, c_b)
+            d_ab = _distance(p1, c_b) + _distance(p2, c_a)
+            d_pair = min(d_aa, d_ab)
+            # Each individual endpoint must be within tolerance.
+            ok_aa = _distance(p1, c_a) <= tol and _distance(p2, c_b) <= tol
+            ok_ab = _distance(p1, c_b) <= tol and _distance(p2, c_a) <= tol
+            if not (ok_aa or ok_ab):
+                continue
+            payload = {"path_index": path.path_index}
+            if best is None or d_pair < best[0]:
+                best = (d_pair, payload)
+    return best[1] if best is not None else None
+
+
 def _pair_door_assemblies(
     swings: list[_DoorSwing],
     leaves: list[_DoorLeaf],
     text_spans: list[TextSpan],
+    paths: list[PathPrimitive],
 ) -> list[Candidate]:
     candidates: list[Candidate] = []
     used_swings: set[int] = set()
     used_leaves: set[int] = set()
     cand_idx = 0
+    line_paths = [p for p in paths if p.item_type == "l"]
 
     potential_pairs: list[tuple[float, float, int, int]] = []
     for swing_idx, swing in enumerate(swings):
@@ -683,18 +943,33 @@ def _pair_door_assemblies(
         nearby_label = _find_nearby_label(bbox, text_spans, DOOR_LABEL_SEARCH_RADIUS_PX, DOOR_LABEL_PATTERN)
         layer_hint = swing.layer_hint or leaf.layer_hint
 
+        # Base component indices first — _find_threshold_line needs them for exclusion
+        # so a leaf side or arc segment is never mistaken for the threshold.
+        component_path_indices = sorted(set(swing.component_path_indices + leaf.component_path_indices))
+
+        threshold = _find_threshold_line(
+            line_paths, leaf, bbox, set(component_path_indices)
+        )
+
         confidence = 0.65
         if nearby_label:
             confidence += 0.20
         if layer_hint:
             confidence += 0.40
+        if threshold is not None:
+            confidence += DOOR_THRESHOLD_CONFIDENCE_BOOST
         confidence = min(confidence, 0.95)
 
-        component_path_indices = sorted(set(swing.component_path_indices + leaf.component_path_indices))
+        if threshold is not None:
+            component_path_indices = sorted(
+                set(component_path_indices) | {threshold["path_index"]}
+            )
+
         evidence = {
             "method": "door_assembly",
             "assembly_type": "single",
             "arc_source": swing.source,
+            "leaf_source": leaf.source,
             "arc_bbox": list(swing.bbox),
             "leaf_bbox": list(leaf.bbox),
             "connection_dist_px": round(connection_dist, 2),
@@ -704,6 +979,10 @@ def _pair_door_assemblies(
             "layer": swing.layer or leaf.layer,
             "layer_hint": layer_hint,
         }
+        if threshold is not None:
+            evidence["has_threshold"] = True
+            evidence["door_subtype"] = "entrance"
+            evidence["threshold_path_index"] = threshold["path_index"]
         evidence.update({f"arc_{k}": v for k, v in swing.evidence.items() if k not in evidence})
         evidence.update({f"leaf_{k}": v for k, v in leaf.evidence.items() if k not in evidence})
 
@@ -755,10 +1034,176 @@ def _pair_door_assemblies(
     return _dedupe_door_components(candidates)
 
 
+def _safe_bbox(val: object) -> BBox | None:
+    """Parse an evidence bbox value defensively; return None on any invalid shape."""
+    if val is None or isinstance(val, (str, bytes)):
+        return None
+    try:
+        seq = list(val)
+    except TypeError:
+        return None
+    if len(seq) != 4:
+        return None
+    try:
+        return (float(seq[0]), float(seq[1]), float(seq[2]), float(seq[3]))
+    except (TypeError, ValueError):
+        return None
+
+
+def _merge_double_door_assemblies(candidates: list[Candidate]) -> list[Candidate]:
+    """Merge pairs of adjacent single-door assemblies into double-swing candidates.
+
+    Only fully assembled doors (method=door_assembly) participate. Pairing is
+    one-to-one — once a candidate joins a double door it cannot merge again.
+    """
+    import re as _re
+    assemblies = [
+        (i, c) for i, c in enumerate(candidates)
+        if c.entity_type == "door" and c.evidence.get("method") == "door_assembly"
+    ]
+
+    scored_pairs: list[tuple[float, int, int]] = []  # (abs_signed_gap, idx_i, idx_j)
+    for (pi, ci), (pj, cj) in combinations(assemblies, 2):
+        arc_i = _safe_bbox(ci.evidence.get("arc_bbox"))
+        arc_j = _safe_bbox(cj.evidence.get("arc_bbox"))
+        leaf_i = _safe_bbox(ci.evidence.get("leaf_bbox"))
+        leaf_j = _safe_bbox(cj.evidence.get("leaf_bbox"))
+        if arc_i is None or arc_j is None or leaf_i is None or leaf_j is None:
+            continue
+
+        ri = max(_bbox_width(arc_i), _bbox_height(arc_i))
+        rj = max(_bbox_width(arc_j), _bbox_height(arc_j))
+        if ri <= 0 or rj <= 0:
+            continue
+        if abs(ri - rj) / max(ri, rj) > DOOR_LEAF_RADIUS_RATIO_TOL:
+            continue
+
+        # Leaf orientation: horizontal when width >= height
+        wi, hi = _bbox_width(leaf_i), _bbox_height(leaf_i)
+        wj, hj = _bbox_width(leaf_j), _bbox_height(leaf_j)
+        horiz_i = wi >= hi
+        horiz_j = wj >= hj
+        if horiz_i != horiz_j:
+            continue
+
+        if horiz_i:
+            # Collinear centerlines along y
+            cy_i = (leaf_i[1] + leaf_i[3]) / 2
+            cy_j = (leaf_j[1] + leaf_j[3]) / 2
+            if abs(cy_i - cy_j) > DOOR_DOUBLE_LEAF_CENTER_TOL_PX:
+                continue
+            # Signed gap along x: positive = gap, negative = overlap
+            signed_gap = max(leaf_i[0], leaf_j[0]) - min(leaf_i[2], leaf_j[2])
+        else:
+            # Collinear centerlines along x
+            cx_i = (leaf_i[0] + leaf_i[2]) / 2
+            cx_j = (leaf_j[0] + leaf_j[2]) / 2
+            if abs(cx_i - cx_j) > DOOR_DOUBLE_LEAF_CENTER_TOL_PX:
+                continue
+            # Signed gap along y
+            signed_gap = max(leaf_i[1], leaf_j[1]) - min(leaf_i[3], leaf_j[3])
+
+        if not (-DOOR_DOUBLE_LEAF_OVERLAP_PX <= signed_gap <= DOOR_DOUBLE_LEAF_GAP_PX):
+            continue
+
+        scored_pairs.append((abs(signed_gap), pi, pj))
+
+    if not scored_pairs:
+        return candidates
+
+    # Greedy one-to-one match: tightest leaf fit wins; each candidate used at most once
+    scored_pairs.sort()
+    used: set[int] = set()
+    merges: list[tuple[int, int]] = []
+    for _, pi, pj in scored_pairs:
+        if pi in used or pj in used:
+            continue
+        merges.append((pi, pj))
+        used.add(pi)
+        used.add(pj)
+
+    if not merges:
+        return candidates
+
+    # Mint new IDs starting after the current maximum numeric door suffix
+    _id_re = _re.compile(r"door_(\d+)$")
+    max_num = -1
+    for c in candidates:
+        m = _id_re.match(c.candidate_id)
+        if m:
+            max_num = max(max_num, int(m.group(1)))
+    next_num = max_num + 1
+
+    by_idx = {i: c for i, c in enumerate(candidates)}
+    merged_candidates: list[Candidate] = []
+
+    for pi, pj in merges:
+        ci = by_idx[pi]
+        cj = by_idx[pj]
+
+        arc_i = _safe_bbox(ci.evidence.get("arc_bbox"))
+        arc_j = _safe_bbox(cj.evidence.get("arc_bbox"))
+        leaf_i = _safe_bbox(ci.evidence.get("leaf_bbox"))
+        leaf_j = _safe_bbox(cj.evidence.get("leaf_bbox"))
+
+        merged_bbox = _bbox_union(ci.bbox, cj.bbox)
+        confidence = min(0.95, max(ci.confidence, cj.confidence) + 0.05)
+
+        ci_indices = set(ci.evidence.get("component_path_indices") or [])
+        cj_indices = set(cj.evidence.get("component_path_indices") or [])
+
+        evidence: dict = {
+            "method": "door_assembly",
+            "assembly_type": "double_swing",
+            "component_path_indices": sorted(ci_indices | cj_indices),
+        }
+
+        # Entrance-door fields: only include when truthy / non-None
+        _ht = ci.evidence.get("has_threshold") or cj.evidence.get("has_threshold")
+        if _ht:
+            evidence["has_threshold"] = True
+        _ds = ci.evidence.get("door_subtype") or cj.evidence.get("door_subtype")
+        if _ds:
+            evidence["door_subtype"] = _ds
+        _tpi = (
+            ci.evidence["threshold_path_index"]
+            if ci.evidence.get("threshold_path_index") is not None
+            else cj.evidence.get("threshold_path_index")
+        )
+        if _tpi is not None:
+            evidence["threshold_path_index"] = _tpi
+
+        nearby_a = ci.evidence.get("nearby_label")
+        nearby_b = cj.evidence.get("nearby_label")
+        evidence["nearby_label"] = nearby_a or nearby_b
+        evidence["nearby_labels"] = [l for l in [nearby_a, nearby_b] if l]
+
+        evidence["layer_hint"] = ci.evidence.get("layer_hint") or cj.evidence.get("layer_hint")
+        evidence["arc_bbox_a"] = list(arc_i) if arc_i else None
+        evidence["arc_bbox_b"] = list(arc_j) if arc_j else None
+        evidence["leaf_bbox_a"] = list(leaf_i) if leaf_i else None
+        evidence["leaf_bbox_b"] = list(leaf_j) if leaf_j else None
+
+        merged_candidates.append(Candidate(
+            candidate_id=f"door_{next_num:04d}",
+            entity_type="door",
+            bbox=merged_bbox,
+            confidence=round(confidence, 3),
+            evidence=evidence,
+        ))
+        next_num += 1
+
+    # Preserve unmerged candidates in original order
+    result = [c for i, c in enumerate(candidates) if i not in used]
+    result.extend(merged_candidates)
+    return result
+
+
 def detect_doors(paths: list[PathPrimitive], text_spans: list[TextSpan]) -> list[Candidate]:
     swings = _collect_door_swings(paths)
     leaves = _collect_door_leaves(paths)
-    return _pair_door_assemblies(swings, leaves, text_spans)
+    candidates = _pair_door_assemblies(swings, leaves, text_spans, paths)
+    return _merge_double_door_assemblies(candidates)
 
 
 # ---------------------------------------------------------------------------
