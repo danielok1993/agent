@@ -247,6 +247,7 @@ class DebugTraceCollector:
             "candidate_id": None,
             "hu_eval": None,
             "pairing_attempts": [],
+            "anchored_line_check": None,
         }
         for pi in path_indices:
             if pi in self._primitives:
@@ -276,6 +277,32 @@ class DebugTraceCollector:
                 "result": result,
                 "fail_reason": fail_reason,
             })
+
+    def record_anchored_line_check(
+        self,
+        swing_id: str,
+        path_index: Optional[int],
+        length_px: Optional[float],
+        length_ratio: Optional[float],
+        endpoint_dist_px: Optional[float],
+        result: str,
+        candidate_id: Optional[str] = None,
+    ) -> None:
+        """Record the swing-anchored single-line leaf search outcome.
+
+        `result` is one of: "found", "no_candidate", "rejected_length",
+        "rejected_axis", "rejected_endpoint". One record per swing — the best
+        attempt; intermediate rejections aren't tracked individually.
+        """
+        if swing_id in self._swings:
+            self._swings[swing_id]["anchored_line_check"] = {
+                "path_index": path_index,
+                "length_px": round(length_px, 2) if length_px is not None else None,
+                "length_ratio": round(length_ratio, 4) if length_ratio is not None else None,
+                "endpoint_dist_px": round(endpoint_dist_px, 2) if endpoint_dist_px is not None else None,
+                "result": result,
+                "candidate_id": candidate_id,
+            }
 
     def record_hu_eval(
         self,

@@ -3,6 +3,8 @@ import unittest
 
 from heuristics import (
     CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY,
+    DOOR_ARC_FALLBACK_MAX,
+    DOOR_ASSEMBLY_LINE_LEAF_BASE,
     DOOR_FALLBACK_CONFIDENCE,
     DOOR_POLYLINE_MAX_ANGLE_BINS,
     DOOR_THRESHOLD_CONFIDENCE_BOOST,
@@ -297,6 +299,92 @@ class EntranceDoorTests(unittest.TestCase):
             len(detect_walls(entrance)), len(detect_walls(normal)),
             "threshold line should not raise additional wall candidates",
         )
+
+
+class SingleLineLeafTests(unittest.TestCase):
+    """Swing-anchored single-line leaf check (v3).
+
+    A door panel is often drawn as one line, not a closed rectangle. The
+    rect-leaf collectors miss those; the anchored-line search must find them
+    when one endpoint snaps to an arc endpoint and the line length matches
+    the arc radius.
+
+    Geometry: quarter arc with bbox (0,0)..(80,80) and polyline endpoints
+    (80,0) and (0,80). Lines longer than 18 px are filtered out of the
+    polyline-arc grouping, so an 80-px leaf line cannot pollute the swing's
+    own bbox and the swing is detected on the 8 arc segments alone.
+    """
+
+    def test_line_leaf_anchored_to_arc_endpoint_pairs(self) -> None:
+        leaf = line(100, (80.0, 0.0), (160.0, 0.0))  # length 80, along x, snapped to arc endpoint
+        paths = quarter_arc_lines(0) + [leaf]
+
+        doors = detect_doors(paths, [])
+
+        assemblies = [d for d in doors if d.evidence.get("method") == "door_assembly"]
+        self.assertEqual(1, len(assemblies), f"expected 1 assembly, got {[d.evidence.get('method') for d in doors]}")
+        door = assemblies[0]
+        self.assertEqual("single_line_leaf", door.evidence["assembly_type"])
+        self.assertEqual("anchored_line", door.evidence["leaf_source"])
+        self.assertEqual(100, door.evidence["leaf_line_path_index"])
+        self.assertIn(100, door.evidence["component_path_indices"])
+        # Base 0.60 + opening-clear boost 0.07 = 0.67
+        expected = round(DOOR_ASSEMBLY_LINE_LEAF_BASE + DOOR_V2_OPENING_CLEAR_BOOST, 3)
+        self.assertAlmostEqual(expected, door.confidence, places=3)
+
+    def test_line_leaf_too_short_falls_through_to_arc_fallback(self) -> None:
+        # Length 30 vs radius 80 → length_ratio 0.625, way over the 0.20 tol.
+        short_leaf = line(100, (80.0, 0.0), (110.0, 0.0))
+        paths = quarter_arc_lines(0) + [short_leaf]
+
+        doors = detect_doors(paths, [])
+
+        assemblies = [d for d in doors if d.evidence.get("method") == "door_assembly"]
+        self.assertEqual(0, len(assemblies))
+        fallbacks = [d for d in doors if d.evidence.get("method") == "arc_fallback"]
+        self.assertEqual(1, len(fallbacks))
+        self.assertLessEqual(fallbacks[0].confidence, DOOR_ARC_FALLBACK_MAX)
+
+    def test_line_leaf_wrong_axis_falls_through_to_arc_fallback(self) -> None:
+        # 45° line of length 80 from arc endpoint (80, 0) — fails the bbox-axis filter.
+        end_x = 80.0 + 80.0 * math.cos(math.pi / 4)
+        end_y = 80.0 * math.sin(math.pi / 4)
+        diagonal_leaf = line(100, (80.0, 0.0), (end_x, end_y))
+        paths = quarter_arc_lines(0) + [diagonal_leaf]
+
+        doors = detect_doors(paths, [])
+
+        assemblies = [d for d in doors if d.evidence.get("method") == "door_assembly"]
+        self.assertEqual(0, len(assemblies))
+        fallbacks = [d for d in doors if d.evidence.get("method") == "arc_fallback"]
+        self.assertEqual(1, len(fallbacks))
+        self.assertLessEqual(fallbacks[0].confidence, DOOR_ARC_FALLBACK_MAX)
+
+    def test_line_leaf_endpoint_too_far_falls_through_to_arc_fallback(self) -> None:
+        # Length 80, correct axis, but origin shifted 15 px away from any arc endpoint.
+        far_leaf = line(100, (95.0, 0.0), (175.0, 0.0))
+        paths = quarter_arc_lines(0) + [far_leaf]
+
+        doors = detect_doors(paths, [])
+
+        assemblies = [d for d in doors if d.evidence.get("method") == "door_assembly"]
+        self.assertEqual(0, len(assemblies))
+
+    def test_arc_fallback_capped_below_offline_threshold(self) -> None:
+        # Polyline arc with no leaf anywhere. Hu boost rescues confidence into the
+        # 0.55 band pre-cap; the new cap clamps it under OFFLINE_MIN_CONFIDENCE so
+        # arc-only candidates cannot promote to entities without Gemini.
+        doors = detect_doors(quarter_arc_lines(0), [])
+
+        fallbacks = [d for d in doors if d.evidence.get("method") == "arc_fallback"]
+        self.assertEqual(1, len(fallbacks))
+        self.assertLessEqual(fallbacks[0].confidence, DOOR_ARC_FALLBACK_MAX)
+
+    def test_arc_fallback_dropped_from_offline_entities(self) -> None:
+        # End-to-end: a capped arc-only candidate must not become a final Entity in offline mode.
+        doors = detect_doors(quarter_arc_lines(0), [])
+        entities, _ = merge_gemini_and_heuristics(doors, None)
+        self.assertEqual(0, len(entities))
 
 
 class DoorEvidencePropagationTests(unittest.TestCase):

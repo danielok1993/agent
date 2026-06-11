@@ -55,6 +55,20 @@ DOOR_V2_OPENING_CLEAR_BOOST       = 0.07  # confidence boost when verified-clear
 DOOR_V2_OPENING_OBSTRUCTED_PENALTY = 0.12  # confidence penalty when opening has crossing lines
 
 # ---------------------------------------------------------------------------
+# Single-line leaf detection (swing-anchored)
+# Many CAD drawings represent the door panel as a single line, not a closed
+# rectangle. The clean-loop / subgraph leaf collectors miss those entirely.
+# A swing-anchored pass searches around each unpaired arc for a single line
+# whose endpoint snaps to an arc endpoint and whose length matches the arc
+# radius — the architecturally correct "leaf at end of curve" condition.
+# ---------------------------------------------------------------------------
+DOOR_LEAF_LINE_ENDPOINT_TOL_PX = 5.0
+DOOR_LEAF_LINE_LENGTH_TOL      = 0.20
+DOOR_LEAF_LINE_AXIS_TOL_DEG    = 8.0
+DOOR_ASSEMBLY_LINE_LEAF_BASE   = 0.60   # one slot below the 0.65 rect-leaf base
+DOOR_ARC_FALLBACK_MAX          = 0.45   # cap so arc_fallback stays under OFFLINE_MIN_CONFIDENCE["door"] = 0.55
+
+# ---------------------------------------------------------------------------
 # Hu Moments constants (Step 4 of v2 spec)
 # Template derived from 4 confirmed door arcs in floor-plans.pdf page 1.
 # 6 moments only — moment 7 flips sign with arc reflection orientation.
@@ -1269,6 +1283,76 @@ def _find_threshold_line(
     return best[1] if best is not None else None
 
 
+def _find_anchored_leaf_line(
+    swing: _DoorSwing,
+    line_paths: list[PathPrimitive],
+    exclude_indices: set[int],
+) -> dict | None:
+    """Search for a single line that could be the door leaf for this arc swing.
+
+    Architecturally a door leaf is rooted at the hinge (the arc's pivot corner)
+    and extends out to the arc's other endpoint, with length ≈ arc radius. CAD
+    drawings often draw this leaf as one line, not a closed rectangle — the
+    rectangle-based collectors miss those entirely. This helper performs a
+    swing-local search anchored on the arc's actual endpoints.
+
+    Match criteria for a candidate line:
+      - length within DOOR_LEAF_LINE_LENGTH_TOL of swing.radius
+      - direction within DOOR_LEAF_LINE_AXIS_TOL_DEG of either bbox axis
+        (0° or 90° — closed-door orientation along the wall)
+      - one endpoint within DOOR_LEAF_LINE_ENDPOINT_TOL_PX of an arc endpoint
+
+    Returns the best match (minimizing length error + endpoint snap distance)
+    or ``None`` when nothing matches.
+    """
+    if not swing.arc_endpoints or len(swing.arc_endpoints) < 2:
+        return None
+    radius = swing.radius
+    if radius < 1e-6:
+        return None
+
+    best: dict | None = None
+    best_score = float("inf")
+    for path in line_paths:
+        if path.path_index in exclude_indices:
+            continue
+        ok, p1, p2 = _is_line_path(path)
+        if not ok:
+            continue
+        length = _line_length(p1, p2)
+        if length < 1e-6:
+            continue
+        length_ratio = abs(length - radius) / radius
+        if length_ratio > DOOR_LEAF_LINE_LENGTH_TOL:
+            continue
+        angle = _line_angle_deg(p1, p2)
+        if not (
+            _angle_diff_mod180(angle, 0.0) <= DOOR_LEAF_LINE_AXIS_TOL_DEG
+            or _angle_diff_mod180(angle, 90.0) <= DOOR_LEAF_LINE_AXIS_TOL_DEG
+        ):
+            continue
+        for arc_end in swing.arc_endpoints:
+            for line_end_idx, line_end in enumerate((p1, p2)):
+                d = _distance(arc_end, line_end)
+                if d > DOOR_LEAF_LINE_ENDPOINT_TOL_PX:
+                    continue
+                score = length_ratio + d / radius
+                if score < best_score:
+                    best_score = score
+                    best = {
+                        "path_index": path.path_index,
+                        "length": length,
+                        "length_ratio": length_ratio,
+                        "endpoint_dist": d,
+                        "anchor_arc_endpoint": arc_end,
+                        "anchor_line_endpoint": line_end,
+                        "p1": p1,
+                        "p2": p2,
+                        "layer": path.layer,
+                    }
+    return best
+
+
 def _pair_door_assemblies(
     swings: list[_DoorSwing],
     leaves: list[_DoorLeaf],
@@ -1413,6 +1497,117 @@ def _pair_door_assemblies(
         used_swings.add(swing_idx)
         used_leaves.add(leaf_idx)
 
+    # v3: swing-anchored single-line leaf check.
+    # For arcs that didn't pair with any rectangle leaf, look for a single line
+    # whose endpoint snaps to an arc endpoint and whose length matches the arc
+    # radius. This is the architecturally correct "leaf at end of curve" check
+    # — and it's the common case in CAD output where the door panel is one line.
+    for swing_idx, swing in enumerate(swings):
+        if swing_idx in used_swings:
+            continue
+        exclude = set(swing.component_path_indices)
+        line_leaf = _find_anchored_leaf_line(swing, line_paths, exclude)
+        if line_leaf is None:
+            continue
+
+        lp1 = line_leaf["p1"]
+        lp2 = line_leaf["p2"]
+        lx0, ly0 = min(lp1[0], lp2[0]), min(lp1[1], lp2[1])
+        lx1, ly1 = max(lp1[0], lp2[0]), max(lp1[1], lp2[1])
+        if (lx1 - lx0) >= (ly1 - ly0):
+            leaf_bbox: BBox = (lx0, ly0 - 0.5, lx1, ly1 + 0.5)
+        else:
+            leaf_bbox = (lx0 - 0.5, ly0, lx1 + 0.5, ly1)
+
+        bbox = _bbox_union(swing.bbox, leaf_bbox)
+        nearby_label = _find_nearby_label(
+            bbox, text_spans, DOOR_LABEL_SEARCH_RADIUS_PX, DOOR_LABEL_PATTERN,
+        )
+        layer_hint = swing.layer_hint or _layer_hint_from_layer(
+            line_leaf["layer"], DOOR_LAYER_KEYWORDS,
+        )
+
+        component_path_indices = sorted(
+            set(swing.component_path_indices) | {line_leaf["path_index"]}
+        )
+
+        confidence = DOOR_ASSEMBLY_LINE_LEAF_BASE
+        label_boost = 0.20 if nearby_label else 0.0
+        layer_boost = 0.40 if layer_hint else 0.0
+        confidence += label_boost + layer_boost
+        confidence = min(confidence, 0.95)
+
+        opening_check = "unknown"
+        if swing.arc_endpoints and len(swing.arc_endpoints) == 2:
+            opening_check = _check_opening_clear(
+                swing.arc_endpoints, line_paths, set(component_path_indices),
+            )
+        opening_boost = DOOR_V2_OPENING_CLEAR_BOOST if opening_check == "clear" else 0.0
+        opening_penalty = (
+            DOOR_V2_OPENING_OBSTRUCTED_PENALTY if opening_check == "obstructed" else 0.0
+        )
+        confidence += opening_boost - opening_penalty
+        confidence = round(min(max(confidence, 0.0), 0.95), 3)
+
+        candidate_id = f"door_{cand_idx:04d}"
+        evidence = {
+            "method": "door_assembly",
+            "assembly_type": "single_line_leaf",
+            "arc_source": swing.source,
+            "leaf_source": "anchored_line",
+            "arc_bbox": list(swing.bbox),
+            "leaf_bbox": list(leaf_bbox),
+            "leaf_line_path_index": line_leaf["path_index"],
+            "leaf_line_length_px": round(line_leaf["length"], 2),
+            "leaf_line_length_ratio": round(line_leaf["length_ratio"], 4),
+            "leaf_line_endpoint_dist_px": round(line_leaf["endpoint_dist"], 2),
+            "component_path_indices": component_path_indices,
+            "nearby_label": nearby_label,
+            "layer": swing.layer or line_leaf["layer"],
+            "layer_hint": layer_hint,
+            "opening_check": opening_check,
+        }
+        evidence.update(
+            {f"arc_{k}": v for k, v in swing.evidence.items() if k not in evidence}
+        )
+
+        candidates.append(Candidate(
+            candidate_id=candidate_id,
+            entity_type="door",
+            bbox=bbox,
+            confidence=confidence,
+            evidence=evidence,
+        ))
+        if collector and swing.debug_id:
+            total_before_cap = (
+                DOOR_ASSEMBLY_LINE_LEAF_BASE
+                + label_boost + layer_boost + opening_boost - opening_penalty
+            )
+            collector.record_anchored_line_check(
+                swing.debug_id, line_leaf["path_index"],
+                line_leaf["length"], line_leaf["length_ratio"],
+                line_leaf["endpoint_dist"], "found",
+                candidate_id=candidate_id,
+            )
+            collector.record_candidate(
+                candidate_id, "door_assembly", confidence,
+                {
+                    "base": DOOR_ASSEMBLY_LINE_LEAF_BASE,
+                    "label_boost": label_boost, "label_found": nearby_label,
+                    "layer_boost": layer_boost, "layer_hint": layer_hint,
+                    "opening_boost": opening_boost, "opening_penalty": opening_penalty,
+                    "opening_check": opening_check,
+                    "leaf_line_length_ratio": round(line_leaf["length_ratio"], 4),
+                    "leaf_line_endpoint_dist_px": round(line_leaf["endpoint_dist"], 2),
+                    "total_before_cap": round(total_before_cap, 4),
+                    "cap_applied": total_before_cap > 0.95,
+                    "total": confidence,
+                },
+                swing.debug_id, None,
+            )
+        cand_idx += 1
+        used_swings.add(swing_idx)
+
     for swing_idx, swing in enumerate(swings):
         if swing_idx in used_swings:
             continue
@@ -1440,7 +1635,10 @@ def _pair_door_assemblies(
             else:
                 hu_penalty = DOOR_HU_FAR_PENALTY
             arc_conf += hu_boost - hu_penalty
-            arc_conf = round(min(max(arc_conf, 0.0), 0.95), 3)
+            # Cap below OFFLINE_MIN_CONFIDENCE["door"] so arc-only candidates
+            # cannot promote without explicit Gemini corroboration. Shape match
+            # alone (Hu Moments) is informational, not promotion-determining.
+            arc_conf = round(min(max(arc_conf, 0.0), DOOR_ARC_FALLBACK_MAX), 3)
 
         candidate_id = f"door_{cand_idx:04d}"
         candidates.append(_door_fallback_candidate(
