@@ -95,6 +95,7 @@ def cmd_extract(args: argparse.Namespace) -> None:
         skip_gemini=args.no_gemini,
         disable_walls=args.disable_walls,
         disable_windows=args.disable_windows,
+        debug=args.debug,
     )
 
 
@@ -146,6 +147,12 @@ def main() -> None:
         action="store_true",
         dest="disable_windows",
         help="Skip window detection (useful when tuning wall/door results)",
+    )
+    p_extract.add_argument(
+        "--debug",
+        action="store_true",
+        dest="debug",
+        help="Write debug_trace.json per page with per-primitive detection trace",
     )
     p_extract.set_defaults(func=cmd_extract)
 

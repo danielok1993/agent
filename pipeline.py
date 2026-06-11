@@ -13,6 +13,8 @@ from plumber import (
     extract_plumber_page, build_pymupdf_counts, build_plumber_counts, compare_counts
 )
 from heuristics import run_heuristics
+from debug_trace import DebugTraceCollector
+from debug_renderer import generate_debug_viewer
 from renderer import render_page_png, draw_overlay
 import gemini_client as gc
 
@@ -268,6 +270,7 @@ def run_extract(
     skip_gemini: bool = False,
     disable_walls: bool = False,
     disable_windows: bool = False,
+    debug: bool = False,
 ) -> str:
     path = Path(pdf_path)
     if not path.exists():
@@ -342,12 +345,25 @@ def run_extract(
 
             # 4. Heuristics
             step("heuristics")
-            candidates = run_heuristics(page_data, plumber_page.get("tables", []), disable_walls=disable_walls, disable_windows=disable_windows)
+            collector = DebugTraceCollector(page_num) if debug else None
+            candidates = run_heuristics(
+                page_data, plumber_page.get("tables", []),
+                disable_walls=disable_walls, disable_windows=disable_windows,
+                collector=collector,
+            )
             total_candidates += len(candidates)
             write_json(
                 str(Path(page_dir) / "candidates.json"),
                 {"page_number": page_num, "candidates": [_candidate_to_dict(c) for c in candidates]},
             )
+            if collector is not None:
+                trace_path = str(Path(page_dir) / "debug_trace.json")
+                write_json(trace_path, collector.to_dict())
+                generate_debug_viewer(
+                    render_path,
+                    trace_path,
+                    str(Path(page_dir) / "debug_viewer.html"),
+                )
 
             # 5. Gemini
             step("gemini")

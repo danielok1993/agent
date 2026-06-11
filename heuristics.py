@@ -6,6 +6,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from itertools import combinations
 from models import PathPrimitive, TextSpan, Candidate, PageData, BBox
+from debug_trace import DebugTraceCollector
 
 try:
     import cv2 as _cv2
@@ -154,36 +155,59 @@ def _point_in_bbox(point: tuple[float, float], bbox: BBox) -> bool:
 
 DOOR_LEAF_ASPECT_MIN = 4.0   # door leaf is long and thin, not square
 
-def _is_arc_like(path: PathPrimitive) -> bool:
+def _is_arc_like(path: PathPrimitive, collector: DebugTraceCollector | None = None) -> bool:
     # "mixed" never appears after path explosion — each item gets its own kind.
     if path.item_type != "c":
+        if collector:
+            collector.record_arc_filter(path, False, "item_type_not_curve")
         return False
     w = _bbox_width(path.bbox)
     h = _bbox_height(path.bbox)
     if h < 1e-6:
+        if collector:
+            collector.record_arc_filter(path, False, "height_degenerate")
         return False
     aspect = w / h
     size = max(w, h)
-    return (
-        DOOR_BBOX_ASPECT_MIN <= aspect <= DOOR_BBOX_ASPECT_MAX
-        and DOOR_MIN_SIZE_PX <= size <= DOOR_MAX_SIZE_PX
-    )
+    if not (DOOR_BBOX_ASPECT_MIN <= aspect <= DOOR_BBOX_ASPECT_MAX):
+        if collector:
+            collector.record_arc_filter(path, False, "aspect_ratio", aspect_ratio=aspect, size_px=size)
+        return False
+    if not (DOOR_MIN_SIZE_PX <= size <= DOOR_MAX_SIZE_PX):
+        if collector:
+            collector.record_arc_filter(path, False, "size_out_of_range", aspect_ratio=aspect, size_px=size)
+        return False
+    if collector:
+        collector.record_arc_filter(path, True, None, aspect_ratio=aspect, size_px=size)
+    return True
 
 
-def _is_door_leaf(path: PathPrimitive) -> bool:
+def _is_door_leaf(path: PathPrimitive, collector: DebugTraceCollector | None = None) -> bool:
     """Return True for re/qu primitives shaped like a door leaf (long and thin)."""
     if path.item_type not in ("re", "qu"):
+        if collector:
+            collector.record_leaf_filter(path, False, "item_type_not_rect")
         return False
     w = _bbox_width(path.bbox)
     h = _bbox_height(path.bbox)
     long_side = max(w, h)
     short_side = min(w, h)
     if short_side < 1e-6:
+        if collector:
+            collector.record_leaf_filter(path, False, "short_side_degenerate")
         return False
-    return (
-        long_side / short_side >= DOOR_LEAF_ASPECT_MIN
-        and DOOR_MIN_SIZE_PX <= long_side <= DOOR_MAX_SIZE_PX
-    )
+    aspect = long_side / short_side
+    if aspect < DOOR_LEAF_ASPECT_MIN:
+        if collector:
+            collector.record_leaf_filter(path, False, "aspect_ratio", aspect_ratio=aspect, size_px=long_side)
+        return False
+    if not (DOOR_MIN_SIZE_PX <= long_side <= DOOR_MAX_SIZE_PX):
+        if collector:
+            collector.record_leaf_filter(path, False, "size_out_of_range", aspect_ratio=aspect, size_px=long_side)
+        return False
+    if collector:
+        collector.record_leaf_filter(path, True, None, aspect_ratio=aspect, size_px=long_side)
+    return True
 
 
 def _is_diagonal_hatch_angle(angle: float) -> bool:
@@ -352,7 +376,10 @@ def _estimate_arc_sweep_deg(
     return math.degrees(math.acos(cos_a))
 
 
-def _detect_polyline_arc_bboxes(line_paths: list[PathPrimitive]) -> list[dict]:
+def _detect_polyline_arc_bboxes(
+    line_paths: list[PathPrimitive],
+    collector: DebugTraceCollector | None = None,
+) -> list[dict]:
     """Detect door-swing arcs approximated by connected short line segments.
 
     Some CAD exports flatten arcs into many tiny line segments, so no PDF curve
@@ -372,6 +399,11 @@ def _detect_polyline_arc_bboxes(line_paths: list[PathPrimitive]) -> list[dict]:
         # and never enter the polyline-arc adjacency graph.
         if 2.0 <= length <= DOOR_POLYLINE_MAX_SEG_PX:
             segs.append((path, p1, p2, length, _line_angle_deg(p1, p2)))
+            if collector:
+                collector.record_polyline_length(path, length, True)
+        elif collector:
+            fail = "segment_too_short" if length < 2.0 else "segment_too_long"
+            collector.record_polyline_length(path, length, False, fail)
 
     if not segs:
         return []
@@ -413,7 +445,21 @@ def _detect_polyline_arc_bboxes(line_paths: list[PathPrimitive]) -> list[dict]:
                     seen.add(other)
                     stack.append(other)
 
-        if not (DOOR_POLYLINE_MIN_SEGMENTS <= len(component) <= DOOR_POLYLINE_MAX_SEGMENTS):
+        seg_count = len(component)
+        checks: dict = {
+            "segment_count": {
+                "value": seg_count,
+                "range": [DOOR_POLYLINE_MIN_SEGMENTS, DOOR_POLYLINE_MAX_SEGMENTS],
+                "passed": DOOR_POLYLINE_MIN_SEGMENTS <= seg_count <= DOOR_POLYLINE_MAX_SEGMENTS,
+            },
+            "bbox_aspect": None, "size_px": None, "axis_like_fraction": None,
+            "angle_bin_count": None, "endpoint_count": None, "overlaps_native_arc": None,
+        }
+        comp_path_indices = sorted(segs[i][0].path_index for i in component) if collector else []
+
+        if not (DOOR_POLYLINE_MIN_SEGMENTS <= seg_count <= DOOR_POLYLINE_MAX_SEGMENTS):
+            if collector:
+                collector.record_polyline_component(comp_path_indices, "rejected", "segment_count_out_of_range", checks)
             continue
 
         points = [pt for idx in component for pt in (segs[idx][1], segs[idx][2])]
@@ -423,10 +469,17 @@ def _detect_polyline_arc_bboxes(line_paths: list[PathPrimitive]) -> list[dict]:
         w = _bbox_width(bbox)
         h = _bbox_height(bbox)
         if h < 1e-6:
+            if collector:
+                collector.record_polyline_component(comp_path_indices, "rejected", "bbox_degenerate", checks)
             continue
         aspect = w / h
         size = max(w, h)
+        checks["bbox_aspect"] = {"value": round(aspect, 4), "range": [0.65, 1.45], "passed": 0.65 <= aspect <= 1.45}
+        checks["size_px"] = {"value": round(size, 2), "range": [DOOR_MIN_SIZE_PX, DOOR_MAX_SIZE_PX], "passed": DOOR_MIN_SIZE_PX <= size <= DOOR_MAX_SIZE_PX}
         if not (0.65 <= aspect <= 1.45 and DOOR_MIN_SIZE_PX <= size <= DOOR_MAX_SIZE_PX):
+            fail = "bbox_aspect" if not (0.65 <= aspect <= 1.45) else "size_out_of_range"
+            if collector:
+                collector.record_polyline_component(comp_path_indices, "rejected", fail, checks)
             continue
 
         angles = [segs[idx][4] for idx in component]
@@ -434,11 +487,17 @@ def _detect_polyline_arc_bboxes(line_paths: list[PathPrimitive]) -> list[dict]:
             1 for angle in angles
             if min(abs(angle - 0.0), abs(angle - 90.0), abs(angle - 180.0)) <= 8.0
         ) / len(angles)
+        checks["axis_like_fraction"] = {"value": round(axis_like, 3), "max": 0.35, "passed": axis_like <= 0.35}
         if axis_like > 0.35:
+            if collector:
+                collector.record_polyline_component(comp_path_indices, "rejected", "axis_like_fraction", checks)
             continue
 
         angle_bins = {int(angle // 15.0) for angle in angles}
+        checks["angle_bin_count"] = {"value": len(angle_bins), "range": [4, DOOR_POLYLINE_MAX_ANGLE_BINS], "passed": 4 <= len(angle_bins) <= DOOR_POLYLINE_MAX_ANGLE_BINS}
         if not (4 <= len(angle_bins) <= DOOR_POLYLINE_MAX_ANGLE_BINS):
+            if collector:
+                collector.record_polyline_component(comp_path_indices, "rejected", "angle_bin_count", checks)
             continue
 
         degrees: dict[tuple[int, int], int] = defaultdict(int)
@@ -451,7 +510,10 @@ def _detect_polyline_arc_bboxes(line_paths: list[PathPrimitive]) -> list[dict]:
                 point_sums[pt_key][1] += pt[1]
                 point_sums[pt_key][2] += 1.0
         endpoint_keys = [pt_key for pt_key, degree in degrees.items() if degree == 1]
+        checks["endpoint_count"] = {"value": len(endpoint_keys), "required": 2, "passed": len(endpoint_keys) == 2}
         if len(endpoint_keys) != 2:
+            if collector:
+                collector.record_polyline_component(comp_path_indices, "rejected", "endpoint_count", checks)
             continue
 
         endpoints = [
@@ -462,16 +524,23 @@ def _detect_polyline_arc_bboxes(line_paths: list[PathPrimitive]) -> list[dict]:
             for pt_key in endpoint_keys
         ]
         layers = [segs[idx][0].layer for idx in component if segs[idx][0].layer]
+        # overlaps_native_arc is checked in _collect_door_swings after this returns
+        checks["overlaps_native_arc"] = {"overlaps": False, "passed": True}
 
-        arc_infos.append({
+        component_path_indices = sorted(segs[idx][0].path_index for idx in component)
+        arc_info: dict = {
             "bbox": bbox,
             "segment_count": len(component),
             "axis_like_fraction": round(axis_like, 3),
             "angle_bin_count": len(angle_bins),
             "endpoints": endpoints,
-            "component_path_indices": sorted(segs[idx][0].path_index for idx in component),
+            "component_path_indices": component_path_indices,
             "layer": layers[0] if layers else None,
-        })
+        }
+        if collector:
+            cid = collector.record_polyline_component(comp_path_indices, "collected", None, checks)
+            arc_info["component_id"] = cid
+        arc_infos.append(arc_info)
 
     return arc_infos
 
@@ -534,6 +603,7 @@ class _DoorSwing:
     layer_hint: bool
     evidence: dict
     arc_endpoints: list[tuple[float, float]]   # actual arc start/end points for bridge-line check
+    debug_id: str | None = None               # set by DebugTraceCollector when active
 
 
 @dataclass
@@ -546,6 +616,7 @@ class _DoorLeaf:
     layer: str | None
     layer_hint: bool
     evidence: dict
+    debug_id: str | None = None               # set by DebugTraceCollector when active
 
 
 def _layer_hint_from_layer(layer: str | None, keywords: list[str]) -> bool:
@@ -553,8 +624,12 @@ def _layer_hint_from_layer(layer: str | None, keywords: list[str]) -> bool:
     return bool(tokens and any(kw in tokens for kw in keywords))
 
 
-def _collect_door_swings(paths: list[PathPrimitive]) -> list[_DoorSwing]:
-    arc_paths = [p for p in paths if _is_arc_like(p)]
+def _collect_door_swings(
+    paths: list[PathPrimitive],
+    collector: DebugTraceCollector | None = None,
+) -> list[_DoorSwing]:
+    # _is_arc_like records arc_filter for every path (pass/fail) when collector is active
+    arc_paths = [p for p in paths if _is_arc_like(p, collector)]
     line_paths = [p for p in paths if p.item_type == "l"]
     swings: list[_DoorSwing] = []
 
@@ -563,7 +638,7 @@ def _collect_door_swings(paths: list[PathPrimitive]) -> list[_DoorSwing]:
         layer_hint = _layer_hint(arc, DOOR_LAYER_KEYWORDS)
         arc_endpoints = [arc.points[0], arc.points[-1]] if len(arc.points) >= 2 else []
         sweep_est = _estimate_arc_sweep_deg(arc.points, arc.bbox) if arc_endpoints else None
-        swings.append(_DoorSwing(
+        swing = _DoorSwing(
             source="curve_arc",
             bbox=arc.bbox,
             radius=radius,
@@ -580,18 +655,25 @@ def _collect_door_swings(paths: list[PathPrimitive]) -> list[_DoorSwing]:
                 "arc_sweep_est_deg": round(sweep_est, 1) if sweep_est is not None else None,
             },
             arc_endpoints=arc_endpoints,
-        ))
+        )
+        if collector:
+            swing.debug_id = collector.record_swing(
+                "curve_arc", [arc.path_index], radius, sweep_est, arc.layer, layer_hint,
+            )
+        swings.append(swing)
 
     arc_bboxes = [a.bbox for a in arc_paths]
-    for arc_info in _detect_polyline_arc_bboxes(line_paths):
+    for arc_info in _detect_polyline_arc_bboxes(line_paths, collector):
         bbox = arc_info["bbox"]
         if any(_bboxes_overlap(bbox, _bbox_expanded(ab, DOOR_SWING_LINE_DIST_PX)) for ab in arc_bboxes):
+            if collector and "component_id" in arc_info:
+                collector.reject_polyline_component(arc_info["component_id"], "overlaps_native_arc")
             continue
 
         radius = max(_bbox_width(bbox), _bbox_height(bbox))
         layer = arc_info.get("layer")
         layer_hint = _layer_hint_from_layer(layer, DOOR_LAYER_KEYWORDS)
-        swings.append(_DoorSwing(
+        swing = _DoorSwing(
             source="polyline_arc",
             bbox=bbox,
             radius=radius,
@@ -608,7 +690,14 @@ def _collect_door_swings(paths: list[PathPrimitive]) -> list[_DoorSwing]:
                 "layer_hint": layer_hint,
             },
             arc_endpoints=list(arc_info["endpoints"]),
-        ))
+        )
+        if collector:
+            swing.debug_id = collector.record_swing(
+                "polyline_arc", list(arc_info["component_path_indices"]),
+                radius, None, layer, layer_hint,
+                polyline_component_id=arc_info.get("component_id"),
+            )
+        swings.append(swing)
 
     return swings
 
@@ -799,7 +888,10 @@ def _find_thin_rectangle_cycle(
     return best_bbox, best_indices
 
 
-def _collect_linework_door_leaves(line_paths: list[PathPrimitive]) -> list[_DoorLeaf]:
+def _collect_linework_door_leaves(
+    line_paths: list[PathPrimitive],
+    collector: DebugTraceCollector | None = None,
+) -> list[_DoorLeaf]:
     segs: list[_LinkSeg] = []
     for path in line_paths:
         ok, p1, p2 = _is_line_path(path)
@@ -834,27 +926,76 @@ def _collect_linework_door_leaves(line_paths: list[PathPrimitive]) -> list[_Door
                     seen.add(other)
                     stack.append(other)
 
+        comp_path_indices = sorted(segs[i][0].path_index for i in component) if collector else []
+
         # Path A: clean closed loop (4–8 segments, every junction degree exactly 2).
         # Preserves the original behaviour, including split-side rectangles.
         leaf = _try_linework_leaf_clean_loop(component, segs)
         if leaf is not None:
+            if collector:
+                seg_count = len(component)
+                cid = collector.record_linework_component(
+                    comp_path_indices, "collected", "clean_loop", None,
+                    clean_loop_result={"tried": True, "passed": True, "fail_reason": None,
+                                       "segment_count": seg_count},
+                    subgraph_result=None,
+                )
+                leaf.debug_id = collector.record_leaf(
+                    leaf.source, leaf.component_path_indices,
+                    leaf.length, max(_bbox_width(leaf.bbox), _bbox_height(leaf.bbox)),
+                    leaf.layer, leaf.layer_hint,
+                    linework_component_id=cid,
+                )
             leaves.append(leaf)
             continue
+
+        # Determine clean_loop fail reason for trace (debug only)
+        clean_loop_result: dict | None = None
+        if collector:
+            seg_count = len(component)
+            if not (DOOR_LINEWORK_LEAF_MIN_SEGMENTS <= seg_count <= DOOR_LINEWORK_LEAF_MAX_SEGMENTS):
+                cl_reason = "segment_count_out_of_range"
+            else:
+                degs: dict = defaultdict(int)
+                for i in component:
+                    _, pp1, pp2 = segs[i]
+                    degs[_snap_key(pp1, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)] += 1
+                    degs[_snap_key(pp2, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)] += 1
+                if any(d != 2 for d in degs.values()):
+                    cl_reason = "not_all_degree_2"
+                else:
+                    cl_reason = "shape_check_failed"
+            clean_loop_result = {"tried": True, "passed": False, "fail_reason": cl_reason,
+                                  "segment_count": seg_count}
 
         # Path B: subgraph fallback. The component may be a leaf rectangle with a
         # threshold line and/or a few wall stubs attached (degree-3+ junctions, or
         # 5–14 primitives). Search for a thin-rectangle 4-cycle inside it and emit
         # only the rectangle's 4 primitives so the threshold remains free for the
         # Step-3 threshold-line evidence detection.
-        if not (DOOR_LINEWORK_LEAF_MIN_SEGMENTS <= len(component) <= DOOR_LINEWORK_LEAF_COMPONENT_MAX_SEGMENTS):
+        seg_count = len(component)
+        if not (DOOR_LINEWORK_LEAF_MIN_SEGMENTS <= seg_count <= DOOR_LINEWORK_LEAF_COMPONENT_MAX_SEGMENTS):
+            if collector:
+                collector.record_linework_component(
+                    comp_path_indices, "rejected", None, "segment_count_out_of_range",
+                    clean_loop_result=clean_loop_result,
+                    subgraph_result={"tried": False, "passed": False, "fail_reason": "segment_count_out_of_range", "segment_count": seg_count},
+                )
             continue
         component_segs = [segs[i] for i in component]
         result = _find_thin_rectangle_cycle(component_segs)
         if result is None:
+            if collector:
+                collector.record_linework_component(
+                    comp_path_indices, "rejected", None, "no_valid_cycle",
+                    clean_loop_result=clean_loop_result,
+                    subgraph_result={"tried": True, "passed": False, "fail_reason": "no_valid_cycle", "segment_count": seg_count},
+                )
             continue
         bbox, path_indices = result
 
         long_side = max(_bbox_width(bbox), _bbox_height(bbox))
+        short_side = min(_bbox_width(bbox), _bbox_height(bbox))
         cycle_path_index_set = set(path_indices)
         layers = [
             segs[i][0].layer for i in component
@@ -862,7 +1003,7 @@ def _collect_linework_door_leaves(line_paths: list[PathPrimitive]) -> list[_Door
         ]
         layer = layers[0] if layers else None
         layer_hint = _layer_hint_from_layer(layer, DOOR_LAYER_KEYWORDS)
-        leaves.append(_DoorLeaf(
+        door_leaf = _DoorLeaf(
             source="linework_rect_subgraph",
             bbox=bbox,
             length=long_side,
@@ -878,36 +1019,61 @@ def _collect_linework_door_leaves(line_paths: list[PathPrimitive]) -> list[_Door
                 "layer": layer,
                 "layer_hint": layer_hint,
             },
-        ))
+        )
+        if collector:
+            cid = collector.record_linework_component(
+                comp_path_indices, "collected", "subgraph_fallback", None,
+                clean_loop_result=clean_loop_result,
+                subgraph_result={"tried": True, "passed": True, "fail_reason": None, "segment_count": seg_count},
+            )
+            door_leaf.debug_id = collector.record_leaf(
+                door_leaf.source, path_indices, long_side,
+                short_side if short_side > 1e-6 else long_side,
+                layer, layer_hint, linework_component_id=cid,
+            )
+        leaves.append(door_leaf)
 
     return leaves
 
 
-def _collect_door_leaves(paths: list[PathPrimitive]) -> list[_DoorLeaf]:
+def _collect_door_leaves(
+    paths: list[PathPrimitive],
+    collector: DebugTraceCollector | None = None,
+) -> list[_DoorLeaf]:
     leaves: list[_DoorLeaf] = []
-    for leaf in (p for p in paths if _is_door_leaf(p)):
-        w = _bbox_width(leaf.bbox)
-        h = _bbox_height(leaf.bbox)
+    for path in paths:
+        if not _is_door_leaf(path, collector):
+            continue
+        w = _bbox_width(path.bbox)
+        h = _bbox_height(path.bbox)
         long_side = max(w, h)
-        layer_hint = _layer_hint(leaf, DOOR_LAYER_KEYWORDS)
-        leaves.append(_DoorLeaf(
-            source=leaf.item_type,
-            bbox=leaf.bbox,
+        short_side = min(w, h)
+        layer_hint = _layer_hint(path, DOOR_LAYER_KEYWORDS)
+        door_leaf = _DoorLeaf(
+            source=path.item_type,
+            bbox=path.bbox,
             length=long_side,
-            corners=_arc_corners(leaf.bbox),
-            component_path_indices=[leaf.path_index],
-            layer=leaf.layer,
+            corners=_arc_corners(path.bbox),
+            component_path_indices=[path.path_index],
+            layer=path.layer,
             layer_hint=layer_hint,
             evidence={
-                "leaf_source": leaf.item_type,
+                "leaf_source": path.item_type,
                 "leaf_size_px": round(long_side, 1),
-                "layer": leaf.layer,
+                "layer": path.layer,
                 "layer_hint": layer_hint,
             },
-        ))
+        )
+        if collector:
+            door_leaf.debug_id = collector.record_leaf(
+                path.item_type, [path.path_index], long_side,
+                short_side if short_side > 1e-6 else long_side,
+                path.layer, layer_hint,
+            )
+        leaves.append(door_leaf)
 
     line_paths = [p for p in paths if p.item_type == "l"]
-    leaves.extend(_collect_linework_door_leaves(line_paths))
+    leaves.extend(_collect_linework_door_leaves(line_paths, collector))
     return leaves
 
 
@@ -1108,6 +1274,7 @@ def _pair_door_assemblies(
     leaves: list[_DoorLeaf],
     text_spans: list[TextSpan],
     paths: list[PathPrimitive],
+    collector: DebugTraceCollector | None = None,
 ) -> list[Candidate]:
     candidates: list[Candidate] = []
     used_swings: set[int] = set()
@@ -1122,17 +1289,39 @@ def _pair_door_assemblies(
             if connection_dist > DOOR_ASSEMBLY_CONNECT_TOL_PX:
                 continue
             if swing.radius <= 1e-6:
+                if collector and swing.debug_id and leaf.debug_id:
+                    collector.record_pairing_attempt(
+                        swing.debug_id, leaf.debug_id,
+                        connection_dist, DOOR_ASSEMBLY_CONNECT_TOL_PX,
+                        0.0, DOOR_LEAF_RADIUS_RATIO_TOL,
+                        "rejected", "zero_radius",
+                    )
                 continue
             radius_ratio = abs(leaf.length - swing.radius) / swing.radius
             if radius_ratio > DOOR_LEAF_RADIUS_RATIO_TOL:
+                if collector and swing.debug_id and leaf.debug_id:
+                    collector.record_pairing_attempt(
+                        swing.debug_id, leaf.debug_id,
+                        connection_dist, DOOR_ASSEMBLY_CONNECT_TOL_PX,
+                        radius_ratio, DOOR_LEAF_RADIUS_RATIO_TOL,
+                        "rejected", "radius_ratio_mismatch",
+                    )
                 continue
             potential_pairs.append((connection_dist, radius_ratio, swing_idx, leaf_idx))
 
     for connection_dist, radius_ratio, swing_idx, leaf_idx in sorted(potential_pairs):
-        if swing_idx in used_swings or leaf_idx in used_leaves:
-            continue
         swing = swings[swing_idx]
         leaf = leaves[leaf_idx]
+        if swing_idx in used_swings or leaf_idx in used_leaves:
+            if collector and swing.debug_id and leaf.debug_id:
+                collector.record_pairing_attempt(
+                    swing.debug_id, leaf.debug_id,
+                    connection_dist, DOOR_ASSEMBLY_CONNECT_TOL_PX,
+                    radius_ratio, DOOR_LEAF_RADIUS_RATIO_TOL,
+                    "rejected", "already_paired",
+                )
+            continue
+
         bbox = _bbox_union(swing.bbox, leaf.bbox)
         nearby_label = _find_nearby_label(bbox, text_spans, DOOR_LABEL_SEARCH_RADIUS_PX, DOOR_LABEL_PATTERN)
         layer_hint = swing.layer_hint or leaf.layer_hint
@@ -1146,12 +1335,10 @@ def _pair_door_assemblies(
         )
 
         confidence = 0.65
-        if nearby_label:
-            confidence += 0.20
-        if layer_hint:
-            confidence += 0.40
-        if threshold is not None:
-            confidence += DOOR_THRESHOLD_CONFIDENCE_BOOST
+        label_boost = 0.20 if nearby_label else 0.0
+        layer_boost = 0.40 if layer_hint else 0.0
+        threshold_boost = DOOR_THRESHOLD_CONFIDENCE_BOOST if threshold is not None else 0.0
+        confidence += label_boost + layer_boost + threshold_boost
         confidence = min(confidence, 0.95)
         # v2: bridge-line opening check (Wall Break Condition)
         opening_check = "unknown"
@@ -1159,10 +1346,9 @@ def _pair_door_assemblies(
             opening_check = _check_opening_clear(
                 swing.arc_endpoints, line_paths, set(component_path_indices)
             )
-        if opening_check == "clear":
-            confidence += DOOR_V2_OPENING_CLEAR_BOOST
-        elif opening_check == "obstructed":
-            confidence -= DOOR_V2_OPENING_OBSTRUCTED_PENALTY
+        opening_boost = DOOR_V2_OPENING_CLEAR_BOOST if opening_check == "clear" else 0.0
+        opening_penalty = DOOR_V2_OPENING_OBSTRUCTED_PENALTY if opening_check == "obstructed" else 0.0
+        confidence += opening_boost - opening_penalty
         confidence = round(min(max(confidence, 0.0), 0.95), 3)
 
         if threshold is not None:
@@ -1170,6 +1356,7 @@ def _pair_door_assemblies(
                 set(component_path_indices) | {threshold["path_index"]}
             )
 
+        candidate_id = f"door_{cand_idx:04d}"
         evidence = {
             "method": "door_assembly",
             "assembly_type": "single",
@@ -1193,12 +1380,35 @@ def _pair_door_assemblies(
         evidence.update({f"leaf_{k}": v for k, v in leaf.evidence.items() if k not in evidence})
 
         candidates.append(Candidate(
-            candidate_id=f"door_{cand_idx:04d}",
+            candidate_id=candidate_id,
             entity_type="door",
             bbox=bbox,
             confidence=confidence,
             evidence=evidence,
         ))
+        if collector and swing.debug_id and leaf.debug_id:
+            collector.record_pairing_attempt(
+                swing.debug_id, leaf.debug_id,
+                connection_dist, DOOR_ASSEMBLY_CONNECT_TOL_PX,
+                radius_ratio, DOOR_LEAF_RADIUS_RATIO_TOL,
+                "paired",
+            )
+            total_before_cap = 0.65 + label_boost + layer_boost + threshold_boost + opening_boost - opening_penalty
+            collector.record_candidate(
+                candidate_id, "door_assembly", confidence,
+                {
+                    "base": 0.65,
+                    "label_boost": label_boost, "label_found": nearby_label,
+                    "layer_boost": layer_boost, "layer_hint": layer_hint,
+                    "threshold_boost": threshold_boost, "threshold_found": threshold is not None,
+                    "opening_boost": opening_boost, "opening_penalty": opening_penalty,
+                    "opening_check": opening_check,
+                    "total_before_cap": round(total_before_cap, 4),
+                    "cap_applied": total_before_cap > 0.95,
+                    "total": confidence,
+                },
+                swing.debug_id, leaf.debug_id,
+            )
         cand_idx += 1
         used_swings.add(swing_idx)
         used_leaves.add(leaf_idx)
@@ -1219,18 +1429,22 @@ def _pair_door_assemblies(
         )
         hu_dist = _compute_hu_distance(arc_paths)
         arc_conf = DOOR_FALLBACK_CONFIDENCE
+        hu_boost = 0.0
+        hu_penalty = 0.0
         if hu_dist is not None:
             evidence["hu_distance"] = round(hu_dist, 4)
             if hu_dist < DOOR_HU_THRESHOLD_VERIFIED:
-                arc_conf += DOOR_HU_VERIFIED_BOOST
+                hu_boost = DOOR_HU_VERIFIED_BOOST
             elif hu_dist < DOOR_HU_THRESHOLD_FAR:
-                arc_conf += DOOR_HU_PLAUSIBLE_BOOST
+                hu_boost = DOOR_HU_PLAUSIBLE_BOOST
             else:
-                arc_conf -= DOOR_HU_FAR_PENALTY
+                hu_penalty = DOOR_HU_FAR_PENALTY
+            arc_conf += hu_boost - hu_penalty
             arc_conf = round(min(max(arc_conf, 0.0), 0.95), 3)
 
+        candidate_id = f"door_{cand_idx:04d}"
         candidates.append(_door_fallback_candidate(
-            f"door_{cand_idx:04d}",
+            candidate_id,
             "arc_fallback",
             swing.bbox,
             nearby_label,
@@ -1239,6 +1453,32 @@ def _pair_door_assemblies(
             evidence,
             confidence=arc_conf,
         ))
+        if collector and swing.debug_id:
+            label_boost = 0.20 if nearby_label else 0.0
+            layer_boost = 0.40 if swing.layer_hint else 0.0
+            hu_result = (
+                "verified" if hu_dist is not None and hu_dist < DOOR_HU_THRESHOLD_VERIFIED else
+                "plausible" if hu_dist is not None and hu_dist < DOOR_HU_THRESHOLD_FAR else
+                "far" if hu_dist is not None else "unavailable"
+            )
+            collector.record_hu_eval(
+                swing.debug_id, hu_dist,
+                DOOR_HU_THRESHOLD_VERIFIED, DOOR_HU_THRESHOLD_FAR,
+                hu_result, hu_boost - hu_penalty,
+                DOOR_FALLBACK_CONFIDENCE, arc_conf,
+            )
+            collector.record_candidate(
+                candidate_id, "arc_fallback", arc_conf,
+                {
+                    "base": DOOR_FALLBACK_CONFIDENCE,
+                    "label_boost": label_boost, "label_found": nearby_label,
+                    "layer_boost": layer_boost, "layer_hint": swing.layer_hint,
+                    "hu_boost": hu_boost, "hu_penalty": hu_penalty,
+                    "hu_distance": round(hu_dist, 4) if hu_dist is not None else None,
+                    "total": arc_conf,
+                },
+                swing.debug_id, None,
+            )
         cand_idx += 1
 
     for leaf_idx, leaf in enumerate(leaves):
@@ -1247,8 +1487,9 @@ def _pair_door_assemblies(
         nearby_label = _find_nearby_label(leaf.bbox, text_spans, DOOR_LABEL_SEARCH_RADIUS_PX, DOOR_LABEL_PATTERN)
         evidence = dict(leaf.evidence)
         evidence["component_path_indices"] = list(leaf.component_path_indices)
+        candidate_id = f"door_{cand_idx:04d}"
         candidates.append(_door_fallback_candidate(
-            f"door_{cand_idx:04d}",
+            candidate_id,
             "leaf_fallback",
             leaf.bbox,
             nearby_label,
@@ -1256,6 +1497,20 @@ def _pair_door_assemblies(
             leaf.layer_hint,
             evidence,
         ))
+        if collector and leaf.debug_id:
+            label_boost = 0.20 if nearby_label else 0.0
+            layer_boost = 0.40 if leaf.layer_hint else 0.0
+            leaf_conf = DOOR_FALLBACK_CONFIDENCE + label_boost + layer_boost
+            collector.record_candidate(
+                candidate_id, "leaf_fallback", round(min(leaf_conf, 0.95), 3),
+                {
+                    "base": DOOR_FALLBACK_CONFIDENCE,
+                    "label_boost": label_boost, "label_found": nearby_label,
+                    "layer_boost": layer_boost, "layer_hint": leaf.layer_hint,
+                    "total": round(min(leaf_conf, 0.95), 3),
+                },
+                None, leaf.debug_id,
+            )
         cand_idx += 1
 
     return _dedupe_door_components(candidates)
@@ -1426,10 +1681,16 @@ def _merge_double_door_assemblies(candidates: list[Candidate]) -> list[Candidate
     return result
 
 
-def detect_doors(paths: list[PathPrimitive], text_spans: list[TextSpan]) -> list[Candidate]:
-    swings = _collect_door_swings(paths)
-    leaves = _collect_door_leaves(paths)
-    candidates = _pair_door_assemblies(swings, leaves, text_spans, paths)
+def detect_doors(
+    paths: list[PathPrimitive],
+    text_spans: list[TextSpan],
+    collector: DebugTraceCollector | None = None,
+) -> list[Candidate]:
+    if collector:
+        collector.init_primitives(paths)
+    swings = _collect_door_swings(paths, collector)
+    leaves = _collect_door_leaves(paths, collector)
+    candidates = _pair_door_assemblies(swings, leaves, text_spans, paths, collector)
     return _merge_double_door_assemblies(candidates)
 
 
@@ -2184,10 +2445,11 @@ def run_heuristics(
     plumber_tables: list[list[list[str | None]]],
     disable_walls: bool = False,
     disable_windows: bool = False,
+    collector: DebugTraceCollector | None = None,
 ) -> list[Candidate]:
     all_stroke_widths = [p.stroke_width for p in page_data.paths if p.stroke_width > 0]
 
-    doors = detect_doors(page_data.paths, page_data.text_spans)
+    doors = detect_doors(page_data.paths, page_data.text_spans, collector)
     windows = [] if disable_windows else detect_windows(page_data.paths)
     walls = [] if disable_walls else detect_walls(page_data.paths)
 
