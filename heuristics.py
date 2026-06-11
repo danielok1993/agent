@@ -7,6 +7,13 @@ from dataclasses import dataclass
 from itertools import combinations
 from models import PathPrimitive, TextSpan, Candidate, PageData, BBox
 
+try:
+    import cv2 as _cv2
+    import numpy as _np
+    _HU_AVAILABLE = True
+except ImportError:
+    _HU_AVAILABLE = False
+
 # ---------------------------------------------------------------------------
 # Door detection constants
 # ---------------------------------------------------------------------------
@@ -42,6 +49,22 @@ DOOR_POLYLINE_MAX_ANGLE_BINS              = 7     # quarter-circle spans ≤7 bi
 DOOR_DOUBLE_LEAF_GAP_PX                  = 12.0  # max gap between leaf long-axis intervals to form a double door
 DOOR_DOUBLE_LEAF_OVERLAP_PX              =  5.0  # max overlap tolerated on leaf long-axis intervals
 DOOR_DOUBLE_LEAF_CENTER_TOL_PX           =  8.0  # max offset between leaf long-axis centerlines
+DOOR_V2_BRIDGE_BUFFER_PX          = 3.0   # max dist from bridge line for an obstructing segment
+DOOR_V2_OPENING_CLEAR_BOOST       = 0.07  # confidence boost when verified-clear door opening
+DOOR_V2_OPENING_OBSTRUCTED_PENALTY = 0.12  # confidence penalty when opening has crossing lines
+
+# ---------------------------------------------------------------------------
+# Hu Moments constants (Step 4 of v2 spec)
+# Template derived from 4 confirmed door arcs in floor-plans.pdf page 1.
+# 6 moments only — moment 7 flips sign with arc reflection orientation.
+# ---------------------------------------------------------------------------
+DOOR_HU_CANVAS_SIZE         = 64    # rasterize candidate arc to this square canvas
+DOOR_HU_THRESHOLD_VERIFIED  = 0.15  # distance < this → strong shape match
+DOOR_HU_THRESHOLD_FAR       = 0.50  # distance > this → penalize
+DOOR_HU_VERIFIED_BOOST      = 0.20  # rescues arc_fallback from 0.35 → 0.55
+DOOR_HU_PLAUSIBLE_BOOST     = 0.08  # plausible match
+DOOR_HU_FAR_PENALTY         = 0.10  # poor match
+_DOOR_HU_TEMPLATE_VALUES    = [1.518423, 3.112955, 5.232975, 6.148173, -9.994192, -7.721678]
 
 # ---------------------------------------------------------------------------
 # Window detection constants
@@ -221,6 +244,112 @@ def _is_line_path(path: PathPrimitive) -> tuple[bool, tuple[float, float], tuple
 def _arc_corners(bbox: BBox) -> list[tuple[float, float]]:
     x0, y0, x1, y1 = bbox
     return [(x0, y0), (x1, y0), (x0, y1), (x1, y1)]
+
+
+def _point_to_segment_distance(
+    p: tuple[float, float],
+    a: tuple[float, float],
+    b: tuple[float, float],
+) -> float:
+    """Minimum distance from point p to line segment ab."""
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    len_sq = dx * dx + dy * dy
+    if len_sq < 1e-12:
+        return _distance(p, a)
+    t = max(0.0, min(1.0, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / len_sq))
+    closest = (a[0] + t * dx, a[1] + t * dy)
+    return _distance(p, closest)
+
+
+def _segments_min_distance(
+    a1: tuple[float, float],
+    a2: tuple[float, float],
+    b1: tuple[float, float],
+    b2: tuple[float, float],
+) -> float:
+    """Minimum distance between two line segments."""
+    return min(
+        _point_to_segment_distance(a1, b1, b2),
+        _point_to_segment_distance(a2, b1, b2),
+        _point_to_segment_distance(b1, a1, a2),
+        _point_to_segment_distance(b2, a1, a2),
+    )
+
+
+def _check_opening_clear(
+    endpoints: list[tuple[float, float]],
+    line_paths: list[PathPrimitive],
+    exclude_indices: set[int],
+    buffer_px: float = DOOR_V2_BRIDGE_BUFFER_PX,
+) -> str:
+    """Check if the door opening (bridge between arc endpoints) is free of crossing lines.
+
+    Implements the Wall Break Condition from v2 spec: creates a bridge line between
+    the two arc attachment points and checks whether any non-assembly line segment
+    both (a) comes within buffer_px of the bridge AND (b) has its midpoint projected
+    within the interior span (5%–95%) of the bridge length.
+
+    Returns 'clear' (empty opening → door), 'obstructed' (sill/glass lines present →
+    likely casement window), or 'unknown' (insufficient endpoint data).
+    """
+    if len(endpoints) < 2:
+        return "unknown"
+    a, b = endpoints[0], endpoints[1]
+    bridge_len = _distance(a, b)
+    if bridge_len < 1e-6:
+        return "unknown"
+    ux = (b[0] - a[0]) / bridge_len
+    uy = (b[1] - a[1]) / bridge_len
+    interior_lo = 0.05 * bridge_len
+    interior_hi = 0.95 * bridge_len
+    for path in line_paths:
+        if path.path_index in exclude_indices:
+            continue
+        ok, p1, p2 = _is_line_path(path)
+        if not ok:
+            continue
+        if _segments_min_distance(a, b, p1, p2) > buffer_px:
+            continue
+        mid = ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
+        t = (mid[0] - a[0]) * ux + (mid[1] - a[1]) * uy
+        if interior_lo <= t <= interior_hi:
+            return "obstructed"
+    return "clear"
+
+
+def _estimate_arc_sweep_deg(
+    points: list[tuple[float, float]],
+    bbox: BBox,
+) -> float | None:
+    """Estimate sweep angle of a Bézier arc from its endpoints and estimated center.
+
+    For CAD-exported Bézier curves, points[0] and points[-1] are the actual arc
+    start and end. The center is estimated as the bbox corner at distance ≈ radius
+    from both endpoints. Returns None when the geometry is degenerate.
+    """
+    if len(points) < 2:
+        return None
+    start, end = points[0], points[-1]
+    radius = max(_bbox_width(bbox), _bbox_height(bbox))
+    if radius < 1e-6:
+        return None
+    best_corner = None
+    best_score = float("inf")
+    for corner in _arc_corners(bbox):
+        score = abs(_distance(start, corner) - radius) + abs(_distance(end, corner) - radius)
+        if score < best_score:
+            best_score = score
+            best_corner = corner
+    if best_corner is None:
+        return None
+    vs = (start[0] - best_corner[0], start[1] - best_corner[1])
+    ve = (end[0] - best_corner[0], end[1] - best_corner[1])
+    mag_s = math.hypot(*vs)
+    mag_e = math.hypot(*ve)
+    if mag_s < 1e-6 or mag_e < 1e-6:
+        return None
+    cos_a = max(-1.0, min(1.0, (vs[0] * ve[0] + vs[1] * ve[1]) / (mag_s * mag_e)))
+    return math.degrees(math.acos(cos_a))
 
 
 def _detect_polyline_arc_bboxes(line_paths: list[PathPrimitive]) -> list[dict]:
@@ -404,6 +533,7 @@ class _DoorSwing:
     layer: str | None
     layer_hint: bool
     evidence: dict
+    arc_endpoints: list[tuple[float, float]]   # actual arc start/end points for bridge-line check
 
 
 @dataclass
@@ -431,6 +561,8 @@ def _collect_door_swings(paths: list[PathPrimitive]) -> list[_DoorSwing]:
     for arc in arc_paths:
         radius = max(_bbox_width(arc.bbox), _bbox_height(arc.bbox))
         layer_hint = _layer_hint(arc, DOOR_LAYER_KEYWORDS)
+        arc_endpoints = [arc.points[0], arc.points[-1]] if len(arc.points) >= 2 else []
+        sweep_est = _estimate_arc_sweep_deg(arc.points, arc.bbox) if arc_endpoints else None
         swings.append(_DoorSwing(
             source="curve_arc",
             bbox=arc.bbox,
@@ -445,7 +577,9 @@ def _collect_door_swings(paths: list[PathPrimitive]) -> list[_DoorSwing]:
                 "arc_size_px": round(radius, 1),
                 "layer": arc.layer,
                 "layer_hint": layer_hint,
+                "arc_sweep_est_deg": round(sweep_est, 1) if sweep_est is not None else None,
             },
+            arc_endpoints=arc_endpoints,
         ))
 
     arc_bboxes = [a.bbox for a in arc_paths]
@@ -473,6 +607,7 @@ def _collect_door_swings(paths: list[PathPrimitive]) -> list[_DoorSwing]:
                 "layer": layer,
                 "layer_hint": layer_hint,
             },
+            arc_endpoints=list(arc_info["endpoints"]),
         ))
 
     return swings
@@ -776,6 +911,64 @@ def _collect_door_leaves(paths: list[PathPrimitive]) -> list[_DoorLeaf]:
     return leaves
 
 
+def _rasterize_paths_to_canvas(
+    paths: list[PathPrimitive],
+    canvas_size: int = DOOR_HU_CANVAS_SIZE,
+) -> object | None:
+    """Rasterize line/curve primitives onto a normalized binary canvas.
+
+    Segments are scaled so their bounding box fills the canvas minus a small
+    margin, making the output scale-invariant. Returns a uint8 numpy array
+    or None if cv2 is unavailable or the geometry is degenerate.
+    """
+    if not _HU_AVAILABLE:
+        return None
+    segs = []
+    for path in paths:
+        if path.item_type in ("l", "c") and len(path.points) >= 2:
+            segs.append((path.points[0], path.points[-1]))
+    if not segs:
+        return None
+    all_pts = [pt for seg in segs for pt in seg]
+    xs = [p[0] for p in all_pts]
+    ys = [p[1] for p in all_pts]
+    span = max(max(xs) - min(xs), max(ys) - min(ys))
+    if span < 1e-6:
+        return None
+    x0, y0 = min(xs), min(ys)
+    margin = 4
+    scale = (canvas_size - 2 * margin) / span
+    img = _np.zeros((canvas_size, canvas_size), dtype=_np.uint8)
+    for p1, p2 in segs:
+        cx1 = int((p1[0] - x0) * scale) + margin
+        cy1 = int((p1[1] - y0) * scale) + margin
+        cx2 = int((p2[0] - x0) * scale) + margin
+        cy2 = int((p2[1] - y0) * scale) + margin
+        _cv2.line(img, (cx1, cy1), (cx2, cy2), 255, 1)
+    return img
+
+
+def _compute_hu_distance(paths: list[PathPrimitive]) -> float | None:
+    """Distance between candidate arc paths and the door Hu Moment template.
+
+    Lower values mean the shape is more door-like. Uses the first 6 log-
+    transformed Hu Moments (moment 7 is omitted — it flips sign under arc
+    reflection and averages to ~0 across orientations).
+
+    Returns None when cv2 is unavailable or rasterization fails.
+    """
+    if not _HU_AVAILABLE:
+        return None
+    img = _rasterize_paths_to_canvas(paths)
+    if img is None:
+        return None
+    m = _cv2.moments(img)
+    hu = _cv2.HuMoments(m).flatten()
+    hu_log = -_np.sign(hu) * _np.log10(_np.abs(hu) + 1e-10)
+    template = _np.array(_DOOR_HU_TEMPLATE_VALUES)
+    return float(_np.linalg.norm(hu_log[:6] - template))
+
+
 def _nearest_pair_distance(
     a_points: list[tuple[float, float]],
     b_points: list[tuple[float, float]],
@@ -793,6 +986,7 @@ def _door_fallback_candidate(
     layer: str | None,
     layer_hint: bool,
     evidence: dict,
+    confidence: float | None = None,
 ) -> Candidate:
     merged_evidence = dict(evidence)
     merged_evidence.update({
@@ -805,7 +999,7 @@ def _door_fallback_candidate(
         candidate_id=candidate_id,
         entity_type="door",
         bbox=bbox,
-        confidence=DOOR_FALLBACK_CONFIDENCE,
+        confidence=round(confidence if confidence is not None else DOOR_FALLBACK_CONFIDENCE, 3),
         evidence=merged_evidence,
     )
 
@@ -959,6 +1153,17 @@ def _pair_door_assemblies(
         if threshold is not None:
             confidence += DOOR_THRESHOLD_CONFIDENCE_BOOST
         confidence = min(confidence, 0.95)
+        # v2: bridge-line opening check (Wall Break Condition)
+        opening_check = "unknown"
+        if swing.arc_endpoints and len(swing.arc_endpoints) == 2:
+            opening_check = _check_opening_clear(
+                swing.arc_endpoints, line_paths, set(component_path_indices)
+            )
+        if opening_check == "clear":
+            confidence += DOOR_V2_OPENING_CLEAR_BOOST
+        elif opening_check == "obstructed":
+            confidence -= DOOR_V2_OPENING_OBSTRUCTED_PENALTY
+        confidence = round(min(max(confidence, 0.0), 0.95), 3)
 
         if threshold is not None:
             component_path_indices = sorted(
@@ -978,6 +1183,7 @@ def _pair_door_assemblies(
             "nearby_label": nearby_label,
             "layer": swing.layer or leaf.layer,
             "layer_hint": layer_hint,
+            "opening_check": opening_check,
         }
         if threshold is not None:
             evidence["has_threshold"] = True
@@ -990,7 +1196,7 @@ def _pair_door_assemblies(
             candidate_id=f"door_{cand_idx:04d}",
             entity_type="door",
             bbox=bbox,
-            confidence=round(confidence, 3),
+            confidence=confidence,
             evidence=evidence,
         ))
         cand_idx += 1
@@ -1003,6 +1209,26 @@ def _pair_door_assemblies(
         nearby_label = _find_nearby_label(swing.bbox, text_spans, DOOR_LABEL_SEARCH_RADIUS_PX, DOOR_LABEL_PATTERN)
         evidence = dict(swing.evidence)
         evidence["component_path_indices"] = list(swing.component_path_indices)
+
+        # v2: Hu Moments shape verification for arc_fallback candidates.
+        # Only meaningful for polyline arcs (11 segments ≈ quarter-circle shape);
+        # native curve arcs are a single Bézier and would rasterize to one line.
+        arc_paths = (
+            [p for p in paths if p.path_index in set(swing.component_path_indices)]
+            if swing.source == "polyline_arc" else []
+        )
+        hu_dist = _compute_hu_distance(arc_paths)
+        arc_conf = DOOR_FALLBACK_CONFIDENCE
+        if hu_dist is not None:
+            evidence["hu_distance"] = round(hu_dist, 4)
+            if hu_dist < DOOR_HU_THRESHOLD_VERIFIED:
+                arc_conf += DOOR_HU_VERIFIED_BOOST
+            elif hu_dist < DOOR_HU_THRESHOLD_FAR:
+                arc_conf += DOOR_HU_PLAUSIBLE_BOOST
+            else:
+                arc_conf -= DOOR_HU_FAR_PENALTY
+            arc_conf = round(min(max(arc_conf, 0.0), 0.95), 3)
+
         candidates.append(_door_fallback_candidate(
             f"door_{cand_idx:04d}",
             "arc_fallback",
@@ -1011,6 +1237,7 @@ def _pair_door_assemblies(
             swing.layer,
             swing.layer_hint,
             evidence,
+            confidence=arc_conf,
         ))
         cand_idx += 1
 

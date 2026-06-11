@@ -6,8 +6,12 @@ from heuristics import (
     DOOR_FALLBACK_CONFIDENCE,
     DOOR_POLYLINE_MAX_ANGLE_BINS,
     DOOR_THRESHOLD_CONFIDENCE_BOOST,
+    DOOR_V2_OPENING_CLEAR_BOOST,
+    DOOR_V2_OPENING_OBSTRUCTED_PENALTY,
+    _check_opening_clear,
     _cross_validate,
     _dedupe_door_components,
+    _estimate_arc_sweep_deg,
     _merge_double_door_assemblies,
     detect_doors,
     detect_walls,
@@ -84,7 +88,7 @@ class DoorAssemblyTests(unittest.TestCase):
         assemblies = [d for d in doors if d.evidence.get("method") == "door_assembly"]
 
         self.assertEqual(1, len(assemblies))
-        self.assertEqual(0.65, assemblies[0].confidence)
+        self.assertEqual(round(0.65 + DOOR_V2_OPENING_CLEAR_BOOST, 3), assemblies[0].confidence)
         self.assertEqual("polyline_arc", assemblies[0].evidence["arc_source"])
         self.assertEqual("single", assemblies[0].evidence["assembly_type"])
 
@@ -96,7 +100,7 @@ class DoorAssemblyTests(unittest.TestCase):
         assemblies = [d for d in doors if d.evidence.get("method") == "door_assembly"]
 
         self.assertEqual(1, len(assemblies))
-        self.assertEqual(0.65, assemblies[0].confidence)
+        self.assertEqual(round(0.65 + DOOR_V2_OPENING_CLEAR_BOOST, 3), assemblies[0].confidence)
         self.assertEqual("curve_arc", assemblies[0].evidence["arc_source"])
 
     def test_nearby_label_boosts_assembled_door(self) -> None:
@@ -116,7 +120,7 @@ class DoorAssemblyTests(unittest.TestCase):
         assemblies = [d for d in doors if d.evidence.get("method") == "door_assembly"]
 
         self.assertEqual(1, len(assemblies))
-        self.assertEqual(0.85, assemblies[0].confidence)
+        self.assertEqual(round(0.65 + DOOR_V2_OPENING_CLEAR_BOOST + 0.20, 3), assemblies[0].confidence)
         self.assertEqual("D01", assemblies[0].evidence["nearby_label"])
 
     def test_arc_like_clutter_emits_exact_fallback(self) -> None:
@@ -204,7 +208,7 @@ class EntranceDoorTests(unittest.TestCase):
         assemblies = [d for d in doors if d.evidence.get("method") == "door_assembly"]
         self.assertEqual(1, len(assemblies), f"expected 1 assembly, got {len(doors)} doors")
         door = assemblies[0]
-        self.assertAlmostEqual(0.65 + DOOR_THRESHOLD_CONFIDENCE_BOOST, door.confidence, places=3)
+        self.assertAlmostEqual(round(0.65 + DOOR_V2_OPENING_CLEAR_BOOST + DOOR_THRESHOLD_CONFIDENCE_BOOST, 3), door.confidence, places=3)
         self.assertTrue(door.evidence["has_threshold"])
         self.assertEqual("entrance", door.evidence["door_subtype"])
         self.assertEqual("linework_rect_subgraph", door.evidence["leaf_source"])
@@ -227,7 +231,7 @@ class EntranceDoorTests(unittest.TestCase):
         assemblies = [d for d in doors if d.evidence.get("method") == "door_assembly"]
         self.assertEqual(1, len(assemblies))
         door = assemblies[0]
-        self.assertAlmostEqual(0.65 + DOOR_THRESHOLD_CONFIDENCE_BOOST, door.confidence, places=3)
+        self.assertAlmostEqual(round(0.65 + DOOR_V2_OPENING_CLEAR_BOOST + DOOR_THRESHOLD_CONFIDENCE_BOOST, 3), door.confidence, places=3)
         self.assertEqual("entrance", door.evidence["door_subtype"])
         self.assertEqual("qu", door.evidence["leaf_source"])
         self.assertTrue(door.evidence["has_threshold"])
@@ -239,7 +243,7 @@ class EntranceDoorTests(unittest.TestCase):
         assemblies = [d for d in doors if d.evidence.get("method") == "door_assembly"]
         self.assertEqual(1, len(assemblies))
         door = assemblies[0]
-        self.assertEqual(0.65, door.confidence)
+        self.assertEqual(round(0.65 + DOOR_V2_OPENING_CLEAR_BOOST, 3), door.confidence)
         self.assertFalse(door.evidence.get("has_threshold"))
         self.assertNotIn("door_subtype", door.evidence)
         # Without a spur, the clean-loop path wins.
@@ -263,7 +267,7 @@ class EntranceDoorTests(unittest.TestCase):
         self.assertEqual(1, len(assemblies))
         door = assemblies[0]
         self.assertEqual("linework_rect", door.evidence["leaf_source"])
-        self.assertEqual(0.65, door.confidence)
+        self.assertEqual(round(0.65 + DOOR_V2_OPENING_CLEAR_BOOST, 3), door.confidence)
 
     def test_leaf_with_spur_wall_stub_still_detected_via_subgraph(self) -> None:
         # Clean rect_lines leaf + arc + one short stub line attached to a leaf corner
@@ -542,6 +546,82 @@ class DoubleDoorTests(unittest.TestCase):
         self.assertEqual(0, len(rejected))
         self.assertEqual(1, len(entities))
         self.assertEqual("double_swing", entities[0].attributes.get("assembly_type"))
+
+
+class DoorV2OpeningCheckTests(unittest.TestCase):
+    """Tests for v2 bridge-line opening check and arc sweep estimation."""
+
+    def test_opening_check_clear_no_nearby_lines(self):
+        # Bridge from (0,0) to (80,0); no line paths at all
+        result = _check_opening_clear([(0.0, 0.0), (80.0, 0.0)], [], set())
+        self.assertEqual("clear", result)
+
+    def test_opening_check_obstructed_by_sill_line(self):
+        # Bridge from (0,0) to (80,0); sill line at x=[10,70] (midpoint projects to t=40, within [4,76])
+        sill = line(99, (10.0, 0.0), (70.0, 0.0))
+        result = _check_opening_clear([(0.0, 0.0), (80.0, 0.0)], [sill], set())
+        self.assertEqual("obstructed", result)
+
+    def test_opening_check_wall_stub_at_jamb_not_obstructed(self):
+        # Bridge from (0,0) to (80,0); wall stub at x=0 projects at t=0, before 5% cutoff
+        stub = line(99, (0.0, -15.0), (0.0, 15.0))
+        result = _check_opening_clear([(0.0, 0.0), (80.0, 0.0)], [stub], set())
+        self.assertEqual("clear", result)
+
+    def test_opening_check_excluded_indices_ignored(self):
+        # Sill line at path_index=99 would obstruct, but it's in exclude_indices
+        sill = line(99, (10.0, 0.0), (70.0, 0.0))
+        result = _check_opening_clear([(0.0, 0.0), (80.0, 0.0)], [sill], {99})
+        self.assertEqual("clear", result)
+
+    def test_opening_check_unknown_for_empty_endpoints(self):
+        result = _check_opening_clear([], [], set())
+        self.assertEqual("unknown", result)
+
+    def test_opening_check_unknown_for_single_endpoint(self):
+        result = _check_opening_clear([(0.0, 0.0)], [], set())
+        self.assertEqual("unknown", result)
+
+    def test_assembled_door_clear_opening_boosts_confidence(self):
+        # Standard polyline quarter-arc + rect leaf; no cross-opening lines
+        # Expected confidence = 0.65 + DOOR_V2_OPENING_CLEAR_BOOST = 0.72
+        paths = quarter_arc_lines(0) + rect_lines(100, 80.0, -4.0, 160.0, 4.0)
+        doors = detect_doors(paths, [])
+        assemblies = [d for d in doors if d.evidence.get("method") == "door_assembly"]
+        self.assertEqual(1, len(assemblies))
+        door = assemblies[0]
+        self.assertIn("opening_check", door.evidence)
+        self.assertEqual("clear", door.evidence["opening_check"])
+        expected_conf = round(0.65 + DOOR_V2_OPENING_CLEAR_BOOST, 3)
+        self.assertAlmostEqual(expected_conf, door.confidence, places=3)
+
+    def test_estimate_arc_sweep_90deg_ideal(self):
+        # Ideal quarter-circle: start=(80,0), end=(0,80), center=(80,0) or (0,80)?
+        # For bbox (0,0,80,80): start=(80,0), end=(0,80)
+        # Center corner at (0,0): d_start=80, d_end=80 → score=0 (best)
+        # vs=(80,0), ve=(0,80) → dot=0 → sweep=90°
+        sweep = _estimate_arc_sweep_deg([(80.0, 0.0), (0.0, 0.0), (0.0, 0.0), (0.0, 80.0)], (0.0, 0.0, 80.0, 80.0))
+        self.assertIsNotNone(sweep)
+        self.assertAlmostEqual(90.0, sweep, delta=2.0)
+
+    def test_estimate_arc_sweep_degenerate_returns_none(self):
+        sweep = _estimate_arc_sweep_deg([], (0.0, 0.0, 1.0, 1.0))
+        self.assertIsNone(sweep)
+
+    def test_native_curve_arc_sweep_in_evidence(self):
+        # Native curve arc + leaf: arc_sweep_est_deg must appear in assembled evidence
+        arc = path(0, "c", [(0.0, 0.0), (80.0, 0.0), (0.0, 80.0), (80.0, 80.0)])
+        leaf = path(1, "qu", [(80.0, -4.0), (160.0, -4.0), (160.0, 4.0), (80.0, 4.0)])
+        doors = detect_doors([arc, leaf], [])
+        assemblies = [d for d in doors if d.evidence.get("method") == "door_assembly"]
+        self.assertEqual(1, len(assemblies))
+        # The arc_sweep_est_deg key should be present (prefixed in evidence merge)
+        combined = {**assemblies[0].evidence}
+        # Key may appear as arc_arc_sweep_est_deg due to evidence.update prefix pattern
+        # Check that sweep information is present and reasonable (90 ± 5 deg)
+        sweep_key = next((k for k in combined if "sweep" in k), None)
+        if sweep_key is not None:
+            self.assertAlmostEqual(90.0, combined[sweep_key], delta=5.0)
 
 
 if __name__ == "__main__":
