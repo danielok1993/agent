@@ -386,6 +386,33 @@ class SingleLineLeafTests(unittest.TestCase):
         entities, _ = merge_gemini_and_heuristics(doors, None)
         self.assertEqual(0, len(entities))
 
+    def test_thin_rect_leaf_companion_line_excluded_from_opening_check(self) -> None:
+        # Door panel drawn as a thin stroked rectangle: two parallel horizontal
+        # lines 3 px apart. The anchored-line check picks one edge; without
+        # companion-line exclusion the other edge would be flagged as obstructing
+        # the bridge between arc endpoints, dropping confidence by the obstructed
+        # penalty (0.12) and pushing the candidate below the offline threshold.
+        # The quarter arc bbox is (0,0)..(80,80) with endpoints (80,0) and (0,80);
+        # the bridge runs diagonally between them. A horizontal line at y=3 sits
+        # ~2 px from that bridge in the interior span — the same trap that hit
+        # door_0000 on floor-plans.pdf with path 1576.
+        anchored_leaf = line(100, (80.0, 0.0), (160.0, 0.0))
+        companion = line(101, (80.0, 3.0), (160.0, 3.0))
+        paths = quarter_arc_lines(0) + [anchored_leaf, companion]
+
+        doors = detect_doors(paths, [])
+
+        assemblies = [d for d in doors if d.evidence.get("method") == "door_assembly"]
+        self.assertEqual(1, len(assemblies))
+        door = assemblies[0]
+        self.assertEqual("single_line_leaf", door.evidence["assembly_type"])
+        self.assertIn(101, door.evidence["leaf_companion_path_indices"])
+        self.assertIn(101, door.evidence["component_path_indices"])
+        # Opening must read clear, not obstructed → confidence stays at base + clear boost.
+        self.assertEqual("clear", door.evidence["opening_check"])
+        expected = round(DOOR_ASSEMBLY_LINE_LEAF_BASE + DOOR_V2_OPENING_CLEAR_BOOST, 3)
+        self.assertAlmostEqual(expected, door.confidence, places=3)
+
 
 class DoorEvidencePropagationTests(unittest.TestCase):
     """Verify Step 4 — door evidence keys land in Entity.attributes in offline mode."""

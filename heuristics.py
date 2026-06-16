@@ -65,6 +65,8 @@ DOOR_V2_OPENING_OBSTRUCTED_PENALTY = 0.12  # confidence penalty when opening has
 DOOR_LEAF_LINE_ENDPOINT_TOL_PX = 5.0
 DOOR_LEAF_LINE_LENGTH_TOL      = 0.20
 DOOR_LEAF_LINE_AXIS_TOL_DEG    = 8.0
+DOOR_LEAF_COMPANION_PERP_PX    = 5.0    # max perpendicular distance for a parallel companion line
+DOOR_LEAF_COMPANION_OVERLAP    = 0.50   # min projected overlap (vs companion length) to count
 DOOR_ASSEMBLY_LINE_LEAF_BASE   = 0.60   # one slot below the 0.65 rect-leaf base
 DOOR_ARC_FALLBACK_MAX          = 0.45   # cap so arc_fallback stays under OFFLINE_MIN_CONFIDENCE["door"] = 0.55
 
@@ -1332,7 +1334,7 @@ def _find_anchored_leaf_line(
         ):
             continue
         for arc_end in swing.arc_endpoints:
-            for line_end_idx, line_end in enumerate((p1, p2)):
+            for line_end in (p1, p2):
                 d = _distance(arc_end, line_end)
                 if d > DOOR_LEAF_LINE_ENDPOINT_TOL_PX:
                     continue
@@ -1351,6 +1353,54 @@ def _find_anchored_leaf_line(
                         "layer": path.layer,
                     }
     return best
+
+
+def _find_leaf_companion_lines(
+    leaf_line: dict,
+    line_paths: list[PathPrimitive],
+    exclude_indices: set[int],
+) -> set[int]:
+    """Find lines forming the same thin-rect leaf as the anchored leaf line.
+
+    Door panels are commonly drawn as a thin stroked rectangle — a pair of
+    near-parallel lines a few pixels apart, sometimes plus 2 short caps. The
+    anchored-line check locks onto one long edge; without this helper the other
+    long edge looks like a wall-like line crossing the arc bridge and the
+    opening check downgrades a real door. This walks every line, parallel to
+    the leaf within DOOR_LEAF_LINE_AXIS_TOL_DEG, with both endpoints within
+    DOOR_LEAF_COMPANION_PERP_PX of the leaf, and projecting onto at least
+    DOOR_LEAF_COMPANION_OVERLAP of its own length over the leaf's interval.
+    """
+    p1, p2 = leaf_line["p1"], leaf_line["p2"]
+    leaf_length = leaf_line["length"]
+    if leaf_length < 1e-6:
+        return set()
+    leaf_angle = _line_angle_deg(p1, p2)
+    ux = (p2[0] - p1[0]) / leaf_length
+    uy = (p2[1] - p1[1]) / leaf_length
+    nx, ny = -uy, ux
+    ref_interval = _projected_interval(p1, p2, ux, uy, p1)
+
+    companions: set[int] = set()
+    for path in line_paths:
+        if path.path_index in exclude_indices:
+            continue
+        ok, q1, q2 = _is_line_path(path)
+        if not ok:
+            continue
+        if _angle_diff_mod180(_line_angle_deg(q1, q2), leaf_angle) > DOOR_LEAF_LINE_AXIS_TOL_DEG:
+            continue
+        d_q1 = abs((q1[0] - p1[0]) * nx + (q1[1] - p1[1]) * ny)
+        d_q2 = abs((q2[0] - p1[0]) * nx + (q2[1] - p1[1]) * ny)
+        if max(d_q1, d_q2) > DOOR_LEAF_COMPANION_PERP_PX:
+            continue
+        cand_interval = _projected_interval(q1, q2, ux, uy, p1)
+        overlap = _interval_overlap(ref_interval, cand_interval)
+        cand_len = _line_length(q1, q2)
+        if cand_len > 0 and overlap / cand_len < DOOR_LEAF_COMPANION_OVERLAP:
+            continue
+        companions.add(path.path_index)
+    return companions
 
 
 def _pair_door_assemblies(
@@ -1527,8 +1577,20 @@ def _pair_door_assemblies(
             line_leaf["layer"], DOOR_LAYER_KEYWORDS,
         )
 
+        # Door panels are often drawn as a thin stroked rectangle — the anchored
+        # line is one long edge; the parallel edge would otherwise be flagged
+        # as a bridge obstruction. Find the rest of the leaf's outline so the
+        # opening check ignores them.
+        companion_indices = _find_leaf_companion_lines(
+            line_leaf,
+            line_paths,
+            exclude | {line_leaf["path_index"]},
+        )
+
         component_path_indices = sorted(
-            set(swing.component_path_indices) | {line_leaf["path_index"]}
+            set(swing.component_path_indices)
+            | {line_leaf["path_index"]}
+            | companion_indices
         )
 
         confidence = DOOR_ASSEMBLY_LINE_LEAF_BASE
@@ -1561,6 +1623,7 @@ def _pair_door_assemblies(
             "leaf_line_length_px": round(line_leaf["length"], 2),
             "leaf_line_length_ratio": round(line_leaf["length_ratio"], 4),
             "leaf_line_endpoint_dist_px": round(line_leaf["endpoint_dist"], 2),
+            "leaf_companion_path_indices": sorted(companion_indices),
             "component_path_indices": component_path_indices,
             "nearby_label": nearby_label,
             "layer": swing.layer or line_leaf["layer"],
