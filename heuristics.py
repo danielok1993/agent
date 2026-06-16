@@ -48,6 +48,13 @@ DOOR_POLYLINE_CYCLE_MAX_SEGMENTS = 8
 # qualify for split-into-two-swings instead of trim-one-half.
 DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS    = 4   # each half must be a viable arc on its own
 DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS  = 3   # each half must have curvature (not axis-aligned)
+# Endpoint coincidence tolerance for pairing two native `curve_arc` swings
+# into a garden-door composite (the §3.7 pattern, but where each half is a
+# single Bezier rather than a polyline-arc BFS chain). Tighter than
+# DOOR_ASSEMBLY_CONNECT_TOL_PX (15) because we are matching CAD-precise
+# curve endpoints, not loose leaf-to-arc snaps; 3 px keeps unrelated nearby
+# arcs from being falsely partnered.
+DOOR_CURVE_ARC_SHARED_HINGE_TOL_PX = 3.0
 # Endpoint snap tolerance for chaining native (`c`) Bezier curves into a
 # single logical arc. PDF curves emitted by CAD tools have machine-precise
 # endpoints; 1.0 px is generous.
@@ -1285,6 +1292,111 @@ def _layer_hint_from_layer(layer: str | None, keywords: list[str]) -> bool:
     return bool(tokens and any(kw in tokens for kw in keywords))
 
 
+def _detect_curve_arc_double_partners(
+    swings: list["_DoorSwing"],
+    paths: list[PathPrimitive],
+) -> None:
+    """Pair single-Bezier `curve_arc` swings that form a garden-door split.
+
+    The polyline-arc detector (§3.7) recognises a garden door when both
+    halves are drawn as `l`-segment chains that BFS joins into one
+    component — _split_double_arc then emits both halves with cross-pointing
+    `double_arc_partner_paths`. When each half is instead a single native
+    `c` (cubic Bezier) that individually passes _is_arc_like, the two arcs
+    never enter the polyline pipeline and never meet — so the polyline
+    helper can't see the pattern. This pass closes that gap with the same
+    cross-pointing partnership, in-place on `swings`.
+
+    Match criteria — all must hold for a pair:
+    - Both swings are source="curve_arc" with one Bezier path each, and
+      neither already has `double_arc_partner_paths` set.
+    - Radii match within DOOR_LEAF_RADIUS_RATIO_TOL.
+    - One endpoint of each coincides within DOOR_CURVE_ARC_SHARED_HINGE_TOL_PX.
+    - Tangent break across the shared endpoint, computed as the angle
+      between arc A's incoming walk-direction tangent (non-shared → shared)
+      and arc B's outgoing walk-direction tangent (shared → non-shared),
+      exceeds DOOR_POLYLINE_CHAIN_DELTA_DEG. This mirrors the antiparallel
+      check `_split_double_arc` performs at the hinge of a polyline garden
+      pair, and correctly rejects smooth S-curve continuations whose
+      incoming + outgoing tangents are nearly equal.
+
+    The orientation matters: comparing both arcs' *outgoing-from-shared*
+    tangents would flip one of them and read as parallel (~0°), so the
+    pair would never match. Always pair incoming-A with outgoing-B.
+    """
+    paths_by_index = {p.path_index: p for p in paths}
+
+    eligible: list[tuple[int, _DoorSwing]] = [
+        (i, s) for i, s in enumerate(swings)
+        if s.source == "curve_arc"
+        and s.double_arc_partner_paths is None
+        and len(s.component_path_indices) == 1
+        and len(s.arc_endpoints) == 2
+    ]
+
+    matched: set[int] = set()
+    for (i, si), (j, sj) in combinations(eligible, 2):
+        if i in matched or j in matched:
+            continue
+
+        ri, rj = si.radius, sj.radius
+        if ri <= 0 or rj <= 0:
+            continue
+        if abs(ri - rj) / max(ri, rj) > DOOR_LEAF_RADIUS_RATIO_TOL:
+            continue
+
+        # Find a single shared endpoint. arc_endpoints == [points[0], points[-1]],
+        # so a_endpoint_idx in {0, 1} maps to Bezier points[0] vs points[3].
+        shared: tuple[int, int] | None = None
+        for ai, ea in enumerate(si.arc_endpoints):
+            for bi, eb in enumerate(sj.arc_endpoints):
+                if math.hypot(ea[0] - eb[0], ea[1] - eb[1]) <= DOOR_CURVE_ARC_SHARED_HINGE_TOL_PX:
+                    shared = (ai, bi)
+                    break
+            if shared is not None:
+                break
+        if shared is None:
+            continue
+
+        path_i = paths_by_index.get(si.component_path_indices[0])
+        path_j = paths_by_index.get(sj.component_path_indices[0])
+        if path_i is None or path_j is None:
+            continue
+        if len(path_i.points) < 4 or len(path_j.points) < 4:
+            # Not a cubic Bezier — this helper only pairs native `c` arcs.
+            continue
+
+        # Tangent at the shared endpoint:
+        # - Bezier point[0]: derivative direction points toward point[1];
+        #   "into the endpoint" (non-shared → shared walk) is point[0]-point[1].
+        # - Bezier point[3]: derivative direction points toward point[2];
+        #   "into the endpoint" (non-shared → shared walk) is point[3]-point[2].
+        # "Out of the endpoint" is the negative of "into".
+        def into_tangent(path: PathPrimitive, end_idx: int) -> tuple[float, float]:
+            if end_idx == 0:
+                return (path.points[0][0] - path.points[1][0],
+                        path.points[0][1] - path.points[1][1])
+            return (path.points[3][0] - path.points[2][0],
+                    path.points[3][1] - path.points[2][1])
+
+        t_in = into_tangent(path_i, shared[0])               # walking arc i into the hinge
+        t_out_neg = into_tangent(path_j, shared[1])
+        t_out = (-t_out_neg[0], -t_out_neg[1])               # walking arc j out of the hinge
+        if (t_in[0] == 0.0 and t_in[1] == 0.0) or (t_out[0] == 0.0 and t_out[1] == 0.0):
+            continue
+
+        a_in = math.degrees(math.atan2(t_in[1], t_in[0]))
+        a_out = math.degrees(math.atan2(t_out[1], t_out[0]))
+        delta = abs(((a_out - a_in) + 180.0) % 360.0 - 180.0)
+        if delta < DOOR_POLYLINE_CHAIN_DELTA_DEG:
+            continue
+
+        si.double_arc_partner_paths = list(sj.component_path_indices)
+        sj.double_arc_partner_paths = list(si.component_path_indices)
+        matched.add(i)
+        matched.add(j)
+
+
 def _collect_door_swings(
     paths: list[PathPrimitive],
     collector: DebugTraceCollector | None = None,
@@ -1459,6 +1571,12 @@ def _collect_door_swings(
                 polyline_component_id=arc_info.get("component_id"),
             )
         swings.append(swing)
+
+    # Garden-door pairing for single-Bezier `curve_arc` swings (§3.7 analogue).
+    # The polyline pipeline already pairs polyline halves via _split_double_arc;
+    # this covers the case where each half is a standalone native `c` primitive,
+    # which the BFS never joins.
+    _detect_curve_arc_double_partners(swings, paths)
 
     return swings
 

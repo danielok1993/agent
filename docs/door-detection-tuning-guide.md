@@ -14,6 +14,7 @@ Door detection has three stages, in strict order:
    - `curve_arc` — single native `c` (Bezier) primitive passing `_is_arc_like` (square-ish bbox, ≥20 px).
    - `curve_arc_chain` — **2+ chained native `c` primitives** whose underlying circle (recovered by 3-point fit) has radius ∈ [20, 200].
    - `polyline_arc` — connected `l` segments forming a curve; detected by `_detect_polyline_arc_bboxes`. May emit ONE arc per BFS component, OR TWO arcs when `_split_double_arc` detects a garden-door pair (§3.7).
+   After all three sources have produced their swings, `_detect_curve_arc_double_partners` runs as a post-pass to pair `curve_arc` swings that form a single-Bezier garden door (§3.8). This is the analogue of `_split_double_arc` for the case where each half is a standalone native Bezier rather than a BFS-joinable polyline chain.
 2. **Leaf collection** — `_collect_door_leaves(paths)` finds:
    - `qu`/`re` (closed rectangle) leaves passing `_is_door_leaf`.
    - `linework_rect` leaves (4–8 line segs forming a closed thin rectangle).
@@ -134,6 +135,37 @@ When matched, the BFS component is **split into two arc_infos**. Each half becom
 - Three-arc chains (e.g., a triple door with two hinges in the middle) — requires multi-break splitting.
 - Garden doors with junctions on EITHER half (e.g., a Y-junction on one swing's outer end) — current detector bails on junctions.
 
+### 3.8 Garden door drawn as two single Beziers (curve_arc partner pass)
+
+```
+   leaf_A ───── free_A_corner ◀── leaf attaches at the arc's outer endpoint
+                       │
+                       │ arc_A  (single `c` Bezier, square bbox)
+                       │
+                       ●  ◀── shared endpoint (both free ends meet here when closed)
+                       │
+                       │ arc_B  (single `c` Bezier, square bbox)
+                       │
+   leaf_B ───── free_B_corner
+```
+
+Same architectural pattern as §3.7, but each half is drawn as ONE native cubic Bezier (each individually passes `_is_arc_like` with a ~square bbox and size ≥ 20 px). The two halves are emitted as independent `curve_arc` swings by `_collect_door_swings`; the polyline pipeline never sees them, so `_split_double_arc` can't fire.
+
+`_detect_curve_arc_double_partners` (heuristics.py, runs at the end of `_collect_door_swings` after all three sources are collected) closes the gap. It looks for pairs of `curve_arc` swings — each single-Bezier, each carrying `arc_endpoints = [pts[0], pts[3]]` — that:
+- have matching radii within `DOOR_LEAF_RADIUS_RATIO_TOL` (0.20),
+- share one endpoint within `DOOR_CURVE_ARC_SHARED_HINGE_TOL_PX` (3 px),
+- exhibit a >`DOOR_POLYLINE_CHAIN_DELTA_DEG` (45°) **walk-direction tangent break** across the shared endpoint.
+
+When matched, both swings get `double_arc_partner_paths` stamped on them (cross-pointing — each carries the other's `component_path_indices`). Everything downstream then behaves identically to a polyline-arc split: the per-half `opening_check` becomes `"deferred_to_merge"` so the bridge-crossing-the-other-half issue doesn't penalise either confidence, and `_merge_double_door_assemblies`' garden-pass match (§3.7 logic) consumes both candidates and emits one `assembly_type="double_swing"`, `swing_layout="garden"` composite.
+
+**Walk-direction tangent break — the orientation pitfall.** The 45° break check must compare arc A's incoming-walk-direction tangent (the tangent walked *into* the shared endpoint when walked from non-shared → shared) with arc B's outgoing-walk-direction tangent (walked *out of* the shared endpoint, shared → non-shared). For a garden-door pair this gives ~180° (antiparallel — the canonical mirror). For a smooth S-curve continuation it gives ~0° (parallel — correctly rejected).
+
+If you instead compared both arcs' *outgoing-from-shared* tangents (or equivalently both incoming), one of them gets flipped and the pair reads as ~0° / parallel — a true garden door would be missed. The Bezier formulas for the four cases (shared endpoint at `pts[0]` vs `pts[3]`; into vs out) are documented in the helper.
+
+**Not handled here (would need extension):**
+- `curve_arc_chain` garden halves (each half drawn as a multi-Bezier chain) — unobserved in the test corpus; would need to expose the outer Beziers of each chain so tangents can be computed at the shared endpoint.
+- More than two `curve_arc` swings meeting at one point (a 3-leaf hub) — the current pairing is one-to-one; the first match wins.
+
 ---
 
 ## 4. The constants — every tunable in one table
@@ -184,6 +216,7 @@ All in `heuristics.py`. Grouped by stage. Defaults are the *current* values afte
 |---|---|---|
 | `DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS` | 4 | Each half must be a viable arc on its own; matches `DOOR_POLYLINE_MIN_SEGMENTS` so each split half can clear the downstream `segment_count` check. A 3+11 split would fail anyway on the 3-seg side. |
 | `DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS` | 3 | Each half must show curvature (≥3 distinct 15° bins). Rules out the failure mode where one "half" is actually an axis-aligned cap ≥4 segs long — that side has just 1 angle bin and the existing chain trimmer is the right tool for it. |
+| `DOOR_CURVE_ARC_SHARED_HINGE_TOL_PX` | 3.0 | Used by the §3.8 curve_arc partner pass — max distance between one endpoint of each arc to count as "the same hinge". Tighter than the 15 px arc-to-leaf pairing tolerance because the inputs are CAD-precise Bezier endpoints (not loose snap matches). Raising risks falsely partnering unrelated nearby arcs. |
 
 ### 4.6 Chained native curves (curve_arc_chain)
 
@@ -369,7 +402,7 @@ End-of-session detection counts (offline mode, walls enabled, windows disabled).
 
 ### 9.2 5-1133-WD03.pdf (1 page, Vectorworks output)
 
-8 doors:
+9 doors:
 
 | entity_id | bbox | size | conf | type | notes |
 |---|---|---|---|---|---|
@@ -381,10 +414,12 @@ End-of-session detection counts (offline mode, walls enabled, windows disabled).
 | door_0005 | 1329,592 — 1419,682 | 90×90 | 0.83 | qu | Baseline (label) |
 | door_0001 | 649,592 — 757,682 | 108×90 | 0.79 | qu | Baseline (label) |
 | door_0000 | 1466,711 — 1556,801 | 90×90 | 0.79 | qu | Baseline (label) |
+| (garden) | 1884,772 — 1966,937 | 82×165 | 0.61 | double_swing / swing_layout=garden | Recovered by `_detect_curve_arc_double_partners` (§3.8). Two single Beziers (each `curve_arc`, radius 82) sharing endpoint (1883.7, 854.7); paired with horizontal anchored-line leaves at y=772 and y=937. Replaces what used to be ONE false-positive single (door_0008, "window decoration") plus one rejected sub-floor candidate (door_0007). |
 
-Two known **false-positive areas** suppressed (verified by user):
-- (1884, 772)–(1966, 855) — a **window** decoration. `single_line_leaf + no_wall + no_label`. Confidence 0.67 → 0.52, below floor.
-- (1286, 907)–(1333, 933) — a **bath fixture**. Same signature. Same drop.
+One known **false-positive area** suppressed (verified by user):
+- (1286, 907)–(1333, 933) — a **bath fixture**. `single_line_leaf + no_wall + no_label`. Confidence 0.67 → 0.52, below floor.
+
+(The previously-reported (1884, 772)–(1966, 855) "window decoration" FP was a misclassification — it was actually the upper half of the garden door now correctly merged above.)
 
 ---
 
@@ -401,7 +436,7 @@ Two known **false-positive areas** suppressed (verified by user):
 
 Before merging any door-detection change:
 
-1. `python -m unittest discover tests` (currently 71 tests).
+1. `python -m unittest discover tests` (currently 80 tests).
 2. Run the two reference PDFs offline and compare door counts/bboxes to §9:
    ```bash
    python app.py extract floor-plans.pdf --no-gemini --debug --disable-windows
@@ -409,7 +444,7 @@ Before merging any door-detection change:
    ```
 3. Targets to hit:
    - **floor-plans.pdf**: 9 doors at the bboxes in §9.1 — 7 singles at conf 0.67 + 2 `double_swing`/`swing_layout=garden` at conf 0.65.
-   - **5-1133-WD03.pdf**: 8 doors at the bboxes in §9.2.
-   - Neither (1884, 772)–(1966, 855) nor (1286, 907)–(1333, 933) becomes a door (those are the known FPs).
+   - **5-1133-WD03.pdf**: 9 doors at the bboxes in §9.2 — 8 baseline + 1 `double_swing`/`swing_layout=garden` at (1884,772)–(1966,937).
+   - (1286, 907)–(1333, 933) stays rejected (the remaining bath-fixture FP).
 
 If door counts drop, use the §8 diagnostic playbook to identify which stage is regressing before adjusting thresholds.
