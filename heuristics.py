@@ -564,6 +564,9 @@ def _detect_polyline_arc_bboxes(
                     seen.add(other)
                     stack.append(other)
 
+        pre_prune_segment_count = len(component)
+        component, pruned_path_indices_set = _prune_arc_spurs(component, segs)
+        pruned_path_indices = sorted(pruned_path_indices_set)
         seg_count = len(component)
         checks: dict = {
             "segment_count": {
@@ -578,7 +581,11 @@ def _detect_polyline_arc_bboxes(
 
         if not (DOOR_POLYLINE_MIN_SEGMENTS <= seg_count <= DOOR_POLYLINE_MAX_SEGMENTS):
             if collector:
-                collector.record_polyline_component(comp_path_indices, "rejected", "segment_count_out_of_range", checks)
+                collector.record_polyline_component(
+                    comp_path_indices, "rejected", "segment_count_out_of_range", checks,
+                    pre_prune_segment_count=pre_prune_segment_count,
+                    pruned_path_indices=pruned_path_indices,
+                )
             continue
 
         points = [pt for idx in component for pt in (segs[idx][1], segs[idx][2])]
@@ -589,7 +596,11 @@ def _detect_polyline_arc_bboxes(
         h = _bbox_height(bbox)
         if h < 1e-6:
             if collector:
-                collector.record_polyline_component(comp_path_indices, "rejected", "bbox_degenerate", checks)
+                collector.record_polyline_component(
+                    comp_path_indices, "rejected", "bbox_degenerate", checks,
+                    pre_prune_segment_count=pre_prune_segment_count,
+                    pruned_path_indices=pruned_path_indices,
+                )
             continue
         aspect = w / h
         size = max(w, h)
@@ -598,7 +609,11 @@ def _detect_polyline_arc_bboxes(
         if not (0.65 <= aspect <= 1.45 and DOOR_MIN_SIZE_PX <= size <= DOOR_MAX_SIZE_PX):
             fail = "bbox_aspect" if not (0.65 <= aspect <= 1.45) else "size_out_of_range"
             if collector:
-                collector.record_polyline_component(comp_path_indices, "rejected", fail, checks)
+                collector.record_polyline_component(
+                    comp_path_indices, "rejected", fail, checks,
+                    pre_prune_segment_count=pre_prune_segment_count,
+                    pruned_path_indices=pruned_path_indices,
+                )
             continue
 
         angles = [segs[idx][4] for idx in component]
@@ -609,14 +624,22 @@ def _detect_polyline_arc_bboxes(
         checks["axis_like_fraction"] = {"value": round(axis_like, 3), "max": 0.35, "passed": axis_like <= 0.35}
         if axis_like > 0.35:
             if collector:
-                collector.record_polyline_component(comp_path_indices, "rejected", "axis_like_fraction", checks)
+                collector.record_polyline_component(
+                    comp_path_indices, "rejected", "axis_like_fraction", checks,
+                    pre_prune_segment_count=pre_prune_segment_count,
+                    pruned_path_indices=pruned_path_indices,
+                )
             continue
 
         angle_bins = {int(angle // 15.0) for angle in angles}
         checks["angle_bin_count"] = {"value": len(angle_bins), "range": [4, DOOR_POLYLINE_MAX_ANGLE_BINS], "passed": 4 <= len(angle_bins) <= DOOR_POLYLINE_MAX_ANGLE_BINS}
         if not (4 <= len(angle_bins) <= DOOR_POLYLINE_MAX_ANGLE_BINS):
             if collector:
-                collector.record_polyline_component(comp_path_indices, "rejected", "angle_bin_count", checks)
+                collector.record_polyline_component(
+                    comp_path_indices, "rejected", "angle_bin_count", checks,
+                    pre_prune_segment_count=pre_prune_segment_count,
+                    pruned_path_indices=pruned_path_indices,
+                )
             continue
 
         degrees: dict[tuple[int, int], int] = defaultdict(int)
@@ -632,7 +655,11 @@ def _detect_polyline_arc_bboxes(
         checks["endpoint_count"] = {"value": len(endpoint_keys), "required": 2, "passed": len(endpoint_keys) == 2}
         if len(endpoint_keys) != 2:
             if collector:
-                collector.record_polyline_component(comp_path_indices, "rejected", "endpoint_count", checks)
+                collector.record_polyline_component(
+                    comp_path_indices, "rejected", "endpoint_count", checks,
+                    pre_prune_segment_count=pre_prune_segment_count,
+                    pruned_path_indices=pruned_path_indices,
+                )
             continue
 
         endpoints = [
@@ -657,7 +684,11 @@ def _detect_polyline_arc_bboxes(
             "layer": layers[0] if layers else None,
         }
         if collector:
-            cid = collector.record_polyline_component(comp_path_indices, "collected", None, checks)
+            cid = collector.record_polyline_component(
+                comp_path_indices, "collected", None, checks,
+                pre_prune_segment_count=pre_prune_segment_count,
+                pruned_path_indices=pruned_path_indices,
+            )
             arc_info["component_id"] = cid
         arc_infos.append(arc_info)
 
