@@ -2,9 +2,11 @@ import math
 import unittest
 
 from heuristics import (
+    DOOR_POLYLINE_CHAIN_DELTA_DEG,
     DOOR_POLYLINE_MIN_SEGMENTS,
     DOOR_POLYLINE_SPUR_MAX_SEGMENTS,
     _prune_arc_spurs,
+    _trim_chain_extension_caps,
 )
 from models import PathPrimitive
 
@@ -149,6 +151,140 @@ class PruneArcSpursTests(unittest.TestCase):
         # well below DOOR_POLYLINE_MIN_SEGMENTS=4 → floor abort, no prune.
         self.assertEqual(DOOR_POLYLINE_MIN_SEGMENTS, 4)  # guard against constant drift
         self.assertEqual(component, pruned)
+        self.assertEqual(set(), removed)
+
+
+class TrimChainExtensionCapsTests(unittest.TestCase):
+    """Tests for _trim_chain_extension_caps.
+
+    Walks a 2-leaf simple chain (no junctions), finds the longest contiguous
+    'arc-like' run (consecutive inter-segment angle deltas all <=
+    DOOR_POLYLINE_CHAIN_DELTA_DEG), and trims everything outside that run.
+    Components that aren't 2-leaf simple chains fall through unchanged.
+    """
+
+    def test_clean_arc_chain_unchanged(self) -> None:
+        """An 11-segment quarter arc has only small inter-seg angle deltas
+        (~8.2° each). No cap, nothing to trim."""
+        segs = _arc(0, n_segs=11)
+        component = list(range(len(segs)))
+
+        kept, removed = _trim_chain_extension_caps(component, segs)
+
+        self.assertEqual(component, kept)
+        self.assertEqual(set(), removed)
+
+    def test_arc_with_perpendicular_cap_at_end_trimmed(self) -> None:
+        """The polyline_393 / linework_226 shape: an 11-seg quarter arc
+        followed by 2 axis-aligned cap segs (a horizontal then a vertical
+        leg that doubles back). The first cap seg breaks the angle
+        progression by ~90°; both cap segs get trimmed, the arc survives."""
+        radius = 50.0
+        arc = _arc(0, n_segs=11, radius=radius)
+        # Arc's far endpoint approximately (0, 50). Attach a 2-seg cap that
+        # doubles back: (0,50)→(3,50)→(3,44). Direction angles in the walk
+        # (after walking through the arc to 90°) become ~0° and ~270° —
+        # both 90° away from arc tangent, well above DELTA threshold.
+        cap = _chain(100, [(0.0, 50.0), (3.0, 50.0), (3.0, 44.0)])
+        segs = arc + cap
+        component = list(range(len(segs)))
+
+        kept, removed = _trim_chain_extension_caps(component, segs)
+
+        # 11 arc segs (path indices 0..10) preserved.
+        self.assertEqual(11, len(kept))
+        self.assertEqual(list(range(11)), sorted(kept))
+        # Both cap path indices (100, 101) removed.
+        self.assertEqual({100, 101}, removed)
+
+    def test_caps_at_both_ends_trimmed(self) -> None:
+        """A symmetric case: 11-seg arc with a 1-seg perpendicular cap at
+        each end. Important: the cap direction must actually BREAK the arc
+        tangent — a cap parallel to the tangent (going along it) just looks
+        like a chain extension of the arc and stays.
+
+        The arc here runs from (radius, 0) to (0, radius). Its tangent at
+        the start points roughly +y (~90°), so a perpendicular cap there
+        must point ±x. Its tangent at the end points roughly -x (~180°),
+        so a perpendicular cap there must point ±y."""
+        radius = 50.0
+        arc = _arc(0, n_segs=11, radius=radius)
+        # Cap A at arc start (radius, 0), going +x (perpendicular to +y tangent).
+        cap_a = _chain(100, [(radius, 0.0), (radius + 5.0, 0.0)])
+        # Cap B at arc end (0, radius), going +y (perpendicular to -x tangent).
+        cap_b = _chain(200, [(0.0, radius), (0.0, radius + 5.0)])
+        segs = cap_a + arc + cap_b
+        component = list(range(len(segs)))
+
+        kept, removed = _trim_chain_extension_caps(component, segs)
+
+        # Caps removed.
+        self.assertEqual({100, 200}, removed)
+        # 11 arc segs (path_indices 0..10) survive.
+        kept_path_indices = sorted(segs[i][0].path_index for i in kept)
+        self.assertEqual(list(range(11)), kept_path_indices)
+
+    def test_component_with_junction_unchanged(self) -> None:
+        """A component that still has a degree-3+ junction after spur
+        pruning is NOT a simple chain, so chain-cap trimming bails out.
+        (Spur pruning is the right tool for junctions; this is the wrong
+        tool.)"""
+        arc = _arc(0, n_segs=11, radius=50.0)
+        # Y-junction at arc end: two short branches.
+        branch_a = _chain(100, [(0.0, 50.0), (-3.0, 53.0)])
+        branch_b = _chain(200, [(0.0, 50.0), (3.0, 53.0)])
+        segs = arc + branch_a + branch_b
+        component = list(range(len(segs)))
+
+        kept, removed = _trim_chain_extension_caps(component, segs)
+
+        self.assertEqual(component, kept)
+        self.assertEqual(set(), removed)
+
+    def test_pure_cycle_unchanged(self) -> None:
+        """A pure cycle has no leaves to walk from. Skipped."""
+        segs = _chain(
+            0,
+            [(0.0, 0.0), (50.0, 0.0), (50.0, 50.0), (0.0, 50.0), (0.0, 0.0)],
+        )
+        component = list(range(len(segs)))
+
+        kept, removed = _trim_chain_extension_caps(component, segs)
+
+        self.assertEqual(component, kept)
+        self.assertEqual(set(), removed)
+
+    def test_irregular_arc_under_threshold_not_over_trimmed(self) -> None:
+        """An 8-seg quarter arc has ~11.25°/seg, well below the 45°
+        threshold. Even a moderate irregularity (a single seg at 25° delta)
+        stays below threshold and the arc survives intact."""
+        # 8 segs around a quarter circle, slightly noisy
+        segs = _arc(0, n_segs=8, radius=60.0)
+        component = list(range(len(segs)))
+
+        kept, removed = _trim_chain_extension_caps(component, segs)
+
+        # Threshold guard so this test stays meaningful if the constant moves.
+        self.assertGreaterEqual(DOOR_POLYLINE_CHAIN_DELTA_DEG, 30.0)
+        self.assertEqual(component, kept)
+        self.assertEqual(set(), removed)
+
+    def test_trim_would_violate_floor_unchanged(self) -> None:
+        """A chain whose arc-like prefix is smaller than DOOR_POLYLINE_MIN_SEGMENTS
+        cannot be trimmed without producing a degenerate component. Floor
+        guard kicks in and nothing is trimmed."""
+        # 3-seg arc + 4-seg cap. Trimming the cap would leave 3 segs,
+        # below DOOR_POLYLINE_MIN_SEGMENTS=4 → floor abort.
+        arc = _arc(0, n_segs=3, radius=20.0)
+        # Cap: 4 short segs going perpendicular at the arc's end (~(0,20)).
+        cap = _chain(100, [(0.0, 20.0), (3.0, 20.0), (3.0, 17.0), (6.0, 17.0), (6.0, 14.0)])
+        segs = arc + cap
+        component = list(range(len(segs)))
+
+        kept, removed = _trim_chain_extension_caps(component, segs)
+
+        self.assertEqual(DOOR_POLYLINE_MIN_SEGMENTS, 4)  # guard
+        self.assertEqual(component, kept)
         self.assertEqual(set(), removed)
 
 

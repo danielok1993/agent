@@ -31,6 +31,12 @@ DOOR_POLYLINE_MAX_SEGMENTS  = 24
 DOOR_POLYLINE_MAX_SEG_PX    = 18.0
 DOOR_POLYLINE_ENDPOINT_TOL  = 2.0
 DOOR_POLYLINE_SPUR_MAX_SEGMENTS = 4   # max chain length (segments) of a leaf-spur that gets pruned from an arc component
+# Max per-segment angle change (degrees) for a chain to count as "arc-like
+# continuity". A 4-seg quarter arc has ~22.5°/seg, so 45° gives headroom for
+# jitter while catching the perpendicular angle jump where a flat cap meets the
+# arc's natural endpoint (e.g. a 90° break from tangent into a horizontal cap
+# line).
+DOOR_POLYLINE_CHAIN_DELTA_DEG = 45.0
 DOOR_LAYER_KEYWORDS         = ["door", "a-door"]
 DOOR_ASSEMBLY_CONNECT_TOL_PX = 15.0
 DOOR_LEAF_RADIUS_RATIO_TOL   = 0.20
@@ -495,6 +501,121 @@ def _prune_arc_spurs(
     return current, removed_path_indices
 
 
+def _trim_chain_extension_caps(
+    component: list[int],
+    segs: list[tuple[PathPrimitive, tuple[float, float], tuple[float, float], float, float]],
+) -> tuple[list[int], set[int]]:
+    """Trim non-arc cap segments off a 2-leaf simple chain.
+
+    Some CAD draftsmen draw a door's latch position as a short axis-aligned
+    "cap" attached at the arc's natural endpoint, forming a linear extension
+    of the chain (not a branched cluster). Spur pruning can't fire because
+    there's no degree-3+ junction — the cap is just a continuation of the
+    same chain. This step walks the chain end-to-end, looks at each segment's
+    direction angle, and finds the longest contiguous run where consecutive
+    inter-segment angle deltas are small (an "arc-like" run). Anything past
+    a sharp angle break (> DOOR_POLYLINE_CHAIN_DELTA_DEG) is treated as a
+    cap and trimmed.
+
+    Only acts on components that are simple chains: exactly two degree-1
+    leaves and zero degree-3+ junctions. Components with junctions or
+    cycles fall through unchanged so spur pruning / downstream checks can
+    do their job. If trimming would drop the chain below
+    DOOR_POLYLINE_MIN_SEGMENTS, no trim is applied.
+
+    Returns (kept_component, removed_seg_path_indices).
+    """
+    if len(component) < DOOR_POLYLINE_MIN_SEGMENTS:
+        return list(component), set()
+
+    def snap_key(point: tuple[float, float]) -> tuple[int, int]:
+        return (
+            round(point[0] / DOOR_POLYLINE_ENDPOINT_TOL),
+            round(point[1] / DOOR_POLYLINE_ENDPOINT_TOL),
+        )
+
+    endpoint_buckets: dict[tuple[int, int], list[int]] = defaultdict(list)
+    for local_idx, seg_idx in enumerate(component):
+        _, p1, p2, _, _ = segs[seg_idx]
+        endpoint_buckets[snap_key(p1)].append(local_idx)
+        endpoint_buckets[snap_key(p2)].append(local_idx)
+
+    leaves = [pt for pt, lis in endpoint_buckets.items() if len(lis) == 1]
+    junctions_present = any(len(lis) > 2 for lis in endpoint_buckets.values())
+    if len(leaves) != 2 or junctions_present:
+        return list(component), set()
+
+    # Walk from one leaf to the other, recording (local_idx, walk-direction angle).
+    walk: list[tuple[int, float]] = []
+    current_vertex = leaves[0]
+    prev_local = -1
+    while True:
+        neighbours = endpoint_buckets.get(current_vertex, [])
+        next_local = next((n for n in neighbours if n != prev_local), None)
+        if next_local is None:
+            break
+        seg_idx = component[next_local]
+        _, p1, p2, _, _ = segs[seg_idx]
+        k1, k2 = snap_key(p1), snap_key(p2)
+        if k1 == current_vertex:
+            dx, dy = p2[0] - p1[0], p2[1] - p1[1]
+            next_vertex = k2
+        else:
+            dx, dy = p1[0] - p2[0], p1[1] - p2[1]
+            next_vertex = k1
+        angle = math.degrees(math.atan2(dy, dx)) % 360.0
+        walk.append((next_local, angle))
+        prev_local = next_local
+        current_vertex = next_vertex
+
+    # A 2-leaf simple chain should walk every seg exactly once.
+    if len(walk) != len(component):
+        return list(component), set()
+
+    # Find the longest contiguous run where consecutive direction-deltas are
+    # all within DOOR_POLYLINE_CHAIN_DELTA_DEG. A "run" of length k covers
+    # k segments (indices [start, start+k-1] in walk order). Single-segment
+    # runs are allowed.
+    def signed_delta(a1: float, a2: float) -> float:
+        d = (a2 - a1) % 360.0
+        if d > 180.0:
+            d -= 360.0
+        return d
+
+    best_start, best_end = 0, 0
+    run_start = 0
+    for i in range(len(walk) - 1):
+        _, a_i = walk[i]
+        _, a_next = walk[i + 1]
+        if abs(signed_delta(a_i, a_next)) > DOOR_POLYLINE_CHAIN_DELTA_DEG:
+            if i - run_start > best_end - best_start:
+                best_start, best_end = run_start, i
+            run_start = i + 1
+    # Close the trailing run.
+    final_end = len(walk) - 1
+    if final_end - run_start > best_end - best_start:
+        best_start, best_end = run_start, final_end
+
+    if best_start == 0 and best_end == len(walk) - 1:
+        return list(component), set()  # no break detected; nothing to trim
+
+    new_component_len = best_end - best_start + 1
+    if new_component_len < DOOR_POLYLINE_MIN_SEGMENTS:
+        return list(component), set()  # floor guard
+
+    kept_walk_indices = set(range(best_start, best_end + 1))
+    new_component: list[int] = []
+    removed_path_indices: set[int] = set()
+    for walk_pos, (local_idx, _) in enumerate(walk):
+        seg_idx = component[local_idx]
+        if walk_pos in kept_walk_indices:
+            new_component.append(seg_idx)
+        else:
+            removed_path_indices.add(segs[seg_idx][0].path_index)
+
+    return new_component, removed_path_indices
+
+
 def _detect_polyline_arc_bboxes(
     line_paths: list[PathPrimitive],
     collector: DebugTraceCollector | None = None,
@@ -566,7 +687,8 @@ def _detect_polyline_arc_bboxes(
 
         pre_prune_segment_count = len(component)
         component, pruned_path_indices_set = _prune_arc_spurs(component, segs)
-        pruned_path_indices = sorted(pruned_path_indices_set)
+        component, cap_trimmed_set = _trim_chain_extension_caps(component, segs)
+        pruned_path_indices = sorted(pruned_path_indices_set | cap_trimmed_set)
         seg_count = len(component)
         checks: dict = {
             "segment_count": {
