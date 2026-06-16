@@ -41,6 +41,13 @@ DOOR_POLYLINE_CHAIN_DELTA_DEG = 45.0
 # rectangle) attached at the arc's natural endpoint via a single junction.
 # floor-plans.pdf's polyline_856 has a 7-seg cap loop; 8 gives a small margin.
 DOOR_POLYLINE_CYCLE_MAX_SEGMENTS = 8
+# Double-arc / garden-door split detection. A 2-leaf simple chain that walks
+# leaf→hinge→leaf produces ~180° walk-direction break at the hinge between the
+# two halves. Distinguishes from §3.6 (linear cap extension), where the trimmed
+# side is a short axis-aligned cap. Both halves must clear these floors to
+# qualify for split-into-two-swings instead of trim-one-half.
+DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS    = 4   # each half must be a viable arc on its own
+DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS  = 3   # each half must have curvature (not axis-aligned)
 # Endpoint snap tolerance for chaining native (`c`) Bezier curves into a
 # single logical arc. PDF curves emitted by CAD tools have machine-precise
 # endpoints; 1.0 px is generous.
@@ -613,6 +620,122 @@ def _prune_arc_cycle_caps(
     return current, removed_path_indices
 
 
+def _split_double_arc(
+    component: list[int],
+    segs: list[tuple[PathPrimitive, tuple[float, float], tuple[float, float], float, float]],
+) -> tuple[list[int], list[int]] | None:
+    """Detect a 2-leaf simple chain that is two arc halves meeting at a hinge.
+
+    The garden-door / double-door pattern: two door panels swing AWAY from
+    a shared hinge. Each swing arc is a normal quarter-ish polyline arc;
+    the two arcs share one endpoint (the hinge) and their walk-direction
+    tangents at the hinge are antiparallel (~180° break). BFS merges the
+    two arcs into one 2-leaf simple chain.
+
+    Without this detector, _trim_chain_extension_caps would treat one half
+    as a "cap" past the break and trim it, leaving only one of the two
+    swings detected. Calling _split_double_arc first preserves both halves
+    so each can pair with its own leaf line.
+
+    Returns ``(left_seg_indices, right_seg_indices)`` (both lists of seg
+    indices into ``segs``, preserving walk order) when the component is
+    a true double-arc: exactly one >DOOR_POLYLINE_CHAIN_DELTA_DEG break,
+    each side ≥ DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS, each side has
+    ≥ DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS distinct 15° angle bins (i.e.
+    is genuinely curved — rules out a §3.6 axis-aligned cap that happens
+    to be long).
+
+    Returns ``None`` otherwise so the existing prune/trim chain handles
+    the component as today.
+    """
+    if len(component) < 2 * DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS:
+        return None
+
+    def snap_key(point: tuple[float, float]) -> tuple[int, int]:
+        return (
+            round(point[0] / DOOR_POLYLINE_ENDPOINT_TOL),
+            round(point[1] / DOOR_POLYLINE_ENDPOINT_TOL),
+        )
+
+    endpoint_buckets: dict[tuple[int, int], list[int]] = defaultdict(list)
+    for local_idx, seg_idx in enumerate(component):
+        _, p1, p2, _, _ = segs[seg_idx]
+        endpoint_buckets[snap_key(p1)].append(local_idx)
+        endpoint_buckets[snap_key(p2)].append(local_idx)
+
+    leaves = [pt for pt, lis in endpoint_buckets.items() if len(lis) == 1]
+    junctions_present = any(len(lis) > 2 for lis in endpoint_buckets.values())
+    if len(leaves) != 2 or junctions_present:
+        return None
+
+    # Walk leaf-to-leaf, recording each seg's walk-direction angle in [0, 360).
+    walk: list[tuple[int, float]] = []
+    current_vertex = leaves[0]
+    prev_local = -1
+    while True:
+        neighbours = endpoint_buckets.get(current_vertex, [])
+        next_local = next((n for n in neighbours if n != prev_local), None)
+        if next_local is None:
+            break
+        seg_idx = component[next_local]
+        _, p1, p2, _, _ = segs[seg_idx]
+        k1, k2 = snap_key(p1), snap_key(p2)
+        if k1 == current_vertex:
+            dx, dy = p2[0] - p1[0], p2[1] - p1[1]
+            next_vertex = k2
+        else:
+            dx, dy = p1[0] - p2[0], p1[1] - p2[1]
+            next_vertex = k1
+        angle = math.degrees(math.atan2(dy, dx)) % 360.0
+        walk.append((next_local, angle))
+        prev_local = next_local
+        current_vertex = next_vertex
+
+    if len(walk) != len(component):
+        return None
+
+    def signed_delta(a1: float, a2: float) -> float:
+        d = (a2 - a1) % 360.0
+        if d > 180.0:
+            d -= 360.0
+        return d
+
+    break_positions = [
+        i for i in range(len(walk) - 1)
+        if abs(signed_delta(walk[i][1], walk[i + 1][1])) > DOOR_POLYLINE_CHAIN_DELTA_DEG
+    ]
+    if len(break_positions) != 1:
+        return None
+
+    break_idx = break_positions[0]
+    left_walk = walk[: break_idx + 1]
+    right_walk = walk[break_idx + 1 :]
+    if (
+        len(left_walk) < DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS
+        or len(right_walk) < DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS
+    ):
+        return None
+
+    def angle_bin_count(walk_slice: list[tuple[int, float]]) -> int:
+        bins: set[int] = set()
+        for local_idx, _ in walk_slice:
+            seg_idx = component[local_idx]
+            # segs entries store the undirected angle in [0, 180) at index 4.
+            undirected_angle = segs[seg_idx][4]
+            bins.add(int(undirected_angle // 15.0))
+        return len(bins)
+
+    if (
+        angle_bin_count(left_walk) < DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS
+        or angle_bin_count(right_walk) < DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS
+    ):
+        return None
+
+    left_segs = [component[local_idx] for (local_idx, _) in left_walk]
+    right_segs = [component[local_idx] for (local_idx, _) in right_walk]
+    return left_segs, right_segs
+
+
 def _trim_chain_extension_caps(
     component: list[int],
     segs: list[tuple[PathPrimitive, tuple[float, float], tuple[float, float], float, float]],
@@ -782,27 +905,35 @@ def _detect_polyline_arc_bboxes(
     seen: set[int] = set()
     arc_infos: list[dict] = []
 
-    for start_idx in range(len(segs)):
-        if start_idx in seen:
-            continue
+    def _process_component(
+        component: list[int],
+        pre_prune_segment_count: int,
+        double_arc_partner_paths: list[int] | None = None,
+        pre_pruned_path_indices: set[int] | None = None,
+    ) -> None:
+        """Run pruning + checks for one component, append arc_info on success.
 
-        stack = [start_idx]
-        seen.add(start_idx)
-        component: list[int] = []
-        while stack:
-            idx = stack.pop()
-            component.append(idx)
-            for other in adjacency[idx]:
-                if other not in seen:
-                    seen.add(other)
-                    stack.append(other)
+        ``double_arc_partner_paths`` is set when this component is one half
+        of a garden-door / double-arc split (see _split_double_arc). It
+        carries the OTHER half's path indices so downstream pairing can
+        cross-exclude the partner's arc when running the opening check —
+        otherwise each half would see the other as a "sill obstruction"
+        across its bridge.
 
-        pre_prune_segment_count = len(component)
+        ``pre_pruned_path_indices`` carries paths trimmed *before* this call
+        (spur/cycle prunes done outside) plus the partner half's paths in
+        the split case, so the debug record's ``pruned_path_indices`` is a
+        complete picture of what the BFS-found ``pre_prune_segment_count``
+        component originally contained versus the final collected set.
+        """
         component, pruned_path_indices_set = _prune_arc_spurs(component, segs)
         component, cycle_trimmed_set = _prune_arc_cycle_caps(component, segs)
         component, cap_trimmed_set = _trim_chain_extension_caps(component, segs)
         pruned_path_indices = sorted(
-            pruned_path_indices_set | cycle_trimmed_set | cap_trimmed_set
+            pruned_path_indices_set
+            | cycle_trimmed_set
+            | cap_trimmed_set
+            | (pre_pruned_path_indices or set())
         )
         seg_count = len(component)
         checks: dict = {
@@ -823,7 +954,7 @@ def _detect_polyline_arc_bboxes(
                     pre_prune_segment_count=pre_prune_segment_count,
                     pruned_path_indices=pruned_path_indices,
                 )
-            continue
+            return
 
         points = [pt for idx in component for pt in (segs[idx][1], segs[idx][2])]
         xs = [pt[0] for pt in points]
@@ -838,7 +969,7 @@ def _detect_polyline_arc_bboxes(
                     pre_prune_segment_count=pre_prune_segment_count,
                     pruned_path_indices=pruned_path_indices,
                 )
-            continue
+            return
         aspect = w / h
         size = max(w, h)
         checks["bbox_aspect"] = {"value": round(aspect, 4), "range": [0.65, 1.45], "passed": 0.65 <= aspect <= 1.45}
@@ -851,7 +982,7 @@ def _detect_polyline_arc_bboxes(
                     pre_prune_segment_count=pre_prune_segment_count,
                     pruned_path_indices=pruned_path_indices,
                 )
-            continue
+            return
 
         angles = [segs[idx][4] for idx in component]
         axis_like = sum(
@@ -866,7 +997,7 @@ def _detect_polyline_arc_bboxes(
                     pre_prune_segment_count=pre_prune_segment_count,
                     pruned_path_indices=pruned_path_indices,
                 )
-            continue
+            return
 
         angle_bins = {int(angle // 15.0) for angle in angles}
         checks["angle_bin_count"] = {"value": len(angle_bins), "range": [4, DOOR_POLYLINE_MAX_ANGLE_BINS], "passed": 4 <= len(angle_bins) <= DOOR_POLYLINE_MAX_ANGLE_BINS}
@@ -877,7 +1008,7 @@ def _detect_polyline_arc_bboxes(
                     pre_prune_segment_count=pre_prune_segment_count,
                     pruned_path_indices=pruned_path_indices,
                 )
-            continue
+            return
 
         degrees: dict[tuple[int, int], int] = defaultdict(int)
         point_sums: dict[tuple[int, int], list[float]] = defaultdict(lambda: [0.0, 0.0, 0.0])
@@ -897,7 +1028,7 @@ def _detect_polyline_arc_bboxes(
                     pre_prune_segment_count=pre_prune_segment_count,
                     pruned_path_indices=pruned_path_indices,
                 )
-            continue
+            return
 
         endpoints = [
             (
@@ -920,6 +1051,8 @@ def _detect_polyline_arc_bboxes(
             "component_path_indices": component_path_indices,
             "layer": layers[0] if layers else None,
         }
+        if double_arc_partner_paths is not None:
+            arc_info["double_arc_partner_paths"] = sorted(double_arc_partner_paths)
         if collector:
             cid = collector.record_polyline_component(
                 comp_path_indices, "collected", None, checks,
@@ -928,6 +1061,61 @@ def _detect_polyline_arc_bboxes(
             )
             arc_info["component_id"] = cid
         arc_infos.append(arc_info)
+
+    for start_idx in range(len(segs)):
+        if start_idx in seen:
+            continue
+
+        stack = [start_idx]
+        seen.add(start_idx)
+        component: list[int] = []
+        while stack:
+            idx = stack.pop()
+            component.append(idx)
+            for other in adjacency[idx]:
+                if other not in seen:
+                    seen.add(other)
+                    stack.append(other)
+
+        pre_prune_segment_count = len(component)
+
+        # Pre-clean spurs and cycles BEFORE attempting the double-arc split.
+        # The garden-door pattern often has a tiny closed cycle at the hinge
+        # (two near-overlapping vertical segs the CAD tool emitted as both
+        # halves' final segs) that registers as a degree-3+ junction and
+        # makes _split_double_arc bail out on the "no junctions" check. Spur
+        # and cycle pruning leave the double-arc 2-leaf simple chain intact
+        # without affecting either half's curvature.
+        cleaned, pre_split_spurs = _prune_arc_spurs(component, segs)
+        cleaned, pre_split_cycles = _prune_arc_cycle_caps(cleaned, segs)
+        pre_split_pruned = pre_split_spurs | pre_split_cycles
+
+        # Garden-door / double-arc detection: a 2-leaf simple chain with two
+        # arc halves meeting at a ~180° tangent break (the door hinge). When
+        # found, emit BOTH halves as separate components so each can pair
+        # with its own leaf line; without this split, _trim_chain_extension_caps
+        # would treat one half as a "cap" past the break and trim it.
+        split = _split_double_arc(cleaned, segs)
+        if split is not None:
+            left, right = split
+            left_paths = [segs[i][0].path_index for i in left]
+            right_paths = [segs[i][0].path_index for i in right]
+            _process_component(
+                left, pre_prune_segment_count,
+                double_arc_partner_paths=right_paths,
+                pre_pruned_path_indices=pre_split_pruned | set(right_paths),
+            )
+            _process_component(
+                right, pre_prune_segment_count,
+                double_arc_partner_paths=left_paths,
+                pre_pruned_path_indices=pre_split_pruned | set(left_paths),
+            )
+        else:
+            # Non-double-arc: existing flow. _process_component's spur/cycle
+            # prune passes are no-ops on `cleaned` (already pruned) and the
+            # chain-trim still gets to fire on §3.6 cap-extension patterns.
+            _process_component(cleaned, pre_prune_segment_count,
+                               pre_pruned_path_indices=pre_split_pruned)
 
     return arc_infos
 
@@ -991,6 +1179,11 @@ class _DoorSwing:
     evidence: dict
     arc_endpoints: list[tuple[float, float]]   # actual arc start/end points for bridge-line check
     debug_id: str | None = None               # set by DebugTraceCollector when active
+    # Set when this swing is one half of a garden-door / double-arc split
+    # (see _split_double_arc). Carries the OTHER half's path indices so the
+    # bridge-line opening check can cross-exclude the partner's arc — without
+    # this, each half flags the other as a sill obstruction across its bridge.
+    double_arc_partner_paths: list[int] | None = None
 
 
 @dataclass
@@ -1236,6 +1429,17 @@ def _collect_door_swings(
         radius = max(_bbox_width(bbox), _bbox_height(bbox))
         layer = arc_info.get("layer")
         layer_hint = _layer_hint_from_layer(layer, DOOR_LAYER_KEYWORDS)
+        partner_paths = arc_info.get("double_arc_partner_paths")
+        evidence = {
+            "arc_source": "polyline_arc",
+            "segment_count": arc_info["segment_count"],
+            "axis_like_fraction": arc_info["axis_like_fraction"],
+            "angle_bin_count": arc_info["angle_bin_count"],
+            "layer": layer,
+            "layer_hint": layer_hint,
+        }
+        if partner_paths is not None:
+            evidence["double_arc_partner_paths"] = list(partner_paths)
         swing = _DoorSwing(
             source="polyline_arc",
             bbox=bbox,
@@ -1244,15 +1448,9 @@ def _collect_door_swings(
             component_path_indices=list(arc_info["component_path_indices"]),
             layer=layer,
             layer_hint=layer_hint,
-            evidence={
-                "arc_source": "polyline_arc",
-                "segment_count": arc_info["segment_count"],
-                "axis_like_fraction": arc_info["axis_like_fraction"],
-                "angle_bin_count": arc_info["angle_bin_count"],
-                "layer": layer,
-                "layer_hint": layer_hint,
-            },
+            evidence=evidence,
             arc_endpoints=list(arc_info["endpoints"]),
+            double_arc_partner_paths=list(partner_paths) if partner_paths is not None else None,
         )
         if collector:
             swing.debug_id = collector.record_swing(
@@ -2021,12 +2219,19 @@ def _pair_door_assemblies(
         threshold_boost = DOOR_THRESHOLD_CONFIDENCE_BOOST if threshold is not None else 0.0
         confidence += label_boost + layer_boost + threshold_boost
         confidence = min(confidence, 0.95)
-        # v2: bridge-line opening check (Wall Break Condition)
+        # v2: bridge-line opening check (Wall Break Condition).
+        # Garden-door halves: skip the per-half check. The "bridge" for one
+        # half runs from the half's outer endpoint to the shared hinge — that
+        # diagonal is NOT the doorway opening, just internal swing geometry,
+        # so a wall edge along it isn't a sill. The real opening spans the
+        # two OUTER endpoints (computed at merge time, not here).
         opening_check = "unknown"
-        if swing.arc_endpoints and len(swing.arc_endpoints) == 2:
+        if swing.arc_endpoints and len(swing.arc_endpoints) == 2 and not swing.double_arc_partner_paths:
             opening_check = _check_opening_clear(
-                swing.arc_endpoints, line_paths, set(component_path_indices)
+                swing.arc_endpoints, line_paths, set(component_path_indices),
             )
+        elif swing.double_arc_partner_paths:
+            opening_check = "deferred_to_merge"
         opening_boost = DOOR_V2_OPENING_CLEAR_BOOST if opening_check == "clear" else 0.0
         opening_penalty = DOOR_V2_OPENING_OBSTRUCTED_PENALTY if opening_check == "obstructed" else 0.0
         confidence += opening_boost - opening_penalty
@@ -2048,11 +2253,14 @@ def _pair_door_assemblies(
             "connection_dist_px": round(connection_dist, 2),
             "leaf_radius_ratio": round(radius_ratio, 3),
             "component_path_indices": component_path_indices,
+            "arc_path_indices": list(swing.component_path_indices),
             "nearby_label": nearby_label,
             "layer": swing.layer or leaf.layer,
             "layer_hint": layer_hint,
             "opening_check": opening_check,
         }
+        if swing.double_arc_partner_paths is not None:
+            evidence["double_arc_partner_paths"] = list(swing.double_arc_partner_paths)
         if threshold is not None:
             evidence["has_threshold"] = True
             evidence["door_subtype"] = "entrance"
@@ -2146,11 +2354,16 @@ def _pair_door_assemblies(
         confidence += label_boost + layer_boost
         confidence = min(confidence, 0.95)
 
+        # See companion block in the rect-leaf branch for rationale: for
+        # garden-door halves the per-half "bridge" isn't the actual opening,
+        # so defer the opening check to merge time (or skip if no merge happens).
         opening_check = "unknown"
-        if swing.arc_endpoints and len(swing.arc_endpoints) == 2:
+        if swing.arc_endpoints and len(swing.arc_endpoints) == 2 and not swing.double_arc_partner_paths:
             opening_check = _check_opening_clear(
                 swing.arc_endpoints, line_paths, set(component_path_indices),
             )
+        elif swing.double_arc_partner_paths:
+            opening_check = "deferred_to_merge"
         opening_boost = DOOR_V2_OPENING_CLEAR_BOOST if opening_check == "clear" else 0.0
         opening_penalty = (
             DOOR_V2_OPENING_OBSTRUCTED_PENALTY if opening_check == "obstructed" else 0.0
@@ -2172,11 +2385,14 @@ def _pair_door_assemblies(
             "leaf_line_endpoint_dist_px": round(line_leaf["endpoint_dist"], 2),
             "leaf_companion_path_indices": sorted(companion_indices),
             "component_path_indices": component_path_indices,
+            "arc_path_indices": list(swing.component_path_indices),
             "nearby_label": nearby_label,
             "layer": swing.layer or line_leaf["layer"],
             "layer_hint": layer_hint,
             "opening_check": opening_check,
         }
+        if swing.double_arc_partner_paths is not None:
+            evidence["double_arc_partner_paths"] = list(swing.double_arc_partner_paths)
         evidence.update(
             {f"arc_{k}": v for k, v in swing.evidence.items() if k not in evidence}
         )
@@ -2345,6 +2561,15 @@ def _merge_double_door_assemblies(candidates: list[Candidate]) -> list[Candidate
 
     Only fully assembled doors (method=door_assembly) participate. Pairing is
     one-to-one — once a candidate joins a double door it cannot merge again.
+
+    Two distinct double-door layouts are handled:
+    - **french**: leaves are collinear with a small gap; doors meet in the
+      middle of the opening (the classic French-door pattern).
+    - **garden**: leaves are at opposite outer ends of the opening; swing
+      arcs share a hinge in the middle (a 2-leaf simple chain with a single
+      ~180° tangent break — see _split_double_arc). Identified by matching
+      ``double_arc_partner_paths`` and given priority over the leaf-collinear
+      rule because the partnership is unambiguous.
     """
     import re as _re
     assemblies = [
@@ -2352,7 +2577,23 @@ def _merge_double_door_assemblies(candidates: list[Candidate]) -> list[Candidate
         if c.entity_type == "door" and c.evidence.get("method") == "door_assembly"
     ]
 
-    scored_pairs: list[tuple[float, int, int]] = []  # (abs_signed_gap, idx_i, idx_j)
+    scored_pairs: list[tuple[float, int, int, str]] = []  # (sort_key, idx_i, idx_j, layout)
+
+    # Garden-door pass: match by double_arc_partner_paths. The polyline-arc
+    # detector produces TWO half-arc candidates from one BFS double-arc; each
+    # carries the OTHER half's arc paths. A genuine partnership is when each
+    # half's arc paths equal the other's partner_paths.
+    for (pi, ci), (pj, cj) in combinations(assemblies, 2):
+        partner_i = ci.evidence.get("double_arc_partner_paths")
+        partner_j = cj.evidence.get("double_arc_partner_paths")
+        if not partner_i or not partner_j:
+            continue
+        arc_i_paths = ci.evidence.get("arc_path_indices") or []
+        arc_j_paths = cj.evidence.get("arc_path_indices") or []
+        if set(arc_i_paths) == set(partner_j) and set(arc_j_paths) == set(partner_i):
+            # Sort key 0.0 — garden-door pairs win over any french-pair score (>= 0.0).
+            scored_pairs.append((0.0, pi, pj, "garden"))
+
     for (pi, ci), (pj, cj) in combinations(assemblies, 2):
         arc_i = _safe_bbox(ci.evidence.get("arc_bbox"))
         arc_j = _safe_bbox(cj.evidence.get("arc_bbox"))
@@ -2396,7 +2637,8 @@ def _merge_double_door_assemblies(candidates: list[Candidate]) -> list[Candidate
         if not (-DOOR_DOUBLE_LEAF_OVERLAP_PX <= signed_gap <= DOOR_DOUBLE_LEAF_GAP_PX):
             continue
 
-        scored_pairs.append((abs(signed_gap), pi, pj))
+        # +1.0 offset so any french score sorts after every garden pair (sort_key=0.0).
+        scored_pairs.append((1.0 + abs(signed_gap), pi, pj, "french"))
 
     if not scored_pairs:
         return candidates
@@ -2404,11 +2646,11 @@ def _merge_double_door_assemblies(candidates: list[Candidate]) -> list[Candidate
     # Greedy one-to-one match: tightest leaf fit wins; each candidate used at most once
     scored_pairs.sort()
     used: set[int] = set()
-    merges: list[tuple[int, int]] = []
-    for _, pi, pj in scored_pairs:
+    merges: list[tuple[int, int, str]] = []
+    for _, pi, pj, layout in scored_pairs:
         if pi in used or pj in used:
             continue
-        merges.append((pi, pj))
+        merges.append((pi, pj, layout))
         used.add(pi)
         used.add(pj)
 
@@ -2427,7 +2669,7 @@ def _merge_double_door_assemblies(candidates: list[Candidate]) -> list[Candidate
     by_idx = {i: c for i, c in enumerate(candidates)}
     merged_candidates: list[Candidate] = []
 
-    for pi, pj in merges:
+    for pi, pj, layout in merges:
         ci = by_idx[pi]
         cj = by_idx[pj]
 
@@ -2445,6 +2687,7 @@ def _merge_double_door_assemblies(candidates: list[Candidate]) -> list[Candidate
         evidence: dict = {
             "method": "door_assembly",
             "assembly_type": "double_swing",
+            "swing_layout": layout,
             "component_path_indices": sorted(ci_indices | cj_indices),
         }
 

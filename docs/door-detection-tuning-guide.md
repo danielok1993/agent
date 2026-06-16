@@ -13,7 +13,7 @@ Door detection has three stages, in strict order:
 1. **Swing collection** — `_collect_door_swings(paths)` finds arc-like geometry. Three swing sources:
    - `curve_arc` — single native `c` (Bezier) primitive passing `_is_arc_like` (square-ish bbox, ≥20 px).
    - `curve_arc_chain` — **2+ chained native `c` primitives** whose underlying circle (recovered by 3-point fit) has radius ∈ [20, 200].
-   - `polyline_arc` — connected `l` segments forming a curve; detected by `_detect_polyline_arc_bboxes`.
+   - `polyline_arc` — connected `l` segments forming a curve; detected by `_detect_polyline_arc_bboxes`. May emit ONE arc per BFS component, OR TWO arcs when `_split_double_arc` detects a garden-door pair (§3.7).
 2. **Leaf collection** — `_collect_door_leaves(paths)` finds:
    - `qu`/`re` (closed rectangle) leaves passing `_is_door_leaf`.
    - `linework_rect` leaves (4–8 line segs forming a closed thin rectangle).
@@ -33,18 +33,24 @@ After pairing, `merge_gemini_and_heuristics` (offline mode) applies `OFFLINE_MIN
 For each BFS-discovered connected component of short `l` segments, the order is **fixed and important**:
 
 ```
-BFS(component) → _prune_arc_spurs → _prune_arc_cycle_caps → _trim_chain_extension_caps → scoring
+BFS(component)
+  → _prune_arc_spurs
+  → _prune_arc_cycle_caps
+  → _split_double_arc            ◀── if matched: emit BOTH halves as separate arc_infos, skip _trim_chain_extension_caps
+  → _trim_chain_extension_caps   ◀── otherwise
+  → scoring
 ```
 
-Each step shrinks the component by removing a different appendage topology. Together they can transform a polluted arc (axis_like_fraction = 0.44, angle_bin_count = 8) into a clean arc that passes all checks.
+Each step shrinks (or splits) the component. Together they can transform a polluted arc (axis_like_fraction = 0.44, angle_bin_count = 8) into a clean arc that passes all checks, or split a 24-seg double-arc into two valid 12-seg arcs.
 
-| Helper | Operates on | Removes | Floor-guarded? | Iterates? |
+| Helper | Operates on | Action | Floor-guarded? | Iterates? |
 |---|---|---|---|---|
-| `_prune_arc_spurs` | any component | leaf-spurs of ≤4 segs ending at a degree-3+ junction | yes (≥`DOOR_POLYLINE_MIN_SEGMENTS`) | yes |
-| `_prune_arc_cycle_caps` | components with ≥1 degree-3+ junction | closed cycles of ≤8 segs sharing one vertex with the rest | yes | yes |
-| `_trim_chain_extension_caps` | 2-leaf simple chains only (no junctions) | runs past a sharp angle break (>45° per seg) | yes | no — single pass |
+| `_prune_arc_spurs` | any component | removes leaf-spurs of ≤4 segs ending at a degree-3+ junction | yes (≥`DOOR_POLYLINE_MIN_SEGMENTS`) | yes |
+| `_prune_arc_cycle_caps` | components with ≥1 degree-3+ junction | removes closed cycles of ≤8 segs sharing one vertex with the rest | yes | yes |
+| `_split_double_arc` | 2-leaf simple chains only | **emits TWO sub-components** when a single >45° break separates two arc-like halves (§3.7) | yes (each half ≥ `DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS`) | no — single pass |
+| `_trim_chain_extension_caps` | 2-leaf simple chains only, NOT firing when `_split_double_arc` matched | trims runs past a sharp angle break (>45° per seg) | yes | no — single pass |
 
-The order matters because each step can convert a complex topology into a simpler one for the next step. Spur pruning may collapse junctions to degree-2, exposing chain extensions. Cycle pruning may convert junction-attached loops to dangling leaves, which the chain-trim then handles.
+The order matters because each step can convert a complex topology into a simpler one for the next step. Spur pruning may collapse junctions to degree-2. Cycle pruning may convert junction-attached loops to dangling leaves, AND may strip a 2-seg cycle at a garden-door hinge that would otherwise prevent `_split_double_arc` from running. `_split_double_arc` and `_trim_chain_extension_caps` are mutually exclusive on the same break — split wins when both halves are arc-like; trim wins when one side is a short axis-aligned cap.
 
 ---
 
@@ -102,6 +108,32 @@ Cycle pruning walks from each junction along each incident edge; a walk that ret
 ```
 Topologically a simple 2-leaf chain. Spur pruning can't fire (no junction); cycle pruning can't fire (no cycle). Detected only by angle-monotonicity: the cap segments break the arc's smooth angle progression by ≥45° per seg.
 
+### 3.7 Double arc / garden-door pair (split-emit, then merge)
+```
+       leaf_L                            leaf_R
+        │                                   │
+        ╲╱── arc_L ── hinge ── arc_R ───╱╲
+        │                                   │
+   outer_left                          outer_right
+```
+Two quarter-arcs SHARE a single hinge endpoint with **antiparallel walk-direction tangents** (a ~180° break at the hinge when walked leaf-to-leaf). BFS joins them into one 2-leaf simple chain. Without the new detector, `_trim_chain_extension_caps` mistreats one half as a cap past the break and discards 12 of the 24 segments.
+
+The new helper `_split_double_arc` (heuristics.py, runs BEFORE `_trim_chain_extension_caps` but AFTER spur + cycle pruning) detects this pattern by requiring:
+- 2-leaf simple chain (no junctions after cycle prune).
+- **Exactly one** >45° break in walk-direction.
+- Both halves ≥ `DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS` (4).
+- Both halves have ≥ `DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS` (3) distinct 15° angle bins — rules out a §3.6 long axis-aligned cap that happens to be ≥4 segs.
+
+When matched, the BFS component is **split into two arc_infos**. Each half becomes its own `_DoorSwing` carrying `double_arc_partner_paths` (the OTHER half's path indices). Each pairs with its own anchored leaf line; `_merge_double_door_assemblies` then merges the two single-door candidates into one `assembly_type="double_swing"`, `swing_layout="garden"` entity with bbox = union of both halves.
+
+**Opening-check special-case:** for a garden-door half, the per-half bridge runs from the outer endpoint to the hinge — that's *internal* swing geometry, not the actual doorway opening. The per-half check is skipped (`opening_check="deferred_to_merge"`, no boost or penalty applied). The half base confidence stays at 0.60 (DOOR_ASSEMBLY_LINE_LEAF_BASE), the merge bonus (+0.05) lifts the composite to 0.65 — just over the 0.55 offline floor.
+
+**Garden door 2 wrinkle:** sometimes the hinge has a tiny 2-seg closed cycle (two near-overlapping vertical segs the CAD tool emitted as both halves' final segs sharing both endpoints via snap-key collapse). That registers as a degree-3+ junction and makes `_split_double_arc` fail the "no junctions" check. To handle this, spur + cycle pruning runs first; once the 2-cycle is removed, the chain becomes simple and the split detects.
+
+**Not handled here (would need extension):**
+- Three-arc chains (e.g., a triple door with two hinges in the middle) — requires multi-break splitting.
+- Garden doors with junctions on EITHER half (e.g., a Y-junction on one swing's outer end) — current detector bails on junctions.
+
 ---
 
 ## 4. The constants — every tunable in one table
@@ -144,7 +176,14 @@ All in `heuristics.py`. Grouped by stage. Defaults are the *current* values afte
 
 | Constant | Value | Rationale |
 |---|---|---|
-| `DOOR_POLYLINE_CHAIN_DELTA_DEG` | 45.0 | Max per-segment direction-angle delta for "arc-like continuity". A 4-seg quarter arc has 22.5°/seg; 45° gives headroom for jitter. A perpendicular cap (a horizontal cap meeting a vertical arc tangent) is a 90° break — well above 45°. **Lowering risks splitting real arcs at noise spikes.** |
+| `DOOR_POLYLINE_CHAIN_DELTA_DEG` | 45.0 | Max per-segment direction-angle delta for "arc-like continuity". A 4-seg quarter arc has 22.5°/seg; 45° gives headroom for jitter. A perpendicular cap (a horizontal cap meeting a vertical arc tangent) is a 90° break — well above 45°. **Lowering risks splitting real arcs at noise spikes.** Also reused by `_split_double_arc` (§3.7) as the threshold for "the one big break at the hinge". |
+
+### 4.5b Double-arc / garden-door split (§3.7)
+
+| Constant | Value | Rationale |
+|---|---|---|
+| `DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS` | 4 | Each half must be a viable arc on its own; matches `DOOR_POLYLINE_MIN_SEGMENTS` so each split half can clear the downstream `segment_count` check. A 3+11 split would fail anyway on the 3-seg side. |
+| `DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS` | 3 | Each half must show curvature (≥3 distinct 15° bins). Rules out the failure mode where one "half" is actually an axis-aligned cap ≥4 segs long — that side has just 1 angle bin and the existing chain trimmer is the right tool for it. |
 
 ### 4.6 Chained native curves (curve_arc_chain)
 
@@ -236,6 +275,7 @@ These were confirmed on the test corpus. The single guard rule that catches both
 | Topology | Status | Where it appears | Why deferred |
 |---|---|---|---|
 | Chain-extension cap inside a component that has junctions | Not handled | rare in observed CAD | `_trim_chain_extension_caps` only acts on 2-leaf simple chains. Adding junction-aware variant requires more state. |
+| Adjacent (but unpaired) doors sharing a near-shared hinge endpoint that ISN'T a garden-door pair | Not handled | unobserved | Considered as a follow-up to §3.7: a "cross-exclude paths within 5 px of shared endpoints" rule in `_check_opening_clear` for non-double-arc cases. Garden doors don't need it (both halves are in one assembly via the partner-paths threading); leaving the rule out keeps blast radius small until a real case is observed. |
 | Spur > 4 segs | Not handled | observed once on floor-plans | Would need a separate "tail trim" with different criteria. |
 | Multiple cycles at one junction | Partial — pruned one at a time | rare | Iteration handles it eventually but tests should add coverage. |
 | Sliding doors (no arc) | Not handled | unobserved in test corpus | Different symbol entirely — would need leaf-only + slide-marker detector. |
@@ -311,18 +351,21 @@ End-of-session detection counts (offline mode, walls enabled, windows disabled).
 
 ### 9.1 floor-plans.pdf (1 page, 1240×1754 px, Microsoft Print to PDF)
 
-8 doors, all confidence 0.67, all `single_line_leaf` assembly type, all `arc_source = polyline_arc`:
+9 doors: 7 `single_line_leaf` singles (conf 0.67) + 2 `double_swing` / `swing_layout=garden` composites (conf 0.65). All `arc_source = polyline_arc`.
 
-| entity_id | bbox (x0,y0,x1,y1) | size | notes |
-|---|---|---|---|
-| door_0008 | 1001, 404 — 1055, 458 | 54×55 | Recovered by cycle pruning (polyline_992) |
-| door_0003 | 1096, 649 — 1141, 694 | 45×45 | Recovered by cycle pruning (polyline_856 / linework_801 area) |
-| door_0006 | 1041, 704 — 1086, 749 | 45×45 | Recovered by spur pruning (linework_1318) |
-| door_0002 | 424, 917 — 467, 958 | 43×41 | Baseline |
-| door_0004 | 979, 1064 — 1029, 1117 | 50×54 | Baseline |
-| door_0005 | 1036, 1139 — 1090, 1189 | 54×50 | Baseline |
-| door_0001 | 389, 1185 — 440, 1232 | 51×47 | Baseline |
-| door_0000 | 458, 1337 — 512, 1392 | 54×55 | Recovered by chain-extension trim (linework_226 / polyline_393) |
+| entity_id | bbox (x0,y0,x1,y1) | size | conf | type | notes |
+|---|---|---|---|---|---|
+| garden_door_1 | 310, 356 — 420, 410 | 110×54 | 0.65 | double_swing | Recovered by `_split_double_arc` (§3.7). polyline_991 BFS = 24 segs → split 12+12. Replaces the previously-rejected door_0007. |
+| garden_door_2 | 1001, 404 — 1111, 458 | 110×55 | 0.65 | double_swing | Recovered by `_split_double_arc` (§3.7). polyline_993 BFS = 24 segs; 2-cycle at hinge stripped by cycle prune; then 11+11 split. Absorbs the area previously detected as door_0008. |
+| door (long-corridor) | 1096, 649 — 1141, 694 | 45×45 | 0.67 | single_line_leaf | Recovered by cycle pruning (polyline_856 / linework_801 area) |
+| door (long-corridor) | 1041, 704 — 1086, 749 | 45×45 | 0.67 | single_line_leaf | Recovered by spur pruning (linework_1318) |
+| door | 424, 917 — 467, 958 | 43×41 | 0.67 | single_line_leaf | Baseline |
+| door | 979, 1064 — 1029, 1117 | 50×54 | 0.67 | single_line_leaf | Baseline |
+| door | 1036, 1139 — 1090, 1189 | 54×50 | 0.67 | single_line_leaf | Baseline |
+| door | 389, 1185 — 440, 1232 | 51×47 | 0.67 | single_line_leaf | Baseline |
+| door | 458, 1337 — 512, 1392 | 54×55 | 0.67 | single_line_leaf | Recovered by chain-extension trim (linework_226 / polyline_393) |
+
+(Entity IDs aren't pinned because the numeric suffix depends on emission order, which shifts when new detectors come online — match by bbox.)
 
 ### 9.2 5-1133-WD03.pdf (1 page, Vectorworks output)
 
@@ -365,7 +408,7 @@ Before merging any door-detection change:
    python app.py extract 5-1133-WD03.pdf --no-gemini --debug --disable-windows
    ```
 3. Targets to hit:
-   - **floor-plans.pdf**: 8 doors at the bboxes in §9.1.
+   - **floor-plans.pdf**: 9 doors at the bboxes in §9.1 — 7 singles at conf 0.67 + 2 `double_swing`/`swing_layout=garden` at conf 0.65.
    - **5-1133-WD03.pdf**: 8 doors at the bboxes in §9.2.
    - Neither (1884, 772)–(1966, 855) nor (1286, 907)–(1333, 933) becomes a door (those are the known FPs).
 

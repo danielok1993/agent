@@ -72,7 +72,7 @@ OFFLINE_MIN_CONFIDENCE: dict[str, float] = {
 # Door-only candidate-evidence keys carried through to Entity.attributes so
 # downstream consumers of final_entities.json see the entrance-door subtype
 # without having to cross-reference candidates.json.
-_DOOR_EVIDENCE_PASSTHROUGH = ("has_threshold", "door_subtype", "threshold_path_index", "assembly_type")
+_DOOR_EVIDENCE_PASSTHROUGH = ("has_threshold", "door_subtype", "threshold_path_index", "assembly_type", "swing_layout")
 
 
 def _door_attribute_overlay(candidate: Optional[Candidate]) -> dict:

@@ -2,12 +2,15 @@ import math
 import unittest
 
 from heuristics import (
+    DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS,
+    DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS,
     DOOR_POLYLINE_CHAIN_DELTA_DEG,
     DOOR_POLYLINE_CYCLE_MAX_SEGMENTS,
     DOOR_POLYLINE_MIN_SEGMENTS,
     DOOR_POLYLINE_SPUR_MAX_SEGMENTS,
     _prune_arc_cycle_caps,
     _prune_arc_spurs,
+    _split_double_arc,
     _trim_chain_extension_caps,
 )
 from models import PathPrimitive
@@ -50,6 +53,46 @@ def _chain(start_idx: int, points: list[tuple[float, float]]):
         _seg(start_idx + i, points[i], points[i + 1])
         for i in range(len(points) - 1)
     ]
+
+
+def _double_arc(start_idx: int, n_per_half: int = 11, radius: float = 100.0):
+    """Two quarter arcs sharing endpoint (0, 0) with antiparallel tangents.
+
+    Models the garden-door / double-door hinge topology. The right-arc
+    sweeps around center (-radius, 0) from outer leaf (-radius, radius)
+    down to the hinge (0, 0). The left-arc sweeps around center
+    (radius, 0) from the hinge (0, 0) up to its outer leaf (radius,
+    radius). Walking leaf-to-leaf through the resulting chain produces
+    a single ~180° break in walk-direction at the hinge — the signature
+    the detector looks for.
+
+    Default radius=100 keeps the points adjacent to the hinge far enough
+    apart (≈±1 px) that DOOR_POLYLINE_ENDPOINT_TOL=2.0 doesn't collapse
+    them into one snap-key bucket.
+    """
+    right_pts = [
+        (
+            -radius + radius * math.cos(math.radians(90 - 90 * i / n_per_half)),
+            radius * math.sin(math.radians(90 - 90 * i / n_per_half)),
+        )
+        for i in range(n_per_half + 1)
+    ]
+    left_pts = [
+        (
+            radius + radius * math.cos(math.radians(180 - 90 * i / n_per_half)),
+            radius * math.sin(math.radians(180 - 90 * i / n_per_half)),
+        )
+        for i in range(n_per_half + 1)
+    ]
+    right_segs = [
+        _seg(start_idx + i, right_pts[i], right_pts[i + 1])
+        for i in range(n_per_half)
+    ]
+    left_segs = [
+        _seg(start_idx + n_per_half + i, left_pts[i], left_pts[i + 1])
+        for i in range(n_per_half)
+    ]
+    return right_segs + left_segs
 
 
 class PruneArcSpursTests(unittest.TestCase):
@@ -424,6 +467,102 @@ class PruneArcCycleCapsTests(unittest.TestCase):
         self.assertEqual(DOOR_POLYLINE_MIN_SEGMENTS, 4)  # guard
         self.assertEqual(component, kept)
         self.assertEqual(set(), removed)
+
+
+class SplitDoubleArcTests(unittest.TestCase):
+    """Tests for _split_double_arc.
+
+    Detects the 2-leaf simple chain that is two arc halves meeting at a
+    single sharp angle break (the door hinge of a garden / double door).
+    Without this, _trim_chain_extension_caps would trim one half as a
+    "cap" and only one door would be detected.
+    """
+
+    def test_double_arc_split_into_two_halves(self) -> None:
+        """Two 11-seg quarter arcs sharing a hinge (0, 0) with antiparallel
+        walk-direction tangents. Should return both halves as separate
+        seg-index lists covering the whole component disjointly."""
+        segs = _double_arc(0, n_per_half=11, radius=100.0)
+        component = list(range(len(segs)))
+
+        result = _split_double_arc(component, segs)
+
+        self.assertIsNotNone(result)
+        left, right = result
+        self.assertEqual(set(component), set(left) | set(right))
+        self.assertEqual(set(), set(left) & set(right))
+        self.assertEqual(11, len(left))
+        self.assertEqual(11, len(right))
+
+    def test_single_arc_not_split(self) -> None:
+        """A clean 11-seg quarter arc has only ~8° per-seg deltas — well
+        below the 45° break threshold. Not a double-arc; return None."""
+        segs = _arc(0, n_segs=11)
+        component = list(range(len(segs)))
+
+        self.assertIsNone(_split_double_arc(component, segs))
+
+    def test_arc_with_short_axis_cap_not_split(self) -> None:
+        """The §3.6 cap-extension pattern: 11-seg arc + 2-seg perpendicular
+        axis cap. The cap side is too short to be a viable half. Fall
+        through so _trim_chain_extension_caps does its job."""
+        arc = _arc(0, n_segs=11)
+        cap = _chain(100, [(0.0, 50.0), (3.0, 50.0), (3.0, 44.0)])
+        segs = arc + cap
+        component = list(range(len(segs)))
+
+        self.assertIsNone(_split_double_arc(component, segs))
+
+    def test_floor_protects_too_small_double_arc(self) -> None:
+        """Halves of 3 segs each are below DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS.
+        Bail."""
+        segs = _double_arc(0, n_per_half=3, radius=80.0)
+        component = list(range(len(segs)))
+
+        self.assertEqual(DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS, 4)  # guard
+        self.assertIsNone(_split_double_arc(component, segs))
+
+    def test_zigzag_with_multiple_breaks_rejected(self) -> None:
+        """A zigzag chain has many 90° breaks. The detector requires
+        exactly one break (the hinge); multi-break chains aren't the
+        garden-door pattern."""
+        zigzag = _chain(
+            0,
+            [
+                (0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (20.0, 10.0),
+                (20.0, 0.0), (30.0, 0.0), (30.0, 10.0), (40.0, 10.0),
+            ],
+        )
+        component = list(range(len(zigzag)))
+
+        self.assertIsNone(_split_double_arc(component, zigzag))
+
+    def test_component_with_junction_not_split(self) -> None:
+        """A component with a degree-3+ junction isn't a 2-leaf simple
+        chain. The detector only fires on simple chains; junctions are
+        spur-pruning territory. Two spurs at the same point make the
+        shared vertex degree-3 (arc[0] + spur_a + spur_b)."""
+        segs = _double_arc(0, n_per_half=11, radius=100.0)
+        spur_a = _chain(1000, [(-100.0, 100.0), (-104.0, 104.0)])
+        spur_b = _chain(1001, [(-100.0, 100.0), (-104.0, 96.0)])
+        segs = segs + spur_a + spur_b
+        component = list(range(len(segs)))
+
+        self.assertIsNone(_split_double_arc(component, segs))
+
+    def test_arc_with_long_axis_cap_rejected_by_angle_bin_check(self) -> None:
+        """If the trimmed side were a LONG (≥4 segs) but axis-aligned
+        line, it would have only ~1 distinct 15° angle bin — far below
+        DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS. Not a real double-arc; the
+        chain trimmer is the right tool for this case."""
+        arc = _arc(0, n_segs=11)
+        # 4-seg horizontal cap past arc end at (0, 50). All segs are
+        # axis-aligned (angle ≈ 0 mod 180), so angle_bin_count == 1.
+        cap = _chain(100, [(0.0, 50.0), (5.0, 50.0), (10.0, 50.0), (15.0, 50.0), (20.0, 50.0)])
+        segs = arc + cap
+        component = list(range(len(segs)))
+
+        self.assertIsNone(_split_double_arc(component, segs))
 
 
 if __name__ == "__main__":
