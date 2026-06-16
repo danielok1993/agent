@@ -2612,6 +2612,12 @@ def detect_schedules(
 CROSS_WALL_EXPAND_PX  = 20.0   # expand wall bbox when checking containment
 CROSS_NO_WALL_PENALTY = 0.08   # door/window has no wall nearby → penalty
 CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY = 0.04
+# Single-line-leaf is the weakest leaf evidence (a single anchored line vs. a
+# closed rectangle). Without a surrounding wall AND without a nearby door label,
+# the assembly is statistically a bath fixture or window decoration, not a
+# door. Apply a stronger penalty than the default door_assembly case so these
+# fall below the offline confidence floor.
+CROSS_NO_WALL_SINGLE_LINE_LEAF_PENALTY = 0.15
 # No in-wall boost: wall and window candidates share the same raw linework,
 # so overlap is structural correlation, not independent evidence.
 
@@ -2641,11 +2647,21 @@ def _cross_validate(
             continue
 
         in_wall = any(_bboxes_overlap(c.bbox, wb) for wb in wall_bboxes)
-        penalty = (
-            CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY
-            if c.entity_type == "door" and c.evidence.get("method") == "door_assembly"
-            else CROSS_NO_WALL_PENALTY
+        is_assembly = (
+            c.entity_type == "door"
+            and c.evidence.get("method") == "door_assembly"
         )
+        is_single_line_no_label = (
+            is_assembly
+            and c.evidence.get("assembly_type") == "single_line_leaf"
+            and not c.evidence.get("nearby_label")
+        )
+        if is_single_line_no_label:
+            penalty = CROSS_NO_WALL_SINGLE_LINE_LEAF_PENALTY
+        elif is_assembly:
+            penalty = CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY
+        else:
+            penalty = CROSS_NO_WALL_PENALTY
         delta = 0.0 if in_wall else -penalty
         new_conf = round(min(max(c.confidence + delta, 0.0), 0.95), 3)
 

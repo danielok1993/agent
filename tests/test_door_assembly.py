@@ -184,6 +184,79 @@ class DoorAssemblyTests(unittest.TestCase):
         self.assertEqual(round(0.65 - CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY, 3), adjusted[0].confidence)
         self.assertEqual("no_wall", adjusted[0].evidence["wall_context"])
 
+    def test_single_line_leaf_no_wall_no_label_gets_stronger_penalty(self) -> None:
+        """A single_line_leaf door with no surrounding wall AND no nearby label
+        is the signature of a bath fixture or window decoration, not a real
+        door. _cross_validate applies a larger no-wall penalty in this case
+        than the default door_assembly penalty so such candidates drop below
+        the offline confidence floor."""
+        from heuristics import CROSS_NO_WALL_SINGLE_LINE_LEAF_PENALTY
+
+        door = Candidate(
+            candidate_id="door_0000",
+            entity_type="door",
+            bbox=(0.0, 0.0, 80.0, 80.0),
+            confidence=0.67,
+            evidence={
+                "method": "door_assembly",
+                "assembly_type": "single_line_leaf",
+                "nearby_label": None,
+            },
+        )
+        far_wall = Candidate(
+            candidate_id="wall_0000",
+            entity_type="wall",
+            bbox=(500.0, 500.0, 600.0, 520.0),
+            confidence=0.7,
+            evidence={},
+        )
+
+        adjusted = _cross_validate([door], [far_wall])
+
+        self.assertEqual("no_wall", adjusted[0].evidence["wall_context"])
+        self.assertEqual(
+            round(0.67 - CROSS_NO_WALL_SINGLE_LINE_LEAF_PENALTY, 3),
+            adjusted[0].confidence,
+        )
+        # Sanity guard: penalty must be strictly larger than the default
+        # so this rule actually moves things below the offline floor.
+        self.assertGreater(
+            CROSS_NO_WALL_SINGLE_LINE_LEAF_PENALTY,
+            CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY,
+        )
+
+    def test_single_line_leaf_no_wall_WITH_label_uses_default_penalty(self) -> None:
+        """A single_line_leaf door with no wall but WITH a nearby door label
+        (e.g. "GD6") still has enough signal to stay a candidate — only the
+        default door_assembly penalty applies, not the stronger single-line
+        leaf penalty."""
+        door = Candidate(
+            candidate_id="door_0000",
+            entity_type="door",
+            bbox=(0.0, 0.0, 80.0, 80.0),
+            confidence=0.67,
+            evidence={
+                "method": "door_assembly",
+                "assembly_type": "single_line_leaf",
+                "nearby_label": "GD6",
+            },
+        )
+        far_wall = Candidate(
+            candidate_id="wall_0000",
+            entity_type="wall",
+            bbox=(500.0, 500.0, 600.0, 520.0),
+            confidence=0.7,
+            evidence={},
+        )
+
+        adjusted = _cross_validate([door], [far_wall])
+
+        self.assertEqual("no_wall", adjusted[0].evidence["wall_context"])
+        self.assertEqual(
+            round(0.67 - CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY, 3),
+            adjusted[0].confidence,
+        )
+
 
 class EntranceDoorTests(unittest.TestCase):
     """Regression + new-feature tests for entrance-door threshold-line handling.
