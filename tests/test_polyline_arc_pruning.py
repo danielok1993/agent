@@ -3,8 +3,10 @@ import unittest
 
 from heuristics import (
     DOOR_POLYLINE_CHAIN_DELTA_DEG,
+    DOOR_POLYLINE_CYCLE_MAX_SEGMENTS,
     DOOR_POLYLINE_MIN_SEGMENTS,
     DOOR_POLYLINE_SPUR_MAX_SEGMENTS,
+    _prune_arc_cycle_caps,
     _prune_arc_spurs,
     _trim_chain_extension_caps,
 )
@@ -282,6 +284,142 @@ class TrimChainExtensionCapsTests(unittest.TestCase):
         component = list(range(len(segs)))
 
         kept, removed = _trim_chain_extension_caps(component, segs)
+
+        self.assertEqual(DOOR_POLYLINE_MIN_SEGMENTS, 4)  # guard
+        self.assertEqual(component, kept)
+        self.assertEqual(set(), removed)
+
+
+class PruneArcCycleCapsTests(unittest.TestCase):
+    """Tests for _prune_arc_cycle_caps.
+
+    A 'closed-cycle cap' is a closed loop of segments attached at exactly
+    one vertex (the articulation point / junction) to the rest of the
+    component. The helper walks from each junction along each incident
+    edge through degree-2 vertices and trims any walk that returns to
+    the same junction within DOOR_POLYLINE_CYCLE_MAX_SEGMENTS steps.
+    """
+
+    def test_clean_arc_no_junctions_unchanged(self) -> None:
+        """An arc with no degree-3+ vertices has nothing to prune."""
+        segs = _arc(0, n_segs=11)
+        component = list(range(len(segs)))
+
+        kept, removed = _prune_arc_cycle_caps(component, segs)
+
+        self.assertEqual(component, kept)
+        self.assertEqual(set(), removed)
+
+    def test_arc_with_4_seg_rect_cycle_removed(self) -> None:
+        """11-seg arc + closed 4-seg rectangle attached at arc end.
+        The junction is at the arc's natural endpoint; the rectangle
+        is a closed cycle. All 4 cycle segs trimmed; arc preserved.
+
+        Coords are spaced by >=4 px so each vertex rounds to a distinct
+        snap_key (DOOR_POLYLINE_ENDPOINT_TOL=2.0, so vertices need >=2
+        px apart in each coord to avoid bucket collisions)."""
+        arc = _arc(0, n_segs=11, radius=50.0)
+        rect = _chain(
+            100,
+            [(0.0, 50.0), (4.0, 50.0), (4.0, 54.0), (0.0, 54.0), (0.0, 50.0)],
+        )
+        segs = arc + rect
+        component = list(range(len(segs)))
+
+        kept, removed = _prune_arc_cycle_caps(component, segs)
+
+        kept_path_indices = sorted(segs[i][0].path_index for i in kept)
+        self.assertEqual(list(range(11)), kept_path_indices)
+        self.assertEqual({100, 101, 102, 103}, removed)
+
+    def test_arc_with_7_seg_cycle_removed(self) -> None:
+        """The polyline_856 shape: 11-seg arc + 7-seg closed cap loop
+        attached at the arc's natural endpoint. All 7 cycle segs trimmed."""
+        arc = _arc(0, n_segs=11, radius=50.0)
+        cycle = _chain(
+            100,
+            [
+                (0.0, 50.0), (4.0, 50.0), (8.0, 54.0), (8.0, 58.0),
+                (4.0, 62.0), (0.0, 58.0), (0.0, 54.0), (0.0, 50.0),
+            ],
+        )
+        segs = arc + cycle
+        component = list(range(len(segs)))
+
+        kept, removed = _prune_arc_cycle_caps(component, segs)
+
+        kept_path_indices = sorted(segs[i][0].path_index for i in kept)
+        self.assertEqual(list(range(11)), kept_path_indices)
+        self.assertEqual(7, len(removed))
+
+    def test_oversized_cycle_kept(self) -> None:
+        """A cycle of more than DOOR_POLYLINE_CYCLE_MAX_SEGMENTS segments
+        exceeds the cap cutoff and is left alone — assumed too large to
+        be a typical door-stop decoration."""
+        arc = _arc(0, n_segs=11, radius=50.0)
+        cycle = _chain(
+            100,
+            [
+                (0.0, 50.0), (4.0, 50.0), (8.0, 52.0), (12.0, 56.0),
+                (12.0, 60.0), (8.0, 64.0), (4.0, 64.0), (0.0, 60.0),
+                (0.0, 56.0), (0.0, 50.0),
+            ],
+        )
+        segs = arc + cycle
+        component = list(range(len(segs)))
+
+        kept, removed = _prune_arc_cycle_caps(component, segs)
+
+        # Guard: oversized cycle must be strictly larger than the threshold.
+        self.assertEqual(DOOR_POLYLINE_CYCLE_MAX_SEGMENTS, 8)
+        self.assertEqual(component, kept)
+        self.assertEqual(set(), removed)
+
+    def test_pure_cycle_unchanged(self) -> None:
+        """A pure cycle (no junction) has nothing to attach to. The helper
+        only fires on cycles ATTACHED at an articulation point."""
+        segs = _chain(
+            0,
+            [(0.0, 0.0), (50.0, 0.0), (50.0, 50.0), (0.0, 50.0), (0.0, 0.0)],
+        )
+        component = list(range(len(segs)))
+
+        kept, removed = _prune_arc_cycle_caps(component, segs)
+
+        self.assertEqual(component, kept)
+        self.assertEqual(set(), removed)
+
+    def test_spur_at_junction_not_treated_as_cycle(self) -> None:
+        """A Y-junction with leaf-ending branches is a spur configuration,
+        not a cycle. Cycle pruning must walk INTO each branch, detect that
+        it ends at a leaf (degree 1) rather than looping back, and bail."""
+        arc = _arc(0, n_segs=11, radius=50.0)
+        # Two 1-seg branches at (0, 50), each ending in a leaf.
+        branch_a = _chain(100, [(0.0, 50.0), (-3.0, 53.0)])
+        branch_b = _chain(200, [(0.0, 50.0), (3.0, 53.0)])
+        segs = arc + branch_a + branch_b
+        component = list(range(len(segs)))
+
+        kept, removed = _prune_arc_cycle_caps(component, segs)
+
+        self.assertEqual(component, kept)
+        self.assertEqual(set(), removed)
+
+    def test_floor_guard_prevents_excess_pruning(self) -> None:
+        """When pruning the cycle would drop the component below
+        DOOR_POLYLINE_MIN_SEGMENTS, the helper aborts and returns the
+        original component."""
+        # 3-seg "arc" chain meeting a 4-seg cycle at one vertex. Pruning
+        # the cycle would leave only 3 segs, below the floor of 4.
+        arc = _chain(0, [(0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (10.0, 20.0)])
+        rect = _chain(
+            100,
+            [(10.0, 20.0), (14.0, 20.0), (14.0, 24.0), (10.0, 24.0), (10.0, 20.0)],
+        )
+        segs = arc + rect
+        component = list(range(len(segs)))
+
+        kept, removed = _prune_arc_cycle_caps(component, segs)
 
         self.assertEqual(DOOR_POLYLINE_MIN_SEGMENTS, 4)  # guard
         self.assertEqual(component, kept)

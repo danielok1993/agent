@@ -37,6 +37,10 @@ DOOR_POLYLINE_SPUR_MAX_SEGMENTS = 4   # max chain length (segments) of a leaf-sp
 # arc's natural endpoint (e.g. a 90° break from tangent into a horizontal cap
 # line).
 DOOR_POLYLINE_CHAIN_DELTA_DEG = 45.0
+# Max number of segments in a closed-loop cap (e.g. door stop drawn as a closed
+# rectangle) attached at the arc's natural endpoint via a single junction.
+# floor-plans.pdf's polyline_856 has a 7-seg cap loop; 8 gives a small margin.
+DOOR_POLYLINE_CYCLE_MAX_SEGMENTS = 8
 DOOR_LAYER_KEYWORDS         = ["door", "a-door"]
 DOOR_ASSEMBLY_CONNECT_TOL_PX = 15.0
 DOOR_LEAF_RADIUS_RATIO_TOL   = 0.20
@@ -501,6 +505,105 @@ def _prune_arc_spurs(
     return current, removed_path_indices
 
 
+def _prune_arc_cycle_caps(
+    component: list[int],
+    segs: list[tuple[PathPrimitive, tuple[float, float], tuple[float, float], float, float]],
+) -> tuple[list[int], set[int]]:
+    """Remove a small closed-cycle cap attached at a single articulation point.
+
+    Some CAD draftsmen draw a door's latch position as a closed
+    mini-rectangle attached at the arc's natural endpoint. Topologically
+    this is a closed cycle sharing exactly one vertex with the arc. Spur
+    pruning can't fire because there's no degree-1 leaf inside the cycle;
+    chain-cap trim can't fire because the junction breaks "2-leaf simple
+    chain". This step walks from each junction along each incident edge
+    through degree-2 vertices; if the walk returns to the same junction
+    within DOOR_POLYLINE_CYCLE_MAX_SEGMENTS steps, the walked edges form
+    a closed cycle attached at that junction and they're trimmed.
+
+    Iterates so a multi-tier appendage (cycle inside cycle, or two
+    cycles at separate junctions) collapses in successive passes.
+
+    Returns (kept_component, removed_seg_path_indices). Floor-guarded so
+    no prune drops the component below DOOR_POLYLINE_MIN_SEGMENTS.
+    """
+    if len(component) < DOOR_POLYLINE_MIN_SEGMENTS:
+        return list(component), set()
+
+    def snap_key(point: tuple[float, float]) -> tuple[int, int]:
+        return (
+            round(point[0] / DOOR_POLYLINE_ENDPOINT_TOL),
+            round(point[1] / DOOR_POLYLINE_ENDPOINT_TOL),
+        )
+
+    current = list(component)
+    removed_path_indices: set[int] = set()
+
+    while True:
+        endpoint_buckets: dict[tuple[int, int], list[int]] = defaultdict(list)
+        for local_idx, seg_idx in enumerate(current):
+            _, p1, p2, _, _ = segs[seg_idx]
+            endpoint_buckets[snap_key(p1)].append(local_idx)
+            endpoint_buckets[snap_key(p2)].append(local_idx)
+
+        junctions = [v for v, lis in endpoint_buckets.items() if len(lis) >= 3]
+        if not junctions:
+            break
+
+        cycle_locals: list[int] | None = None
+        for junction in junctions:
+            for start_local in endpoint_buckets[junction]:
+                walked: list[int] = [start_local]
+                seg_idx = current[start_local]
+                _, p1, p2, _, _ = segs[seg_idx]
+                k1, k2 = snap_key(p1), snap_key(p2)
+                cur_vertex = k2 if k1 == junction else k1
+                prev_local = start_local
+
+                while len(walked) <= DOOR_POLYLINE_CYCLE_MAX_SEGMENTS:
+                    if cur_vertex == junction:
+                        cycle_locals = walked
+                        break
+                    neighbours = endpoint_buckets.get(cur_vertex, [])
+                    if len(neighbours) != 2:
+                        # leaf (spur), other junction, or empty — not a cycle.
+                        break
+                    next_local = next(
+                        (n for n in neighbours if n != prev_local),
+                        None,
+                    )
+                    if next_local is None:
+                        break
+                    walked.append(next_local)
+                    seg_idx = current[next_local]
+                    _, p1, p2, _, _ = segs[seg_idx]
+                    k1, k2 = snap_key(p1), snap_key(p2)
+                    next_vertex = k2 if k1 == cur_vertex else k1
+                    prev_local = next_local
+                    cur_vertex = next_vertex
+
+                if cycle_locals is not None:
+                    break
+            if cycle_locals is not None:
+                break
+
+        if cycle_locals is None:
+            break
+        if len(current) - len(cycle_locals) < DOOR_POLYLINE_MIN_SEGMENTS:
+            break
+
+        cycle_set = set(cycle_locals)
+        new_current: list[int] = []
+        for local_idx, seg_idx in enumerate(current):
+            if local_idx in cycle_set:
+                removed_path_indices.add(segs[seg_idx][0].path_index)
+            else:
+                new_current.append(seg_idx)
+        current = new_current
+
+    return current, removed_path_indices
+
+
 def _trim_chain_extension_caps(
     component: list[int],
     segs: list[tuple[PathPrimitive, tuple[float, float], tuple[float, float], float, float]],
@@ -687,8 +790,11 @@ def _detect_polyline_arc_bboxes(
 
         pre_prune_segment_count = len(component)
         component, pruned_path_indices_set = _prune_arc_spurs(component, segs)
+        component, cycle_trimmed_set = _prune_arc_cycle_caps(component, segs)
         component, cap_trimmed_set = _trim_chain_extension_caps(component, segs)
-        pruned_path_indices = sorted(pruned_path_indices_set | cap_trimmed_set)
+        pruned_path_indices = sorted(
+            pruned_path_indices_set | cycle_trimmed_set | cap_trimmed_set
+        )
         seg_count = len(component)
         checks: dict = {
             "segment_count": {
