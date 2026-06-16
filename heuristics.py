@@ -41,6 +41,15 @@ DOOR_POLYLINE_CHAIN_DELTA_DEG = 45.0
 # rectangle) attached at the arc's natural endpoint via a single junction.
 # floor-plans.pdf's polyline_856 has a 7-seg cap loop; 8 gives a small margin.
 DOOR_POLYLINE_CYCLE_MAX_SEGMENTS = 8
+# Endpoint snap tolerance for chaining native (`c`) Bezier curves into a
+# single logical arc. PDF curves emitted by CAD tools have machine-precise
+# endpoints; 1.0 px is generous.
+DOOR_CURVE_CHAIN_ENDPOINT_TOL_PX = 1.0
+# Minimum number of native `c` primitives in a chain to qualify for the
+# chained-arc swing path (rather than each curve being scored individually
+# by _is_arc_like). 2+ means the chain is genuinely fragmented across
+# multiple Beziers.
+DOOR_CURVE_CHAIN_MIN_CURVES = 2
 DOOR_LAYER_KEYWORDS         = ["door", "a-door"]
 DOOR_ASSEMBLY_CONNECT_TOL_PX = 15.0
 DOOR_LEAF_RADIUS_RATIO_TOL   = 0.20
@@ -997,6 +1006,87 @@ class _DoorLeaf:
     debug_id: str | None = None               # set by DebugTraceCollector when active
 
 
+def _fit_circle_3pt(
+    p1: tuple[float, float],
+    p2: tuple[float, float],
+    p3: tuple[float, float],
+) -> tuple[float, float, float] | None:
+    """Fit a circle through 3 points. Returns (cx, cy, radius) or None if
+    the points are collinear (no unique circle through them).
+
+    Standard determinant form: the center is at the intersection of the
+    perpendicular bisectors of any two chords.
+    """
+    x1, y1 = p1
+    x2, y2 = p2
+    x3, y3 = p3
+    d = 2.0 * (x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2))
+    if abs(d) < 1e-9:
+        return None
+    a = x1 * x1 + y1 * y1
+    b = x2 * x2 + y2 * y2
+    c = x3 * x3 + y3 * y3
+    cx = (a * (y2 - y3) + b * (y3 - y1) + c * (y1 - y2)) / d
+    cy = (a * (x3 - x2) + b * (x1 - x3) + c * (x2 - x1)) / d
+    radius = math.hypot(x1 - cx, y1 - cy)
+    return cx, cy, radius
+
+
+def _native_curve_chains(
+    c_paths: list[PathPrimitive],
+) -> list[list[PathPrimitive]]:
+    """Group native `c` (Bezier) primitives by endpoint adjacency.
+
+    PDF arcs are often emitted as a chain of short cubic Beziers. Each
+    individual curve may be too small to pass `_is_arc_like`, but the
+    chain as a whole forms a single logical arc. This groups them via
+    endpoint snapping at DOOR_CURVE_CHAIN_ENDPOINT_TOL_PX.
+
+    Returns a list of chains, each chain a list of PathPrimitive (one
+    chain per connected component). Singletons are included as
+    single-element chains.
+    """
+    if not c_paths:
+        return []
+
+    def snap_key(point: tuple[float, float]) -> tuple[int, int]:
+        return (
+            round(point[0] / DOOR_CURVE_CHAIN_ENDPOINT_TOL_PX),
+            round(point[1] / DOOR_CURVE_CHAIN_ENDPOINT_TOL_PX),
+        )
+
+    endpoint_buckets: dict[tuple[int, int], list[int]] = defaultdict(list)
+    for idx, path in enumerate(c_paths):
+        if len(path.points) >= 2:
+            endpoint_buckets[snap_key(path.points[0])].append(idx)
+            endpoint_buckets[snap_key(path.points[-1])].append(idx)
+
+    adjacency: list[set[int]] = [set() for _ in c_paths]
+    for ids in endpoint_buckets.values():
+        for a in ids:
+            for b in ids:
+                if a != b:
+                    adjacency[a].add(b)
+
+    seen: set[int] = set()
+    chains: list[list[PathPrimitive]] = []
+    for start in range(len(c_paths)):
+        if start in seen:
+            continue
+        stack = [start]
+        seen.add(start)
+        comp: list[PathPrimitive] = []
+        while stack:
+            i = stack.pop()
+            comp.append(c_paths[i])
+            for j in adjacency[i]:
+                if j not in seen:
+                    seen.add(j)
+                    stack.append(j)
+        chains.append(comp)
+    return chains
+
+
 def _layer_hint_from_layer(layer: str | None, keywords: list[str]) -> bool:
     tokens = _layer_tokens(layer)
     return bool(tokens and any(kw in tokens for kw in keywords))
@@ -1037,6 +1127,101 @@ def _collect_door_swings(
         if collector:
             swing.debug_id = collector.record_swing(
                 "curve_arc", [arc.path_index], radius, sweep_est, arc.layer, layer_hint,
+            )
+        swings.append(swing)
+
+    # Chained native curves: a door swing drawn as multiple short Beziers
+    # (each individually too small to pass _is_arc_like) gets stitched into
+    # one logical arc. The fitted-circle radius — not the bbox size — is
+    # what matches the leaf length for downstream pairing, because the
+    # visible chain may only span a small angular slice of the underlying
+    # circle.
+    already_used = {id(p) for p in arc_paths}
+    remaining_c_paths = [
+        p for p in paths if p.item_type == "c" and id(p) not in already_used
+    ]
+    for chain in _native_curve_chains(remaining_c_paths):
+        if len(chain) < DOOR_CURVE_CHAIN_MIN_CURVES:
+            continue
+
+        # Find the chain's two natural endpoints (degree-1 in the
+        # endpoint-adjacency graph) and confirm it's a simple chain.
+        def _snap(point: tuple[float, float]) -> tuple[int, int]:
+            return (
+                round(point[0] / DOOR_CURVE_CHAIN_ENDPOINT_TOL_PX),
+                round(point[1] / DOOR_CURVE_CHAIN_ENDPOINT_TOL_PX),
+            )
+
+        endpoint_counts: dict[tuple[int, int], int] = defaultdict(int)
+        endpoint_to_actual: dict[tuple[int, int], tuple[float, float]] = {}
+        for path in chain:
+            if len(path.points) >= 2:
+                for pt in (path.points[0], path.points[-1]):
+                    key = _snap(pt)
+                    endpoint_counts[key] += 1
+                    endpoint_to_actual[key] = pt
+        end_keys = [k for k, c in endpoint_counts.items() if c == 1]
+        if len(end_keys) != 2:
+            # Not a simple chain (branches or closed loop) — skip.
+            continue
+        end_endpoints = [endpoint_to_actual[k] for k in end_keys]
+
+        # Pick three well-separated points across the chain's endpoints for
+        # the circle fit (greedy farthest-point heuristic).
+        all_points = [endpoint_to_actual[k] for k in endpoint_to_actual]
+        if len(all_points) < 3:
+            continue
+        p1 = all_points[0]
+        def _sq_dist(a: tuple[float, float], b: tuple[float, float]) -> float:
+            return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
+        p2 = max(all_points, key=lambda p: _sq_dist(p, p1))
+        p3 = max(
+            all_points,
+            key=lambda p: min(_sq_dist(p, p1), _sq_dist(p, p2)),
+        )
+        fit = _fit_circle_3pt(p1, p2, p3)
+        if fit is None:
+            continue
+        cx, cy, radius = fit
+        if not (DOOR_MIN_SIZE_PX <= radius <= DOOR_MAX_SIZE_PX):
+            continue
+
+        xs = [b for p in chain for b in (p.bbox[0], p.bbox[2])]
+        ys = [b for p in chain for b in (p.bbox[1], p.bbox[3])]
+        combined_bbox: BBox = (min(xs), min(ys), max(xs), max(ys))
+
+        layers = [p.layer for p in chain if p.layer]
+        layer = layers[0] if layers else None
+        layer_hint = _layer_hint_from_layer(layer, DOOR_LAYER_KEYWORDS)
+
+        # For pairing, the natural connection point is the chain's actual
+        # end-endpoint nearest the leaf — not a bbox corner. Pass both so
+        # _nearest_pair_distance can find the best match.
+        pairing_points = _arc_corners(combined_bbox) + list(end_endpoints)
+
+        chain_path_indices = [p.path_index for p in chain]
+        swing = _DoorSwing(
+            source="curve_arc_chain",
+            bbox=combined_bbox,
+            radius=radius,
+            pairing_points=pairing_points,
+            component_path_indices=chain_path_indices,
+            layer=layer,
+            layer_hint=layer_hint,
+            evidence={
+                "arc_source": "curve_arc_chain",
+                "chain_curve_count": len(chain),
+                "fitted_radius": round(radius, 1),
+                "fitted_center": (round(cx, 1), round(cy, 1)),
+                "combined_bbox": list(combined_bbox),
+                "layer": layer,
+                "layer_hint": layer_hint,
+            },
+            arc_endpoints=list(end_endpoints),
+        )
+        if collector:
+            swing.debug_id = collector.record_swing(
+                "curve_arc_chain", chain_path_indices, radius, None, layer, layer_hint,
             )
         swings.append(swing)
 
