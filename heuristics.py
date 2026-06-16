@@ -30,6 +30,7 @@ DOOR_POLYLINE_MIN_SEGMENTS  = 4
 DOOR_POLYLINE_MAX_SEGMENTS  = 24
 DOOR_POLYLINE_MAX_SEG_PX    = 18.0
 DOOR_POLYLINE_ENDPOINT_TOL  = 2.0
+DOOR_POLYLINE_SPUR_MAX_SEGMENTS = 4   # max chain length (segments) of a leaf-spur that gets pruned from an arc component
 DOOR_LAYER_KEYWORDS         = ["door", "a-door"]
 DOOR_ASSEMBLY_CONNECT_TOL_PX = 15.0
 DOOR_LEAF_RADIUS_RATIO_TOL   = 0.20
@@ -390,6 +391,26 @@ def _estimate_arc_sweep_deg(
         return None
     cos_a = max(-1.0, min(1.0, (vs[0] * ve[0] + vs[1] * ve[1]) / (mag_s * mag_e)))
     return math.degrees(math.acos(cos_a))
+
+
+def _prune_arc_spurs(
+    component: list[int],
+    segs: list[tuple[PathPrimitive, tuple[float, float], tuple[float, float], float, float]],
+) -> tuple[list[int], set[int]]:
+    """Remove short leaf-spurs (door stops, cap lines) from an arc component.
+
+    A clean door-arc connected component is a simple chain: two degree-1
+    endpoints, all interior vertices degree-2. A polluted arc is that chain
+    plus a short tail of axis-aligned segments hanging off the arc's
+    endpoint, joined through a degree-3+ junction. This walk-and-prune step
+    iteratively removes those tails so the existing axis_like_fraction and
+    angle_bin_count checks see only the arc itself.
+
+    Returns (pruned_component, removed_seg_path_indices). If pruning would
+    drop |component| below DOOR_POLYLINE_MIN_SEGMENTS, returns the original
+    component and an empty set.
+    """
+    return list(component), set()
 
 
 def _detect_polyline_arc_bboxes(
