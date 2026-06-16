@@ -410,7 +410,89 @@ def _prune_arc_spurs(
     drop |component| below DOOR_POLYLINE_MIN_SEGMENTS, returns the original
     component and an empty set.
     """
-    return list(component), set()
+    def snap_key(point: tuple[float, float]) -> tuple[int, int]:
+        return (
+            round(point[0] / DOOR_POLYLINE_ENDPOINT_TOL),
+            round(point[1] / DOOR_POLYLINE_ENDPOINT_TOL),
+        )
+
+    current = list(component)
+    removed_path_indices: set[int] = set()
+
+    while True:
+        if len(current) < DOOR_POLYLINE_MIN_SEGMENTS:
+            break
+
+        # Build vertex → local-seg-indices map on the current subset.
+        endpoint_buckets: dict[tuple[int, int], list[int]] = defaultdict(list)
+        for local_idx, seg_idx in enumerate(current):
+            _, p1, p2, _, _ = segs[seg_idx]
+            endpoint_buckets[snap_key(p1)].append(local_idx)
+            endpoint_buckets[snap_key(p2)].append(local_idx)
+
+        leaves = [pt for pt, lis in endpoint_buckets.items() if len(lis) == 1]
+        if not leaves:
+            break  # pure cycle — no spurs to prune
+
+        spur_locals: set[int] = set()
+        for leaf in leaves:
+            walked: list[int] = []
+            visited_vertices: set[tuple[int, int]] = {leaf}
+            current_vertex = leaf
+            prev_local = -1
+
+            while True:
+                neighbours = endpoint_buckets.get(current_vertex, [])
+                if current_vertex != leaf and len(neighbours) > 2:
+                    break  # hit a junction — spur ends here, candidate for prune
+                if current_vertex != leaf and len(neighbours) == 1:
+                    # Walked all the way to another leaf — component is a
+                    # single open chain, nothing to prune.
+                    walked = []
+                    break
+
+                next_local = next(
+                    (n for n in neighbours if n != prev_local),
+                    None,
+                )
+                if next_local is None:
+                    walked = []
+                    break
+
+                walked.append(next_local)
+                if len(walked) > DOOR_POLYLINE_SPUR_MAX_SEGMENTS:
+                    walked = []  # too long to count as a spur
+                    break
+
+                _, p1, p2, _, _ = segs[current[next_local]]
+                k1, k2 = snap_key(p1), snap_key(p2)
+                next_vertex = k2 if k1 == current_vertex else k1
+
+                if next_vertex in visited_vertices:
+                    walked = []  # cycle — abort this walk
+                    break
+
+                visited_vertices.add(next_vertex)
+                prev_local = next_local
+                current_vertex = next_vertex
+
+            if walked:
+                spur_locals.update(walked)
+
+        if not spur_locals:
+            break
+        if len(current) - len(spur_locals) < DOOR_POLYLINE_MIN_SEGMENTS:
+            break
+
+        new_current: list[int] = []
+        for local_idx, seg_idx in enumerate(current):
+            if local_idx in spur_locals:
+                removed_path_indices.add(segs[seg_idx][0].path_index)
+            else:
+                new_current.append(seg_idx)
+        current = new_current
+
+    return current, removed_path_indices
 
 
 def _detect_polyline_arc_bboxes(

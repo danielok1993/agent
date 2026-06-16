@@ -72,6 +72,24 @@ class PruneArcSpursTests(unittest.TestCase):
         self.assertEqual(component, pruned)
         self.assertEqual(set(), removed)
 
+    def test_short_branches_at_y_junction_removed(self) -> None:
+        """11-segment arc whose far endpoint is a degree-3 junction because
+        two 1-segment branches connect there. Both branches are short spurs
+        and should be pruned, leaving the 11 arc segments."""
+        arc = _arc(0, n_segs=11, radius=50.0)
+        # Arc's far endpoint: (radius*cos(pi/2), radius*sin(pi/2)) = (0, 50).
+        # Two 1-seg branches off that vertex make it degree-3.
+        branch_a = _chain(100, [(0.0, 50.0), (-3.0, 53.0)])
+        branch_b = _chain(200, [(0.0, 50.0), (3.0, 53.0)])
+        segs = arc + branch_a + branch_b
+        component = list(range(len(segs)))
+
+        pruned, removed = _prune_arc_spurs(component, segs)
+
+        # 11 arc segs (path indices 0..10) survive; both branch segs pruned.
+        self.assertEqual(list(range(11)), pruned)
+        self.assertEqual({100, 200}, removed)
+
 
 if __name__ == "__main__":
     unittest.main()
