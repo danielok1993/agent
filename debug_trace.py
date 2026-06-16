@@ -111,8 +111,15 @@ class DebugTraceCollector:
         result: str,
         fail_reason: Optional[str],
         checks: dict,
+        pre_prune_segment_count: Optional[int] = None,
+        pruned_path_indices: Optional[list[int]] = None,
     ) -> str:
-        """Record a polyline arc component evaluation. Returns component_id."""
+        """Record a polyline arc component evaluation. Returns component_id.
+
+        ``pre_prune_segment_count`` and ``pruned_path_indices`` describe the
+        spur-pruning step (see heuristics._prune_arc_spurs). Both default to
+        None so existing positional callers keep working unchanged.
+        """
         component_id = f"polyline_{self._poly_idx}"
         self._poly_idx += 1
         self._polyline_components.append({
@@ -122,6 +129,8 @@ class DebugTraceCollector:
             "fail_reason": fail_reason,
             "checks": checks,
             "swing_id": None,
+            "pre_prune_segment_count": pre_prune_segment_count,
+            "pruned_path_indices": sorted(pruned_path_indices) if pruned_path_indices else [],
         })
         for pi in path_indices:
             if pi in self._primitives:
