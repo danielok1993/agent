@@ -90,6 +90,67 @@ class PruneArcSpursTests(unittest.TestCase):
         self.assertEqual(list(range(11)), pruned)
         self.assertEqual({100, 200}, removed)
 
+    def test_dual_spurs_at_one_junction(self) -> None:
+        """linework_1318 shape: 11-segment arc whose far endpoint becomes a
+        degree-3+ junction because two 2-segment spurs branch off it. Both
+        spurs (4 segments total) should be pruned."""
+        arc = _arc(0, n_segs=11, radius=50.0)
+        # Arc's far endpoint is (0, 50). Branch two spurs.
+        spur_a = _chain(100, [(0.0, 50.0), (-5.0, 55.0), (-10.0, 60.0)])
+        spur_b = _chain(200, [(0.0, 50.0), (5.0, 55.0), (10.0, 60.0)])
+        segs = arc + spur_a + spur_b
+        component = list(range(len(segs)))
+
+        pruned, removed = _prune_arc_spurs(component, segs)
+
+        self.assertEqual(list(range(11)), pruned)
+        self.assertEqual({100, 101, 200, 201}, removed)
+
+    def test_oversized_branch_kept_at_y_junction(self) -> None:
+        """A Y-junction with one short branch (2 segs) and one long branch
+        (5 segs, > DOOR_POLYLINE_SPUR_MAX_SEGMENTS). The short branch is
+        pruned; the long branch's walk exceeds the spur cap and is kept.
+        After short-branch removal, the junction collapses to degree 2 and
+        the long branch becomes a chain extension of the arc."""
+        arc = _arc(0, n_segs=11, radius=50.0)
+        short = _chain(100, [(0.0, 50.0), (-3.0, 53.0), (-6.0, 56.0)])  # 2 segs
+        long = _chain(200, [
+            (0.0, 50.0), (5.0, 55.0), (10.0, 60.0),
+            (15.0, 65.0), (20.0, 70.0), (25.0, 75.0),
+        ])  # 5 segs, > DOOR_POLYLINE_SPUR_MAX_SEGMENTS
+        segs = arc + short + long
+        component = list(range(len(segs)))
+
+        pruned, removed = _prune_arc_spurs(component, segs)
+
+        # Guard against constant drift so the test stays meaningful.
+        self.assertEqual(DOOR_POLYLINE_SPUR_MAX_SEGMENTS, 4)
+        # 11 arc + 5 long-branch segs survive; both short-branch segs removed.
+        self.assertEqual(11 + 5, len(pruned))
+        self.assertEqual({100, 101}, removed)
+
+    def test_pruning_floor_protects_minimum(self) -> None:
+        """A small Y-junction component where every walk fits in the spur
+        cap. Pruning all marked walks would drop |component| below
+        DOOR_POLYLINE_MIN_SEGMENTS, so the helper must back off and return
+        the component unchanged."""
+        # 2-segment main chain (0,0)→(10,0)→(10,10) plus two 1-segment
+        # branches at (10,10), making it a degree-3 junction. 4 segs total.
+        main = _chain(0, [(0.0, 0.0), (10.0, 0.0), (10.0, 10.0)])
+        branch_a = _chain(100, [(10.0, 10.0), (15.0, 10.0)])
+        branch_b = _chain(200, [(10.0, 10.0), (10.0, 15.0)])
+        segs = main + branch_a + branch_b
+        component = list(range(len(segs)))
+
+        pruned, removed = _prune_arc_spurs(component, segs)
+
+        # All three leaf-walks (main 2 segs, each branch 1 seg) are within
+        # the spur cap. Marking all 4 would drop the component to 0 segs,
+        # well below DOOR_POLYLINE_MIN_SEGMENTS=4 → floor abort, no prune.
+        self.assertEqual(DOOR_POLYLINE_MIN_SEGMENTS, 4)  # guard against constant drift
+        self.assertEqual(component, pruned)
+        self.assertEqual(set(), removed)
+
 
 if __name__ == "__main__":
     unittest.main()
