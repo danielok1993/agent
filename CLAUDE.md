@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Local Python CLI POC for architectural PDF extraction. The research question is whether CAD-originated PDFs carry enough native vector/text data that a vector-first + Gemini-validation pipeline beats vision-only extraction of doors, windows, walls, labels, and schedules. `project.md` is the original spec — treat it as the source of truth for scope and acceptance criteria.
 
+## Algorithm reference
+
+**Before changing door detection, read `docs/door-detection-tuning-guide.md`.** It catalogs the six known swing topologies (full Bezier, chained Beziers, clean polyline, polyline + Y-junction stop, polyline + cycle cap, polyline + linear cap extension), every tunable constant with rationale, known false-positive patterns, the per-PDF detection state to guard against regressions, and the debug-trace diagnostic playbook for tracing missed/false detections.
+
 ## Commands
 
 ```bash
