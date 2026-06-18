@@ -1,13 +1,9 @@
 import math
 import unittest
 
-from heuristics import (
-    DOOR_CURVE_CHAIN_MIN_CURVES,
-    DOOR_MIN_SIZE_PX,
-    _fit_circle_3pt,
-    _native_curve_chains,
-    detect_doors,
-)
+from detection import detect_doors
+from detection.doors.arcs import _fit_circle_3pt, _native_curve_chains
+from detection.doors.constants import DOOR_CURVE_CHAIN_MIN_CURVES, DOOR_MIN_SIZE_PX
 from models import PathPrimitive, TextSpan
 
 

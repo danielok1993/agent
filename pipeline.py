@@ -8,15 +8,15 @@ import fitz
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
 from models import PageData, Candidate, Entity
-from extractor import extract_page
-from plumber import (
+from extraction.extractor import extract_page
+from extraction.plumber import (
     extract_plumber_page, build_pymupdf_counts, build_plumber_counts, compare_counts
 )
-from heuristics import run_heuristics
-from debug_trace import DebugTraceCollector
-from debug_renderer import generate_debug_viewer
-from renderer import render_page_png, draw_overlay
-import gemini_client as gc
+from detection import run_heuristics
+from debug.trace import DebugTraceCollector
+from debug.renderer import generate_debug_viewer
+from extraction.renderer import render_page_png, draw_overlay
+from gemini import client as gc
 
 console = Console()
 

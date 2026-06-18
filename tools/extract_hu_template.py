@@ -88,7 +88,7 @@ def main():
     template = np.mean(all_hu, axis=0)
     print(f"\nTemplate (mean of {len(all_hu)} doors):")
     print(f"  {[round(v, 6) for v in template]}")
-    print(f"\nPaste into heuristics.py:")
+    print("\nPaste into detection/doors/constants.py:")
     vals = ", ".join(f"{v:.6f}" for v in template)
     print(f"_DOOR_HU_TEMPLATE = np.array([{vals}])")
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 import pdfplumber
 from models import PlumberCounts, PyMuPDFCounts, PageData, BBox
-from extractor import SCALE
+from extraction.extractor import SCALE
 
 LARGE_DELTA_THRESHOLD = 0.50  # warn if counts differ by more than 50%
 

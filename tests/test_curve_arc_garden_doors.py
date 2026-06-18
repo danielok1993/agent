@@ -15,7 +15,7 @@ This file covers that detection end-to-end via ``detect_doors``.
 import math
 import unittest
 
-from heuristics import detect_doors
+from detection import detect_doors
 from models import PathPrimitive
 
 

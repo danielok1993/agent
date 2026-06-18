@@ -8,9 +8,9 @@ from rich.panel import Panel
 from rich.tree import Tree
 from rich import box as rich_box
 from models import PageData
-from extractor import extract_page, SCALE
-from plumber import extract_plumber_page, build_plumber_counts, build_pymupdf_counts, compare_counts
-from heuristics import run_heuristics
+from extraction.extractor import extract_page, SCALE
+from extraction.plumber import extract_plumber_page, build_plumber_counts, build_pymupdf_counts, compare_counts
+from detection import run_heuristics
 
 console = Console()
 

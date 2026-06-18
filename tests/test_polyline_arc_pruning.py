@@ -1,17 +1,13 @@
 import math
 import unittest
 
-from heuristics import (
-    DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS,
-    DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS,
-    DOOR_POLYLINE_CHAIN_DELTA_DEG,
-    DOOR_POLYLINE_CYCLE_MAX_SEGMENTS,
-    DOOR_POLYLINE_MIN_SEGMENTS,
-    DOOR_POLYLINE_SPUR_MAX_SEGMENTS,
-    _prune_arc_cycle_caps,
-    _prune_arc_spurs,
-    _split_double_arc,
-    _trim_chain_extension_caps,
+from detection.doors.arcs import (
+    _prune_arc_cycle_caps, _prune_arc_spurs, _split_double_arc, _trim_chain_extension_caps,
+)
+from detection.doors.constants import (
+    DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS, DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS,
+    DOOR_POLYLINE_CHAIN_DELTA_DEG, DOOR_POLYLINE_CYCLE_MAX_SEGMENTS,
+    DOOR_POLYLINE_MIN_SEGMENTS, DOOR_POLYLINE_SPUR_MAX_SEGMENTS,
 )
 from models import PathPrimitive
 

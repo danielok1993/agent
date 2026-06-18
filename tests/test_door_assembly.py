@@ -1,23 +1,16 @@
 import math
 import unittest
 
-from heuristics import (
-    CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY,
-    DOOR_ARC_FALLBACK_MAX,
-    DOOR_ASSEMBLY_LINE_LEAF_BASE,
-    DOOR_FALLBACK_CONFIDENCE,
-    DOOR_POLYLINE_MAX_ANGLE_BINS,
-    DOOR_THRESHOLD_CONFIDENCE_BOOST,
-    DOOR_V2_OPENING_CLEAR_BOOST,
-    DOOR_V2_OPENING_OBSTRUCTED_PENALTY,
-    _check_opening_clear,
-    _cross_validate,
-    _dedupe_door_components,
-    _estimate_arc_sweep_deg,
-    _merge_double_door_assemblies,
-    detect_doors,
-    detect_walls,
-    detect_windows,
+from detection import detect_doors, detect_walls, detect_windows
+from detection.doors.arcs import _estimate_arc_sweep_deg
+from detection.doors.assembly import (
+    _check_opening_clear, _dedupe_door_components, _merge_double_door_assemblies,
+)
+from detection.postprocess import _cross_validate, CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY
+from detection.doors.constants import (
+    DOOR_ARC_FALLBACK_MAX, DOOR_ASSEMBLY_LINE_LEAF_BASE, DOOR_FALLBACK_CONFIDENCE,
+    DOOR_POLYLINE_MAX_ANGLE_BINS, DOOR_THRESHOLD_CONFIDENCE_BOOST,
+    DOOR_V2_OPENING_CLEAR_BOOST, DOOR_V2_OPENING_OBSTRUCTED_PENALTY,
 )
 from models import Candidate, PathPrimitive, TextSpan
 from pipeline import merge_gemini_and_heuristics
@@ -190,7 +183,7 @@ class DoorAssemblyTests(unittest.TestCase):
         door. _cross_validate applies a larger no-wall penalty in this case
         than the default door_assembly penalty so such candidates drop below
         the offline confidence floor."""
-        from heuristics import CROSS_NO_WALL_SINGLE_LINE_LEAF_PENALTY
+        from detection.postprocess import CROSS_NO_WALL_SINGLE_LINE_LEAF_PENALTY
 
         door = Candidate(
             candidate_id="door_0000",

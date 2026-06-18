@@ -6,7 +6,7 @@ from models import PathPrimitive
 class DebugTraceCollector:
     """Accumulates per-primitive and per-component trace data during door detection.
 
-    Pass an instance to heuristics functions via the collector= kwarg.
+    Pass an instance to detection functions via the collector= kwarg.
     When collector is None the production path runs with zero overhead.
     """
 
@@ -117,7 +117,7 @@ class DebugTraceCollector:
         """Record a polyline arc component evaluation. Returns component_id.
 
         ``pre_prune_segment_count`` and ``pruned_path_indices`` describe the
-        spur-pruning step (see heuristics._prune_arc_spurs). Both default to
+        spur-pruning step (see detection.doors.arcs._prune_arc_spurs). Both default to
         None so existing positional callers keep working unchanged.
         """
         component_id = f"polyline_{self._poly_idx}"
