@@ -24,6 +24,7 @@ python app.py inspect path/to/drawing.pdf [--pages 1,3-5]
 python app.py extract path/to/drawing.pdf [--pages SPEC] [--out DIR]
                                           [--no-gemini]
                                           [--disable-walls] [--disable-windows]
+                                          [--debug]
 
 # Tests (unittest)
 python -m unittest discover tests
@@ -32,9 +33,36 @@ python -m unittest tests.test_door_assembly.TestDoorAssembly.test_<name>
 
 Sample PDFs `5-1133-WD03.pdf` and `floor-plans.pdf` are checked in for quick runs.
 
+`--debug` writes `debug_trace.json` + a self-contained `debug_viewer.html` per page (per-primitive detection trace for diagnosing missed/false door detections — see the tuning guide's debug-trace playbook).
+
+## Module layout
+
+The root holds thin orchestration entry points; detection and I/O live in packages (the `d61f0e2` refactor split the old flat modules — `heuristics.py`, `extractor.py`, `gemini_client.py`, etc. — and the 3,679-line `heuristics.py` monolith). Code movement only; behavior and the `outputs/` JSON contract are unchanged.
+
+```
+app.py             # argparse shell
+pipeline.py        # run_extract — the 7-stage orchestrator
+inspector.py       # inspect-command logic
+models.py          # shared dataclasses (depended on by everything)
+
+extraction/        # PDF -> normalized primitives + rendering (owns SCALE)
+  extractor.py  plumber.py  renderer.py
+detection/         # heuristic detection (the split monolith)
+  __init__.py      # public facade: run_heuristics + detect_* re-exported
+  orchestrator.py  # run_heuristics (named to avoid clash with root pipeline.py)
+  geometry.py      # shared primitives (_distance, _line_angle_deg, …)
+  windows.py  walls.py  labels.py  schedules.py  postprocess.py
+  doors/           # door subpackage, acyclic: constants <- arcs/leaves/shape <- assembly <- detect
+gemini/client.py   # Vertex AI client (was gemini_client.py)
+debug/             # trace.py (DebugTraceCollector) + renderer.py (HTML viewer)
+tools/             # standalone dev scripts (numpy/cv2)
+```
+
+Import from the `detection` facade (`from detection import run_heuristics, detect_doors`) rather than reaching into submodules. Tunable constants are co-located with their detector: `DOOR_*` in `detection/doors/constants.py`, `WINDOW_*`/`WALL_*`/`LABEL_*`/`SCHEDULE_*` in the matching `detection/*.py`, cross-validation `CROSS_*` in `detection/postprocess.py`. Tests import internals from their real homes (e.g. `from detection.doors.arcs import _prune_arc_spurs`) — there is no compatibility shim.
+
 ## Gemini / GCP auth
 
-`gemini_client.py` uses Vertex AI via `google-genai` (`vertexai=True`). Required before the pipeline can call Gemini:
+`gemini/client.py` uses Vertex AI via `google-genai` (`vertexai=True`). Required before the pipeline can call Gemini:
 
 ```bash
 gcloud auth application-default login
@@ -48,11 +76,11 @@ Model is hard-coded to `gemini-2.5-flash`. Pass `--no-gemini` to skip Gemini end
 
 `app.py` is a thin argparse shell; the real flow is in `pipeline.py::run_extract`, which loops pages and runs seven stages per page:
 
-1. `extractor.extract_page` — PyMuPDF `get_drawings()` / `get_text("dict")` / `get_images()` / `get_ocgs()`. **All coordinates are normalized to 150-DPI pixel space via `SCALE = 150/72`** at extraction time. Downstream code (heuristics, renderer, Gemini bboxes) assumes pixel-space. Don't reintroduce point-space anywhere past `extractor.py` / `plumber.py`.
-2. `renderer.render_page_png` — renders the page PNG at the same 150 DPI used for coordinate normalization, so heuristic bboxes overlay cleanly.
-3. `plumber.extract_plumber_page` — pdfplumber cross-check (chars/lines/rects/curves/images/tables). `compare_counts` emits `PLUMBER_LARGE_DELTA` warnings when PyMuPDF vs pdfplumber geometry diverges >50%. Tables here feed schedule detection.
-4. `heuristics.run_heuristics` — deterministic detection of doors / windows / walls / labels / schedules. Tuned via the constants at the top of `heuristics.py` (`DOOR_*`, `WINDOW_*`, `WALL_*`, `LABEL_*`, `SCHEDULE_*`). `--disable-walls` / `--disable-windows` exist because each detector can dominate noise on different drawing styles.
-5. `gemini_client.call_gemini` — sends the page render + candidate JSON, expects strict JSON matching `REQUIRED_KEYS`. Auto-skipped on raster-heavy pages with zero candidates (`should_skip_gemini`). Parse / schema failures degrade gracefully into warnings, not exceptions.
+1. `extraction.extractor.extract_page` — PyMuPDF `get_drawings()` / `get_text("dict")` / `get_images()` / `get_ocgs()`. **All coordinates are normalized to 150-DPI pixel space via `SCALE = 150/72`** at extraction time. Downstream code (detection, renderer, Gemini bboxes) assumes pixel-space. Don't reintroduce point-space anywhere past `extraction/extractor.py` / `extraction/plumber.py`.
+2. `extraction.renderer.render_page_png` — renders the page PNG at the same 150 DPI used for coordinate normalization, so heuristic bboxes overlay cleanly.
+3. `extraction.plumber.extract_plumber_page` — pdfplumber cross-check (chars/lines/rects/curves/images/tables). `compare_counts` emits `PLUMBER_LARGE_DELTA` warnings when PyMuPDF vs pdfplumber geometry diverges >50%. Tables here feed schedule detection.
+4. `detection.run_heuristics` (`detection/orchestrator.py`) — deterministic detection of doors / windows / walls / labels / schedules. Each detector lives in its own `detection/*.py` (doors in the `detection/doors/` subpackage); see the Module layout section for where the `*_` tunables live. `--disable-walls` / `--disable-windows` exist because each detector can dominate noise on different drawing styles. Pass a `DebugTraceCollector` (via `--debug`) to record per-primitive reasoning.
+5. `gemini.client.call_gemini` — sends the page render + candidate JSON, expects strict JSON matching `REQUIRED_KEYS`. Auto-skipped on raster-heavy pages with zero candidates (`should_skip_gemini`). Parse / schema failures degrade gracefully into warnings, not exceptions.
 6. `pipeline.merge_gemini_and_heuristics` — combines results. With Gemini: blended confidence `0.5*heuristic + 0.5*gemini` (or `max` if higher), Gemini-rejected IDs drop out, unaddressed candidates fall back to heuristic-only. Without Gemini: candidates below `OFFLINE_MIN_CONFIDENCE[type]` move to `rejected` and are not promoted to entities.
 7. `renderer.draw_overlay` + JSON dump (`primitives.json`, `candidates.json`, `gemini_result.json`, `final_entities.json`, `pdfplumber_comparison.json`).
 
@@ -71,7 +99,9 @@ outputs/<YYYY-MM-DD_HH-MM-SS>/
     ├── pdfplumber_comparison.json
     ├── candidates.json       # heuristic output
     ├── gemini_result.json    # Gemini JSON (or {skipped: true, reason})
-    └── final_entities.json   # merged + rejected
+    ├── final_entities.json   # merged + rejected
+    ├── debug_trace.json      # --debug only: per-primitive detection trace
+    └── debug_viewer.html     # --debug only: self-contained trace viewer
 ```
 
 ## Data model
@@ -82,4 +112,14 @@ Notable extractor behavior: `extract_paths` explodes each `get_drawings()` entry
 
 ## Warning codes
 
-Warnings are structured dicts with `warning_code`, `severity`, `message`, `page_number`. The set is intentionally small — when adding a new warning, follow the existing `SCREAMING_SNAKE_CASE` convention and emit from either `pipeline.collect_warnings`, `plumber.compare_counts`, or `gemini_client._validate_response`.
+Warnings are structured dicts with `warning_code`, `severity`, `message`, `page_number`. The set is intentionally small — when adding a new warning, follow the existing `SCREAMING_SNAKE_CASE` convention and emit from either `pipeline.collect_warnings`, `extraction.plumber.compare_counts`, or `gemini.client._validate_response`.
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
