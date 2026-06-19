@@ -216,6 +216,63 @@ class TestWindow51133Topology(unittest.TestCase):
         self.assertEqual(detect_windows(paths), [])
 
 
+def _rot(px, py, cx, cy, deg):
+    r = math.radians(deg)
+    dx, dy = px - cx, py - cy
+    return (cx + dx * math.cos(r) - dy * math.sin(r),
+            cy + dx * math.sin(r) + dy * math.cos(r))
+
+
+def diagonal_window(base, deg, *, length=76.0, depth=22.0, cx=400.0, cy=400.0):
+    """A horizontal window rotated by `deg` about (cx, cy).
+
+    Identical cap-anchored topology to ``horizontal_window`` — three parallel
+    glazing lines closed by two perpendicular end caps — but oriented at an
+    arbitrary angle. Windows in real CAD drawings sit at any angle (45, 50, 60,
+    70 ...), so detection must be orientation-agnostic, not axis-locked.
+    """
+    x0, x1 = cx - length / 2, cx + length / 2
+    top, bot = cy - depth / 2, cy + depth / 2
+    raw = [
+        (base + 0, [(x0, cy - 1.0), (x1, cy - 1.0)]),
+        (base + 1, [(x0, cy),       (x1, cy)]),
+        (base + 2, [(x0, cy + 1.0), (x1, cy + 1.0)]),
+        (base + 3, [(x0, top), (x0, bot)]),
+        (base + 4, [(x1, top), (x1, bot)]),
+    ]
+    return [path(idx, [_rot(px, py, cx, cy, deg) for px, py in pts]) for idx, pts in raw]
+
+
+class TestWindowArbitraryAngle(unittest.TestCase):
+    """Windows are drawn at any angle, not just axis-aligned. The cap-anchored
+    model is orientation-invariant by construction — anchor on a facing
+    perpendicular cap pair, confirm a parallel glazing band — so a window
+    rotated to 45/50/60/70 deg must detect exactly like its axis-aligned twin."""
+
+    def test_windows_detected_at_arbitrary_angles(self):
+        for deg in (30, 45, 50, 60, 70, 115, 135):
+            wins = detect_windows(diagonal_window(800, deg))
+            self.assertEqual(len(wins), 1, f"angle {deg}: expected 1, got {len(wins)}")
+            self.assertTrue(_covers(wins[0].bbox, 400.0, 400.0, pad=12),
+                            f"angle {deg}: bbox {wins[0].bbox} off-center")
+
+    def test_real_diagonal_window_5_1133(self):
+        """5-1133-WD03.pdf missed window at path idx 6475: three glazing panes
+        at 135 deg (idx 6473/6474/6475) closed by two perpendicular ~31px caps
+        (idx 1926/1948) only 1.3 deg apart. Real path geometry (150-DPI px) from
+        run 2026-06-19_12-44-52 — the axis-only detector could not see it, and a
+        disjoint angle-clustering split the two near-parallel caps apart."""
+        paths = [
+            path(6473, [(211, 723), (268, 667)]),   # glazing
+            path(6474, [(216, 729), (273, 673)]),   # glazing
+            path(6475, [(222, 734), (278, 678)]),   # glazing
+            path(1926, [(257, 656), (278, 678)]),   # cap (perpendicular)
+            path(1948, [(222, 734), (200, 712)]),   # cap (perpendicular)
+        ]
+        wins = detect_windows(paths)
+        self.assertEqual(len(wins), 1, f"expected 1, got {len(wins)}")
+
+
 class TestDoorWindowExclusion(unittest.TestCase):
     def _win(self, bbox: BBox) -> Candidate:
         return Candidate("window_0000", "window", bbox, 0.7, {})

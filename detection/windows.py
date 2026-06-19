@@ -1,6 +1,10 @@
 from __future__ import annotations
+import math
 from models import BBox, Candidate, PathPrimitive
-from detection.geometry import _bbox_union, _interval_overlap, _line_length
+from detection.geometry import (
+    _bbox_union, _interval_overlap, _line_length,
+    _line_angle_deg, _angle_diff_mod180, _project_onto_axis, _projected_interval,
+)
 from detection.layers import _layer_hint, _layer_strong_prior
 
 # ---------------------------------------------------------------------------
@@ -16,10 +20,17 @@ from detection.layers import _layer_hint, _layer_strong_prior
 # docs/window-detection-tuning-guide.md for the topology reference and the
 # ground truth (floor-plans.pdf + 5-1133-WD03.pdf) behind every constant.
 
-WINDOW_AXIS_TOL_PX          = 1.5    # max off-axis deviation to call a line H or V
+WINDOW_ANGLE_TOL_DEG        = 4.0    # two lines within this are "the same direction"
+                                     # (parallel glazing / parallel caps). Real glazing
+                                     # bands measure within ~1deg; 4deg absorbs CAD noise
+                                     # without merging distinct window angles in one frame.
+WINDOW_ANGLE_GRID_DEG       = 2.0    # spacing of the overlapping cap-orientation frames;
+                                     # <= tol so any two within-tol caps share a frame.
 WINDOW_CAP_MIN_LEN_PX       = 3.0    # tiny caps exist (5-1133 bonus window: ~5px)
-WINDOW_CAP_MAX_LEN_PX       = 34.0   # caps are short; longer perpendiculars are walls
-                                     # (5-1133 Window B caps overshoot to 30px)
+WINDOW_CAP_MAX_LEN_PX       = 36.0   # caps are short; longer perpendiculars are walls.
+                                     # 5-1133 Window B caps overshoot to 30px; the
+                                     # diagonal windows' jamb caps run the full wall
+                                     # thickness ~34.7px (idx 6475/2301)
 WINDOW_CAP_LEN_RATIO        = 0.60   # the two caps must be of similar length
 WINDOW_CAP_ALIGN_OVERLAP    = 0.60   # their perp-extents must overlap (truly facing)
 WINDOW_MIN_WIDTH_PX         = 14.0   # opening width (gap between caps); bonus ~20px
@@ -39,32 +50,79 @@ WINDOW_SPAN_PERP_TOL_PX     = 2.0    # glazing perp may sit this far outside the
 WINDOW_MIN_CONFIDENCE       = 0.50
 
 
-def _axis_lines(paths: list[PathPrimitive]) -> tuple[list[dict], list[dict]]:
-    """Split axis-aligned line primitives into horizontal and vertical pools.
+def _line_records(paths: list[PathPrimitive]) -> list[dict]:
+    """All straight line primitives with endpoints, length and direction.
 
-    Each record carries: idx, path, len, ``perp`` (the constant coordinate — y
-    for horizontal, x for vertical) and ``span`` (lo, hi along the run axis — x
-    for horizontal, y for vertical).
+    Direction (``angle``, mod 180 deg) lets us group parallel lines and find
+    perpendiculars regardless of the page axes — windows are drawn at any angle,
+    so detection works in a rotated frame rather than the x/y axes.
     """
-    horiz: list[dict] = []
-    vert: list[dict] = []
+    recs: list[dict] = []
     for p in paths:
         if p.item_type != "l" or len(p.points) < 2:
             continue
         a, b = p.points[0], p.points[-1]
-        dx, dy = abs(b[0] - a[0]), abs(b[1] - a[1])
         length = _line_length(a, b)
         if length < 1e-6:
             continue
-        if dy <= WINDOW_AXIS_TOL_PX and dx > dy:
-            horiz.append({"idx": p.path_index, "path": p, "len": length,
-                          "perp": (a[1] + b[1]) / 2,
-                          "span": (min(a[0], b[0]), max(a[0], b[0]))})
-        elif dx <= WINDOW_AXIS_TOL_PX and dy > dx:
-            vert.append({"idx": p.path_index, "path": p, "len": length,
-                         "perp": (a[0] + b[0]) / 2,
-                         "span": (min(a[1], b[1]), max(a[1], b[1]))})
-    return horiz, vert
+        recs.append({"path": p, "a": a, "b": b, "len": length,
+                     "angle": _line_angle_deg(a, b)})
+    return recs
+
+
+def _cap_orientation_frames(cap_recs: list[dict]) -> list[tuple[float, list[dict]]]:
+    """Caps grouped by direction into overlapping frames, each ``(center, caps)``.
+
+    Caps (the jambs) run parallel to each other; their shared direction defines
+    the opening's coordinate frame. A *disjoint* clustering is fragile: a dense
+    spread of cap angles (curves, hatches, fixtures all over a page) chains into
+    one cluster that then splits at an arbitrary boundary — and a window's two
+    near-parallel caps (e.g. 45.0 deg and 46.3 deg) can land on opposite sides,
+    so they never get paired. Instead we sweep fixed grid centers every
+    WINDOW_ANGLE_GRID_DEG and assign each cap to every center within
+    WINDOW_ANGLE_TOL_DEG. Centers are spaced <= tol, so any two caps within tol
+    of each other co-occur in at least one frame; the duplicate openings the
+    overlap produces collapse in _dedupe_openings. Frames with <2 caps are
+    dropped — an opening needs two facing caps.
+    """
+    frames: list[tuple[float, list[dict]]] = []
+    center = 0.0
+    while center < 180.0:
+        members = [r for r in cap_recs
+                   if _angle_diff_mod180(r["angle"], center) <= WINDOW_ANGLE_TOL_DEG]
+        if len(members) >= 2:
+            frames.append((center, members))
+        center += WINDOW_ANGLE_GRID_DEG
+    return frames
+
+
+def _frame_axes(cap_angle_deg: float) -> tuple[float, float, float, float]:
+    """Unit run-axis u (perpendicular to the caps) and perp-axis v (along caps).
+
+    Caps run along their own direction; the opening width and the glazing lines
+    run perpendicular to the caps. So u = cap_angle + 90 deg, v = cap_angle.
+    """
+    ur = math.radians(cap_angle_deg + 90.0)
+    ux, uy = math.cos(ur), math.sin(ur)
+    return ux, uy, -uy, ux  # u, then v = (-uy, ux)
+
+
+def _glaze_record(r: dict, ux: float, uy: float, vx: float, vy: float) -> dict:
+    """Record for a glazing line: ``perp`` = depth offset (along v), ``span`` =
+    extent along the opening (u). Glazing runs along u (perpendicular to caps)."""
+    mid = ((r["a"][0] + r["b"][0]) / 2, (r["a"][1] + r["b"][1]) / 2)
+    return {"idx": r["path"].path_index, "path": r["path"], "len": r["len"],
+            "perp": _project_onto_axis(mid, (0.0, 0.0), vx, vy),
+            "span": _projected_interval(r["a"], r["b"], ux, uy, (0.0, 0.0))}
+
+
+def _cap_record(r: dict, ux: float, uy: float, vx: float, vy: float) -> dict:
+    """Record for a cap line: ``perp`` = position along the opening (u), ``span``
+    = the cap's own extent (along v). Caps run along v (their own direction)."""
+    mid = ((r["a"][0] + r["b"][0]) / 2, (r["a"][1] + r["b"][1]) / 2)
+    return {"idx": r["path"].path_index, "path": r["path"], "len": r["len"],
+            "perp": _project_onto_axis(mid, (0.0, 0.0), ux, uy),
+            "span": _projected_interval(r["a"], r["b"], vx, vy, (0.0, 0.0))}
 
 
 def _dedupe_by_perp(records: list[dict]) -> list[dict]:
@@ -186,16 +244,22 @@ def detect_windows(paths: list[PathPrimitive]) -> list[Candidate]:
     detector.
     """
     win_keywords = ["window", "wind", "glaz", "glazing"]
-    horiz, vert = _axis_lines(paths)
+    recs = _line_records(paths)
+    cap_recs = [r for r in recs
+                if WINDOW_CAP_MIN_LEN_PX <= r["len"] <= WINDOW_CAP_MAX_LEN_PX]
 
-    # Horizontal window: vertical caps, horizontal glazing.
-    # Vertical window:   horizontal caps, vertical glazing.
-    oriented = {"H": (vert, horiz), "V": (horiz, vert)}
-
+    # Each cap-orientation group fixes a rotated frame (u perpendicular to the
+    # caps, v along them). Caps are paired and a glazing band confirmed entirely
+    # in (perp, span) scalars, so the opening logic is orientation-free.
     raw: list[Candidate] = []
     cand_idx = 0
-    for orient, (cap_pool, glaze_pool) in oriented.items():
-        for opening in _find_openings(cap_pool, glaze_pool):
+    for cap_angle, group in _cap_orientation_frames(cap_recs):
+        ux, uy, vx, vy = _frame_axes(cap_angle)
+        glaze_angle = (cap_angle + 90.0) % 180.0
+        caps = [_cap_record(r, ux, uy, vx, vy) for r in group]
+        glaze_pool = [_glaze_record(r, ux, uy, vx, vy) for r in recs
+                      if _angle_diff_mod180(r["angle"], glaze_angle) <= WINDOW_ANGLE_TOL_DEG]
+        for opening in _find_openings(caps, glaze_pool):
             c1, c2, band = opening["c1"], opening["c2"], opening["glaze"]
 
             cap_len = (c1["len"] + c2["len"]) / 2
@@ -225,7 +289,10 @@ def detect_windows(paths: list[PathPrimitive]) -> list[Candidate]:
                 bbox=bbox,
                 confidence=round(confidence, 3),
                 evidence={
-                    "orientation": "horizontal" if orient == "H" else "vertical",
+                    "orientation": ("horizontal" if _angle_diff_mod180(glaze_angle, 0.0) <= WINDOW_ANGLE_TOL_DEG
+                                    else "vertical" if _angle_diff_mod180(glaze_angle, 90.0) <= WINDOW_ANGLE_TOL_DEG
+                                    else "diagonal"),
+                    "glazing_angle_deg": round(glaze_angle, 1),
                     "glazing_lines": len(band),
                     "glazing_len_px": round(sum(r["len"] for r in band) / len(band), 1),
                     "cap_len_px": round(cap_len, 1),
