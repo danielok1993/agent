@@ -40,6 +40,11 @@ WINDOW_GLAZING_ADJ_SPACING_PX = 8.5  # max gap between adjacent panes (Window B 
                                      # rejects stair treads / widely-spaced parallels)
 WINDOW_GLAZING_DISTINCT_EPS = 1.5    # glazing lines closer than this in perp are one pane
 WINDOW_MIN_GLAZING_LINES    = 2      # >=2 distinct parallel panes must span the gap
+WINDOW_MIN_WIDTH_CAP_RATIO  = 1.5    # the opening must be wider than the jamb is long.
+                                     # A band whose caps outrun its opening is a thin wall
+                                     # slot / wall crossing, not a window (5-1133 FP
+                                     # window_0006: width 15px vs 33px caps, ratio 0.46;
+                                     # every true window has width/cap >= 2.58).
 WINDOW_TWO_LINE_MIN_CAP_PX  = 12.0   # a 2-pane opening needs real jamb caps (wall-thickness,
                                      # ~20-30px) to outrank a thin wall / fixture sliver;
                                      # small-cap windows must show >=3 panes (5-1133 bonus)
@@ -265,6 +270,8 @@ def detect_windows(paths: list[PathPrimitive]) -> list[Candidate]:
             cap_len = (c1["len"] + c2["len"]) / 2
             if len(band) < 3 and cap_len < WINDOW_TWO_LINE_MIN_CAP_PX:
                 continue  # ambiguous thin-wall / fixture sliver, not a window
+            if opening["width"] < WINDOW_MIN_WIDTH_CAP_RATIO * cap_len:
+                continue  # opening narrower than the jamb is long: a wall slot, not a window
 
             bbox: BBox = c1["path"].bbox
             for r in (c2, *band):

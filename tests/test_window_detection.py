@@ -111,6 +111,21 @@ class TestWindowTopology(unittest.TestCase):
         wins = detect_windows(paths)
         self.assertEqual(len(wins), 1, f"expected 1 window, got {len(wins)}")
 
+    def test_narrow_slot_wall_rejected(self):
+        """5-1133 FP window_0006: 3 short parallel lines whose opening (15px) is
+        far narrower than the caps are long (33px) — a thin wall slot / wall
+        crossing, not an opening. A real window's opening is wider than its jamb
+        thickness (all true windows: width/cap >= 2.6). Scale-invariant gate."""
+        # vertical band: 3 horizontal glazing lines 15px wide, ~33px-long caps
+        paths = [
+            hline(800, 792.0, 807.0, 960.0),
+            hline(801, 792.0, 807.0, 962.0),
+            hline(802, 792.0, 807.0, 964.0),
+            vline(803, 955.0, 988.0, 792.0),   # cap, 33px (>> 15px opening)
+            vline(804, 955.0, 988.0, 807.0),   # cap, 33px
+        ]
+        self.assertEqual(detect_windows(paths), [])
+
     def test_glazing_without_caps_rejected(self):
         """Three parallel lines with no perpendicular end-caps (e.g. a run of
         dimension lines) is not a closed rectangle → not a window."""
