@@ -58,6 +58,19 @@ This is the v2 detector. History:
 4. **2-pane jamb gate** — a 2-pane opening (no centerline) is geometrically a
    thin wall; accept it only when the caps are substantial
    (`cap_len ≥ WINDOW_TWO_LINE_MIN_CAP_PX`). Small-cap windows must show ≥3 panes.
+4b. **Interior-clutter gate** (`_interior_clutter`) — a real window opening
+   contains ONLY its two caps and 2–3 straight panes; the interior is otherwise
+   empty. The remaining false positives are WALLS whose two faces (rails) got
+   read as a 2-pane band. Reject the opening when its interior carries linework a
+   window never does (counted over the band+cap bbox, excluding those lines):
+   - `shapes` — any non-line primitive (`re`/`qu`/`c`) touching the bbox dilated
+     by `WINDOW_INTERIOR_SHAPE_DILATE_PX` (`> WINDOW_INTERIOR_SHAPE_MAX`):
+     crosshatch boxes, insulation arcs, a recess's U-curve decorations. Dilation
+     catches end-decorations that sit just past the caps' outer ends.
+   - `oblique` — interior lines parallel to neither glazing nor caps
+     (`> WINDOW_INTERIOR_OBLIQUE_MAX`): line-drawn insulation hatch.
+   - `cross` — interior lines parallel to the caps beyond the two jambs
+     (`> WINDOW_INTERIOR_CROSS_MAX`): a solid-filled block's notched outline.
 5. bbox = union of caps + glazing band; confidence scored; emit.
 6. **`_dedupe_openings`** — greedy NMS over duplicate cap pairs (prefer more
    panes, then tightest bbox; drop a candidate whose center sits inside a kept
@@ -102,6 +115,10 @@ Neither alone is sufficient; together they give 4/4 windows, 0 false positives.
 | `WINDOW_SPAN_COVER_TOL_PX` | 4.0 | A glazing line may fall short of each cap by this and still "span" the gap. |
 | `WINDOW_SPAN_OVERSHOOT_PX` | 12.0 | …and run at most this far PAST each cap. Real glazing overshoots ≤7.5 px; **walls run hundreds past** — this is what stops long wall lines being read as glazing (and inflating bboxes). |
 | `WINDOW_SPAN_PERP_TOL_PX` | 2.0 | Glazing perp may sit this far outside the cap facing-extent. |
+| `WINDOW_INTERIOR_SHAPE_MAX` | 0 | Max non-line primitives (`re`/`qu`/`c`) touching the opening. Any ≥1 ⇒ hatch/recess decoration, not glazing. GOOD windows: 0; FP walls: 5–11. |
+| `WINDOW_INTERIOR_SHAPE_DILATE_PX` | 4.0 | Grow the bbox by this before the shape scan, so a recess's stud boxes just past the caps' ends count (FP w26). Nearest GOOD encroachment is ~6–9 px. |
+| `WINDOW_INTERIOR_OBLIQUE_MAX` | 2 | Max interior lines parallel to neither glazing nor caps (line-drawn hatch). GOOD: 0; hatched FP: 6–9. |
+| `WINDOW_INTERIOR_CROSS_MAX` | 4 | Max interior lines parallel to the caps beyond the two jambs (filled-block jog lines). GOOD: ≤3 (dimension ticks); FP w17/w18: 6. |
 | `WINDOW_MIN_CONFIDENCE` | 0.50 | Matches `OFFLINE_MIN_CONFIDENCE["window"]`. |
 
 `detection/postprocess.py`:
@@ -147,8 +164,21 @@ by the user, all now detected; output 14 windows (was 26). The three confirmed:
 | bonus | 3 short H panes, ~2 px spacing, tiny ~5 px caps, 20 px wide | 2170 / 2181 / 2094 | 2096 / 2295 |
 
 These drove the v2 cap-anchored rewrite (v1's `n≥3` + tight-spacing gates missed
-all three). The other **11** detected candidates are **not yet verified** — next
-iteration: have the user confirm which are real and tune from there.
+all three).
+
+**Page-1 false positives eliminated by the interior-clutter gate (§2 step 4b)**
+— user-confirmed FPs on run 2026-06-19_13-35-45. All were walls whose two faces
+were read as a 2-pane band; final output is the **6 real windows below, 0 FPs**.
+
+| FP | bbox | what it was | caught by |
+|---|---|---|---|
+| w17, w18 | 167,253–228,266 / 170,527–230,541 | top edge of a solid-filled block (notched outline) | `cross` = 6 |
+| w19, w21, w25, w32, w33 | (various) | insulation-hatched walls (crosshatch fill) | `shapes` 5–11 + `oblique` 6–9 |
+| w26 | 997,1015–1019,1102 | "recess" niche (stud boxes + U-curves at the ends) | `shapes` = 8 (needs the dilation) |
+
+Confirmed page-1 windows that must stay detected (cap-anchored, all 0 interior
+clutter): the 3 H/V cluster windows above (267,506 / 248,283 / 84,285 / 501,272
+/ 187,762) plus the diagonal "replacement window" at 1767,1233–1859,1327.
 
 ## 6. Known limitations / not handled
 

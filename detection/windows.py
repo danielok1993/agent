@@ -54,6 +54,32 @@ WINDOW_SPAN_OVERSHOOT_PX    = 12.0   # ...and run at most this far PAST each cap
 WINDOW_SPAN_PERP_TOL_PX     = 2.0    # glazing perp may sit this far outside the cap extent
 WINDOW_MIN_CONFIDENCE       = 0.50
 
+# ---------------------------------------------------------------------------
+# Interior-clutter gate (false-positive rejection)
+# ---------------------------------------------------------------------------
+# A real window opening contains ONLY its two jamb caps and its 2-3 straight
+# glazing panes — the interior is otherwise empty. The page-1 false positives on
+# 5-1133-WD03.pdf were all WALLS whose two faces (rails) the cap-anchored
+# detector read as a 2-line glazing band: insulation-hatched walls (crosshatch
+# fill drops re/qu/c shapes and oblique line strokes inside the band) and
+# solid-filled blocks (a notched outline leaves many cap-parallel jog lines
+# inside the band). Every true window's opening is clean of all three, so we
+# reject any opening whose interior carries them. Thresholds are anchored on the
+# 5-1133 page-1 ground truth: GOOD windows score 0 / 0 / <=3; the FP walls score
+# 5-11 shapes, 6-9 oblique, or 6 cap-parallel jogs.
+WINDOW_INTERIOR_SHAPE_MAX   = 0    # non-line primitives (re/qu/c) touching the opening: any is a
+                                   # hatch box, insulation arc, or recess decoration, never glazing.
+WINDOW_INTERIOR_SHAPE_DILATE_PX = 4.0  # grow the bbox by this before the shape scan: a recess's stud
+                                   # boxes sit just past the caps' outer ends (5-1133 FP w26), so the
+                                   # tight band+cap bbox would miss them. Real windows stay shape-free
+                                   # well past this (nearest GOOD encroachment is ~6-9px).
+WINDOW_INTERIOR_OBLIQUE_MAX = 2    # interior lines parallel to neither the glazing nor the caps:
+                                   # line-drawn insulation hatch runs diagonally; a clean opening
+                                   # has none (a couple absorbs stray annotation leaders).
+WINDOW_INTERIOR_CROSS_MAX   = 4    # interior lines parallel to the caps beyond the two jambs: a
+                                   # filled block's notched outline leaves ~6; a true window has
+                                   # <=3 (dimension witness ticks).
+
 
 def _line_records(paths: list[PathPrimitive]) -> list[dict]:
     """All straight line primitives with endpoints, length and direction.
@@ -239,6 +265,46 @@ def _dedupe_openings(cands: list[Candidate]) -> list[Candidate]:
     return kept
 
 
+def _interior_clutter(bbox: BBox, used_idxs: set[int], glaze_angle: float,
+                      cap_angle: float, recs: list[dict],
+                      paths: list[PathPrimitive]) -> tuple[int, int, int]:
+    """Linework inside the opening that a clean window would not carry.
+
+    Returns ``(shapes, oblique, cross)``:
+      * ``shapes`` — non-line primitives (re/qu/c) with any point in the bbox
+        (hatch boxes, insulation arcs, recess decoration). Counted by any-point
+        because a recess's U-curves bulge to the sides with their centroid
+        outside the opening.
+      * ``oblique`` — straight lines (midpoint in the bbox) parallel to neither
+        the glazing nor the caps: line-drawn insulation hatch.
+      * ``cross`` — straight lines (midpoint in the bbox) parallel to the caps,
+        excluding the two jambs themselves: a filled block's notched outline.
+    Lines forming this opening (the band + the two caps) are excluded via
+    ``used_idxs`` so the panes and jambs never count as their own clutter.
+    """
+    x0, y0, x1, y1 = bbox
+    shapes = oblique = cross = 0
+    d = WINDOW_INTERIOR_SHAPE_DILATE_PX
+    sx0, sy0, sx1, sy1 = x0 - d, y0 - d, x1 + d, y1 + d
+    for p in paths:
+        if p.item_type == "l" or len(p.points) < 2:
+            continue
+        if any(sx0 <= px <= sx1 and sy0 <= py <= sy1 for px, py in p.points):
+            shapes += 1
+    for r in recs:
+        if r["path"].path_index in used_idxs:
+            continue
+        mx = (r["a"][0] + r["b"][0]) / 2
+        my = (r["a"][1] + r["b"][1]) / 2
+        if not (x0 <= mx <= x1 and y0 <= my <= y1):
+            continue
+        if _angle_diff_mod180(r["angle"], cap_angle) <= WINDOW_ANGLE_TOL_DEG:
+            cross += 1
+        elif _angle_diff_mod180(r["angle"], glaze_angle) > WINDOW_ANGLE_TOL_DEG:
+            oblique += 1
+    return shapes, oblique, cross
+
+
 def detect_windows(paths: list[PathPrimitive]) -> list[Candidate]:
     """Detect windows as capped openings bridged by a parallel glazing band.
 
@@ -276,6 +342,17 @@ def detect_windows(paths: list[PathPrimitive]) -> list[Candidate]:
             bbox: BBox = c1["path"].bbox
             for r in (c2, *band):
                 bbox = _bbox_union(bbox, r["path"].bbox)
+
+            # A real window opening is empty but for its caps and panes. Reject
+            # walls (hatched or solid-filled) whose two faces were read as a
+            # 2-line band: their fill clutters the opening interior.
+            used_idxs = {c1["idx"], c2["idx"]} | {r["idx"] for r in band}
+            shapes, oblique, cross = _interior_clutter(
+                bbox, used_idxs, glaze_angle, cap_angle, recs, paths)
+            if (shapes > WINDOW_INTERIOR_SHAPE_MAX
+                    or oblique > WINDOW_INTERIOR_OBLIQUE_MAX
+                    or cross > WINDOW_INTERIOR_CROSS_MAX):
+                continue
 
             group_paths = [c1["path"], c2["path"]] + [r["path"] for r in band]
             layer_hint = any(_layer_hint(p, win_keywords) for p in group_paths)

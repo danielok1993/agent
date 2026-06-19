@@ -105,8 +105,8 @@
     "semantic_hash": "4088bcf124ede40e4aff2336d24cbbe0"
   },
   "detection/windows.py": {
-    "mtime": 1781871795.978914,
-    "ast_hash": "c90ecbb55d7dd6721fe9fcbf6077059e",
+    "mtime": 1781874869.9741504,
+    "ast_hash": "906b9bc947fdb08b6ecfbe2008a3e4d6",
     "semantic_hash": ""
   },
   "extraction/__init__.py": {
@@ -245,13 +245,13 @@
     "semantic_hash": "ac7be7bda3d0e8349e4a8b5c033eab80"
   },
   "tests/test_window_detection.py": {
-    "mtime": 1781871773.0528195,
-    "ast_hash": "beab0953dd71b258a7f9b718fc815b90",
+    "mtime": 1781874908.5760174,
+    "ast_hash": "d914b236d1119acb1b1780bcc260711f",
     "semantic_hash": ""
   },
   "docs/window-detection-tuning-guide.md": {
-    "mtime": 1781869195.9542701,
-    "ast_hash": "36e5034fbc4ca6045ea9735ed40bb5e6",
+    "mtime": 1781875048.470962,
+    "ast_hash": "e05c9357be63b0ee739d37beb5f34099",
     "semantic_hash": ""
   }
 }

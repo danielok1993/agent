@@ -231,6 +231,82 @@ class TestWindow51133Topology(unittest.TestCase):
         self.assertEqual(detect_windows(paths), [])
 
 
+class TestWindowInteriorClutter(unittest.TestCase):
+    """A real window opening contains ONLY its 2 jamb caps and 2-3 straight
+    glazing panes — the interior is otherwise empty. The 5-1133 page-1 false
+    positives were all WALLS whose two rails got read as a 2-line glazing band:
+    hatched/insulation walls (crosshatch fill = re/qu/c shapes + oblique line
+    segments inside the band) and solid-filled blocks (notched outline = many
+    cap-parallel jog lines inside the band). These pin the interior-clutter
+    gate that rejects them. See docs/window-detection-tuning-guide.md."""
+
+    # All four share the same valid 2-line capped opening (rails 7px apart,
+    # 13px caps) — it detects as a window on its own (see the control). Only the
+    # interior clutter differs, so each test isolates one rejection signal.
+    def _clean_opening(self, base):
+        return [
+            hline(base + 0, 100.0, 176.0, 386.0),   # rail / glazing pane
+            hline(base + 1, 100.0, 176.0, 393.0),   # rail / glazing pane
+            vline(base + 2, 383.0, 396.0, 100.0),   # cap (13px jamb)
+            vline(base + 3, 383.0, 396.0, 176.0),   # cap
+        ]
+
+    def test_clean_two_line_window_still_detected(self):
+        """Control: the bare 2-line capped opening with an empty interior is
+        still a window (must not be collateral damage of the clutter gate)."""
+        self.assertEqual(len(detect_windows(self._clean_opening(300))), 1)
+
+    def test_hatched_wall_with_interior_shapes_rejected(self):
+        """5-1133 FP w19/w21/w25/w32/w33: an insulation-hatched wall. The two
+        wall rails span the caps like a 2-pane band, but the crosshatch fill
+        drops re/qu/c shapes inside the opening — glazing never does."""
+        paths = self._clean_opening(400) + [
+            path(404, [(110, 387), (118, 392)], item_type="qu"),
+            path(405, [(120, 387), (128, 392)], item_type="re"),
+            path(406, [(130, 387), (138, 392)], item_type="qu"),
+        ]
+        self.assertEqual(detect_windows(paths), [])
+
+    def test_hatched_wall_line_only_rejected(self):
+        """Insulation hatch drawn with pure line segments (no re/qu/c): the
+        diagonal hatch strokes inside the band are parallel to neither the
+        glazing nor the caps, so the oblique-line gate rejects the wall."""
+        paths = self._clean_opening(500) + [
+            path(504, [(108, 387), (114, 392)]),   # diagonal hatch strokes
+            path(505, [(120, 387), (126, 392)]),
+            path(506, [(132, 387), (138, 392)]),
+            path(507, [(144, 387), (150, 392)]),
+        ]
+        self.assertEqual(detect_windows(paths), [])
+
+    def test_recess_with_end_shapes_just_outside_band_rejected(self):
+        """5-1133 FP w26 ('recess'): a niche whose two side walls span the caps
+        as a 2-line band, with stud-box / U-curve decorations sitting just PAST
+        the caps' outer ends — outside the tight band+cap bbox. The small shape
+        dilation pulls them in so the recess is rejected like the hatched walls."""
+        paths = self._clean_opening(900) + [
+            # re/qu decorations 1-4px beyond the left cap (x=100), within dilation
+            path(904, [(96.0, 387.0), (99.0, 392.0)], item_type="re"),
+            path(905, [(96.0, 387.0), (99.0, 392.0)], item_type="qu"),
+        ]
+        self.assertEqual(detect_windows(paths), [])
+
+    def test_filled_block_edge_rejected(self):
+        """5-1133 FP w17/w18: the top edge of a solid-filled block. Two doubled
+        edge lines span the caps, but the block's notched outline leaves many
+        cap-parallel jog lines inside the band — a clean opening has at most a
+        couple of dimension ticks."""
+        paths = self._clean_opening(600) + [
+            # notched-outline jog lines, all parallel to the caps, inside the band
+            vline(604, 387.0, 392.0, 118.0),
+            vline(605, 387.0, 392.0, 130.0),
+            vline(606, 387.0, 392.0, 142.0),
+            vline(607, 387.0, 392.0, 154.0),
+            vline(608, 387.0, 392.0, 166.0),
+        ]
+        self.assertEqual(detect_windows(paths), [])
+
+
 def _rot(px, py, cx, cy, deg):
     r = math.radians(deg)
     dx, dy = px - cx, py - cy
