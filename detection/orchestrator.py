@@ -4,10 +4,12 @@ from models import Candidate, PageData
 from debug.trace import DebugTraceCollector
 from detection.doors.detect import detect_doors
 from detection.walls import _stroke_percentile_rank, _wall_material_evidence, detect_walls
-from detection.windows import WINDOW_HATCH_REJECT_MIN, WINDOW_HATCH_REJECT_RATIO, detect_windows
+from detection.windows import detect_windows
 from detection.labels import detect_labels
 from detection.schedules import detect_schedules
-from detection.postprocess import _cross_validate, _resolve_wall_window_conflicts, _suppress
+from detection.postprocess import (
+    _cross_validate, _resolve_door_window_conflicts, _resolve_wall_window_conflicts, _suppress,
+)
 
 
 def run_heuristics(
@@ -41,18 +43,10 @@ def run_heuristics(
                 _stroke_percentile_rank(avg_sw, all_stroke_widths), 3
             )
 
-    filtered_windows: list[Candidate] = []
-    for window in windows:
-        material = _wall_material_evidence(page_data.paths, window.bbox)
-        window.evidence.update(material)
-        if (
-            not window.evidence.get("layer_hint")
-            and material["hatch_count"] >= WINDOW_HATCH_REJECT_MIN
-            and material["hatch_ratio"] >= WINDOW_HATCH_REJECT_RATIO
-        ):
-            continue
-        filtered_windows.append(window)
-    windows = filtered_windows
+    # Door symbols share the glazing-pane signature; the reliable door detector
+    # suppresses any window candidate sitting on a door (no wall dependency).
+    windows = _resolve_door_window_conflicts(doors + windows)
+    windows = [c for c in windows if c.entity_type == "window"]
 
     all_geo = _cross_validate(doors + windows, walls) + walls
     all_geo = _suppress(all_geo)

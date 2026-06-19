@@ -190,6 +190,37 @@ def _suppress(candidates: list[Candidate]) -> list[Candidate]:
     return kept
 
 
+# ---------------------------------------------------------------------------
+# Door / window cross-exclusion
+# ---------------------------------------------------------------------------
+
+CROSS_DOOR_EXPAND_PX = 20.0  # dilate door bbox before testing window overlap
+
+
+def _resolve_door_window_conflicts(candidates: list[Candidate]) -> list[Candidate]:
+    """Drop window candidates that overlap a detected door.
+
+    Door symbols (leaves, single/double swings, garden doors) contain parallel
+    linework with short perpendicular caps — the same signature a glazing pane
+    has — so they masquerade as windows. Door detection is reliable, so any
+    window candidate sitting on a door is a false positive. This does not depend
+    on wall detection. Ground truth on floor-plans.pdf: every real window is
+    clear of all doors; 14 of 19 window false positives sit on a door.
+    """
+    door_bboxes = [
+        _bbox_expanded(c.bbox, CROSS_DOOR_EXPAND_PX)
+        for c in candidates if c.entity_type == "door"
+    ]
+    if not door_bboxes:
+        return candidates
+
+    return [
+        c for c in candidates
+        if c.entity_type != "window"
+        or not any(_bboxes_overlap(c.bbox, db) for db in door_bboxes)
+    ]
+
+
 def _bbox_is_horizontal(bbox: BBox) -> bool:
     return _bbox_width(bbox) >= _bbox_height(bbox)
 

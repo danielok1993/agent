@@ -1,257 +1,247 @@
 {
-  ".claude/settings.json": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/.claude/settings.json": {
     "mtime": 1781851483.5566595,
     "ast_hash": "4608b78db8132ef3175aa303ab0f3cd0",
     "semantic_hash": "4608b78db8132ef3175aa303ab0f3cd0"
   },
-  "app.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/app.py": {
     "mtime": 1781173737.0185225,
     "ast_hash": "24ad664a9918d301d117976f2212b6b3",
     "semantic_hash": "24ad664a9918d301d117976f2212b6b3"
   },
-  "debug/__init__.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/debug/__init__.py": {
     "mtime": 1781850915.471986,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
-  "debug/renderer.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/debug/renderer.py": {
     "mtime": 1781850915.4724548,
     "ast_hash": "c06e15d0e14c9d694a76ca1d09370363",
     "semantic_hash": "c06e15d0e14c9d694a76ca1d09370363"
   },
-  "debug/trace.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/debug/trace.py": {
     "mtime": 1781850915.4726784,
     "ast_hash": "6f83f36682d0329ad565580eb783ccc5",
     "semantic_hash": "6f83f36682d0329ad565580eb783ccc5"
   },
-  "detection/__init__.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/__init__.py": {
     "mtime": 1781850915.472889,
     "ast_hash": "7cd83eda53664a8c2c5df9588f54426d",
     "semantic_hash": "7cd83eda53664a8c2c5df9588f54426d"
   },
-  "detection/doors/__init__.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/doors/__init__.py": {
     "mtime": 1781850915.473078,
     "ast_hash": "297ef9156560812809012b558e2f7fe6",
     "semantic_hash": "297ef9156560812809012b558e2f7fe6"
   },
-  "detection/doors/arcs.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/doors/arcs.py": {
     "mtime": 1781850915.4732864,
     "ast_hash": "8af6aea4b2d3989318674579bc8a6a2c",
     "semantic_hash": "8af6aea4b2d3989318674579bc8a6a2c"
   },
-  "detection/doors/assembly.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/doors/assembly.py": {
     "mtime": 1781850915.4734702,
     "ast_hash": "b64a8ebbcfc9237f742803b9f77f1956",
     "semantic_hash": "b64a8ebbcfc9237f742803b9f77f1956"
   },
-  "detection/doors/constants.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/doors/constants.py": {
     "mtime": 1781850915.4736717,
     "ast_hash": "f8db23b77b1ecb84bef164244feaa76b",
     "semantic_hash": "f8db23b77b1ecb84bef164244feaa76b"
   },
-  "detection/doors/detect.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/doors/detect.py": {
     "mtime": 1781850915.4737928,
     "ast_hash": "c2dbb0a38fe5666fa6567cc4d1a86fbe",
     "semantic_hash": "c2dbb0a38fe5666fa6567cc4d1a86fbe"
   },
-  "detection/doors/leaves.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/doors/leaves.py": {
     "mtime": 1781850915.4739366,
     "ast_hash": "ecb7f2031165094349535fc87f99e29d",
     "semantic_hash": "ecb7f2031165094349535fc87f99e29d"
   },
-  "detection/doors/models.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/doors/models.py": {
     "mtime": 1781850915.4740527,
     "ast_hash": "b2038053f45c0f15fbf038ed91cf3ca9",
     "semantic_hash": "b2038053f45c0f15fbf038ed91cf3ca9"
   },
-  "detection/doors/shape.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/doors/shape.py": {
     "mtime": 1781850915.4741607,
     "ast_hash": "ab6bf2d81a7aac70de406aacd744d0fa",
     "semantic_hash": "ab6bf2d81a7aac70de406aacd744d0fa"
   },
-  "detection/geometry.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/geometry.py": {
     "mtime": 1781850915.4742799,
     "ast_hash": "67d14a26ac6c64f4f66561433e5e3276",
     "semantic_hash": "67d14a26ac6c64f4f66561433e5e3276"
   },
-  "detection/labels.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/labels.py": {
     "mtime": 1781850915.4743989,
     "ast_hash": "bc690722884b4a0c6c532e3a530c6992",
     "semantic_hash": "bc690722884b4a0c6c532e3a530c6992"
   },
-  "detection/layers.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/layers.py": {
     "mtime": 1781850915.474513,
     "ast_hash": "077d463bc896b1bd54e32519f7d9cf45",
     "semantic_hash": "077d463bc896b1bd54e32519f7d9cf45"
   },
-  "detection/orchestrator.py": {
-    "mtime": 1781865631.7071092,
-    "ast_hash": "b07baf7ffc0f679db2f7672d798a293b",
-    "semantic_hash": ""
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/orchestrator.py": {
+    "mtime": 1781850915.4746668,
+    "ast_hash": "cd0c1da066e8a879f7fd43a51ee464e3",
+    "semantic_hash": "cd0c1da066e8a879f7fd43a51ee464e3"
   },
-  "detection/postprocess.py": {
-    "mtime": 1781865617.294373,
-    "ast_hash": "c843da0465fb0101c63dd0b0d6306b7b",
-    "semantic_hash": ""
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/postprocess.py": {
+    "mtime": 1781850915.474846,
+    "ast_hash": "76b0975a6d566e3a55a2b18e9dda47dc",
+    "semantic_hash": "76b0975a6d566e3a55a2b18e9dda47dc"
   },
-  "detection/schedules.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/schedules.py": {
     "mtime": 1781850915.4749694,
     "ast_hash": "8095fa73fdc66183c7927afc7b719015",
     "semantic_hash": "8095fa73fdc66183c7927afc7b719015"
   },
-  "detection/walls.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/walls.py": {
     "mtime": 1781850915.4751577,
     "ast_hash": "4088bcf124ede40e4aff2336d24cbbe0",
     "semantic_hash": "4088bcf124ede40e4aff2336d24cbbe0"
   },
-  "detection/windows.py": {
-    "mtime": 1781865599.5035596,
-    "ast_hash": "765b331a2b5684345bf92c84bc5abbe9",
-    "semantic_hash": ""
+  "/Users/danielszweda/Documents/GitHub/UD/agent/detection/windows.py": {
+    "mtime": 1781850915.4753208,
+    "ast_hash": "8a5b4c435aca76a8b7c0519112d7238d",
+    "semantic_hash": "8a5b4c435aca76a8b7c0519112d7238d"
   },
-  "extraction/__init__.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/extraction/__init__.py": {
     "mtime": 1781850915.4769397,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
-  "extraction/extractor.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/extraction/extractor.py": {
     "mtime": 1781850915.4772656,
     "ast_hash": "08223840a7a57e260acf88ae887c4f61",
     "semantic_hash": "08223840a7a57e260acf88ae887c4f61"
   },
-  "extraction/plumber.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/extraction/plumber.py": {
     "mtime": 1781850915.4774535,
     "ast_hash": "6593bb9d79c10f2cf04e22483655a521",
     "semantic_hash": "6593bb9d79c10f2cf04e22483655a521"
   },
-  "extraction/renderer.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/extraction/renderer.py": {
     "mtime": 1781850915.4776375,
     "ast_hash": "4904071c5e505d8cd12706d3bd4149b6",
     "semantic_hash": "4904071c5e505d8cd12706d3bd4149b6"
   },
-  "gemini/__init__.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/gemini/__init__.py": {
     "mtime": 1781850915.4777942,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
-  "gemini/client.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/gemini/client.py": {
     "mtime": 1781850915.4782007,
     "ast_hash": "ecba8b450fe641442182653b544356b9",
     "semantic_hash": "ecba8b450fe641442182653b544356b9"
   },
-  "inspector.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/inspector.py": {
     "mtime": 1781850915.4784782,
     "ast_hash": "b63cc221677bf8ba8ea86a5ce38fa4eb",
     "semantic_hash": "b63cc221677bf8ba8ea86a5ce38fa4eb"
   },
-  "models.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/models.py": {
     "mtime": 1780916914.0691476,
     "ast_hash": "1bca50fa1be9be46ba83d6959b0f342e",
     "semantic_hash": "1bca50fa1be9be46ba83d6959b0f342e"
   },
-  "pipeline.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/pipeline.py": {
     "mtime": 1781850915.4788947,
     "ast_hash": "34aab2bfe8f27a7f991d68f2522ab881",
     "semantic_hash": "34aab2bfe8f27a7f991d68f2522ab881"
   },
-  "tests/__init__.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/tests/__init__.py": {
     "mtime": 1780916914.0701287,
     "ast_hash": "484efaa71d2c576c2aa5a9c3159d928d",
     "semantic_hash": "484efaa71d2c576c2aa5a9c3159d928d"
   },
-  "tests/test_chained_curve_arcs.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/tests/test_chained_curve_arcs.py": {
     "mtime": 1781850915.479111,
     "ast_hash": "e2a9bdd2f8642edf3c347b0b787af040",
     "semantic_hash": "e2a9bdd2f8642edf3c347b0b787af040"
   },
-  "tests/test_curve_arc_garden_doors.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/tests/test_curve_arc_garden_doors.py": {
     "mtime": 1781850915.4793088,
     "ast_hash": "34855881975993c77f08ab0ec51a77ec",
     "semantic_hash": "34855881975993c77f08ab0ec51a77ec"
   },
-  "tests/test_door_assembly.py": {
-    "mtime": 1781865759.7402513,
-    "ast_hash": "0644c051e8a3a337330429895c786226",
-    "semantic_hash": ""
+  "/Users/danielszweda/Documents/GitHub/UD/agent/tests/test_door_assembly.py": {
+    "mtime": 1781850915.479679,
+    "ast_hash": "9ed4e7b6bdc33ff6a20e0d1f53322588",
+    "semantic_hash": "9ed4e7b6bdc33ff6a20e0d1f53322588"
   },
-  "tests/test_polyline_arc_pruning.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/tests/test_polyline_arc_pruning.py": {
     "mtime": 1781850915.4798565,
     "ast_hash": "85dd606994c68bce4d05d27019fb2637",
     "semantic_hash": "85dd606994c68bce4d05d27019fb2637"
   },
-  "tools/__init__.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/tools/__init__.py": {
     "mtime": 1781850915.480004,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
-  "tools/extract_hu_template.py": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/tools/extract_hu_template.py": {
     "mtime": 1781850915.4801579,
     "ast_hash": "945b5a947f6195b9e3563408a2b50b7c",
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
-  "CLAUDE.md": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/CLAUDE.md": {
     "mtime": 1781851483.5560179,
     "ast_hash": "4fd2814902c46deedd593e92959158bd",
     "semantic_hash": "4fd2814902c46deedd593e92959158bd"
   },
-  "README.md": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/README.md": {
     "mtime": 1780916914.0671194,
     "ast_hash": "04c10ef36e2b9f2bf3911dec15080001",
     "semantic_hash": "04c10ef36e2b9f2bf3911dec15080001"
   },
-  "docs/door-detection-tuning-guide.md": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/docs/door-detection-tuning-guide.md": {
     "mtime": 1781850915.47563,
     "ast_hash": "6c5967a2b436adc9b0d574d5f07cdf9a",
     "semantic_hash": "6c5967a2b436adc9b0d574d5f07cdf9a"
   },
-  "docs/superpowers/plans/2026-06-16-polyline-arc-spur-pruning.md": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/docs/superpowers/plans/2026-06-16-polyline-arc-spur-pruning.md": {
     "mtime": 1781850915.4759648,
     "ast_hash": "514e736757201202f15e08eb19910d85",
     "semantic_hash": "514e736757201202f15e08eb19910d85"
   },
-  "docs/superpowers/plans/2026-06-18-codebase-restructure.md": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/docs/superpowers/plans/2026-06-18-codebase-restructure.md": {
     "mtime": 1781850915.4761999,
     "ast_hash": "e955eadbdcc2beff5fb5e42e8ea7466e",
     "semantic_hash": "e955eadbdcc2beff5fb5e42e8ea7466e"
   },
-  "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md": {
     "mtime": 1781850915.4764516,
     "ast_hash": "f216839b92df6b45935e2b38a3478642",
     "semantic_hash": "f216839b92df6b45935e2b38a3478642"
   },
-  "docs/superpowers/specs/2026-06-18-codebase-restructure-design.md": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/docs/superpowers/specs/2026-06-18-codebase-restructure-design.md": {
     "mtime": 1781850915.476783,
     "ast_hash": "f59480a3533d0cd2bc6e3c45e3d6e138",
     "semantic_hash": "f59480a3533d0cd2bc6e3c45e3d6e138"
   },
-  "project.md": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/project.md": {
     "mtime": 1780916914.0697155,
     "ast_hash": "40fcafe8312a76fc0d73203cf4b3b4d0",
     "semantic_hash": "40fcafe8312a76fc0d73203cf4b3b4d0"
   },
-  "requirements.txt": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/requirements.txt": {
     "mtime": 1780922469.723239,
     "ast_hash": "6812528443ae3afdd6da3671176ca8b7",
     "semantic_hash": "6812528443ae3afdd6da3671176ca8b7"
   },
-  "5-1133-WD03.pdf": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/5-1133-WD03.pdf": {
     "mtime": 1780916914.0664153,
     "ast_hash": "a4322c3553ee831369cc304d8163d3d2",
     "semantic_hash": "a4322c3553ee831369cc304d8163d3d2"
   },
-  "floor-plans.pdf": {
+  "/Users/danielszweda/Documents/GitHub/UD/agent/floor-plans.pdf": {
     "mtime": 1780916914.0678499,
     "ast_hash": "ac7be7bda3d0e8349e4a8b5c033eab80",
     "semantic_hash": "ac7be7bda3d0e8349e4a8b5c033eab80"
-  },
-  "tests/test_window_detection.py": {
-    "mtime": 1781865509.8784435,
-    "ast_hash": "29721cfee6a401bad55ed4d497f9346e",
-    "semantic_hash": ""
-  },
-  "docs/window-detection-tuning-guide.md": {
-    "mtime": 1781865862.528257,
-    "ast_hash": "7e720cdbddfe84d9a10b99c266228086",
-    "semantic_hash": ""
   }
 }
