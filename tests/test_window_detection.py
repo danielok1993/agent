@@ -97,9 +97,10 @@ class TestWindowTopology(unittest.TestCase):
         self.assertEqual(len(wins), 1, f"expected 1 window, got {len(wins)}")
         self.assertTrue(_covers(wins[0].bbox, 303.0, 438.0))
 
-    def test_two_line_cluster_without_centerline_rejected(self):
-        """The fixtures/doors that survived the old detector were n=2 clusters.
-        A pane with only two lines (no centerline) must not become a window."""
+    def test_two_line_capped_rectangle_detected(self):
+        """A clean 2-line capped rectangle IS a window on 5-1133 (see Window B:
+        two parallel glazing lines, no centerline, closed by end caps). The old
+        n>=3 gate wrongly rejected this; the cap-anchored detector accepts it."""
         top, bot = 376.0, 398.0
         paths = [
             hline(300, 100.0, 176.0, 386.0),
@@ -107,7 +108,8 @@ class TestWindowTopology(unittest.TestCase):
             vline(302, top, bot, 100.0),
             vline(303, top, bot, 176.0),
         ]
-        self.assertEqual(detect_windows(paths), [])
+        wins = detect_windows(paths)
+        self.assertEqual(len(wins), 1, f"expected 1 window, got {len(wins)}")
 
     def test_glazing_without_caps_rejected(self):
         """Three parallel lines with no perpendicular end-caps (e.g. a run of
@@ -137,6 +139,83 @@ class TestWindowTopology(unittest.TestCase):
         self.assertEqual(len(wins), 2)
 
 
+class TestWindow51133Topology(unittest.TestCase):
+    """Ground truth captured interactively on 5-1133-WD03.pdf (run
+    2026-06-19_12-02-48). These windows have wider line spacing (~7px), greater
+    pane depth (~14px), and variable glazing-line counts (2 or 3) than
+    floor-plans — they motivated the cap-anchored rewrite. Coordinates are the
+    real path geometry (150-DPI px); the lines the user clicked are noted."""
+
+    def _window_a(self):
+        # Window A: 3 horizontal glazing lines (~7px apart, 13.7px deep) closed
+        # by two short vertical caps. User clicked 2926 + caps 2909/2925.
+        return [
+            hline(2904, 504.7, 618.2, 271.7),
+            hline(2926, 508.2, 614.7, 278.7),   # clicked (middle line)
+            hline(2905, 500.8, 622.2, 285.4),
+            vline(2909, 271.7, 285.2, 508.2),   # cap
+            vline(2925, 271.7, 285.7, 614.7),   # cap
+        ]
+
+    def _window_b(self):
+        # Window B: 2 vertical glazing lines (7.6px apart, no centerline) closed
+        # by two horizontal caps. User clicked 2046/2167 + 1951/2267.
+        return [
+            vline(2046, 761.7, 935.2, 186.7),
+            vline(2167, 761.7, 935.2, 194.3),
+            hline(1951, 171.6, 201.6, 761.6),   # cap (overshoots the glazing)
+            hline(2267, 171.1, 201.1, 935.1),   # cap
+        ]
+
+    def _window_bonus(self):
+        # Bonus small window: 3 short horizontal glazing lines closed by tiny
+        # (~5px) vertical caps. User clicked 2181.
+        return [
+            hline(2170, 267.2, 297.7, 506.2),
+            hline(2181, 272.2, 292.8, 508.7),   # clicked (short middle line)
+            hline(2094, 268.8, 296.2, 510.9),
+            vline(2096, 506.2, 510.7, 272.2),   # cap
+            vline(2295, 506.2, 511.2, 292.8),   # cap
+        ]
+
+    def test_window_a_detected(self):
+        wins = detect_windows(self._window_a())
+        self.assertEqual(len(wins), 1, f"Window A: expected 1, got {len(wins)}")
+        self.assertTrue(_covers(wins[0].bbox, 561.5, 278.5))
+
+    def test_window_b_detected(self):
+        wins = detect_windows(self._window_b())
+        self.assertEqual(len(wins), 1, f"Window B: expected 1, got {len(wins)}")
+        self.assertTrue(_covers(wins[0].bbox, 190.5, 848.4))
+
+    def test_window_bonus_detected(self):
+        wins = detect_windows(self._window_bonus())
+        self.assertEqual(len(wins), 1, f"Bonus: expected 1, got {len(wins)}")
+        self.assertTrue(_covers(wins[0].bbox, 282.5, 508.5))
+
+    def test_all_three_independent(self):
+        wins = detect_windows(self._window_a() + self._window_b() + self._window_bonus())
+        self.assertEqual(len(wins), 3, f"expected 3 windows, got {len(wins)}")
+
+    def test_fixture_hatch_rejected(self):
+        """A toilet/sink fixture is a hatch of stacked short segments plus
+        collinear duplicate edges — no set of >=2 lines at DISTINCT offsets
+        spans the full gap between facing caps, so it must not be a window."""
+        paths = [
+            # facing horizontal caps (the fixture outline ends)
+            hline(900, 200.0, 227.0, 796.5),
+            hline(901, 200.0, 227.0, 828.5),
+            # two collinear vertical edges at the SAME x (duplicate, not panes)
+            vline(902, 752.5, 828.5, 200.0),
+            vline(903, 796.5, 828.5, 200.0),
+            # stacked short hatch segments (don't span the gap)
+            hline(904, 200.0, 207.0, 805.3),
+            hline(905, 200.0, 207.0, 811.0),
+            hline(906, 200.0, 207.0, 822.3),
+        ]
+        self.assertEqual(detect_windows(paths), [])
+
+
 class TestDoorWindowExclusion(unittest.TestCase):
     def _win(self, bbox: BBox) -> Candidate:
         return Candidate("window_0000", "window", bbox, 0.7, {})
@@ -154,6 +233,16 @@ class TestDoorWindowExclusion(unittest.TestCase):
     def test_window_clear_of_doors_kept(self):
         win = self._win((903.0, 1374.0, 980.0, 1400.0))      # real window W1
         door = self._door((458.0, 1337.0, 512.0, 1392.0))    # far-away door
+        out = _resolve_door_window_conflicts([win, door])
+        self.assertIn(win, out)
+
+    def test_window_grazing_dilated_door_corner_kept(self):
+        """A distant door must not suppress a window it only clips after the
+        20px dilation. 5-1133 Window A (500.8-622.2, 271.7-285.7) was wrongly
+        dropped by a weak door at y82-255 whose dilated bbox grazed a ~6x4px
+        corner. Suppression requires *material* overlap, not a corner touch."""
+        win = self._win((500.8, 271.7, 622.2, 285.7))        # 5-1133 Window A
+        door = self._door((635.7, 82.2, 660.7, 255.2))       # far door (leaf_fallback)
         out = _resolve_door_window_conflicts([win, door])
         self.assertIn(win, out)
 

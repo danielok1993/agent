@@ -195,10 +195,12 @@ def _suppress(candidates: list[Candidate]) -> list[Candidate]:
 # ---------------------------------------------------------------------------
 
 CROSS_DOOR_EXPAND_PX = 20.0  # dilate door bbox before testing window overlap
+CROSS_DOOR_MIN_WINDOW_COVER = 0.10  # door must cover this fraction of the window's area;
+                                    # a mere dilated-corner graze does not suppress it
 
 
 def _resolve_door_window_conflicts(candidates: list[Candidate]) -> list[Candidate]:
-    """Drop window candidates that overlap a detected door.
+    """Drop window candidates that materially sit on a detected door.
 
     Door symbols (leaves, single/double swings, garden doors) contain parallel
     linework with short perpendicular caps — the same signature a glazing pane
@@ -206,6 +208,10 @@ def _resolve_door_window_conflicts(candidates: list[Candidate]) -> list[Candidat
     window candidate sitting on a door is a false positive. This does not depend
     on wall detection. Ground truth on floor-plans.pdf: every real window is
     clear of all doors; 14 of 19 window false positives sit on a door.
+
+    Suppression requires the (dilated) door to cover at least
+    CROSS_DOOR_MIN_WINDOW_COVER of the window's area — a distant door whose
+    dilation merely grazes a window corner is not a conflict (5-1133 Window A).
     """
     door_bboxes = [
         _bbox_expanded(c.bbox, CROSS_DOOR_EXPAND_PX)
@@ -214,10 +220,20 @@ def _resolve_door_window_conflicts(candidates: list[Candidate]) -> list[Candidat
     if not door_bboxes:
         return candidates
 
+    def sits_on_door(win: BBox) -> bool:
+        win_area = _bbox_area(win)
+        if win_area <= 0:
+            return False
+        for db in door_bboxes:
+            ix = max(0.0, min(win[2], db[2]) - max(win[0], db[0]))
+            iy = max(0.0, min(win[3], db[3]) - max(win[1], db[1]))
+            if ix * iy >= CROSS_DOOR_MIN_WINDOW_COVER * win_area:
+                return True
+        return False
+
     return [
         c for c in candidates
-        if c.entity_type != "window"
-        or not any(_bboxes_overlap(c.bbox, db) for db in door_bboxes)
+        if c.entity_type != "window" or not sits_on_door(c.bbox)
     ]
 
 

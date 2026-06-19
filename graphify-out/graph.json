@@ -206,7 +206,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "debug_trace",
-      "community": 2,
+      "community": 6,
       "norm_label": "trace.py"
     },
     {
@@ -236,7 +236,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "debug_trace_debugtracecollector_init_primitives",
-      "community": 6,
+      "community": 33,
       "norm_label": ".init_primitives()"
     },
     {
@@ -246,7 +246,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "debug_trace_py_pathprimitive",
-      "community": 6,
+      "community": 33,
       "norm_label": "pathprimitive"
     },
     {
@@ -256,7 +256,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "debug_trace_debugtracecollector_entry",
-      "community": 6,
+      "community": 33,
       "norm_label": "._entry()"
     },
     {
@@ -266,7 +266,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "debug_trace_debugtracecollector_record_arc_filter",
-      "community": 6,
+      "community": 33,
       "norm_label": ".record_arc_filter()"
     },
     {
@@ -276,7 +276,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "debug_trace_debugtracecollector_record_polyline_length",
-      "community": 6,
+      "community": 33,
       "norm_label": ".record_polyline_length()"
     },
     {
@@ -286,7 +286,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "debug_trace_debugtracecollector_record_polyline_component",
-      "community": 6,
+      "community": 41,
       "norm_label": ".record_polyline_component()"
     },
     {
@@ -296,7 +296,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "debug_trace_debugtracecollector_link_polyline_swing",
-      "community": 6,
+      "community": 37,
       "norm_label": ".link_polyline_swing()"
     },
     {
@@ -306,7 +306,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "debug_trace_debugtracecollector_reject_polyline_component",
-      "community": 6,
+      "community": 42,
       "norm_label": ".reject_polyline_component()"
     },
     {
@@ -316,7 +316,7 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "debug_trace_debugtracecollector_record_linework_component",
-      "community": 6,
+      "community": 40,
       "norm_label": ".record_linework_component()"
     },
     {
@@ -326,7 +326,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "debug_trace_debugtracecollector_link_linework_leaf",
-      "community": 6,
+      "community": 36,
       "norm_label": ".link_linework_leaf()"
     },
     {
@@ -336,7 +336,7 @@
       "source_location": "L200",
       "_origin": "ast",
       "id": "debug_trace_debugtracecollector_record_leaf_filter",
-      "community": 6,
+      "community": 33,
       "norm_label": ".record_leaf_filter()"
     },
     {
@@ -346,7 +346,7 @@
       "source_location": "L234",
       "_origin": "ast",
       "id": "debug_trace_debugtracecollector_record_swing",
-      "community": 6,
+      "community": 37,
       "norm_label": ".record_swing()"
     },
     {
@@ -366,7 +366,7 @@
       "source_location": "L290",
       "_origin": "ast",
       "id": "debug_trace_debugtracecollector_record_anchored_line_check",
-      "community": 6,
+      "community": 39,
       "norm_label": ".record_anchored_line_check()"
     },
     {
@@ -386,7 +386,7 @@
       "source_location": "L340",
       "_origin": "ast",
       "id": "debug_trace_debugtracecollector_record_leaf",
-      "community": 6,
+      "community": 36,
       "norm_label": ".record_leaf()"
     },
     {
@@ -396,7 +396,7 @@
       "source_location": "L374",
       "_origin": "ast",
       "id": "debug_trace_debugtracecollector_record_leaf_paired",
-      "community": 6,
+      "community": 38,
       "norm_label": ".record_leaf_paired()"
     },
     {
@@ -406,7 +406,7 @@
       "source_location": "L381",
       "_origin": "ast",
       "id": "debug_trace_debugtracecollector_record_candidate",
-      "community": 6,
+      "community": 38,
       "norm_label": ".record_candidate()"
     },
     {
@@ -436,7 +436,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "debug_trace_rationale_29",
-      "community": 6,
+      "community": 33,
       "norm_label": "pre-populate by_path_index with raw metadata for every pathprimitive."
     },
     {
@@ -446,7 +446,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "debug_trace_rationale_64",
-      "community": 6,
+      "community": 33,
       "norm_label": "record result of the _is_arc_like check for a primitive."
     },
     {
@@ -456,7 +456,7 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "debug_trace_rationale_97",
-      "community": 6,
+      "community": 33,
       "norm_label": "record whether a line segment passed the polyline-arc length filter."
     },
     {
@@ -466,7 +466,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "debug_trace_rationale_117",
-      "community": 6,
+      "community": 41,
       "norm_label": "record a polyline arc component evaluation. returns component_id.          ``pre"
     },
     {
@@ -476,7 +476,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "debug_trace_rationale_150",
-      "community": 6,
+      "community": 42,
       "norm_label": "mark a previously-collected polyline component as rejected post-hoc."
     },
     {
@@ -486,7 +486,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "debug_trace_rationale_169",
-      "community": 6,
+      "community": 40,
       "norm_label": "record a linework leaf component evaluation. returns component_id.          clea"
     },
     {
@@ -496,7 +496,7 @@
       "source_location": "L208",
       "_origin": "ast",
       "id": "debug_trace_rationale_208",
-      "community": 6,
+      "community": 33,
       "norm_label": "record result of the _is_door_leaf check for a primitive."
     },
     {
@@ -506,7 +506,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "debug_trace_rationale_244",
-      "community": 6,
+      "community": 37,
       "norm_label": "register a collected swing. returns swing_id."
     },
     {
@@ -516,7 +516,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "debug_trace_rationale_300",
-      "community": 6,
+      "community": 39,
       "norm_label": "record the swing-anchored single-line leaf search outcome.          `result` is"
     },
     {
@@ -526,7 +526,7 @@
       "source_location": "L351",
       "_origin": "ast",
       "id": "debug_trace_rationale_351",
-      "community": 6,
+      "community": 36,
       "norm_label": "register a collected leaf. returns leaf_id."
     },
     {
@@ -536,7 +536,7 @@
       "source_location": "L390",
       "_origin": "ast",
       "id": "debug_trace_rationale_390",
-      "community": 6,
+      "community": 38,
       "norm_label": "record a final candidate with its full confidence breakdown."
     },
     {
@@ -556,7 +556,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "doors_init",
-      "community": 1,
+      "community": 6,
       "norm_label": "__init__.py"
     },
     {
@@ -586,7 +586,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "detection_doors_arcs_py_pathprimitive",
-      "community": 2,
+      "community": 11,
       "norm_label": "pathprimitive"
     },
     {
@@ -686,7 +686,7 @@
       "source_location": "L789",
       "_origin": "ast",
       "id": "doors_arcs_fit_circle_3pt",
-      "community": 2,
+      "community": 4,
       "norm_label": "_fit_circle_3pt()"
     },
     {
@@ -696,7 +696,7 @@
       "source_location": "L815",
       "_origin": "ast",
       "id": "doors_arcs_native_curve_chains",
-      "community": 2,
+      "community": 4,
       "norm_label": "_native_curve_chains()"
     },
     {
@@ -796,7 +796,7 @@
       "source_location": "L794",
       "_origin": "ast",
       "id": "doors_arcs_rationale_794",
-      "community": 2,
+      "community": 4,
       "norm_label": "fit a circle through 3 points. returns (cx, cy, radius) or none if     the point"
     },
     {
@@ -806,7 +806,7 @@
       "source_location": "L818",
       "_origin": "ast",
       "id": "doors_arcs_rationale_818",
-      "community": 2,
+      "community": 4,
       "norm_label": "group native `c` (bezier) primitives by endpoint adjacency.      pdf arcs are of"
     },
     {
@@ -1056,7 +1056,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "doors_detect",
-      "community": 2,
+      "community": 6,
       "norm_label": "detect.py"
     },
     {
@@ -1346,7 +1346,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "doors_shape",
-      "community": 6,
+      "community": 34,
       "norm_label": "shape.py"
     },
     {
@@ -1356,7 +1356,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "doors_shape_rasterize_paths_to_canvas",
-      "community": 6,
+      "community": 34,
       "norm_label": "_rasterize_paths_to_canvas()"
     },
     {
@@ -1366,7 +1366,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "detection_doors_shape_py_pathprimitive",
-      "community": 6,
+      "community": 34,
       "norm_label": "pathprimitive"
     },
     {
@@ -1376,7 +1376,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "doors_shape_compute_hu_distance",
-      "community": 6,
+      "community": 34,
       "norm_label": "_compute_hu_distance()"
     },
     {
@@ -1386,7 +1386,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "doors_shape_rationale_16",
-      "community": 6,
+      "community": 34,
       "norm_label": "rasterize line/curve primitives onto a normalized binary canvas.      segments a"
     },
     {
@@ -1396,7 +1396,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "doors_shape_rationale_50",
-      "community": 6,
+      "community": 34,
       "norm_label": "distance between candidate arc paths and the door hu moment template.      lower"
     },
     {
@@ -1926,7 +1926,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "detection_postprocess_py_bbox",
-      "community": 2,
+      "community": 0,
       "norm_label": "bbox"
     },
     {
@@ -1936,7 +1936,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "detection_postprocess_projected_overlap_1d",
-      "community": 2,
+      "community": 0,
       "norm_label": "_projected_overlap_1d()"
     },
     {
@@ -1953,27 +1953,27 @@
       "label": "_resolve_door_window_conflicts()",
       "file_type": "code",
       "source_file": "detection/postprocess.py",
-      "source_location": "L200",
+      "source_location": "L202",
       "_origin": "ast",
       "id": "detection_postprocess_resolve_door_window_conflicts",
-      "community": 0,
+      "community": 32,
       "norm_label": "_resolve_door_window_conflicts()"
     },
     {
       "label": "_bbox_is_horizontal()",
       "file_type": "code",
       "source_file": "detection/postprocess.py",
-      "source_location": "L224",
+      "source_location": "L240",
       "_origin": "ast",
       "id": "detection_postprocess_bbox_is_horizontal",
-      "community": 2,
+      "community": 0,
       "norm_label": "_bbox_is_horizontal()"
     },
     {
       "label": "_resolve_wall_window_conflicts()",
       "file_type": "code",
       "source_file": "detection/postprocess.py",
-      "source_location": "L228",
+      "source_location": "L244",
       "_origin": "ast",
       "id": "detection_postprocess_resolve_wall_window_conflicts",
       "community": 0,
@@ -1996,7 +1996,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "detection_postprocess_rationale_102",
-      "community": 2,
+      "community": 0,
       "norm_label": "projected overlap fraction and perpendicular gap on bbox a's dominant axis."
     },
     {
@@ -2010,22 +2010,22 @@
       "norm_label": "type-specific nms: higher confidence wins when two candidates overlap.      for"
     },
     {
-      "label": "Drop window candidates that overlap a detected door.      Door symbols (leaves,",
+      "label": "Drop window candidates that materially sit on a detected door.      Door symbols",
       "file_type": "rationale",
       "source_file": "detection/postprocess.py",
-      "source_location": "L201",
+      "source_location": "L203",
       "_origin": "ast",
-      "id": "detection_postprocess_rationale_201",
-      "community": 0,
-      "norm_label": "drop window candidates that overlap a detected door.      door symbols (leaves,"
+      "id": "detection_postprocess_rationale_203",
+      "community": 32,
+      "norm_label": "drop window candidates that materially sit on a detected door.      door symbols"
     },
     {
       "label": "Drop window candidates that are materially the same bbox as a wall.      Real wi",
       "file_type": "rationale",
       "source_file": "detection/postprocess.py",
-      "source_location": "L229",
+      "source_location": "L245",
       "_origin": "ast",
-      "id": "detection_postprocess_rationale_229",
+      "id": "detection_postprocess_rationale_245",
       "community": 0,
       "norm_label": "drop window candidates that are materially the same bbox as a wall.      real wi"
     },
@@ -2203,121 +2203,181 @@
       "label": "_axis_lines()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L31",
+      "source_location": "L42",
       "_origin": "ast",
       "id": "detection_windows_axis_lines",
-      "community": 0,
+      "community": 16,
       "norm_label": "_axis_lines()"
     },
     {
       "label": "PathPrimitive",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L31",
+      "source_location": "L42",
       "_origin": "ast",
       "id": "detection_windows_py_pathprimitive",
-      "community": 0,
+      "community": 16,
       "norm_label": "pathprimitive"
     },
     {
-      "label": "_aligned()",
+      "label": "_dedupe_by_perp()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L59",
+      "source_location": "L70",
       "_origin": "ast",
-      "id": "detection_windows_aligned",
+      "id": "detection_windows_dedupe_by_perp",
       "community": 0,
-      "norm_label": "_aligned()"
+      "norm_label": "_dedupe_by_perp()"
     },
     {
-      "label": "_cluster_glazing()",
+      "label": "_tight_band()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L68",
+      "source_location": "L86",
       "_origin": "ast",
-      "id": "detection_windows_cluster_glazing",
+      "id": "detection_windows_tight_band",
       "community": 0,
-      "norm_label": "_cluster_glazing()"
+      "norm_label": "_tight_band()"
     },
     {
-      "label": "_find_cap()",
+      "label": "_spanning_glazing()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L101",
+      "source_location": "L110",
       "_origin": "ast",
-      "id": "detection_windows_find_cap",
+      "id": "detection_windows_spanning_glazing",
       "community": 0,
-      "norm_label": "_find_cap()"
+      "norm_label": "_spanning_glazing()"
     },
     {
-      "label": "detect_windows()",
+      "label": "_find_openings()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L119",
+      "source_location": "L127",
       "_origin": "ast",
-      "id": "detection_windows_detect_windows",
+      "id": "detection_windows_find_openings",
       "community": 0,
-      "norm_label": "detect_windows()"
+      "norm_label": "_find_openings()"
+    },
+    {
+      "label": "_area()",
+      "file_type": "code",
+      "source_file": "detection/windows.py",
+      "source_location": "L158",
+      "_origin": "ast",
+      "id": "detection_windows_area",
+      "community": 0,
+      "norm_label": "_area()"
+    },
+    {
+      "label": "BBox",
+      "file_type": "code",
+      "source_file": "detection/windows.py",
+      "source_location": "L158",
+      "_origin": "ast",
+      "id": "detection_windows_py_bbox",
+      "community": 0,
+      "norm_label": "bbox"
+    },
+    {
+      "label": "_dedupe_openings()",
+      "file_type": "code",
+      "source_file": "detection/windows.py",
+      "source_location": "L162",
+      "_origin": "ast",
+      "id": "detection_windows_dedupe_openings",
+      "community": 16,
+      "norm_label": "_dedupe_openings()"
     },
     {
       "label": "Candidate",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L119",
+      "source_location": "L162",
       "_origin": "ast",
       "id": "detection_windows_py_candidate",
-      "community": 0,
+      "community": 16,
       "norm_label": "candidate"
+    },
+    {
+      "label": "detect_windows()",
+      "file_type": "code",
+      "source_file": "detection/windows.py",
+      "source_location": "L179",
+      "_origin": "ast",
+      "id": "detection_windows_detect_windows",
+      "community": 16,
+      "norm_label": "detect_windows()"
     },
     {
       "label": "Split axis-aligned line primitives into horizontal and vertical pools.      Each",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L32",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "detection_windows_rationale_32",
-      "community": 0,
+      "id": "detection_windows_rationale_43",
+      "community": 16,
       "norm_label": "split axis-aligned line primitives into horizontal and vertical pools.      each"
     },
     {
-      "label": "Two parallel lines are near-equal length and project onto each other.",
+      "label": "Collapse near-collinear duplicates (same perp offset) to one record.      A toil",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L60",
+      "source_location": "L71",
       "_origin": "ast",
-      "id": "detection_windows_rationale_60",
+      "id": "detection_windows_rationale_71",
       "community": 0,
-      "norm_label": "two parallel lines are near-equal length and project onto each other."
+      "norm_label": "collapse near-collinear duplicates (same perp offset) to one record.      a toil"
     },
     {
-      "label": "Greedily group tight, aligned, near-equal-length parallel lines.      A line joi",
+      "label": "Largest run of panes spaced like glazing, not like stair treads.      Walks the",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L69",
+      "source_location": "L87",
       "_origin": "ast",
-      "id": "detection_windows_rationale_69",
+      "id": "detection_windows_rationale_87",
       "community": 0,
-      "norm_label": "greedily group tight, aligned, near-equal-length parallel lines.      a line joi"
+      "norm_label": "largest run of panes spaced like glazing, not like stair treads.      walks the"
     },
     {
-      "label": "A short perpendicular line sitting at a glazing span end and crossing it.      `",
+      "label": "Distinct parallel glazing lines that connect cap ``c1`` to cap ``c2``.      A gl",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L102",
+      "source_location": "L111",
       "_origin": "ast",
-      "id": "detection_windows_rationale_102",
+      "id": "detection_windows_rationale_111",
       "community": 0,
-      "norm_label": "a short perpendicular line sitting at a glazing span end and crossing it.      `"
+      "norm_label": "distinct parallel glazing lines that connect cap ``c1`` to cap ``c2``.      a gl"
     },
     {
-      "label": "Detect windows as capped glazing rectangles.      For each orientation, cluster",
+      "label": "Pair facing caps and confirm a glazing band bridges each opening.      ``cap_poo",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L120",
+      "source_location": "L128",
       "_origin": "ast",
-      "id": "detection_windows_rationale_120",
+      "id": "detection_windows_rationale_128",
       "community": 0,
-      "norm_label": "detect windows as capped glazing rectangles.      for each orientation, cluster"
+      "norm_label": "pair facing caps and confirm a glazing band bridges each opening.      ``cap_poo"
+    },
+    {
+      "label": "Suppress overlapping detections from duplicate cap pairs (greedy NMS).      Dupl",
+      "file_type": "rationale",
+      "source_file": "detection/windows.py",
+      "source_location": "L163",
+      "_origin": "ast",
+      "id": "detection_windows_rationale_163",
+      "community": 16,
+      "norm_label": "suppress overlapping detections from duplicate cap pairs (greedy nms).      dupl"
+    },
+    {
+      "label": "Detect windows as capped openings bridged by a parallel glazing band.      For e",
+      "file_type": "rationale",
+      "source_file": "detection/windows.py",
+      "source_location": "L180",
+      "_origin": "ast",
+      "id": "detection_windows_rationale_180",
+      "community": 16,
+      "norm_label": "detect windows as capped openings bridged by a parallel glazing band.      for e"
     },
     {
       "label": "__init__.py",
@@ -3326,7 +3386,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_fitcircle3pttests",
-      "community": 2,
+      "community": 4,
       "norm_label": "fitcircle3pttests"
     },
     {
@@ -3336,7 +3396,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_fitcircle3pttests_test_three_axis_aligned_points_on_unit_circle",
-      "community": 2,
+      "community": 4,
       "norm_label": ".test_three_axis_aligned_points_on_unit_circle()"
     },
     {
@@ -3346,7 +3406,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_fitcircle3pttests_test_three_points_on_offset_circle",
-      "community": 2,
+      "community": 4,
       "norm_label": ".test_three_points_on_offset_circle()"
     },
     {
@@ -3356,7 +3416,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_fitcircle3pttests_test_collinear_points_return_none",
-      "community": 2,
+      "community": 4,
       "norm_label": ".test_collinear_points_return_none()"
     },
     {
@@ -3476,7 +3536,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_rationale_80",
-      "community": 2,
+      "community": 4,
       "norm_label": "trivial sanity check on the formula: 3 points on a circle of         radius 5 ce"
     },
     {
@@ -3486,7 +3546,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_rationale_90",
-      "community": 2,
+      "community": 4,
       "norm_label": "recover an offset center and radius from a different angular spread."
     },
     {
@@ -3496,7 +3556,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_rationale_107",
-      "community": 2,
+      "community": 4,
       "norm_label": "three collinear points have no unique circumscribed circle."
     },
     {
@@ -3536,7 +3596,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_curve_arc_garden_doors",
-      "community": 6,
+      "community": 31,
       "norm_label": "test_curve_arc_garden_doors.py"
     },
     {
@@ -3546,7 +3606,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "tests_test_curve_arc_garden_doors_curve",
-      "community": 6,
+      "community": 31,
       "norm_label": "_curve()"
     },
     {
@@ -3556,7 +3616,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "tests_test_curve_arc_garden_doors_py_pathprimitive",
-      "community": 6,
+      "community": 31,
       "norm_label": "pathprimitive"
     },
     {
@@ -3566,7 +3626,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "tests_test_curve_arc_garden_doors_line",
-      "community": 6,
+      "community": 31,
       "norm_label": "_line()"
     },
     {
@@ -3576,7 +3636,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "tests_test_curve_arc_garden_doors_quarter_arc_bezier",
-      "community": 6,
+      "community": 31,
       "norm_label": "_quarter_arc_bezier()"
     },
     {
@@ -3586,7 +3646,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "tests_test_curve_arc_garden_doors_curvearcgardendoortests",
-      "community": 6,
+      "community": 31,
       "norm_label": "curvearcgardendoortests"
     },
     {
@@ -3596,7 +3656,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "tests_test_curve_arc_garden_doors_curvearcgardendoortests_test_two_single_beziers_sharing_endpoint_merge_as_garden_door",
-      "community": 6,
+      "community": 31,
       "norm_label": ".test_two_single_beziers_sharing_endpoint_merge_as_garden_door()"
     },
     {
@@ -3606,7 +3666,7 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "tests_test_curve_arc_garden_doors_curvearcgardendoortests_test_smooth_s_curve_continuation_not_treated_as_garden",
-      "community": 6,
+      "community": 31,
       "norm_label": ".test_smooth_s_curve_continuation_not_treated_as_garden()"
     },
     {
@@ -3616,7 +3676,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_curve_arc_garden_doors_rationale_1",
-      "community": 6,
+      "community": 31,
       "norm_label": "garden-door detection for native single-bezier (`curve_arc`) swings.  the polyli"
     },
     {
@@ -3626,7 +3686,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "tests_test_curve_arc_garden_doors_rationale_58",
-      "community": 6,
+      "community": 31,
       "norm_label": "build a cubic bezier approximating the 90\u00b0 quarter circle centered at     ``hing"
     },
     {
@@ -3636,7 +3696,7 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "tests_test_curve_arc_garden_doors_rationale_97",
-      "community": 6,
+      "community": 31,
       "norm_label": "the 5-1133-wd03.pdf door_0007 + door_0008 topology, simplified.          two sta"
     },
     {
@@ -3646,7 +3706,7 @@
       "source_location": "L155",
       "_origin": "ast",
       "id": "tests_test_curve_arc_garden_doors_rationale_155",
-      "community": 6,
+      "community": 31,
       "norm_label": "two arcs sharing an endpoint with continuous tangent (smooth         s-curve) mu"
     },
     {
@@ -3776,7 +3836,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "tests_test_door_assembly_doorassemblytests_test_duplicate_components_dedupe_to_one_door",
-      "community": 1,
+      "community": 0,
       "norm_label": ".test_duplicate_components_dedupe_to_one_door()"
     },
     {
@@ -5236,7 +5296,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "tests_test_window_detection_py_bbox",
-      "community": 16,
+      "community": 32,
       "norm_label": "bbox"
     },
     {
@@ -5270,20 +5330,20 @@
       "norm_label": ".test_vertical_window_detected()"
     },
     {
-      "label": ".test_two_line_cluster_without_centerline_rejected()",
+      "label": ".test_two_line_capped_rectangle_detected()",
       "file_type": "code",
       "source_file": "tests/test_window_detection.py",
       "source_location": "L100",
       "_origin": "ast",
-      "id": "tests_test_window_detection_testwindowtopology_test_two_line_cluster_without_centerline_rejected",
+      "id": "tests_test_window_detection_testwindowtopology_test_two_line_capped_rectangle_detected",
       "community": 16,
-      "norm_label": ".test_two_line_cluster_without_centerline_rejected()"
+      "norm_label": ".test_two_line_capped_rectangle_detected()"
     },
     {
       "label": ".test_glazing_without_caps_rejected()",
       "file_type": "code",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L112",
+      "source_location": "L114",
       "_origin": "ast",
       "id": "tests_test_window_detection_testwindowtopology_test_glazing_without_caps_rejected",
       "community": 16,
@@ -5293,7 +5353,7 @@
       "label": ".test_loose_cluster_rejected()",
       "file_type": "code",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L122",
+      "source_location": "L124",
       "_origin": "ast",
       "id": "tests_test_window_detection_testwindowtopology_test_loose_cluster_rejected",
       "community": 16,
@@ -5303,77 +5363,177 @@
       "label": ".test_two_windows_independent()",
       "file_type": "code",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L134",
+      "source_location": "L136",
       "_origin": "ast",
       "id": "tests_test_window_detection_testwindowtopology_test_two_windows_independent",
       "community": 16,
       "norm_label": ".test_two_windows_independent()"
     },
     {
+      "label": "TestWindow51133Topology",
+      "file_type": "code",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L142",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_testwindow51133topology",
+      "community": 16,
+      "norm_label": "testwindow51133topology"
+    },
+    {
+      "label": "._window_a()",
+      "file_type": "code",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L149",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_testwindow51133topology_window_a",
+      "community": 16,
+      "norm_label": "._window_a()"
+    },
+    {
+      "label": "._window_b()",
+      "file_type": "code",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L160",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_testwindow51133topology_window_b",
+      "community": 16,
+      "norm_label": "._window_b()"
+    },
+    {
+      "label": "._window_bonus()",
+      "file_type": "code",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L170",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_testwindow51133topology_window_bonus",
+      "community": 16,
+      "norm_label": "._window_bonus()"
+    },
+    {
+      "label": ".test_window_a_detected()",
+      "file_type": "code",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L181",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_testwindow51133topology_test_window_a_detected",
+      "community": 16,
+      "norm_label": ".test_window_a_detected()"
+    },
+    {
+      "label": ".test_window_b_detected()",
+      "file_type": "code",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L186",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_testwindow51133topology_test_window_b_detected",
+      "community": 16,
+      "norm_label": ".test_window_b_detected()"
+    },
+    {
+      "label": ".test_window_bonus_detected()",
+      "file_type": "code",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L191",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_testwindow51133topology_test_window_bonus_detected",
+      "community": 16,
+      "norm_label": ".test_window_bonus_detected()"
+    },
+    {
+      "label": ".test_all_three_independent()",
+      "file_type": "code",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L196",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_testwindow51133topology_test_all_three_independent",
+      "community": 16,
+      "norm_label": ".test_all_three_independent()"
+    },
+    {
+      "label": ".test_fixture_hatch_rejected()",
+      "file_type": "code",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L200",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_testwindow51133topology_test_fixture_hatch_rejected",
+      "community": 16,
+      "norm_label": ".test_fixture_hatch_rejected()"
+    },
+    {
       "label": "TestDoorWindowExclusion",
       "file_type": "code",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L140",
+      "source_location": "L219",
       "_origin": "ast",
       "id": "tests_test_window_detection_testdoorwindowexclusion",
-      "community": 16,
+      "community": 32,
       "norm_label": "testdoorwindowexclusion"
     },
     {
       "label": "._win()",
       "file_type": "code",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L141",
+      "source_location": "L220",
       "_origin": "ast",
       "id": "tests_test_window_detection_testdoorwindowexclusion_win",
-      "community": 16,
+      "community": 32,
       "norm_label": "._win()"
     },
     {
       "label": "Candidate",
       "file_type": "code",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L141",
+      "source_location": "L220",
       "_origin": "ast",
       "id": "tests_test_window_detection_py_candidate",
-      "community": 16,
+      "community": 32,
       "norm_label": "candidate"
     },
     {
       "label": "._door()",
       "file_type": "code",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L144",
+      "source_location": "L223",
       "_origin": "ast",
       "id": "tests_test_window_detection_testdoorwindowexclusion_door",
-      "community": 16,
+      "community": 32,
       "norm_label": "._door()"
     },
     {
       "label": ".test_window_overlapping_door_dropped()",
       "file_type": "code",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L147",
+      "source_location": "L226",
       "_origin": "ast",
       "id": "tests_test_window_detection_testdoorwindowexclusion_test_window_overlapping_door_dropped",
-      "community": 16,
+      "community": 32,
       "norm_label": ".test_window_overlapping_door_dropped()"
     },
     {
       "label": ".test_window_clear_of_doors_kept()",
       "file_type": "code",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L154",
+      "source_location": "L233",
       "_origin": "ast",
       "id": "tests_test_window_detection_testdoorwindowexclusion_test_window_clear_of_doors_kept",
-      "community": 16,
+      "community": 32,
       "norm_label": ".test_window_clear_of_doors_kept()"
+    },
+    {
+      "label": ".test_window_grazing_dilated_door_corner_kept()",
+      "file_type": "code",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L239",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_testdoorwindowexclusion_test_window_grazing_dilated_door_corner_kept",
+      "community": 32,
+      "norm_label": ".test_window_grazing_dilated_door_corner_kept()"
     },
     {
       "label": "TestFloorPlansRegression",
       "file_type": "code",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L161",
+      "source_location": "L250",
       "_origin": "ast",
       "id": "tests_test_window_detection_testfloorplansregression",
       "community": 16,
@@ -5383,7 +5543,7 @@
       "label": ".setUp()",
       "file_type": "code",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L168",
+      "source_location": "L257",
       "_origin": "ast",
       "id": "tests_test_window_detection_testfloorplansregression_setup",
       "community": 16,
@@ -5393,7 +5553,7 @@
       "label": ".test_exactly_four_ground_truth_windows()",
       "file_type": "code",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L173",
+      "source_location": "L262",
       "_origin": "ast",
       "id": "tests_test_window_detection_testfloorplansregression_test_exactly_four_ground_truth_windows",
       "community": 16,
@@ -5430,22 +5590,22 @@
       "norm_label": "a w4-style vertical window: 3 tight vertical glazing lines closed by two     hor"
     },
     {
-      "label": "The fixtures/doors that survived the old detector were n=2 clusters.         A p",
+      "label": "A clean 2-line capped rectangle IS a window on 5-1133 (see Window B:         two",
       "file_type": "rationale",
       "source_file": "tests/test_window_detection.py",
       "source_location": "L101",
       "_origin": "ast",
       "id": "tests_test_window_detection_rationale_101",
       "community": 16,
-      "norm_label": "the fixtures/doors that survived the old detector were n=2 clusters.         a p"
+      "norm_label": "a clean 2-line capped rectangle is a window on 5-1133 (see window b:         two"
     },
     {
       "label": "Three parallel lines with no perpendicular end-caps (e.g. a run of         dimen",
       "file_type": "rationale",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L113",
+      "source_location": "L115",
       "_origin": "ast",
-      "id": "tests_test_window_detection_rationale_113",
+      "id": "tests_test_window_detection_rationale_115",
       "community": 16,
       "norm_label": "three parallel lines with no perpendicular end-caps (e.g. a run of         dimen"
     },
@@ -5453,19 +5613,49 @@
       "label": "Three parallel lines spaced far apart (e.g. stair treads) exceed the         gla",
       "file_type": "rationale",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L123",
+      "source_location": "L125",
       "_origin": "ast",
-      "id": "tests_test_window_detection_rationale_123",
+      "id": "tests_test_window_detection_rationale_125",
       "community": 16,
       "norm_label": "three parallel lines spaced far apart (e.g. stair treads) exceed the         gla"
+    },
+    {
+      "label": "Ground truth captured interactively on 5-1133-WD03.pdf (run     2026-06-19_12-02",
+      "file_type": "rationale",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L143",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_rationale_143",
+      "community": 16,
+      "norm_label": "ground truth captured interactively on 5-1133-wd03.pdf (run     2026-06-19_12-02"
+    },
+    {
+      "label": "A toilet/sink fixture is a hatch of stacked short segments plus         collinea",
+      "file_type": "rationale",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L201",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_rationale_201",
+      "community": 16,
+      "norm_label": "a toilet/sink fixture is a hatch of stacked short segments plus         collinea"
+    },
+    {
+      "label": "A distant door must not suppress a window it only clips after the         20px d",
+      "file_type": "rationale",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L240",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_rationale_240",
+      "community": 32,
+      "norm_label": "a distant door must not suppress a window it only clips after the         20px d"
     },
     {
       "label": "End-to-end regression: floor-plans.pdf must yield exactly the four     ground-tr",
       "file_type": "rationale",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L162",
+      "source_location": "L251",
       "_origin": "ast",
-      "id": "tests_test_window_detection_rationale_162",
+      "id": "tests_test_window_detection_rationale_251",
       "community": 16,
       "norm_label": "end-to-end regression: floor-plans.pdf must yield exactly the four     ground-tr"
     },
@@ -6086,7 +6276,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "plans_2026_06_16_polyline_arc_spur_pruning",
-      "community": 13,
+      "community": 35,
       "norm_label": "2026-06-16-polyline-arc-spur-pruning.md"
     },
     {
@@ -6096,7 +6286,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "plans_2026_06_16_polyline_arc_spur_pruning_polyline_arc_spur_pruning_implementation_plan",
-      "community": 13,
+      "community": 35,
       "norm_label": "polyline-arc spur pruning implementation plan"
     },
     {
@@ -6166,7 +6356,7 @@
       "source_location": "L660",
       "_origin": "ast",
       "id": "plans_2026_06_16_polyline_arc_spur_pruning_self_review_notes",
-      "community": 13,
+      "community": 35,
       "norm_label": "self-review notes"
     },
     {
@@ -6800,20 +6990,20 @@
       "norm_label": "window detection \u2014 tuning guide"
     },
     {
-      "label": "1. The signature",
+      "label": "1. The signature (cap-anchored)",
       "file_type": "document",
       "source_file": "docs/window-detection-tuning-guide.md",
       "source_location": "L11",
       "_origin": "ast",
-      "id": "docs_window_detection_tuning_guide_1_the_signature",
+      "id": "docs_window_detection_tuning_guide_1_the_signature_cap_anchored",
       "community": 28,
-      "norm_label": "1. the signature"
+      "norm_label": "1. the signature (cap-anchored)"
     },
     {
       "label": "2. Pipeline shape",
       "file_type": "document",
       "source_file": "docs/window-detection-tuning-guide.md",
-      "source_location": "L30",
+      "source_location": "L34",
       "_origin": "ast",
       "id": "docs_window_detection_tuning_guide_2_pipeline_shape",
       "community": 28,
@@ -6823,7 +7013,7 @@
       "label": "3. Why both filters are needed (floor-plans.pdf)",
       "file_type": "document",
       "source_file": "docs/window-detection-tuning-guide.md",
-      "source_location": "L53",
+      "source_location": "L73",
       "_origin": "ast",
       "id": "docs_window_detection_tuning_guide_3_why_both_filters_are_needed_floor_plans_pdf",
       "community": 28,
@@ -6833,7 +7023,7 @@
       "label": "4. The constants",
       "file_type": "document",
       "source_file": "docs/window-detection-tuning-guide.md",
-      "source_location": "L64",
+      "source_location": "L84",
       "_origin": "ast",
       "id": "docs_window_detection_tuning_guide_4_the_constants",
       "community": 28,
@@ -6843,7 +7033,7 @@
       "label": "5. Reference data \u2014 current detection state (regression target)",
       "file_type": "document",
       "source_file": "docs/window-detection-tuning-guide.md",
-      "source_location": "L94",
+      "source_location": "L118",
       "_origin": "ast",
       "id": "docs_window_detection_tuning_guide_5_reference_data_current_detection_state_regression_target",
       "community": 28,
@@ -6853,7 +7043,7 @@
       "label": "5.1 floor-plans.pdf (offline, walls on/off both give 4)",
       "file_type": "document",
       "source_file": "docs/window-detection-tuning-guide.md",
-      "source_location": "L96",
+      "source_location": "L120",
       "_origin": "ast",
       "id": "docs_window_detection_tuning_guide_5_1_floor_plans_pdf_offline_walls_on_off_both_give_4",
       "community": 28,
@@ -6863,7 +7053,7 @@
       "label": "5.2 5-1133-WD03.pdf",
       "file_type": "document",
       "source_file": "docs/window-detection-tuning-guide.md",
-      "source_location": "L111",
+      "source_location": "L138",
       "_origin": "ast",
       "id": "docs_window_detection_tuning_guide_5_2_5_1133_wd03_pdf",
       "community": 28,
@@ -6873,7 +7063,7 @@
       "label": "6. Known limitations / not handled",
       "file_type": "document",
       "source_file": "docs/window-detection-tuning-guide.md",
-      "source_location": "L117",
+      "source_location": "L153",
       "_origin": "ast",
       "id": "docs_window_detection_tuning_guide_6_known_limitations_not_handled",
       "community": 28,
@@ -6883,7 +7073,7 @@
       "label": "7. How to verify a change won't regress",
       "file_type": "document",
       "source_file": "docs/window-detection-tuning-guide.md",
-      "source_location": "L126",
+      "source_location": "L163",
       "_origin": "ast",
       "id": "docs_window_detection_tuning_guide_7_how_to_verify_a_change_won_t_regress",
       "community": 28,
@@ -6908,7 +7098,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 13,
+      "community": 3,
       "norm_label": "claude.md project guide",
       "id": "claude_md"
     },
@@ -6921,7 +7111,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 13,
+      "community": 3,
       "norm_label": "project.md original spec",
       "id": "project_md"
     },
@@ -6934,7 +7124,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 13,
+      "community": 3,
       "norm_label": "requirements.txt dependencies",
       "id": "requirements_txt"
     },
@@ -6947,7 +7137,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 13,
+      "community": 2,
       "norm_label": "door detection tuning guide",
       "id": "door_detection_tuning_guide"
     },
@@ -6960,7 +7150,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 15,
+      "community": 35,
       "norm_label": "polyline-arc spur pruning design",
       "id": "spur_pruning_design"
     },
@@ -6986,7 +7176,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 13,
+      "community": 3,
       "norm_label": "vector-first + gemini-validation pipeline",
       "id": "vector_first_gemini_pipeline"
     },
@@ -6999,7 +7189,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 13,
+      "community": 3,
       "norm_label": "seven-stage per-page extraction pipeline",
       "id": "pipeline_seven_stage"
     },
@@ -7038,7 +7228,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 13,
+      "community": 2,
       "norm_label": "door heuristic constants tuning surface",
       "id": "heuristic_constants_tuning"
     },
@@ -7051,7 +7241,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 13,
+      "community": 2,
       "norm_label": "three-stage door detection (collect/pair/validate)",
       "id": "door_detection_three_stage"
     },
@@ -7064,7 +7254,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 13,
+      "community": 2,
       "norm_label": "six door-swing topologies taxonomy",
       "id": "swing_topologies"
     },
@@ -7090,7 +7280,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 13,
+      "community": 2,
       "norm_label": "polyline-arc detection micro-pipeline",
       "id": "polyline_arc_micro_pipeline"
     },
@@ -7103,7 +7293,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 15,
+      "community": 35,
       "norm_label": "arc leaf-spur pruning",
       "id": "spur_pruning_concept"
     },
@@ -7116,7 +7306,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 15,
+      "community": 35,
       "norm_label": "arc closed-cycle cap pruning",
       "id": "cycle_cap_pruning_concept"
     },
@@ -7168,7 +7358,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 2,
+      "community": 4,
       "norm_label": "3-point circle fit for chained-bezier radius recovery",
       "id": "circle_fit_3pt_concept"
     },
@@ -7181,7 +7371,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 13,
+      "community": 2,
       "norm_label": "known door false-positive patterns (bath fixture, window arc)",
       "id": "false_positive_patterns"
     },
@@ -7194,7 +7384,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 13,
+      "community": 2,
       "norm_label": "debug_trace.json schema + diagnostic playbook",
       "id": "debug_trace_schema"
     },
@@ -7207,7 +7397,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 6,
+      "community": 34,
       "norm_label": "hu-moment door-shape matching",
       "id": "hu_moment_shape_match"
     },
@@ -7246,7 +7436,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 13,
+      "community": 2,
       "norm_label": "debugtracecollector.record_polyline_component (debug/trace.py)",
       "id": "trace_record_polyline_component"
     },
@@ -7259,7 +7449,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 13,
+      "community": 3,
       "norm_label": "pymupdf primary extractor",
       "id": "pymupdf_extractor"
     },
@@ -7272,7 +7462,7 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 13,
+      "community": 3,
       "norm_label": "pdfplumber cross-check + table extraction",
       "id": "pdfplumber_crosscheck"
     },
@@ -14076,9 +14266,9 @@
       "source_file": "detection/windows.py",
       "source_location": "L45",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "detection_windows_axis_lines",
-      "target": "detection_geometry_line_length",
-      "confidence_score": 1.0
+      "target": "detection_geometry_line_length"
     },
     {
       "relation": "calls",
@@ -14402,9 +14592,9 @@
       "source_file": "detection/postprocess.py",
       "source_location": "L211",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "detection_postprocess_resolve_door_window_conflicts",
-      "target": "detection_geometry_bbox_expanded",
-      "confidence_score": 1.0
+      "target": "detection_geometry_bbox_expanded"
     },
     {
       "relation": "imports",
@@ -14457,9 +14647,9 @@
       "source_file": "detection/postprocess.py",
       "source_location": "L220",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "detection_postprocess_resolve_door_window_conflicts",
-      "target": "detection_geometry_bboxes_overlap",
-      "confidence_score": 1.0
+      "target": "detection_geometry_bboxes_overlap"
     },
     {
       "relation": "imports",
@@ -14490,9 +14680,9 @@
       "source_file": "detection/windows.py",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "detection_windows",
-      "target": "detection_geometry_bbox_union",
-      "confidence_score": 1.0
+      "target": "detection_geometry_bbox_union"
     },
     {
       "relation": "calls",
@@ -14501,9 +14691,9 @@
       "source_file": "detection/windows.py",
       "source_location": "L153",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "detection_windows_detect_windows",
-      "target": "detection_geometry_bbox_union",
-      "confidence_score": 1.0
+      "target": "detection_geometry_bbox_union"
     },
     {
       "relation": "imports",
@@ -14526,6 +14716,17 @@
       "confidence_score": 1.0,
       "source": "detection_postprocess_bbox_iou",
       "target": "detection_geometry_bbox_area"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/postprocess.py",
+      "source_location": "L224",
+      "weight": 1.0,
+      "source": "detection_postprocess_resolve_door_window_conflicts",
+      "target": "detection_geometry_bbox_area",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -14586,22 +14787,22 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L64",
+      "source_location": "L89",
       "weight": 1.0,
-      "source": "detection_windows_aligned",
-      "target": "detection_geometry_interval_overlap",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "detection_windows_detect_windows",
+      "target": "detection_geometry_interval_overlap"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L89",
+      "source_location": "L148",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "detection_windows_detect_windows",
-      "target": "detection_geometry_interval_overlap"
+      "source": "detection_windows_find_openings",
+      "target": "detection_geometry_interval_overlap",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -15195,9 +15396,9 @@
       "source_file": "detection/orchestrator.py",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "detection_orchestrator",
-      "target": "detection_postprocess_resolve_door_window_conflicts",
-      "confidence_score": 1.0
+      "target": "detection_postprocess_resolve_door_window_conflicts"
     },
     {
       "relation": "imports",
@@ -15393,9 +15594,9 @@
       "source_file": "detection/orchestrator.py",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "detection_orchestrator_run_heuristics",
-      "target": "detection_postprocess_resolve_door_window_conflicts",
-      "confidence_score": 1.0
+      "target": "detection_postprocess_resolve_door_window_conflicts"
     },
     {
       "relation": "calls",
@@ -15535,9 +15736,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L176",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "detection_orchestrator_run_heuristics",
-      "confidence_score": 1.0
+      "target": "detection_orchestrator_run_heuristics"
     },
     {
       "relation": "calls",
@@ -15656,9 +15857,9 @@
       "source_file": "detection/postprocess.py",
       "source_location": "L200",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "detection_postprocess",
-      "target": "detection_postprocess_resolve_door_window_conflicts",
-      "confidence_score": 1.0
+      "target": "detection_postprocess_resolve_door_window_conflicts"
     },
     {
       "relation": "contains",
@@ -15720,9 +15921,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "detection_postprocess",
-      "confidence_score": 1.0
+      "target": "detection_postprocess"
     },
     {
       "relation": "references",
@@ -15827,9 +16028,9 @@
       "source_file": "detection/postprocess.py",
       "source_location": "L200",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "detection_postprocess_resolve_door_window_conflicts",
-      "target": "detection_postprocess_py_candidate",
-      "confidence_score": 1.0
+      "target": "detection_postprocess_py_candidate"
     },
     {
       "relation": "references",
@@ -15953,9 +16154,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/postprocess.py",
-      "source_location": "L201",
+      "source_location": "L203",
       "weight": 1.0,
-      "source": "detection_postprocess_rationale_201",
+      "source": "detection_postprocess_rationale_203",
       "target": "detection_postprocess_resolve_door_window_conflicts",
       "confidence_score": 1.0
     },
@@ -15966,9 +16167,9 @@
       "source_file": "tests/test_door_assembly.py",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_door_assembly",
-      "target": "detection_postprocess_resolve_door_window_conflicts",
-      "confidence_score": 1.0
+      "target": "detection_postprocess_resolve_door_window_conflicts"
     },
     {
       "relation": "imports",
@@ -15977,9 +16178,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "detection_postprocess_resolve_door_window_conflicts",
-      "confidence_score": 1.0
+      "target": "detection_postprocess_resolve_door_window_conflicts"
     },
     {
       "relation": "calls",
@@ -15990,6 +16191,17 @@
       "source_location": "L157",
       "weight": 1.0,
       "source": "tests_test_window_detection_testdoorwindowexclusion_test_window_clear_of_doors_kept",
+      "target": "detection_postprocess_resolve_door_window_conflicts"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L246",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testdoorwindowexclusion_test_window_grazing_dilated_door_corner_kept",
       "target": "detection_postprocess_resolve_door_window_conflicts"
     },
     {
@@ -16018,9 +16230,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/postprocess.py",
-      "source_location": "L229",
+      "source_location": "L245",
       "weight": 1.0,
-      "source": "detection_postprocess_rationale_229",
+      "source": "detection_postprocess_rationale_245",
       "target": "detection_postprocess_resolve_wall_window_conflicts",
       "confidence_score": 1.0
     },
@@ -16416,10 +16628,10 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L59",
+      "source_location": "L158",
       "weight": 1.0,
       "source": "detection_windows",
-      "target": "detection_windows_aligned",
+      "target": "detection_windows_area",
       "confidence_score": 1.0
     },
     {
@@ -16428,18 +16640,28 @@
       "source_file": "detection/windows.py",
       "source_location": "L31",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "detection_windows",
-      "target": "detection_windows_axis_lines",
+      "target": "detection_windows_axis_lines"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/windows.py",
+      "source_location": "L70",
+      "weight": 1.0,
+      "source": "detection_windows",
+      "target": "detection_windows_dedupe_by_perp",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L68",
+      "source_location": "L162",
       "weight": 1.0,
       "source": "detection_windows",
-      "target": "detection_windows_cluster_glazing",
+      "target": "detection_windows_dedupe_openings",
       "confidence_score": 1.0
     },
     {
@@ -16456,10 +16678,30 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L101",
+      "source_location": "L127",
       "weight": 1.0,
       "source": "detection_windows",
-      "target": "detection_windows_find_cap",
+      "target": "detection_windows_find_openings",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/windows.py",
+      "source_location": "L110",
+      "weight": 1.0,
+      "source": "detection_windows",
+      "target": "detection_windows_spanning_glazing",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/windows.py",
+      "source_location": "L86",
+      "weight": 1.0,
+      "source": "detection_windows",
+      "target": "detection_windows_tight_band",
       "confidence_score": 1.0
     },
     {
@@ -16502,9 +16744,9 @@
       "source_file": "detection/windows.py",
       "source_location": "L31",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "detection_windows_axis_lines",
-      "target": "detection_windows_py_pathprimitive",
-      "confidence_score": 1.0
+      "target": "detection_windows_py_pathprimitive"
     },
     {
       "relation": "calls",
@@ -16513,17 +16755,17 @@
       "source_file": "detection/windows.py",
       "source_location": "L128",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "detection_windows_detect_windows",
-      "target": "detection_windows_axis_lines",
-      "confidence_score": 1.0
+      "target": "detection_windows_axis_lines"
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L32",
+      "source_location": "L43",
       "weight": 1.0,
-      "source": "detection_windows_rationale_32",
+      "source": "detection_windows_rationale_43",
       "target": "detection_windows_axis_lines",
       "confidence_score": 1.0
     },
@@ -16559,24 +16801,34 @@
       "target": "models_pathprimitive"
     },
     {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/windows.py",
+      "source_location": "L71",
+      "weight": 1.0,
+      "source": "detection_windows_rationale_71",
+      "target": "detection_windows_dedupe_by_perp",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L92",
+      "source_location": "L124",
       "weight": 1.0,
-      "source": "detection_windows_cluster_glazing",
-      "target": "detection_windows_aligned",
+      "source": "detection_windows_spanning_glazing",
+      "target": "detection_windows_dedupe_by_perp",
       "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L60",
+      "source_location": "L87",
       "weight": 1.0,
-      "source": "detection_windows_rationale_60",
-      "target": "detection_windows_aligned",
+      "source": "detection_windows_rationale_87",
+      "target": "detection_windows_tight_band",
       "confidence_score": 1.0
     },
     {
@@ -16584,20 +16836,63 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L139",
+      "source_location": "L124",
+      "weight": 1.0,
+      "source": "detection_windows_spanning_glazing",
+      "target": "detection_windows_tight_band",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/windows.py",
+      "source_location": "L151",
+      "weight": 1.0,
+      "source": "detection_windows_find_openings",
+      "target": "detection_windows_spanning_glazing",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/windows.py",
+      "source_location": "L111",
+      "weight": 1.0,
+      "source": "detection_windows_rationale_111",
+      "target": "detection_windows_spanning_glazing",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/windows.py",
+      "source_location": "L198",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
-      "target": "detection_windows_cluster_glazing",
+      "target": "detection_windows_find_openings",
       "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L69",
+      "source_location": "L128",
       "weight": 1.0,
-      "source": "detection_windows_rationale_69",
-      "target": "detection_windows_cluster_glazing",
+      "source": "detection_windows_rationale_128",
+      "target": "detection_windows_find_openings",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/windows.py",
+      "source_location": "L158",
+      "weight": 1.0,
+      "source": "detection_windows_area",
+      "target": "detection_windows_py_bbox",
       "confidence_score": 1.0
     },
     {
@@ -16605,20 +16900,62 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L146",
+      "source_location": "L169",
+      "weight": 1.0,
+      "source": "detection_windows_dedupe_openings",
+      "target": "detection_windows_area",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "detection/windows.py",
+      "source_location": "L2",
+      "weight": 0.8,
+      "source": "detection_windows_py_bbox",
+      "target": "models_candidate",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "detection/windows.py",
+      "source_location": "L2",
+      "weight": 0.8,
+      "source": "detection_windows_py_bbox",
+      "target": "models_pathprimitive",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "references",
+      "context": "generic_arg",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/windows.py",
+      "source_location": "L162",
+      "weight": 1.0,
+      "source": "detection_windows_dedupe_openings",
+      "target": "detection_windows_py_candidate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/windows.py",
+      "source_location": "L238",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
-      "target": "detection_windows_find_cap",
+      "target": "detection_windows_dedupe_openings",
       "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L102",
+      "source_location": "L163",
       "weight": 1.0,
-      "source": "detection_windows_rationale_102",
-      "target": "detection_windows_find_cap",
+      "source": "detection_windows_rationale_163",
+      "target": "detection_windows_dedupe_openings",
       "confidence_score": 1.0
     },
     {
@@ -16631,6 +16968,26 @@
       "confidence_score": 1.0,
       "source": "detection_windows_detect_windows",
       "target": "detection_windows_py_candidate"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "detection/windows.py",
+      "source_location": "L2",
+      "weight": 0.8,
+      "confidence_score": 0.5,
+      "source": "detection_windows_py_candidate",
+      "target": "models_candidate"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "detection/windows.py",
+      "source_location": "L2",
+      "weight": 0.8,
+      "confidence_score": 0.5,
+      "source": "detection_windows_py_candidate",
+      "target": "models_pathprimitive"
     },
     {
       "relation": "calls",
@@ -16647,9 +17004,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L120",
+      "source_location": "L180",
       "weight": 1.0,
-      "source": "detection_windows_rationale_120",
+      "source": "detection_windows_rationale_180",
       "target": "detection_windows_detect_windows",
       "confidence_score": 1.0
     },
@@ -16682,9 +17039,64 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "detection_windows_detect_windows",
-      "confidence_score": 1.0
+      "target": "detection_windows_detect_windows"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L197",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_test_all_three_independent",
+      "target": "detection_windows_detect_windows"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L216",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_test_fixture_hatch_rejected",
+      "target": "detection_windows_detect_windows"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L182",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_test_window_a_detected",
+      "target": "detection_windows_detect_windows"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L187",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_test_window_b_detected",
+      "target": "detection_windows_detect_windows"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L192",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_test_window_bonus_detected",
+      "target": "detection_windows_detect_windows"
     },
     {
       "relation": "calls",
@@ -16725,9 +17137,9 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L110",
+      "source_location": "L111",
       "weight": 1.0,
-      "source": "tests_test_window_detection_testwindowtopology_test_two_line_cluster_without_centerline_rejected",
+      "source": "tests_test_window_detection_testwindowtopology_test_two_line_capped_rectangle_detected",
       "target": "detection_windows_detect_windows"
     },
     {
@@ -16751,26 +17163,6 @@
       "weight": 1.0,
       "source": "tests_test_window_detection_testwindowtopology_test_vertical_window_detected",
       "target": "detection_windows_detect_windows"
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "detection/windows.py",
-      "source_location": "L2",
-      "weight": 0.8,
-      "confidence_score": 0.5,
-      "source": "detection_windows_py_candidate",
-      "target": "models_candidate"
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "detection/windows.py",
-      "source_location": "L2",
-      "weight": 0.8,
-      "confidence_score": 0.5,
-      "source": "detection_windows_py_candidate",
-      "target": "models_pathprimitive"
     },
     {
       "relation": "contains",
@@ -17578,9 +17970,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L175",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "extraction_extractor_extract_page",
-      "confidence_score": 1.0
+      "target": "extraction_extractor_extract_page"
     },
     {
       "relation": "calls",
@@ -19415,9 +19807,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "models",
-      "confidence_score": 1.0
+      "target": "models"
     },
     {
       "relation": "imports",
@@ -19726,9 +20118,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "models_pathprimitive",
-      "confidence_score": 1.0
+      "target": "models_pathprimitive"
     },
     {
       "relation": "calls",
@@ -19737,9 +20129,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_path",
-      "target": "models_pathprimitive",
-      "confidence_score": 1.0
+      "target": "models_pathprimitive"
     },
     {
       "relation": "uses",
@@ -19747,9 +20139,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L23",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_window_detection_py_bbox",
-      "target": "models_pathprimitive",
-      "confidence_score": 0.5
+      "target": "models_pathprimitive"
     },
     {
       "relation": "uses",
@@ -19757,9 +20149,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L23",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_window_detection_py_candidate",
-      "target": "models_pathprimitive",
-      "confidence_score": 0.5
+      "target": "models_pathprimitive"
     },
     {
       "relation": "uses",
@@ -19767,9 +20159,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L23",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_window_detection_py_pathprimitive",
-      "target": "models_pathprimitive",
-      "confidence_score": 0.5
+      "target": "models_pathprimitive"
     },
     {
       "relation": "uses",
@@ -19777,9 +20169,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L23",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_window_detection_testdoorwindowexclusion",
-      "target": "models_pathprimitive",
-      "confidence_score": 0.5
+      "target": "models_pathprimitive"
     },
     {
       "relation": "uses",
@@ -19787,7 +20179,17 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L23",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_window_detection_testfloorplansregression",
+      "target": "models_pathprimitive"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L23",
+      "weight": 0.8,
+      "source": "tests_test_window_detection_testwindow51133topology",
       "target": "models_pathprimitive",
       "confidence_score": 0.5
     },
@@ -19797,9 +20199,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L23",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_window_detection_testwindowtopology",
-      "target": "models_pathprimitive",
-      "confidence_score": 0.5
+      "target": "models_pathprimitive"
     },
     {
       "relation": "imports",
@@ -20165,9 +20567,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "models_candidate",
-      "confidence_score": 1.0
+      "target": "models_candidate"
     },
     {
       "relation": "uses",
@@ -20175,9 +20577,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L23",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_window_detection_py_bbox",
-      "target": "models_candidate",
-      "confidence_score": 0.5
+      "target": "models_candidate"
     },
     {
       "relation": "uses",
@@ -20185,9 +20587,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L23",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_window_detection_py_candidate",
-      "target": "models_candidate",
-      "confidence_score": 0.5
+      "target": "models_candidate"
     },
     {
       "relation": "uses",
@@ -20195,9 +20597,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L23",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_window_detection_py_pathprimitive",
-      "target": "models_candidate",
-      "confidence_score": 0.5
+      "target": "models_candidate"
     },
     {
       "relation": "uses",
@@ -20205,9 +20607,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L23",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_window_detection_testdoorwindowexclusion",
-      "target": "models_candidate",
-      "confidence_score": 0.5
+      "target": "models_candidate"
     },
     {
       "relation": "uses",
@@ -20215,7 +20617,17 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L23",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_window_detection_testfloorplansregression",
+      "target": "models_candidate"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L23",
+      "weight": 0.8,
+      "source": "tests_test_window_detection_testwindow51133topology",
       "target": "models_candidate",
       "confidence_score": 0.5
     },
@@ -20225,9 +20637,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L23",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_window_detection_testwindowtopology",
-      "target": "models_candidate",
-      "confidence_score": 0.5
+      "target": "models_candidate"
     },
     {
       "relation": "imports",
@@ -22261,9 +22673,9 @@
       "source_file": "tests/test_door_assembly.py",
       "source_location": "L380",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_door_assembly_rationale_380",
-      "target": "tests_test_door_assembly_singlelineleaftests",
-      "confidence_score": 1.0
+      "target": "tests_test_door_assembly_singlelineleaftests"
     },
     {
       "relation": "method",
@@ -22351,9 +22763,9 @@
       "source_file": "tests/test_door_assembly.py",
       "source_location": "L493",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_door_assembly_rationale_493",
-      "target": "tests_test_door_assembly_doorevidencepropagationtests",
-      "confidence_score": 1.0
+      "target": "tests_test_door_assembly_doorevidencepropagationtests"
     },
     {
       "relation": "calls",
@@ -22383,9 +22795,9 @@
       "source_file": "tests/test_door_assembly.py",
       "source_location": "L531",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_door_assembly_rationale_531",
-      "target": "tests_test_door_assembly_wide_arc_lines",
-      "confidence_score": 1.0
+      "target": "tests_test_door_assembly_wide_arc_lines"
     },
     {
       "relation": "calls",
@@ -22415,9 +22827,9 @@
       "source_file": "tests/test_door_assembly.py",
       "source_location": "L543",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_door_assembly_rationale_543",
-      "target": "tests_test_door_assembly_seg_angle_bins",
-      "confidence_score": 1.0
+      "target": "tests_test_door_assembly_seg_angle_bins"
     },
     {
       "relation": "calls",
@@ -22533,9 +22945,9 @@
       "source_file": "tests/test_door_assembly.py",
       "source_location": "L586",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_door_assembly_rationale_586",
-      "target": "tests_test_door_assembly_polylinearcbincaptests",
-      "confidence_score": 1.0
+      "target": "tests_test_door_assembly_polylinearcbincaptests"
     },
     {
       "relation": "method",
@@ -22633,9 +23045,9 @@
       "source_file": "tests/test_door_assembly.py",
       "source_location": "L615",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_door_assembly_rationale_615",
-      "target": "tests_test_door_assembly_doubledoortests",
-      "confidence_score": 1.0
+      "target": "tests_test_door_assembly_doubledoortests"
     },
     {
       "relation": "calls",
@@ -22753,9 +23165,9 @@
       "source_file": "tests/test_door_assembly.py",
       "source_location": "L646",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_door_assembly_rationale_646",
-      "target": "tests_test_door_assembly_doubledoortests_test_double_door_toward_each_other",
-      "confidence_score": 1.0
+      "target": "tests_test_door_assembly_doubledoortests_test_double_door_toward_each_other"
     },
     {
       "relation": "rationale_for",
@@ -22773,9 +23185,9 @@
       "source_file": "tests/test_door_assembly.py",
       "source_location": "L655",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_door_assembly_rationale_655",
-      "target": "tests_test_door_assembly_doubledoortests_test_double_door_away_from_each_other",
-      "confidence_score": 1.0
+      "target": "tests_test_door_assembly_doubledoortests_test_double_door_away_from_each_other"
     },
     {
       "relation": "rationale_for",
@@ -22783,9 +23195,9 @@
       "source_file": "tests/test_door_assembly.py",
       "source_location": "L666",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_door_assembly_rationale_666",
-      "target": "tests_test_door_assembly_doubledoortests_test_double_door_not_merged_for_separate_same_wall_doors",
-      "confidence_score": 1.0
+      "target": "tests_test_door_assembly_doubledoortests_test_double_door_not_merged_for_separate_same_wall_doors"
     },
     {
       "relation": "rationale_for",
@@ -22793,9 +23205,9 @@
       "source_file": "tests/test_door_assembly.py",
       "source_location": "L681",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_door_assembly_rationale_681",
-      "target": "tests_test_door_assembly_doubledoortests_test_double_door_not_merged_when_leaves_overlap_too_much",
-      "confidence_score": 1.0
+      "target": "tests_test_door_assembly_doubledoortests_test_double_door_not_merged_when_leaves_overlap_too_much"
     },
     {
       "relation": "rationale_for",
@@ -22803,9 +23215,9 @@
       "source_file": "tests/test_door_assembly.py",
       "source_location": "L698",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_door_assembly_rationale_698",
-      "target": "tests_test_door_assembly_doubledoortests_test_double_door_entrance_subtype_preserved",
-      "confidence_score": 1.0
+      "target": "tests_test_door_assembly_doubledoortests_test_double_door_entrance_subtype_preserved"
     },
     {
       "relation": "rationale_for",
@@ -22813,9 +23225,9 @@
       "source_file": "tests/test_door_assembly.py",
       "source_location": "L714",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_door_assembly_rationale_714",
-      "target": "tests_test_door_assembly_doubledoortests_test_double_door_entrance_threshold_path_index_zero_preserved",
-      "confidence_score": 1.0
+      "target": "tests_test_door_assembly_doubledoortests_test_double_door_entrance_threshold_path_index_zero_preserved"
     },
     {
       "relation": "rationale_for",
@@ -22823,9 +23235,9 @@
       "source_file": "tests/test_door_assembly.py",
       "source_location": "L727",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_door_assembly_rationale_727",
-      "target": "tests_test_door_assembly_doubledoortests_test_double_door_assembly_type_in_entity_attributes",
-      "confidence_score": 1.0
+      "target": "tests_test_door_assembly_doubledoortests_test_double_door_assembly_type_in_entity_attributes"
     },
     {
       "relation": "method",
@@ -22933,9 +23345,9 @@
       "source_file": "tests/test_door_assembly.py",
       "source_location": "L742",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_door_assembly_rationale_742",
-      "target": "tests_test_door_assembly_doorv2openingchecktests",
-      "confidence_score": 1.0
+      "target": "tests_test_door_assembly_doorv2openingchecktests"
     },
     {
       "relation": "contains",
@@ -24117,9 +24529,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L83",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "tests_test_window_detection_covers",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_covers"
     },
     {
       "relation": "contains",
@@ -24127,9 +24539,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "tests_test_window_detection_hline",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_hline"
     },
     {
       "relation": "contains",
@@ -24137,9 +24549,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L57",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "tests_test_window_detection_horizontal_window",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_horizontal_window"
     },
     {
       "relation": "contains",
@@ -24147,9 +24559,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "tests_test_window_detection_path",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_path"
     },
     {
       "relation": "contains",
@@ -24157,9 +24569,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L140",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "tests_test_window_detection_testdoorwindowexclusion",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_testdoorwindowexclusion"
     },
     {
       "relation": "contains",
@@ -24167,8 +24579,18 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L161",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "tests_test_window_detection_testfloorplansregression",
+      "target": "tests_test_window_detection_testfloorplansregression"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L142",
+      "weight": 1.0,
+      "source": "tests_test_window_detection",
+      "target": "tests_test_window_detection_testwindow51133topology",
       "confidence_score": 1.0
     },
     {
@@ -24177,9 +24599,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "tests_test_window_detection_testwindowtopology",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_testwindowtopology"
     },
     {
       "relation": "contains",
@@ -24187,9 +24609,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L70",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "tests_test_window_detection_vertical_window",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_vertical_window"
     },
     {
       "relation": "contains",
@@ -24197,9 +24619,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection",
-      "target": "tests_test_window_detection_vline",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_vline"
     },
     {
       "relation": "rationale_for",
@@ -24207,9 +24629,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_rationale_1",
-      "target": "tests_test_window_detection",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection"
     },
     {
       "relation": "calls",
@@ -24218,9 +24640,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L50",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_hline",
-      "target": "tests_test_window_detection_path",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_path"
     },
     {
       "relation": "references",
@@ -24229,9 +24651,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_path",
-      "target": "tests_test_window_detection_py_pathprimitive",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_py_pathprimitive"
     },
     {
       "relation": "calls",
@@ -24240,9 +24662,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L54",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_vline",
-      "target": "tests_test_window_detection_path",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_path"
     },
     {
       "relation": "references",
@@ -24251,9 +24673,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_hline",
-      "target": "tests_test_window_detection_py_pathprimitive",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_py_pathprimitive"
     },
     {
       "relation": "references",
@@ -24262,9 +24684,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_vline",
-      "target": "tests_test_window_detection_py_pathprimitive",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_py_pathprimitive"
     },
     {
       "relation": "calls",
@@ -24273,7 +24695,51 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_horizontal_window",
+      "target": "tests_test_window_detection_hline"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L206",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_test_fixture_hatch_rejected",
+      "target": "tests_test_window_detection_hline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L153",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_window_a",
+      "target": "tests_test_window_detection_hline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L166",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_window_b",
+      "target": "tests_test_window_detection_hline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L174",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_window_bonus",
       "target": "tests_test_window_detection_hline",
       "confidence_score": 1.0
     },
@@ -24284,9 +24750,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L116",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testwindowtopology_test_glazing_without_caps_rejected",
-      "target": "tests_test_window_detection_hline",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_hline"
     },
     {
       "relation": "calls",
@@ -24295,18 +24761,18 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L126",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testwindowtopology_test_loose_cluster_rejected",
-      "target": "tests_test_window_detection_hline",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_hline"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L105",
+      "source_location": "L106",
       "weight": 1.0,
-      "source": "tests_test_window_detection_testwindowtopology_test_two_line_cluster_without_centerline_rejected",
+      "source": "tests_test_window_detection_testwindowtopology_test_two_line_capped_rectangle_detected",
       "target": "tests_test_window_detection_hline",
       "confidence_score": 1.0
     },
@@ -24317,9 +24783,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L78",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_vertical_window",
-      "target": "tests_test_window_detection_hline",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_hline"
     },
     {
       "relation": "calls",
@@ -24328,7 +24794,51 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L65",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_horizontal_window",
+      "target": "tests_test_window_detection_vline"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L209",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_test_fixture_hatch_rejected",
+      "target": "tests_test_window_detection_vline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L156",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_window_a",
+      "target": "tests_test_window_detection_vline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L164",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_window_b",
+      "target": "tests_test_window_detection_vline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L177",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_window_bonus",
       "target": "tests_test_window_detection_vline",
       "confidence_score": 1.0
     },
@@ -24339,18 +24849,18 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L129",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testwindowtopology_test_loose_cluster_rejected",
-      "target": "tests_test_window_detection_vline",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_vline"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L107",
+      "source_location": "L108",
       "weight": 1.0,
-      "source": "tests_test_window_detection_testwindowtopology_test_two_line_cluster_without_centerline_rejected",
+      "source": "tests_test_window_detection_testwindowtopology_test_two_line_capped_rectangle_detected",
       "target": "tests_test_window_detection_vline",
       "confidence_score": 1.0
     },
@@ -24361,9 +24871,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L75",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_vertical_window",
-      "target": "tests_test_window_detection_vline",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_vline"
     },
     {
       "relation": "rationale_for",
@@ -24371,9 +24881,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L58",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_rationale_58",
-      "target": "tests_test_window_detection_horizontal_window",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_horizontal_window"
     },
     {
       "relation": "calls",
@@ -24382,9 +24892,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L89",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testwindowtopology_test_horizontal_window_detected",
-      "target": "tests_test_window_detection_horizontal_window",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_horizontal_window"
     },
     {
       "relation": "calls",
@@ -24393,9 +24903,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L135",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testwindowtopology_test_two_windows_independent",
-      "target": "tests_test_window_detection_horizontal_window",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_horizontal_window"
     },
     {
       "relation": "rationale_for",
@@ -24403,9 +24913,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_rationale_71",
-      "target": "tests_test_window_detection_vertical_window",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_vertical_window"
     },
     {
       "relation": "calls",
@@ -24414,9 +24924,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L135",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testwindowtopology_test_two_windows_independent",
-      "target": "tests_test_window_detection_vertical_window",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_vertical_window"
     },
     {
       "relation": "calls",
@@ -24425,9 +24935,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L95",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testwindowtopology_test_vertical_window_detected",
-      "target": "tests_test_window_detection_vertical_window",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_vertical_window"
     },
     {
       "relation": "references",
@@ -24436,9 +24946,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L83",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_covers",
-      "target": "tests_test_window_detection_py_bbox",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_py_bbox"
     },
     {
       "relation": "calls",
@@ -24447,7 +24957,40 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L186",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testfloorplansregression_test_exactly_four_ground_truth_windows",
+      "target": "tests_test_window_detection_covers"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L184",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_test_window_a_detected",
+      "target": "tests_test_window_detection_covers",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L189",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_test_window_b_detected",
+      "target": "tests_test_window_detection_covers",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L194",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_test_window_bonus_detected",
       "target": "tests_test_window_detection_covers",
       "confidence_score": 1.0
     },
@@ -24458,9 +25001,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L92",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testwindowtopology_test_horizontal_window_detected",
-      "target": "tests_test_window_detection_covers",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_covers"
     },
     {
       "relation": "calls",
@@ -24469,9 +25012,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L98",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testwindowtopology_test_vertical_window_detected",
-      "target": "tests_test_window_detection_covers",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_covers"
     },
     {
       "relation": "references",
@@ -24480,9 +25023,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L144",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testdoorwindowexclusion_door",
-      "target": "tests_test_window_detection_py_bbox",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_py_bbox"
     },
     {
       "relation": "references",
@@ -24491,9 +25034,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L141",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testdoorwindowexclusion_win",
-      "target": "tests_test_window_detection_py_bbox",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_py_bbox"
     },
     {
       "relation": "method",
@@ -24501,9 +25044,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L112",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testwindowtopology",
-      "target": "tests_test_window_detection_testwindowtopology_test_glazing_without_caps_rejected",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_testwindowtopology_test_glazing_without_caps_rejected"
     },
     {
       "relation": "method",
@@ -24511,9 +25054,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testwindowtopology",
-      "target": "tests_test_window_detection_testwindowtopology_test_horizontal_window_detected",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_testwindowtopology_test_horizontal_window_detected"
     },
     {
       "relation": "method",
@@ -24521,9 +25064,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L122",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testwindowtopology",
-      "target": "tests_test_window_detection_testwindowtopology_test_loose_cluster_rejected",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_testwindowtopology_test_loose_cluster_rejected"
     },
     {
       "relation": "method",
@@ -24532,7 +25075,7 @@
       "source_location": "L100",
       "weight": 1.0,
       "source": "tests_test_window_detection_testwindowtopology",
-      "target": "tests_test_window_detection_testwindowtopology_test_two_line_cluster_without_centerline_rejected",
+      "target": "tests_test_window_detection_testwindowtopology_test_two_line_capped_rectangle_detected",
       "confidence_score": 1.0
     },
     {
@@ -24541,9 +25084,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L134",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testwindowtopology",
-      "target": "tests_test_window_detection_testwindowtopology_test_two_windows_independent",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_testwindowtopology_test_two_windows_independent"
     },
     {
       "relation": "method",
@@ -24551,9 +25094,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L94",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testwindowtopology",
-      "target": "tests_test_window_detection_testwindowtopology_test_vertical_window_detected",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_testwindowtopology_test_vertical_window_detected"
     },
     {
       "relation": "rationale_for",
@@ -24562,16 +25105,16 @@
       "source_location": "L101",
       "weight": 1.0,
       "source": "tests_test_window_detection_rationale_101",
-      "target": "tests_test_window_detection_testwindowtopology_test_two_line_cluster_without_centerline_rejected",
+      "target": "tests_test_window_detection_testwindowtopology_test_two_line_capped_rectangle_detected",
       "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L113",
+      "source_location": "L115",
       "weight": 1.0,
-      "source": "tests_test_window_detection_rationale_113",
+      "source": "tests_test_window_detection_rationale_115",
       "target": "tests_test_window_detection_testwindowtopology_test_glazing_without_caps_rejected",
       "confidence_score": 1.0
     },
@@ -24579,10 +25122,176 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L123",
+      "source_location": "L125",
       "weight": 1.0,
-      "source": "tests_test_window_detection_rationale_123",
+      "source": "tests_test_window_detection_rationale_125",
       "target": "tests_test_window_detection_testwindowtopology_test_loose_cluster_rejected",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L143",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_rationale_143",
+      "target": "tests_test_window_detection_testwindow51133topology",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L196",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology",
+      "target": "tests_test_window_detection_testwindow51133topology_test_all_three_independent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L200",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology",
+      "target": "tests_test_window_detection_testwindow51133topology_test_fixture_hatch_rejected",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L181",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology",
+      "target": "tests_test_window_detection_testwindow51133topology_test_window_a_detected",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L186",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology",
+      "target": "tests_test_window_detection_testwindow51133topology_test_window_b_detected",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L191",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology",
+      "target": "tests_test_window_detection_testwindow51133topology_test_window_bonus_detected",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L149",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology",
+      "target": "tests_test_window_detection_testwindow51133topology_window_a",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L160",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology",
+      "target": "tests_test_window_detection_testwindow51133topology_window_b",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L170",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology",
+      "target": "tests_test_window_detection_testwindow51133topology_window_bonus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L197",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_test_all_three_independent",
+      "target": "tests_test_window_detection_testwindow51133topology_window_a",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L182",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_test_window_a_detected",
+      "target": "tests_test_window_detection_testwindow51133topology_window_a",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L197",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_test_all_three_independent",
+      "target": "tests_test_window_detection_testwindow51133topology_window_b",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L187",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_test_window_b_detected",
+      "target": "tests_test_window_detection_testwindow51133topology_window_b",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L197",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_test_all_three_independent",
+      "target": "tests_test_window_detection_testwindow51133topology_window_bonus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L192",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindow51133topology_test_window_bonus_detected",
+      "target": "tests_test_window_detection_testwindow51133topology_window_bonus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L201",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_rationale_201",
+      "target": "tests_test_window_detection_testwindow51133topology_test_fixture_hatch_rejected",
       "confidence_score": 1.0
     },
     {
@@ -24591,9 +25300,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L144",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testdoorwindowexclusion",
-      "target": "tests_test_window_detection_testdoorwindowexclusion_door",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_testdoorwindowexclusion_door"
     },
     {
       "relation": "method",
@@ -24601,8 +25310,18 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L154",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testdoorwindowexclusion",
-      "target": "tests_test_window_detection_testdoorwindowexclusion_test_window_clear_of_doors_kept",
+      "target": "tests_test_window_detection_testdoorwindowexclusion_test_window_clear_of_doors_kept"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L239",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testdoorwindowexclusion",
+      "target": "tests_test_window_detection_testdoorwindowexclusion_test_window_grazing_dilated_door_corner_kept",
       "confidence_score": 1.0
     },
     {
@@ -24611,9 +25330,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L147",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testdoorwindowexclusion",
-      "target": "tests_test_window_detection_testdoorwindowexclusion_test_window_overlapping_door_dropped",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_testdoorwindowexclusion_test_window_overlapping_door_dropped"
     },
     {
       "relation": "method",
@@ -24621,9 +25340,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L141",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testdoorwindowexclusion",
-      "target": "tests_test_window_detection_testdoorwindowexclusion_win",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_testdoorwindowexclusion_win"
     },
     {
       "relation": "calls",
@@ -24632,7 +25351,18 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L155",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testdoorwindowexclusion_test_window_clear_of_doors_kept",
+      "target": "tests_test_window_detection_testdoorwindowexclusion_win"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L244",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testdoorwindowexclusion_test_window_grazing_dilated_door_corner_kept",
       "target": "tests_test_window_detection_testdoorwindowexclusion_win",
       "confidence_score": 1.0
     },
@@ -24643,9 +25373,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L148",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testdoorwindowexclusion_test_window_overlapping_door_dropped",
-      "target": "tests_test_window_detection_testdoorwindowexclusion_win",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_testdoorwindowexclusion_win"
     },
     {
       "relation": "references",
@@ -24654,9 +25384,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L141",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testdoorwindowexclusion_win",
-      "target": "tests_test_window_detection_py_candidate",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_py_candidate"
     },
     {
       "relation": "references",
@@ -24665,9 +25395,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L144",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testdoorwindowexclusion_door",
-      "target": "tests_test_window_detection_py_candidate",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_py_candidate"
     },
     {
       "relation": "calls",
@@ -24676,7 +25406,18 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L156",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testdoorwindowexclusion_test_window_clear_of_doors_kept",
+      "target": "tests_test_window_detection_testdoorwindowexclusion_door"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L245",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testdoorwindowexclusion_test_window_grazing_dilated_door_corner_kept",
       "target": "tests_test_window_detection_testdoorwindowexclusion_door",
       "confidence_score": 1.0
     },
@@ -24687,17 +25428,27 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L149",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testdoorwindowexclusion_test_window_overlapping_door_dropped",
-      "target": "tests_test_window_detection_testdoorwindowexclusion_door",
+      "target": "tests_test_window_detection_testdoorwindowexclusion_door"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L240",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_rationale_240",
+      "target": "tests_test_window_detection_testdoorwindowexclusion_test_window_grazing_dilated_door_corner_kept",
       "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_window_detection.py",
-      "source_location": "L162",
+      "source_location": "L251",
       "weight": 1.0,
-      "source": "tests_test_window_detection_rationale_162",
+      "source": "tests_test_window_detection_rationale_251",
       "target": "tests_test_window_detection_testfloorplansregression",
       "confidence_score": 1.0
     },
@@ -24707,9 +25458,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L168",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testfloorplansregression",
-      "target": "tests_test_window_detection_testfloorplansregression_setup",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_testfloorplansregression_setup"
     },
     {
       "relation": "method",
@@ -24717,9 +25468,9 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L173",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_window_detection_testfloorplansregression",
-      "target": "tests_test_window_detection_testfloorplansregression_test_exactly_four_ground_truth_windows",
-      "confidence_score": 1.0
+      "target": "tests_test_window_detection_testfloorplansregression_test_exactly_four_ground_truth_windows"
     },
     {
       "relation": "contains",
@@ -24799,9 +25550,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "claude",
-      "target": "claude_claude_md",
-      "confidence_score": 1.0
+      "target": "claude_claude_md"
     },
     {
       "relation": "contains",
@@ -24809,9 +25560,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "claude_claude_md",
-      "target": "claude_algorithm_reference",
-      "confidence_score": 1.0
+      "target": "claude_algorithm_reference"
     },
     {
       "relation": "contains",
@@ -24819,9 +25570,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "claude_claude_md",
-      "target": "claude_commands",
-      "confidence_score": 1.0
+      "target": "claude_commands"
     },
     {
       "relation": "contains",
@@ -24829,9 +25580,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L107",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "claude_claude_md",
-      "target": "claude_data_model",
-      "confidence_score": 1.0
+      "target": "claude_data_model"
     },
     {
       "relation": "contains",
@@ -24839,9 +25590,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L63",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "claude_claude_md",
-      "target": "claude_gemini_gcp_auth",
-      "confidence_score": 1.0
+      "target": "claude_gemini_gcp_auth"
     },
     {
       "relation": "contains",
@@ -24849,9 +25600,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "claude_claude_md",
-      "target": "claude_graphify",
-      "confidence_score": 1.0
+      "target": "claude_graphify"
     },
     {
       "relation": "contains",
@@ -24859,9 +25610,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "claude_claude_md",
-      "target": "claude_module_layout",
-      "confidence_score": 1.0
+      "target": "claude_module_layout"
     },
     {
       "relation": "contains",
@@ -24869,9 +25620,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L89",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "claude_claude_md",
-      "target": "claude_output_layout",
-      "confidence_score": 1.0
+      "target": "claude_output_layout"
     },
     {
       "relation": "contains",
@@ -24879,9 +25630,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L75",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "claude_claude_md",
-      "target": "claude_pipeline_architecture",
-      "confidence_score": 1.0
+      "target": "claude_pipeline_architecture"
     },
     {
       "relation": "contains",
@@ -24889,9 +25640,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "claude_claude_md",
-      "target": "claude_project_purpose",
-      "confidence_score": 1.0
+      "target": "claude_project_purpose"
     },
     {
       "relation": "contains",
@@ -24899,9 +25650,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L113",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "claude_claude_md",
-      "target": "claude_warning_codes",
-      "confidence_score": 1.0
+      "target": "claude_warning_codes"
     },
     {
       "relation": "contains",
@@ -24909,9 +25660,9 @@
       "source_file": "README.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme",
-      "target": "readme_agent",
-      "confidence_score": 1.0
+      "target": "readme_agent"
     },
     {
       "relation": "contains",
@@ -24919,9 +25670,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide",
-      "target": "docs_door_detection_tuning_guide_door_detection_tuning_guide",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_door_detection_tuning_guide"
     },
     {
       "relation": "contains",
@@ -24929,9 +25680,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L426",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_door_detection_tuning_guide",
-      "target": "docs_door_detection_tuning_guide_10_pipeline_level_constraints_to_honor",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_10_pipeline_level_constraints_to_honor"
     },
     {
       "relation": "contains",
@@ -24939,9 +25690,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L435",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_door_detection_tuning_guide",
-      "target": "docs_door_detection_tuning_guide_11_how_to_verify_a_change_won_t_regress",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_11_how_to_verify_a_change_won_t_regress"
     },
     {
       "relation": "contains",
@@ -24949,9 +25700,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_door_detection_tuning_guide",
-      "target": "docs_door_detection_tuning_guide_1_pipeline_shape",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_1_pipeline_shape"
     },
     {
       "relation": "contains",
@@ -24959,9 +25710,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_door_detection_tuning_guide",
-      "target": "docs_door_detection_tuning_guide_2_the_detect_polyline_arc_bboxes_micro_pipeline",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_2_the_detect_polyline_arc_bboxes_micro_pipeline"
     },
     {
       "relation": "contains",
@@ -24969,9 +25720,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L58",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_door_detection_tuning_guide",
-      "target": "docs_door_detection_tuning_guide_3_topology_reference_the_failure_mode_taxonomy",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_3_topology_reference_the_failure_mode_taxonomy"
     },
     {
       "relation": "contains",
@@ -24979,9 +25730,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L171",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_door_detection_tuning_guide",
-      "target": "docs_door_detection_tuning_guide_4_the_constants_every_tunable_in_one_table",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_4_the_constants_every_tunable_in_one_table"
     },
     {
       "relation": "contains",
@@ -24989,9 +25740,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L293",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_door_detection_tuning_guide",
-      "target": "docs_door_detection_tuning_guide_5_known_false_positive_patterns",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_5_known_false_positive_patterns"
     },
     {
       "relation": "contains",
@@ -24999,9 +25750,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L306",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_door_detection_tuning_guide",
-      "target": "docs_door_detection_tuning_guide_6_known_limitations_not_currently_handled",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_6_known_limitations_not_currently_handled"
     },
     {
       "relation": "contains",
@@ -25009,9 +25760,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L321",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_door_detection_tuning_guide",
-      "target": "docs_door_detection_tuning_guide_7_test_fixtures_coordinate_gotcha",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_7_test_fixtures_coordinate_gotcha"
     },
     {
       "relation": "contains",
@@ -25019,9 +25770,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L335",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_door_detection_tuning_guide",
-      "target": "docs_door_detection_tuning_guide_8_debugging_methodology_the_diagnostic_playbook",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_8_debugging_methodology_the_diagnostic_playbook"
     },
     {
       "relation": "contains",
@@ -25029,9 +25780,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L381",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_door_detection_tuning_guide",
-      "target": "docs_door_detection_tuning_guide_9_reference_data_current_detection_state",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_9_reference_data_current_detection_state"
     },
     {
       "relation": "contains",
@@ -25039,9 +25790,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_3_topology_reference_the_failure_mode_taxonomy",
-      "target": "docs_door_detection_tuning_guide_3_1_single_full_quarter_bezier_curve_arc",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_3_1_single_full_quarter_bezier_curve_arc"
     },
     {
       "relation": "contains",
@@ -25049,9 +25800,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L70",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_3_topology_reference_the_failure_mode_taxonomy",
-      "target": "docs_door_detection_tuning_guide_3_2_chained_beziers_full_or_partial_swing_curve_arc_chain",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_3_2_chained_beziers_full_or_partial_swing_curve_arc_chain"
     },
     {
       "relation": "contains",
@@ -25059,9 +25810,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L80",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_3_topology_reference_the_failure_mode_taxonomy",
-      "target": "docs_door_detection_tuning_guide_3_3_clean_polyline_arc_polyline_arc",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_3_3_clean_polyline_arc_polyline_arc"
     },
     {
       "relation": "contains",
@@ -25069,9 +25820,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_3_topology_reference_the_failure_mode_taxonomy",
-      "target": "docs_door_detection_tuning_guide_3_4_polyline_arc_y_junction_stop_spur_prunable",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_3_4_polyline_arc_y_junction_stop_spur_prunable"
     },
     {
       "relation": "contains",
@@ -25079,9 +25830,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L96",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_3_topology_reference_the_failure_mode_taxonomy",
-      "target": "docs_door_detection_tuning_guide_3_5_polyline_arc_closed_cycle_stop_cycle_prunable",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_3_5_polyline_arc_closed_cycle_stop_cycle_prunable"
     },
     {
       "relation": "contains",
@@ -25089,9 +25840,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L104",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_3_topology_reference_the_failure_mode_taxonomy",
-      "target": "docs_door_detection_tuning_guide_3_6_polyline_arc_linear_cap_extension_chain_trim_able",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_3_6_polyline_arc_linear_cap_extension_chain_trim_able"
     },
     {
       "relation": "contains",
@@ -25099,9 +25850,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L112",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_3_topology_reference_the_failure_mode_taxonomy",
-      "target": "docs_door_detection_tuning_guide_3_7_double_arc_garden_door_pair_split_emit_then_merge",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_3_7_double_arc_garden_door_pair_split_emit_then_merge"
     },
     {
       "relation": "contains",
@@ -25109,9 +25860,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L138",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_3_topology_reference_the_failure_mode_taxonomy",
-      "target": "docs_door_detection_tuning_guide_3_8_garden_door_drawn_as_two_single_beziers_curve_arc_partner_pass",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_3_8_garden_door_drawn_as_two_single_beziers_curve_arc_partner_pass"
     },
     {
       "relation": "contains",
@@ -25119,9 +25870,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L271",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_4_the_constants_every_tunable_in_one_table",
-      "target": "docs_door_detection_tuning_guide_4_10_wall_cross_validation",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_4_10_wall_cross_validation"
     },
     {
       "relation": "contains",
@@ -25129,9 +25880,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L280",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_4_the_constants_every_tunable_in_one_table",
-      "target": "docs_door_detection_tuning_guide_4_11_confidence_floors_offline_mode",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_4_11_confidence_floors_offline_mode"
     },
     {
       "relation": "contains",
@@ -25139,9 +25890,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L175",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_4_the_constants_every_tunable_in_one_table",
-      "target": "docs_door_detection_tuning_guide_4_1_arc_shape",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_4_1_arc_shape"
     },
     {
       "relation": "contains",
@@ -25149,9 +25900,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L184",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_4_the_constants_every_tunable_in_one_table",
-      "target": "docs_door_detection_tuning_guide_4_2_polyline_arc_detector",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_4_2_polyline_arc_detector"
     },
     {
       "relation": "contains",
@@ -25159,9 +25910,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L195",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_4_the_constants_every_tunable_in_one_table",
-      "target": "docs_door_detection_tuning_guide_4_3_spur_pruning_heuristics_py_402",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_4_3_spur_pruning_heuristics_py_402"
     },
     {
       "relation": "contains",
@@ -25169,9 +25920,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L201",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_4_the_constants_every_tunable_in_one_table",
-      "target": "docs_door_detection_tuning_guide_4_4_cycle_pruning_heuristics_py",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_4_4_cycle_pruning_heuristics_py"
     },
     {
       "relation": "contains",
@@ -25179,9 +25930,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L207",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_4_the_constants_every_tunable_in_one_table",
-      "target": "docs_door_detection_tuning_guide_4_5_chain_extension_cap_trim",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_4_5_chain_extension_cap_trim"
     },
     {
       "relation": "contains",
@@ -25189,9 +25940,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L213",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_4_the_constants_every_tunable_in_one_table",
-      "target": "docs_door_detection_tuning_guide_4_5b_double_arc_garden_door_split_3_7",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_4_5b_double_arc_garden_door_split_3_7"
     },
     {
       "relation": "contains",
@@ -25199,9 +25950,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L221",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_4_the_constants_every_tunable_in_one_table",
-      "target": "docs_door_detection_tuning_guide_4_6_chained_native_curves_curve_arc_chain",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_4_6_chained_native_curves_curve_arc_chain"
     },
     {
       "relation": "contains",
@@ -25209,9 +25960,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L228",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_4_the_constants_every_tunable_in_one_table",
-      "target": "docs_door_detection_tuning_guide_4_7_leaf_detection_pairing",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_4_7_leaf_detection_pairing"
     },
     {
       "relation": "contains",
@@ -25219,9 +25970,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L246",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_4_the_constants_every_tunable_in_one_table",
-      "target": "docs_door_detection_tuning_guide_4_8_labels_and_layers",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_4_8_labels_and_layers"
     },
     {
       "relation": "contains",
@@ -25229,9 +25980,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L254",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_4_the_constants_every_tunable_in_one_table",
-      "target": "docs_door_detection_tuning_guide_4_9_confidence_boosts_and_floor",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_4_9_confidence_boosts_and_floor"
     },
     {
       "relation": "contains",
@@ -25239,9 +25990,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L339",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_8_debugging_methodology_the_diagnostic_playbook",
-      "target": "docs_door_detection_tuning_guide_8_1_run_with_debug",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_8_1_run_with_debug"
     },
     {
       "relation": "contains",
@@ -25249,9 +26000,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L346",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_8_debugging_methodology_the_diagnostic_playbook",
-      "target": "docs_door_detection_tuning_guide_8_2_the_debug_trace_json_schema",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_8_2_the_debug_trace_json_schema"
     },
     {
       "relation": "contains",
@@ -25259,9 +26010,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L355",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_8_debugging_methodology_the_diagnostic_playbook",
-      "target": "docs_door_detection_tuning_guide_8_3_tracing_a_missed_door_in_order",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_8_3_tracing_a_missed_door_in_order"
     },
     {
       "relation": "contains",
@@ -25269,9 +26020,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L364",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_8_debugging_methodology_the_diagnostic_playbook",
-      "target": "docs_door_detection_tuning_guide_8_4_tracing_a_false_positive",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_8_4_tracing_a_false_positive"
     },
     {
       "relation": "contains",
@@ -25279,9 +26030,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L371",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_8_debugging_methodology_the_diagnostic_playbook",
-      "target": "docs_door_detection_tuning_guide_8_5_topology_from_debug_trace",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_8_5_topology_from_debug_trace"
     },
     {
       "relation": "contains",
@@ -25289,9 +26040,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L385",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_9_reference_data_current_detection_state",
-      "target": "docs_door_detection_tuning_guide_9_1_floor_plans_pdf_1_page_1240_1754_px_microsoft_print_to_pdf",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_9_1_floor_plans_pdf_1_page_1240_1754_px_microsoft_print_to_pdf"
     },
     {
       "relation": "contains",
@@ -25299,9 +26050,9 @@
       "source_file": "docs/door-detection-tuning-guide.md",
       "source_location": "L403",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_door_detection_tuning_guide_9_reference_data_current_detection_state",
-      "target": "docs_door_detection_tuning_guide_9_2_5_1133_wd03_pdf_1_page_vectorworks_output",
-      "confidence_score": 1.0
+      "target": "docs_door_detection_tuning_guide_9_2_5_1133_wd03_pdf_1_page_vectorworks_output"
     },
     {
       "relation": "contains",
@@ -25309,9 +26060,9 @@
       "source_file": "docs/superpowers/plans/2026-06-16-polyline-arc-spur-pruning.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_16_polyline_arc_spur_pruning",
-      "target": "plans_2026_06_16_polyline_arc_spur_pruning_polyline_arc_spur_pruning_implementation_plan",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_16_polyline_arc_spur_pruning_polyline_arc_spur_pruning_implementation_plan"
     },
     {
       "relation": "contains",
@@ -25319,9 +26070,9 @@
       "source_file": "docs/superpowers/plans/2026-06-16-polyline-arc-spur-pruning.md",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_16_polyline_arc_spur_pruning_polyline_arc_spur_pruning_implementation_plan",
-      "target": "plans_2026_06_16_polyline_arc_spur_pruning_file_structure",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_16_polyline_arc_spur_pruning_file_structure"
     },
     {
       "relation": "contains",
@@ -25329,9 +26080,9 @@
       "source_file": "docs/superpowers/plans/2026-06-16-polyline-arc-spur-pruning.md",
       "source_location": "L660",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_16_polyline_arc_spur_pruning_polyline_arc_spur_pruning_implementation_plan",
-      "target": "plans_2026_06_16_polyline_arc_spur_pruning_self_review_notes",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_16_polyline_arc_spur_pruning_self_review_notes"
     },
     {
       "relation": "references",
@@ -25359,9 +26110,9 @@
       "source_file": "docs/superpowers/plans/2026-06-16-polyline-arc-spur-pruning.md",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_16_polyline_arc_spur_pruning_file_structure",
-      "target": "plans_2026_06_16_polyline_arc_spur_pruning_task_1_add_prune_arc_spurs_skeleton_clean_arc_and_pure_cycle_tests",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_16_polyline_arc_spur_pruning_task_1_add_prune_arc_spurs_skeleton_clean_arc_and_pure_cycle_tests"
     },
     {
       "relation": "contains",
@@ -25369,9 +26120,9 @@
       "source_file": "docs/superpowers/plans/2026-06-16-polyline-arc-spur-pruning.md",
       "source_location": "L178",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_16_polyline_arc_spur_pruning_file_structure",
-      "target": "plans_2026_06_16_polyline_arc_spur_pruning_task_2_implement_y_junction_spur_pruning",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_16_polyline_arc_spur_pruning_task_2_implement_y_junction_spur_pruning"
     },
     {
       "relation": "contains",
@@ -25379,9 +26130,9 @@
       "source_file": "docs/superpowers/plans/2026-06-16-polyline-arc-spur-pruning.md",
       "source_location": "L336",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_16_polyline_arc_spur_pruning_file_structure",
-      "target": "plans_2026_06_16_polyline_arc_spur_pruning_task_3_cover_multi_spur_oversized_and_floor_cases",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_16_polyline_arc_spur_pruning_task_3_cover_multi_spur_oversized_and_floor_cases"
     },
     {
       "relation": "contains",
@@ -25389,9 +26140,9 @@
       "source_file": "docs/superpowers/plans/2026-06-16-polyline-arc-spur-pruning.md",
       "source_location": "L449",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_16_polyline_arc_spur_pruning_file_structure",
-      "target": "plans_2026_06_16_polyline_arc_spur_pruning_task_4_extend_debugtracecollector_record_polyline_component_with_the_two_optional_kwargs",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_16_polyline_arc_spur_pruning_task_4_extend_debugtracecollector_record_polyline_component_with_the_two_optional_kwargs"
     },
     {
       "relation": "contains",
@@ -25399,9 +26150,9 @@
       "source_file": "docs/superpowers/plans/2026-06-16-polyline-arc-spur-pruning.md",
       "source_location": "L515",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_16_polyline_arc_spur_pruning_file_structure",
-      "target": "plans_2026_06_16_polyline_arc_spur_pruning_task_5_wire_prune_arc_spurs_into_detect_polyline_arc_bboxes",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_16_polyline_arc_spur_pruning_task_5_wire_prune_arc_spurs_into_detect_polyline_arc_bboxes"
     },
     {
       "relation": "contains",
@@ -25409,59 +26160,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure",
-      "target": "plans_2026_06_18_codebase_restructure_codebase_restructure_implementation_plan",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
-      "source_location": "L36",
-      "weight": 1.0,
-      "source": "plans_2026_06_18_codebase_restructure_codebase_restructure_implementation_plan",
-      "target": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
-      "source_location": "L97",
-      "weight": 1.0,
-      "source": "plans_2026_06_18_codebase_restructure_codebase_restructure_implementation_plan",
-      "target": "plans_2026_06_18_codebase_restructure_computed_module_headers",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
-      "source_location": "L243",
-      "weight": 1.0,
-      "source": "plans_2026_06_18_codebase_restructure_codebase_restructure_implementation_plan",
-      "target": "plans_2026_06_18_codebase_restructure_dependency_graph_verified_acyclic",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
-      "source_location": "L11",
-      "weight": 1.0,
-      "source": "plans_2026_06_18_codebase_restructure_codebase_restructure_implementation_plan",
-      "target": "plans_2026_06_18_codebase_restructure_global_constraints",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
-      "source_location": "L592",
-      "weight": 1.0,
-      "source": "plans_2026_06_18_codebase_restructure_codebase_restructure_implementation_plan",
-      "target": "plans_2026_06_18_codebase_restructure_self_review",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_codebase_restructure_implementation_plan"
     },
     {
       "relation": "references",
@@ -25472,6 +26173,56 @@
       "weight": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_codebase_restructure_implementation_plan",
       "target": "detection_package_dag"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
+      "source_location": "L36",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_06_18_codebase_restructure_codebase_restructure_implementation_plan",
+      "target": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
+      "source_location": "L97",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_06_18_codebase_restructure_codebase_restructure_implementation_plan",
+      "target": "plans_2026_06_18_codebase_restructure_computed_module_headers"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
+      "source_location": "L243",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_06_18_codebase_restructure_codebase_restructure_implementation_plan",
+      "target": "plans_2026_06_18_codebase_restructure_dependency_graph_verified_acyclic"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
+      "source_location": "L11",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_06_18_codebase_restructure_codebase_restructure_implementation_plan",
+      "target": "plans_2026_06_18_codebase_restructure_global_constraints"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
+      "source_location": "L592",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_06_18_codebase_restructure_codebase_restructure_implementation_plan",
+      "target": "plans_2026_06_18_codebase_restructure_self_review"
     },
     {
       "relation": "references",
@@ -25489,9 +26240,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L77",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment",
-      "target": "plans_2026_06_18_codebase_restructure_detection_doors_arcs_py_deps_math_models_debug_trace_geometry_layers_doors_constants_doors_models",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_detection_doors_arcs_py_deps_math_models_debug_trace_geometry_layers_doors_constants_doors_models"
     },
     {
       "relation": "contains",
@@ -25499,9 +26250,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L83",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment",
-      "target": "plans_2026_06_18_codebase_restructure_detection_doors_assembly_py_deps_models_geometry_layers_doors_constants_doors_models_doors_leaves_doors_shape_labels",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_detection_doors_assembly_py_deps_models_geometry_layers_doors_constants_doors_models_doors_leaves_doors_shape_labels"
     },
     {
       "relation": "contains",
@@ -25509,9 +26260,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L68",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment",
-      "target": "plans_2026_06_18_codebase_restructure_detection_doors_constants_py_deps_re",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_detection_doors_constants_py_deps_re"
     },
     {
       "relation": "contains",
@@ -25519,9 +26270,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment",
-      "target": "plans_2026_06_18_codebase_restructure_detection_doors_detect_py_deps_models_debug_trace_doors_arcs_doors_leaves_doors_assembly",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_detection_doors_detect_py_deps_models_debug_trace_doors_arcs_doors_leaves_doors_assembly"
     },
     {
       "relation": "contains",
@@ -25529,9 +26280,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L80",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment",
-      "target": "plans_2026_06_18_codebase_restructure_detection_doors_leaves_py_deps_math_models_debug_trace_geometry_layers_doors_constants_doors_models_doors_arcs",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_detection_doors_leaves_py_deps_math_models_debug_trace_geometry_layers_doors_constants_doors_models_doors_arcs"
     },
     {
       "relation": "contains",
@@ -25539,9 +26290,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment",
-      "target": "plans_2026_06_18_codebase_restructure_detection_doors_models_py_deps_dataclasses_models",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_detection_doors_models_py_deps_dataclasses_models"
     },
     {
       "relation": "contains",
@@ -25549,9 +26300,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L74",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment",
-      "target": "plans_2026_06_18_codebase_restructure_detection_doors_shape_py_deps_optional_cv2_numpy_models_doors_constants",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_detection_doors_shape_py_deps_optional_cv2_numpy_models_doors_constants"
     },
     {
       "relation": "contains",
@@ -25559,9 +26310,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L40",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment",
-      "target": "plans_2026_06_18_codebase_restructure_detection_geometry_py_generic_geometry_deps_math_models",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_detection_geometry_py_generic_geometry_deps_math_models"
     },
     {
       "relation": "contains",
@@ -25569,9 +26320,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L56",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment",
-      "target": "plans_2026_06_18_codebase_restructure_detection_labels_py_deps_re_models_geometry",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_detection_labels_py_deps_re_models_geometry"
     },
     {
       "relation": "contains",
@@ -25579,9 +26330,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L45",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment",
-      "target": "plans_2026_06_18_codebase_restructure_detection_layers_py_layer_metadata_hints_deps_re_models",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_detection_layers_py_layer_metadata_hints_deps_re_models"
     },
     {
       "relation": "contains",
@@ -25589,9 +26340,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L90",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment",
-      "target": "plans_2026_06_18_codebase_restructure_detection_orchestrator_py_deps_statistics_models_debug_trace_doors_detect_walls_windows_labels_schedules_postprocess",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_detection_orchestrator_py_deps_statistics_models_debug_trace_doors_detect_walls_windows_labels_schedules_postprocess"
     },
     {
       "relation": "contains",
@@ -25599,9 +26350,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L64",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment",
-      "target": "plans_2026_06_18_codebase_restructure_detection_postprocess_py_deps_models_geometry_doors_assembly",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_detection_postprocess_py_deps_models_geometry_doors_assembly"
     },
     {
       "relation": "contains",
@@ -25609,9 +26360,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L60",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment",
-      "target": "plans_2026_06_18_codebase_restructure_detection_schedules_py_deps_re_models",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_detection_schedules_py_deps_re_models"
     },
     {
       "relation": "contains",
@@ -25619,9 +26370,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment",
-      "target": "plans_2026_06_18_codebase_restructure_detection_walls_py_deps_math_statistics_models_geometry_layers",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_detection_walls_py_deps_math_statistics_models_geometry_layers"
     },
     {
       "relation": "contains",
@@ -25629,9 +26380,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L52",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_authoritative_symbol_module_assignment",
-      "target": "plans_2026_06_18_codebase_restructure_detection_windows_py_deps_math_models_geometry_layers",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_detection_windows_py_deps_math_models_geometry_layers"
     },
     {
       "relation": "contains",
@@ -25639,9 +26390,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L501",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_dependency_graph_verified_acyclic",
-      "target": "plans_2026_06_18_codebase_restructure_task_10_repoint_tests_delete_the_bridge",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_task_10_repoint_tests_delete_the_bridge"
     },
     {
       "relation": "contains",
@@ -25649,9 +26400,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L552",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_dependency_graph_verified_acyclic",
-      "target": "plans_2026_06_18_codebase_restructure_task_11_end_to_end_smoke_test_baseline_comparison",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_task_11_end_to_end_smoke_test_baseline_comparison"
     },
     {
       "relation": "contains",
@@ -25659,9 +26410,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L263",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_dependency_graph_verified_acyclic",
-      "target": "plans_2026_06_18_codebase_restructure_task_1_debug_package",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_task_1_debug_package"
     },
     {
       "relation": "contains",
@@ -25669,9 +26420,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L292",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_dependency_graph_verified_acyclic",
-      "target": "plans_2026_06_18_codebase_restructure_task_2_gemini_package",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_task_2_gemini_package"
     },
     {
       "relation": "contains",
@@ -25679,9 +26430,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L305",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_dependency_graph_verified_acyclic",
-      "target": "plans_2026_06_18_codebase_restructure_task_3_extraction_package",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_task_3_extraction_package"
     },
     {
       "relation": "contains",
@@ -25689,9 +26440,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L333",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_dependency_graph_verified_acyclic",
-      "target": "plans_2026_06_18_codebase_restructure_task_4_tools_package",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_task_4_tools_package"
     },
     {
       "relation": "contains",
@@ -25699,9 +26450,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L348",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_dependency_graph_verified_acyclic",
-      "target": "plans_2026_06_18_codebase_restructure_task_5_shared_detection_geometry_py_detection_layers_py",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_task_5_shared_detection_geometry_py_detection_layers_py"
     },
     {
       "relation": "contains",
@@ -25709,9 +26460,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L379",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_dependency_graph_verified_acyclic",
-      "target": "plans_2026_06_18_codebase_restructure_task_6_independent_detectors_walls_windows_labels_schedules",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_task_6_independent_detectors_walls_windows_labels_schedules"
     },
     {
       "relation": "contains",
@@ -25719,9 +26470,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L407",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_dependency_graph_verified_acyclic",
-      "target": "plans_2026_06_18_codebase_restructure_task_7_detection_doors_subpackage",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_task_7_detection_doors_subpackage"
     },
     {
       "relation": "contains",
@@ -25729,9 +26480,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L425",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_dependency_graph_verified_acyclic",
-      "target": "plans_2026_06_18_codebase_restructure_task_8_detection_postprocess_py",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_task_8_detection_postprocess_py"
     },
     {
       "relation": "contains",
@@ -25739,9 +26490,9 @@
       "source_file": "docs/superpowers/plans/2026-06-18-codebase-restructure.md",
       "source_location": "L448",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "plans_2026_06_18_codebase_restructure_dependency_graph_verified_acyclic",
-      "target": "plans_2026_06_18_codebase_restructure_task_9_detection_orchestrator_public_facade",
-      "confidence_score": 1.0
+      "target": "plans_2026_06_18_codebase_restructure_task_9_detection_orchestrator_public_facade"
     },
     {
       "relation": "contains",
@@ -25749,9 +26500,9 @@
       "source_file": "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_16_polyline_arc_spur_pruning_design",
-      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_polyline_arc_spur_pruning_design",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_polyline_arc_spur_pruning_design"
     },
     {
       "relation": "contains",
@@ -25759,9 +26510,9 @@
       "source_file": "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md",
       "source_location": "L153",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_16_polyline_arc_spur_pruning_design_polyline_arc_spur_pruning_design",
-      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_behavior_contract",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_behavior_contract"
     },
     {
       "relation": "contains",
@@ -25769,9 +26520,9 @@
       "source_file": "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_16_polyline_arc_spur_pruning_design_polyline_arc_spur_pruning_design",
-      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_fix",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_fix"
     },
     {
       "relation": "contains",
@@ -25779,9 +26530,9 @@
       "source_file": "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md",
       "source_location": "L77",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_16_polyline_arc_spur_pruning_design_polyline_arc_spur_pruning_design",
-      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_implementation",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_implementation"
     },
     {
       "relation": "contains",
@@ -25789,9 +26540,9 @@
       "source_file": "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_16_polyline_arc_spur_pruning_design_polyline_arc_spur_pruning_design",
-      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_problem",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_problem"
     },
     {
       "relation": "contains",
@@ -25799,9 +26550,9 @@
       "source_file": "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md",
       "source_location": "L195",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_16_polyline_arc_spur_pruning_design_polyline_arc_spur_pruning_design",
-      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_risks_and_mitigations",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_risks_and_mitigations"
     },
     {
       "relation": "contains",
@@ -25809,9 +26560,9 @@
       "source_file": "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md",
       "source_location": "L165",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_16_polyline_arc_spur_pruning_design_polyline_arc_spur_pruning_design",
-      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_testing",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_testing"
     },
     {
       "relation": "contains",
@@ -25819,9 +26570,9 @@
       "source_file": "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_16_polyline_arc_spur_pruning_design_fix",
-      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_algorithm",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_algorithm"
     },
     {
       "relation": "contains",
@@ -25829,9 +26580,9 @@
       "source_file": "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md",
       "source_location": "L70",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_16_polyline_arc_spur_pruning_design_fix",
-      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_closed_cycle_appendages_out_of_scope",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_closed_cycle_appendages_out_of_scope"
     },
     {
       "relation": "contains",
@@ -25839,9 +26590,9 @@
       "source_file": "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md",
       "source_location": "L56",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_16_polyline_arc_spur_pruning_design_fix",
-      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_why_iterate",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_why_iterate"
     },
     {
       "relation": "contains",
@@ -25849,9 +26600,9 @@
       "source_file": "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_16_polyline_arc_spur_pruning_design_fix",
-      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_why_prune_before_scoring_instead_of_relaxing_thresholds",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_why_prune_before_scoring_instead_of_relaxing_thresholds"
     },
     {
       "relation": "contains",
@@ -25859,9 +26610,9 @@
       "source_file": "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md",
       "source_location": "L120",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_16_polyline_arc_spur_pruning_design_implementation",
-      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_call_site_change",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_call_site_change"
     },
     {
       "relation": "contains",
@@ -25869,9 +26620,9 @@
       "source_file": "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md",
       "source_location": "L90",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_16_polyline_arc_spur_pruning_design_implementation",
-      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_constant_location",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_constant_location"
     },
     {
       "relation": "contains",
@@ -25879,9 +26630,9 @@
       "source_file": "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md",
       "source_location": "L139",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_16_polyline_arc_spur_pruning_design_implementation",
-      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_debug_trace",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_debug_trace"
     },
     {
       "relation": "contains",
@@ -25889,9 +26640,9 @@
       "source_file": "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md",
       "source_location": "L79",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_16_polyline_arc_spur_pruning_design_implementation",
-      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_files_changed",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_files_changed"
     },
     {
       "relation": "contains",
@@ -25899,9 +26650,9 @@
       "source_file": "docs/superpowers/specs/2026-06-16-polyline-arc-spur-pruning-design.md",
       "source_location": "L98",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_16_polyline_arc_spur_pruning_design_implementation",
-      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_helper_signature",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_16_polyline_arc_spur_pruning_design_helper_signature"
     },
     {
       "relation": "contains",
@@ -25909,9 +26660,9 @@
       "source_file": "docs/superpowers/specs/2026-06-18-codebase-restructure-design.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_18_codebase_restructure_design",
-      "target": "specs_2026_06_18_codebase_restructure_design_codebase_restructure_packages_heuristics_py_split",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_18_codebase_restructure_design_codebase_restructure_packages_heuristics_py_split"
     },
     {
       "relation": "contains",
@@ -25919,9 +26670,9 @@
       "source_file": "docs/superpowers/specs/2026-06-18-codebase-restructure-design.md",
       "source_location": "L17",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_18_codebase_restructure_design_codebase_restructure_packages_heuristics_py_split",
-      "target": "specs_2026_06_18_codebase_restructure_design_context",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_18_codebase_restructure_design_context"
     },
     {
       "relation": "contains",
@@ -25929,9 +26680,9 @@
       "source_file": "docs/superpowers/specs/2026-06-18-codebase-restructure-design.md",
       "source_location": "L73",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_18_codebase_restructure_design_codebase_restructure_packages_heuristics_py_split",
-      "target": "specs_2026_06_18_codebase_restructure_design_detection_doors_subpackage",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_18_codebase_restructure_design_detection_doors_subpackage"
     },
     {
       "relation": "contains",
@@ -25939,9 +26690,9 @@
       "source_file": "docs/superpowers/specs/2026-06-18-codebase-restructure-design.md",
       "source_location": "L122",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_18_codebase_restructure_design_codebase_restructure_packages_heuristics_py_split",
-      "target": "specs_2026_06_18_codebase_restructure_design_execution_plan_incremental_run_all_80_tests_after_each_step",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_18_codebase_restructure_design_execution_plan_incremental_run_all_80_tests_after_each_step"
     },
     {
       "relation": "contains",
@@ -25949,9 +26700,9 @@
       "source_file": "docs/superpowers/specs/2026-06-18-codebase-restructure-design.md",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_18_codebase_restructure_design_codebase_restructure_packages_heuristics_py_split",
-      "target": "specs_2026_06_18_codebase_restructure_design_goal",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_18_codebase_restructure_design_goal"
     },
     {
       "relation": "contains",
@@ -25959,9 +26710,9 @@
       "source_file": "docs/superpowers/specs/2026-06-18-codebase-restructure-design.md",
       "source_location": "L145",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_18_codebase_restructure_design_codebase_restructure_packages_heuristics_py_split",
-      "target": "specs_2026_06_18_codebase_restructure_design_out_of_scope_this_pass",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_18_codebase_restructure_design_out_of_scope_this_pass"
     },
     {
       "relation": "contains",
@@ -25969,9 +26720,9 @@
       "source_file": "docs/superpowers/specs/2026-06-18-codebase-restructure-design.md",
       "source_location": "L106",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_18_codebase_restructure_design_codebase_restructure_packages_heuristics_py_split",
-      "target": "specs_2026_06_18_codebase_restructure_design_public_facade_test_strategy",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_18_codebase_restructure_design_public_facade_test_strategy"
     },
     {
       "relation": "contains",
@@ -25979,9 +26730,9 @@
       "source_file": "docs/superpowers/specs/2026-06-18-codebase-restructure-design.md",
       "source_location": "L31",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_18_codebase_restructure_design_codebase_restructure_packages_heuristics_py_split",
-      "target": "specs_2026_06_18_codebase_restructure_design_target_layout",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_18_codebase_restructure_design_target_layout"
     },
     {
       "relation": "contains",
@@ -25989,9 +26740,9 @@
       "source_file": "docs/superpowers/specs/2026-06-18-codebase-restructure-design.md",
       "source_location": "L139",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_18_codebase_restructure_design_codebase_restructure_packages_heuristics_py_split",
-      "target": "specs_2026_06_18_codebase_restructure_design_verification",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_18_codebase_restructure_design_verification"
     },
     {
       "relation": "contains",
@@ -25999,9 +26750,9 @@
       "source_file": "docs/superpowers/specs/2026-06-18-codebase-restructure-design.md",
       "source_location": "L95",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_2026_06_18_codebase_restructure_design_detection_doors_subpackage",
-      "target": "specs_2026_06_18_codebase_restructure_design_decisions",
-      "confidence_score": 1.0
+      "target": "specs_2026_06_18_codebase_restructure_design_decisions"
     },
     {
       "relation": "contains",
@@ -26009,9 +26760,9 @@
       "source_file": "docs/window-detection-tuning-guide.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_window_detection_tuning_guide",
-      "target": "docs_window_detection_tuning_guide_window_detection_tuning_guide",
-      "confidence_score": 1.0
+      "target": "docs_window_detection_tuning_guide_window_detection_tuning_guide"
     },
     {
       "relation": "contains",
@@ -26020,7 +26771,7 @@
       "source_location": "L11",
       "weight": 1.0,
       "source": "docs_window_detection_tuning_guide_window_detection_tuning_guide",
-      "target": "docs_window_detection_tuning_guide_1_the_signature",
+      "target": "docs_window_detection_tuning_guide_1_the_signature_cap_anchored",
       "confidence_score": 1.0
     },
     {
@@ -26029,9 +26780,9 @@
       "source_file": "docs/window-detection-tuning-guide.md",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_window_detection_tuning_guide_window_detection_tuning_guide",
-      "target": "docs_window_detection_tuning_guide_2_pipeline_shape",
-      "confidence_score": 1.0
+      "target": "docs_window_detection_tuning_guide_2_pipeline_shape"
     },
     {
       "relation": "contains",
@@ -26039,9 +26790,9 @@
       "source_file": "docs/window-detection-tuning-guide.md",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_window_detection_tuning_guide_window_detection_tuning_guide",
-      "target": "docs_window_detection_tuning_guide_3_why_both_filters_are_needed_floor_plans_pdf",
-      "confidence_score": 1.0
+      "target": "docs_window_detection_tuning_guide_3_why_both_filters_are_needed_floor_plans_pdf"
     },
     {
       "relation": "contains",
@@ -26049,9 +26800,9 @@
       "source_file": "docs/window-detection-tuning-guide.md",
       "source_location": "L64",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_window_detection_tuning_guide_window_detection_tuning_guide",
-      "target": "docs_window_detection_tuning_guide_4_the_constants",
-      "confidence_score": 1.0
+      "target": "docs_window_detection_tuning_guide_4_the_constants"
     },
     {
       "relation": "contains",
@@ -26059,9 +26810,9 @@
       "source_file": "docs/window-detection-tuning-guide.md",
       "source_location": "L94",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_window_detection_tuning_guide_window_detection_tuning_guide",
-      "target": "docs_window_detection_tuning_guide_5_reference_data_current_detection_state_regression_target",
-      "confidence_score": 1.0
+      "target": "docs_window_detection_tuning_guide_5_reference_data_current_detection_state_regression_target"
     },
     {
       "relation": "contains",
@@ -26069,9 +26820,9 @@
       "source_file": "docs/window-detection-tuning-guide.md",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_window_detection_tuning_guide_window_detection_tuning_guide",
-      "target": "docs_window_detection_tuning_guide_6_known_limitations_not_handled",
-      "confidence_score": 1.0
+      "target": "docs_window_detection_tuning_guide_6_known_limitations_not_handled"
     },
     {
       "relation": "contains",
@@ -26079,9 +26830,9 @@
       "source_file": "docs/window-detection-tuning-guide.md",
       "source_location": "L126",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_window_detection_tuning_guide_window_detection_tuning_guide",
-      "target": "docs_window_detection_tuning_guide_7_how_to_verify_a_change_won_t_regress",
-      "confidence_score": 1.0
+      "target": "docs_window_detection_tuning_guide_7_how_to_verify_a_change_won_t_regress"
     },
     {
       "relation": "contains",
@@ -26089,9 +26840,9 @@
       "source_file": "docs/window-detection-tuning-guide.md",
       "source_location": "L96",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_window_detection_tuning_guide_5_reference_data_current_detection_state_regression_target",
-      "target": "docs_window_detection_tuning_guide_5_1_floor_plans_pdf_offline_walls_on_off_both_give_4",
-      "confidence_score": 1.0
+      "target": "docs_window_detection_tuning_guide_5_1_floor_plans_pdf_offline_walls_on_off_both_give_4"
     },
     {
       "relation": "contains",
@@ -26099,9 +26850,9 @@
       "source_file": "docs/window-detection-tuning-guide.md",
       "source_location": "L111",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_window_detection_tuning_guide_5_reference_data_current_detection_state_regression_target",
-      "target": "docs_window_detection_tuning_guide_5_2_5_1133_wd03_pdf",
-      "confidence_score": 1.0
+      "target": "docs_window_detection_tuning_guide_5_2_5_1133_wd03_pdf"
     },
     {
       "relation": "references",
@@ -26689,5 +27440,5 @@
       "source_file": "floor-plans.pdf"
     }
   ],
-  "built_at_commit": "fd7f6c2b0bc294b826d178935318fd208acd856b"
+  "built_at_commit": "7f45ee1a638ca1504045a69de4a8b519390397b9"
 }

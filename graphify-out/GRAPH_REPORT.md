@@ -1,16 +1,16 @@
 # Graph Report - agent  (2026-06-19)
 
 ## Corpus Check
-- 48 files · ~50,956 words
+- 48 files · ~52,560 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 734 nodes · 1810 edges · 31 communities (30 shown, 1 thin omitted)
-- Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 258 edges (avg confidence: 0.53)
+- 753 nodes · 1863 edges · 43 communities (35 shown, 8 thin omitted)
+- Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 262 edges (avg confidence: 0.53)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `fd7f6c2b`
+- Built from commit: `7f45ee1a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -39,22 +39,32 @@
 - [[_COMMUNITY_Community 27|Community 27]]
 - [[_COMMUNITY_Community 28|Community 28]]
 - [[_COMMUNITY_Community 29|Community 29]]
+- [[_COMMUNITY_Community 31|Community 31]]
+- [[_COMMUNITY_Community 32|Community 32]]
+- [[_COMMUNITY_Community 33|Community 33]]
+- [[_COMMUNITY_Community 34|Community 34]]
+- [[_COMMUNITY_Community 35|Community 35]]
+- [[_COMMUNITY_Community 36|Community 36]]
+- [[_COMMUNITY_Community 37|Community 37]]
+- [[_COMMUNITY_Community 38|Community 38]]
+- [[_COMMUNITY_Community 39|Community 39]]
+- [[_COMMUNITY_Community 40|Community 40]]
+- [[_COMMUNITY_Community 41|Community 41]]
+- [[_COMMUNITY_Community 42|Community 42]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `PathPrimitive` - 89 edges
-2. `Candidate` - 79 edges
+1. `PathPrimitive` - 91 edges
+2. `Candidate` - 81 edges
 3. `DebugTraceCollector` - 56 edges
 4. `TextSpan` - 47 edges
 5. `detect_doors()` - 43 edges
-6. `PageData` - 31 edges
-7. `detect_windows()` - 30 edges
+6. `detect_windows()` - 35 edges
+7. `PageData` - 31 edges
 8. `run_extract()` - 24 edges
 9. `run_heuristics()` - 23 edges
 10. `_chain()` - 23 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Door heuristic constants tuning surface` --conceptually_related_to--> `_detect_polyline_arc_bboxes()`  [INFERRED]
-  docs/door-detection-tuning-guide.md → detection/doors/arcs.py
 - `_pair_door_assemblies()` --conceptually_related_to--> `Offline-mode per-type confidence floors (OFFLINE_MIN_CONFIDENCE)`  [INFERRED]
   detection/doors/assembly.py → docs/door-detection-tuning-guide.md
 - `detect_doors()` --implements--> `Three-stage door detection (collect/pair/validate)`  [INFERRED]
@@ -63,6 +73,8 @@
   detection/doors/arcs.py → docs/door-detection-tuning-guide.md
 - `_split_double_arc()` --implements--> `Double-arc / garden-door split-emit`  [EXTRACTED]
   detection/doors/arcs.py → docs/door-detection-tuning-guide.md
+- `Door heuristic constants tuning surface` --conceptually_related_to--> `_detect_polyline_arc_bboxes()`  [INFERRED]
+  docs/door-detection-tuning-guide.md → detection/doors/arcs.py
 
 ## Import Cycles
 - None detected.
@@ -74,35 +86,35 @@
 - **5-1133-WD03 proposed lower ground floor: walls, windows, doors** — 5_1133_wd03, 5_1133_wd03_cavity_walls, 5_1133_wd03_windows, 5_1133_wd03_folding_sliding_doors [EXTRACTED 1.00]
 - **floor-plans proposed ground & first floor plans with rooms and rooflights** — floor_plans, floor_plans_ground_floor, floor_plans_first_floor, floor_plans_velux [EXTRACTED 1.00]
 
-## Communities (31 total, 1 thin omitted)
+## Communities (43 total, 8 thin omitted)
 
 ### Community 0 - "Geometry Helpers"
-Cohesion: 0.06
+Cohesion: 0.05
 Nodes (89): BBox, Candidate, _DoorLeaf, PathPrimitive, _angle_diff_mod180(), _bbox_area(), _bbox_center(), _bbox_expanded() (+81 more)
 
 ### Community 1 - "Door Detection Core"
-Cohesion: 0.08
+Cohesion: 0.09
 Nodes (20): _check_opening_clear(), Check if the door opening (bridge between arc endpoints) is free of crossing lin, detect_doors(), DoorAssemblyTests, DoorV2OpeningCheckTests, EntranceDoorTests, line(), PolylineArcBinCapTests (+12 more)
 
 ### Community 2 - "Door Leaf & BBox Primitives"
-Cohesion: 0.08
-Nodes (50): 3-point circle fit for chained-Bezier radius recovery, BBox, DebugTraceCollector, PathPrimitive, DebugTraceCollector, _DoorLeaf, PathPrimitive, _bbox_height() (+42 more)
+Cohesion: 0.11
+Nodes (44): debug_trace.json schema + diagnostic playbook, BBox, DebugTraceCollector, DebugTraceCollector, _DoorLeaf, PathPrimitive, _bbox_height(), _bbox_width() (+36 more)
 
 ### Community 3 - "PDF Extraction & Normalization"
-Cohesion: 0.12
-Nodes (44): 150-DPI pixel-space coordinate normalization, classify_page(), _color_tuple(), extract_document(), extract_images(), extract_page(), extract_paths(), extract_text() (+36 more)
+Cohesion: 0.10
+Nodes (51): CLAUDE.md project guide, 150-DPI pixel-space coordinate normalization, classify_page(), _color_tuple(), extract_document(), extract_images(), extract_page(), extract_paths() (+43 more)
 
 ### Community 4 - "Hu-Moment Shape Matching"
-Cohesion: 0.16
-Nodes (12): ChainedCurveSwingDetectionTests, _circle_arc_chain(), _curve(), NativeCurveChainsTests, PathPrimitive, _qu_leaf(), The door_0051 pattern: native curves with shared endpoints group         into a, End-to-end via detect_doors: a 5-curve chain forming a 30° arc of     a larger c (+4 more)
+Cohesion: 0.10
+Nodes (21): 3-point circle fit for chained-Bezier radius recovery, _fit_circle_3pt(), _native_curve_chains(), Fit a circle through 3 points. Returns (cx, cy, radius) or None if     the point, Group native `c` (Bezier) primitives by endpoint adjacency.      PDF arcs are of, ChainedCurveSwingDetectionTests, _circle_arc_chain(), _curve() (+13 more)
 
 ### Community 5 - "CLI & Rendering"
 Cohesion: 0.11
 Nodes (38): cmd_extract(), cmd_inspect(), parse_page_spec(), Parse '1,3-5' into 0-based page indices [0, 2, 3, 4]., generate_debug_viewer(), Generate a self-contained HTML debug viewer for door detection traces., Write a single-file HTML viewer embedding the render image and trace JSON., _draw_dashed_rect() (+30 more)
 
 ### Community 6 - "Debug Trace Collector"
-Cohesion: 0.05
-Nodes (40): DebugTraceCollector, PathPrimitive, Record a polyline arc component evaluation. Returns component_id.          ``pre, Mark a previously-collected polyline component as rejected post-hoc., Record a linework leaf component evaluation. Returns component_id.          clea, Record result of the _is_door_leaf check for a primitive., Register a collected swing. Returns swing_id., Pre-populate by_path_index with raw metadata for every PathPrimitive. (+32 more)
+Cohesion: 0.17
+Nodes (13): DebugTraceCollector, Accumulates per-primitive and per-component trace data during door detection., _DoorSwing, DebugTraceCollector, _DoorSwing, TextSpan, Candidate, DebugTraceCollector (+5 more)
 
 ### Community 7 - "Double-Door Assembly"
 Cohesion: 0.11
@@ -121,28 +133,28 @@ Cohesion: 0.15
 Nodes (14): Linear cap chain-extension trim, Trim non-arc cap segments off a 2-leaf simple chain.      Some CAD draftsmen dra, _trim_chain_extension_caps(), _arc(), Tests for _trim_chain_extension_caps.      Walks a 2-leaf simple chain (no junct, An 11-segment quarter arc has only small inter-seg angle deltas         (~8.2° e, The polyline_393 / linework_226 shape: an 11-seg quarter arc         followed by, A symmetric case: 11-seg arc with a 1-seg perpendicular cap at         each end. (+6 more)
 
 ### Community 11 - "Double-Arc Split Tests"
-Cohesion: 0.13
-Nodes (15): Detect a 2-leaf simple chain that is two arc halves meeting at a hinge.      The, _split_double_arc(), _double_arc(), Build one (PathPrimitive, p1, p2, length, angle) tuple shaped like     the segs, Tests for _split_double_arc.      Detects the 2-leaf simple chain that is two ar, Two 11-seg quarter arcs sharing a hinge (0, 0) with antiparallel         walk-di, A clean 11-seg quarter arc has only ~8° per-seg deltas — well         below the, The §3.6 cap-extension pattern: 11-seg arc + 2-seg perpendicular         axis ca (+7 more)
+Cohesion: 0.12
+Nodes (16): PathPrimitive, Detect a 2-leaf simple chain that is two arc halves meeting at a hinge.      The, _split_double_arc(), _double_arc(), Build one (PathPrimitive, p1, p2, length, angle) tuple shaped like     the segs, Tests for _split_double_arc.      Detects the 2-leaf simple chain that is two ar, Two 11-seg quarter arcs sharing a hinge (0, 0) with antiparallel         walk-di, A clean 11-seg quarter arc has only ~8° per-seg deltas — well         below the (+8 more)
 
 ### Community 12 - "Cycle-Cap Pruning"
 Cohesion: 0.16
 Nodes (13): _prune_arc_cycle_caps(), Remove a small closed-cycle cap attached at a single articulation point.      So, _chain(), PruneArcCycleCapsTests, Tests for _prune_arc_cycle_caps.      A 'closed-cycle cap' is a closed loop of s, An arc with no degree-3+ vertices has nothing to prune., 11-seg arc + closed 4-seg rectangle attached at arc end.         The junction is, The polyline_856 shape: 11-seg arc + 7-seg closed cap loop         attached at t (+5 more)
 
 ### Community 13 - "Project Docs & Pipeline Concepts"
-Cohesion: 0.09
-Nodes (23): CLAUDE.md project guide, debug_trace.json schema + diagnostic playbook, Three-stage door detection (collect/pair/validate), Door Detection Tuning Guide, Known door false-positive patterns (bath fixture, window arc), Door heuristic constants tuning surface, pdfplumber cross-check + table extraction, Seven-stage per-page extraction pipeline (+15 more)
+Cohesion: 0.33
+Nodes (6): File Structure, Task 1: Add `_prune_arc_spurs` skeleton + clean-arc and pure-cycle tests, Task 2: Implement Y-junction spur pruning, Task 3: Cover multi-spur, oversized, and floor cases, Task 4: Extend `DebugTraceCollector.record_polyline_component` with the two optional kwargs, Task 5: Wire `_prune_arc_spurs` into `_detect_polyline_arc_bboxes`
 
 ### Community 14 - "Gemini Client"
 Cohesion: 0.31
 Nodes (12): Client, build_user_message(), call_gemini(), _candidate_to_dict(), encode_image_inline(), init_client(), parse_gemini_response(), Candidate (+4 more)
 
 ### Community 15 - "Arc Spur Pruning"
-Cohesion: 0.14
-Nodes (12): Arc closed-cycle cap pruning, _prune_arc_spurs(), Remove short leaf-spurs (door stops, cap lines) from an arc component.      A cl, Arc leaf-spur pruning, Polyline-Arc Spur Pruning Design, PruneArcSpursTests, A closed 4-segment loop has every vertex at degree 2 — no leaf         exists to, 11-segment arc whose far endpoint is a degree-3 junction because         two 1-s (+4 more)
+Cohesion: 0.18
+Nodes (9): _prune_arc_spurs(), Remove short leaf-spurs (door stops, cap lines) from an arc component.      A cl, PruneArcSpursTests, A closed 4-segment loop has every vertex at degree 2 — no leaf         exists to, 11-segment arc whose far endpoint is a degree-3 junction because         two 1-s, linework_1318 shape: 11-segment arc whose far endpoint becomes a         degree-, A Y-junction with one short branch (2 segs) and one long branch         (5 segs,, A small Y-junction component where every walk fits in the spur         cap. Prun (+1 more)
 
 ### Community 16 - "Arc Pruning Design Docs"
-Cohesion: 0.12
-Nodes (19): _covers(), hline(), horizontal_window(), path(), BBox, Candidate, PathPrimitive, Window detection tests.  Ground truth was established interactively on floor-pla (+11 more)
+Cohesion: 0.10
+Nodes (27): _axis_lines(), _dedupe_openings(), detect_windows(), Candidate, PathPrimitive, Suppress overlapping detections from duplicate cap pairs (greedy NMS).      Dupl, Detect windows as capped openings bridged by a parallel glazing band.      For e, Split axis-aligned line primitives into horizontal and vertical pools.      Each (+19 more)
 
 ### Community 17 - "Hu Template Tool"
 Cohesion: 0.47
@@ -162,11 +174,31 @@ Nodes (10): Algorithm reference, Commands, Data model, Gemini / GCP auth, graphi
 
 ### Community 28 - "Community 28"
 Cohesion: 0.18
-Nodes (10): 1. The signature, 2. Pipeline shape, 3. Why both filters are needed (floor-plans.pdf), 4. The constants, 5.1 floor-plans.pdf (offline, walls on/off both give 4), 5.2 5-1133-WD03.pdf, 5. Reference data — current detection state (regression target), 6. Known limitations / not handled (+2 more)
+Nodes (10): 1. The signature (cap-anchored), 2. Pipeline shape, 3. Why both filters are needed (floor-plans.pdf), 4. The constants, 5.1 floor-plans.pdf (offline, walls on/off both give 4), 5.2 5-1133-WD03.pdf, 5. Reference data — current detection state (regression target), 6. Known limitations / not handled (+2 more)
 
 ### Community 29 - "Community 29"
 Cohesion: 0.18
 Nodes (10): Codebase Restructure: Packages + heuristics.py Split, Context, Decisions, detection/doors/ subpackage, Execution plan (incremental — run all 80 tests after each step), Goal, Out of scope (this pass), Public facade & test strategy (+2 more)
+
+### Community 31 - "Community 31"
+Cohesion: 0.27
+Nodes (9): _curve(), CurveArcGardenDoorTests, _line(), PathPrimitive, _quarter_arc_bezier(), Garden-door detection for native single-Bezier (`curve_arc`) swings.  The polyli, Two arcs sharing an endpoint with continuous tangent (smooth         S-curve) mu, Build a cubic Bezier approximating the 90° quarter circle centered at     ``hing (+1 more)
+
+### Community 32 - "Community 32"
+Cohesion: 0.36
+Nodes (6): Drop window candidates that materially sit on a detected door.      Door symbols, _resolve_door_window_conflicts(), BBox, Candidate, A distant door must not suppress a window it only clips after the         20px d, TestDoorWindowExclusion
+
+### Community 33 - "Community 33"
+Cohesion: 0.29
+Nodes (5): PathPrimitive, Record result of the _is_door_leaf check for a primitive., Pre-populate by_path_index with raw metadata for every PathPrimitive., Record result of the _is_arc_like check for a primitive., Record whether a line segment passed the polyline-arc length filter.
+
+### Community 34 - "Community 34"
+Cohesion: 0.38
+Nodes (6): PathPrimitive, _compute_hu_distance(), _rasterize_paths_to_canvas(), Rasterize line/curve primitives onto a normalized binary canvas.      Segments a, Distance between candidate arc paths and the door Hu Moment template.      Lower, Hu-moment door-shape matching
+
+### Community 35 - "Community 35"
+Cohesion: 0.33
+Nodes (5): Arc closed-cycle cap pruning, Polyline-Arc Spur Pruning Implementation Plan, Self-review notes, Arc leaf-spur pruning, Polyline-Arc Spur Pruning Design
 
 ## Ambiguous Edges - Review These
 - `5-1133-WD03 Proposed Lower Ground Floor (Construction Issue)` → `Schedule (door/window/finish table)`  [AMBIGUOUS]
@@ -177,7 +209,7 @@ Nodes (10): Codebase Restructure: Packages + heuristics.py Split, Context, Decis
 ## Knowledge Gaps
 - **117 isolated node(s):** `Project purpose`, `Algorithm reference`, `Commands`, `Module layout`, `Gemini / GCP auth` (+112 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **1 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -186,13 +218,13 @@ _Questions this graph is uniquely positioned to answer:_
   _Edge tagged AMBIGUOUS (relation: references) - confidence is low._
 - **What is the exact relationship between `floor-plans Proposed Ground & First Floor Plans (3 Penparcau Road)` and `Door (architectural element)`?**
   _Edge tagged AMBIGUOUS (relation: references) - confidence is low._
-- **Why does `PathPrimitive` connect `Debug Trace Collector` to `Geometry Helpers`, `Door Detection Core`, `Door Leaf & BBox Primitives`, `PDF Extraction & Normalization`, `Hu-Moment Shape Matching`, `CLI & Rendering`, `Double-Door Assembly`, `Chain-Extension Cap Trim`, `Double-Arc Split Tests`, `Cycle-Cap Pruning`, `Arc Spur Pruning`, `Arc Pruning Design Docs`?**
-  _High betweenness centrality (0.214) - this node is a cross-community bridge._
-- **Why does `DebugTraceCollector` connect `Debug Trace Collector` to `Geometry Helpers`, `Door Leaf & BBox Primitives`, `CLI & Rendering`?**
-  _High betweenness centrality (0.084) - this node is a cross-community bridge._
-- **Why does `Candidate` connect `Geometry Helpers` to `Door Detection Core`, `Door Leaf & BBox Primitives`, `PDF Extraction & Normalization`, `CLI & Rendering`, `Debug Trace Collector`, `Double-Door Assembly`, `Gemini Client`, `Arc Pruning Design Docs`?**
-  _High betweenness centrality (0.078) - this node is a cross-community bridge._
-- **Are the 64 inferred relationships involving `PathPrimitive` (e.g. with `DebugTraceCollector` and `PathPrimitive`) actually correct?**
-  _`PathPrimitive` has 64 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 56 inferred relationships involving `Candidate` (e.g. with `Client` and `BBox`) actually correct?**
-  _`Candidate` has 56 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `PathPrimitive` connect `Debug Trace Collector` to `Geometry Helpers`, `Community 33`, `Door Leaf & BBox Primitives`, `Community 34`, `PDF Extraction & Normalization`, `Hu-Moment Shape Matching`, `Door Detection Core`, `Double-Door Assembly`, `CLI & Rendering`, `Community 32`, `Chain-Extension Cap Trim`, `Double-Arc Split Tests`, `Cycle-Cap Pruning`, `Arc Spur Pruning`, `Arc Pruning Design Docs`, `Community 31`?**
+  _High betweenness centrality (0.220) - this node is a cross-community bridge._
+- **Why does `Candidate` connect `Geometry Helpers` to `Community 32`, `Door Detection Core`, `PDF Extraction & Normalization`, `CLI & Rendering`, `Debug Trace Collector`, `Double-Door Assembly`, `Gemini Client`, `Arc Pruning Design Docs`?**
+  _High betweenness centrality (0.083) - this node is a cross-community bridge._
+- **Why does `DebugTraceCollector` connect `Debug Trace Collector` to `Geometry Helpers`, `Community 33`, `Door Leaf & BBox Primitives`, `Community 36`, `Community 37`, `Community 38`, `Community 39`, `Community 40`, `Community 41`, `Community 42`, `Double-Arc Split Tests`, `CLI & Rendering`?**
+  _High betweenness centrality (0.082) - this node is a cross-community bridge._
+- **Are the 66 inferred relationships involving `PathPrimitive` (e.g. with `DebugTraceCollector` and `PathPrimitive`) actually correct?**
+  _`PathPrimitive` has 66 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 58 inferred relationships involving `Candidate` (e.g. with `Client` and `BBox`) actually correct?**
+  _`Candidate` has 58 INFERRED edges - model-reasoned connections that need verification._
