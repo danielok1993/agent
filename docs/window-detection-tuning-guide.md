@@ -58,19 +58,27 @@ This is the v2 detector. History:
 4. **2-pane jamb gate** — a 2-pane opening (no centerline) is geometrically a
    thin wall; accept it only when the caps are substantial
    (`cap_len ≥ WINDOW_TWO_LINE_MIN_CAP_PX`). Small-cap windows must show ≥3 panes.
-4b. **Interior-clutter gate** (`_interior_clutter`) — a real window opening
-   contains ONLY its two caps and 2–3 straight panes; the interior is otherwise
-   empty. The remaining false positives are WALLS whose two faces (rails) got
-   read as a 2-pane band. Reject the opening when its interior carries linework a
-   window never does (counted over the band+cap bbox, excluding those lines):
-   - `shapes` — any non-line primitive (`re`/`qu`/`c`) touching the bbox dilated
-     by `WINDOW_INTERIOR_SHAPE_DILATE_PX` (`> WINDOW_INTERIOR_SHAPE_MAX`):
-     crosshatch boxes, insulation arcs, a recess's U-curve decorations. Dilation
-     catches end-decorations that sit just past the caps' outer ends.
-   - `oblique` — interior lines parallel to neither glazing nor caps
+4b. **Band-interior clutter gate** (`_band_interior_clutter`) — a real window's
+   glass is clear: nothing sits BETWEEN the panes. An insulation-hatched wall,
+   though, gets read as a 2-line band whose two "panes" are the wall's two faces,
+   with the crosshatch fill right between them. Reject when the **band interior**
+   carries clutter — measured in the oriented rectangle `u ∈ [cap1, cap2]` (the
+   gap between caps) × `v` across the pane band (± `WINDOW_INTERIOR_BAND_PAD_PX`),
+   excluding the band+cap lines:
+   - `shapes` — non-line primitives (`re`/`qu`/`c`) with any point in the region
+     (`> WINDOW_INTERIOR_SHAPE_MAX`): crosshatch boxes / insulation arcs.
+   - `oblique` — lines in the region parallel to neither glazing nor caps
      (`> WINDOW_INTERIOR_OBLIQUE_MAX`): line-drawn insulation hatch.
-   - `cross` — interior lines parallel to the caps beyond the two jambs
-     (`> WINDOW_INTERIOR_CROSS_MAX`): a solid-filled block's notched outline.
+
+   **Why the oriented band, not the bbox** — this is what keeps DIAGONAL windows
+   alive (the v1 axis-bbox version killed all four 5-1133 diagonals): a 45°
+   window's axis-aligned bbox is a big square that sweeps in neighbouring
+   linework, and its gray jamb caps are filled `re`/`qu`/`c` shapes — but those
+   sit at the opening ENDS (`u` outside `[cap1, cap2]`), never between the panes.
+   The trade-off: solid-filled blocks (w17/w18) and the recess niche (w26) carry
+   their distinguishing clutter at those same ends, so no interior gate can
+   reject them without also killing the diagonals — they are **left to Gemini**.
+   Colour / fill-brightness would separate them but is not uniform across PDFs.
 5. bbox = union of caps + glazing band; confidence scored; emit.
 6. **`_dedupe_openings`** — greedy NMS over duplicate cap pairs (prefer more
    panes, then tightest bbox; drop a candidate whose center sits inside a kept
@@ -115,10 +123,9 @@ Neither alone is sufficient; together they give 4/4 windows, 0 false positives.
 | `WINDOW_SPAN_COVER_TOL_PX` | 4.0 | A glazing line may fall short of each cap by this and still "span" the gap. |
 | `WINDOW_SPAN_OVERSHOOT_PX` | 12.0 | …and run at most this far PAST each cap. Real glazing overshoots ≤7.5 px; **walls run hundreds past** — this is what stops long wall lines being read as glazing (and inflating bboxes). |
 | `WINDOW_SPAN_PERP_TOL_PX` | 2.0 | Glazing perp may sit this far outside the cap facing-extent. |
-| `WINDOW_INTERIOR_SHAPE_MAX` | 0 | Max non-line primitives (`re`/`qu`/`c`) touching the opening. Any ≥1 ⇒ hatch/recess decoration, not glazing. GOOD windows: 0; FP walls: 5–11. |
-| `WINDOW_INTERIOR_SHAPE_DILATE_PX` | 4.0 | Grow the bbox by this before the shape scan, so a recess's stud boxes just past the caps' ends count (FP w26). Nearest GOOD encroachment is ~6–9 px. |
-| `WINDOW_INTERIOR_OBLIQUE_MAX` | 2 | Max interior lines parallel to neither glazing nor caps (line-drawn hatch). GOOD: 0; hatched FP: 6–9. |
-| `WINDOW_INTERIOR_CROSS_MAX` | 4 | Max interior lines parallel to the caps beyond the two jambs (filled-block jog lines). GOOD: ≤3 (dimension ticks); FP w17/w18: 6. |
+| `WINDOW_INTERIOR_BAND_PAD_PX` | 1.5 | Widen the pane band by this (per side, along v) before scanning, so a rail drawn a hair outside the band still bounds the hatch. |
+| `WINDOW_INTERIOR_SHAPE_MAX` | 1 | Max non-line primitives (`re`/`qu`/`c`) BETWEEN the panes. >1 ⇒ crosshatch / insulation fill. True windows (axis + diagonal): ≤1 (a stray jamb-corner poke); hatched FP: 2–7. |
+| `WINDOW_INTERIOR_OBLIQUE_MAX` | 2 | Max lines between the panes parallel to neither glazing nor caps (line-drawn hatch). True windows: 0; hatched FP: up to 2 (caught by shapes), more on line-only hatch. |
 | `WINDOW_MIN_CONFIDENCE` | 0.50 | Matches `OFFLINE_MIN_CONFIDENCE["window"]`. |
 
 `detection/postprocess.py`:
@@ -166,19 +173,24 @@ by the user, all now detected; output 14 windows (was 26). The three confirmed:
 These drove the v2 cap-anchored rewrite (v1's `n≥3` + tight-spacing gates missed
 all three).
 
-**Page-1 false positives eliminated by the interior-clutter gate (§2 step 4b)**
-— user-confirmed FPs on run 2026-06-19_13-35-45. All were walls whose two faces
-were read as a 2-pane band; final output is the **6 real windows below, 0 FPs**.
+**Page-1 windows — regression target (user-confirmed on runs 2026-06-19).**
+The page carries 10 true windows: 5 axis-aligned (267,506 / 248,283 / 84,285 /
+501,272 / 187,762) and **5 diagonal** (1787,1009 / 1783,639 / 200,964 / 200,656 /
+1767,1233). All 10 must stay detected — the diagonal ones (clean panes between
+gray FILLED jamb caps) are exactly what the band-interior gate must not regress.
 
-| FP | bbox | what it was | caught by |
+The user flagged 8 page-1 FPs, all walls read as a 2-pane band:
+
+| FP | bbox | what it was | status |
 |---|---|---|---|
-| w17, w18 | 167,253–228,266 / 170,527–230,541 | top edge of a solid-filled block (notched outline) | `cross` = 6 |
-| w19, w21, w25, w32, w33 | (various) | insulation-hatched walls (crosshatch fill) | `shapes` 5–11 + `oblique` 6–9 |
-| w26 | 997,1015–1019,1102 | "recess" niche (stud boxes + U-curves at the ends) | `shapes` = 8 (needs the dilation) |
+| w19, w21, w25, w32, w33 | (various) | insulation-hatched walls (crosshatch between the rails) | **rejected** by §4b: 2–7 shapes between the panes (true windows ≤1) |
+| w17, w18 | 167,253–228,266 / 170,527–230,541 | top edge of a solid-filled block | **deferred to Gemini** — band interior is clean (block fill is below the edge); distinguishing clutter is at the ends |
+| w26 | 997,1015–1019,1102 | "recess" niche (stud boxes + U-curve at the ends) | **deferred to Gemini** — end clutter coincides with where diagonal windows carry jambs |
 
-Confirmed page-1 windows that must stay detected (cap-anchored, all 0 interior
-clutter): the 3 H/V cluster windows above (267,506 / 248,283 / 84,285 / 501,272
-/ 187,762) plus the diagonal "replacement window" at 1767,1233–1859,1327.
+Offline (`--no-gemini`) page-1 output: 5 hatched FPs gone, all 10 true windows
+kept, w17/w18/w26 remain. Every signal that catches w17/w18/w26 also flags the
+diagonal windows' jamb fills (verified exhaustively); colour is out (§4b), so
+they are left to Gemini per the vector-first + validation design.
 
 ## 6. Known limitations / not handled
 

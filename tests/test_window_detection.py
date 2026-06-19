@@ -232,17 +232,24 @@ class TestWindow51133Topology(unittest.TestCase):
 
 
 class TestWindowInteriorClutter(unittest.TestCase):
-    """A real window opening contains ONLY its 2 jamb caps and 2-3 straight
-    glazing panes — the interior is otherwise empty. The 5-1133 page-1 false
-    positives were all WALLS whose two rails got read as a 2-line glazing band:
-    hatched/insulation walls (crosshatch fill = re/qu/c shapes + oblique line
-    segments inside the band) and solid-filled blocks (notched outline = many
-    cap-parallel jog lines inside the band). These pin the interior-clutter
-    gate that rejects them. See docs/window-detection-tuning-guide.md."""
+    """A real window's glazing band is clear glass — nothing between the panes.
+    An insulation-hatched wall, by contrast, gets read as a 2-line band whose
+    two "panes" are the wall's two faces, with the crosshatch fill sitting right
+    between them. The band-interior gate rejects exactly that: clutter (re/qu/c
+    shapes, or oblique line strokes) in the oriented rectangle spanning the gap
+    between the caps × across the pane band.
 
-    # All four share the same valid 2-line capped opening (rails 7px apart,
-    # 13px caps) — it detects as a window on its own (see the control). Only the
-    # interior clutter differs, so each test isolates one rejection signal.
+    Crucially this is measured in the rotated (u, v) frame confined to the pane
+    band — NOT the axis-aligned bbox — so DIAGONAL windows survive: their loose
+    axis bbox would sweep in neighbours, and their gray jamb caps (filled re/qu/c
+    shapes) sit at the opening ENDS, outside the band. The solid-filled-block
+    (w17/w18) and "recess" (w26) page-1 FPs are NOT rejected here — their clutter
+    sits at those same ends, so no interior gate separates them from a diagonal
+    window's jambs; they are left to Gemini. See
+    docs/window-detection-tuning-guide.md."""
+
+    # Shared valid 2-line capped opening (rails 7px apart, 13px caps) — detects
+    # as a window on its own (see the control). Only the band interior differs.
     def _clean_opening(self, base):
         return [
             hline(base + 0, 100.0, 176.0, 386.0),   # rail / glazing pane
@@ -252,59 +259,73 @@ class TestWindowInteriorClutter(unittest.TestCase):
         ]
 
     def test_clean_two_line_window_still_detected(self):
-        """Control: the bare 2-line capped opening with an empty interior is
+        """Control: the bare 2-line capped opening with an empty band interior is
         still a window (must not be collateral damage of the clutter gate)."""
         self.assertEqual(len(detect_windows(self._clean_opening(300))), 1)
 
     def test_hatched_wall_with_interior_shapes_rejected(self):
         """5-1133 FP w19/w21/w25/w32/w33: an insulation-hatched wall. The two
         wall rails span the caps like a 2-pane band, but the crosshatch fill
-        drops re/qu/c shapes inside the opening — glazing never does."""
+        drops re/qu/c shapes BETWEEN the rails — glazing never does."""
         paths = self._clean_opening(400) + [
-            path(404, [(110, 387), (118, 392)], item_type="qu"),
-            path(405, [(120, 387), (128, 392)], item_type="re"),
-            path(406, [(130, 387), (138, 392)], item_type="qu"),
+            path(404, [(110, 389), (118, 391)], item_type="qu"),
+            path(405, [(120, 389), (128, 391)], item_type="re"),
+            path(406, [(130, 389), (138, 391)], item_type="qu"),
         ]
         self.assertEqual(detect_windows(paths), [])
 
     def test_hatched_wall_line_only_rejected(self):
         """Insulation hatch drawn with pure line segments (no re/qu/c): the
-        diagonal hatch strokes inside the band are parallel to neither the
+        diagonal hatch strokes between the rails are parallel to neither the
         glazing nor the caps, so the oblique-line gate rejects the wall."""
         paths = self._clean_opening(500) + [
-            path(504, [(108, 387), (114, 392)]),   # diagonal hatch strokes
-            path(505, [(120, 387), (126, 392)]),
-            path(506, [(132, 387), (138, 392)]),
-            path(507, [(144, 387), (150, 392)]),
+            path(504, [(108, 389), (114, 391)]),   # diagonal hatch strokes
+            path(505, [(120, 389), (126, 391)]),
+            path(506, [(132, 389), (138, 391)]),
+            path(507, [(144, 389), (150, 391)]),
         ]
         self.assertEqual(detect_windows(paths), [])
 
-    def test_recess_with_end_shapes_just_outside_band_rejected(self):
-        """5-1133 FP w26 ('recess'): a niche whose two side walls span the caps
-        as a 2-line band, with stud-box / U-curve decorations sitting just PAST
-        the caps' outer ends — outside the tight band+cap bbox. The small shape
-        dilation pulls them in so the recess is rejected like the hatched walls."""
-        paths = self._clean_opening(900) + [
-            # re/qu decorations 1-4px beyond the left cap (x=100), within dilation
-            path(904, [(96.0, 387.0), (99.0, 392.0)], item_type="re"),
-            path(905, [(96.0, 387.0), (99.0, 392.0)], item_type="qu"),
+    def test_shapes_outside_the_pane_band_are_ignored(self):
+        """Decorations OUTSIDE the pane band (here, well beyond a cap along the
+        run axis — where real diagonal windows carry their filled jamb blocks)
+        must not reject the window. Only clutter BETWEEN the panes counts."""
+        paths = self._clean_opening(700) + [
+            path(704, [(60.0, 388.0), (64.0, 391.0)], item_type="re"),   # left of left cap
+            path(705, [(212.0, 388.0), (216.0, 391.0)], item_type="qu"),  # right of right cap
         ]
-        self.assertEqual(detect_windows(paths), [])
+        self.assertEqual(len(detect_windows(paths)), 1)
 
-    def test_filled_block_edge_rejected(self):
-        """5-1133 FP w17/w18: the top edge of a solid-filled block. Two doubled
-        edge lines span the caps, but the block's notched outline leaves many
-        cap-parallel jog lines inside the band — a clean opening has at most a
-        couple of dimension ticks."""
-        paths = self._clean_opening(600) + [
-            # notched-outline jog lines, all parallel to the caps, inside the band
-            vline(604, 387.0, 392.0, 118.0),
-            vline(605, 387.0, 392.0, 130.0),
-            vline(606, 387.0, 392.0, 142.0),
-            vline(607, 387.0, 392.0, 154.0),
-            vline(608, 387.0, 392.0, 166.0),
+    def test_diagonal_window_with_off_band_shapes_still_detected(self):
+        """Regression (the bug this gate first introduced): a 45-deg window must
+        not be rejected by shapes that fall inside its loose axis-aligned bbox
+        but OUTSIDE the oriented pane band — e.g. the gray jamb fills every real
+        diagonal window on 5-1133 carries. The axis-bbox version of the gate
+        wrongly rejected all four diagonal windows; the (u, v)-frame gate keeps
+        them. (370,430)/(430,370) sit in the bbox but ~42px off the 45-deg band."""
+        paths = diagonal_window(800, 45) + [
+            path(810, [(369.0, 429.0), (372.0, 432.0)], item_type="re"),
+            path(811, [(428.0, 368.0), (431.0, 371.0)], item_type="re"),
         ]
-        self.assertEqual(detect_windows(paths), [])
+        self.assertEqual(len(detect_windows(paths)), 1,
+                         "diagonal window wrongly rejected by off-band shapes")
+
+    def test_diagonal_hatched_wall_rejected(self):
+        """The gate works in the rotated frame too: a 45-deg insulation-hatched
+        wall (two rails + crosshatch shapes BETWEEN them) is still rejected."""
+        c = (400.0, 400.0)
+        rails_caps = [
+            path(820, [_rot(362, 399, *c, 45), _rot(438, 399, *c, 45)]),   # rail
+            path(821, [_rot(362, 401, *c, 45), _rot(438, 401, *c, 45)]),   # rail
+            path(822, [_rot(362, 389, *c, 45), _rot(362, 411, *c, 45)]),   # cap
+            path(823, [_rot(438, 389, *c, 45), _rot(438, 411, *c, 45)]),   # cap
+        ]
+        hatch = [
+            path(824 + i, [_rot(372 + 12 * i, 399, *c, 45), _rot(378 + 12 * i, 401, *c, 45)],
+                 item_type="qu")
+            for i in range(3)
+        ]
+        self.assertEqual(detect_windows(rails_caps + hatch), [])
 
 
 def _rot(px, py, cx, cy, deg):
