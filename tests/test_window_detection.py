@@ -97,15 +97,32 @@ class TestWindowTopology(unittest.TestCase):
         self.assertEqual(len(wins), 1, f"expected 1 window, got {len(wins)}")
         self.assertTrue(_covers(wins[0].bbox, 303.0, 438.0))
 
-    def test_two_line_cluster_without_centerline_rejected(self):
-        """The fixtures/doors that survived the old detector were n=2 clusters.
-        A pane with only two lines (no centerline) must not become a window."""
+    def test_two_line_capped_rectangle_detected(self):
+        """A clean 2-line capped rectangle IS a window on 5-1133 (see Window B:
+        two parallel glazing lines, no centerline, closed by end caps). The old
+        n>=3 gate wrongly rejected this; the cap-anchored detector accepts it."""
         top, bot = 376.0, 398.0
         paths = [
             hline(300, 100.0, 176.0, 386.0),
             hline(301, 100.0, 176.0, 388.0),
             vline(302, top, bot, 100.0),
             vline(303, top, bot, 176.0),
+        ]
+        wins = detect_windows(paths)
+        self.assertEqual(len(wins), 1, f"expected 1 window, got {len(wins)}")
+
+    def test_narrow_slot_wall_rejected(self):
+        """5-1133 FP window_0006: 3 short parallel lines whose opening (15px) is
+        far narrower than the caps are long (33px) — a thin wall slot / wall
+        crossing, not an opening. A real window's opening is wider than its jamb
+        thickness (all true windows: width/cap >= 2.6). Scale-invariant gate."""
+        # vertical band: 3 horizontal glazing lines 15px wide, ~33px-long caps
+        paths = [
+            hline(800, 792.0, 807.0, 960.0),
+            hline(801, 792.0, 807.0, 962.0),
+            hline(802, 792.0, 807.0, 964.0),
+            vline(803, 955.0, 988.0, 792.0),   # cap, 33px (>> 15px opening)
+            vline(804, 955.0, 988.0, 807.0),   # cap, 33px
         ]
         self.assertEqual(detect_windows(paths), [])
 
@@ -137,6 +154,237 @@ class TestWindowTopology(unittest.TestCase):
         self.assertEqual(len(wins), 2)
 
 
+class TestWindow51133Topology(unittest.TestCase):
+    """Ground truth captured interactively on 5-1133-WD03.pdf (run
+    2026-06-19_12-02-48). These windows have wider line spacing (~7px), greater
+    pane depth (~14px), and variable glazing-line counts (2 or 3) than
+    floor-plans — they motivated the cap-anchored rewrite. Coordinates are the
+    real path geometry (150-DPI px); the lines the user clicked are noted."""
+
+    def _window_a(self):
+        # Window A: 3 horizontal glazing lines (~7px apart, 13.7px deep) closed
+        # by two short vertical caps. User clicked 2926 + caps 2909/2925.
+        return [
+            hline(2904, 504.7, 618.2, 271.7),
+            hline(2926, 508.2, 614.7, 278.7),   # clicked (middle line)
+            hline(2905, 500.8, 622.2, 285.4),
+            vline(2909, 271.7, 285.2, 508.2),   # cap
+            vline(2925, 271.7, 285.7, 614.7),   # cap
+        ]
+
+    def _window_b(self):
+        # Window B: 2 vertical glazing lines (7.6px apart, no centerline) closed
+        # by two horizontal caps. User clicked 2046/2167 + 1951/2267.
+        return [
+            vline(2046, 761.7, 935.2, 186.7),
+            vline(2167, 761.7, 935.2, 194.3),
+            hline(1951, 171.6, 201.6, 761.6),   # cap (overshoots the glazing)
+            hline(2267, 171.1, 201.1, 935.1),   # cap
+        ]
+
+    def _window_bonus(self):
+        # Bonus small window: 3 short horizontal glazing lines closed by tiny
+        # (~5px) vertical caps. User clicked 2181.
+        return [
+            hline(2170, 267.2, 297.7, 506.2),
+            hline(2181, 272.2, 292.8, 508.7),   # clicked (short middle line)
+            hline(2094, 268.8, 296.2, 510.9),
+            vline(2096, 506.2, 510.7, 272.2),   # cap
+            vline(2295, 506.2, 511.2, 292.8),   # cap
+        ]
+
+    def test_window_a_detected(self):
+        wins = detect_windows(self._window_a())
+        self.assertEqual(len(wins), 1, f"Window A: expected 1, got {len(wins)}")
+        self.assertTrue(_covers(wins[0].bbox, 561.5, 278.5))
+
+    def test_window_b_detected(self):
+        wins = detect_windows(self._window_b())
+        self.assertEqual(len(wins), 1, f"Window B: expected 1, got {len(wins)}")
+        self.assertTrue(_covers(wins[0].bbox, 190.5, 848.4))
+
+    def test_window_bonus_detected(self):
+        wins = detect_windows(self._window_bonus())
+        self.assertEqual(len(wins), 1, f"Bonus: expected 1, got {len(wins)}")
+        self.assertTrue(_covers(wins[0].bbox, 282.5, 508.5))
+
+    def test_all_three_independent(self):
+        wins = detect_windows(self._window_a() + self._window_b() + self._window_bonus())
+        self.assertEqual(len(wins), 3, f"expected 3 windows, got {len(wins)}")
+
+    def test_fixture_hatch_rejected(self):
+        """A toilet/sink fixture is a hatch of stacked short segments plus
+        collinear duplicate edges — no set of >=2 lines at DISTINCT offsets
+        spans the full gap between facing caps, so it must not be a window."""
+        paths = [
+            # facing horizontal caps (the fixture outline ends)
+            hline(900, 200.0, 227.0, 796.5),
+            hline(901, 200.0, 227.0, 828.5),
+            # two collinear vertical edges at the SAME x (duplicate, not panes)
+            vline(902, 752.5, 828.5, 200.0),
+            vline(903, 796.5, 828.5, 200.0),
+            # stacked short hatch segments (don't span the gap)
+            hline(904, 200.0, 207.0, 805.3),
+            hline(905, 200.0, 207.0, 811.0),
+            hline(906, 200.0, 207.0, 822.3),
+        ]
+        self.assertEqual(detect_windows(paths), [])
+
+
+class TestWindowInteriorClutter(unittest.TestCase):
+    """A real window's glazing band is clear glass — nothing between the panes.
+    An insulation-hatched wall, by contrast, gets read as a 2-line band whose
+    two "panes" are the wall's two faces, with the crosshatch fill sitting right
+    between them. The band-interior gate rejects exactly that: clutter (re/qu/c
+    shapes, or oblique line strokes) in the oriented rectangle spanning the gap
+    between the caps × across the pane band.
+
+    Crucially this is measured in the rotated (u, v) frame confined to the pane
+    band — NOT the axis-aligned bbox — so DIAGONAL windows survive: their loose
+    axis bbox would sweep in neighbours, and their gray jamb caps (filled re/qu/c
+    shapes) sit at the opening ENDS, outside the band. The solid-filled-block
+    (w17/w18) and "recess" (w26) page-1 FPs are NOT rejected here — their clutter
+    sits at those same ends, so no interior gate separates them from a diagonal
+    window's jambs; they are left to Gemini. See
+    docs/window-detection-tuning-guide.md."""
+
+    # Shared valid 2-line capped opening (rails 7px apart, 13px caps) — detects
+    # as a window on its own (see the control). Only the band interior differs.
+    def _clean_opening(self, base):
+        return [
+            hline(base + 0, 100.0, 176.0, 386.0),   # rail / glazing pane
+            hline(base + 1, 100.0, 176.0, 393.0),   # rail / glazing pane
+            vline(base + 2, 383.0, 396.0, 100.0),   # cap (13px jamb)
+            vline(base + 3, 383.0, 396.0, 176.0),   # cap
+        ]
+
+    def test_clean_two_line_window_still_detected(self):
+        """Control: the bare 2-line capped opening with an empty band interior is
+        still a window (must not be collateral damage of the clutter gate)."""
+        self.assertEqual(len(detect_windows(self._clean_opening(300))), 1)
+
+    def test_hatched_wall_with_interior_shapes_rejected(self):
+        """5-1133 FP w19/w21/w25/w32/w33: an insulation-hatched wall. The two
+        wall rails span the caps like a 2-pane band, but the crosshatch fill
+        drops re/qu/c shapes BETWEEN the rails — glazing never does."""
+        paths = self._clean_opening(400) + [
+            path(404, [(110, 389), (118, 391)], item_type="qu"),
+            path(405, [(120, 389), (128, 391)], item_type="re"),
+            path(406, [(130, 389), (138, 391)], item_type="qu"),
+        ]
+        self.assertEqual(detect_windows(paths), [])
+
+    def test_hatched_wall_line_only_rejected(self):
+        """Insulation hatch drawn with pure line segments (no re/qu/c): the
+        diagonal hatch strokes between the rails are parallel to neither the
+        glazing nor the caps, so the oblique-line gate rejects the wall."""
+        paths = self._clean_opening(500) + [
+            path(504, [(108, 389), (114, 391)]),   # diagonal hatch strokes
+            path(505, [(120, 389), (126, 391)]),
+            path(506, [(132, 389), (138, 391)]),
+            path(507, [(144, 389), (150, 391)]),
+        ]
+        self.assertEqual(detect_windows(paths), [])
+
+    def test_shapes_outside_the_pane_band_are_ignored(self):
+        """Decorations OUTSIDE the pane band (here, well beyond a cap along the
+        run axis — where real diagonal windows carry their filled jamb blocks)
+        must not reject the window. Only clutter BETWEEN the panes counts."""
+        paths = self._clean_opening(700) + [
+            path(704, [(60.0, 388.0), (64.0, 391.0)], item_type="re"),   # left of left cap
+            path(705, [(212.0, 388.0), (216.0, 391.0)], item_type="qu"),  # right of right cap
+        ]
+        self.assertEqual(len(detect_windows(paths)), 1)
+
+    def test_diagonal_window_with_off_band_shapes_still_detected(self):
+        """Regression (the bug this gate first introduced): a 45-deg window must
+        not be rejected by shapes that fall inside its loose axis-aligned bbox
+        but OUTSIDE the oriented pane band — e.g. the gray jamb fills every real
+        diagonal window on 5-1133 carries. The axis-bbox version of the gate
+        wrongly rejected all four diagonal windows; the (u, v)-frame gate keeps
+        them. (370,430)/(430,370) sit in the bbox but ~42px off the 45-deg band."""
+        paths = diagonal_window(800, 45) + [
+            path(810, [(369.0, 429.0), (372.0, 432.0)], item_type="re"),
+            path(811, [(428.0, 368.0), (431.0, 371.0)], item_type="re"),
+        ]
+        self.assertEqual(len(detect_windows(paths)), 1,
+                         "diagonal window wrongly rejected by off-band shapes")
+
+    def test_diagonal_hatched_wall_rejected(self):
+        """The gate works in the rotated frame too: a 45-deg insulation-hatched
+        wall (two rails + crosshatch shapes BETWEEN them) is still rejected."""
+        c = (400.0, 400.0)
+        rails_caps = [
+            path(820, [_rot(362, 399, *c, 45), _rot(438, 399, *c, 45)]),   # rail
+            path(821, [_rot(362, 401, *c, 45), _rot(438, 401, *c, 45)]),   # rail
+            path(822, [_rot(362, 389, *c, 45), _rot(362, 411, *c, 45)]),   # cap
+            path(823, [_rot(438, 389, *c, 45), _rot(438, 411, *c, 45)]),   # cap
+        ]
+        hatch = [
+            path(824 + i, [_rot(372 + 12 * i, 399, *c, 45), _rot(378 + 12 * i, 401, *c, 45)],
+                 item_type="qu")
+            for i in range(3)
+        ]
+        self.assertEqual(detect_windows(rails_caps + hatch), [])
+
+
+def _rot(px, py, cx, cy, deg):
+    r = math.radians(deg)
+    dx, dy = px - cx, py - cy
+    return (cx + dx * math.cos(r) - dy * math.sin(r),
+            cy + dx * math.sin(r) + dy * math.cos(r))
+
+
+def diagonal_window(base, deg, *, length=76.0, depth=22.0, cx=400.0, cy=400.0):
+    """A horizontal window rotated by `deg` about (cx, cy).
+
+    Identical cap-anchored topology to ``horizontal_window`` — three parallel
+    glazing lines closed by two perpendicular end caps — but oriented at an
+    arbitrary angle. Windows in real CAD drawings sit at any angle (45, 50, 60,
+    70 ...), so detection must be orientation-agnostic, not axis-locked.
+    """
+    x0, x1 = cx - length / 2, cx + length / 2
+    top, bot = cy - depth / 2, cy + depth / 2
+    raw = [
+        (base + 0, [(x0, cy - 1.0), (x1, cy - 1.0)]),
+        (base + 1, [(x0, cy),       (x1, cy)]),
+        (base + 2, [(x0, cy + 1.0), (x1, cy + 1.0)]),
+        (base + 3, [(x0, top), (x0, bot)]),
+        (base + 4, [(x1, top), (x1, bot)]),
+    ]
+    return [path(idx, [_rot(px, py, cx, cy, deg) for px, py in pts]) for idx, pts in raw]
+
+
+class TestWindowArbitraryAngle(unittest.TestCase):
+    """Windows are drawn at any angle, not just axis-aligned. The cap-anchored
+    model is orientation-invariant by construction — anchor on a facing
+    perpendicular cap pair, confirm a parallel glazing band — so a window
+    rotated to 45/50/60/70 deg must detect exactly like its axis-aligned twin."""
+
+    def test_windows_detected_at_arbitrary_angles(self):
+        for deg in (30, 45, 50, 60, 70, 115, 135):
+            wins = detect_windows(diagonal_window(800, deg))
+            self.assertEqual(len(wins), 1, f"angle {deg}: expected 1, got {len(wins)}")
+            self.assertTrue(_covers(wins[0].bbox, 400.0, 400.0, pad=12),
+                            f"angle {deg}: bbox {wins[0].bbox} off-center")
+
+    def test_real_diagonal_window_5_1133(self):
+        """5-1133-WD03.pdf missed window at path idx 6475: three glazing panes
+        at 135 deg (idx 6473/6474/6475) closed by two perpendicular ~31px caps
+        (idx 1926/1948) only 1.3 deg apart. Real path geometry (150-DPI px) from
+        run 2026-06-19_12-44-52 — the axis-only detector could not see it, and a
+        disjoint angle-clustering split the two near-parallel caps apart."""
+        paths = [
+            path(6473, [(211, 723), (268, 667)]),   # glazing
+            path(6474, [(216, 729), (273, 673)]),   # glazing
+            path(6475, [(222, 734), (278, 678)]),   # glazing
+            path(1926, [(257, 656), (278, 678)]),   # cap (perpendicular)
+            path(1948, [(222, 734), (200, 712)]),   # cap (perpendicular)
+        ]
+        wins = detect_windows(paths)
+        self.assertEqual(len(wins), 1, f"expected 1, got {len(wins)}")
+
+
 class TestDoorWindowExclusion(unittest.TestCase):
     def _win(self, bbox: BBox) -> Candidate:
         return Candidate("window_0000", "window", bbox, 0.7, {})
@@ -154,6 +402,16 @@ class TestDoorWindowExclusion(unittest.TestCase):
     def test_window_clear_of_doors_kept(self):
         win = self._win((903.0, 1374.0, 980.0, 1400.0))      # real window W1
         door = self._door((458.0, 1337.0, 512.0, 1392.0))    # far-away door
+        out = _resolve_door_window_conflicts([win, door])
+        self.assertIn(win, out)
+
+    def test_window_grazing_dilated_door_corner_kept(self):
+        """A distant door must not suppress a window it only clips after the
+        20px dilation. 5-1133 Window A (500.8-622.2, 271.7-285.7) was wrongly
+        dropped by a weak door at y82-255 whose dilated bbox grazed a ~6x4px
+        corner. Suppression requires *material* overlap, not a corner touch."""
+        win = self._win((500.8, 271.7, 622.2, 285.7))        # 5-1133 Window A
+        door = self._door((635.7, 82.2, 660.7, 255.2))       # far door (leaf_fallback)
         out = _resolve_door_window_conflicts([win, door])
         self.assertIn(win, out)
 
