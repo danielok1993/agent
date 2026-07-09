@@ -34,7 +34,8 @@ WINDOW_CAP_MAX_LEN_PX       = 36.0   # caps are short; longer perpendiculars are
 WINDOW_CAP_LEN_RATIO        = 0.60   # the two caps must be of similar length
 WINDOW_CAP_ALIGN_OVERLAP    = 0.60   # their perp-extents must overlap (truly facing)
 WINDOW_MIN_WIDTH_PX         = 14.0   # opening width (gap between caps); bonus ~20px
-WINDOW_MAX_WIDTH_PX         = 240.0  # 5-1133 Window B is 173px; caps wall/decoration runs
+WINDOW_MAX_WIDTH_PX         = 280.0  # 5-1133 W8 (three-light frame) is 268px; caps
+                                     # wall/decoration runs
 WINDOW_GLAZING_THICKNESS_PX = 16.0   # max perp-spread of the glazing band (Window A ~14px)
 WINDOW_GLAZING_ADJ_SPACING_PX = 8.5  # max gap between adjacent panes (Window B ~7.6px;
                                      # rejects stair treads / widely-spaced parallels)
@@ -48,6 +49,30 @@ WINDOW_MIN_WIDTH_CAP_RATIO  = 1.5    # the opening must be wider than the jamb i
 WINDOW_TWO_LINE_MIN_CAP_PX  = 12.0   # a 2-pane opening needs real jamb caps (wall-thickness,
                                      # ~20-30px) to outrank a thin wall / fixture sliver;
                                      # small-cap windows must show >=3 panes (5-1133 bonus)
+WINDOW_TIGHT_PAIR_GAP_PX    = 2.75   # a 2-pane band whose panes hug each other closer than
+                                     # this is ambiguous: it is either a narrow double
+                                     # glazing line (floor-plans true windows: 1.75-2.0px)
+                                     # or ONE doubled material edge — outline + fill-edge
+                                     # strokes of a wall step, niche box, or detail layer
+                                     # boundary (every 5-1133 FP of this shape: 1.6-2.5px).
+                                     # The gap alone cannot separate them (the ranges
+                                     # overlap), so tight pairs face the interior test
+                                     # below. Pairs >= this gap are real pane pairs
+                                     # (5-1133 diagonal W 3.5; floor-plans 3.25/3.3) and
+                                     # 3-pane bands are exempt entirely — repeated equal
+                                     # spacing is already the glazing signature (true
+                                     # 3-pane bands run as tight as 1.5px).
+WINDOW_TIGHT_PAIR_JAMB_MARGIN_PX = 1.5  # a tight pane pair must run INTERIOR to both jamb
+                                     # caps with at least this much cap extending beyond
+                                     # the band on BOTH sides: glass sits inside the wall,
+                                     # so each jamb overshoots the glass line (floor-plans
+                                     # true tight pairs: 4.3-8.6px in every orientation
+                                     # frame). A doubled material edge terminates AT its
+                                     # box/step corners, so the cap ends exactly at the
+                                     # outer stroke — every 5-1133 FP reading measures
+                                     # <= 0.0px margin in every frame. Mere overlap can't
+                                     # separate the two (a corner-exact cap overlaps the
+                                     # band fully); the beyond-band margin can.
 WINDOW_SPAN_COVER_TOL_PX    = 4.0    # a glazing line may fall short of each cap by this
 WINDOW_SPAN_OVERSHOOT_PX    = 12.0   # ...and run at most this far PAST each cap (real
                                      # glazing overshoots ~7.5px; walls run hundreds past)
@@ -70,18 +95,43 @@ WINDOW_MIN_CONFIDENCE       = 0.50
 # scores <=1 shape / 0 oblique between its panes; the hatched-wall FPs score
 # 2-7 shapes (crosshatch boxes/arcs) and up to 2 oblique line strokes.
 #
-# NOTE the OTHER page-1 FPs — solid-filled blocks (w17/w18) and the "recess"
-# niche (w26) — are NOT caught here: their distinguishing clutter sits at the
-# opening ends, exactly where real diagonal windows carry their filled jambs, so
-# no interior-geometry gate separates them without killing the diagonals. They
-# are left to Gemini validation (the pipeline's design). Colour/fill-brightness
-# would separate them but is not uniform across PDFs, so we don't use it.
+# The OTHER page-1 FPs — solid-filled wall steps, the "recess" niche, the
+# detail-corner notch and the RWP corner square — carry their distinguishing
+# clutter at the opening ends, exactly where real diagonal windows carry their
+# filled jambs, so no interior-geometry gate separates them without killing the
+# diagonals. They fall instead to the tight-pair interior gate
+# (WINDOW_TIGHT_PAIR_GAP_PX / WINDOW_TIGHT_PAIR_JAMB_MARGIN_PX): each reads two
+# strokes of ONE material edge as a 2-pane band, and that band terminates at
+# the END of its caps (a box corner) instead of running interior to both jambs
+# the way a real narrow double-glazing line does. Colour/fill-brightness would
+# also separate them but is not uniform across PDFs, so we don't use it.
 WINDOW_INTERIOR_BAND_PAD_PX = 1.5  # widen the pane band by this (per side) along v before scanning,
                                    # so a rail drawn a hair outside the band still bounds the hatch.
 WINDOW_INTERIOR_SHAPE_MAX   = 1    # non-line primitives (re/qu/c) between the panes: >1 ⇒ crosshatch
                                    # /insulation fill. True windows: <=1 (a stray jamb-corner poke).
 WINDOW_INTERIOR_OBLIQUE_MAX = 2    # lines between the panes parallel to neither glazing nor caps:
                                    # line-drawn hatch. True windows: 0 (defends line-only hatch).
+
+# ---------------------------------------------------------------------------
+# Framed multi-light windows (block caps + mullion-bridged glazing)
+# ---------------------------------------------------------------------------
+# Some frames (5-1133 W8, a triple window tagged with one label) draw the jambs
+# and mullions as small bar-shaped re/qu OUTLINES instead of cap lines, and the
+# center glazing line in per-light segments interrupted by the mullion blocks.
+# Block caps are promoted into the cap pool via their oriented long axis; the
+# segmented center line is re-joined into one logical pane, but ONLY across a
+# gap a mullion block actually occupies — a dashed line's gaps hold nothing, so
+# dashes can never chain into phantom glazing.
+WINDOW_BLOCK_CAP_MAX_THICK_PX = 8.0   # bar thickness (W8 end caps 6.0, mullions 5.5)
+WINDOW_BLOCK_CAP_MIN_ASPECT   = 1.8   # long/short side; square crosshatch/insulation
+                                      # boxes (~1.0-1.4) never become caps
+WINDOW_MULLION_GAP_MAX_PX     = 14.0  # max glazing-segment gap a mullion may bridge
+                                      # (W8 gaps are 11.5px)
+WINDOW_BLOCK_CAP_CROSS_RATIO  = 0.75  # a line >= this fraction of the block's diagonal
+                                      # with both endpoints inside its bbox is an X
+                                      # stroke: the block is a crossed post/column
+                                      # symbol (the 5-1133 shower-screen end post),
+                                      # never a window jamb
 
 
 def _line_records(paths: list[PathPrimitive]) -> list[dict]:
@@ -101,6 +151,56 @@ def _line_records(paths: list[PathPrimitive]) -> list[dict]:
             continue
         recs.append({"path": p, "a": a, "b": b, "len": length,
                      "angle": _line_angle_deg(a, b)})
+    return recs
+
+
+def _block_cap_records(paths: list[PathPrimitive]) -> list[dict]:
+    """Cap records from small bar-shaped ``re``/``qu`` primitives.
+
+    Framed windows (5-1133 W8) draw their jamb end caps and mullions as thin
+    quad/rect outlines rather than cap lines. Each bar is reduced to its long
+    axis — the segment joining the midpoints of its two short edges — so it
+    flows through the same orientation frames and pairing as a line cap. The
+    short edges are found by pairwise distance (shortest disjoint pairs), so
+    point ordering and rotation don't matter. The aspect gate keeps square-ish
+    crosshatch/insulation boxes out of the cap pool; the cross gate drops
+    X-ed blocks — a crossed box is a post/column symbol (the 5-1133 bathroom
+    shower-screen end post), not a jamb.
+    """
+    def crossed(p: PathPrimitive, diag: float) -> bool:
+        x0, y0, x1, y1 = p.bbox
+        for q in paths:
+            if q.item_type != "l" or len(q.points) < 2:
+                continue
+            (ax, ay), (bx, by) = q.points[0], q.points[-1]
+            if (x0 - 1.0 <= ax <= x1 + 1.0 and y0 - 1.0 <= ay <= y1 + 1.0
+                    and x0 - 1.0 <= bx <= x1 + 1.0 and y0 - 1.0 <= by <= y1 + 1.0
+                    and _line_length((ax, ay), (bx, by)) >= WINDOW_BLOCK_CAP_CROSS_RATIO * diag):
+                return True
+        return False
+
+    recs: list[dict] = []
+    for p in paths:
+        if p.item_type not in ("re", "qu") or len(p.points) < 4:
+            continue
+        pts = p.points[:4]
+        i, j = min(((i, j) for i in range(4) for j in range(i + 1, 4)),
+                   key=lambda ij: _line_length(pts[ij[0]], pts[ij[1]]))
+        k, l = (n for n in range(4) if n not in (i, j))
+        thick = (_line_length(pts[i], pts[j]) + _line_length(pts[k], pts[l])) / 2
+        a = ((pts[i][0] + pts[j][0]) / 2, (pts[i][1] + pts[j][1]) / 2)
+        b = ((pts[k][0] + pts[l][0]) / 2, (pts[k][1] + pts[l][1]) / 2)
+        length = _line_length(a, b)
+        if not (WINDOW_CAP_MIN_LEN_PX <= length <= WINDOW_CAP_MAX_LEN_PX):
+            continue
+        if thick < 1e-6 or thick > WINDOW_BLOCK_CAP_MAX_THICK_PX:
+            continue
+        if length / thick < WINDOW_BLOCK_CAP_MIN_ASPECT:
+            continue
+        if crossed(p, math.hypot(length, thick)):
+            continue
+        recs.append({"path": p, "a": a, "b": b, "len": length,
+                     "angle": _line_angle_deg(a, b), "block": True})
     return recs
 
 
@@ -155,8 +255,67 @@ def _cap_record(r: dict, ux: float, uy: float, vx: float, vy: float) -> dict:
     = the cap's own extent (along v). Caps run along v (their own direction)."""
     mid = ((r["a"][0] + r["b"][0]) / 2, (r["a"][1] + r["b"][1]) / 2)
     return {"idx": r["path"].path_index, "path": r["path"], "len": r["len"],
+            "block": r.get("block", False),
             "perp": _project_onto_axis(mid, (0.0, 0.0), ux, uy),
             "span": _projected_interval(r["a"], r["b"], vx, vy, (0.0, 0.0))}
+
+
+def _merge_mullion_chains(glaze_pool: list[dict], caps: list[dict]) -> list[dict]:
+    """Join collinear glazing segments across mullion blocks into logical panes.
+
+    A multi-light frame (5-1133 W8) draws its center glazing line per light,
+    interrupted by mullion blocks — so no single segment spans the opening and
+    the window can't anchor. Two same-perp segments chain when the gap between
+    their spans is mullion-sized AND a block cap sits in it (perp inside the
+    gap, cap span covering the pane's offset). Requiring the physical bridge is
+    what keeps dashed linework from chaining. Chains are APPENDED to the pool
+    (members stay, so sub-light cap pairs behave as before); the merged record
+    carries every member and bridge in ``idxs``/``paths`` so the clutter gate
+    and bbox account for them. ``len`` is the summed coverage, which also lets
+    _dedupe_by_perp prefer the chain over its own members.
+    """
+    blocks = [c for c in caps if c.get("block")]
+    if not blocks or not glaze_pool:
+        return glaze_pool
+    pool = sorted(glaze_pool, key=lambda g: (g["perp"], g["span"][0]))
+    chains: list[list[dict]] = []
+    bridges: list[list[dict]] = []
+    cur = [pool[0]]
+    cur_bridges: list[dict] = []
+    for g in pool[1:]:
+        gap_lo, gap_hi = cur[-1]["span"][1], g["span"][0]
+        found = ([b for b in blocks
+                  if gap_lo - 2.0 <= b["perp"] <= gap_hi + 2.0
+                  and b["span"][0] - WINDOW_SPAN_PERP_TOL_PX <= g["perp"] <= b["span"][1] + WINDOW_SPAN_PERP_TOL_PX]
+                 if (abs(g["perp"] - cur[-1]["perp"]) <= WINDOW_GLAZING_DISTINCT_EPS
+                     and 0.0 < gap_hi - gap_lo <= WINDOW_MULLION_GAP_MAX_PX)
+                 else [])
+        if found:
+            cur.append(g)
+            cur_bridges.extend(found)
+        else:
+            if len(cur) > 1:
+                chains.append(cur)
+                bridges.append(cur_bridges)
+            cur = [g]
+            cur_bridges = []
+    if len(cur) > 1:
+        chains.append(cur)
+        bridges.append(cur_bridges)
+
+    merged: list[dict] = []
+    for chain, chain_bridges in zip(chains, bridges):
+        best = max(chain, key=lambda g: g["len"])
+        merged.append({
+            "idx": best["idx"], "path": best["path"],
+            "idxs": {g["idx"] for g in chain} | {b["idx"] for b in chain_bridges},
+            "paths": [g["path"] for g in chain] + [b["path"] for b in chain_bridges],
+            "len": sum(g["len"] for g in chain),
+            "perp": sum(g["perp"] for g in chain) / len(chain),
+            "span": (chain[0]["span"][0], chain[-1]["span"][1]),
+            "lights": len(chain),
+        })
+    return glaze_pool + merged
 
 
 def _dedupe_by_perp(records: list[dict]) -> list[dict]:
@@ -288,11 +447,16 @@ def _band_interior_clutter(u_lo: float, u_hi: float, v_lo: float, v_hi: float,
         glazing nor caps: line-drawn insulation hatch.
     The band lines and caps are excluded via ``used_idxs`` so the panes never
     count as their own clutter; the middle pane of a 3-pane window is a band
-    line and is likewise excluded.
+    line and is likewise excluded. ``used_idxs`` also carries the window's own
+    block-cap quads and mullion-bridge blocks (framed multi-light windows draw
+    those BETWEEN the panes), so the frame's structure never rejects itself —
+    while foreign quads (crosshatch fill) still count.
     """
     shapes = oblique = 0
     for p in paths:
         if p.item_type == "l" or len(p.points) < 2:
+            continue
+        if p.path_index in used_idxs:
             continue
         if any(u_lo <= px * ux + py * uy <= u_hi
                and v_lo <= px * vx + py * vy <= v_hi
@@ -325,6 +489,7 @@ def detect_windows(paths: list[PathPrimitive]) -> list[Candidate]:
     recs = _line_records(paths)
     cap_recs = [r for r in recs
                 if WINDOW_CAP_MIN_LEN_PX <= r["len"] <= WINDOW_CAP_MAX_LEN_PX]
+    cap_recs += _block_cap_records(paths)
 
     # Each cap-orientation group fixes a rotated frame (u perpendicular to the
     # caps, v along them). Caps are paired and a glazing band confirmed entirely
@@ -337,25 +502,36 @@ def detect_windows(paths: list[PathPrimitive]) -> list[Candidate]:
         caps = [_cap_record(r, ux, uy, vx, vy) for r in group]
         glaze_pool = [_glaze_record(r, ux, uy, vx, vy) for r in recs
                       if _angle_diff_mod180(r["angle"], glaze_angle) <= WINDOW_ANGLE_TOL_DEG]
+        glaze_pool = _merge_mullion_chains(glaze_pool, caps)
         for opening in _find_openings(caps, glaze_pool):
             c1, c2, band = opening["c1"], opening["c2"], opening["glaze"]
 
             cap_len = (c1["len"] + c2["len"]) / 2
             if len(band) < 3 and cap_len < WINDOW_TWO_LINE_MIN_CAP_PX:
                 continue  # ambiguous thin-wall / fixture sliver, not a window
+            band_gap = band[-1]["perp"] - band[0]["perp"]
+            if len(band) < 3 and band_gap < WINDOW_TIGHT_PAIR_GAP_PX:
+                margin = min(
+                    min(band[0]["perp"] - c["span"][0], c["span"][1] - band[-1]["perp"])
+                    for c in (c1, c2))
+                if margin < WINDOW_TIGHT_PAIR_JAMB_MARGIN_PX:
+                    continue  # doubled material edge at a box/step corner, not glazing
             if opening["width"] < WINDOW_MIN_WIDTH_CAP_RATIO * cap_len:
                 continue  # opening narrower than the jamb is long: a wall slot, not a window
 
             bbox: BBox = c1["path"].bbox
-            for r in (c2, *band):
-                bbox = _bbox_union(bbox, r["path"].bbox)
+            band_paths = [p for r in band for p in r.get("paths", [r["path"]])]
+            for p in [c2["path"], *band_paths]:
+                bbox = _bbox_union(bbox, p.bbox)
 
             # A real window's glass is clear: nothing between the panes. A
             # hatched wall read as a 2-line band has its crosshatch right between
             # its two faces. Reject when the pane band's interior carries it.
             # Measured in the oriented (u, v) frame, confined to the band, so a
             # diagonal window's loose axis bbox and its end jamb fills are excluded.
-            used_idxs = {c1["idx"], c2["idx"]} | {r["idx"] for r in band}
+            used_idxs = {c1["idx"], c2["idx"]}
+            for r in band:
+                used_idxs |= r.get("idxs", {r["idx"]})
             perps = [r["perp"] for r in band]
             v_lo = min(perps) - WINDOW_INTERIOR_BAND_PAD_PX
             v_hi = max(perps) + WINDOW_INTERIOR_BAND_PAD_PX
@@ -365,7 +541,7 @@ def detect_windows(paths: list[PathPrimitive]) -> list[Candidate]:
             if shapes > WINDOW_INTERIOR_SHAPE_MAX or oblique > WINDOW_INTERIOR_OBLIQUE_MAX:
                 continue
 
-            group_paths = [c1["path"], c2["path"]] + [r["path"] for r in band]
+            group_paths = [c1["path"], c2["path"]] + band_paths
             layer_hint = any(_layer_hint(p, win_keywords) for p in group_paths)
             layer_prior = max((_layer_strong_prior(p, win_keywords) for p in group_paths), default=0.0)
 
@@ -392,6 +568,7 @@ def detect_windows(paths: list[PathPrimitive]) -> list[Candidate]:
                     "glazing_len_px": round(sum(r["len"] for r in band) / len(band), 1),
                     "cap_len_px": round(cap_len, 1),
                     "opening_width_px": round(opening["width"], 1),
+                    "lights": max(r.get("lights", 1) for r in band),
                     "layer_hint": layer_hint,
                 },
             ))

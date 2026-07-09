@@ -54,7 +54,7 @@ class PageData:
 @dataclass
 class Candidate:
     candidate_id: str  # e.g. "door_0001"
-    entity_type: Literal["door", "window", "wall", "label", "schedule"]
+    entity_type: Literal["door", "window", "wall", "label", "schedule", "room"]
     bbox: BBox
     confidence: float
     evidence: dict = field(default_factory=dict)

@@ -1,0 +1,9 @@
+/Users/danielszweda/Documents/GitHub/UD/agent/detection/orchestrator.py
+/Users/danielszweda/Documents/GitHub/UD/agent/detection/postprocess.py
+/Users/danielszweda/Documents/GitHub/UD/agent/detection/rooms.py
+/Users/danielszweda/Documents/GitHub/UD/agent/detection/walls.py
+/Users/danielszweda/Documents/GitHub/UD/agent/tests/test_cross_validate.py
+/Users/danielszweda/Documents/GitHub/UD/agent/tests/test_room_detection.py
+/Users/danielszweda/Documents/GitHub/UD/agent/tests/test_wall_network.py
+/Users/danielszweda/Documents/GitHub/UD/agent/CLAUDE.md
+/Users/danielszweda/Documents/GitHub/UD/agent/README.md

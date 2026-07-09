@@ -419,6 +419,13 @@ End-of-session detection counts (offline mode, walls enabled, windows disabled).
 One known **false-positive area** suppressed (verified by user):
 - (1286, 907)–(1333, 933) — a **bath fixture**. `single_line_leaf + no_wall + no_label`. Confidence 0.67 → 0.52, below floor.
 
+**Baseline update (wall-network rebuild, 2026-07-03):** wall detection was rebuilt as an internal centerline network that also sees Vectorworks-style *filled* walls (fill-outline `l` items with stroke width 0), which the old detector was blind to. Three doors on this sheet were previously penalized `no_wall` only because their (filled) walls were invisible; they now resolve `in_wall` and their confidences rise by the assembly penalty 0.04:
+- (649, 592)–(757, 682): 0.79 → **0.83**
+- (1466, 711)–(1556, 801): 0.79 → **0.83**
+- garden (1884, 772)–(1966, 937): 0.61 → **0.65**
+
+The bath fixture stays rejected at 0.52: it also stands against (filled) bathroom walls, so plain wall adjacency can no longer discriminate it — instead, `single_line_leaf + no_label` doors now require **stroked** wall corroboration (`WallNetwork.near_bbox(..., stroked_only=True)`); pure fill-outline geometry is also how fixtures themselves are drawn. Its evidence carries `wall_context_note: "filled_wall_only"`.
+
 (The previously-reported (1884, 772)–(1966, 855) "window decoration" FP was a misclassification — it was actually the upper half of the garden door now correctly merged above.)
 
 ---
@@ -444,7 +451,9 @@ Before merging any door-detection change:
    ```
 3. Targets to hit:
    - **floor-plans.pdf**: 9 doors at the bboxes in §9.1 — 7 singles at conf 0.67 + 2 `double_swing`/`swing_layout=garden` at conf 0.65.
-   - **5-1133-WD03.pdf**: 9 doors at the bboxes in §9.2 — 8 baseline + 1 `double_swing`/`swing_layout=garden` at (1884,772)–(1966,937).
+   - **5-1133-WD03.pdf**: 9 doors at the bboxes in §9.2 — 8 baseline + 1 `double_swing`/`swing_layout=garden` at (1884,772)–(1966,937). Apply the §9.2 baseline update: (649,592) and (1466,711) at 0.83, garden at 0.65.
    - (1286, 907)–(1333, 933) stays rejected (the remaining bath-fixture FP).
+
+Note (wall-network rebuild): "walls enabled" now means the internal wall-centerline network + room detection (`--disable-walls` is a deprecated alias for `--disable-rooms`). `wall_context` in door evidence derives from `WallNetwork` corridor tests in `detection/postprocess.py::_cross_validate`; no wall candidates are emitted anymore. Door penalty constants and tiers are unchanged. If a door's `wall_context` flips after touching `WALL_*` constants, widen the network coverage (face collection / pairing tolerances) — never door constants.
 
 If door counts drop, use the §8 diagnostic playbook to identify which stage is regressing before adjusting thresholds.

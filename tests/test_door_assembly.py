@@ -1,12 +1,26 @@
 import math
 import unittest
 
-from detection import detect_doors, detect_walls, detect_windows
+from detection import WallNetwork, WallSegment, detect_doors, detect_wall_network, detect_windows
 from detection.doors.arcs import _estimate_arc_sweep_deg
 from detection.doors.assembly import (
     _check_opening_clear, _dedupe_door_components, _merge_double_door_assemblies,
 )
 from detection.postprocess import _cross_validate, _resolve_door_window_conflicts, CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY
+
+
+def _far_wall_network() -> WallNetwork:
+    """Minimal non-empty wall network located far from the doors under test."""
+    segs = [
+        WallSegment(
+            p1=(500.0 + i * 30.0, 500.0), p2=(500.0 + i * 30.0, 600.0),
+            thickness_px=8.0, source="face_pair", layer=None, layer_hint=False,
+            face_path_indices=[],
+        )
+        for i in range(4)
+    ]
+    return WallNetwork(segments=segs)
+
 from detection.doors.constants import (
     DOOR_ARC_FALLBACK_MAX, DOOR_ASSEMBLY_LINE_LEAF_BASE, DOOR_FALLBACK_CONFIDENCE,
     DOOR_POLYLINE_MAX_ANGLE_BINS, DOOR_THRESHOLD_CONFIDENCE_BOOST,
@@ -164,15 +178,7 @@ class DoorAssemblyTests(unittest.TestCase):
             confidence=0.65,
             evidence={"method": "door_assembly"},
         )
-        far_wall = Candidate(
-            candidate_id="wall_0000",
-            entity_type="wall",
-            bbox=(500.0, 500.0, 600.0, 520.0),
-            confidence=0.7,
-            evidence={},
-        )
-
-        adjusted = _cross_validate([door], [far_wall])
+        adjusted = _cross_validate([door], _far_wall_network())
 
         self.assertEqual(round(0.65 - CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY, 3), adjusted[0].confidence)
         self.assertEqual("no_wall", adjusted[0].evidence["wall_context"])
@@ -196,15 +202,7 @@ class DoorAssemblyTests(unittest.TestCase):
                 "nearby_label": None,
             },
         )
-        far_wall = Candidate(
-            candidate_id="wall_0000",
-            entity_type="wall",
-            bbox=(500.0, 500.0, 600.0, 520.0),
-            confidence=0.7,
-            evidence={},
-        )
-
-        adjusted = _cross_validate([door], [far_wall])
+        adjusted = _cross_validate([door], _far_wall_network())
 
         self.assertEqual("no_wall", adjusted[0].evidence["wall_context"])
         self.assertEqual(
@@ -234,15 +232,7 @@ class DoorAssemblyTests(unittest.TestCase):
                 "nearby_label": "GD6",
             },
         )
-        far_wall = Candidate(
-            candidate_id="wall_0000",
-            entity_type="wall",
-            bbox=(500.0, 500.0, 600.0, 520.0),
-            confidence=0.7,
-            evidence={},
-        )
-
-        adjusted = _cross_validate([door], [far_wall])
+        adjusted = _cross_validate([door], _far_wall_network())
 
         self.assertEqual("no_wall", adjusted[0].evidence["wall_context"])
         self.assertEqual(
@@ -371,8 +361,9 @@ class EntranceDoorTests(unittest.TestCase):
             "threshold line should not raise additional window candidates",
         )
         self.assertLessEqual(
-            len(detect_walls(entrance)), len(detect_walls(normal)),
-            "threshold line should not raise additional wall candidates",
+            len(detect_wall_network(entrance).segments),
+            len(detect_wall_network(normal).segments),
+            "threshold line should not raise additional wall segments",
         )
 
 

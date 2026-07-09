@@ -93,7 +93,7 @@ def cmd_extract(args: argparse.Namespace) -> None:
         page_indices=page_indices,
         out_parent=args.out,
         skip_gemini=args.no_gemini,
-        disable_walls=args.disable_walls,
+        disable_rooms=args.disable_rooms,
         disable_windows=args.disable_windows,
         debug=args.debug,
     )
@@ -137,10 +137,16 @@ def main() -> None:
         help="Skip Gemini calls (heuristics-only mode)",
     )
     p_extract.add_argument(
+        "--disable-rooms",
+        action="store_true",
+        dest="disable_rooms",
+        help="Skip wall-network + room detection (useful when tuning window/door results)",
+    )
+    p_extract.add_argument(
         "--disable-walls",
         action="store_true",
-        dest="disable_walls",
-        help="Skip wall detection (useful when tuning window/door results)",
+        dest="disable_rooms",
+        help="Deprecated alias for --disable-rooms",
     )
     p_extract.add_argument(
         "--disable-windows",

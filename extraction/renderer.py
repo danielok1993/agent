@@ -19,6 +19,21 @@ OVERLAY_COLORS: dict[str, tuple[int, int, int, int]] = {
     "unknown":  (200, 200, 200, 120),
 }
 
+ROOM_COLORS: list[tuple[int, int, int, int]] = [
+    (255, 100, 100, 150),  # red
+    (100, 255, 100, 150),  # green
+    (100, 100, 255, 150),  # blue
+    (255, 255, 100, 150),  # yellow
+    (255, 100, 255, 150),  # magenta
+    (100, 255, 255, 150),  # cyan
+    (255, 180, 100, 150),  # orange
+    (180, 100, 255, 150),  # purple
+    (100, 255, 180, 150),  # teal
+    (255, 150, 150, 150),  # light red
+    (150, 255, 150, 150),  # light green
+    (150, 150, 255, 150),  # light blue
+]
+
 BOX_LINE_WIDTH = 2
 FONT_SIZE = 11
 FILL_ALPHA_FACTOR = 0.30  # fraction of color alpha used for fill
@@ -102,14 +117,51 @@ def _draw_entity_box(
         draw.text((text_x, text_y), label, fill=(r, g, b, 230), font=font)
 
 
+def _draw_entity_polygon(
+    overlay: Image.Image,
+    draw: ImageDraw.ImageDraw,
+    points: list[tuple[float, float]],
+    color_rgba: tuple[int, int, int, int],
+    label: str,
+    font: ImageFont.FreeTypeFont | ImageFont.ImageFont = None,
+) -> None:
+    """Room entities carry their closed polygon; draw its true shape instead
+    of the bounding rectangle."""
+    r, g, b, a = color_rgba
+    pts = [(float(x), float(y)) for x, y in points]
+
+    fill_layer = Image.new("RGBA", overlay.size, (0, 0, 0, 0))
+    fill_draw = ImageDraw.Draw(fill_layer)
+    fill_draw.polygon(pts, fill=(r, g, b, int(a * FILL_ALPHA_FACTOR)))
+    overlay.alpha_composite(fill_layer)
+
+    border_color = (r, g, b, int(a * BORDER_ALPHA_FACTOR))
+    draw.line(pts + [pts[0]], fill=border_color, width=BOX_LINE_WIDTH)
+
+    if label and font:
+        x0 = min(p[0] for p in pts)
+        y0 = min(p[1] for p in pts)
+        text_y = max(0, y0 - FONT_SIZE - 2)
+        draw.text((x0 + 1, text_y + 1), label, fill=(0, 0, 0, 200), font=font)
+        draw.text((x0, text_y), label, fill=(r, g, b, 230), font=font)
+
+
 def _draw_legend(draw: ImageDraw.ImageDraw, used_types: set[str], img_height: int, font) -> None:
     x = 8
     y = img_height - (len(used_types) * (FONT_SIZE + 4)) - 8
     for etype in sorted(used_types):
-        color = OVERLAY_COLORS.get(etype, (200, 200, 200, 180))
-        r, g, b, a = color
-        draw.rectangle([x, y, x + 14, y + 12], fill=(r, g, b, 200), outline=(0, 0, 0, 180), width=1)
-        draw.text((x + 18, y), etype, fill=(0, 0, 0, 230), font=font)
+        if etype == "room":
+            draw.text((x + 18, y), "room (multi-colored)", fill=(0, 0, 0, 230), font=font)
+            color_x = x
+            for i, color in enumerate(ROOM_COLORS[:3]):
+                r, g, b, a = color
+                draw.rectangle([color_x, y, color_x + 8, y + 12], fill=(r, g, b, 200), outline=(0, 0, 0, 180), width=1)
+                color_x += 10
+        else:
+            color = OVERLAY_COLORS.get(etype, (200, 200, 200, 180))
+            r, g, b, a = color
+            draw.rectangle([x, y, x + 14, y + 12], fill=(r, g, b, 200), outline=(0, 0, 0, 180), width=1)
+            draw.text((x + 18, y), etype, fill=(0, 0, 0, 230), font=font)
         y += FONT_SIZE + 4
 
 
@@ -125,16 +177,25 @@ def draw_overlay(
     font = _load_font(FONT_SIZE)
 
     used_types: set[str] = set()
+    room_index = 0
 
     for entity in entities:
         etype = entity.entity_type
-        color = OVERLAY_COLORS.get(etype, OVERLAY_COLORS["unknown"])
+        if etype == "room":
+            color = ROOM_COLORS[room_index % len(ROOM_COLORS)]
+            room_index += 1
+        else:
+            color = OVERLAY_COLORS.get(etype, OVERLAY_COLORS["unknown"])
         used_types.add(etype)
         conf_str = f"{entity.confidence:.2f}"
         label_str = f"{entity.entity_id} {conf_str}"
         if entity.label:
             label_str = f"{entity.label} ({conf_str})"
-        _draw_entity_box(overlay, draw, entity.bbox, color, label_str, dashed=False, font=font)
+        polygon = entity.attributes.get("polygon")
+        if polygon and len(polygon) >= 3:
+            _draw_entity_polygon(overlay, draw, polygon, color, label_str, font=font)
+        else:
+            _draw_entity_box(overlay, draw, entity.bbox, color, label_str, dashed=False, font=font)
 
     for rej in rejected:
         color = OVERLAY_COLORS["rejected"]

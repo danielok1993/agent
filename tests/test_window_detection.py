@@ -385,6 +385,132 @@ class TestWindowArbitraryAngle(unittest.TestCase):
         self.assertEqual(len(wins), 1, f"expected 1, got {len(wins)}")
 
 
+def quad(idx: int, x0: float, y0: float, x1: float, y1: float) -> PathPrimitive:
+    return path(idx, [(x0, y0), (x1, y0), (x1, y1), (x0, y1)], item_type="qu")
+
+
+def framed_triple_window(base: int):
+    """5-1133 W8: a three-light frame tagged with a single label. Two full-span
+    rails ~15px apart, jamb end caps and mullions drawn as small qu blocks, and
+    the center glazing line segmented per light by the mullions. Real geometry
+    (path_index 3087/3088 etc.)."""
+    return [
+        hline(base + 0, 926.2, 1188.2, 267.2),         # top rail
+        hline(base + 1, 926.2, 1194.2, 282.0),         # bottom rail
+        quad(base + 2, 926.2, 267.2, 932.2, 281.7),    # left end cap
+        quad(base + 3, 1188.2, 267.2, 1194.2, 282.2),  # right end cap
+        quad(base + 4, 1010.2, 267.2, 1016.2, 282.2),  # mullion pair 1
+        quad(base + 5, 1016.2, 267.2, 1021.7, 282.2),
+        quad(base + 6, 1097.2, 267.2, 1103.2, 282.2),  # mullion pair 2
+        quad(base + 7, 1103.2, 267.2, 1108.8, 282.2),
+        hline(base + 8, 932.2, 1010.2, 274.7),         # center line, light 1
+        hline(base + 9, 1021.7, 1097.2, 274.7),        # center line, light 2
+        hline(base + 10, 1108.8, 1188.2, 274.7),       # center line, light 3
+    ]
+
+
+class TestFramedMultiLightWindow(unittest.TestCase):
+    """5-1133 W8 topology: block caps (qu jambs/mullions) + mullion-bridged
+    center glazing. Labeled as one window (W8), so it must detect as one."""
+
+    def test_triple_window_detected_as_one(self):
+        wins = detect_windows(framed_triple_window(500))
+        self.assertEqual(len(wins), 1, f"expected 1 window, got {len(wins)}: "
+                         f"{[tuple(round(v) for v in c.bbox) for c in wins]}")
+        self.assertTrue(_covers(wins[0].bbox, 1060.0, 274.7))
+        self.assertEqual(wins[0].evidence["glazing_lines"], 3)
+        self.assertEqual(wins[0].evidence["lights"], 3)
+
+    def test_segments_without_mullion_blocks_do_not_chain(self):
+        """Collinear segments merge only across a gap a mullion block occupies —
+        that physical-bridge requirement is what keeps dashed linework from
+        chaining into phantom glazing. Without the blocks no pane spans
+        cap-to-cap (the rails alone are 14.8px apart, wider than a band), so
+        the frame is not a window."""
+        paths = [p for p in framed_triple_window(500)
+                 if not (504 <= p.path_index <= 507)]
+        wins = detect_windows(paths)
+        self.assertEqual(len(wins), 0, f"expected 0 windows, got {len(wins)}")
+
+    def test_crossed_block_is_not_a_cap(self):
+        """A block with an X drawn through it is a post/column symbol (the
+        5-1133 bathroom shower-screen end post), not a jamb. X-ing the right
+        end cap removes it from the cap pool, and the remaining frame has no
+        facing cap pair, so nothing is detected."""
+        paths = framed_triple_window(500) + [
+            path(600, [(1188.2, 267.2), (1194.2, 282.2)]),   # X stroke 1
+            path(601, [(1188.2, 282.2), (1194.2, 267.2)]),   # X stroke 2
+        ]
+        wins = detect_windows(paths)
+        self.assertEqual(len(wins), 0, f"expected 0 windows, got {len(wins)}: "
+                         f"{[tuple(round(v) for v in c.bbox) for c in wins]}")
+
+
+class TestWindowTightPairInterior(unittest.TestCase):
+    """The tight-pair interior gate (WINDOW_TIGHT_PAIR_GAP_PX /
+    WINDOW_TIGHT_PAIR_JAMB_MARGIN_PX), pinned on 5-1133 page-1 ground truth.
+
+    A 2-pane band whose panes hug closer than ~2.75px is either a narrow
+    double-glazing line (floor-plans true windows: 1.75-2.0px gaps, jambs
+    extending 4.3-8.6px beyond the band) or ONE material edge drawn as two
+    strokes — the "recess" niche box, the solid-wall step bumps, the
+    detail-corner notch and the RWP corner square all measure 1.6-2.5px gaps
+    with the band terminating AT the cap ends (margin <= 0). Only the
+    beyond-band jamb margin separates the two: a corner-exact cap still
+    overlaps the band fully, so plain overlap can't.
+    """
+
+    def test_recess_niche_box_rejected(self):
+        """5-1133 window_0020: the "recess" niche — a drawn rectangle whose
+        long side plus an inner shelf line 2.5px apart read as a 2-pane band
+        terminating at the cap ends (the box corners)."""
+        paths = [
+            vline(900, 1017.2, 1099.7, 1016.7),  # inner shelf line
+            vline(901, 1017.2, 1099.7, 1019.2),  # box long side (outer "pane")
+            hline(902, 997.2, 1019.2, 1015.2),   # box end ("cap"), ends AT the pane
+            hline(903, 997.2, 1018.7, 1101.7),   # box end ("cap")
+        ]
+        self.assertEqual(detect_windows(paths), [])
+
+    def test_solid_wall_step_bump_rejected(self):
+        """5-1133 window_0016/0017: a step in a solid-filled wall block — the
+        step's top edge plus the fill's inner edge 2.5px below form the "band";
+        the step sides are the "caps" and the band sits at their very end."""
+        paths = [
+            hline(910, 167.2, 227.7, 253.2),     # step top edge
+            hline(911, 169.7, 225.2, 255.7),     # fill inner edge
+            vline(912, 253.2, 266.2, 167.2),     # step side ("cap")
+            vline(913, 253.2, 266.2, 227.7),     # step side ("cap")
+        ]
+        self.assertEqual(detect_windows(paths), [])
+
+    def test_tight_pair_interior_to_jambs_detected(self):
+        """floor-plans true windows draw a narrow double glazing line (panes
+        1.75px apart) centered INSIDE the wall: both jambs run well past the
+        band on both sides. The tight gap alone must not reject these."""
+        paths = [
+            hline(920, 867.5, 922.8, 906.0),     # glazing pair, 1.75px apart
+            hline(921, 867.5, 922.8, 907.75),
+            vline(922, 896.0, 918.0, 867.5),     # 22px jamb, band centered in it
+            vline(923, 896.0, 918.0, 922.8),
+        ]
+        wins = detect_windows(paths)
+        self.assertEqual(len(wins), 1, f"expected 1 window, got {len(wins)}")
+
+    def test_wide_pair_at_cap_end_detected(self):
+        """5-1133 window_0022 (real diagonal 2-pane window): its band sits at
+        the cap ends too — but its panes are 3.5px apart, a real pane pair, so
+        the interior test must not fire. Exact page-1 linework."""
+        paths = [
+            path(930, [(1856.3, 1307.7), (1786.3, 1235.7)]),  # glazing
+            path(931, [(1858.8, 1305.2), (1788.7, 1233.2)]),  # glazing
+            path(932, [(1836.6, 1326.6), (1858.6, 1305.1)]),  # jamb cap
+            path(933, [(1766.7, 1254.7), (1788.7, 1233.2)]),  # jamb cap
+        ]
+        wins = detect_windows(paths)
+        self.assertEqual(len(wins), 1, f"expected 1 window, got {len(wins)}")
+
+
 class TestDoorWindowExclusion(unittest.TestCase):
     def _win(self, bbox: BBox) -> Candidate:
         return Candidate("window_0000", "window", bbox, 0.7, {})
@@ -414,6 +540,28 @@ class TestDoorWindowExclusion(unittest.TestCase):
         door = self._door((635.7, 82.2, 660.7, 255.2))       # far door (leaf_fallback)
         out = _resolve_door_window_conflicts([win, door])
         self.assertIn(win, out)
+
+    def test_fallback_tier_door_has_reduced_veto_reach(self):
+        """A DOOR_FALLBACK_CONFIDENCE (0.35) door often IS window-like ink
+        (glazing mullions, sliding panels), so its veto reach shrinks to near
+        its own linework instead of the full 20px dilation. 5-1133 W8 sat 10px
+        below mullion strips read as fallback doors; their 20px dilation
+        covered 11% of its band and killed it. The same geometry at
+        real-detection confidence keeps the full reach."""
+        win = self._win((926.0, 267.0, 1194.0, 282.0))       # 5-1133 W8
+        fallback = Candidate("door_0108", "door", (1110.0, 81.0, 1115.0, 257.0), 0.35, {})
+        self.assertIn(win, _resolve_door_window_conflicts([win, fallback]))
+        real = Candidate("door_0108", "door", (1110.0, 81.0, 1115.0, 257.0), 0.55, {})
+        self.assertNotIn(win, _resolve_door_window_conflicts([win, real]))
+
+    def test_fallback_door_still_vetoes_window_on_its_own_ink(self):
+        """A window candidate sitting ON a fallback door's linework (5-1133:
+        the joinery slats at (1072,740) read as both a window band and a
+        fallback door) is genuinely ambiguous and yields to the door tier
+        even at fallback confidence."""
+        win = self._win((1072.0, 740.0, 1082.0, 800.0))
+        fallback = Candidate("door_0092", "door", (1075.0, 751.0, 1082.0, 790.0), 0.35, {})
+        self.assertNotIn(win, _resolve_door_window_conflicts([win, fallback]))
 
 
 class TestFloorPlansRegression(unittest.TestCase):

@@ -60,10 +60,11 @@ def _entity_to_dict(e: Entity) -> dict:
     }
 
 
+# No "wall" entry: walls are internal wall-network data now, never candidates.
+# No "room" entry: rooms are heuristic-only and bypass the merge thresholds.
 OFFLINE_MIN_CONFIDENCE: dict[str, float] = {
     "door":     0.55,
     "window":   0.50,
-    "wall":     0.55,
     "label":    0.65,
     "schedule": 0.50,
 }
@@ -86,10 +87,42 @@ def _door_attribute_overlay(candidate: Optional[Candidate]) -> dict:
     }
 
 
+# Room-evidence keys carried into Entity.attributes; "polygon" is the closed
+# room boundary that overlay drawing and downstream consumers rely on.
+_ROOM_EVIDENCE_PASSTHROUGH = (
+    "polygon", "area_px2", "perimeter_px", "door_openings", "window_openings",
+    "wall_segment_count", "wall_contact",
+)
+
+
+def _room_entity(candidate: Candidate) -> Entity:
+    return Entity(
+        entity_id=candidate.candidate_id,
+        entity_type="room",
+        bbox=candidate.bbox,
+        confidence=candidate.confidence,
+        source="heuristic",
+        label=None,
+        attributes={
+            "heuristic_confidence": candidate.confidence,
+            **{
+                k: candidate.evidence[k]
+                for k in _ROOM_EVIDENCE_PASSTHROUGH
+                if k in candidate.evidence
+            },
+        },
+    )
+
+
 def merge_gemini_and_heuristics(
     candidates: list[Candidate],
     gemini_result: Optional[dict],
 ) -> tuple[list[Entity], list[dict]]:
+    # Rooms are heuristic-only: they bypass both the Gemini merge and the
+    # offline thresholds, and are always promoted to entities.
+    rooms = [c for c in candidates if c.entity_type == "room"]
+    candidates = [c for c in candidates if c.entity_type != "room"]
+
     if not gemini_result:
         # Offline path: apply stricter per-type acceptance thresholds.
         # Without Gemini's verification, raw heuristic candidates have poor
@@ -117,6 +150,7 @@ def merge_gemini_and_heuristics(
                 label=c.evidence.get("nearby_label") or c.evidence.get("text"),
                 attributes={"heuristic_confidence": c.confidence, **_door_attribute_overlay(c)},
             ))
+        entities.extend(_room_entity(c) for c in rooms)
         return entities, rejected_list
 
     candidate_map = {c.candidate_id: c for c in candidates}
@@ -149,10 +183,15 @@ def merge_gemini_and_heuristics(
             cid = item.get("candidate_id", "")
             if cid in rejected_ids:
                 continue
-            classified_ids.add(cid)
             base = candidate_map.get(cid)
-            bbox = base.bbox if base else (0, 0, 0, 0)
-            heuristic_conf = base.confidence if base else 0.0
+            if base is None:
+                # Gemini occasionally hallucinates entries for candidates it
+                # was never shown (now more likely: it sees zero wall
+                # candidates but its schema still lists "walls").
+                continue
+            classified_ids.add(cid)
+            bbox = base.bbox
+            heuristic_conf = base.confidence
             gemini_conf = float(item.get("confidence", 0.0))
 
             label = item.get("label") or item.get("text")
@@ -188,6 +227,7 @@ def merge_gemini_and_heuristics(
                 attributes={"heuristic_confidence": c.confidence, **_door_attribute_overlay(c)},
             ))
 
+    entities.extend(_room_entity(c) for c in rooms)
     return entities, rejected_list
 
 
@@ -268,10 +308,12 @@ def run_extract(
     page_indices: list[int],
     out_parent: str = "outputs",
     skip_gemini: bool = False,
-    disable_walls: bool = False,
+    disable_walls: bool = False,   # deprecated alias for disable_rooms
     disable_windows: bool = False,
     debug: bool = False,
+    disable_rooms: bool = False,
 ) -> str:
+    disable_rooms = disable_rooms or disable_walls
     path = Path(pdf_path)
     if not path.exists():
         console.print(f"[red]Error: File not found: {pdf_path}[/red]")
@@ -348,7 +390,7 @@ def run_extract(
             collector = DebugTraceCollector(page_num) if debug else None
             candidates = run_heuristics(
                 page_data, plumber_page.get("tables", []),
-                disable_walls=disable_walls, disable_windows=disable_windows,
+                disable_rooms=disable_rooms, disable_windows=disable_windows,
                 collector=collector,
             )
             total_candidates += len(candidates)
@@ -365,16 +407,17 @@ def run_extract(
                     str(Path(page_dir) / "debug_viewer.html"),
                 )
 
-            # 5. Gemini
+            # 5. Gemini — rooms are heuristic-only and excluded from the payload
             step("gemini")
+            gemini_candidates = [c for c in candidates if c.entity_type != "room"]
             gemini_result = None
             gemini_warnings: list[dict] = []
-            gemini_skipped = skip_gemini or gc.should_skip_gemini(page_data, candidates)
+            gemini_skipped = skip_gemini or gc.should_skip_gemini(page_data, gemini_candidates)
 
             if not gemini_skipped and gemini_client is not None:
                 try:
                     gemini_result, gemini_warnings = gc.call_gemini(
-                        gemini_client, page_data, candidates, render_path
+                        gemini_client, page_data, gemini_candidates, render_path
                     )
                     total_gemini_calls += 1
                 except Exception as e:

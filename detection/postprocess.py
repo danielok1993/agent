@@ -1,14 +1,18 @@
 from __future__ import annotations
 from models import BBox, Candidate
-from detection.geometry import _bbox_area, _bbox_center, _bbox_expanded, _bbox_height, _bbox_width, _bboxes_overlap, _distance
+from detection.geometry import (
+    _angle_diff_mod180, _bbox_area, _bbox_center, _bbox_expanded, _bbox_height,
+    _bbox_width, _distance, _line_angle_deg,
+)
 from detection.doors.assembly import _dedupe_door_components
+from detection.walls import WALL_PARALLEL_ANGLE_TOL, WallNetwork
 
 
 # ---------------------------------------------------------------------------
 # Cross-element validation (soft: boost/penalize confidence)
 # ---------------------------------------------------------------------------
 
-CROSS_WALL_EXPAND_PX  = 20.0   # expand wall bbox when checking containment
+CROSS_WALL_EXPAND_PX  = 20.0   # corridor reach beyond thickness/2 when checking containment
 CROSS_NO_WALL_PENALTY = 0.08   # door/window has no wall nearby → penalty
 CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY = 0.04
 # Single-line-leaf is the weakest leaf evidence (a single anchored line vs. a
@@ -17,27 +21,74 @@ CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY = 0.04
 # door. Apply a stronger penalty than the default door_assembly case so these
 # fall below the offline confidence floor.
 CROSS_NO_WALL_SINGLE_LINE_LEAF_PENALTY = 0.15
-# No in-wall boost: wall and window candidates share the same raw linework,
-# so overlap is structural correlation, not independent evidence.
+# Doors get NO in-wall boost: the §9 regression baselines pin exact door
+# confidences, and wall adjacency is correlated with the door's own linework.
+CROSS_OPENING_ENDPOINT_TOL_PX = 12.0  # opening_line endpoints on a centerline → richer context
+# Windows DO get a positive boost: a cap pair spanning exactly the thickness of
+# the interrupted wall run is the defining property of a real window, and the
+# wall network is derived from face pairs — independent of the glazing linework
+# the window detector anchors on.
+CROSS_WINDOW_ON_WALL_BOOST = 0.08
+CROSS_WINDOW_THICKNESS_TOL_PX = 6.0
+CROSS_WALL_RUNS_THROUGH_MARGIN_PX = 12.0  # centerline extends past both bbox ends by this
+
+
+CROSS_WALL_RUNS_THROUGH_BAND_PX = 8.0  # face must lie within the bbox short extent + this
+
+
+def _wall_runs_through(network: WallNetwork, bbox: BBox) -> bool:
+    """True when a wall FACE line runs unbroken through the bbox span.
+
+    A real window interrupts its wall faces at the jambs (and face merging
+    bridges only ~6px gaps, far below any opening width), while a hatched or
+    double-struck wall band misread as glazing has faces continuing past both
+    bbox ends. Centerlines cannot be used here: a window's glazing-derived
+    centerline merges collinearly with the wall run on both sides and would
+    make every real window look continuous.
+    """
+    x0, y0, x1, y1 = bbox
+    w, h = x1 - x0, y1 - y0
+    if max(w, h) < 1e-6:
+        return False
+    horiz = w >= h
+    axis_angle = 0.0 if horiz else 90.0
+    lo, hi = (x0, x1) if horiz else (y0, y1)
+    margin = CROSS_WALL_RUNS_THROUGH_MARGIN_PX
+    band = CROSS_WALL_RUNS_THROUGH_BAND_PX
+    for face in network.faces:
+        p1, p2 = face.p1, face.p2
+        ang = _line_angle_deg(p1, p2)
+        if _angle_diff_mod180(ang, axis_angle) > WALL_PARALLEL_ANGLE_TOL:
+            continue
+        mid = ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
+        if horiz:
+            if not (y0 - band <= mid[1] <= y1 + band):
+                continue
+            s_lo, s_hi = sorted((p1[0], p2[0]))
+        else:
+            if not (x0 - band <= mid[0] <= x1 + band):
+                continue
+            s_lo, s_hi = sorted((p1[1], p2[1]))
+        if s_lo <= lo - margin and s_hi >= hi + margin:
+            return True
+    return False
 
 
 def _cross_validate(
     candidates: list[Candidate],
-    walls: list[Candidate],
+    network: WallNetwork | None,
 ) -> list[Candidate]:
-    """Soft-penalize doors/windows that have no nearby wall candidate.
+    """Validate doors/windows against the wall-centerline network.
 
-    A door or window with no wall anywhere close is likely a false positive
-    (an arc or parallel-line cluster in a legend, annotation, or detail).
-    True openings always sit in a wall, so the absence of any overlapping wall
-    is a reliable negative signal. We do not apply a positive boost when a wall
-    is found because wall and window candidates are derived from the same raw
-    linework — overlap is geometric correlation, not independent evidence.
+    Doors keep the historic penalty-only contract (the §9 door baselines pin
+    exact confidences): a door with no wall corridor anywhere close is likely
+    a false positive (legend, annotation, bath fixture) and is penalized;
+    a door in a wall is left untouched. Windows additionally earn a positive
+    boost when their cap pair spans the thickness of the interrupted wall run
+    at their location — evidence independent of the glazing linework.
     """
-    if not walls:
+    if network is None or network.is_empty():
         return candidates
-
-    wall_bboxes = [_bbox_expanded(w.bbox, CROSS_WALL_EXPAND_PX) for w in walls]
 
     adjusted = []
     for c in candidates:
@@ -45,28 +96,68 @@ def _cross_validate(
             adjusted.append(c)
             continue
 
-        in_wall = any(_bboxes_overlap(c.bbox, wb) for wb in wall_bboxes)
-        is_assembly = (
-            c.entity_type == "door"
-            and c.evidence.get("method") == "door_assembly"
-        )
-        is_single_line_no_label = (
-            is_assembly
-            and c.evidence.get("assembly_type") == "single_line_leaf"
-            and not c.evidence.get("nearby_label")
-        )
-        if is_single_line_no_label:
-            penalty = CROSS_NO_WALL_SINGLE_LINE_LEAF_PENALTY
-        elif is_assembly:
-            penalty = CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY
-        else:
-            penalty = CROSS_NO_WALL_PENALTY
-        delta = 0.0 if in_wall else -penalty
-        new_conf = round(min(max(c.confidence + delta, 0.0), 0.95), 3)
-
+        in_wall = network.near_bbox(c.bbox, CROSS_WALL_EXPAND_PX)
         new_evidence = dict(c.evidence)
-        new_evidence["wall_context"] = "in_wall" if in_wall else "no_wall"
+        delta = 0.0
 
+        if c.entity_type == "door":
+            is_assembly = c.evidence.get("method") == "door_assembly"
+            is_single_line_no_label = (
+                is_assembly
+                and c.evidence.get("assembly_type") == "single_line_leaf"
+                and not c.evidence.get("nearby_label")
+            )
+            if is_single_line_no_label:
+                penalty = CROSS_NO_WALL_SINGLE_LINE_LEAF_PENALTY
+                # The weakest evidence tier requires STROKED wall corroboration:
+                # pure fill-outline geometry also describes the fixtures (tubs,
+                # counters) this tier statistically confuses with doors, and a
+                # fixture always stands against some wall.
+                if in_wall and not network.near_bbox(
+                    c.bbox, CROSS_WALL_EXPAND_PX, stroked_only=True
+                ):
+                    in_wall = False
+                    new_evidence["wall_context_note"] = "filled_wall_only"
+            elif is_assembly:
+                penalty = CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY
+            else:
+                penalty = CROSS_NO_WALL_PENALTY
+
+            wall_context = "in_wall" if in_wall else "no_wall"
+            if in_wall:
+                opening = c.evidence.get("opening_line")
+                if opening and len(opening) == 2:
+                    hits = 0
+                    for pt in opening:
+                        near = network.nearest_segment((pt[0], pt[1]))
+                        if near is not None and near[1] <= CROSS_OPENING_ENDPOINT_TOL_PX:
+                            hits += 1
+                    if hits == 2:
+                        wall_context = "on_wall_centerline"
+            else:
+                delta = -penalty
+            new_evidence["wall_context"] = wall_context
+
+        else:  # window
+            if in_wall:
+                new_evidence["wall_context"] = "in_wall"
+                if not _wall_runs_through(network, c.bbox):
+                    center = _bbox_center(c.bbox)
+                    near = network.nearest_segment(center)
+                    short_side = min(_bbox_width(c.bbox), _bbox_height(c.bbox))
+                    if (
+                        near is not None
+                        and abs(short_side - near[0].thickness_px)
+                        <= CROSS_WINDOW_THICKNESS_TOL_PX
+                    ):
+                        delta = CROSS_WINDOW_ON_WALL_BOOST
+                        new_evidence["wall_context"] = "spans_wall_thickness"
+                        new_evidence["wall_thickness_px"] = near[0].thickness_px
+            else:
+                new_evidence["wall_context"] = "no_wall"
+                delta = -CROSS_NO_WALL_PENALTY
+
+        new_conf = round(min(max(c.confidence + delta, 0.0), 0.95), 3)
         adjusted.append(Candidate(
             candidate_id=c.candidate_id,
             entity_type=c.entity_type,
@@ -194,9 +285,23 @@ def _suppress(candidates: list[Candidate]) -> list[Candidate]:
 # Door / window cross-exclusion
 # ---------------------------------------------------------------------------
 
-CROSS_DOOR_EXPAND_PX = 20.0  # dilate door bbox before testing window overlap
+CROSS_DOOR_EXPAND_PX = 20.0  # dilate REAL door bboxes before testing window overlap
 CROSS_DOOR_MIN_WINDOW_COVER = 0.10  # door must cover this fraction of the window's area;
                                     # a mere dilated-corner graze does not suppress it
+CROSS_DOOR_MIN_CONFIDENCE = 0.40    # doors at/above this get the full 20px veto reach.
+                                    # Fallback-tier doors (DOOR_FALLBACK_CONFIDENCE 0.35 —
+                                    # label boxes, glazing mullions, sliding panels, kept
+                                    # only for Gemini arbitration) OFTEN ARE window-like
+                                    # linework, so a window reading the same ink is
+                                    # genuinely ambiguous and still yields to them — but
+                                    # only near that ink (reduced dilation below), never
+                                    # 20px out: on 5-1133, mullion strips ending 10px
+                                    # above W8 projected their veto onto its band.
+CROSS_DOOR_FALLBACK_EXPAND_PX = 8.0 # veto reach of a fallback-tier door. Measured on
+                                    # 5-1133: the joinery FPs a fallback veto rightly
+                                    # kills overlap its ink at <=6px dilation (the recess
+                                    # column at (999,890) is the farthest); W8 stays
+                                    # clear up to ~17px. 8px sits between with margin.
 
 
 def _resolve_door_window_conflicts(candidates: list[Candidate]) -> list[Candidate]:
@@ -212,9 +317,18 @@ def _resolve_door_window_conflicts(candidates: list[Candidate]) -> list[Candidat
     Suppression requires the (dilated) door to cover at least
     CROSS_DOOR_MIN_WINDOW_COVER of the window's area — a distant door whose
     dilation merely grazes a window corner is not a conflict (5-1133 Window A).
+    Real doors (>= CROSS_DOOR_MIN_CONFIDENCE) veto with the full 20px reach;
+    fallback-tier doors veto only windows near their own ink
+    (CROSS_DOOR_FALLBACK_EXPAND_PX) — they are frequently glazing-mullion or
+    sliding-panel linework, so a window built from the same ink yields to them,
+    but their speculative bbox must not project onto separate glazing.
     """
     door_bboxes = [
-        _bbox_expanded(c.bbox, CROSS_DOOR_EXPAND_PX)
+        _bbox_expanded(
+            c.bbox,
+            CROSS_DOOR_EXPAND_PX if c.confidence >= CROSS_DOOR_MIN_CONFIDENCE
+            else CROSS_DOOR_FALLBACK_EXPAND_PX,
+        )
         for c in candidates if c.entity_type == "door"
     ]
     if not door_bboxes:
@@ -237,39 +351,12 @@ def _resolve_door_window_conflicts(candidates: list[Candidate]) -> list[Candidat
     ]
 
 
-def _bbox_is_horizontal(bbox: BBox) -> bool:
-    return _bbox_width(bbox) >= _bbox_height(bbox)
-
-
-def _resolve_wall_window_conflicts(candidates: list[Candidate]) -> list[Candidate]:
-    """Drop window candidates that are materially the same bbox as a wall.
-
-    Real windows overlap walls, but their detected glazing/slab linework should
-    not usually have almost the same bbox as the detected wall band. When that
-    happens, especially on hatched wall bands, the window was usually created by
-    the generic parallel-line grouping rather than by an actual opening.
-    """
-    walls = [c for c in candidates if c.entity_type == "wall"]
-    if not walls:
-        return candidates
-
-    resolved: list[Candidate] = []
-    for candidate in candidates:
-        if candidate.entity_type != "window" or candidate.evidence.get("layer_hint"):
-            resolved.append(candidate)
-            continue
-
-        duplicate_wall = False
-        for wall in walls:
-            if _bbox_is_horizontal(candidate.bbox) != _bbox_is_horizontal(wall.bbox):
-                continue
-            if _bbox_iou(candidate.bbox, wall.bbox) < 0.45:
-                continue
-            if wall.evidence.get("wall_material") or wall.confidence >= candidate.confidence:
-                duplicate_wall = True
-                break
-
-        if not duplicate_wall:
-            resolved.append(candidate)
-
-    return resolved
+# NOTE: there is deliberately no "drop windows that look like wall linework"
+# pass anymore. Both formulations tried during the wall-network rebuild
+# (centerline runs-through, face runs-through) also matched REAL windows:
+# floor-plans-style drawings keep the wall faces continuous and add glazing
+# between them, so "the wall runs through the window" is a drafting style,
+# not a false-positive signal. Hatched-band FPs are handled by the window
+# detector's own interior-clutter gate and by Gemini validation online;
+# _wall_runs_through above survives only as the conservative gate on the
+# window in-wall confidence boost.

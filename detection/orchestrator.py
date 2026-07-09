@@ -1,58 +1,67 @@
 from __future__ import annotations
-import statistics
 from models import Candidate, PageData
 from debug.trace import DebugTraceCollector
 from detection.doors.detect import detect_doors
-from detection.walls import _stroke_percentile_rank, _wall_material_evidence, detect_walls
+from detection.walls import detect_wall_network
+from detection.rooms import detect_rooms
 from detection.windows import detect_windows
 from detection.labels import detect_labels
 from detection.schedules import detect_schedules
 from detection.postprocess import (
-    _cross_validate, _resolve_door_window_conflicts, _resolve_wall_window_conflicts, _suppress,
+    _cross_validate, _resolve_door_window_conflicts, _suppress,
 )
 
 
 def run_heuristics(
     page_data: PageData,
     plumber_tables: list[list[list[str | None]]],
-    disable_walls: bool = False,
+    disable_walls: bool = False,   # deprecated alias for disable_rooms
     disable_windows: bool = False,
     collector: DebugTraceCollector | None = None,
+    disable_rooms: bool = False,
 ) -> list[Candidate]:
-    all_stroke_widths = [p.stroke_width for p in page_data.paths if p.stroke_width > 0]
+    disable_rooms = disable_rooms or disable_walls
 
     doors = detect_doors(page_data.paths, page_data.text_spans, collector)
     windows = [] if disable_windows else detect_windows(page_data.paths)
-    walls = [] if disable_walls else detect_walls(page_data.paths)
-
-    # Annotate wall candidates with relative stroke-width evidence
-    for w in walls:
-        material = _wall_material_evidence(page_data.paths, w.bbox)
-        w.evidence.update(material)
-        if material["wall_material"]:
-            w.confidence = round(min(w.confidence + 0.10, 0.90), 3)
-
-        layer = w.evidence.get("layer")
-        matching = [
-            p for p in page_data.paths
-            if p.item_type == "l" and p.layer == layer
-        ]
-        if matching:
-            avg_sw = statistics.mean(p.stroke_width for p in matching)
-            w.evidence["stroke_percentile"] = round(
-                _stroke_percentile_rank(avg_sw, all_stroke_widths), 3
-            )
 
     # Door symbols share the glazing-pane signature; the reliable door detector
     # suppresses any window candidate sitting on a door (no wall dependency).
     windows = _resolve_door_window_conflicts(doors + windows)
     windows = [c for c in windows if c.entity_type == "window"]
 
-    all_geo = _cross_validate(doors + windows, walls) + walls
-    all_geo = _suppress(all_geo)
-    all_geo = _resolve_wall_window_conflicts(all_geo)
+    # Internal wall-centerline network: never emitted as candidates; feeds
+    # cross-validation and room polygonization. Text spans disambiguate
+    # white fills (text masks vs hollow walls).
+    network = None if disable_rooms else detect_wall_network(
+        page_data.paths, page_data.text_spans
+    )
 
+    all_geo = _cross_validate(doors + windows, network)
+    all_geo = _suppress(all_geo)
+
+    # Rooms are built from the post-suppression doors/windows so opening
+    # seals use surviving candidates only; detect_rooms additionally holds
+    # fallback-tier doors (< ROOM_OPENING_MIN_CONFIDENCE) to plug profiles
+    # that carry their own evidence — never the dilated-bbox seal — and
+    # ignores text-covered door bboxes entirely (annotation tags detected
+    # as leaf rectangles), so phantom doors cannot reshape room outlines.
+    # Text spans feed both the white-fill disambiguation in the network and
+    # that annotation veto.
+    rooms = detect_rooms(
+        network,
+        [c for c in all_geo if c.entity_type == "door"],
+        [c for c in all_geo if c.entity_type == "window"],
+        page_data.width_px,
+        page_data.height_px,
+        page_data.text_spans,
+    )
+
+    # Rooms are deliberately excluded from label attachment (room-sized bboxes
+    # would make every dimension callout "near" something) and from NMS
+    # (bboxes of adjacent L-shaped rooms overlap even though the polygon faces
+    # are disjoint by construction).
     labels = detect_labels(page_data.text_spans, all_geo)
     schedules = detect_schedules(page_data.text_spans, plumber_tables)
 
-    return _suppress(_resolve_wall_window_conflicts(all_geo + labels + schedules))
+    return _suppress(all_geo + labels + schedules) + rooms

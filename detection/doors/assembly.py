@@ -308,6 +308,8 @@ def _pair_door_assemblies(
             "layer_hint": layer_hint,
             "opening_check": opening_check,
         }
+        if swing.arc_endpoints and len(swing.arc_endpoints) == 2:
+            evidence["opening_line"] = [list(swing.arc_endpoints[0]), list(swing.arc_endpoints[1])]
         if swing.double_arc_partner_paths is not None:
             evidence["double_arc_partner_paths"] = list(swing.double_arc_partner_paths)
         if threshold is not None:
@@ -440,6 +442,8 @@ def _pair_door_assemblies(
             "layer_hint": layer_hint,
             "opening_check": opening_check,
         }
+        if swing.arc_endpoints and len(swing.arc_endpoints) == 2:
+            evidence["opening_line"] = [list(swing.arc_endpoints[0]), list(swing.arc_endpoints[1])]
         if swing.double_arc_partner_paths is not None:
             evidence["double_arc_partner_paths"] = list(swing.double_arc_partner_paths)
         evidence.update(
@@ -765,6 +769,18 @@ def _merge_double_door_assemblies(candidates: list[Candidate]) -> list[Candidate
         evidence["arc_bbox_b"] = list(arc_j) if arc_j else None
         evidence["leaf_bbox_a"] = list(leaf_i) if leaf_i else None
         evidence["leaf_bbox_b"] = list(leaf_j) if leaf_j else None
+
+        # Full opening span across both halves: the farthest-apart pair of the
+        # halves' arc endpoints (per-half opening_line covers only its own leaf).
+        _opening_pts = [
+            tuple(p)
+            for ol in (ci.evidence.get("opening_line"), cj.evidence.get("opening_line"))
+            if ol
+            for p in ol
+        ]
+        if len(_opening_pts) >= 2:
+            _oa, _ob = max(combinations(_opening_pts, 2), key=lambda pr: _distance(pr[0], pr[1]))
+            evidence["opening_line"] = [list(_oa), list(_ob)]
 
         merged_candidates.append(Candidate(
             candidate_id=f"door_{next_num:04d}",
