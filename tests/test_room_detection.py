@@ -534,6 +534,76 @@ class TestPhantomDoorSeals(unittest.TestCase):
         )
 
 
+class TestBboxSealFloor(unittest.TestCase):
+    """The dilated-bbox fallback is the one seal with no evidence of its
+    own, so it requires a door the pipeline itself stands behind
+    (ROOM_BBOX_SEAL_MIN_CONFIDENCE, the offline floor). Doors in the
+    0.40-0.55 band keep every plug path — those qualify on drawn wall
+    material — but may not stamp free space (the 5-1133 bath-fixture FP:
+    single_line_leaf on a toilet symbol at 0.52, no_wall, plugs found no
+    wall plane, and the dilated bbox notched the FAMILY BATH room edge)."""
+
+    def test_mid_tier_door_in_open_space_is_inert(self):
+        # Replicates door_0011: a 0.52 phantom in open room space, no wall
+        # material anywhere near its bbox. No plug qualifies and the bbox
+        # fallback is denied — the room must be identical to the no-door run.
+        paths = rect_room(0, 100, 100, 400, 300)
+        baseline = rooms_for(paths)
+        door = door_candidate((200, 180, 260, 240), confidence=0.52)
+        rooms = rooms_for(paths, doors=[door])
+        self.assertEqual(len(rooms), 1)
+        self.assertAlmostEqual(
+            rooms[0].evidence["area_px2"],
+            baseline[0].evidence["area_px2"],
+            delta=200,
+        )
+
+    def test_mid_tier_door_at_room_edge_no_notch(self):
+        # Replicates the FAMILY BATH notch: the phantom's bbox reaches the
+        # room's wall band but no edge lies ON a wall plane (no interrupted
+        # run, no drawn-through plane), so no plug qualifies — and without
+        # the bbox fallback the room outline runs straight along the wall
+        # face instead of detouring around the stamp.
+        paths = rect_room(0, 100, 100, 400, 300)
+        baseline = rooms_for(paths)
+        door = door_candidate((330, 180, 420, 240), confidence=0.52)
+        rooms = rooms_for(paths, doors=[door])
+        self.assertEqual(len(rooms), 1)
+        self.assertAlmostEqual(
+            rooms[0].evidence["area_px2"],
+            baseline[0].evidence["area_px2"],
+            delta=200,
+        )
+
+    def test_mid_tier_interrupted_plug_still_seals(self):
+        # A real doorway between jambs keeps sealing below the floor: the
+        # interrupted-run profile is the plug's own evidence.
+        paths = (
+            wall_band_h(0, 100, 240, 100)
+            + wall_band_h(2, 285, 400, 100)
+            + wall_band_h(4, 100, 400, 292)
+            + wall_band_v(6, 100, 100, 300)
+            + wall_band_v(8, 392, 100, 300)
+        )
+        door = door_candidate((238, 96, 290, 155), confidence=0.52)
+        rooms = rooms_for(paths, doors=[door])
+        self.assertEqual(len(rooms), 1)
+
+    def test_floor_tier_door_keeps_bbox_fallback(self):
+        # The identical geometry at the offline floor keeps the dilated-bbox
+        # safety net: the heuristics stand behind this door, so the stamp
+        # (merged with the wall band it overlaps) notches the free space.
+        paths = rect_room(0, 100, 100, 400, 300)
+        baseline = rooms_for(paths)
+        door = door_candidate((330, 180, 420, 240), confidence=0.55)
+        rooms = rooms_for(paths, doors=[door])
+        self.assertEqual(len(rooms), 1)
+        self.assertLess(
+            rooms[0].evidence["area_px2"],
+            baseline[0].evidence["area_px2"] - 2000,
+        )
+
+
 class TestEmptyNetwork(unittest.TestCase):
     def test_no_network_no_rooms(self):
         self.assertEqual(detect_rooms(None, [], [], PAGE_W, PAGE_H), [])

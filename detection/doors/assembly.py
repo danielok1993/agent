@@ -8,6 +8,7 @@ from detection.labels import _find_nearby_label
 from detection.doors.models import _DoorLeaf, _DoorSwing
 from detection.doors.shape import _compute_hu_distance
 from detection.doors.leaves import _find_anchored_leaf_line, _find_leaf_companion_lines
+from detection.doors.sliding import _detect_sliding_doors
 from detection.doors.constants import (
     DOOR_ARC_FALLBACK_MAX, DOOR_ASSEMBLY_CONNECT_TOL_PX, DOOR_ASSEMBLY_LINE_LEAF_BASE,
     DOOR_DOUBLE_LEAF_CENTER_TOL_PX, DOOR_DOUBLE_LEAF_GAP_PX, DOOR_DOUBLE_LEAF_OVERLAP_PX,
@@ -486,6 +487,15 @@ def _pair_door_assemblies(
             )
         cand_idx += 1
         used_swings.add(swing_idx)
+
+    # Sliding doors have no arc at all — panel-rectangle patterns detected
+    # independently of the swing/leaf pairing above. Runs before the fallback
+    # passes so _dedupe_door_components later retires the leaf-fallback
+    # candidates the same panel rectangles would produce.
+    sliding_candidates, cand_idx = _detect_sliding_doors(
+        paths, line_paths, swings, text_spans, collector, cand_idx,
+    )
+    candidates.extend(sliding_candidates)
 
     for swing_idx, swing in enumerate(swings):
         if swing_idx in used_swings:

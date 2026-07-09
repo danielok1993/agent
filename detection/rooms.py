@@ -101,6 +101,19 @@ ROOM_OPENING_MIN_CONFIDENCE = 0.40    # doors below this are the speculative fal
                                       # must lie inside drawn wall material — only the
                                       # interrupted-run profile (the doorway signature)
                                       # is trusted on its own
+ROOM_BBOX_SEAL_MIN_CONFIDENCE = 0.55  # floor for the dilated-bbox fallback seal — the
+                                      # one seal that carries NO evidence of its own
+                                      # (every plug profile qualifies against drawn wall
+                                      # material; the bbox stamp is pure trust). Mirrors
+                                      # OFFLINE_MIN_CONFIDENCE["door"] in pipeline.py:
+                                      # a door the pipeline itself would reject must not
+                                      # reshape a room outline (measured on 5-1133: the
+                                      # bath-fixture FP at 0.52 — single_line_leaf on a
+                                      # toilet pan corner, no_wall, kept only for Gemini
+                                      # arbitration — stamped a 68x50px notch into the
+                                      # FAMILY BATH room edge; no real door on either
+                                      # reference PDF uses this fallback, all seal
+                                      # through plugs)
 ROOM_PLUG_IN_WALL_FRAC      = 0.80    # min area fraction of a fallback-tier door's
                                       # full-cover plug overlapping drawn wall material:
                                       # such a plug only re-asserts existing barrier
@@ -369,11 +382,18 @@ def detect_rooms(
     # the wall plane and may be the door's only plug evidence there
     # (timber gates in fence lines), so the plug stage gets to re-qualify
     # against it before falling back to the dilated bbox.
+    # Sliding doors are exempt from the open-leaf veto: their panels lie in
+    # the wall plane by construction (drawn closed across the opening, or
+    # parked inside the wall pocket) — there is no swing square to notch out
+    # of the room. Withholding them deletes the very partition the white-run
+    # bridging seals the doorway with (a parked pair leaves half its doorway
+    # outside the door bbox, so no plug can re-assert the missing span).
     withheld_leaves: list[tuple[BBox, Polygon]] = []
     if network.white_bands:
         leaf_zones = [
             zb for zb, c in zip(door_zone_bounds, doors)
             if c.confidence >= ROOM_OPENING_MIN_CONFIDENCE
+            and c.evidence.get("assembly_type") != "sliding"
         ]
 
         def _is_open_leaf(r):
@@ -411,7 +431,11 @@ def detect_rooms(
     # swing area stays inside the room and neighbouring rooms split exactly
     # at the wall plane; the dilated-bbox fallback still seals when no plug
     # edge qualifies — but only for doors the heuristics themselves stand
-    # behind. Fallback-tier doors (label boxes, glazing mullions, symbol
+    # behind, i.e. at >= ROOM_BBOX_SEAL_MIN_CONFIDENCE (the offline floor):
+    # a door in the 0.40-0.55 band whose plug edges found no wall plane has
+    # zero wall evidence at the bbox AND would be rejected by the pipeline —
+    # it must not stamp free space (the 0.52 bath-fixture FP on 5-1133).
+    # Fallback-tier doors (label boxes, glazing mullions, symbol
     # clutter — capped under the offline floor, kept only for Gemini
     # arbitration) seal solely through plugs carrying their own evidence:
     # an interrupted wall run (the doorway signature — a sliding door
@@ -452,7 +476,7 @@ def detect_rooms(
                 )
         if plugs:
             door_barriers.append(unary_union([p for p, _ in plugs]))
-        elif c.confidence >= ROOM_OPENING_MIN_CONFIDENCE:
+        elif c.confidence >= ROOM_BBOX_SEAL_MIN_CONFIDENCE:
             door_barriers.append(
                 box(*c.bbox).buffer(ROOM_OPENING_SEAL_PX, join_style=2)
             )

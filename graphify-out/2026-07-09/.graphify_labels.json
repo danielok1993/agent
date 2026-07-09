@@ -16,7 +16,6 @@
   "14": "Room Polygonization Internals",
   "15": "Arc Cap-Trim Tests",
   "16": "Arc Cycle-Cap Pruning Tests",
-  "17": "WallNetwork",
   "18": "windows.py",
   "19": "Arc Spur-Pruning Tests",
   "20": "Chained-Curve Swing Tests",
@@ -36,6 +35,7 @@
   "34": "detect_windows",
   "35": "plumber.py",
   "37": "Polyline-Arc Spur Pruning — Design",
+  "38": "_resolve_door_window_conflicts",
   "39": "Batch PDF Extraction Script Design",
   "41": "_collect_wall_faces",
   "42": "Codebase Restructure: Packages + heuristics.py Split",
@@ -95,6 +95,8 @@
   "97": "Vector-first + Gemini-validation pipeline",
   "98": "vline",
   "100": "TestWindowInteriorClutter",
+  "102": "models.py",
   "107": "TestWindowArbitraryAngle",
+  "108": "_dedupe_openings",
   "109": "TestFloorPlansRegression"
 }

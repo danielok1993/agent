@@ -255,6 +255,69 @@ class TestWeakFacePairs(unittest.TestCase):
         network = detect_wall_network(paths)
         self.assertEqual(len(network.segments), 0)
 
+    def test_light_pen_face_needs_material(self):
+        # Floor-tile grid signature: a 0.75px line running parallel to a
+        # 1.5px wall face at wall-like spacing inside the room. It clears the
+        # absolute stroke floor but sits under WALL_WEAK_STROKE_RATIO of the
+        # wall pen, so it is demoted to weak and, with no material in the
+        # band, must not pair into a phantom wall across the room interior.
+        paths = rect_room(0, 100, 100, 500, 400) + [
+            hline(50, 120, 480, 138, stroke_width=0.75),
+        ]
+        network = detect_wall_network(paths)
+        self.assertEqual(len(network.segments), 4)
+        self.assertNotIn(50, network.paired_face_indices())
+
+    def test_light_pen_pair_with_material_forms_wall(self):
+        # Demotion routes light-pen faces through the material gate rather
+        # than dropping them: a 0.75px partition with hatch between its faces
+        # is still a wall on a page whose wall pen is 1.5px.
+        paths = rect_room(0, 100, 100, 500, 400) + weak_hatched_band_h(
+            100, 120, 480, 250, pen=0.75
+        )
+        network = detect_wall_network(paths)
+        partitions = [
+            s for s in network.segments
+            if abs(s.thickness_px - 14.0) < 0.5
+        ]
+        self.assertEqual(len(partitions), 1)
+
+    def test_duplicate_ticks_do_not_validate_weak_pair(self):
+        # Dimension-line signature: CAD exports re-draw each oblique tick
+        # (heavy pen, light pen, and once per adjoining dimension run), so 2
+        # tick locations arrive as 6 strokes. Deduped, they stay under the
+        # material count gate and the hairline pair they sit on must not
+        # become a wall.
+        paths = [
+            hline(0, 100, 250, 200, stroke_width=0.45),
+            hline(1, 100, 250, 214, stroke_width=0.45),
+        ]
+        idx = 10
+        for x in (110, 240):
+            for pen in (1.8, 0.5, 0.3):
+                paths.append(
+                    path(idx, [(x, 213), (x + 12, 201)], stroke_width=pen)
+                )
+                idx += 1
+        network = detect_wall_network(paths)
+        self.assertEqual(len(network.segments), 0)
+
+    def test_outer_line_does_not_claim_inner_pair_material(self):
+        # Floor-tile line running parallel OUTSIDE a hatched hairline
+        # partition, at wall-like spacing from the partition's far face
+        # (5-1133 WC/bath divider): the over-wide pair (tile x far face)
+        # encloses the partition's band and passes the material gate on the
+        # partition's OWN hatch. The kept tighter pair strictly inside that
+        # band claims the material; the tile pair is dropped, so only the
+        # true partition remains and the tile line never becomes a face.
+        paths = weak_hatched_band_h(0, 100, 400, 200) + [
+            hline(50, 100, 400, 180, stroke_width=0.45),
+        ]
+        network = detect_wall_network(paths)
+        self.assertEqual(len(network.segments), 1)
+        self.assertAlmostEqual(network.segments[0].thickness_px, 14.0, delta=0.5)
+        self.assertNotIn(50, network.paired_face_indices())
+
     def test_weak_faces_do_not_drag_stroke_reference(self):
         # Strong walls at 1.5px + a material-backed hairline partition: the
         # reference stays at the strong pen so the rooms' relative

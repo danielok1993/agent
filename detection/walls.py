@@ -88,6 +88,16 @@ WALL_HATCH_MAX_LEN_PX       = 48.0  # hatch strokes stay short; matches the 45px
 # wall spacing: glazing strips and paving/steps linework measure <=2.6
 # marks/100px on the sample set while real partition hatch/blocking measures
 # >=4.8.
+WALL_WEAK_STROKE_RATIO       = 0.66  # faces penned below this fraction of the
+                                     # paired-wall stroke reference are demoted to
+                                     # weak (material-gated) even when they clear
+                                     # the absolute WALL_MIN_STROKE_WIDTH_PX:
+                                     # floor-tile grids are drawn at ~half the wall
+                                     # pen (0.75 vs 1.5 on the sample set) and
+                                     # otherwise pair with the real wall faces they
+                                     # run parallel to, stamping phantom wall bands
+                                     # across room interiors. Same 2/3 rationale as
+                                     # ROOM_BARRIER_STROKE_RATIO in rooms.py.
 WALL_WEAK_MIN_RUN_PX         = 30.0  # min weak-pair centerline length: shorter
                                      # material-dense slivers are dimension-tick and
                                      # mullion clusters, and a real stub that short
@@ -97,6 +107,21 @@ WALL_WEAK_MATERIAL_MIN_SPAN  = 0.5   # marks must spread along the band, not clu
 WALL_WEAK_MATERIAL_PER_100PX = 3.0   # min diagonal marks per 100px of band length
 WALL_WEAK_MATERIAL_ANGLE_MIN = 20.0  # stroke-vs-band-axis window; wide enough for the
 WALL_WEAK_MATERIAL_ANGLE_MAX = 70.0  # ~25deg/~65deg diagonals of oblong blocking rects
+WALL_WEAK_CLAIM_MARGIN_PX    = 2.0   # a weak pair is dropped when a KEPT, meaningfully
+                                     # tighter (by >= 2x this) parallel pair lies inside
+                                     # its band over the same span: the material between
+                                     # its faces belongs to that inner wall, not to it.
+                                     # Measured on 5-1133: tile-grid line 992 (y=824.2)
+                                     # paired with the WC/bath divider's far faces
+                                     # (y=843.7) at th 19.5 and passed the material gate
+                                     # on the divider's OWN cavity blocking — the true
+                                     # divider pair (831.7/843.7, th 12) sits 7.5px
+                                     # inside that band. The margin also keeps duplicate
+                                     # same-band pairs (shared faces, edges within 2px)
+                                     # from claiming each other.
+WALL_WEAK_CLAIM_OVERLAP_FRAC = 0.5   # the inner pair must cover this fraction of the
+                                     # weak pair's run — an inner stub elsewhere along a
+                                     # long band says nothing about the material HERE
 
 # Tolerance for two segments to be considered on the same line.
 COLLINEAR_ANGLE_TOL    = 3.0   # degrees
@@ -772,8 +797,15 @@ def _collect_material_marks(
     and the X diagonals of blocking rectangles. Which of them are diagonal
     is decided per band in _band_has_wall_material — diagonality is relative
     to the band axis, so angled walls read the same as axis-aligned ones.
+
+    Coincident strokes collapse to one mark: CAD exports re-draw dimension
+    tick marks (once heavy, once light, and again per adjoining dimension
+    run), and those duplicates inflated 2 tick locations past the ≥4-marks
+    material gate, turning dimension lines into phantom partitions. Real
+    hatch strokes sit at distinct offsets and are unaffected.
     """
     marks: list[tuple[tuple[float, float], float]] = []
+    seen: set[tuple[int, int, int]] = set()
     for p in paths:
         if p.item_type != "l" or len(p.points) < 2 or p.fill is not None:
             continue
@@ -782,9 +814,15 @@ def _collect_material_marks(
         a, b = p.points[0], p.points[-1]
         if not (2.0 <= _line_length(a, b) <= WALL_HATCH_MAX_LEN_PX):
             continue
-        marks.append(
-            (((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0), _line_angle_deg(a, b))
+        mid = ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+        angle = _line_angle_deg(a, b)
+        key = (
+            round(mid[0] / 2.5), round(mid[1] / 2.5), round(angle / 5.0) % 36,
         )
+        if key in seen:
+            continue
+        seen.add(key)
+        marks.append((mid, angle))
     return marks
 
 
@@ -820,6 +858,55 @@ def _band_has_wall_material(
     if len(ts) < (length / 100.0) * WALL_WEAK_MATERIAL_PER_100PX:
         return False
     return (max(ts) - min(ts)) >= WALL_WEAK_MATERIAL_MIN_SPAN * length
+
+
+def _claims_interior_pair(c: _Seg, kept: list[_Seg]) -> bool:
+    """True when a kept, tighter, parallel pair lies inside c's band.
+
+    The material gate asks "is there drawn wall material between the faces?"
+    — but an over-wide pair (a room-interior line paired with a real wall's
+    far face) encloses the real wall's band and passes on the real wall's
+    OWN hatch/blocking. The tighter pair strictly inside c's band, spanning
+    the same run, is the wall that material belongs to; c is a phantom
+    claiming it. Duplicate same-band pairs (shared faces, both band edges
+    within the margin of c's) are not interior and never claim.
+    """
+    length = _line_length(c.p1, c.p2)
+    if length < 1e-6:
+        return False
+    ux = (c.p2[0] - c.p1[0]) / length
+    uy = (c.p2[1] - c.p1[1]) / length
+    hc = c.thickness / 2.0
+    for d in kept:
+        if d is c:
+            continue
+        if d.thickness > c.thickness - 2.0 * WALL_WEAK_CLAIM_MARGIN_PX:
+            continue
+        if _angle_diff_mod180(
+            _line_angle_deg(c.p1, c.p2), _line_angle_deg(d.p1, d.p2)
+        ) > WALL_PARALLEL_ANGLE_TOL:
+            continue
+        mx = (d.p1[0] + d.p2[0]) / 2.0 - c.p1[0]
+        my = (d.p1[1] + d.p2[1]) / 2.0 - c.p1[1]
+        off = mx * -uy + my * ux
+        hd = d.thickness / 2.0
+        # Both of d's band edges inside c's band (small tolerance), and at
+        # least one strictly interior — a coincident duplicate has both
+        # edges on c's own edges and stays.
+        if off - hd < -hc - 1.0 or off + hd > hc + 1.0:
+            continue
+        if (
+            (off - hd) + hc < WALL_WEAK_CLAIM_MARGIN_PX
+            and hc - (off + hd) < WALL_WEAK_CLAIM_MARGIN_PX
+        ):
+            continue
+        t1 = (d.p1[0] - c.p1[0]) * ux + (d.p1[1] - c.p1[1]) * uy
+        t2 = (d.p2[0] - c.p1[0]) * ux + (d.p2[1] - c.p1[1]) * uy
+        overlap = min(max(t1, t2), length) - max(min(t1, t2), 0.0)
+        if overlap < WALL_WEAK_CLAIM_OVERLAP_FRAC * length:
+            continue
+        return True
+    return False
 
 
 def _merge_collinear_segs(segs: list[_Seg], gap_px: float) -> list[_Seg]:
@@ -1084,6 +1171,48 @@ def detect_wall_network(
     faces, bands = _collect_wall_faces(paths, fill_is_wall, marker_indices)
     merged_faces = _merge_collinear_segs(faces, gap_px=WALL_FACE_MERGE_GAP_PX)
 
+    # Relative pen gate: the absolute stroke floor admits light-pen linework
+    # (floor-tile grids at half the wall pen) as full wall faces, and any such
+    # line running parallel to a real wall face at wall-like spacing pairs
+    # into a phantom wall band across the room interior. Anchor the strong/
+    # weak boundary to the pens that actually drew the walls: pair the strong
+    # faces once, take the length-weighted median stroke of the paired ones,
+    # and demote faces penned below WALL_WEAK_STROKE_RATIO of it to weak —
+    # their pairs then need drawn material between the faces, exactly like
+    # the hairline joinery pen. Fill outlines and layer-hinted faces carry
+    # their own evidence and are never demoted.
+    interim_paired: set[int] = set()
+    for c in _pair_faces_to_centerlines(merged_faces):
+        interim_paired |= c.indices
+    entries = sorted(
+        (f.stroke_width, _line_length(f.p1, f.p2))
+        for f in merged_faces
+        if f.stroked and f.stroke_width > 0 and f.indices & interim_paired
+    )
+    total = sum(length for _, length in entries)
+    stroke_ref = 0.0
+    acc = 0.0
+    for width, length in entries:
+        acc += length
+        if acc >= total / 2.0:
+            stroke_ref = width
+            break
+    demoted: list[_Seg] = []
+    if stroke_ref > 0.0:
+        gate = WALL_WEAK_STROKE_RATIO * stroke_ref
+        kept_strong: list[_Seg] = []
+        for f in merged_faces:
+            if (
+                f.stroked and not f.wall_fill and not f.layer_hint
+                and f.stroke_width < gate
+            ):
+                f.stroked = False
+                f.stroke_width = 0.0
+                demoted.append(f)
+            else:
+                kept_strong.append(f)
+        merged_faces = kept_strong
+
     # Sub-threshold (joinery-pen) partition walls: pair hairline faces too,
     # but keep a weak-involved pair only when the band between the faces
     # carries drawn wall material (hatch / cross-hatch / blocking X's). The
@@ -1091,7 +1220,7 @@ def detect_wall_network(
     # can never ride in on a strong run's coattails.
     weak_merged = _merge_collinear_segs(
         _collect_weak_faces(paths), gap_px=WALL_FACE_MERGE_GAP_PX
-    )
+    ) + demoted
     for f in weak_merged:
         f.weak = True
 
@@ -1104,6 +1233,16 @@ def detect_wall_network(
                 _line_length(c.p1, c.p2) >= WALL_WEAK_MIN_RUN_PX
                 and _band_has_wall_material(c, marks)
             )
+        ]
+        # Second pass over the material-kept pairs: an over-wide weak pair
+        # whose band encloses a kept tighter pair over the same span passed
+        # the material gate on that inner wall's own hatch/blocking (a tile
+        # line paired with a real divider's far face) — drop it, so neither
+        # its centerline nor its outer face reaches the network.
+        material_kept = centerlines
+        centerlines = [
+            c for c in material_kept
+            if not c.weak or not _claims_interior_pair(c, material_kept)
         ]
     weak_paired: set[int] = set()
     for c in centerlines:

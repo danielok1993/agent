@@ -104,3 +104,48 @@ DOOR_HU_FAR_PENALTY         = 0.10  # poor match
 _DOOR_HU_TEMPLATE_VALUES    = [1.518423, 3.112955, 5.232975, 6.148173, -9.994192, -7.721678]
 
 DOOR_LEAF_ASPECT_MIN = 4.0   # door leaf is long and thin, not square
+
+# ---------------------------------------------------------------------------
+# Sliding-door detection (detection/doors/sliding.py)
+# Sliding doors have NO swing arc; the symbol is one or two thin panel
+# rectangles lying in the wall plane. Two sub-patterns, calibrated on
+# 5-1133-WD03.pdf (GD4/GD5: leaf pairs; GD9: pocketed single leaf) with
+# floor-plans.pdf as the zero-detection control:
+# - leaf_pair: two parallel near-equal thin panels IN THE SAME BAND (near-zero
+#   lateral offset) partially overlapping along their axis. Measured overlaps:
+#   0.50 and 0.73. Laterally STACKED equals (offset ≈ one thickness) are wall
+#   band plies (the WALL TYPE 4 stack measures d_lat ≈ 1.0×thickness,
+#   overlap 0.94) and duplicated fixture symbols measure overlap 1.0 — both
+#   excluded by the lateral factor and the overlap ceiling.
+# - pocket_leaf: one white panel flanked on BOTH sides by wall-face lines over
+#   part of its length (in the pocket) and protruding into clear space (the
+#   doorway). An open hinged leaf lying against a wall is flanked on ONE side
+#   only (GD7 measures lateral offset ≈ 20px) and additionally overlaps its
+#   own swing arc, so pocket candidates overlapping any collected swing are
+#   vetoed. Wall cavity strips protrude into hatched wall continuation, which
+#   the protrusion-zone crossing-line check rejects.
+# All geometry is computed on oriented rectangles (corner fit), so both
+# patterns are rotation-independent; scale is bounded by DOOR_MIN/MAX_SIZE_PX.
+DOOR_SLIDE_PANEL_MIN_THICKNESS_PX = 3.0   # thinner is a shower screen / glazing strip (measured 2.0-2.5)
+DOOR_SLIDE_PANEL_MAX_THICKNESS_PX = 20.0  # panels measure ~6px at 1:50; headroom for larger scales
+DOOR_SLIDE_RECT_PARALLEL_TOL_DEG  = 8.0   # opposite-side parallelism for the oriented-rect fit
+DOOR_SLIDE_RECT_PERP_TOL_DEG      = 12.0  # adjacent-side perpendicularity for the oriented-rect fit
+DOOR_SLIDE_PANEL_MERGE_TOL_PX     = 2.0   # white ring + stroked qu of the SAME panel merge into one
+DOOR_SLIDE_AXIS_TOL_DEG           = 6.0   # panel axes must be parallel; folded (bifold) leaves measure 16-20° apart
+DOOR_SLIDE_LENGTH_RATIO_TOL       = 0.15  # leaf-pair panels are equal panels of one door (measured 0.00)
+DOOR_SLIDE_LATERAL_FACTOR         = 0.75  # max lateral offset as fraction of avg thickness (doors ≈ 0.02×;
+                                          # wall plies ≈ 1.0×; GD7 open leaf vs wall face ≈ 3×)
+DOOR_SLIDE_OVERLAP_MIN_FRAC       = 0.20  # axial overlap of the pair (collinear abutting wall rects ≈ 0.0)
+DOOR_SLIDE_OVERLAP_MAX_FRAC       = 0.90  # duplicated symbols measure 1.0; wall plies 0.94
+DOOR_SLIDE_FLANK_GAP_MIN_PX       = 0.5   # flank face just outside the panel edge...
+DOOR_SLIDE_FLANK_GAP_MAX_PX       = 12.0  # ...but within a pocket cavity's width (GD9 gaps: 2.9-6.1)
+DOOR_SLIDE_FLANK_LINE_MIN_LEN_FRAC = 0.4  # a flank face is a wall line, not a tick (× panel length)
+DOOR_SLIDE_FLANK_SIDE_MIN_FRAC    = 0.25  # each side must cover this much of the panel axially
+DOOR_SLIDE_FLANK_MIN_FRAC         = 0.35  # both-sides (pocketed) coverage: GD9 measures 0.74;
+DOOR_SLIDE_FLANK_MAX_FRAC         = 0.90  # near-total flanking = embedded wall strip, not a leaf
+DOOR_SLIDE_PROTRUSION_MIN_FRAC    = 0.08  # leaf tip must stick out of the pocket (GD9: 0.27)
+DOOR_SLIDE_PROTRUSION_MAX_FRAC    = 0.65  # mostly-out ⇒ flanking is coincidence, not a pocket
+DOOR_SLIDE_ZONE_WIDTH_FACTOR      = 3.0   # protrusion-zone half-width = this × panel half-thickness
+DOOR_SLIDE_ZONE_MAX_CROSSERS      = 2     # jamb/end-cap linework in the zone is ≤2 short crossers;
+                                          # wall hatch continuation measures ≥3
+DOOR_SLIDE_ASSEMBLY_BASE          = 0.65  # same tier as the qu/re rect-leaf swing assembly
