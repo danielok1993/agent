@@ -149,3 +149,33 @@ DOOR_SLIDE_ZONE_WIDTH_FACTOR      = 3.0   # protrusion-zone half-width = this ×
 DOOR_SLIDE_ZONE_MAX_CROSSERS      = 2     # jamb/end-cap linework in the zone is ≤2 short crossers;
                                           # wall hatch continuation measures ≥3
 DOOR_SLIDE_ASSEMBLY_BASE          = 0.65  # same tier as the qu/re rect-leaf swing assembly
+
+# ---------------------------------------------------------------------------
+# Folding/bifold-door detection (detection/doors/folding.py)
+# Folding doors have NO swing arc either; the symbol is a run of equal thin
+# leaf panels HINGED end-to-end at a shallow fold angle. Calibrated on
+# 5-1133-WD03.pdf (GD2 trifold: 3-leaf concertina chain drawn nearly closed;
+# the kitchen CL doors and the W9 folding wall: two 2-leaf V-stacks parked at
+# opposite jambs of one opening) with floor-plans.pdf as the zero-detection
+# control. Panels reuse the sliding collector (white ring + stroked qu), but
+# hinged leaves share ring VERTICES, so the closed-loop white-ring
+# reconstruction rejects them (degree-4 hinge vertex) — folding.py re-absorbs
+# the coincident white `l` edges onto the stroked-qu panels and then REQUIRES
+# the white joinery signature on every leaf.
+DOOR_FOLD_ANGLE_MIN_DEG    = 8.0   # adjacent-leaf axis delta; below is sliding/collinear territory
+                                   # (sliding pairs measure ≤6°, GD2's shallowest fold is 10.1°)
+DOOR_FOLD_ANGLE_MAX_DEG    = 30.0  # above is corner joinery / 45° bay glazing, not a fold
+                                   # (measured folds: 10.1-20.8°)
+DOOR_FOLD_LENGTH_RATIO_TOL = 0.15  # leaves of one door are equal panels (measured ≤0.005)
+DOOR_FOLD_HINGE_TOL_PX     = 6.0   # min corner-to-corner distance at the hinge (leaves share the
+                                   # ring vertex exactly; qu-vs-ring fit offsets measure ≤0.3)
+DOOR_FOLD_MIN_CHAIN_LEAVES = 3     # a standalone hinged chain needs 3+ leaves (GD2); a lone 2-leaf
+                                   # V is not emitted — too weak without a partner stack
+DOOR_FOLD_STACK_SPAN_RATIO_TOL  = 0.20  # two parked stacks pair only when the outer span between
+                                        # them ≈ Σ leaf lengths (the unfolded leaves must cover the
+                                        # opening; measured 0.015 and 0.001)
+DOOR_FOLD_STACK_MIRROR_TOL_DEG  = 15.0  # stacks fold off the SAME wall plane: mean leaf angles
+                                        # mirror about the opening axis (measured ≤0.3°)
+DOOR_FOLD_STACK_PERP_EXTENT_MAX = 1.25  # a folded stack projects ≤ ~one leaf length perpendicular
+                                        # to the opening axis (measured 0.99-1.00×)
+DOOR_FOLD_ASSEMBLY_BASE    = 0.65  # same tier as sliding / qu-re rect-leaf swing assemblies

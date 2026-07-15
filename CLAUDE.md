@@ -65,9 +65,11 @@ detection/         # heuristic detection (the split monolith)
   rooms.py         # detect_rooms — rooms = free-space components between wall
                    # solids (shapely); door/window bboxes seal the openings
   windows.py  labels.py  schedules.py  postprocess.py
-  doors/           # door subpackage, acyclic: constants <- arcs/leaves/shape/sliding <- assembly <- detect
+  doors/           # door subpackage, acyclic: constants <- arcs/leaves/shape/sliding <- folding <- assembly <- detect
                    # sliding.py: arc-less sliding doors from oriented panel-rectangle
                    # patterns (leaf_pair + pocket_leaf) — see the tuning guide §3.9
+                   # folding.py: arc-less folding/bifold doors from hinge-connected
+                   # white leaf panels (chain + parked stack_pair) — tuning guide §3.10
 gemini/client.py   # Vertex AI client (was gemini_client.py)
 debug/             # trace.py (DebugTraceCollector) + renderer.py (HTML viewer)
 tools/             # standalone dev scripts (numpy/cv2)
