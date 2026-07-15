@@ -77,6 +77,17 @@ ROOM_PLUG_NEAR_PX           = 8.0     # a bbox edge "hugs" wall material within 
                                       # distance; the swing bbox lands on the wall faces
                                       # a few px off at most
 ROOM_PLUG_SAMPLE_PX         = 4.0     # coverage-profile sample spacing along an edge
+ROOM_PLUG_ANCHOR_WIN_PX     = 24.0    # cap on the end-anchor window: a jamb is
+                                      # jamb-sized regardless of doorway width, so
+                                      # the anchor evidence must not dilute as the
+                                      # edge grows (an n//4 quarter of a 165px garden
+                                      # doorway is 48px — a 45-degree bay jamb hugs
+                                      # the edge line for only ~20px of it and the
+                                      # true wall-plane edge failed the 0.5 gate at
+                                      # 0.42 while a perpendicular edge crossing the
+                                      # angled wall passed; measured on 5-1133 door
+                                      # 0121). Never larger than the legacy quarter,
+                                      # so narrow doors are unaffected.
 ROOM_PLUG_HALF_WIDTH_PX     = 5.0     # half-thickness of the wall-plane plug band; thin
                                       # enough to stay out of the room, thick enough to
                                       # overlap the wall band it stands in for
@@ -87,6 +98,22 @@ ROOM_PLUG_MID_COV_MAX       = 0.25    # mid coverage below this = interrupted wa
 ROOM_PLUG_FULL_COV_MIN      = 0.75    # total coverage above this = wall plane drawn
                                       # through the opening (existing-opening sills,
                                       # closed sliding/garage door panels)
+ROOM_BLIND_WINDOW_MAX_AREA_PX2 = 10000.0  # a closet-scale space whose ONLY opening
+                                      # is a window cannot be entered — it is the
+                                      # exterior side of that window (a terrace
+                                      # pocket fenced by heavy-penned setout lines
+                                      # against the bay wall, a lightwell), not a
+                                      # room. Measured on 5-1133: the paving pockets
+                                      # beside bay windows W11/W13 are 2.7-3.7k px2
+                                      # with window-only boundaries, while every real
+                                      # window-bearing room on both reference PDFs
+                                      # is >= 17k px2 AND carries a door opening.
+                                      # Door-less window-LESS spaces stay: interior
+                                      # rooms legitimately lose their door to a
+                                      # missed detection (floor-plans has real ones
+                                      # at 3.3-8.5k px2), but a window on the
+                                      # boundary marks the building envelope, and a
+                                      # blind envelope sliver is outside it.
 ROOM_BASE_CONFIDENCE        = 0.50
 ROOM_DOOR_BOUNDARY_BOOST    = 0.15    # a space reachable through a real door is a room
 ROOM_WINDOW_BOUNDARY_BOOST  = 0.05
@@ -148,7 +175,75 @@ def _text_cover_frac(bbox, text_spans) -> float:
     return unary_union(covers).intersection(b).area / b.area
 
 
-def _door_plugs(bbox, wall_material) -> list[tuple[Polygon, str]]:
+def _window_seal(candidate) -> Polygon:
+    """Barrier polygon sealing a window opening.
+
+    A horizontal/vertical window's bbox IS the wall-band segment it sits in
+    and seals as-is. A diagonal window (a 45-degree bay face) breaks that
+    premise: its axis-aligned bbox is a square that overhangs the wall plane
+    on both sides, stamping barrier into free space — measured on 5-1133,
+    bay window W11's square bridged the bay wall to the terrace setout lines
+    and fenced a paving pocket into a phantom room. Seal along the drawn
+    band instead: the bbox diagonal matching the glazing angle, buffered to
+    the band's measured half-thickness (bbox diagonal minus the opening span
+    between the end caps), so the seal shadows the window's own ink exactly
+    like door plugs shadow the wall plane.
+    """
+    x0, y0, x1, y1 = candidate.bbox
+    if candidate.evidence.get("orientation") != "diagonal":
+        return box(x0, y0, x1, y1)
+    angle = float(candidate.evidence.get("glazing_angle_deg") or 45.0) % 180.0
+    if angle < 90.0:
+        band = LineString([(x0, y0), (x1, y1)])  # y-down: descends left-to-right
+    else:
+        band = LineString([(x0, y1), (x1, y0)])
+    opening = float(candidate.evidence.get("opening_width_px") or 0.0)
+    half_th = max(ROOM_PLUG_HALF_WIDTH_PX, (band.length - opening) / 2.0)
+    return band.buffer(half_th, cap_style=2)
+
+
+def _open_leaf_edges(candidate) -> frozenset[int]:
+    """Bbox edges of a garden-layout double door that hold its parked-open leaves.
+
+    A garden pair is drawn OPEN by construction: the two leaves park at
+    opposite outer ends of the opening (along two opposite bbox edges), and
+    the wall plane is one of the two perpendicular edges. The parked leaf is
+    room/garden floor — never wall — so its edge must not take a plug: on
+    5-1133 door 0121 the bottom (leaf) edge crossed the angled bay wall at
+    one end and clipped terrace linework at the other, pattern-matching the
+    interrupted-run doorway signature and fencing a phantom paving-pocket
+    "room" outside the bay. French pairs are exempt: their collinear leaves
+    are drawn closed IN the wall plane, so the leaf edge is exactly the edge
+    that must stay eligible (cf. the closed-leaf plug retry and the sliding
+    white-ring exemption). Edge indices follow _door_plugs' order:
+    0 top, 1 bottom, 2 left, 3 right.
+    """
+    if candidate.evidence.get("swing_layout") != "garden":
+        return frozenset()
+    x0, y0, x1, y1 = candidate.bbox
+    tol = ROOM_PLUG_HALF_WIDTH_PX
+    edges: set[int] = set()
+    for key in ("leaf_bbox_a", "leaf_bbox_b"):
+        leaf = candidate.evidence.get(key)
+        if not leaf:
+            continue
+        lx0, ly0, lx1, ly1 = leaf
+        if lx1 - lx0 >= ly1 - ly0:
+            cy = (ly0 + ly1) / 2.0
+            if abs(cy - y0) <= tol:
+                edges.add(0)
+            elif abs(cy - y1) <= tol:
+                edges.add(1)
+        else:
+            cx = (lx0 + lx1) / 2.0
+            if abs(cx - x0) <= tol:
+                edges.add(2)
+            elif abs(cx - x1) <= tol:
+                edges.add(3)
+    return frozenset(edges)
+
+
+def _door_plugs(bbox, wall_material, skip_edges=frozenset()) -> list[tuple[Polygon, str]]:
     """Thin barrier bands along the wall planes through a detected door.
 
     The door bbox covers the swing area — room floor, not wall — so using it
@@ -175,6 +270,10 @@ def _door_plugs(bbox, wall_material) -> list[tuple[Polygon, str]]:
     total coverage" alone is also satisfied by an annotation box floating
     within ROOM_PLUG_NEAR_PX of a wall band, whose plug would then hang in
     free space and notch the room.
+
+    skip_edges holds indices (0 top, 1 bottom, 2 left, 3 right) of edges the
+    door's own evidence rules out as wall plane — a garden pair's parked-open
+    leaf edges (_open_leaf_edges) — regardless of coverage profile.
     """
     x0, y0, x1, y1 = bbox
     edges = [
@@ -184,7 +283,9 @@ def _door_plugs(bbox, wall_material) -> list[tuple[Polygon, str]]:
         ((x1, y0), (x1, y1)),
     ]
     plugs: list[tuple[Polygon, str]] = []
-    for p, q in edges:
+    for edge_idx, (p, q) in enumerate(edges):
+        if edge_idx in skip_edges:
+            continue
         length = math.hypot(q[0] - p[0], q[1] - p[1])
         if length < 1e-6:
             continue
@@ -201,8 +302,15 @@ def _door_plugs(bbox, wall_material) -> list[tuple[Polygon, str]]:
             for i in range(n)
         ]
         quarter = n // 4
-        start_cov = sum(covered[:quarter]) / quarter
-        end_cov = sum(covered[-quarter:]) / quarter
+        # Anchor window: the legacy n//4 quarter, capped at jamb scale — the
+        # anchoring jamb does not grow with the doorway, so on wide (double)
+        # doorways the quarter dilutes real jamb coverage below the gate.
+        win = min(
+            quarter,
+            int(math.ceil(ROOM_PLUG_ANCHOR_WIN_PX / ROOM_PLUG_SAMPLE_PX)) + 1,
+        )
+        start_cov = sum(covered[:win]) / win
+        end_cov = sum(covered[-win:]) / win
         # Trim the mid window by the hug distance: samples just inside an
         # open doorway still sit within ROOM_PLUG_NEAR_PX of the jamb corner
         # diagonally and must not count as mid coverage.
@@ -444,7 +552,9 @@ def detect_rooms(
     # wall material, so it only re-asserts existing barrier). Full coverage
     # merely NEAR wall material is how an annotation box hugging a wall
     # would otherwise stamp a free-space notch into the room outline.
-    # Window bboxes lie in the wall band, used as-is.
+    # Straight-window bboxes lie in the wall band, used as-is; diagonal
+    # windows seal along their glazing band (_window_seal) because their
+    # square axis bbox overhangs the wall plane on both sides.
     door_barriers = []
     for zone, c in zip(door_zone_bounds, doors):
         local = wall_material.intersection(
@@ -452,7 +562,11 @@ def detect_rooms(
                 ROOM_OPENING_SEAL_PX + ROOM_PLUG_NEAR_PX + 4.0, join_style=2
             )
         )
-        plugs = _door_plugs(c.bbox, local)
+        # A garden pair's parked-open leaves pin down two edges as room/garden
+        # floor; those edges never take a plug, whatever their coverage
+        # profile happens to pattern-match.
+        leaf_edges = _open_leaf_edges(c)
+        plugs = _door_plugs(c.bbox, local, skip_edges=leaf_edges)
         if c.confidence < ROOM_OPENING_MIN_CONFIDENCE:
             plugs = [
                 (p, kind) for p, kind in plugs
@@ -472,7 +586,8 @@ def detect_rooms(
             ]
             if leaves:
                 plugs = _door_plugs(
-                    c.bbox, unary_union([local] + leaves)
+                    c.bbox, unary_union([local] + leaves),
+                    skip_edges=leaf_edges,
                 )
         if plugs:
             door_barriers.append(unary_union([p for p, _ in plugs]))
@@ -480,7 +595,7 @@ def detect_rooms(
             door_barriers.append(
                 box(*c.bbox).buffer(ROOM_OPENING_SEAL_PX, join_style=2)
             )
-    window_barriers = [box(*c.bbox) for c in windows]
+    window_barriers = [_window_seal(c) for c in windows]
     opening_parts = door_barriers + window_barriers
 
     # Drafting-gap sealing happens on the free-space side, inside
@@ -500,6 +615,20 @@ def detect_rooms(
     opening_union = unary_union(opening_parts) if opening_parts else None
     masses = _building_masses(solids, opening_union)
 
+    # A free-space component fully inside a confident door's bbox is the
+    # swing / threshold recess fenced off by the door's own seals (two
+    # parallel plugs, or a plug plus a drawn-through threshold) — door floor
+    # area, not a room. Measured on floor-plans: a garden pair in a cavity
+    # wall plugs at the outer wall plane, and the 105x25px recess between
+    # the cavity's inner face and the threshold line came out as its own
+    # component. Fallback-tier doors get no dissolution power, consistent
+    # with every other seal privilege.
+    swing_zones = [
+        box(*c.bbox).buffer(ROOM_OPENING_SEAL_PX, join_style=2)
+        for c in doors
+        if c.confidence >= ROOM_OPENING_MIN_CONFIDENCE
+    ]
+
     rooms: list[tuple[Polygon, dict]] = []
     for comp in components:
         if comp.area < ROOM_MIN_AREA_PX2:
@@ -507,6 +636,8 @@ def detect_rooms(
         if comp.area > ROOM_MAX_PAGE_AREA_FRAC * page_area:
             continue
         if comp.exterior.distance(page.exterior) <= ROOM_BORDER_TOL_PX:
+            continue
+        if any(comp.within(z) for z in swing_zones):
             continue
 
         exterior = Polygon(comp.exterior)  # interior holes (fixtures) filled
@@ -544,6 +675,13 @@ def detect_rooms(
             if LineString([s.p1, s.p2]).distance(boundary)
             <= s.thickness_px / 2.0 + ROOM_CONTACT_TOL_PX
         )
+        # Blind-window pocket: reachable only through its window = the
+        # exterior side of that window, not a room (see the constant).
+        if (
+            door_count == 0 and window_count > 0
+            and comp.area < ROOM_BLIND_WINDOW_MAX_AREA_PX2
+        ):
+            continue
         rooms.append((exterior, {
             "contact": contact,
             "door_count": door_count,

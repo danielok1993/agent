@@ -9,7 +9,10 @@ import unittest
 
 from models import Candidate, PathPrimitive, TextSpan
 from detection import detect_wall_network
-from detection.rooms import ROOM_GAP_CLOSE_PX, detect_rooms
+from detection.rooms import (
+    ROOM_GAP_CLOSE_PX, _door_plugs, _open_leaf_edges, _window_seal,
+    detect_rooms,
+)
 
 PAGE_W, PAGE_H = 1000.0, 800.0
 
@@ -602,6 +605,131 @@ class TestBboxSealFloor(unittest.TestCase):
             rooms[0].evidence["area_px2"],
             baseline[0].evidence["area_px2"] - 2000,
         )
+
+
+class TestGardenDoorSeals(unittest.TestCase):
+    """Wide garden pairs: jamb-scale anchor window + parked-leaf edge veto."""
+
+    BBOX = (200.0, 100.0, 282.0, 265.0)  # 82x165, like 5-1133 door 0121
+
+    def test_anchor_window_caps_at_jamb_scale(self):
+        # The 165px doorway edge is anchored only by jamb-scale stubs at its
+        # corners (a 45-degree bay jamb hugs the edge line for ~20px). The
+        # legacy n//4 quarter dilutes that to 5/12 and fails the 0.5 gate;
+        # the capped window must qualify the true wall-plane edge.
+        from shapely.geometry import box as sbox
+        from shapely.ops import unary_union
+        jambs = unary_union([
+            sbox(192, 80, 208, 98),    # stub at the top-left corner
+            sbox(192, 267, 208, 285),  # stub at the bottom-left corner
+        ])
+        plugs = _door_plugs(self.BBOX, jambs)
+        self.assertEqual(len(plugs), 1)
+        plug, kind = plugs[0]
+        self.assertEqual(kind, "interrupted")
+        x0, _, x1, _ = plug.bounds
+        self.assertAlmostEqual((x0 + x1) / 2.0, 200.0, delta=1.0)  # left edge
+
+    def test_open_leaf_edges_garden_vs_french(self):
+        def cand(layout, leaf_a, leaf_b):
+            return Candidate("door_0001", "door", self.BBOX, 0.65, evidence={
+                "swing_layout": layout,
+                "leaf_bbox_a": leaf_a, "leaf_bbox_b": leaf_b,
+            })
+        garden = cand(
+            "garden",
+            (200.1, 100.0, 282.0, 101.0),  # parked along the top edge
+            (200.1, 264.0, 282.0, 265.0),  # parked along the bottom edge
+        )
+        self.assertEqual(_open_leaf_edges(garden), frozenset({0, 1}))
+        # French pair: collinear leaves drawn closed IN the wall plane along
+        # the top edge — that edge must stay plug-eligible.
+        french = cand(
+            "french",
+            (200.0, 100.0, 240.0, 101.0),
+            (242.0, 100.0, 282.0, 101.0),
+        )
+        self.assertEqual(_open_leaf_edges(french), frozenset())
+
+    def test_skip_edges_suppresses_qualified_plug(self):
+        # A full wall band hugs the top edge: it qualifies as a drawn-through
+        # plane — unless the door's own leaf evidence vetoes the edge.
+        from shapely.geometry import box as sbox
+        band = sbox(188, 92, 294, 108)
+        plugs = _door_plugs(self.BBOX, band)
+        self.assertEqual([k for _, k in plugs], ["full"])
+        self.assertEqual(_door_plugs(self.BBOX, band, skip_edges=frozenset({0})), [])
+
+
+class TestDiagonalWindowSeal(unittest.TestCase):
+    def test_straight_window_seals_full_bbox(self):
+        c = Candidate("window_0000", "window", (240, 98, 285, 112), 0.62,
+                      evidence={"orientation": "horizontal"})
+        self.assertAlmostEqual(_window_seal(c).area, 45 * 14, delta=1.0)
+
+    def test_diagonal_window_seals_band_not_square(self):
+        # 45-degree bay window: square axis bbox. The seal must follow the
+        # glazing diagonal instead of stamping the square into free space
+        # (the square fenced terrace pockets into phantom rooms on 5-1133).
+        from shapely.geometry import Point
+        c = Candidate("window_0001", "window", (100, 100, 158, 158), 0.62,
+                      evidence={"orientation": "diagonal",
+                                "glazing_angle_deg": 45.0,
+                                "opening_width_px": 70.0})
+        seal = _window_seal(c)
+        self.assertLess(seal.area, 0.45 * 58 * 58)
+        self.assertTrue(seal.contains(Point(129, 129)))       # on the band
+        self.assertFalse(seal.contains(Point(150, 108)))      # off-band corner
+        # An ascending glazing angle picks the other diagonal.
+        c2 = Candidate("window_0002", "window", (100, 100, 158, 158), 0.62,
+                       evidence={"orientation": "diagonal",
+                                 "glazing_angle_deg": 135.0,
+                                 "opening_width_px": 70.0})
+        seal2 = _window_seal(c2)
+        self.assertTrue(seal2.contains(Point(129, 129)))
+        self.assertFalse(seal2.contains(Point(108, 108)))
+
+
+class TestBlindWindowPocket(unittest.TestCase):
+    def window(self, bbox=(120, 98, 160, 112)):
+        return Candidate("window_0000", "window", bbox, 0.62, evidence={})
+
+    def test_window_only_pocket_dropped(self):
+        # A closet-scale space whose ONLY opening is a window cannot be
+        # entered: it is the exterior side of that window (terrace pocket,
+        # lightwell), not a room. The same space stays a room while blind
+        # AND windowless — interior rooms legitimately lose their door to a
+        # missed detection.
+        paths = rect_room(0, 100, 100, 180, 180)  # ~60x60 = 3.6k px2 inside
+        self.assertEqual(len(rooms_for(paths)), 1)
+        self.assertEqual(len(rooms_for(paths, windows=[self.window()])), 0)
+
+    def test_window_only_room_above_cap_kept(self):
+        paths = rect_room(0, 100, 100, 400, 300)  # ~50k px2 inside
+        rooms = rooms_for(paths, windows=[self.window()])
+        self.assertEqual(len(rooms), 1)
+        self.assertEqual(rooms[0].evidence["window_openings"], 1)
+
+
+class TestSwingRecessDissolution(unittest.TestCase):
+    def test_recess_between_plug_and_threshold_not_a_room(self):
+        # Garden pair in a wall: the outer wall plane plugs (interrupted
+        # run) and the drawn threshold line fences the swing recess inside
+        # the door bbox into its own free-space component — door floor, not
+        # a room (measured on floor-plans' 1800mm garden pairs). It must
+        # dissolve while the interior room survives.
+        paths = (
+            wall_band_h(0, 100, 240, 100)
+            + wall_band_h(2, 360, 500, 100)
+            + wall_band_h(4, 100, 500, 392)
+            + wall_band_v(6, 100, 100, 400)
+            + wall_band_v(8, 492, 100, 400)
+            + [hline(10, 230, 370, 160)]  # threshold, wider than the door zone
+        )
+        door = door_candidate((240, 96, 360, 160))
+        rooms = rooms_for(paths, doors=[door])
+        self.assertEqual(len(rooms), 1)
+        self.assertGreater(rooms[0].evidence["area_px2"], 90000)
 
 
 class TestEmptyNetwork(unittest.TestCase):
