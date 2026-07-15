@@ -40,13 +40,13 @@
     "semantic_hash": "8af6aea4b2d3989318674579bc8a6a2c"
   },
   "detection/doors/assembly.py": {
-    "mtime": 1783629202.6547253,
-    "ast_hash": "e3e60809d553b19274c500eaa2b17ef5",
+    "mtime": 1784159059.8520324,
+    "ast_hash": "e77239a48a0595e91c9c40a33e757e16",
     "semantic_hash": ""
   },
   "detection/doors/constants.py": {
-    "mtime": 1783629202.6548738,
-    "ast_hash": "04cba4f0cac19582ad71f02e8e30a0a8",
+    "mtime": 1784158997.6058974,
+    "ast_hash": "898014e59b7c15ed4112ce05921154c9",
     "semantic_hash": ""
   },
   "detection/doors/detect.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1784157706.9829116,
-    "ast_hash": "f32bc267d65746fcf166d9ef68920cc5",
+    "mtime": 1784159533.9650664,
+    "ast_hash": "7db43cbbc4b09aa903636fb8c0023177",
     "semantic_hash": ""
   },
   "README.md": {
@@ -200,8 +200,8 @@
     "semantic_hash": ""
   },
   "docs/door-detection-tuning-guide.md": {
-    "mtime": 1783629202.6578622,
-    "ast_hash": "e8051d9fa78484c066921f7a77b29d2e",
+    "mtime": 1784159506.0076287,
+    "ast_hash": "59736b84ebeac9cb72f8f3e3e735cbb1",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-06-16-polyline-arc-spur-pruning.md": {
@@ -297,6 +297,16 @@
   "tests/test_sliding_doors.py": {
     "mtime": 1783629202.675294,
     "ast_hash": "20c62a2e2055ac7f72153eadd83bd98f",
+    "semantic_hash": ""
+  },
+  "detection/doors/folding.py": {
+    "mtime": 1784159047.6302123,
+    "ast_hash": "797a68c09e26be4697ea4fc0dd9ed9b0",
+    "semantic_hash": ""
+  },
+  "tests/test_folding_doors.py": {
+    "mtime": 1784159200.1146753,
+    "ast_hash": "93848cab4efdcaa70cfd1f7cd8730002",
     "semantic_hash": ""
   }
 }

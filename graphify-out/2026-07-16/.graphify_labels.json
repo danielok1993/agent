@@ -111,5 +111,8 @@
   "109": "TestFloorPlansRegression",
   "110": "batch_extract.py",
   "111": "app.py",
-  "112": "_dedupe_openings"
+  "112": "_dedupe_openings",
+  "113": "_angle_diff_mod180",
+  "114": "_projected_interval",
+  "115": "_demote_lattice_faces"
 }

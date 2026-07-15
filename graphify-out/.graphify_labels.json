@@ -102,17 +102,8 @@
   "100": "TestWindowInteriorClutter",
   "101": "TestMarkerRings",
   "102": "TestNetworkQueries",
-  "103": "_dedupe_openings",
-  "104": "constants.py",
-  "105": "extractor.py",
-  "106": "_resolve_door_window_conflicts",
   "107": "TestWindowArbitraryAngle",
-  "108": "renderer.py",
   "109": "TestFloorPlansRegression",
-  "110": "batch_extract.py",
   "111": "app.py",
-  "112": "_dedupe_openings",
-  "113": "_angle_diff_mod180",
-  "114": "_projected_interval",
-  "115": "_demote_lattice_faces"
+  "114": "_projected_interval"
 }
