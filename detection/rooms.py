@@ -36,7 +36,8 @@ from shapely.ops import unary_union
 from models import BBox, Candidate, TextSpan
 from detection.geometry import _line_angle_deg, _line_length
 from detection.walls import (
-    WALL_HATCH_MAX_LEN_PX, WALL_MIN_STROKE_WIDTH_PX, WallNetwork,
+    WALL_HATCH_MAX_LEN_PX, WALL_MAX_THICKNESS_PX, WALL_MIN_STROKE_WIDTH_PX,
+    WallNetwork,
     _accept_white_walls, _bridge_white_runs, _is_diagonal_hatch_angle,
 )
 
@@ -48,10 +49,34 @@ ROOM_MAX_PAGE_AREA_FRAC     = 0.45    # components bigger than this are the shee
 ROOM_HOLE_AREA_FRAC_MAX     = 0.20    # mostly-hole components are frame-minus-building rings
 ROOM_WALL_DILATE_PX         = 2.0     # wall-solid dilation; seals sub-4px face cracks
 ROOM_LINE_BARRIER_PX        = 1.5     # half-width of thin line barriers (~pen width)
-ROOM_BARRIER_STROKE_RATIO   = 0.66    # a lone stroked face becomes a thin barrier only
+ROOM_BARRIER_STROKE_RATIO   = 0.75    # a lone stroked face becomes a thin barrier only
                                       # at >= this fraction of the paired-wall stroke
                                       # reference — tile grids, furniture outlines and
-                                      # symbols are penned lighter than the walls
+                                      # symbols are penned lighter than the walls.
+                                      # Random-size patio paving joints evade the
+                                      # equal-pitch lattice demotion and measure 0.70
+                                      # (1.05 vs 1.50 on 5-1133 — they fenced patio
+                                      # cells against exterior door plugs into phantom
+                                      # door-bearing "rooms"); every real lone barrier
+                                      # face on both reference PDFs measures >= 1.00,
+                                      # so the gate sits just above the noise band to
+                                      # keep headroom for lightly-penned real walls
+                                      # (paired pens go down to 0.67 in the sample set)
+ROOM_PAIRED_FACE_MIN_FRAC   = 0.5     # a STROKED face penned under the barrier gate
+                                      # rides on its pairing alone, and pairing is
+                                      # recorded per path index: one 22px sliver that
+                                      # paired (two paving joints 14px apart) qualified
+                                      # a 230px tile line full-length and fenced patio
+                                      # cells against the bay wall (5-1133). Where a
+                                      # face truly paired, its SEGMENTS already seal as
+                                      # solids, so full-length qualification must be
+                                      # earned: segments covering >= this fraction of
+                                      # the face run. Noise measures <= 0.36, real
+                                      # sub-gate paired faces >= 0.71 (both PDFs).
+                                      # UNSTROKED paired faces are exempt — material-
+                                      # backed hairline partitions are real walls with
+                                      # legitimately partial pairing (0.13-0.36 where
+                                      # openings/text ate the partner face)
 ROOM_GAP_CLOSE_PX           = 8.0     # morphological closing: seals drafting gaps up to
                                       # ~2x this; well below door widths so undetected
                                       # doors keep rooms connected (and thus dropped).
@@ -518,6 +543,27 @@ def detect_rooms(
         WALL_MIN_STROKE_WIDTH_PX, ROOM_BARRIER_STROKE_RATIO * stroke_ref
     )
 
+    seg_by_path: dict[int, list] = {}
+    for s in network.segments:
+        for pi in s.face_path_indices:
+            seg_by_path.setdefault(pi, []).append(s)
+
+    def _paired_extent_frac(f):
+        """Fraction of the face run covered by its own segments' bands."""
+        own = {id(s): s for pi in f.indices for s in seg_by_path.get(pi, ())}
+        if not own:
+            return 0.0
+        line = LineString([f.p1, f.p2])
+        if line.length <= 0:
+            return 1.0
+        bands = unary_union([
+            LineString([s.p1, s.p2]).buffer(
+                s.thickness_px / 2.0 + ROOM_WALL_DILATE_PX
+            )
+            for s in own.values()
+        ])
+        return line.intersection(bands).length / line.length
+
     def _is_barrier_face(f):
         if _in_door_zone(f.p1, f.p2):
             return False
@@ -530,7 +576,16 @@ def detect_rooms(
         if f.wall_fill or f.layer_hint:
             return True
         if f.indices & paired_indices:
-            return True
+            # Pairing is index-granular: a face qualifies even when one tiny
+            # sliver of it paired. Unstroked faces (material-backed hairline
+            # partitions, fill outlines) keep that privilege — pairing plus
+            # material IS their wall evidence. A stroked face penned under
+            # the barrier gate (tile/paving pen) must instead earn full-
+            # length status: its segments — which already seal as solids —
+            # covering most of the run (ROOM_PAIRED_FACE_MIN_FRAC).
+            if not f.stroked or f.stroke_width >= stroke_gate:
+                return True
+            return _paired_extent_frac(f) >= ROOM_PAIRED_FACE_MIN_FRAC
         return f.stroked and f.stroke_width >= stroke_gate
 
     line_parts = [
@@ -702,8 +757,18 @@ def detect_rooms(
     # the cavity's inner face and the threshold line came out as its own
     # component. Fallback-tier doors get no dissolution power, consistent
     # with every other seal privilege.
+    # Folding doors get a wall-band-deep zone: a parked stack stands off its
+    # opening plane by the threshold depth (slot drain / blind-box zone on
+    # 5-1133's kitchen CL doors), so the fenced recess between the stack
+    # bbox and the wall band it serves falls outside the ⊕SEAL zone — still
+    # doorway floor, never a room.
     swing_zones = [
-        box(*c.bbox).buffer(ROOM_OPENING_SEAL_PX, join_style=2)
+        box(*c.bbox).buffer(
+            WALL_MAX_THICKNESS_PX
+            if c.evidence.get("assembly_type") == "folding"
+            else ROOM_OPENING_SEAL_PX,
+            join_style=2,
+        )
         for c in doors
         if c.confidence >= ROOM_OPENING_MIN_CONFIDENCE
     ]
