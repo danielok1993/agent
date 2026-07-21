@@ -102,8 +102,16 @@
   "100": "TestWindowInteriorClutter",
   "101": "TestMarkerRings",
   "102": "TestNetworkQueries",
+  "103": "plumber.py",
+  "104": "extractor.py",
+  "105": "PageData",
+  "106": "_resolve_door_window_conflicts",
   "107": "TestWindowArbitraryAngle",
+  "108": "renderer.py",
   "109": "TestFloorPlansRegression",
+  "110": "batch_extract.py",
   "111": "app.py",
-  "114": "_projected_interval"
+  "112": "_collect_linework_door_leaves",
+  "113": "DoorEvidencePropagationTests",
+  "114": ".wall_stroke_reference"
 }

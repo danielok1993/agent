@@ -45,8 +45,8 @@
     "semantic_hash": ""
   },
   "detection/doors/constants.py": {
-    "mtime": 1784158997.6058974,
-    "ast_hash": "898014e59b7c15ed4112ce05921154c9",
+    "mtime": 1784649912.9043434,
+    "ast_hash": "88815411a06acc9575fb772c0d16a560",
     "semantic_hash": ""
   },
   "detection/doors/detect.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1784159533.9650664,
-    "ast_hash": "7db43cbbc4b09aa903636fb8c0023177",
+    "mtime": 1784650242.821817,
+    "ast_hash": "c212817cf0388904ad2952939c172bef",
     "semantic_hash": ""
   },
   "README.md": {
@@ -200,8 +200,8 @@
     "semantic_hash": ""
   },
   "docs/door-detection-tuning-guide.md": {
-    "mtime": 1784159506.0076287,
-    "ast_hash": "59736b84ebeac9cb72f8f3e3e735cbb1",
+    "mtime": 1784650201.5550992,
+    "ast_hash": "8b83dacb18e2ef93b37f57af4ebdfcc7",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-06-16-polyline-arc-spur-pruning.md": {
@@ -260,8 +260,8 @@
     "semantic_hash": "7e97b365d511345bf454fd3cd9af1d92"
   },
   "detection/rooms.py": {
-    "mtime": 1784629508.8006158,
-    "ast_hash": "ac2eb8b5a29eb4b5872914af4db322b2",
+    "mtime": 1784632522.6766653,
+    "ast_hash": "1f2d9605477cc985da171c1d02ae3a04",
     "semantic_hash": ""
   },
   "tests/test_cross_validate.py": {
@@ -290,23 +290,23 @@
     "semantic_hash": ""
   },
   "detection/doors/sliding.py": {
-    "mtime": 1783629202.6550517,
-    "ast_hash": "30144d3145985824c6dafcc781c91c0f",
+    "mtime": 1784649912.9046185,
+    "ast_hash": "27b2d36e2e46adc6e94cb1b50aca563d",
     "semantic_hash": ""
   },
   "tests/test_sliding_doors.py": {
-    "mtime": 1783629202.675294,
-    "ast_hash": "20c62a2e2055ac7f72153eadd83bd98f",
+    "mtime": 1784650023.273878,
+    "ast_hash": "5eebdf6c2f7b3e38a82f855ed02fecd3",
     "semantic_hash": ""
   },
   "detection/doors/folding.py": {
-    "mtime": 1784159047.6302123,
-    "ast_hash": "797a68c09e26be4697ea4fc0dd9ed9b0",
+    "mtime": 1784649912.9044867,
+    "ast_hash": "2606244042db58de8cbfc51c2b17ef68",
     "semantic_hash": ""
   },
   "tests/test_folding_doors.py": {
-    "mtime": 1784159200.1146753,
-    "ast_hash": "93848cab4efdcaa70cfd1f7cd8730002",
+    "mtime": 1784650054.438414,
+    "ast_hash": "a9c1cdc28ea5cd96dd984f96d549d62a",
     "semantic_hash": ""
   }
 }
