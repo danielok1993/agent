@@ -30,7 +30,7 @@ from __future__ import annotations
 
 import math
 
-from shapely.geometry import LineString, Polygon, box
+from shapely.geometry import LineString, Point, Polygon, box
 from shapely.ops import unary_union
 
 from models import BBox, Candidate, TextSpan
@@ -147,6 +147,21 @@ ROOM_PLUG_IN_WALL_FRAC      = 0.80    # min area fraction of a fallback-tier doo
                                       # ("costs nothing" made literal). Annotation boxes
                                       # floating NEAR a wall measure <= ~0.77 while
                                       # on-plane plugs measure 0.84+
+ROOM_FOLD_SPAN_TOL          = 0.15    # |wall gap - Σ leaf lengths| / Σ leaf lengths for
+                                      # a folding chain's opening (the span law: closed,
+                                      # the chain covers its opening exactly). A parked
+                                      # chain measures ~0 dev (GD2 on 5-1133: 222px gap
+                                      # vs 223px leaf run); a half-open concertina drawn
+                                      # across its opening foreshortens by cos of the
+                                      # fold half-angle, still inside 15%
+ROOM_FOLD_STACK_NEAR_PX     = 24.0    # the chain bbox must lie within this of the gap
+                                      # axis: leaves fold flat against the wall run at
+                                      # the jamb, so the stack hugs the opening plane
+                                      # (jamb scale, cf. ROOM_PLUG_ANCHOR_WIN_PX)
+ROOM_FOLD_JAMB_MIN_LEN_PX   = 24.0    # gap rays start only at ends of jamb-scale wall
+                                      # segments, not annotation slivers
+ROOM_FOLD_GAP_ESCAPE_PX     = 4.0     # ray start offset past the segment end, clearing
+                                      # the segment's own flat-capped solid
 ROOM_OPENING_TEXT_COVER_MAX = 0.60    # a door bbox covered this much by the text
                                       # written inside it is an annotation box ("WALL
                                       # TYPE 1" tags detected as leaf rectangles), not
@@ -331,6 +346,60 @@ def _door_plugs(bbox, wall_material, skip_edges=frozenset()) -> list[tuple[Polyg
              kind)
         )
     return plugs
+
+
+def _folding_chain_gap_plug(
+    candidate: Candidate, network: WallNetwork, wall_material,
+) -> Polygon | None:
+    """Seal the doorway a PARKED folding chain leaves uncovered.
+
+    A concertina drawn folded against one jamb has a bbox covering only the
+    parked stack, never the opening it closes (GD2 on 5-1133: three ~74px
+    leaves parked inside the kitchen against the south jamb of a 222px
+    doorway — the bbox sits wholly beside the opening plane, so no plug edge
+    can ever qualify there and the hallway leaks into the kitchen). The
+    opening is recovered by the same span law the stack_pair detector uses:
+    walking from a wall-segment end along the segment axis, the free gap
+    before the next drawn wall material must equal the chain's total leaf
+    run, and the stack must hug that gap axis. Both gap ends anchor on drawn
+    wall material by construction — the plug carries the interrupted-run
+    evidence the plug tier requires, never a bare stamp into free space.
+    """
+    ev = candidate.evidence
+    leaf_run = ev.get("leaf_count", 0) * ev.get("panel_length_px", 0.0)
+    if leaf_run <= 0:
+        return None
+    door_box = box(*candidate.bbox)
+    best: tuple[float, Polygon] | None = None
+    for s in network.segments:
+        seg_len = _line_length(s.p1, s.p2)
+        if seg_len < ROOM_FOLD_JAMB_MIN_LEN_PX:
+            continue
+        for end, other in ((s.p1, s.p2), (s.p2, s.p1)):
+            ux = (end[0] - other[0]) / seg_len
+            uy = (end[1] - other[1]) / seg_len
+            reach = leaf_run * (1.0 + ROOM_FOLD_SPAN_TOL)
+            ray = LineString([
+                (end[0] + ux * ROOM_FOLD_GAP_ESCAPE_PX,
+                 end[1] + uy * ROOM_FOLD_GAP_ESCAPE_PX),
+                (end[0] + ux * reach, end[1] + uy * reach),
+            ])
+            if ray.distance(door_box) > ROOM_FOLD_STACK_NEAR_PX:
+                continue
+            hit = ray.intersection(wall_material)
+            if hit.is_empty:
+                continue
+            gap = hit.distance(Point(end))
+            dev = abs(gap - leaf_run) / leaf_run
+            if dev > ROOM_FOLD_SPAN_TOL:
+                continue
+            if best is None or dev < best[0]:
+                half = s.thickness_px / 2.0 + ROOM_WALL_DILATE_PX
+                plug = LineString([
+                    end, (end[0] + ux * gap, end[1] + uy * gap)
+                ]).buffer(half, cap_style=2)
+                best = (dev, plug)
+    return best[1] if best else None
 
 
 def _free_space_components(page, barriers) -> list[Polygon]:
@@ -589,6 +658,16 @@ def detect_rooms(
                     c.bbox, unary_union([local] + leaves),
                     skip_edges=leaf_edges,
                 )
+        # A folding chain parked at its jamb never spans its own doorway, so
+        # bbox-edge plugs cannot seal the opening plane — recover it via the
+        # span law (gap between wall ends == total leaf run) and plug across.
+        if (
+            c.evidence.get("fold_style") == "chain"
+            and c.confidence >= ROOM_OPENING_MIN_CONFIDENCE
+        ):
+            gap_plug = _folding_chain_gap_plug(c, network, wall_material)
+            if gap_plug is not None:
+                plugs = plugs + [(gap_plug, "chain_gap")]
         if plugs:
             door_barriers.append(unary_union([p for p, _ in plugs]))
         elif c.confidence >= ROOM_BBOX_SEAL_MIN_CONFIDENCE:

@@ -105,6 +105,16 @@ WALL_WEAK_MIN_RUN_PX         = 30.0  # min weak-pair centerline length: shorter
 WALL_WEAK_MATERIAL_MIN_MARKS = 4     # short stubs (corner posts) still need a real X-block
 WALL_WEAK_MATERIAL_MIN_SPAN  = 0.5   # marks must spread along the band, not clump at one end
 WALL_WEAK_MATERIAL_PER_100PX = 3.0   # min diagonal marks per 100px of band length
+WALL_WEAK_MATERIAL_EDGE_PX   = 2.5   # marks this close to a band face don't count: a
+                                     # dimension tick's midpoint lies ON the dimension
+                                     # line it crosses, so when two dimension lines pair
+                                     # into a band the ticks ride the faces, never the
+                                     # interior. Real material (hatch runs, blocking X's)
+                                     # has midpoints inside the band. Measured on 5-1133:
+                                     # the "3.5 bricks/250" dimension line paired with a
+                                     # 1281px setout hairline at wall-like spacing, and
+                                     # its 3 ticks + 2 leader-arrowhead barbs passed the
+                                     # gate, chopping the kitchen in two at y=365.
 WALL_WEAK_MATERIAL_ANGLE_MIN = 20.0  # stroke-vs-band-axis window; wide enough for the
 WALL_WEAK_MATERIAL_ANGLE_MAX = 70.0  # ~25deg/~65deg diagonals of oblong blocking rects
 WALL_WEAK_CLAIM_MARGIN_PX    = 2.0   # a weak pair is dropped when a KEPT, meaningfully
@@ -860,9 +870,13 @@ def _band_has_wall_material(
     """True when the band under a centerline carries drawn wall material.
 
     Counts short strokes diagonal to the band axis whose midpoint lies inside
-    the band, and requires them dense (WALL_WEAK_MATERIAL_PER_100PX) and
-    spread along the band (WALL_WEAK_MATERIAL_MIN_SPAN) — a symbol clumped at
-    one end of a long fixture run must not turn the whole run into wall.
+    the band INTERIOR, and requires them dense (WALL_WEAK_MATERIAL_PER_100PX)
+    and spread along the band (WALL_WEAK_MATERIAL_MIN_SPAN) — a symbol clumped
+    at one end of a long fixture run must not turn the whole run into wall.
+    Marks hugging a face (within WALL_WEAK_MATERIAL_EDGE_PX) are annotation
+    crossing that face — dimension ticks centred on their dimension line —
+    not material between the faces; the interior floor keeps thin bands from
+    rejecting their own centred hatch.
     """
     length = _line_length(c.p1, c.p2)
     if length < 1e-6:
@@ -870,7 +884,9 @@ def _band_has_wall_material(
     ux = (c.p2[0] - c.p1[0]) / length
     uy = (c.p2[1] - c.p1[1]) / length
     axis_angle = _line_angle_deg(c.p1, c.p2)
-    half = c.thickness / 2.0 + 1.0
+    half = max(
+        c.thickness / 2.0 - WALL_WEAK_MATERIAL_EDGE_PX, c.thickness * 0.25
+    )
     ts: list[float] = []
     for (mx, my), angle in marks:
         t = (mx - c.p1[0]) * ux + (my - c.p1[1]) * uy
