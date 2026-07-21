@@ -23,10 +23,13 @@ from detection.doors.constants import (
     DOOR_SLIDE_LATERAL_FACTOR, DOOR_SLIDE_LENGTH_RATIO_TOL,
     DOOR_SLIDE_OVERLAP_MAX_FRAC, DOOR_SLIDE_OVERLAP_MIN_FRAC,
     DOOR_SLIDE_PANEL_MAX_THICKNESS_PX, DOOR_SLIDE_PANEL_MERGE_TOL_PX,
-    DOOR_SLIDE_PANEL_MIN_THICKNESS_PX, DOOR_SLIDE_PROTRUSION_MAX_FRAC,
+    DOOR_SLIDE_PANEL_MIN_THICKNESS_PX, DOOR_SLIDE_PARK_BAND_MAX_TH_PX,
+    DOOR_SLIDE_PARK_BAND_MIN_TH_PX, DOOR_SLIDE_PARK_FACE_COVER_MIN,
+    DOOR_SLIDE_PARK_GAP_MAX_PX, DOOR_SLIDE_PARK_JAMB_TOL_PX,
+    DOOR_SLIDE_PARK_SPAN_RATIO_TOL, DOOR_SLIDE_PROTRUSION_MAX_FRAC,
     DOOR_SLIDE_PROTRUSION_MIN_FRAC, DOOR_SLIDE_RECT_PARALLEL_TOL_DEG,
-    DOOR_SLIDE_RECT_PERP_TOL_DEG, DOOR_SLIDE_ZONE_MAX_CROSSERS,
-    DOOR_SLIDE_ZONE_WIDTH_FACTOR,
+    DOOR_SLIDE_RECT_PERP_TOL_DEG, DOOR_SLIDE_STROKED_RING_SNAP_TOL_PX,
+    DOOR_SLIDE_ZONE_MAX_CROSSERS, DOOR_SLIDE_ZONE_WIDTH_FACTOR,
 )
 
 
@@ -127,25 +130,15 @@ def _snap_key(point: tuple[float, float], tol: float) -> tuple[int, int]:
     return (round(point[0] / tol), round(point[1] / tol))
 
 
-def _white_ring_rects(paths: list[PathPrimitive]) -> list[tuple[dict, list[int], PathPrimitive]]:
-    """Closed 4-8 segment loops of white-filled `l` items, as oriented rects.
-
-    The Vectorworks joinery signature: every sliding panel is drawn as a
-    background-fill (white) polygon of exploded `l` edges, usually doubled by
-    a stroked `qu` outline (merged later by `_collect_slide_panels`).
-    """
-    segs: list[tuple[PathPrimitive, tuple[float, float], tuple[float, float]]] = []
-    for path in paths:
-        if not _is_background_fill(path.fill):
-            continue
-        ok, p1, p2 = _is_line_path(path)
-        if ok and _distance(p1, p2) > 1.0:
-            segs.append((path, p1, p2))
-
+def _ring_rects(
+    segs: list[tuple[PathPrimitive, tuple[float, float], tuple[float, float]]],
+    snap_tol: float,
+) -> list[tuple[dict, list[int], PathPrimitive]]:
+    """Closed 4-8 segment loops among the given `l` segments, as oriented rects."""
     buckets: dict[tuple[int, int], list[int]] = defaultdict(list)
     for idx, (_, p1, p2) in enumerate(segs):
-        buckets[_snap_key(p1, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)].append(idx)
-        buckets[_snap_key(p2, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)].append(idx)
+        buckets[_snap_key(p1, snap_tol)].append(idx)
+        buckets[_snap_key(p2, snap_tol)].append(idx)
     adjacency: list[set[int]] = [set() for _ in segs]
     for ids in buckets.values():
         if len(ids) > 8:
@@ -173,8 +166,8 @@ def _white_ring_rects(paths: list[PathPrimitive]) -> list[tuple[dict, list[int],
         pts: list[tuple[float, float]] = []
         for i in component:
             _, p1, p2 = segs[i]
-            degrees[_snap_key(p1, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)] += 1
-            degrees[_snap_key(p2, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)] += 1
+            degrees[_snap_key(p1, snap_tol)] += 1
+            degrees[_snap_key(p2, snap_tol)] += 1
             pts.extend((p1, p2))
         if any(d != 2 for d in degrees.values()):
             continue
@@ -186,7 +179,41 @@ def _white_ring_rects(paths: list[PathPrimitive]) -> list[tuple[dict, list[int],
     return rects
 
 
-def _collect_slide_panels(paths: list[PathPrimitive]) -> list[_SlidePanel]:
+def _line_segs(
+    paths: list[PathPrimitive], want_white: bool
+) -> list[tuple[PathPrimitive, tuple[float, float], tuple[float, float]]]:
+    segs = []
+    for path in paths:
+        if _is_background_fill(path.fill) != want_white:
+            continue
+        if not want_white and path.fill is not None:
+            continue  # colored solid fills are furniture/poche, never a panel outline
+        ok, p1, p2 = _is_line_path(path)
+        if ok and _distance(p1, p2) > 1.0:
+            segs.append((path, p1, p2))
+    return segs
+
+
+def _white_ring_rects(paths: list[PathPrimitive]) -> list[tuple[dict, list[int], PathPrimitive]]:
+    """Closed loops of white-filled `l` items — the Vectorworks joinery
+    signature: every sliding panel is drawn as a background-fill (white)
+    polygon of exploded `l` edges, usually doubled by a stroked `qu` outline
+    (merged later by `_collect_slide_panels`)."""
+    return _ring_rects(_line_segs(paths, True), DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX)
+
+
+def _stroked_ring_rects(paths: list[PathPrimitive]) -> list[tuple[dict, list[int], PathPrimitive]]:
+    """Closed loops of fill-less stroked `l` items — the flattened-PDF drawing
+    style (Microsoft Print to PDF strips fills), where a sliding panel is a
+    bare 4-segment rectangle. Snapped at CAD precision: the white-ring 3px
+    buckets would chain a stroked ring into the adjacent wall linework and
+    reject it as an oversized component."""
+    return _ring_rects(_line_segs(paths, False), DOOR_SLIDE_STROKED_RING_SNAP_TOL_PX)
+
+
+def _collect_slide_panels(
+    paths: list[PathPrimitive], include_stroked_rings: bool = False
+) -> list[_SlidePanel]:
     raw: list[_SlidePanel] = []
 
     for path in paths:
@@ -217,6 +244,23 @@ def _collect_slide_panels(paths: list[PathPrimitive]) -> list[_SlidePanel]:
             layer=first_path.layer,
             layer_hint=_layer_hint_from_layer(first_path.layer, DOOR_LAYER_KEYWORDS),
         ))
+
+    # Stroked (fill-less) rings carry none of the joinery fill signature, so
+    # they only ever feed the parked_leaf pattern, whose band/jamb/slide-law
+    # gates supply the missing evidence — the pair pool excludes them.
+    if include_stroked_rings:
+        for rect, indices, first_path in _stroked_ring_rects(paths):
+            if not _panel_shape_ok(rect):
+                continue
+            raw.append(_SlidePanel(
+                center=rect["center"], length=rect["length"], thickness=rect["thickness"],
+                axis_deg=rect["axis_deg"], corners=rect["corners"],
+                bbox=_corners_bbox(rect["corners"]),
+                path_indices=indices, sources=["stroked_ring"],
+                white=False,
+                layer=first_path.layer,
+                layer_hint=_layer_hint_from_layer(first_path.layer, DOOR_LAYER_KEYWORDS),
+            ))
 
     # Merge coincident representations (white ring + stroked qu of one panel).
     merged: list[_SlidePanel] = []
@@ -385,6 +429,144 @@ def _pocket_leaf_match(
     }
 
 
+def _parked_leaf_match(
+    panel: _SlidePanel,
+    line_paths: list[PathPrimitive],
+) -> tuple[dict, list[tuple[float, float]]] | None:
+    """parked_leaf pattern: a thin closed panel parked flush along one face of
+    a wall band that ends at a jamb, with a clear opening of ~one panel length
+    beyond the jamb — the slide law: the panel covers the opening exactly when
+    slid along its own axis. This is the evidence tier for fill-less drawings
+    (no white joinery signature): band + jamb + slide law replace the fill.
+    Returns (metrics, opening corridor corner points) or None."""
+    own = set(panel.path_indices)
+    half_len = panel.length / 2
+    half_th = panel.thickness / 2
+
+    parallels: list[tuple[float, float, float]] = []
+    obliques: list[tuple[tuple[float, float], tuple[float, float]]] = []
+    endpoints: list[tuple[float, float]] = []
+    for path in line_paths:
+        if path.path_index in own:
+            continue
+        ok, p1, p2 = _is_line_path(path)
+        if not ok or _distance(p1, p2) < 4.0:
+            continue
+        t1, d1 = _axial_offsets(panel, p1)
+        t2, d2 = _axial_offsets(panel, p2)
+        endpoints.extend(((t1, d1), (t2, d2)))
+        delta = _angle_diff_mod180(_line_angle_deg(p1, p2), panel.axis_deg)
+        if delta <= DOOR_SLIDE_AXIS_TOL_DEG and abs(d1 - d2) <= 3.0:
+            parallels.append(((d1 + d2) / 2, min(t1, t2), max(t1, t2)))
+        elif delta > 30.0:
+            obliques.append(((t1, d1), (t2, d2)))
+
+    # 1) The hugged band face: flush alongside one long edge, running behind
+    #    (almost) the whole panel.
+    face = None
+    for lat, lo, hi in parallels:
+        gap = abs(lat) - half_th
+        if not (DOOR_SLIDE_FLANK_GAP_MIN_PX <= gap <= DOOR_SLIDE_PARK_GAP_MAX_PX):
+            continue
+        cover = (min(hi, half_len) - max(lo, -half_len)) / panel.length
+        if cover < DOOR_SLIDE_PARK_FACE_COVER_MIN:
+            continue
+        if face is None or cover > face[3]:
+            face = (lat, lo, hi, cover)
+    if face is None:
+        return None
+    face_lat, face_lo, face_hi, face_cover = face
+    side = 1.0 if face_lat > 0 else -1.0
+
+    # 2) The face belongs to a wall band: a partner face farther out on the
+    #    same side at band-like spacing, running with it.
+    band = None
+    for lat, lo, hi in parallels:
+        depth = (lat - face_lat) * side
+        if not (DOOR_SLIDE_PARK_BAND_MIN_TH_PX <= depth <= DOOR_SLIDE_PARK_BAND_MAX_TH_PX):
+            continue
+        if min(hi, face_hi) - max(lo, face_lo) < 0.5 * (face_hi - face_lo):
+            continue
+        if band is None or depth < band[3]:
+            band = (lat, lo, hi, depth)
+    if band is None:
+        return None
+    band_lat, band_lo, band_hi, band_th = band
+
+    # 3) The band ends at a jamb aligned with one panel end (both faces end
+    #    together there), and runs past the panel's other end.
+    jamb = None
+    tol = DOOR_SLIDE_PARK_JAMB_TOL_PX
+    if (
+        abs(face_lo + half_len) <= tol
+        and face_hi >= half_len - tol
+        and abs(band_lo - face_lo) <= tol / 2
+    ):
+        jamb = (face_lo, -1.0)
+    elif (
+        abs(face_hi - half_len) <= tol
+        and face_lo <= -half_len + tol
+        and abs(band_hi - face_hi) <= tol / 2
+    ):
+        jamb = (face_hi, 1.0)
+    if jamb is None:
+        return None
+    t_jamb, opening_dir = jamb
+
+    # 4) Slide law: the nearest linework endpoint in the band corridor beyond
+    #    the jamb (the far jamb) sits ~one panel length away.
+    lat_lo = min(face_lat, band_lat) - 1.0
+    lat_hi = max(face_lat, band_lat) + 1.0
+    span = None
+    for t, d in endpoints:
+        if not (lat_lo <= d <= lat_hi):
+            continue
+        dist = (t - t_jamb) * opening_dir
+        if dist < 2.0:
+            continue
+        if span is None or dist < span:
+            span = dist
+    if span is None:
+        return None
+    span_dev = abs(span - panel.length) / panel.length
+    if span_dev > DOOR_SLIDE_PARK_SPAN_RATIO_TOL:
+        return None
+
+    # 5) The opening corridor is clear (jamb end caps sit on its margins).
+    o_lo, o_hi = sorted((t_jamb, t_jamb + opening_dir * span))
+    crossers = 0
+    for (t1, d1), (t2, d2) in obliques:
+        if max(t1, t2) < o_lo + 1.0 or min(t1, t2) > o_hi - 1.0:
+            continue
+        if max(d1, d2) < lat_lo or min(d1, d2) > lat_hi:
+            continue
+        crossers += 1
+    if crossers > DOOR_SLIDE_ZONE_MAX_CROSSERS:
+        return None
+
+    theta = math.radians(panel.axis_deg)
+    ux, uy = math.cos(theta), math.sin(theta)
+
+    def to_page(t: float, d: float) -> tuple[float, float]:
+        return (
+            panel.center[0] + t * ux - d * uy,
+            panel.center[1] + t * uy + d * ux,
+        )
+
+    far = t_jamb + opening_dir * span
+    corridor = [to_page(t, d) for t in (t_jamb, far) for d in (face_lat, band_lat)]
+    metrics = {
+        "flank_gap_px": round(abs(face_lat) - half_th, 2),
+        "face_cover_frac": round(face_cover, 3),
+        "band_thickness_px": round(band_th, 1),
+        "opening_span_px": round(span, 1),
+        "span_ratio_dev": round(span_dev, 3),
+        "zone_crossers": crossers,
+        "opening_bbox": [round(v, 1) for v in _corners_bbox(corridor)],
+    }
+    return metrics, corridor
+
+
 def _detect_sliding_doors(
     paths: list[PathPrimitive],
     line_paths: list[PathPrimitive],
@@ -403,17 +585,18 @@ def _detect_sliding_doors(
     rectangles would otherwise produce (without ever suppressing neighbours
     that merely share wall linework).
     """
-    panels = _collect_slide_panels(paths)
+    panels = _collect_slide_panels(paths, include_stroked_rings=True)
     candidates: list[Candidate] = []
 
     def mint(
         slide_style: str,
         involved: list[_SlidePanel],
         metrics: dict,
+        extra_points: list[tuple[float, float]] | None = None,
     ) -> Candidate:
         nonlocal cand_idx
         corners = [c for p in involved for c in p.corners]
-        bbox = _corners_bbox(corners)
+        bbox = _corners_bbox(corners + (extra_points or []))
         nearby_label = _find_nearby_label(
             bbox, text_spans, DOOR_LABEL_SEARCH_RADIUS_PX, DOOR_LABEL_PATTERN,
         )
@@ -464,7 +647,10 @@ def _detect_sliding_doors(
             )
         return candidate
 
-    for panel_a, panel_b, metrics in _pair_leaf_panels(panels):
+    # Stroked-only rings never enter the pair pool: two coincident joinery
+    # rectangles carry none of the leaf_pair calibration evidence.
+    pairable = [p for p in panels if p.sources != ["stroked_ring"]]
+    for panel_a, panel_b, metrics in _pair_leaf_panels(pairable):
         candidates.append(mint("leaf_pair", [panel_a, panel_b], metrics))
 
     for panel in panels:
@@ -479,5 +665,17 @@ def _detect_sliding_doors(
             continue
         panel.consumed = True
         candidates.append(mint("pocket_leaf", [panel], metrics))
+
+    for panel in panels:
+        if panel.consumed:
+            continue
+        if any(_bboxes_overlap(panel.bbox, swing.bbox) for swing in swings):
+            continue
+        match = _parked_leaf_match(panel, line_paths)
+        if match is None:
+            continue
+        metrics, corridor = match
+        panel.consumed = True
+        candidates.append(mint("parked_leaf", [panel], metrics, corridor))
 
     return candidates, cand_idx

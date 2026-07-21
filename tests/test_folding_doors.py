@@ -162,5 +162,69 @@ class EndToEndTests(unittest.TestCase):
         self.assertEqual(doors[0].evidence["assembly_type"], "folding")
 
 
+class OpenVTests(unittest.TestCase):
+    """open_v: a lone bifold drawn half-open as a wide V of stroked
+    double-line leaves (the floor-plans.pdf paths-1739-1742 geometry,
+    real coordinates)."""
+
+    def _v_leaves(self):
+        return [
+            # Leaf A: two edge lines from the top jamb to the hinge.
+            line(0, (411.75, 969.25), (392.5, 955.5)),
+            line(1, (389.25, 955.5), (410.25, 970.5)),
+            # Leaf B: hinge back to the wall plane, plus the outer end cap.
+            line(2, (392.5, 985.5), (411.75, 971.75)),
+            line(3, (410.25, 970.5), (391.5, 984.0)),
+            line(4, (391.5, 984.0), (392.5, 985.5)),
+        ]
+
+    def _jambs(self):
+        return [
+            # Top jamb: the wall band faces ending at the anchored tip.
+            line(10, (387.5, 955.5), (387.5, 917.75)),
+            line(11, (394.5, 955.5), (394.5, 920.75)),
+            # Far jamb: the tee-band cap across the opening's other end.
+            line(12, (394.5, 1018.25), (394.5, 1011.25)),
+        ]
+
+    def test_open_v_detected(self):
+        folds = folding_of(detect(self._v_leaves() + self._jambs()))
+        self.assertEqual(len(folds), 1)
+        self.assertEqual(folds[0].evidence["fold_style"], "open_v")
+        self.assertEqual(folds[0].evidence["leaf_count"], 2)
+        self.assertEqual(folds[0].evidence["leaf_sources"], ["line_pair"] * 2)
+        self.assertAlmostEqual(folds[0].evidence["fold_angles_deg"][0], 71.2, delta=1.0)
+        self.assertAlmostEqual(folds[0].confidence, 0.65, places=2)
+        # The bbox spans the opening down to the far jamb.
+        self.assertGreater(folds[0].bbox[3], 1010.0)
+
+    def test_unanchored_v_rejected(self):
+        # No wall-line jamb ends at either tip: chance oblique joinery.
+        self.assertEqual(folding_of(detect(self._v_leaves())), [])
+
+    def test_span_mismatch_rejected(self):
+        # Far jamb at half the leaf run: the span law fails.
+        paths = self._v_leaves() + self._jambs()[:2]
+        paths.append(line(12, (394.5, 1000.0), (394.5, 993.0)))
+        self.assertEqual(folding_of(detect(paths)), [])
+
+    def test_orthogonal_corner_rejected(self):
+        # Two equal double-line strips meeting at 90 degrees (an oblique
+        # L-corner of counter joinery) sit above the fold-angle ceiling.
+        c, s = math.cos(math.radians(40.0)), math.sin(math.radians(40.0))
+        hinge = (200.0 + 50.0 * c, 200.0 + 50.0 * s)
+        nx, ny = -s * 3.0, c * 3.0
+        c2, s2 = math.cos(math.radians(130.0)), math.sin(math.radians(130.0))
+        tip2 = (hinge[0] + 50.0 * c2, hinge[1] + 50.0 * s2)
+        nx2, ny2 = -s2 * 3.0, c2 * 3.0
+        paths = [
+            line(0, (200.0, 200.0), hinge),
+            line(1, (200.0 + nx, 200.0 + ny), (hinge[0] + nx, hinge[1] + ny)),
+            line(2, hinge, tip2),
+            line(3, (hinge[0] + nx2, hinge[1] + ny2), (tip2[0] + nx2, tip2[1] + ny2)),
+        ]
+        self.assertEqual(folding_of(detect(paths)), [])
+
+
 if __name__ == "__main__":
     unittest.main()

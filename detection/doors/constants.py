@@ -150,6 +150,29 @@ DOOR_SLIDE_ZONE_MAX_CROSSERS      = 2     # jamb/end-cap linework in the zone is
                                           # wall hatch continuation measures ≥3
 DOOR_SLIDE_ASSEMBLY_BASE          = 0.65  # same tier as the qu/re rect-leaf swing assembly
 
+# parked_leaf sub-pattern: a single thin closed panel parked flush along one
+# face of a wall band that ENDS at a jamb, with a clear opening of ~one panel
+# length beyond the jamb (the slide law: the panel covers the opening when
+# slid along its own axis). This is the fill-less drawing style (Microsoft
+# Print to PDF flattens fills away), so the panel may be a closed STROKED
+# `l` ring — the white joinery signature is replaced by the band + jamb +
+# slide-law evidence. Calibrated on floor-plans.pdf door_0011 (panel 3.0 ×
+# 51.25 px hugging the hall jamb band at gap 0.75, opening span 51.25).
+DOOR_SLIDE_STROKED_RING_SNAP_TOL_PX = 1.0  # stroked rings snap at CAD precision; the white-ring 3.0px
+                                           # buckets chain a stroked ring into the surrounding wall
+                                           # linework (measured: ring 954/955 bucket-merges with wall
+                                           # face 951 at tol 3, component >8 segs, ring rejected)
+DOOR_SLIDE_PARK_GAP_MAX_PX     = 6.0   # panel-to-band-face gap; parked means flush (measured 0.75).
+                                       # Tighter than the pocket cavity's 12: no pocket walls here.
+DOOR_SLIDE_PARK_FACE_COVER_MIN = 0.80  # the hugged band face runs behind (almost) the whole panel
+                                       # (measured 0.94); a short face is a sill/tick, not the band
+DOOR_SLIDE_PARK_BAND_MIN_TH_PX = 2.0   # face + partner face = a wall band, not a lone line
+DOOR_SLIDE_PARK_BAND_MAX_TH_PX = 20.0  # (measured 7.0); beyond is two unrelated parallel walls
+DOOR_SLIDE_PARK_JAMB_TOL_PX    = 8.0   # band end vs panel end alignment (measured 3.0 overhang);
+                                       # a parked panel sits AT its jamb, not mid-band
+DOOR_SLIDE_PARK_SPAN_RATIO_TOL = 0.15  # slide law: opening span ≈ panel length (measured 0.000);
+                                       # a random gap beside a shelf won't match its rect's length
+
 # ---------------------------------------------------------------------------
 # Folding/bifold-door detection (detection/doors/folding.py)
 # Folding doors have NO swing arc either; the symbol is a run of equal thin
@@ -179,3 +202,30 @@ DOOR_FOLD_STACK_MIRROR_TOL_DEG  = 15.0  # stacks fold off the SAME wall plane: m
 DOOR_FOLD_STACK_PERP_EXTENT_MAX = 1.25  # a folded stack projects ≤ ~one leaf length perpendicular
                                         # to the opening axis (measured 0.99-1.00×)
 DOOR_FOLD_ASSEMBLY_BASE    = 0.65  # same tier as sliding / qu-re rect-leaf swing assemblies
+
+# open_v sub-pattern: a lone bifold drawn HALF-OPEN as a wide V of two thin
+# double-line stroked leaves (the fill-less drawing style — no white rings,
+# no qu rects, each leaf is just two near-parallel `l` lines a hair apart).
+# The missing white signature is replaced by physical gates: leaf axes mirror
+# about the tip-to-tip axis, at least one tip anchors on wall-line jamb ENDS
+# parallel to that axis, and the jamb-to-jamb span obeys the span law
+# (≈ Σ leaf lengths). Calibrated on floor-plans.pdf paths 1739-1742 (two
+# 24.7/23.4 px leaves folded 71.2°, span 55.85 vs Σ 48.05 → dev 0.162).
+DOOR_FOLD_OPEN_ANGLE_MIN_DEG   = 40.0  # below is the nearly-closed territory of chain/stack_pair
+                                       # (measured folds there 10.1-20.8°); a half-open V is wide
+DOOR_FOLD_OPEN_ANGLE_MAX_DEG   = 85.0  # capped BELOW 90 so orthogonal corner joinery (counter/
+                                       # wardrobe L-corners) can never match (measured V: 71.2°)
+DOOR_FOLD_OPEN_OBLIQUE_MIN_DEG = 8.0   # leaf lines must be oblique: a half-open V off a straight
+                                       # wall is never axis-aligned, and this excludes the page's
+                                       # bulk axis-aligned linework from the O(n²) pair search
+DOOR_FOLD_LEAF_LINE_SEP_MIN_PX = 0.8   # double-line leaf lateral separation (measured 1.9-2.5);
+DOOR_FOLD_LEAF_LINE_SEP_MAX_PX = 4.0   # 45° hatch at the corpus' tightest 5.7px pitch = 4.03 sep
+DOOR_FOLD_LEAF_LINE_LEN_RATIO_MIN = 0.75  # the two edge lines of one leaf (measured 0.915 — the
+                                          # inner edge is foreshortened at the hinge miter)
+DOOR_FOLD_LEAF_LINE_OVERLAP_MIN = 0.6  # axial overlap of the edge lines (× shorter length)
+DOOR_FOLD_JAMB_ANCHOR_TOL_PX   = 6.0   # jamb line endpoint to leaf tip (measured 3.4/3.6)
+DOOR_FOLD_JAMB_LINE_MIN_LEN_PX = 15.0  # a jamb anchor is a wall face, not a cap/tick
+DOOR_FOLD_JAMB_AXIS_TOL_DEG    = 15.0  # jamb faces run along the opening axis (measured 2.2°)
+DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX = 6.0  # lateral half-width of the opening corridor searched for
+                                         # the far jamb endpoint and crossers (band half-thickness
+                                         # scale; measured far-jamb lateral offsets 1.2-1.8)

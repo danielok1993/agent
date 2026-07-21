@@ -67,9 +67,13 @@ detection/         # heuristic detection (the split monolith)
   windows.py  labels.py  schedules.py  postprocess.py
   doors/           # door subpackage, acyclic: constants <- arcs/leaves/shape/sliding <- folding <- assembly <- detect
                    # sliding.py: arc-less sliding doors from oriented panel-rectangle
-                   # patterns (leaf_pair + pocket_leaf) — see the tuning guide §3.9
+                   # patterns (leaf_pair + pocket_leaf + parked_leaf — the last is the
+                   # fill-less tier: a stroked ring parked at a wall-band jamb, slide
+                   # law opening ≈ panel length) — see the tuning guide §3.9
                    # folding.py: arc-less folding/bifold doors from hinge-connected
-                   # white leaf panels (chain + parked stack_pair) — tuning guide §3.10
+                   # white leaf panels (chain + parked stack_pair) plus open_v — the
+                   # fill-less tier: a lone half-open V of double-line stroked leaves,
+                   # jamb-anchored + span law — tuning guide §3.10
 gemini/client.py   # Vertex AI client (was gemini_client.py)
 debug/             # trace.py (DebugTraceCollector) + renderer.py (HTML viewer)
 tools/             # standalone dev scripts (numpy/cv2)
