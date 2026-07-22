@@ -114,5 +114,7 @@
   "112": "TestFloorPlansRegression",
   "113": "batch_extract.py",
   "114": "app.py",
-  "115": "constants.py"
+  "115": "constants.py",
+  "116": "DoorAssemblyTests",
+  "117": "app.py"
 }
