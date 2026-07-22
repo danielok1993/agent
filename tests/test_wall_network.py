@@ -21,14 +21,15 @@ from detection.walls import (
 )
 
 
-def path(idx, points, item_type="l", stroke_width=1.5, fill=None, dashes="", layer=None):
+def path(idx, points, item_type="l", stroke_width=1.5, fill=None, dashes="",
+         layer=None, color=(0.0, 0.0, 0.0)):
     xs = [p[0] for p in points]
     ys = [p[1] for p in points]
     return PathPrimitive(
         path_index=idx,
         item_type=item_type,
         bbox=(min(xs), min(ys), max(xs), max(ys)),
-        color=(0.0, 0.0, 0.0),
+        color=color,
         fill=fill,
         stroke_width=stroke_width,
         dashes=dashes,
@@ -652,6 +653,100 @@ class TestLatticeDemotion(unittest.TestCase):
         network = detect_wall_network(paths)
         inside = self._segments_inside(network, 495, 95, 545, 405)
         self.assertGreater(len(inside), 0)
+
+
+RED = (1.0, 0.0, 0.0)
+BLUE = (0.0, 0.0, 1.0)
+GREY = (0.86, 0.86, 0.86)
+MAGENTA = (0.75, 0.0, 1.0)
+
+
+class TestPenGates(unittest.TestCase):
+    """Stroke-color pen identity: pairing, faint-ink demotion, dimension
+    chains, and one-sided hatch backing (the floor-plans signatures — the
+    open-plan kitchen was chopped five ways by grey RSJ double lines, blue
+    dimension chains, and cross-pen furniture/dimension pairs, all drawn AT
+    the wall pen widths)."""
+
+    def _segments_inside(self, network, x0, y0, x1, y1):
+        return [
+            s for s in network.segments
+            if x0 <= (s.p1[0] + s.p2[0]) / 2.0 <= x1
+            and y0 <= (s.p1[1] + s.p2[1]) / 2.0 <= y1
+        ]
+
+    def test_cross_pen_faces_do_not_pair(self):
+        # A blue dimension line beside a red cabinet front at wall-like
+        # spacing is annotation coincidence, never a wall band.
+        base = rect_room(0, 100, 100, 400, 400)
+        cross = base + [
+            vline(50, 500, 100, 300, color=BLUE),
+            vline(51, 514, 100, 300, color=RED),
+        ]
+        network = detect_wall_network(cross)
+        self.assertEqual(self._segments_inside(network, 495, 95, 520, 305), [])
+        same = base + [
+            vline(50, 500, 100, 300),
+            vline(51, 514, 100, 300),
+        ]
+        network = detect_wall_network(same)
+        self.assertGreater(
+            len(self._segments_inside(network, 495, 95, 520, 305)), 0
+        )
+
+    def test_light_pen_pair_needs_material(self):
+        # A light-grey double line (an RSJ drawn over the room) is faint
+        # reference ink in the wall pen width; without drawn material
+        # between the faces it must not become a wall band.
+        paths = rect_room(0, 100, 100, 400, 400) + [
+            vline(50, 500, 100, 300, color=GREY),
+            vline(51, 506, 100, 300, color=GREY),
+        ]
+        network = detect_wall_network(paths)
+        self.assertEqual(self._segments_inside(network, 495, 95, 512, 305), [])
+
+    def test_dimension_line_with_end_ticks_excluded(self):
+        # Oblique same-pen ticks centred on BOTH endpoints = dimension
+        # chain member; it must not pair with the parallel wall face below.
+        # Drawn in the WALL pen here so only the tick signature can block it.
+        dim = [
+            hline(50, 150, 350, 80),
+            path(51, [(147.5, 77.5), (152.5, 82.5)]),
+            path(52, [(347.5, 77.5), (352.5, 82.5)]),
+        ]
+        paths = rect_room(0, 100, 100, 400, 400) + dim
+        network = detect_wall_network(paths)
+        used = network.paired_face_indices()
+        self.assertNotIn(50, used)
+        # One-ended tick (a wall a chain terminates against) stays a face.
+        paths = rect_room(0, 100, 100, 400, 400) + dim[:2]
+        network = detect_wall_network(paths)
+        self.assertIn(50, network.paired_face_indices())
+
+    def test_hatched_band_face_is_material_backed(self):
+        # A hatched band drawn with one long face, a short stub partner and
+        # its hatch (floor-plans' dining east wall): the face's own same-pen
+        # hatch is wall evidence even though pairing covers only the stub.
+        paths = rect_room(0, 100, 100, 400, 400, thickness=8.0) + [
+            vline(50, 500, 100, 300, color=MAGENTA, stroke_width=1.0),
+            vline(51, 510, 280, 300, color=MAGENTA, stroke_width=1.0),
+        ] + [
+            path(60 + i, [(500.0, 100.0 + i * 8.0), (508.0, 108.0 + i * 8.0)],
+                 color=MAGENTA, stroke_width=1.0)
+            for i in range(25)
+        ]
+        network = detect_wall_network(paths)
+        backed = [
+            f for f in network.faces
+            if 50 in f.indices and f.material_backed
+        ]
+        self.assertEqual(len(backed), 1)
+        # The same face without the hatch carries no backing.
+        network = detect_wall_network(paths[:10])
+        self.assertEqual(
+            [f for f in network.faces if 50 in f.indices and f.material_backed],
+            [],
+        )
 
 
 if __name__ == "__main__":

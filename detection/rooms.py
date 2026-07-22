@@ -77,6 +77,39 @@ ROOM_PAIRED_FACE_MIN_FRAC   = 0.5     # a STROKED face penned under the barrier 
                                       # backed hairline partitions are real walls with
                                       # legitimately partial pairing (0.13-0.36 where
                                       # openings/text ate the partner face)
+ROOM_WALL_PEN_MIN_FRAC      = 0.15    # a lone stroked face's pen COLOR must carry
+                                      # at least this fraction of the network's
+                                      # paired-face length to grant lone-barrier
+                                      # rights. On width-coded (monochrome)
+                                      # drawings all ink shares one pen and this
+                                      # is a no-op; on color-coded drawings the
+                                      # pen width carries no signal (floor-plans
+                                      # pens furniture red and dimensions blue at
+                                      # 1.5 — AT the wall width, above the walls'
+                                      # own magenta 1.0) and color is the
+                                      # hierarchy: wall pens build most of the
+                                      # paired network (black 0.50 / magenta 0.34
+                                      # of paired length) while annotation pens
+                                      # only pair incidentally (red 0.11, blue
+                                      # 0.06 — a red worktop line fenced a 34px
+                                      # phantom "room" against the utility's
+                                      # south wall, and cabinet fronts fenced the
+                                      # kitchen's cabinet strips)
+ROOM_PLUG_MID_NEAR_PX       = 3.0     # hug distance for the MID emptiness test of
+                                      # the interrupted-run profile — tighter than
+                                      # ROOM_PLUG_NEAR_PX because "empty middle"
+                                      # means empty IN THE OPENING PLANE: a
+                                      # perpendicular wall whose end cap floats a
+                                      # few px off the plane is not material in it
+                                      # (5-1133-style; measured on floor-plans
+                                      # door_0008: the bathroom east wall's top
+                                      # cap 6px below the doorway plane read as
+                                      # mid coverage 0.33 and the true doorway
+                                      # edge qualified for NO plug, merging the
+                                      # bedroom with the landing corridor).
+                                      # Anchors and the full-coverage total keep
+                                      # the 8px hug: jambs legitimately anchor
+                                      # from beside the plane
 ROOM_GAP_CLOSE_PX           = 8.0     # morphological closing: seals drafting gaps up to
                                       # ~2x this; well below door widths so undetected
                                       # doors keep rooms connected (and thus dropped).
@@ -421,11 +454,11 @@ def _door_plugs(
         ext_len = length + 2.0 * ROOM_OPENING_SEAL_PX
         edge_line = LineString([a, b])
         n = max(int(ext_len / ROOM_PLUG_SAMPLE_PX), 8) + 1
-        covered = [
+        dists = [
             edge_line.interpolate(ext_len * i / (n - 1)).distance(wall_material)
-            <= ROOM_PLUG_NEAR_PX
             for i in range(n)
         ]
+        covered = [d <= ROOM_PLUG_NEAR_PX for d in dists]
         quarter = n // 4
         # Anchor window: the legacy n//4 quarter, capped at jamb scale — the
         # anchoring jamb does not grow with the doorway, so on wide (double)
@@ -438,19 +471,36 @@ def _door_plugs(
         end_cov = sum(covered[-win:]) / win
         # Trim the mid window by the hug distance: samples just inside an
         # open doorway still sit within ROOM_PLUG_NEAR_PX of the jamb corner
-        # diagonally and must not count as mid coverage.
+        # diagonally and must not count as mid coverage. Mid coverage itself
+        # uses the tighter in-plane hug (ROOM_PLUG_MID_NEAR_PX): the
+        # interrupted-run middle must be empty IN the opening plane, and a
+        # perpendicular wall's end cap floating a few px off the plane must
+        # not fill the doorway gap.
         trim = quarter + int(math.ceil(ROOM_PLUG_NEAR_PX / ROOM_PLUG_SAMPLE_PX))
-        mid = covered[trim:n - trim] or covered[quarter:n - quarter]
+        in_plane = [d <= ROOM_PLUG_MID_NEAR_PX for d in dists]
+        mid = in_plane[trim:n - trim] or in_plane[quarter:n - quarter]
         mid_cov = sum(mid) / len(mid)
         total_cov = sum(covered) / n
         if start_cov < ROOM_PLUG_END_COV_MIN or end_cov < ROOM_PLUG_END_COV_MIN:
             continue
-        if not (
-            total_cov >= ROOM_PLUG_FULL_COV_MIN
-            or mid_cov <= ROOM_PLUG_MID_COV_MAX
-        ):
+        # Interrupted run = jambs in the plane, nothing between them in the
+        # plane. Both end windows must actually REACH the plug band (within
+        # its half-width — the plug must connect to jamb material, not
+        # float); a parallel band hugging the whole edge from beyond that
+        # anchors both ends at the loose hug and touches nothing — the
+        # profile of an annotation/fixture box beside a wall, not of a
+        # doorway (measured: a real jamb solid ends 3.5px off the bbox edge
+        # on floor-plans door_0008; the white-fixture phantom's parallel
+        # band sits 6px off its bbox edge).
+        touch = [d <= ROOM_PLUG_HALF_WIDTH_PX for d in dists]
+        interrupted = (
+            mid_cov <= ROOM_PLUG_MID_COV_MAX
+            and any(touch[:win])
+            and any(touch[-win:])
+        )
+        if not (total_cov >= ROOM_PLUG_FULL_COV_MIN or interrupted):
             continue
-        kind = "interrupted" if mid_cov <= ROOM_PLUG_MID_COV_MAX else "full"
+        kind = "interrupted" if interrupted else "full"
         plugs.append(
             (LineString([a, b]).buffer(ROOM_PLUG_HALF_WIDTH_PX, cap_style=2),
              kind, edge_idx)
@@ -628,6 +678,26 @@ def detect_rooms(
         WALL_MIN_STROKE_WIDTH_PX, ROOM_BARRIER_STROKE_RATIO * stroke_ref
     )
 
+    # Wall pens: the stroke colors that built the paired network. On
+    # color-coded drawings annotation pens match the walls' WIDTH (or beat
+    # it), so the lone-face weight gate alone would admit every furniture
+    # and dimension line; a pen whose color barely pairs did not draw the
+    # walls. None (colorless/fill-outline geometry) always passes.
+    pen_paired_len: dict[tuple, float] = {}
+    for f in network.faces:
+        if f.stroked and f.pen is not None and (f.indices & paired_indices):
+            pen_paired_len[f.pen] = (
+                pen_paired_len.get(f.pen, 0.0) + _line_length(f.p1, f.p2)
+            )
+    total_pen_len = sum(pen_paired_len.values())
+    wall_pens = {
+        pen for pen, length in pen_paired_len.items()
+        if length >= ROOM_WALL_PEN_MIN_FRAC * total_pen_len
+    }
+
+    def _is_wall_pen(pen) -> bool:
+        return pen is None or not total_pen_len or pen in wall_pens
+
     seg_by_path: dict[int, list] = {}
     for s in network.segments:
         for pi in s.face_path_indices:
@@ -660,6 +730,11 @@ def detect_rooms(
             return False
         if f.wall_fill or f.layer_hint:
             return True
+        if f.material_backed:
+            # A hatched band's lone drawn face: its own same-pen hatch is the
+            # wall evidence (the partner face may be a jamb stub or a dashed
+            # over-line, so neither pairing nor the lone pen gate can see it).
+            return True
         if f.indices & paired_indices:
             # Pairing is index-granular: a face qualifies even when one tiny
             # sliver of it paired. Unstroked faces (material-backed hairline
@@ -671,7 +746,10 @@ def detect_rooms(
             if not f.stroked or f.stroke_width >= stroke_gate:
                 return True
             return _paired_extent_frac(f) >= ROOM_PAIRED_FACE_MIN_FRAC
-        return f.stroked and f.stroke_width >= stroke_gate
+        return (
+            f.stroked and f.stroke_width >= stroke_gate
+            and _is_wall_pen(f.pen)
+        )
 
     line_parts = [
         LineString([f.p1, f.p2]).buffer(ROOM_LINE_BARRIER_PX, cap_style=2)
