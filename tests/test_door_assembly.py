@@ -5,6 +5,7 @@ from detection import WallNetwork, WallSegment, detect_doors, detect_wall_networ
 from detection.doors.arcs import _estimate_arc_sweep_deg
 from detection.doors.assembly import (
     _check_opening_clear, _dedupe_door_components, _merge_double_door_assemblies,
+    door_open_leaf_path_indices,
 )
 from detection.postprocess import _cross_validate, _resolve_door_window_conflicts, CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY
 
@@ -727,6 +728,103 @@ class DoubleDoorTests(unittest.TestCase):
         self.assertEqual(0, len(rejected))
         self.assertEqual(1, len(entities))
         self.assertEqual("double_swing", entities[0].attributes.get("assembly_type"))
+
+
+class OpenLeafExclusionTests(unittest.TestCase):
+    """Tests for door_open_leaf_path_indices on merged double-swing pairs.
+
+    Geometry mirrors floor-plans door_0016: a horizontal doorway with the
+    wall plane along y=0, both leaves parked OPEN at the outer ends of the
+    opening (vertical double-line panels hanging down to y=55), jamb faces
+    just outside the bbox. The parked leaves stand parallel to the flanking
+    room walls and pair with them into phantom wall bands unless excluded.
+    """
+
+    def _garden_halves(self) -> tuple[list[Candidate], list[PathPrimitive]]:
+        left = _single_door_cand(
+            "door_0000",
+            leaf_bbox=(0.0, 0.0, 1.0, 55.0),
+            arc_bbox=(0.5, 7.0, 54.0, 55.0),
+            path_indices=[100, 101, 110, 111, 200],
+            extra={
+                "assembly_type": "single_line_leaf",
+                "leaf_line_path_index": 100,
+                "leaf_companion_path_indices": [101, 200],
+                "arc_path_indices": [110, 111],
+                "double_arc_partner_paths": [120, 121],
+            },
+        )
+        right = _single_door_cand(
+            "door_0001",
+            leaf_bbox=(109.0, 0.0, 110.0, 55.0),
+            arc_bbox=(56.0, 7.0, 109.5, 55.0),
+            path_indices=[102, 103, 120, 121, 201],
+            extra={
+                "assembly_type": "single_line_leaf",
+                "leaf_line_path_index": 102,
+                "leaf_companion_path_indices": [103, 201],
+                "arc_path_indices": [120, 121],
+                "double_arc_partner_paths": [110, 111],
+            },
+        )
+        paths = [
+            # Parked leaves: double-line panels inside the merged bbox.
+            line(100, (0.5, 0.0), (0.5, 55.0)),
+            line(101, (3.5, 4.0), (3.5, 55.0)),
+            line(102, (109.5, 0.0), (109.5, 55.0)),
+            line(103, (106.5, 4.0), (106.5, 55.0)),
+            # Jamb faces claimed as companions: outside the bbox +- 2 zone.
+            line(200, (-4.0, -16.0), (-4.0, 12.0)),
+            line(201, (114.0, -16.0), (114.0, 12.0)),
+        ]
+        return [left, right], paths
+
+    def test_garden_pair_leaves_excluded_jambs_kept(self) -> None:
+        halves, paths = self._garden_halves()
+        result = _merge_double_door_assemblies(halves)
+        doubles = [c for c in result if c.evidence.get("assembly_type") == "double_swing"]
+        self.assertEqual(1, len(doubles))
+        self.assertEqual("garden", doubles[0].evidence.get("swing_layout"))
+        excluded = door_open_leaf_path_indices(doubles, paths)
+        self.assertEqual(
+            {100, 101, 102, 103}, excluded,
+            "parked leaf ink must be excluded; out-of-zone jamb companions kept",
+        )
+
+    def test_french_pair_contributes_no_exclusions(self) -> None:
+        """French leaves are drawn closed IN the wall plane — legitimate wall
+        evidence, never excluded (they seal the doorway they are drawn in)."""
+        left = _single_door_cand(
+            "door_0000",
+            leaf_bbox=(0.0, -4.0, 80.0, 4.0),
+            arc_bbox=(0.0, 0.0, 80.0, 80.0),
+            path_indices=[100, 110],
+            extra={
+                "assembly_type": "single_line_leaf",
+                "leaf_line_path_index": 100,
+                "arc_path_indices": [110],
+            },
+        )
+        right = _single_door_cand(
+            "door_0001",
+            leaf_bbox=(80.0, -4.0, 160.0, 4.0),
+            arc_bbox=(80.0, 0.0, 160.0, 80.0),
+            path_indices=[102, 120],
+            extra={
+                "assembly_type": "single_line_leaf",
+                "leaf_line_path_index": 102,
+                "arc_path_indices": [120],
+            },
+        )
+        paths = [
+            line(100, (0.0, 0.0), (80.0, 0.0)),
+            line(102, (80.0, 0.0), (160.0, 0.0)),
+        ]
+        result = _merge_double_door_assemblies([left, right])
+        doubles = [c for c in result if c.evidence.get("assembly_type") == "double_swing"]
+        self.assertEqual(1, len(doubles))
+        self.assertEqual("french", doubles[0].evidence.get("swing_layout"))
+        self.assertEqual(set(), door_open_leaf_path_indices(doubles, paths))
 
 
 class DoorV2OpeningCheckTests(unittest.TestCase):

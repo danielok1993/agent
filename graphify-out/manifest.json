@@ -40,8 +40,8 @@
     "semantic_hash": "8af6aea4b2d3989318674579bc8a6a2c"
   },
   "detection/doors/assembly.py": {
-    "mtime": 1784724701.112418,
-    "ast_hash": "d4f837982d28aa95e0c7456146dbb9e5",
+    "mtime": 1784735905.466111,
+    "ast_hash": "553794d64973d123ad36cf3b35a6a4fa",
     "semantic_hash": ""
   },
   "detection/doors/constants.py": {
@@ -170,9 +170,9 @@
     "semantic_hash": "34855881975993c77f08ab0ec51a77ec"
   },
   "tests/test_door_assembly.py": {
-    "mtime": 1783629104.396042,
-    "ast_hash": "6bd3c73d35cb54648b3daa5ab24848d6",
-    "semantic_hash": "6bd3c73d35cb54648b3daa5ab24848d6"
+    "mtime": 1784736068.490335,
+    "ast_hash": "76acdf8ebaf3adb8a7c28ff8c414b54c",
+    "semantic_hash": ""
   },
   "tests/test_polyline_arc_pruning.py": {
     "mtime": 1781823333.6308734,
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1784733800.992176,
-    "ast_hash": "9ce2cfda413688c4790391a16deb058e",
+    "mtime": 1784736116.7502513,
+    "ast_hash": "8cf9bbc3d092985ad8b1d12cfb516484",
     "semantic_hash": ""
   },
   "README.md": {

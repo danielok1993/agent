@@ -791,6 +791,9 @@ def _merge_double_door_assemblies(candidates: list[Candidate]) -> list[Candidate
         evidence["arc_bbox_b"] = list(arc_j) if arc_j else None
         evidence["leaf_bbox_a"] = list(leaf_i) if leaf_i else None
         evidence["leaf_bbox_b"] = list(leaf_j) if leaf_j else None
+        evidence["leaf_path_indices"] = sorted(
+            _leaf_ink_indices(ci.evidence) | _leaf_ink_indices(cj.evidence)
+        )
 
         # Full opening span across both halves: the farthest-apart pair of the
         # halves' arc endpoints (per-half opening_line covers only its own leaf).
@@ -819,10 +822,24 @@ def _merge_double_door_assemblies(candidates: list[Candidate]) -> list[Candidate
     return result
 
 
+def _leaf_ink_indices(ev: dict) -> set[int]:
+    """A single-swing candidate's leaf linework, pinned by its evidence:
+    leaf line + companions, or component minus arc minus threshold."""
+    leaf_line = ev.get("leaf_line_path_index")
+    if leaf_line is not None:
+        leaf = {leaf_line}
+        leaf.update(ev.get("leaf_companion_path_indices") or [])
+    else:
+        leaf = set(ev.get("component_path_indices") or [])
+        leaf -= set(ev.get("arc_path_indices") or [])
+        leaf.discard(ev.get("threshold_path_index"))
+    return leaf
+
+
 def door_open_leaf_path_indices(
     doors: list[Candidate], paths: list[PathPrimitive],
 ) -> set[int]:
-    """Path indices of single-swing doors' OPEN leaf linework.
+    """Path indices of swing doors' OPEN leaf linework.
 
     A swing door's leaf is drawn standing open, parallel to whatever wall it
     ends up alongside — penned in the wall pen, it pairs with real wall faces
@@ -832,11 +849,17 @@ def door_open_leaf_path_indices(
     8px strip of hallway). Door symbol ink is never wall structure, so the
     wall network excludes these paths from face collection.
 
-    Only the single-swing tiers are covered: their evidence pins the leaf
-    exactly (leaf line + companions, or component minus arc minus threshold).
-    Merged doubles keep only the union of component indices — and a french
-    pair's leaves are drawn closed IN the wall plane, legitimate wall
-    evidence — so doubles are left alone. Sliding/folding panels lie in or
+    Covered tiers: the single-swing types (their evidence pins the leaf
+    exactly — leaf line + companions, or component minus arc minus
+    threshold), and garden-layout doubles, whose merge preserves both
+    halves' leaf ink as leaf_path_indices — a garden pair's leaves park
+    OPEN at the outer ends of the opening, perpendicular to their wall
+    (measured on floor-plans door_0016: each parked double-line leaf paired
+    with the bedroom side wall ~30px away into a phantom 30.5px band that
+    fenced a 37px-wide strip of bedroom on each side of the doorway).
+    French pairs are exempt: their collinear leaves are drawn closed IN the
+    wall plane, legitimate wall evidence (cf. _open_leaf_edges in rooms.py,
+    the plug-side analog of this split). Sliding/folding panels lie in or
     seal their wall plane by construction and are never excluded.
 
     Every excluded path must also lie fully inside its door's zone
@@ -862,18 +885,15 @@ def door_open_leaf_path_indices(
         ev = c.evidence
         if ev.get("method") != "door_assembly":
             continue
-        if ev.get("assembly_type") not in ("single", "single_line_leaf"):
+        atype = ev.get("assembly_type")
+        if atype in ("single", "single_line_leaf"):
+            leaf = _leaf_ink_indices(ev)
+        elif atype == "double_swing" and ev.get("swing_layout") == "garden":
+            leaf = set(ev.get("leaf_path_indices") or [])
+        else:
             continue
         zone = (
             c.bbox[0] - 2.0, c.bbox[1] - 2.0, c.bbox[2] + 2.0, c.bbox[3] + 2.0
         )
-        leaf_line = ev.get("leaf_line_path_index")
-        if leaf_line is not None:
-            leaf = {leaf_line}
-            leaf.update(ev.get("leaf_companion_path_indices") or [])
-        else:
-            leaf = set(ev.get("component_path_indices") or [])
-            leaf -= set(ev.get("arc_path_indices") or [])
-            leaf.discard(ev.get("threshold_path_index"))
         out |= {i for i in leaf if _in_zone(i, zone)}
     return out
