@@ -260,8 +260,8 @@
     "semantic_hash": "7e97b365d511345bf454fd3cd9af1d92"
   },
   "detection/rooms.py": {
-    "mtime": 1784717419.4572675,
-    "ast_hash": "2826b3aafdae37a9bca9434633da816a",
+    "mtime": 1784632522.6766653,
+    "ast_hash": "1f2d9605477cc985da171c1d02ae3a04",
     "semantic_hash": ""
   },
   "tests/test_cross_validate.py": {
@@ -270,8 +270,8 @@
     "semantic_hash": ""
   },
   "tests/test_room_detection.py": {
-    "mtime": 1784717474.383922,
-    "ast_hash": "93bb83b51716c1b7de9eccee12c58a1c",
+    "mtime": 1784157656.8077717,
+    "ast_hash": "399fe454422d3f49660b278cbd3e0f2b",
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
