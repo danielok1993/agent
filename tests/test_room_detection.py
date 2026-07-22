@@ -7,6 +7,9 @@ the inner wall faces (inner face + line barrier + wall dilation).
 """
 import unittest
 
+from shapely.geometry import box as shapely_box
+from shapely.ops import unary_union
+
 from models import Candidate, PathPrimitive, TextSpan
 from detection import detect_wall_network
 from detection.rooms import (
@@ -17,14 +20,15 @@ from detection.rooms import (
 PAGE_W, PAGE_H = 1000.0, 800.0
 
 
-def path(idx, points, item_type="l", stroke_width=1.5, fill=None, dashes="", layer=None):
+def path(idx, points, item_type="l", stroke_width=1.5, fill=None, dashes="",
+         layer=None, color=(0.0, 0.0, 0.0)):
     xs = [p[0] for p in points]
     ys = [p[1] for p in points]
     return PathPrimitive(
         path_index=idx,
         item_type=item_type,
         bbox=(min(xs), min(ys), max(xs), max(ys)),
-        color=(0.0, 0.0, 0.0),
+        color=color,
         fill=fill,
         stroke_width=stroke_width,
         dashes=dashes,
@@ -825,6 +829,55 @@ class TestEmptyNetwork(unittest.TestCase):
     def test_sparse_network_no_rooms(self):
         rooms = rooms_for(wall_band_h(0, 100, 300, 100))
         self.assertEqual(rooms, [])
+
+
+class TestAnnotationPenBarriers(unittest.TestCase):
+    """Lone thin barriers require a wall pen. On color-coded drawings the
+    annotation pens match (or beat) the wall WIDTH — floor-plans pens
+    furniture red and dimensions blue at 1.5 over magenta walls at 1.0 —
+    and a red worktop line fenced a 34px phantom "room" against the
+    utility's south wall. A pen whose color barely pairs did not draw the
+    walls and gets no lone-barrier rights."""
+
+    def test_annotation_pen_line_does_not_split_room(self):
+        paths = rect_room(0, 100, 100, 400, 300)
+        red = hline(50, 108, 392, 200, color=(1.0, 0.0, 0.0))
+        rooms = rooms_for(paths + [red])
+        self.assertEqual(len(rooms), 1)
+
+    def test_wall_pen_line_still_splits_room(self):
+        paths = rect_room(0, 100, 100, 400, 300)
+        rooms = rooms_for(paths + [hline(50, 108, 392, 200)])
+        self.assertEqual(len(rooms), 2)
+
+
+class TestPlugPlaneEvidence(unittest.TestCase):
+    """Interrupted-run plugs need jambs that REACH the plug band and a mid
+    that is empty IN the opening plane (ROOM_PLUG_MID_NEAR_PX)."""
+
+    def test_perpendicular_cap_off_plane_keeps_doorway_interrupted(self):
+        # A perpendicular wall ending a few px below the doorway plane
+        # (floor-plans door_0008: the bathroom east wall under the bedroom
+        # doorway) must not fill the interrupted-run middle at the loose
+        # hug and cost the true doorway edge its plug.
+        material = unary_union([
+            shapely_box(100, 200, 205, 210),
+            shapely_box(255, 200, 360, 210),
+            shapely_box(225, 216, 235, 300),
+        ])
+        plugs = _door_plugs((205, 150, 255, 210), material)
+        self.assertIn(("interrupted", 1), {(k, e) for _, k, e in plugs})
+
+    def test_parallel_band_beyond_reach_is_full_not_interrupted(self):
+        # A band hugging the whole edge from 6px away anchors both ends at
+        # the loose hug but never reaches the plug band: an annotation or
+        # fixture box beside a wall, not a doorway. Classified full, so a
+        # fallback-tier door's plug still dies on the in-wall test instead
+        # of stamping a trusted interrupted seal into free space.
+        material = shapely_box(193, 140, 199, 280)
+        plugs = _door_plugs((205, 150, 255, 270), material)
+        edge2 = [kind for _, kind, e in plugs if e == 2]
+        self.assertEqual(edge2, ["full"])
 
 
 if __name__ == "__main__":

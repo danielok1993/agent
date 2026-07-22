@@ -52,6 +52,34 @@ WALL_NETWORK_MIN_SEGMENTS   = 4     # below this the network is treated as empty
 
 WALL_LAYER_KEYWORDS = ["wall", "a-wall", "partition", "struct"]
 
+WALL_LIGHT_PEN_MIN_CHANNEL  = 0.70  # stroke colors with EVERY channel at/above
+    # this are faint reference ink — the light-grey overhead/hidden pen
+    # (RSJ beam lines, VELUX rooflight boxes print at 0.86 grey on
+    # floor-plans, IN the wall pen widths, and their double lines pair into
+    # phantom partitions spanning the open-plan kitchen). Demoted to the
+    # material-gated weak pipeline exactly like sub-gate pen widths: faint
+    # ink needs drawn wall material between its faces. Saturated pens (red,
+    # blue, magenta) all carry a 0 channel and are unaffected; on drawings
+    # that encode hierarchy by width alone (5-1133, all-black), this is a
+    # no-op.
+
+# Dimension-chain recognition: an architectural dimension line carries a
+# short oblique tick (~45 deg to the line) CENTERED on each of its endpoints
+# and straddling it — the universal CAD dimension terminator. Wall faces
+# never match: hatch/blocking strokes touch a face from inside the band
+# (they do not straddle it), and a tick-like chamfer at a wall corner meets
+# the face END-to-end (its midpoint is off the endpoint by half its length).
+# Requiring BOTH endpoints ticked keeps a wall that a dimension chain merely
+# terminates against (the tick sits mid-run there, not at the wall's ends).
+WALL_DIM_TICK_MIN_LEN_PX    = 3.0
+WALL_DIM_TICK_MAX_LEN_PX    = 16.0   # measured 7-13px on floor-plans; blocking
+                                     # X's of oblong rects are longer and stay
+WALL_DIM_TICK_END_TOL_PX    = 3.0    # tick midpoint-to-endpoint distance
+                                     # (measured <= 0.3px on floor-plans)
+WALL_DIM_TICK_ANGLE_MIN     = 20.0   # tick-vs-line angle window, matching the
+WALL_DIM_TICK_ANGLE_MAX     = 70.0   # material-mark diagonal window
+WALL_DIM_TICK_STRADDLE_MIN_PX = 1.0  # both tick ends clear the line by this
+
 WALL_BACKGROUND_FILL_MIN    = 0.97  # every channel at/above this = page background;
                                     # unstroked white shapes are text masks and
                                     # counter tops, never wall material
@@ -164,6 +192,25 @@ WALL_LATTICE_PEN_TOL         = 0.05  # rungs must share a pen: a field is drawn 
 # Tolerance for two segments to be considered on the same line.
 COLLINEAR_ANGLE_TOL    = 3.0   # degrees
 COLLINEAR_OFFSET_TOL   = 4.0   # px perpendicular distance between lines
+
+
+def _pen_key(color) -> tuple | None:
+    """Quantized stroke color — the pen identity of a drawn line."""
+    if color is None:
+        return None
+    return tuple(round(c, 2) for c in color)
+
+
+def _is_light_pen(pen: tuple | None) -> bool:
+    """Faint (light-grey/pastel) ink: every channel at/above the light floor."""
+    return pen is not None and min(pen) >= WALL_LIGHT_PEN_MIN_CHANNEL
+
+
+def _pens_compatible(a: tuple | None, b: tuple | None) -> bool:
+    """A wall's two faces are drawn by one pen; colorless (fill-outline)
+    geometry stays wildcard so monochrome and Vectorworks-style drawings
+    keep the legacy behavior."""
+    return a is None or b is None or a == b
 
 
 def _is_diagonal_hatch_angle(angle: float) -> bool:
@@ -543,6 +590,12 @@ class WallFace:
     wall_fill: bool                     # outline of a wall-rated fill class
     layer_hint: bool
     indices: frozenset[int]             # contributing path indices
+    material_backed: bool = False       # same-pen hatch hugs one flank of the
+                                        # run — a hatched band's lone drawn face
+                                        # (its partner may be a stub or dashed)
+    pen: tuple | None = None            # quantized stroke color (None for fill
+                                        # outlines/bands) — rooms' lone-barrier
+                                        # gate checks it against the wall pens
 
 
 @dataclass
@@ -708,6 +761,8 @@ class _Seg:
     wall_fill: bool = False             # from a wall-rated fill class (band/ring)
     weak: bool = False                  # sub-threshold pen; only material-backed
                                         # pairs survive (never a face on its own)
+    pen: tuple | None = None            # quantized stroke color; None = wildcard
+                                        # (fill outlines, filled bands, centerlines)
 
 
 def _is_dashed(dashes: str) -> bool:
@@ -772,6 +827,7 @@ def _collect_wall_faces(
                 indices={p.path_index}, stroked=stroked,
                 stroke_width=p.stroke_width if stroked else 0.0,
                 wall_fill=filled_outline,
+                pen=_pen_key(p.color) if stroked else None,
             ))
         elif p.item_type in ("re", "qu") and _wall_fill(p) and len(p.points) == 4:
             pts = p.points
@@ -830,8 +886,85 @@ def _collect_weak_faces(
         weak.append(_Seg(
             p1=a, p2=b, layer=p.layer, layer_hint=_wall_layer_hint(p.layer),
             indices={p.path_index}, stroked=False, stroke_width=0.0,
+            pen=_pen_key(p.color),
         ))
     return weak
+
+
+def _dimension_line_indices(paths: list[PathPrimitive]) -> set[int]:
+    """Path indices of dimension-chain lines: annotation, never wall faces.
+
+    A dimension line ends in a short oblique tick CENTERED on each endpoint
+    and straddling the line — the architectural dimension terminator, drawn
+    in the dimension pen. Both endpoints must be ticked: a wall that a
+    dimension chain terminates against carries the tick mid-run, not at its
+    own ends. Wall linework cannot match otherwise either — hatch/blocking
+    strokes touch a face from inside the band (both tick ends on one side),
+    and a chamfer stub at a wall corner meets the face end-to-end, leaving
+    its midpoint half its length away from the endpoint.
+
+    Dimension lines are penned in the wall widths on color-coded drawings
+    (floor-plans: blue 1.5 vs walls at 1.0/1.5), so without this the chains
+    survive every pen gate and fence room interiors — as lone barrier faces
+    even when cross-pen pairing is blocked.
+    """
+    ticks: list[tuple] = []   # (mid, p1, p2, angle_deg, pen)
+    lines: list[PathPrimitive] = []
+    for p in paths:
+        if p.item_type != "l" or len(p.points) < 2 or p.stroke_width <= 0:
+            continue
+        a, b = p.points[0], p.points[-1]
+        length = _line_length(a, b)
+        if WALL_DIM_TICK_MIN_LEN_PX <= length <= WALL_DIM_TICK_MAX_LEN_PX:
+            mid = ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+            ticks.append((mid, a, b, _line_angle_deg(a, b), _pen_key(p.color)))
+        if length >= WALL_FACE_MIN_LEN_PX and p.color is not None:
+            lines.append(p)
+    if not ticks or not lines:
+        return set()
+
+    cell = WALL_DIM_TICK_MAX_LEN_PX
+    grid: dict[tuple[int, int], list[tuple]] = {}
+    for t in ticks:
+        key = (int(t[0][0] // cell), int(t[0][1] // cell))
+        grid.setdefault(key, []).append(t)
+
+    def _has_end_tick(pt, origin, ux, uy, line_angle, pen) -> bool:
+        cx, cy = int(pt[0] // cell), int(pt[1] // cell)
+        for gx in (cx - 1, cx, cx + 1):
+            for gy in (cy - 1, cy, cy + 1):
+                for mid, t1, t2, ang, tpen in grid.get((gx, gy), ()):
+                    if tpen != pen:
+                        continue
+                    if _distance(mid, pt) > WALL_DIM_TICK_END_TOL_PX:
+                        continue
+                    rel = _angle_diff_mod180(ang, line_angle)
+                    if not (
+                        WALL_DIM_TICK_ANGLE_MIN <= rel <= WALL_DIM_TICK_ANGLE_MAX
+                    ):
+                        continue
+                    off1 = (t1[0] - origin[0]) * (-uy) + (t1[1] - origin[1]) * ux
+                    off2 = (t2[0] - origin[0]) * (-uy) + (t2[1] - origin[1]) * ux
+                    if (
+                        off1 * off2 < 0
+                        and min(abs(off1), abs(off2))
+                        >= WALL_DIM_TICK_STRADDLE_MIN_PX
+                    ):
+                        return True
+        return False
+
+    out: set[int] = set()
+    for p in lines:
+        a, b = p.points[0], p.points[-1]
+        length = _line_length(a, b)
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        angle = _line_angle_deg(a, b)
+        pen = _pen_key(p.color)
+        if _has_end_tick(a, a, ux, uy, angle, pen) and _has_end_tick(
+            b, a, ux, uy, angle, pen
+        ):
+            out.add(p.path_index)
+    return out
 
 
 def _collect_material_marks(
@@ -850,7 +983,7 @@ def _collect_material_marks(
     material gate, turning dimension lines into phantom partitions. Real
     hatch strokes sit at distinct offsets and are unaffected.
     """
-    marks: list[tuple[tuple[float, float], float]] = []
+    marks: list[tuple] = []
     seen: set[tuple[int, int, int]] = set()
     for p in paths:
         if p.item_type != "l" or len(p.points) < 2 or p.fill is not None:
@@ -868,7 +1001,9 @@ def _collect_material_marks(
         if key in seen:
             continue
         seen.add(key)
-        marks.append((mid, angle))
+        # Endpoints + pen ride along for the one-sided face-backing test
+        # (_face_is_material_backed); the band gate ignores them.
+        marks.append((mid, angle, a, b, _pen_key(p.color)))
     return marks
 
 
@@ -896,7 +1031,7 @@ def _band_has_wall_material(
         c.thickness / 2.0 - WALL_WEAK_MATERIAL_EDGE_PX, c.thickness * 0.25
     )
     ts: list[float] = []
-    for (mx, my), angle in marks:
+    for (mx, my), angle, *_ in marks:
         t = (mx - c.p1[0]) * ux + (my - c.p1[1]) * uy
         if not (-1.0 <= t <= length + 1.0):
             continue
@@ -905,6 +1040,52 @@ def _band_has_wall_material(
         d = _angle_diff_mod180(angle, axis_angle)
         if WALL_WEAK_MATERIAL_ANGLE_MIN <= d <= WALL_WEAK_MATERIAL_ANGLE_MAX:
             ts.append(t)
+    if len(ts) < WALL_WEAK_MATERIAL_MIN_MARKS:
+        return False
+    if len(ts) < (length / 100.0) * WALL_WEAK_MATERIAL_PER_100PX:
+        return False
+    return (max(ts) - min(ts)) >= WALL_WEAK_MATERIAL_MIN_SPAN * length
+
+
+def _face_is_material_backed(f: _Seg, marks: list[tuple]) -> bool:
+    """True when same-pen hatch strokes hug one flank of the face's run.
+
+    A hatched wall band is often drawn with only ONE long face: the outer
+    boundary is a short jamb stub, a dashed over-line, or nothing at all
+    (floor-plans' dining east wall: a 200px magenta face, a 20px stub, and
+    the hatch — the old full-length seal came from pairing with the blue
+    "3,119" dimension line, a phantom crutch the pen gates now refuse). The
+    face plus ITS OWN hatch is honest wall evidence: diagonal strokes in the
+    face's pen whose near endpoint lands ON the face line (real hatch is
+    drawn off its boundary; a room-interior line running parallel OUTSIDE a
+    hatched band never touches that band's strokes — they end on the band's
+    own faces), dense and spread like the weak-pair material gate demands.
+    Dimension ticks are centred on their line, so both their ends sit off
+    it, past the edge margin.
+    """
+    length = _line_length(f.p1, f.p2)
+    if length < WALL_WEAK_MIN_RUN_PX or f.pen is None:
+        return False
+    ux = (f.p2[0] - f.p1[0]) / length
+    uy = (f.p2[1] - f.p1[1]) / length
+    axis_angle = _line_angle_deg(f.p1, f.p2)
+    ts: list[float] = []
+    for (mx, my), angle, a, b, pen in marks:
+        if pen != f.pen:
+            continue
+        t = (mx - f.p1[0]) * ux + (my - f.p1[1]) * uy
+        if not (-1.0 <= t <= length + 1.0):
+            continue
+        d = _angle_diff_mod180(angle, axis_angle)
+        if not (WALL_WEAK_MATERIAL_ANGLE_MIN <= d <= WALL_WEAK_MATERIAL_ANGLE_MAX):
+            continue
+        near = min(
+            abs((a[0] - f.p1[0]) * -uy + (a[1] - f.p1[1]) * ux),
+            abs((b[0] - f.p1[0]) * -uy + (b[1] - f.p1[1]) * ux),
+        )
+        if near > WALL_WEAK_MATERIAL_EDGE_PX:
+            continue
+        ts.append(t)
     if len(ts) < WALL_WEAK_MATERIAL_MIN_MARKS:
         return False
     if len(ts) < (length / 100.0) * WALL_WEAK_MATERIAL_PER_100PX:
@@ -1170,13 +1351,18 @@ def _merge_collinear_segs(segs: list[_Seg], gap_px: float) -> list[_Seg]:
                 p1=a.p1, p2=a.p2, layer=a.layer, layer_hint=a.layer_hint,
                 indices=set(a.indices), thickness=a.thickness, source=a.source,
                 stroked=a.stroked, stroke_width=a.stroke_width,
-                wall_fill=a.wall_fill,
+                wall_fill=a.wall_fill, pen=a.pen,
             )
 
             for j, b in enumerate(merged):
                 if j <= i or used[j]:
                     continue
                 if _line_length(b.p1, b.p2) < 1e-6:
+                    continue
+                # One run, one pen: merging a dimension-line stub into a wall
+                # face (or vice versa) launders annotation ink into wall
+                # evidence over the whole merged extent.
+                if not _pens_compatible(run.pen, b.pen):
                     continue
                 if _angle_diff_mod180(
                     _line_angle_deg(a.p1, a.p2), _line_angle_deg(b.p1, b.p2)
@@ -1206,6 +1392,8 @@ def _merge_collinear_segs(segs: list[_Seg], gap_px: float) -> list[_Seg]:
                 run.stroke_width = max(run.stroke_width, b.stroke_width)
                 run.wall_fill = run.wall_fill or b.wall_fill
                 run.thickness = max(run.thickness, b.thickness)
+                if run.pen is None:
+                    run.pen = b.pen
                 if b.layer and not run.layer:
                     run.layer = b.layer
                 used[j] = True
@@ -1253,6 +1441,11 @@ def _pair_faces_to_centerlines(faces: list[_Seg]) -> list[_Seg]:
             uy = (fi.p2[1] - fi.p1[1]) / len_i
             for j in members[pos + 1:] + neighbor:
                 fj = faces[j]
+                # A wall's two faces are drawn by one pen: cross-pen pairs
+                # (a blue dimension line beside a red cabinet front at
+                # wall-like spacing) are annotation coincidence, never wall.
+                if not _pens_compatible(fi.pen, fj.pen):
+                    continue
                 if _angle_diff_mod180(
                     _line_angle_deg(fi.p1, fi.p2), _line_angle_deg(fj.p1, fj.p2)
                 ) > WALL_PARALLEL_ANGLE_TOL:
@@ -1401,7 +1594,12 @@ def detect_wall_network(
     pen, standing parallel to real walls — pairing them inflates the wall
     band across the swing side; see door_open_leaf_path_indices).
     """
-    excluded = frozenset(exclude_path_indices or ())
+    # Dimension-chain lines (oblique end ticks on both endpoints) are
+    # annotation in wall-strength pens — excluded from face collection
+    # entirely, alongside the door open-leaf ink.
+    excluded = frozenset(exclude_path_indices or ()) | frozenset(
+        _dimension_line_indices(paths)
+    )
     rings = _collect_fill_rings(paths)
     fill_is_wall = _rate_fill_classes(rings)
     marker_indices = {i for r in rings if r.is_marker() for i in r.indices}
@@ -1422,6 +1620,27 @@ def detect_wall_network(
     for f in lattice_faces:
         f.stroked = False
         f.stroke_width = 0.0
+
+    # Faint-ink pens (light grey overhead/reference lines: RSJ beams, VELUX
+    # rooflight boxes — drawn in the wall pen WIDTHS on color-coded
+    # drawings) are demoted to the material-gated weak pipeline like
+    # sub-gate pen widths: a grey double line spanning a room pairs into a
+    # phantom partition otherwise, and no width statistic can catch it.
+    # Demoting before the interim pairing keeps faint pens out of the
+    # stroke reference too.
+    light_faces: list[_Seg] = []
+    kept_dark: list[_Seg] = []
+    for f in merged_faces:
+        if (
+            f.stroked and not f.wall_fill and not f.layer_hint
+            and _is_light_pen(f.pen)
+        ):
+            f.stroked = False
+            f.stroke_width = 0.0
+            light_faces.append(f)
+        else:
+            kept_dark.append(f)
+    merged_faces = kept_dark
 
     # Relative pen gate: the absolute stroke floor admits light-pen linework
     # (floor-tile grids at half the wall pen) as full wall faces, and any such
@@ -1472,13 +1691,13 @@ def detect_wall_network(
     # can never ride in on a strong run's coattails.
     weak_merged = _merge_collinear_segs(
         _collect_weak_faces(paths, excluded), gap_px=WALL_FACE_MERGE_GAP_PX
-    ) + demoted + lattice_faces
+    ) + demoted + lattice_faces + light_faces
     for f in weak_merged:
         f.weak = True
 
+    marks = _collect_material_marks(paths)
     centerlines = _pair_faces_to_centerlines(merged_faces + weak_merged)
     if weak_merged:
-        marks = _collect_material_marks(paths)
         centerlines = [
             c for c in centerlines
             if not c.weak or (
@@ -1534,11 +1753,22 @@ def detect_wall_network(
     # wall_stroke_reference: hundreds of hairline members must not drag the
     # relative pen-weight gate down to fixture territory.
     weak_faces_kept = [f for f in weak_merged if f.indices & weak_paired]
+    strong_ids = {id(f) for f in merged_faces}
     face_lines = [
         WallFace(
             p1=f.p1, p2=f.p2, stroked=f.stroked, stroke_width=f.stroke_width,
             wall_fill=f.wall_fill, layer_hint=f.layer_hint,
             indices=frozenset(f.indices),
+            # One-sided hatch backing is claimed by STRONG faces only: a
+            # demoted (weak/lattice/light-pen) face touching hatch must not
+            # ride back in on it.
+            material_backed=(
+                id(f) in strong_ids
+                and f.stroked
+                and not f.wall_fill
+                and _face_is_material_backed(f, marks)
+            ),
+            pen=f.pen,
         )
         for f in merged_faces + weak_faces_kept + bands
     ]
