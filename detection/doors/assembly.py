@@ -817,3 +817,63 @@ def _merge_double_door_assemblies(candidates: list[Candidate]) -> list[Candidate
     result = [c for i, c in enumerate(candidates) if i not in used]
     result.extend(merged_candidates)
     return result
+
+
+def door_open_leaf_path_indices(
+    doors: list[Candidate], paths: list[PathPrimitive],
+) -> set[int]:
+    """Path indices of single-swing doors' OPEN leaf linework.
+
+    A swing door's leaf is drawn standing open, parallel to whatever wall it
+    ends up alongside — penned in the wall pen, it pairs with real wall faces
+    into over-wide phantom bands (measured on floor-plans: door_0000's
+    double-line leaf paired with both faces of the 7px hallway wall, and the
+    collinear merge inflated the whole inter-door run to 18.5px, fencing an
+    8px strip of hallway). Door symbol ink is never wall structure, so the
+    wall network excludes these paths from face collection.
+
+    Only the single-swing tiers are covered: their evidence pins the leaf
+    exactly (leaf line + companions, or component minus arc minus threshold).
+    Merged doubles keep only the union of component indices — and a french
+    pair's leaves are drawn closed IN the wall plane, legitimate wall
+    evidence — so doubles are left alone. Sliding/folding panels lie in or
+    seal their wall plane by construction and are never excluded.
+
+    Every excluded path must also lie fully inside its door's zone
+    (bbox +- 2px, the rooms-stage convention): the companion finder serves
+    the opening check and over-collects — a leaf parked against a jamb
+    claims the jamb's own faces as companions (measured on floor-plans:
+    door_0005's leaf hangs 1.9px off the wardrobe end panel, and excluding
+    the panel's faces dissolved the wardrobe/bedroom split), and the real
+    partition extends past the swing zone while leaf ink never does.
+    """
+    by_index = {p.path_index: p for p in paths}
+
+    def _in_zone(idx: int, zone: BBox) -> bool:
+        p = by_index.get(idx)
+        if p is None:
+            return False
+        zx0, zy0, zx1, zy1 = zone
+        x0, y0, x1, y1 = p.bbox
+        return zx0 <= x0 and x1 <= zx1 and zy0 <= y0 and y1 <= zy1
+
+    out: set[int] = set()
+    for c in doors:
+        ev = c.evidence
+        if ev.get("method") != "door_assembly":
+            continue
+        if ev.get("assembly_type") not in ("single", "single_line_leaf"):
+            continue
+        zone = (
+            c.bbox[0] - 2.0, c.bbox[1] - 2.0, c.bbox[2] + 2.0, c.bbox[3] + 2.0
+        )
+        leaf_line = ev.get("leaf_line_path_index")
+        if leaf_line is not None:
+            leaf = {leaf_line}
+            leaf.update(ev.get("leaf_companion_path_indices") or [])
+        else:
+            leaf = set(ev.get("component_path_indices") or [])
+            leaf -= set(ev.get("arc_path_indices") or [])
+            leaf.discard(ev.get("threshold_path_index"))
+        out |= {i for i in leaf if _in_zone(i, zone)}
+    return out

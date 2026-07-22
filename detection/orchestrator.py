@@ -1,6 +1,7 @@
 from __future__ import annotations
 from models import Candidate, PageData
 from debug.trace import DebugTraceCollector
+from detection.doors.assembly import door_open_leaf_path_indices
 from detection.doors.detect import detect_doors
 from detection.walls import detect_wall_network
 from detection.rooms import detect_rooms
@@ -32,9 +33,14 @@ def run_heuristics(
 
     # Internal wall-centerline network: never emitted as candidates; feeds
     # cross-validation and room polygonization. Text spans disambiguate
-    # white fills (text masks vs hollow walls).
+    # white fills (text masks vs hollow walls). Swing doors detect first,
+    # so their open-leaf linework — wall-pen ink standing parallel to real
+    # walls — is excluded from face pairing before it can inflate a band.
     network = None if disable_rooms else detect_wall_network(
-        page_data.paths, page_data.text_spans
+        page_data.paths, page_data.text_spans,
+        exclude_path_indices=door_open_leaf_path_indices(
+            doors, page_data.paths
+        ),
     )
 
     all_geo = _cross_validate(doors + windows, network)

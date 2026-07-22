@@ -729,6 +729,7 @@ def _collect_wall_faces(
     paths: list[PathPrimitive],
     fill_is_wall: dict[tuple, bool] | None = None,
     marker_indices: frozenset[int] | set[int] = frozenset(),
+    exclude_indices: frozenset[int] | set[int] = frozenset(),
 ) -> tuple[list[_Seg], list[_Seg]]:
     """Return (stroked wall faces, filled-band centerlines)."""
     faces: list[_Seg] = []
@@ -758,6 +759,8 @@ def _collect_wall_faces(
         # polygons whose outlines explode into stroke_width-0 "l" items with a
         # fill color — accept those as faces too, when the fill class rates as
         # wall material.
+        if p.path_index in exclude_indices:
+            continue
         stroked = p.stroke_width >= WALL_MIN_STROKE_WIDTH_PX and not _is_dashed(p.dashes)
         filled_outline = _wall_fill(p)
         if p.item_type == "l" and len(p.points) >= 2 and (stroked or filled_outline):
@@ -800,7 +803,10 @@ def _collect_wall_faces(
     return faces, bands
 
 
-def _collect_weak_faces(paths: list[PathPrimitive]) -> list[_Seg]:
+def _collect_weak_faces(
+    paths: list[PathPrimitive],
+    exclude_indices: frozenset[int] | set[int] = frozenset(),
+) -> list[_Seg]:
     """Hairline solid lines long enough to be wall pieces.
 
     Never faces on their own — detect_wall_network admits a weak pair only
@@ -810,6 +816,8 @@ def _collect_weak_faces(paths: list[PathPrimitive]) -> list[_Seg]:
     """
     weak: list[_Seg] = []
     for p in paths:
+        if p.path_index in exclude_indices:
+            continue
         if p.item_type != "l" or len(p.points) < 2 or p.fill is not None:
             continue
         if not (0.0 < p.stroke_width < WALL_MIN_STROKE_WIDTH_PX):
@@ -1384,12 +1392,22 @@ def _snap_intersections(segs: list[_Seg]) -> None:
 
 def detect_wall_network(
     paths: list[PathPrimitive], text_spans: list[TextSpan] | None = None,
+    exclude_path_indices: set[int] | None = None,
 ) -> WallNetwork:
-    """Build the internal wall-centerline network for a page."""
+    """Build the internal wall-centerline network for a page.
+
+    exclude_path_indices — linework that must never become a wall face:
+    the open leaves of detected swing doors (door symbol ink in the wall
+    pen, standing parallel to real walls — pairing them inflates the wall
+    band across the swing side; see door_open_leaf_path_indices).
+    """
+    excluded = frozenset(exclude_path_indices or ())
     rings = _collect_fill_rings(paths)
     fill_is_wall = _rate_fill_classes(rings)
     marker_indices = {i for r in rings if r.is_marker() for i in r.indices}
-    faces, bands = _collect_wall_faces(paths, fill_is_wall, marker_indices)
+    faces, bands = _collect_wall_faces(
+        paths, fill_is_wall, marker_indices, excluded
+    )
     merged_faces = _merge_collinear_segs(faces, gap_px=WALL_FACE_MERGE_GAP_PX)
 
     # Striped fields (paving bonds, tile fields, stair treads, roof tiling,
@@ -1453,7 +1471,7 @@ def detect_wall_network(
     # gate runs on the raw pairs, before centerline merging, so a weak pair
     # can never ride in on a strong run's coattails.
     weak_merged = _merge_collinear_segs(
-        _collect_weak_faces(paths), gap_px=WALL_FACE_MERGE_GAP_PX
+        _collect_weak_faces(paths, excluded), gap_px=WALL_FACE_MERGE_GAP_PX
     ) + demoted + lattice_faces
     for f in weak_merged:
         f.weak = True
