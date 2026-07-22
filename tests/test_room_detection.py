@@ -850,6 +850,32 @@ class TestAnnotationPenBarriers(unittest.TestCase):
         rooms = rooms_for(paths + [hline(50, 108, 392, 200)])
         self.assertEqual(len(rooms), 2)
 
+    def test_furniture_pen_pair_does_not_partition(self):
+        # A furniture rectangle's opposite edges pair at wall-like spacing
+        # in the SAME annotation pen (floor-plans room_0012: the bed's
+        # pillow rectangles beside the wall, red-red pairs at th 24/32px),
+        # so the pen-compatible pairing gate cannot catch them. The
+        # resulting segment must not become a barrier solid — the room
+        # keeps its full extent up to the wall face instead of notching
+        # around the furniture.
+        paths = rect_room(0, 100, 100, 400, 300)
+        pillow = [
+            vline(50, 360, 150, 250, color=(1.0, 0.0, 0.0)),
+            vline(51, 380, 150, 250, color=(1.0, 0.0, 0.0)),
+        ]
+        rooms = rooms_for(paths + pillow)
+        self.assertEqual(len(rooms), 1)
+        self.assertAlmostEqual(rooms[0].bbox[2], 390.0, delta=2.0)
+        self.assertAlmostEqual(
+            rooms[0].evidence["area_px2"], 280 * 180, delta=800
+        )
+
+    def test_wall_pen_pair_still_partitions(self):
+        paths = rect_room(0, 100, 100, 400, 300)
+        divider = [vline(50, 300, 100, 300), vline(51, 320, 100, 300)]
+        rooms = rooms_for(paths + divider)
+        self.assertEqual(len(rooms), 2)
+
 
 class TestPlugPlaneEvidence(unittest.TestCase):
     """Interrupted-run plugs need jambs that REACH the plug band and a mid

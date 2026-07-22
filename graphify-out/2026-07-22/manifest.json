@@ -40,7 +40,7 @@
     "semantic_hash": "8af6aea4b2d3989318674579bc8a6a2c"
   },
   "detection/doors/assembly.py": {
-    "mtime": 1784721869.1116936,
+    "mtime": 1784724701.112418,
     "ast_hash": "d4f837982d28aa95e0c7456146dbb9e5",
     "semantic_hash": ""
   },
@@ -85,7 +85,7 @@
     "semantic_hash": "077d463bc896b1bd54e32519f7d9cf45"
   },
   "detection/orchestrator.py": {
-    "mtime": 1784721876.4862618,
+    "mtime": 1784724701.1125355,
     "ast_hash": "9718566b8b67dda1dbce3fb47d5506e4",
     "semantic_hash": ""
   },
@@ -100,8 +100,8 @@
     "semantic_hash": "8095fa73fdc66183c7927afc7b719015"
   },
   "detection/walls.py": {
-    "mtime": 1784721339.0534408,
-    "ast_hash": "fc0cd206a6e64f65643ae6cfa36d9268",
+    "mtime": 1784727089.4371634,
+    "ast_hash": "31d0917bf0bafa1a545c324aefbced7d",
     "semantic_hash": ""
   },
   "detection/windows.py": {
@@ -190,7 +190,7 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1784722012.8779876,
+    "mtime": 1784724701.1122406,
     "ast_hash": "5384e8f5deb5d957a35992fef5e5d392",
     "semantic_hash": ""
   },
@@ -260,8 +260,8 @@
     "semantic_hash": "7e97b365d511345bf454fd3cd9af1d92"
   },
   "detection/rooms.py": {
-    "mtime": 1784720033.9420521,
-    "ast_hash": "2826b3aafdae37a9bca9434633da816a",
+    "mtime": 1784727662.8563607,
+    "ast_hash": "be80077f01394f763d299ce4271cf682",
     "semantic_hash": ""
   },
   "tests/test_cross_validate.py": {
@@ -270,13 +270,13 @@
     "semantic_hash": ""
   },
   "tests/test_room_detection.py": {
-    "mtime": 1784720033.9581482,
-    "ast_hash": "93bb83b51716c1b7de9eccee12c58a1c",
+    "mtime": 1784728002.6719236,
+    "ast_hash": "ad80d53d0ef7fffaa361cd0df5ccdd8b",
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
-    "mtime": 1784720033.9583597,
-    "ast_hash": "f763aec9fafeb844baab7ef928060f96",
+    "mtime": 1784727927.6348712,
+    "ast_hash": "a907ba4eb46550d03a4364023d74a0c8",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-07-03-batch-extraction-design.md": {

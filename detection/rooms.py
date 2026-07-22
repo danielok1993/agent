@@ -48,7 +48,15 @@ ROOM_MIN_AREA_PX2           = 2500.0  # 50x50 px — smallest plausible closet a
 ROOM_MAX_PAGE_AREA_FRAC     = 0.45    # components bigger than this are the sheet frame
 ROOM_HOLE_AREA_FRAC_MAX     = 0.20    # mostly-hole components are frame-minus-building rings
 ROOM_WALL_DILATE_PX         = 2.0     # wall-solid dilation; seals sub-4px face cracks
-ROOM_LINE_BARRIER_PX        = 1.5     # half-width of thin line barriers (~pen width)
+ROOM_LINE_BARRIER_PX        = 2.0     # half-width of thin line barriers — kept EQUAL
+                                      # to ROOM_WALL_DILATE_PX so a face's thin
+                                      # buffer and its pair's dilated solid put the
+                                      # room boundary at the same standoff from the
+                                      # drawn face; a 0.5px mismatch leaves corner
+                                      # notches where the two barrier tiers meet,
+                                      # and polygon simplification redraws an 83px
+                                      # straight pier face as a slow diagonal
+                                      # (measured on floor-plans room_0012)
 ROOM_BARRIER_STROKE_RATIO   = 0.75    # a lone stroked face becomes a thin barrier only
                                       # at >= this fraction of the paired-wall stroke
                                       # reference — tile grids, furniture outlines and
@@ -637,11 +645,67 @@ def detect_rooms(
         if _text_cover_frac(c.bbox, text_spans) < ROOM_OPENING_TEXT_COVER_MAX
     ]
 
+    paired_indices = network.paired_face_indices()
+    stroke_ref = network.wall_stroke_reference()
+    stroke_gate = max(
+        WALL_MIN_STROKE_WIDTH_PX, ROOM_BARRIER_STROKE_RATIO * stroke_ref
+    )
+
+    # Wall pens: the stroke colors that built the paired network. On
+    # color-coded drawings annotation pens match the walls' WIDTH (or beat
+    # it), so weight gates alone would admit every furniture and dimension
+    # line; a pen whose color barely pairs did not draw the walls. None
+    # (colorless/fill-outline geometry) always passes.
+    pen_paired_len: dict[tuple, float] = {}
+    for f in network.faces:
+        if f.stroked and f.pen is not None and (f.indices & paired_indices):
+            pen_paired_len[f.pen] = (
+                pen_paired_len.get(f.pen, 0.0) + _line_length(f.p1, f.p2)
+            )
+    total_pen_len = sum(pen_paired_len.values())
+    wall_pens = {
+        pen for pen, length in pen_paired_len.items()
+        if length >= ROOM_WALL_PEN_MIN_FRAC * total_pen_len
+    }
+
+    def _is_wall_pen(pen) -> bool:
+        return pen is None or not total_pen_len or pen in wall_pens
+
+    # Same-pen pairing in an annotation pen is furniture coincidence, not
+    # wall: a pillow rectangle's opposite edges pair at wall-like spacing in
+    # the furniture pen, and the resulting solid fences the bed's pillows
+    # out of the bedroom (measured on floor-plans room_0012: two red-red
+    # pillow-edge pairs, th 24/32px, notched the room outline around the
+    # bed). A segment whose contributing faces are ALL plain stroked
+    # non-wall-pen ink is dropped from the barrier solids; any wall evidence
+    # on a member — wall fill, layer hint, material backing, an unstroked
+    # (fill-outline/hairline) face, or merged wall-pen ink — keeps it.
+    faces_by_path: dict[int, list] = {}
+    for f in network.faces:
+        for pi in f.indices:
+            faces_by_path.setdefault(pi, []).append(f)
+
+    def _wallish_face(f) -> bool:
+        return (
+            not f.stroked or _is_wall_pen(f.pen)
+            or f.material_backed or f.wall_fill or f.layer_hint
+        )
+
+    def _furniture_segment(s) -> bool:
+        member_faces = [
+            f for pi in s.face_path_indices for f in faces_by_path.get(pi, ())
+        ]
+        return bool(member_faces) and not any(
+            _wallish_face(f) for f in member_faces
+        )
+
+    wall_segments = [s for s in network.segments if not _furniture_segment(s)]
+
     solid_parts = [
         LineString([s.p1, s.p2]).buffer(
             s.thickness_px / 2.0 + ROOM_WALL_DILATE_PX, cap_style=2
         )
-        for s in network.segments
+        for s in wall_segments
     ]
     # Wall-rated fill polygons are drawn wall area: they seal corner posts,
     # jamb stubs and band interiors that face pairing cannot represent.
@@ -671,32 +735,6 @@ def detect_rooms(
             and zx0 <= b[0] <= zx1 and zy0 <= b[1] <= zy1
             for zx0, zy0, zx1, zy1 in door_zone_bounds
         )
-
-    paired_indices = network.paired_face_indices()
-    stroke_ref = network.wall_stroke_reference()
-    stroke_gate = max(
-        WALL_MIN_STROKE_WIDTH_PX, ROOM_BARRIER_STROKE_RATIO * stroke_ref
-    )
-
-    # Wall pens: the stroke colors that built the paired network. On
-    # color-coded drawings annotation pens match the walls' WIDTH (or beat
-    # it), so the lone-face weight gate alone would admit every furniture
-    # and dimension line; a pen whose color barely pairs did not draw the
-    # walls. None (colorless/fill-outline geometry) always passes.
-    pen_paired_len: dict[tuple, float] = {}
-    for f in network.faces:
-        if f.stroked and f.pen is not None and (f.indices & paired_indices):
-            pen_paired_len[f.pen] = (
-                pen_paired_len.get(f.pen, 0.0) + _line_length(f.p1, f.p2)
-            )
-    total_pen_len = sum(pen_paired_len.values())
-    wall_pens = {
-        pen for pen, length in pen_paired_len.items()
-        if length >= ROOM_WALL_PEN_MIN_FRAC * total_pen_len
-    }
-
-    def _is_wall_pen(pen) -> bool:
-        return pen is None or not total_pen_len or pen in wall_pens
 
     seg_by_path: dict[int, list] = {}
     for s in network.segments:
@@ -736,6 +774,10 @@ def detect_rooms(
             # over-line, so neither pairing nor the lone pen gate can see it).
             return True
         if f.indices & paired_indices:
+            # Same-pen furniture pairing (pillow rectangles, cabinet boxes)
+            # grants no barrier rights — mirrors the segment filter above.
+            if f.stroked and not _is_wall_pen(f.pen):
+                return False
             # Pairing is index-granular: a face qualifies even when one tiny
             # sliver of it paired. Unstroked faces (material-backed hairline
             # partitions, fill outlines) keep that privilege — pairing plus
@@ -751,8 +793,13 @@ def detect_rooms(
             and _is_wall_pen(f.pen)
         )
 
+    # Square caps: a barrier face's buffer extends half-width past its drawn
+    # ends, meeting the perpendicular face or wall solid it butts against
+    # flush instead of leaving a pen-width notch at every barrier-tier
+    # transition corner (the notches survive the free-space opening — filling
+    # them would be extensive — and simplification slants the steps).
     line_parts = [
-        LineString([f.p1, f.p2]).buffer(ROOM_LINE_BARRIER_PX, cap_style=2)
+        LineString([f.p1, f.p2]).buffer(ROOM_LINE_BARRIER_PX, cap_style=3)
         for f in network.faces
         if _is_barrier_face(f)
     ]
@@ -982,7 +1029,7 @@ def detect_rooms(
             1 for g in window_geoms if g.distance(boundary) <= ROOM_CONTACT_TOL_PX
         )
         wall_segment_count = sum(
-            1 for s in network.segments
+            1 for s in wall_segments
             if LineString([s.p1, s.p2]).distance(boundary)
             <= s.thickness_px / 2.0 + ROOM_CONTACT_TOL_PX
         )
