@@ -283,7 +283,90 @@ def _open_leaf_edges(candidate) -> frozenset[int]:
     return frozenset(edges)
 
 
-def _door_plugs(bbox, wall_material, skip_edges=frozenset()) -> list[tuple[Polygon, str]]:
+def _swing_hinge_edges(candidate) -> frozenset[int] | None:
+    """Bbox edges meeting at the hinge corner of a single quarter-swing door.
+
+    A swing door's wall plane passes through its hinge, so the edge carrying
+    the doorway is one of the two edges meeting at the hinge corner; the
+    opposite pair bounds the swing square — room floor by construction. The
+    hinge is derived from the drawn leaf and the arc chord (opening_line):
+    the chord endpoint lying ON the leaf (within ROOM_PLUG_NEAR_PX) is the
+    open tip, and the leaf corner farthest from it is the hinge. This holds
+    for both drawing conventions — leaf drawn open (perpendicular to the
+    wall) or closed (in the wall plane) — because the ink of a quarter swing
+    is symmetric between them: only WHICH radius is wall differs, and both
+    radii meet at the hinge. Ambiguous geometry (a half-open leaf whose
+    hinge floats inside the bbox, a chord touching the leaf at both ends or
+    neither) returns None and the caller keeps the status quo.
+    Edge indices follow _door_plugs' order: 0 top, 1 bottom, 2 left, 3 right.
+    """
+    if candidate.evidence.get("assembly_type") not in (
+        "single", "single_line_leaf"
+    ):
+        return None
+    chord = candidate.evidence.get("opening_line")
+    leaf = candidate.evidence.get("leaf_bbox")
+    if not chord or not leaf:
+        return None
+    lx0, ly0, lx1, ly1 = leaf
+
+    def leaf_dist(pt):
+        dx = max(lx0 - pt[0], 0.0, pt[0] - lx1)
+        dy = max(ly0 - pt[1], 0.0, pt[1] - ly1)
+        return math.hypot(dx, dy)
+
+    on_leaf = [leaf_dist(pt) <= ROOM_PLUG_NEAR_PX for pt in chord]
+    if on_leaf[0] == on_leaf[1]:
+        return None
+    tip = chord[0] if on_leaf[0] else chord[1]
+    corners = [(lx0, ly0), (lx1, ly0), (lx0, ly1), (lx1, ly1)]
+    hinge = max(corners, key=lambda p: math.hypot(p[0] - tip[0], p[1] - tip[1]))
+    x0, y0, x1, y1 = candidate.bbox
+    h_edge = 0 if abs(hinge[1] - y0) <= abs(hinge[1] - y1) else 1
+    v_edge = 2 if abs(hinge[0] - x0) <= abs(hinge[0] - x1) else 3
+    h_off = min(abs(hinge[1] - y0), abs(hinge[1] - y1))
+    v_off = min(abs(hinge[0] - x0), abs(hinge[0] - x1))
+    if max(h_off, v_off) > ROOM_PLUG_NEAR_PX:
+        return None
+    return frozenset({h_edge, v_edge})
+
+
+def _restrict_swing_plugs(candidate, plugs):
+    """Hold a single swing door to plugs on its hinge edges, one plane only.
+
+    A quarter-swing door has exactly ONE wall plane and it passes through
+    the hinge corner (_swing_hinge_edges), so a plug on either far edge is
+    phantom: the edge bounds the swing square — room floor — and qualified
+    only because perpendicular walls crossed near its extended ends,
+    pattern-matching the interrupted-run doorway signature (measured on
+    floor-plans door_0000, the main entrance: the top edge anchored on the
+    hallway divider at one end and the exterior wall at the other, and its
+    plug fenced the swing square out of the hallway — the fenced component
+    then dissolved as door floor and the hallway stopped 5px short of the
+    door). Among the hinge edges, an interrupted-run plug IS the doorway,
+    so a full-cover plug beside it is the other hinge edge hugging a
+    parallel wall face within ROOM_PLUG_NEAR_PX (door_0000's left edge,
+    5px off the divider band: its plug hung half in free floor and held the
+    hallway off the wall) — a genuinely drawn-through plane is its own
+    barrier, so dropping the full plug costs nothing. If the restriction
+    would leave no plugs where the unrestricted profile found some, the
+    unrestricted set stands: a door whose only wall evidence lies on far
+    edges is mis-derived or a false positive, and either way losing all
+    plugs would promote it to the dilated-bbox fallback — a pure-trust
+    stamp into free space, strictly worse than the status quo.
+    """
+    hinge_edges = _swing_hinge_edges(candidate)
+    if hinge_edges is None or not plugs:
+        return plugs
+    kept = [t for t in plugs if t[2] in hinge_edges]
+    if any(kind == "interrupted" for _, kind, _ in kept):
+        kept = [t for t in kept if t[1] == "interrupted"]
+    return kept or plugs
+
+
+def _door_plugs(
+    bbox, wall_material, skip_edges=frozenset()
+) -> list[tuple[Polygon, str, int]]:
     """Thin barrier bands along the wall planes through a detected door.
 
     The door bbox covers the swing area — room floor, not wall — so using it
@@ -309,7 +392,9 @@ def _door_plugs(bbox, wall_material, skip_edges=frozenset()) -> list[tuple[Polyg
     full-cover plugs to the stricter lies-inside-wall-material test: "near
     total coverage" alone is also satisfied by an annotation box floating
     within ROOM_PLUG_NEAR_PX of a wall band, whose plug would then hang in
-    free space and notch the room.
+    free space and notch the room. The edge index (0 top, 1 bottom, 2 left,
+    3 right) rides along so _restrict_swing_plugs can hold single swing
+    doors to their hinge edges.
 
     skip_edges holds indices (0 top, 1 bottom, 2 left, 3 right) of edges the
     door's own evidence rules out as wall plane — a garden pair's parked-open
@@ -322,7 +407,7 @@ def _door_plugs(bbox, wall_material, skip_edges=frozenset()) -> list[tuple[Polyg
         ((x0, y0), (x0, y1)),
         ((x1, y0), (x1, y1)),
     ]
-    plugs: list[tuple[Polygon, str]] = []
+    plugs: list[tuple[Polygon, str, int]] = []
     for edge_idx, (p, q) in enumerate(edges):
         if edge_idx in skip_edges:
             continue
@@ -368,7 +453,7 @@ def _door_plugs(bbox, wall_material, skip_edges=frozenset()) -> list[tuple[Polyg
         kind = "interrupted" if mid_cov <= ROOM_PLUG_MID_COV_MAX else "full"
         plugs.append(
             (LineString([a, b]).buffer(ROOM_PLUG_HALF_WIDTH_PX, cap_style=2),
-             kind)
+             kind, edge_idx)
         )
     return plugs
 
@@ -688,12 +773,16 @@ def detect_rooms(
         )
         # A garden pair's parked-open leaves pin down two edges as room/garden
         # floor; those edges never take a plug, whatever their coverage
-        # profile happens to pattern-match.
+        # profile happens to pattern-match. Single swing doors are further
+        # held to their hinge edges — the wall plane runs through the hinge,
+        # so far-edge plugs only ever fence the swing square out of its room.
         leaf_edges = _open_leaf_edges(c)
-        plugs = _door_plugs(c.bbox, local, skip_edges=leaf_edges)
+        plugs = _restrict_swing_plugs(
+            c, _door_plugs(c.bbox, local, skip_edges=leaf_edges)
+        )
         if c.confidence < ROOM_OPENING_MIN_CONFIDENCE:
             plugs = [
-                (p, kind) for p, kind in plugs
+                (p, kind, e) for p, kind, e in plugs
                 if kind == "interrupted"
                 or p.intersection(local).area >= ROOM_PLUG_IN_WALL_FRAC * p.area
             ]
@@ -709,10 +798,10 @@ def detect_rooms(
                 if zx0 <= rx0 and rx1 <= zx1 and zy0 <= ry0 and ry1 <= zy1
             ]
             if leaves:
-                plugs = _door_plugs(
+                plugs = _restrict_swing_plugs(c, _door_plugs(
                     c.bbox, unary_union([local] + leaves),
                     skip_edges=leaf_edges,
-                )
+                ))
         # A folding chain parked at its jamb never spans its own doorway, so
         # bbox-edge plugs cannot seal the opening plane — recover it via the
         # span law (gap between wall ends == total leaf run) and plug across.
@@ -722,9 +811,9 @@ def detect_rooms(
         ):
             gap_plug = _folding_chain_gap_plug(c, network, wall_material)
             if gap_plug is not None:
-                plugs = plugs + [(gap_plug, "chain_gap")]
+                plugs = plugs + [(gap_plug, "chain_gap", None)]
         if plugs:
-            door_barriers.append(unary_union([p for p, _ in plugs]))
+            door_barriers.append(unary_union([p for p, _, _ in plugs]))
         elif c.confidence >= ROOM_BBOX_SEAL_MIN_CONFIDENCE:
             door_barriers.append(
                 box(*c.bbox).buffer(ROOM_OPENING_SEAL_PX, join_style=2)

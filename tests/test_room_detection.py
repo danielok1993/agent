@@ -10,8 +10,8 @@ import unittest
 from models import Candidate, PathPrimitive, TextSpan
 from detection import detect_wall_network
 from detection.rooms import (
-    ROOM_GAP_CLOSE_PX, _door_plugs, _open_leaf_edges, _window_seal,
-    detect_rooms,
+    ROOM_GAP_CLOSE_PX, _door_plugs, _open_leaf_edges, _restrict_swing_plugs,
+    _swing_hinge_edges, _window_seal, detect_rooms,
 )
 
 PAGE_W, PAGE_H = 1000.0, 800.0
@@ -625,8 +625,9 @@ class TestGardenDoorSeals(unittest.TestCase):
         ])
         plugs = _door_plugs(self.BBOX, jambs)
         self.assertEqual(len(plugs), 1)
-        plug, kind = plugs[0]
+        plug, kind, edge_idx = plugs[0]
         self.assertEqual(kind, "interrupted")
+        self.assertEqual(edge_idx, 2)
         x0, _, x1, _ = plug.bounds
         self.assertAlmostEqual((x0 + x1) / 2.0, 200.0, delta=1.0)  # left edge
 
@@ -657,8 +658,93 @@ class TestGardenDoorSeals(unittest.TestCase):
         from shapely.geometry import box as sbox
         band = sbox(188, 92, 294, 108)
         plugs = _door_plugs(self.BBOX, band)
-        self.assertEqual([k for _, k in plugs], ["full"])
+        self.assertEqual([k for _, k, _ in plugs], ["full"])
         self.assertEqual(_door_plugs(self.BBOX, band, skip_edges=frozenset({0})), [])
+
+
+class TestSwingHingePlugRestriction(unittest.TestCase):
+    """Single swing doors: plugs live on the hinge edges, one wall plane.
+
+    Geometry mirrors floor-plans door_0000 (the main entrance): leaf drawn
+    open along the LEFT edge, hinge at the bottom-left corner, arc chord
+    from the leaf tip (top-left) to the closed position (bottom-right) —
+    wall plane = bottom edge. The corridor walls crossing near the top
+    edge's extended ends made the top edge pattern-match the interrupted
+    doorway signature, fencing the swing square out of the hallway.
+    """
+
+    BBOX = (458.0, 1336.5, 511.75, 1391.75)
+
+    @staticmethod
+    def cand(**evidence_overrides):
+        evidence = {
+            "method": "door_assembly",
+            "assembly_type": "single_line_leaf",
+            "leaf_bbox": [458.0, 1336.5, 459.75, 1386.0],
+            "opening_line": [[459.25, 1336.5], [511.75, 1391.75]],
+        }
+        evidence.update(evidence_overrides)
+        return Candidate(
+            candidate_id="door_0000", entity_type="door",
+            bbox=TestSwingHingePlugRestriction.BBOX,
+            confidence=0.67, evidence=evidence,
+        )
+
+    def test_hinge_edges_from_leaf_and_chord(self):
+        # Hinge at (458, 1386) = bottom-left corner -> bottom + left edges.
+        self.assertEqual(_swing_hinge_edges(self.cand()), frozenset({1, 2}))
+
+    def test_hinge_underivable_returns_none(self):
+        self.assertIsNone(_swing_hinge_edges(self.cand(opening_line=None)))
+        self.assertIsNone(_swing_hinge_edges(self.cand(leaf_bbox=None)))
+        # Chord touching the leaf at both ends (or neither) is ambiguous.
+        self.assertIsNone(_swing_hinge_edges(
+            self.cand(opening_line=[[459.25, 1336.5], [459.25, 1386.0]])
+        ))
+        # A half-open leaf whose hinge floats inside the bbox derives nothing.
+        self.assertIsNone(_swing_hinge_edges(
+            self.cand(leaf_bbox=[470.0, 1345.0, 495.0, 1370.0],
+                      opening_line=[[495.0, 1370.0], [511.75, 1391.75]])
+        ))
+        # Non-swing assemblies never veto.
+        self.assertIsNone(_swing_hinge_edges(self.cand(assembly_type="sliding")))
+
+    def test_far_edge_plug_dropped(self):
+        # Top edge (0) bounds the swing square: its plug is phantom whatever
+        # profile it matched. Bottom (1) is a hinge edge and stays.
+        from shapely.geometry import box as sbox
+        top = sbox(446, 1331.5, 523.75, 1341.5)
+        bottom = sbox(446, 1386.75, 523.75, 1396.75)
+        plugs = [(top, "interrupted", 0), (bottom, "interrupted", 1)]
+        self.assertEqual(_restrict_swing_plugs(self.cand(), plugs),
+                         [(bottom, "interrupted", 1)])
+
+    def test_interrupted_hinge_plug_beats_full_sibling(self):
+        # The left edge hugged the parallel divider band 5px away and came
+        # out "full"; the bottom edge carries the doorway signature. One
+        # wall plane only: the full sibling drops.
+        from shapely.geometry import box as sbox
+        bottom = sbox(446, 1386.75, 523.75, 1396.75)
+        left = sbox(453, 1324.5, 463, 1403.75)
+        plugs = [(bottom, "interrupted", 1), (left, "full", 2)]
+        self.assertEqual(_restrict_swing_plugs(self.cand(), plugs),
+                         [(bottom, "interrupted", 1)])
+
+    def test_full_hinge_plugs_kept_without_interrupted_sibling(self):
+        # A closed-drawn door in a drawn-through wall: full plugs on hinge
+        # edges are the only seal evidence and must survive.
+        from shapely.geometry import box as sbox
+        bottom = sbox(446, 1386.75, 523.75, 1396.75)
+        plugs = [(bottom, "full", 1)]
+        self.assertEqual(_restrict_swing_plugs(self.cand(), plugs), plugs)
+
+    def test_far_edge_only_plugs_survive_as_guard(self):
+        # If every qualifying plug lies on a far edge, the restriction would
+        # push the door to the dilated-bbox fallback — keep the status quo.
+        from shapely.geometry import box as sbox
+        top = sbox(446, 1331.5, 523.75, 1341.5)
+        plugs = [(top, "interrupted", 0)]
+        self.assertEqual(_restrict_swing_plugs(self.cand(), plugs), plugs)
 
 
 class TestDiagonalWindowSeal(unittest.TestCase):
