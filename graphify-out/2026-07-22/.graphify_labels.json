@@ -16,10 +16,12 @@
   "14": "Room Polygonization Internals",
   "15": "Arc Cap-Trim Tests",
   "16": "Arc Cycle-Cap Pruning Tests",
+  "17": "arcs.py",
   "18": "windows.py",
   "19": "Arc Spur-Pruning Tests",
   "20": "Chained-Curve Swing Tests",
   "21": "_fit_circle_3pt",
+  "22": "geometry.py",
   "23": "Hu-Moment Template Tool",
   "24": "hline",
   "25": "Extraction Strategy (project.md)",
@@ -35,6 +37,7 @@
   "35": "plumber.py",
   "36": "_prune_arc_spurs",
   "37": "Polyline-Arc Spur Pruning — Design",
+  "38": "TestSwingHingePlugRestriction",
   "39": "Batch PDF Extraction Script Design",
   "40": "rect_room",
   "41": "_collect_wall_faces",
@@ -105,6 +108,8 @@
   "106": "_resolve_door_window_conflicts",
   "107": "TestWindowArbitraryAngle",
   "108": "renderer.py",
+  "109": "PathPrimitive",
   "110": "batch_extract.py",
-  "111": "app.py"
+  "111": "app.py",
+  "112": "TestFloorPlansRegression"
 }
