@@ -30,13 +30,14 @@ from __future__ import annotations
 
 import math
 
-from shapely.geometry import LineString, Polygon, box
+from shapely.geometry import LineString, Point, Polygon, box
 from shapely.ops import unary_union
 
 from models import BBox, Candidate, TextSpan
 from detection.geometry import _line_angle_deg, _line_length
 from detection.walls import (
-    WALL_HATCH_MAX_LEN_PX, WALL_MIN_STROKE_WIDTH_PX, WallNetwork,
+    WALL_HATCH_MAX_LEN_PX, WALL_MAX_THICKNESS_PX, WALL_MIN_STROKE_WIDTH_PX,
+    WallNetwork,
     _accept_white_walls, _bridge_white_runs, _is_diagonal_hatch_angle,
 )
 
@@ -48,10 +49,34 @@ ROOM_MAX_PAGE_AREA_FRAC     = 0.45    # components bigger than this are the shee
 ROOM_HOLE_AREA_FRAC_MAX     = 0.20    # mostly-hole components are frame-minus-building rings
 ROOM_WALL_DILATE_PX         = 2.0     # wall-solid dilation; seals sub-4px face cracks
 ROOM_LINE_BARRIER_PX        = 1.5     # half-width of thin line barriers (~pen width)
-ROOM_BARRIER_STROKE_RATIO   = 0.66    # a lone stroked face becomes a thin barrier only
+ROOM_BARRIER_STROKE_RATIO   = 0.75    # a lone stroked face becomes a thin barrier only
                                       # at >= this fraction of the paired-wall stroke
                                       # reference — tile grids, furniture outlines and
-                                      # symbols are penned lighter than the walls
+                                      # symbols are penned lighter than the walls.
+                                      # Random-size patio paving joints evade the
+                                      # equal-pitch lattice demotion and measure 0.70
+                                      # (1.05 vs 1.50 on 5-1133 — they fenced patio
+                                      # cells against exterior door plugs into phantom
+                                      # door-bearing "rooms"); every real lone barrier
+                                      # face on both reference PDFs measures >= 1.00,
+                                      # so the gate sits just above the noise band to
+                                      # keep headroom for lightly-penned real walls
+                                      # (paired pens go down to 0.67 in the sample set)
+ROOM_PAIRED_FACE_MIN_FRAC   = 0.5     # a STROKED face penned under the barrier gate
+                                      # rides on its pairing alone, and pairing is
+                                      # recorded per path index: one 22px sliver that
+                                      # paired (two paving joints 14px apart) qualified
+                                      # a 230px tile line full-length and fenced patio
+                                      # cells against the bay wall (5-1133). Where a
+                                      # face truly paired, its SEGMENTS already seal as
+                                      # solids, so full-length qualification must be
+                                      # earned: segments covering >= this fraction of
+                                      # the face run. Noise measures <= 0.36, real
+                                      # sub-gate paired faces >= 0.71 (both PDFs).
+                                      # UNSTROKED paired faces are exempt — material-
+                                      # backed hairline partitions are real walls with
+                                      # legitimately partial pairing (0.13-0.36 where
+                                      # openings/text ate the partner face)
 ROOM_GAP_CLOSE_PX           = 8.0     # morphological closing: seals drafting gaps up to
                                       # ~2x this; well below door widths so undetected
                                       # doors keep rooms connected (and thus dropped).
@@ -77,6 +102,17 @@ ROOM_PLUG_NEAR_PX           = 8.0     # a bbox edge "hugs" wall material within 
                                       # distance; the swing bbox lands on the wall faces
                                       # a few px off at most
 ROOM_PLUG_SAMPLE_PX         = 4.0     # coverage-profile sample spacing along an edge
+ROOM_PLUG_ANCHOR_WIN_PX     = 24.0    # cap on the end-anchor window: a jamb is
+                                      # jamb-sized regardless of doorway width, so
+                                      # the anchor evidence must not dilute as the
+                                      # edge grows (an n//4 quarter of a 165px garden
+                                      # doorway is 48px — a 45-degree bay jamb hugs
+                                      # the edge line for only ~20px of it and the
+                                      # true wall-plane edge failed the 0.5 gate at
+                                      # 0.42 while a perpendicular edge crossing the
+                                      # angled wall passed; measured on 5-1133 door
+                                      # 0121). Never larger than the legacy quarter,
+                                      # so narrow doors are unaffected.
 ROOM_PLUG_HALF_WIDTH_PX     = 5.0     # half-thickness of the wall-plane plug band; thin
                                       # enough to stay out of the room, thick enough to
                                       # overlap the wall band it stands in for
@@ -87,6 +123,22 @@ ROOM_PLUG_MID_COV_MAX       = 0.25    # mid coverage below this = interrupted wa
 ROOM_PLUG_FULL_COV_MIN      = 0.75    # total coverage above this = wall plane drawn
                                       # through the opening (existing-opening sills,
                                       # closed sliding/garage door panels)
+ROOM_BLIND_WINDOW_MAX_AREA_PX2 = 10000.0  # a closet-scale space whose ONLY opening
+                                      # is a window cannot be entered — it is the
+                                      # exterior side of that window (a terrace
+                                      # pocket fenced by heavy-penned setout lines
+                                      # against the bay wall, a lightwell), not a
+                                      # room. Measured on 5-1133: the paving pockets
+                                      # beside bay windows W11/W13 are 2.7-3.7k px2
+                                      # with window-only boundaries, while every real
+                                      # window-bearing room on both reference PDFs
+                                      # is >= 17k px2 AND carries a door opening.
+                                      # Door-less window-LESS spaces stay: interior
+                                      # rooms legitimately lose their door to a
+                                      # missed detection (floor-plans has real ones
+                                      # at 3.3-8.5k px2), but a window on the
+                                      # boundary marks the building envelope, and a
+                                      # blind envelope sliver is outside it.
 ROOM_BASE_CONFIDENCE        = 0.50
 ROOM_DOOR_BOUNDARY_BOOST    = 0.15    # a space reachable through a real door is a room
 ROOM_WINDOW_BOUNDARY_BOOST  = 0.05
@@ -120,6 +172,21 @@ ROOM_PLUG_IN_WALL_FRAC      = 0.80    # min area fraction of a fallback-tier doo
                                       # ("costs nothing" made literal). Annotation boxes
                                       # floating NEAR a wall measure <= ~0.77 while
                                       # on-plane plugs measure 0.84+
+ROOM_FOLD_SPAN_TOL          = 0.15    # |wall gap - Σ leaf lengths| / Σ leaf lengths for
+                                      # a folding chain's opening (the span law: closed,
+                                      # the chain covers its opening exactly). A parked
+                                      # chain measures ~0 dev (GD2 on 5-1133: 222px gap
+                                      # vs 223px leaf run); a half-open concertina drawn
+                                      # across its opening foreshortens by cos of the
+                                      # fold half-angle, still inside 15%
+ROOM_FOLD_STACK_NEAR_PX     = 24.0    # the chain bbox must lie within this of the gap
+                                      # axis: leaves fold flat against the wall run at
+                                      # the jamb, so the stack hugs the opening plane
+                                      # (jamb scale, cf. ROOM_PLUG_ANCHOR_WIN_PX)
+ROOM_FOLD_JAMB_MIN_LEN_PX   = 24.0    # gap rays start only at ends of jamb-scale wall
+                                      # segments, not annotation slivers
+ROOM_FOLD_GAP_ESCAPE_PX     = 4.0     # ray start offset past the segment end, clearing
+                                      # the segment's own flat-capped solid
 ROOM_OPENING_TEXT_COVER_MAX = 0.60    # a door bbox covered this much by the text
                                       # written inside it is an annotation box ("WALL
                                       # TYPE 1" tags detected as leaf rectangles), not
@@ -148,7 +215,158 @@ def _text_cover_frac(bbox, text_spans) -> float:
     return unary_union(covers).intersection(b).area / b.area
 
 
-def _door_plugs(bbox, wall_material) -> list[tuple[Polygon, str]]:
+def _window_seal(candidate) -> Polygon:
+    """Barrier polygon sealing a window opening.
+
+    A horizontal/vertical window's bbox IS the wall-band segment it sits in
+    and seals as-is. A diagonal window (a 45-degree bay face) breaks that
+    premise: its axis-aligned bbox is a square that overhangs the wall plane
+    on both sides, stamping barrier into free space — measured on 5-1133,
+    bay window W11's square bridged the bay wall to the terrace setout lines
+    and fenced a paving pocket into a phantom room. Seal along the drawn
+    band instead: the bbox diagonal matching the glazing angle, buffered to
+    the band's measured half-thickness (bbox diagonal minus the opening span
+    between the end caps), so the seal shadows the window's own ink exactly
+    like door plugs shadow the wall plane.
+    """
+    x0, y0, x1, y1 = candidate.bbox
+    if candidate.evidence.get("orientation") != "diagonal":
+        return box(x0, y0, x1, y1)
+    angle = float(candidate.evidence.get("glazing_angle_deg") or 45.0) % 180.0
+    if angle < 90.0:
+        band = LineString([(x0, y0), (x1, y1)])  # y-down: descends left-to-right
+    else:
+        band = LineString([(x0, y1), (x1, y0)])
+    opening = float(candidate.evidence.get("opening_width_px") or 0.0)
+    half_th = max(ROOM_PLUG_HALF_WIDTH_PX, (band.length - opening) / 2.0)
+    return band.buffer(half_th, cap_style=2)
+
+
+def _open_leaf_edges(candidate) -> frozenset[int]:
+    """Bbox edges of a garden-layout double door that hold its parked-open leaves.
+
+    A garden pair is drawn OPEN by construction: the two leaves park at
+    opposite outer ends of the opening (along two opposite bbox edges), and
+    the wall plane is one of the two perpendicular edges. The parked leaf is
+    room/garden floor — never wall — so its edge must not take a plug: on
+    5-1133 door 0121 the bottom (leaf) edge crossed the angled bay wall at
+    one end and clipped terrace linework at the other, pattern-matching the
+    interrupted-run doorway signature and fencing a phantom paving-pocket
+    "room" outside the bay. French pairs are exempt: their collinear leaves
+    are drawn closed IN the wall plane, so the leaf edge is exactly the edge
+    that must stay eligible (cf. the closed-leaf plug retry and the sliding
+    white-ring exemption). Edge indices follow _door_plugs' order:
+    0 top, 1 bottom, 2 left, 3 right.
+    """
+    if candidate.evidence.get("swing_layout") != "garden":
+        return frozenset()
+    x0, y0, x1, y1 = candidate.bbox
+    tol = ROOM_PLUG_HALF_WIDTH_PX
+    edges: set[int] = set()
+    for key in ("leaf_bbox_a", "leaf_bbox_b"):
+        leaf = candidate.evidence.get(key)
+        if not leaf:
+            continue
+        lx0, ly0, lx1, ly1 = leaf
+        if lx1 - lx0 >= ly1 - ly0:
+            cy = (ly0 + ly1) / 2.0
+            if abs(cy - y0) <= tol:
+                edges.add(0)
+            elif abs(cy - y1) <= tol:
+                edges.add(1)
+        else:
+            cx = (lx0 + lx1) / 2.0
+            if abs(cx - x0) <= tol:
+                edges.add(2)
+            elif abs(cx - x1) <= tol:
+                edges.add(3)
+    return frozenset(edges)
+
+
+def _swing_hinge_edges(candidate) -> frozenset[int] | None:
+    """Bbox edges meeting at the hinge corner of a single quarter-swing door.
+
+    A swing door's wall plane passes through its hinge, so the edge carrying
+    the doorway is one of the two edges meeting at the hinge corner; the
+    opposite pair bounds the swing square — room floor by construction. The
+    hinge is derived from the drawn leaf and the arc chord (opening_line):
+    the chord endpoint lying ON the leaf (within ROOM_PLUG_NEAR_PX) is the
+    open tip, and the leaf corner farthest from it is the hinge. This holds
+    for both drawing conventions — leaf drawn open (perpendicular to the
+    wall) or closed (in the wall plane) — because the ink of a quarter swing
+    is symmetric between them: only WHICH radius is wall differs, and both
+    radii meet at the hinge. Ambiguous geometry (a half-open leaf whose
+    hinge floats inside the bbox, a chord touching the leaf at both ends or
+    neither) returns None and the caller keeps the status quo.
+    Edge indices follow _door_plugs' order: 0 top, 1 bottom, 2 left, 3 right.
+    """
+    if candidate.evidence.get("assembly_type") not in (
+        "single", "single_line_leaf"
+    ):
+        return None
+    chord = candidate.evidence.get("opening_line")
+    leaf = candidate.evidence.get("leaf_bbox")
+    if not chord or not leaf:
+        return None
+    lx0, ly0, lx1, ly1 = leaf
+
+    def leaf_dist(pt):
+        dx = max(lx0 - pt[0], 0.0, pt[0] - lx1)
+        dy = max(ly0 - pt[1], 0.0, pt[1] - ly1)
+        return math.hypot(dx, dy)
+
+    on_leaf = [leaf_dist(pt) <= ROOM_PLUG_NEAR_PX for pt in chord]
+    if on_leaf[0] == on_leaf[1]:
+        return None
+    tip = chord[0] if on_leaf[0] else chord[1]
+    corners = [(lx0, ly0), (lx1, ly0), (lx0, ly1), (lx1, ly1)]
+    hinge = max(corners, key=lambda p: math.hypot(p[0] - tip[0], p[1] - tip[1]))
+    x0, y0, x1, y1 = candidate.bbox
+    h_edge = 0 if abs(hinge[1] - y0) <= abs(hinge[1] - y1) else 1
+    v_edge = 2 if abs(hinge[0] - x0) <= abs(hinge[0] - x1) else 3
+    h_off = min(abs(hinge[1] - y0), abs(hinge[1] - y1))
+    v_off = min(abs(hinge[0] - x0), abs(hinge[0] - x1))
+    if max(h_off, v_off) > ROOM_PLUG_NEAR_PX:
+        return None
+    return frozenset({h_edge, v_edge})
+
+
+def _restrict_swing_plugs(candidate, plugs):
+    """Hold a single swing door to plugs on its hinge edges, one plane only.
+
+    A quarter-swing door has exactly ONE wall plane and it passes through
+    the hinge corner (_swing_hinge_edges), so a plug on either far edge is
+    phantom: the edge bounds the swing square — room floor — and qualified
+    only because perpendicular walls crossed near its extended ends,
+    pattern-matching the interrupted-run doorway signature (measured on
+    floor-plans door_0000, the main entrance: the top edge anchored on the
+    hallway divider at one end and the exterior wall at the other, and its
+    plug fenced the swing square out of the hallway — the fenced component
+    then dissolved as door floor and the hallway stopped 5px short of the
+    door). Among the hinge edges, an interrupted-run plug IS the doorway,
+    so a full-cover plug beside it is the other hinge edge hugging a
+    parallel wall face within ROOM_PLUG_NEAR_PX (door_0000's left edge,
+    5px off the divider band: its plug hung half in free floor and held the
+    hallway off the wall) — a genuinely drawn-through plane is its own
+    barrier, so dropping the full plug costs nothing. If the restriction
+    would leave no plugs where the unrestricted profile found some, the
+    unrestricted set stands: a door whose only wall evidence lies on far
+    edges is mis-derived or a false positive, and either way losing all
+    plugs would promote it to the dilated-bbox fallback — a pure-trust
+    stamp into free space, strictly worse than the status quo.
+    """
+    hinge_edges = _swing_hinge_edges(candidate)
+    if hinge_edges is None or not plugs:
+        return plugs
+    kept = [t for t in plugs if t[2] in hinge_edges]
+    if any(kind == "interrupted" for _, kind, _ in kept):
+        kept = [t for t in kept if t[1] == "interrupted"]
+    return kept or plugs
+
+
+def _door_plugs(
+    bbox, wall_material, skip_edges=frozenset()
+) -> list[tuple[Polygon, str, int]]:
     """Thin barrier bands along the wall planes through a detected door.
 
     The door bbox covers the swing area — room floor, not wall — so using it
@@ -174,7 +392,13 @@ def _door_plugs(bbox, wall_material) -> list[tuple[Polygon, str]]:
     full-cover plugs to the stricter lies-inside-wall-material test: "near
     total coverage" alone is also satisfied by an annotation box floating
     within ROOM_PLUG_NEAR_PX of a wall band, whose plug would then hang in
-    free space and notch the room.
+    free space and notch the room. The edge index (0 top, 1 bottom, 2 left,
+    3 right) rides along so _restrict_swing_plugs can hold single swing
+    doors to their hinge edges.
+
+    skip_edges holds indices (0 top, 1 bottom, 2 left, 3 right) of edges the
+    door's own evidence rules out as wall plane — a garden pair's parked-open
+    leaf edges (_open_leaf_edges) — regardless of coverage profile.
     """
     x0, y0, x1, y1 = bbox
     edges = [
@@ -183,8 +407,10 @@ def _door_plugs(bbox, wall_material) -> list[tuple[Polygon, str]]:
         ((x0, y0), (x0, y1)),
         ((x1, y0), (x1, y1)),
     ]
-    plugs: list[tuple[Polygon, str]] = []
-    for p, q in edges:
+    plugs: list[tuple[Polygon, str, int]] = []
+    for edge_idx, (p, q) in enumerate(edges):
+        if edge_idx in skip_edges:
+            continue
         length = math.hypot(q[0] - p[0], q[1] - p[1])
         if length < 1e-6:
             continue
@@ -201,8 +427,15 @@ def _door_plugs(bbox, wall_material) -> list[tuple[Polygon, str]]:
             for i in range(n)
         ]
         quarter = n // 4
-        start_cov = sum(covered[:quarter]) / quarter
-        end_cov = sum(covered[-quarter:]) / quarter
+        # Anchor window: the legacy n//4 quarter, capped at jamb scale — the
+        # anchoring jamb does not grow with the doorway, so on wide (double)
+        # doorways the quarter dilutes real jamb coverage below the gate.
+        win = min(
+            quarter,
+            int(math.ceil(ROOM_PLUG_ANCHOR_WIN_PX / ROOM_PLUG_SAMPLE_PX)) + 1,
+        )
+        start_cov = sum(covered[:win]) / win
+        end_cov = sum(covered[-win:]) / win
         # Trim the mid window by the hug distance: samples just inside an
         # open doorway still sit within ROOM_PLUG_NEAR_PX of the jamb corner
         # diagonally and must not count as mid coverage.
@@ -220,9 +453,63 @@ def _door_plugs(bbox, wall_material) -> list[tuple[Polygon, str]]:
         kind = "interrupted" if mid_cov <= ROOM_PLUG_MID_COV_MAX else "full"
         plugs.append(
             (LineString([a, b]).buffer(ROOM_PLUG_HALF_WIDTH_PX, cap_style=2),
-             kind)
+             kind, edge_idx)
         )
     return plugs
+
+
+def _folding_chain_gap_plug(
+    candidate: Candidate, network: WallNetwork, wall_material,
+) -> Polygon | None:
+    """Seal the doorway a PARKED folding chain leaves uncovered.
+
+    A concertina drawn folded against one jamb has a bbox covering only the
+    parked stack, never the opening it closes (GD2 on 5-1133: three ~74px
+    leaves parked inside the kitchen against the south jamb of a 222px
+    doorway — the bbox sits wholly beside the opening plane, so no plug edge
+    can ever qualify there and the hallway leaks into the kitchen). The
+    opening is recovered by the same span law the stack_pair detector uses:
+    walking from a wall-segment end along the segment axis, the free gap
+    before the next drawn wall material must equal the chain's total leaf
+    run, and the stack must hug that gap axis. Both gap ends anchor on drawn
+    wall material by construction — the plug carries the interrupted-run
+    evidence the plug tier requires, never a bare stamp into free space.
+    """
+    ev = candidate.evidence
+    leaf_run = ev.get("leaf_count", 0) * ev.get("panel_length_px", 0.0)
+    if leaf_run <= 0:
+        return None
+    door_box = box(*candidate.bbox)
+    best: tuple[float, Polygon] | None = None
+    for s in network.segments:
+        seg_len = _line_length(s.p1, s.p2)
+        if seg_len < ROOM_FOLD_JAMB_MIN_LEN_PX:
+            continue
+        for end, other in ((s.p1, s.p2), (s.p2, s.p1)):
+            ux = (end[0] - other[0]) / seg_len
+            uy = (end[1] - other[1]) / seg_len
+            reach = leaf_run * (1.0 + ROOM_FOLD_SPAN_TOL)
+            ray = LineString([
+                (end[0] + ux * ROOM_FOLD_GAP_ESCAPE_PX,
+                 end[1] + uy * ROOM_FOLD_GAP_ESCAPE_PX),
+                (end[0] + ux * reach, end[1] + uy * reach),
+            ])
+            if ray.distance(door_box) > ROOM_FOLD_STACK_NEAR_PX:
+                continue
+            hit = ray.intersection(wall_material)
+            if hit.is_empty:
+                continue
+            gap = hit.distance(Point(end))
+            dev = abs(gap - leaf_run) / leaf_run
+            if dev > ROOM_FOLD_SPAN_TOL:
+                continue
+            if best is None or dev < best[0]:
+                half = s.thickness_px / 2.0 + ROOM_WALL_DILATE_PX
+                plug = LineString([
+                    end, (end[0] + ux * gap, end[1] + uy * gap)
+                ]).buffer(half, cap_style=2)
+                best = (dev, plug)
+    return best[1] if best else None
 
 
 def _free_space_components(page, barriers) -> list[Polygon]:
@@ -341,6 +628,27 @@ def detect_rooms(
         WALL_MIN_STROKE_WIDTH_PX, ROOM_BARRIER_STROKE_RATIO * stroke_ref
     )
 
+    seg_by_path: dict[int, list] = {}
+    for s in network.segments:
+        for pi in s.face_path_indices:
+            seg_by_path.setdefault(pi, []).append(s)
+
+    def _paired_extent_frac(f):
+        """Fraction of the face run covered by its own segments' bands."""
+        own = {id(s): s for pi in f.indices for s in seg_by_path.get(pi, ())}
+        if not own:
+            return 0.0
+        line = LineString([f.p1, f.p2])
+        if line.length <= 0:
+            return 1.0
+        bands = unary_union([
+            LineString([s.p1, s.p2]).buffer(
+                s.thickness_px / 2.0 + ROOM_WALL_DILATE_PX
+            )
+            for s in own.values()
+        ])
+        return line.intersection(bands).length / line.length
+
     def _is_barrier_face(f):
         if _in_door_zone(f.p1, f.p2):
             return False
@@ -353,7 +661,16 @@ def detect_rooms(
         if f.wall_fill or f.layer_hint:
             return True
         if f.indices & paired_indices:
-            return True
+            # Pairing is index-granular: a face qualifies even when one tiny
+            # sliver of it paired. Unstroked faces (material-backed hairline
+            # partitions, fill outlines) keep that privilege — pairing plus
+            # material IS their wall evidence. A stroked face penned under
+            # the barrier gate (tile/paving pen) must instead earn full-
+            # length status: its segments — which already seal as solids —
+            # covering most of the run (ROOM_PAIRED_FACE_MIN_FRAC).
+            if not f.stroked or f.stroke_width >= stroke_gate:
+                return True
+            return _paired_extent_frac(f) >= ROOM_PAIRED_FACE_MIN_FRAC
         return f.stroked and f.stroke_width >= stroke_gate
 
     line_parts = [
@@ -444,7 +761,9 @@ def detect_rooms(
     # wall material, so it only re-asserts existing barrier). Full coverage
     # merely NEAR wall material is how an annotation box hugging a wall
     # would otherwise stamp a free-space notch into the room outline.
-    # Window bboxes lie in the wall band, used as-is.
+    # Straight-window bboxes lie in the wall band, used as-is; diagonal
+    # windows seal along their glazing band (_window_seal) because their
+    # square axis bbox overhangs the wall plane on both sides.
     door_barriers = []
     for zone, c in zip(door_zone_bounds, doors):
         local = wall_material.intersection(
@@ -452,10 +771,18 @@ def detect_rooms(
                 ROOM_OPENING_SEAL_PX + ROOM_PLUG_NEAR_PX + 4.0, join_style=2
             )
         )
-        plugs = _door_plugs(c.bbox, local)
+        # A garden pair's parked-open leaves pin down two edges as room/garden
+        # floor; those edges never take a plug, whatever their coverage
+        # profile happens to pattern-match. Single swing doors are further
+        # held to their hinge edges — the wall plane runs through the hinge,
+        # so far-edge plugs only ever fence the swing square out of its room.
+        leaf_edges = _open_leaf_edges(c)
+        plugs = _restrict_swing_plugs(
+            c, _door_plugs(c.bbox, local, skip_edges=leaf_edges)
+        )
         if c.confidence < ROOM_OPENING_MIN_CONFIDENCE:
             plugs = [
-                (p, kind) for p, kind in plugs
+                (p, kind, e) for p, kind, e in plugs
                 if kind == "interrupted"
                 or p.intersection(local).area >= ROOM_PLUG_IN_WALL_FRAC * p.area
             ]
@@ -471,16 +798,27 @@ def detect_rooms(
                 if zx0 <= rx0 and rx1 <= zx1 and zy0 <= ry0 and ry1 <= zy1
             ]
             if leaves:
-                plugs = _door_plugs(
-                    c.bbox, unary_union([local] + leaves)
-                )
+                plugs = _restrict_swing_plugs(c, _door_plugs(
+                    c.bbox, unary_union([local] + leaves),
+                    skip_edges=leaf_edges,
+                ))
+        # A folding chain parked at its jamb never spans its own doorway, so
+        # bbox-edge plugs cannot seal the opening plane — recover it via the
+        # span law (gap between wall ends == total leaf run) and plug across.
+        if (
+            c.evidence.get("fold_style") == "chain"
+            and c.confidence >= ROOM_OPENING_MIN_CONFIDENCE
+        ):
+            gap_plug = _folding_chain_gap_plug(c, network, wall_material)
+            if gap_plug is not None:
+                plugs = plugs + [(gap_plug, "chain_gap", None)]
         if plugs:
-            door_barriers.append(unary_union([p for p, _ in plugs]))
+            door_barriers.append(unary_union([p for p, _, _ in plugs]))
         elif c.confidence >= ROOM_BBOX_SEAL_MIN_CONFIDENCE:
             door_barriers.append(
                 box(*c.bbox).buffer(ROOM_OPENING_SEAL_PX, join_style=2)
             )
-    window_barriers = [box(*c.bbox) for c in windows]
+    window_barriers = [_window_seal(c) for c in windows]
     opening_parts = door_barriers + window_barriers
 
     # Drafting-gap sealing happens on the free-space side, inside
@@ -500,6 +838,30 @@ def detect_rooms(
     opening_union = unary_union(opening_parts) if opening_parts else None
     masses = _building_masses(solids, opening_union)
 
+    # A free-space component fully inside a confident door's bbox is the
+    # swing / threshold recess fenced off by the door's own seals (two
+    # parallel plugs, or a plug plus a drawn-through threshold) — door floor
+    # area, not a room. Measured on floor-plans: a garden pair in a cavity
+    # wall plugs at the outer wall plane, and the 105x25px recess between
+    # the cavity's inner face and the threshold line came out as its own
+    # component. Fallback-tier doors get no dissolution power, consistent
+    # with every other seal privilege.
+    # Folding doors get a wall-band-deep zone: a parked stack stands off its
+    # opening plane by the threshold depth (slot drain / blind-box zone on
+    # 5-1133's kitchen CL doors), so the fenced recess between the stack
+    # bbox and the wall band it serves falls outside the ⊕SEAL zone — still
+    # doorway floor, never a room.
+    swing_zones = [
+        box(*c.bbox).buffer(
+            WALL_MAX_THICKNESS_PX
+            if c.evidence.get("assembly_type") == "folding"
+            else ROOM_OPENING_SEAL_PX,
+            join_style=2,
+        )
+        for c in doors
+        if c.confidence >= ROOM_OPENING_MIN_CONFIDENCE
+    ]
+
     rooms: list[tuple[Polygon, dict]] = []
     for comp in components:
         if comp.area < ROOM_MIN_AREA_PX2:
@@ -507,6 +869,8 @@ def detect_rooms(
         if comp.area > ROOM_MAX_PAGE_AREA_FRAC * page_area:
             continue
         if comp.exterior.distance(page.exterior) <= ROOM_BORDER_TOL_PX:
+            continue
+        if any(comp.within(z) for z in swing_zones):
             continue
 
         exterior = Polygon(comp.exterior)  # interior holes (fixtures) filled
@@ -544,6 +908,13 @@ def detect_rooms(
             if LineString([s.p1, s.p2]).distance(boundary)
             <= s.thickness_px / 2.0 + ROOM_CONTACT_TOL_PX
         )
+        # Blind-window pocket: reachable only through its window = the
+        # exterior side of that window, not a room (see the constant).
+        if (
+            door_count == 0 and window_count > 0
+            and comp.area < ROOM_BLIND_WINDOW_MAX_AREA_PX2
+        ):
+            continue
         rooms.append((exterior, {
             "contact": contact,
             "door_count": door_count,

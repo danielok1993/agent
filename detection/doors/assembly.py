@@ -8,6 +8,7 @@ from detection.labels import _find_nearby_label
 from detection.doors.models import _DoorLeaf, _DoorSwing
 from detection.doors.shape import _compute_hu_distance
 from detection.doors.leaves import _find_anchored_leaf_line, _find_leaf_companion_lines
+from detection.doors.folding import _detect_folding_doors
 from detection.doors.sliding import _detect_sliding_doors
 from detection.doors.constants import (
     DOOR_ARC_FALLBACK_MAX, DOOR_ASSEMBLY_CONNECT_TOL_PX, DOOR_ASSEMBLY_LINE_LEAF_BASE,
@@ -496,6 +497,17 @@ def _pair_door_assemblies(
         paths, line_paths, swings, text_spans, collector, cand_idx,
     )
     candidates.extend(sliding_candidates)
+
+    # Folding/bifold doors are arc-less too: hinge-connected runs of equal
+    # white leaf panels at shallow fold angles (chains drawn across the
+    # opening, or 2-leaf V-stacks parked at opposite jambs and paired by the
+    # span law). The fold-angle window (8-30°) is disjoint from the sliding
+    # pair's parallelism gate (≤6°), so the two detectors never compete for
+    # the same panel pair.
+    folding_candidates, cand_idx = _detect_folding_doors(
+        paths, text_spans, collector, cand_idx,
+    )
+    candidates.extend(folding_candidates)
 
     for swing_idx, swing in enumerate(swings):
         if swing_idx in used_swings:

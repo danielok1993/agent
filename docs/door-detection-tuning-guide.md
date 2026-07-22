@@ -24,7 +24,7 @@ Door detection has three stages, in strict order:
    - `connection_dist ≤ DOOR_ASSEMBLY_CONNECT_TOL_PX` (15 px between swing pairing-points and leaf corners), AND
    - `radius_ratio = |leaf.length - swing.radius| / swing.radius ≤ DOOR_LEAF_RADIUS_RATIO_TOL` (0.20).
 
-   After arc pairing (and the swing-anchored single-line pass), `_detect_sliding_doors` (`detection/doors/sliding.py`) runs INSIDE `_pair_door_assemblies`, before the fallback passes: sliding doors have no arc at all and are detected from oriented panel-rectangle patterns (§3.9). Its candidates carry `assembly_type="sliding"`, and because their `component_path_indices` contain the panels' primitives, `_dedupe_door_components` retires the 0.35 leaf-fallback candidates the same rectangles used to produce.
+   After arc pairing (and the swing-anchored single-line pass), `_detect_sliding_doors` (`detection/doors/sliding.py`) runs INSIDE `_pair_door_assemblies`, before the fallback passes: sliding doors have no arc at all and are detected from oriented panel-rectangle patterns (§3.9). `_detect_folding_doors` (`detection/doors/folding.py`) runs immediately after it: folding/bifold doors are arc-less too, detected as hinge-connected runs of equal white leaf panels at shallow fold angles (§3.10). Both kinds of candidates carry their `assembly_type` ("sliding" / "folding"), and because their `component_path_indices` contain the panels' primitives, `_dedupe_door_components` retires the 0.35 leaf-fallback candidates the same rectangles used to produce.
 4. **Cross-validate** — `_cross_validate(candidates, walls)` applies a `wall_context` penalty when the door has no overlapping wall.
 
 After pairing, `merge_gemini_and_heuristics` (offline mode) applies `OFFLINE_MIN_CONFIDENCE["door"] = 0.55` as the floor for being promoted to an `Entity`.
@@ -170,9 +170,9 @@ If you instead compared both arcs' *outgoing-from-shared* tangents (or equivalen
 
 ### 3.9 Sliding doors — no arc (`detection/doors/sliding.py`)
 
-Sliding doors have **no swing arc**; the symbol is thin panel rectangles lying in the wall plane. Panels are collected as ORIENTED rectangles (corner fit via `_fit_oriented_rect`, so both sub-patterns are rotation-independent) from three representations, merged when coincident (`DOOR_SLIDE_PANEL_MERGE_TOL_PX`): `re`/`qu` primitives and closed 4–8-seg white-filled `l` rings — the Vectorworks joinery signature draws every panel twice (white fill ring + stroked `qu` outline). Panel gates: length ∈ [`DOOR_MIN_SIZE_PX`, `DOOR_MAX_SIZE_PX`], aspect ≥ `DOOR_LEAF_ASPECT_MIN`, thickness ∈ [3, 20] px (below 3 px is a shower screen / glazing strip — measured 2.0–2.5 on 5-1133).
+Sliding doors have **no swing arc**; the symbol is thin panel rectangles lying in the wall plane. Panels are collected as ORIENTED rectangles (corner fit via `_fit_oriented_rect`, so all sub-patterns are rotation-independent) from four representations, merged when coincident (`DOOR_SLIDE_PANEL_MERGE_TOL_PX`): `re`/`qu` primitives, closed 4–8-seg white-filled `l` rings — the Vectorworks joinery signature draws every panel twice (white fill ring + stroked `qu` outline) — and closed 4–8-seg **stroked** (fill-less) `l` rings, the flattened-PDF style (Microsoft Print to PDF strips fills), snapped at `DOOR_SLIDE_STROKED_RING_SNAP_TOL_PX` (1.0 px, CAD precision — the white-ring 3 px buckets chain a stroked ring into adjacent wall linework and reject it as an oversized component). Stroked-only rings feed ONLY the parked_leaf pattern below; they never enter the pair pool. Panel gates: length ∈ [`DOOR_MIN_SIZE_PX`, `DOOR_MAX_SIZE_PX`], aspect ≥ `DOOR_LEAF_ASPECT_MIN`, thickness ∈ [3, 20] px (below 3 px is a shower screen / glazing strip — measured 2.0–2.5 on 5-1133).
 
-Two sub-patterns (all three reference doors on 5-1133-WD03; GD labels):
+Two sub-patterns calibrated on 5-1133-WD03 (GD labels) plus one on floor-plans.pdf:
 
 ```
 leaf_pair (GD4, GD5):        pocket_leaf (GD9):
@@ -187,12 +187,61 @@ leaf_pair (GD4, GD5):        pocket_leaf (GD9):
 
 - **leaf_pair**: axes parallel ≤ `DOOR_SLIDE_AXIS_TOL_DEG` (folded bifold leaves measure 16–20° apart → excluded), lengths equal within `DOOR_SLIDE_LENGTH_RATIO_TOL`, lateral offset ≤ `DOOR_SLIDE_LATERAL_FACTOR` × avg thickness (real pairs measure ~0.02×; laterally-stacked wall plies ~1.0×; an open hinged leaf against a wall face ~3×), axial overlap ∈ [0.20, 0.90] (duplicated fixture symbols measure 1.0; the WALL TYPE 4 ply stack 0.94; abutting collinear wall rects ~0).
 - **pocket_leaf**: a WHITE panel flanked on BOTH sides by wall-face lines (gap ∈ [0.5, 12] px beyond the panel edge, each face ≥ 0.4 × panel length, each side covering ≥ 0.25) over 35–90 % of its length, protruding 8–65 % at one end, where the protrusion zone contains ≤ `DOOR_SLIDE_ZONE_MAX_CROSSERS` crossing lines (a wall strip "protrudes" into hatch — ≥3 crossers; a doorway is clear, jamb caps ≤2) AND the panel bbox overlaps no collected swing (an open hinged leaf near its arc is the swing's business). White-ring representation is REQUIRED for this weaker single-panel evidence tier (open hinged leaves on 5-1133 are stroked `qu` only).
+- **parked_leaf** (floor-plans door_0011, added 2026-07-21): a single panel (ANY representation — this is the fill-less tier, where band + jamb + slide-law evidence replaces the white signature) parked flush along one face of a wall band that ENDS at a jamb, with a clear opening of ~one panel length beyond the jamb:
+
+  ```
+      │ ║        │ ║◀── band face + partner face (band th 2-20 px)
+   far jamb ──▶  │ ║
+      ─┐ ┌─      │ ║ █ ◀── panel hugging the face: gap ≤ 6 px,
+       opening   │ ║ █     face runs behind ≥ 0.80 of the panel
+       ≈ panel   │ ║ █
+       length    │ ║ █     band END aligned with the panel end
+                 └─╨─┘◀──  within ±8 px (measured 3 px overhang)
+  ```
+
+  Gates in order: hugging face (gap ∈ [`DOOR_SLIDE_FLANK_GAP_MIN_PX`, `DOOR_SLIDE_PARK_GAP_MAX_PX`], cover ≥ `DOOR_SLIDE_PARK_FACE_COVER_MIN`); band partner face at depth ∈ [2, 20] px running with it; both faces end together at a jamb within `DOOR_SLIDE_PARK_JAMB_TOL_PX` of one panel end while the face runs past the other end; the **slide law** — the nearest linework endpoint in the band corridor beyond the jamb (the far jamb) sits at `|span − panel length|/length ≤ `DOOR_SLIDE_PARK_SPAN_RATIO_TOL` (measured 0.000: panel 51.25 px, opening 51.25 px); corridor clear of >2 crossers; no swing overlap. Runs after leaf_pair/pocket_leaf on unconsumed panels. The emitted bbox spans panel ∪ opening corridor so the room stage can seal the doorway (the parked panel itself lies laterally OFF the opening).
 
 Base confidence `DOOR_SLIDE_ASSEMBLY_BASE` 0.65 (rect-leaf tier) + the usual label/layer boosts; `opening_check="not_applicable"`.
 
 **Room-stage interplay (rooms.py):** sliding candidates are exempt from the open-leaf white-ring veto — a sliding panel lies in the wall plane by construction (drawn closed across the opening, or parked inside the pocket), and withholding its rings deletes the very partition `_bridge_white_runs` seals the doorway with. Measured on 5-1133 GD5: both panels are drawn PARKED in the pocket, so the door bbox covers only half the doorway; with the rings withheld the two adjacent rooms merged.
 
-**Not handled (would need extension):** folding/bifold doors (leaves at alternating ±10–20° angles — the GD2 trifold and the W9 folding/sliding wall are deliberately out of scope), single-leaf sliders drawn closed as a bare line across the opening (no rectangle), panels without any of the three rect representations.
+**Not handled (would need extension):** single-leaf sliders drawn closed as a bare line across the opening (no rectangle), panels without any of the four rect representations. Folding/bifold doors (leaves at alternating ±10–20° angles) were out of scope here until 2026-07-16 — they are now handled by the dedicated folding detector (§3.10).
+
+### 3.10 Folding/bifold doors — no arc (`detection/doors/folding.py`)
+
+Folding doors have no swing arc either; the symbol is a run of equal thin leaf panels **hinged end-to-end at a shallow fold angle** (adjacent leaf axes 10–21° apart on the corpus — exactly the geometry §3.9's `leaf_pair` excludes with its 6° parallelism gate, so the two detectors never compete for the same panel pair). Panels reuse `_collect_slide_panels` (same gates: length ∈ [`DOOR_MIN_SIZE_PX`, `DOOR_MAX_SIZE_PX`], aspect ≥ `DOOR_LEAF_ASPECT_MIN`, thickness 3–20 px), with one wrinkle: hinged leaves share ring VERTICES, so `_white_ring_rects`' closed-loop reconstruction rejects their fill rings (the hinge vertex has degree 4 and the leaves' rings BFS-merge into one non-loop component) and the leaves arrive as stroked-`qu` panels only. `_absorb_hinged_white_rings` recovers the signature: a white `l` segment whose both endpoints land on a panel's fitted corners is that panel's fill-ring edge — its path index is absorbed (so fallback dedupe sees both representations) and the panel turns white once ≥4 edges match. **Every folding leaf must be white** (the weaker no-arc evidence tier requires the Vectorworks joinery signature, mirroring pocket_leaf).
+
+Hinge edges (`_fold_edges`): equal lengths (`DOOR_FOLD_LENGTH_RATIO_TOL`), corner-to-corner contact ≤ `DOOR_FOLD_HINGE_TOL_PX`, axis delta ∈ [`DOOR_FOLD_ANGLE_MIN_DEG`, `DOOR_FOLD_ANGLE_MAX_DEG`]. Connected components are fold groups; two emission patterns (all three reference doors on 5-1133-WD03):
+
+```
+chain (GD2 trifold, drawn nearly closed):     stack_pair (kitchen CL doors, W9 folding wall):
+                                                ║ V           V ║
+   ────────────╲ ___________                    ║╱ ╲   open   ╱ ╲║
+   ╲____________╱                               ╱   ╲ ──────>╱   ╲
+   3+ leaves zigzag-hinged across               two 2-leaf V-stacks parked at opposite
+   the opening (deltas 10.1/20.6°)              jambs; outer span ≈ Σ leaf lengths
+```
+
+- **chain**: one group of ≥ `DOOR_FOLD_MIN_CHAIN_LEAVES` (3) leaves → one folding door. A lone 2-leaf V is NEVER emitted (too weak without a partner stack — guards against chance joinery corner contacts).
+- **stack_pair**: two 2-leaf groups paired greedily (nearest first) under three gates. The physical one is the **span law**: when the door closes the leaves unfold to cover the opening, so the outer corner span between the stacks along the opening axis must equal Σ leaf lengths within `DOOR_FOLD_STACK_SPAN_RATIO_TOL` (measured 0.015 on the kitchen pair, 0.001 on W9). Plus mirror symmetry (the stacks fold off the SAME wall plane: mean leaf axes mirror about the opening axis within `DOOR_FOLD_STACK_MIRROR_TOL_DEG`; measured ≤0.3°) and compactness (each stack projects ≤ `DOOR_FOLD_STACK_PERP_EXTENT_MAX` × leaf length perpendicular to the opening axis; measured 0.99–1.00×).
+- **open_v** (floor-plans paths 1739–1742, added 2026-07-21): a LONE bifold drawn **half-open** as a wide V — the fill-less drawing style, where each leaf is just two near-parallel oblique stroked `l` lines a hair apart (no white ring, no `qu`):
+
+  ```
+   ═══╗ ◀── jamb: wall-face lines END at the anchored tip
+      ╲╲
+       ╲╲  fold angle 40-85° (measured 71.2°;
+       ╱╱  capped BELOW 90° so orthogonal
+      ╱╱   corner joinery can never match)
+     ┄╱ ◀── free tip floats in the opening
+      │
+   ═══╡ ◀── far jamb: nearest corridor endpoint; span law
+  ```
+
+  Leaves come from `_double_line_leaves`: pairs of OBLIQUE lines (≥ `DOOR_FOLD_OPEN_OBLIQUE_MIN_DEG` off both axes — a half-open V off a straight wall is never axis-aligned, and this keeps the page's bulk linework out of the O(n²) search), near-parallel (≤ 6°), lengths within `DOOR_FOLD_LEAF_LINE_LEN_RATIO_MIN` (the inner edge is foreshortened at the hinge miter — measured 0.915), separation ∈ [0.8, 4.0] px (45° hatch at the corpus' tightest 5.7 px pitch = 4.03 sep, just outside), axial overlap ≥ 0.6. V gates: equal leaf lengths (`DOOR_FOLD_LENGTH_RATIO_TOL`), hinge corner contact (`DOOR_FOLD_HINGE_TOL_PX`), fold angle ∈ [`DOOR_FOLD_OPEN_ANGLE_MIN_DEG`, `DOOR_FOLD_OPEN_ANGLE_MAX_DEG`] (40–85° — disjoint from chain/stack_pair's 8–30°, so the patterns never compete), tips apart ≥ 0.5 × leaf length (tips together = drawn closed = chain territory), leaf axes MIRROR about the tip-to-tip axis (`DOOR_FOLD_STACK_MIRROR_TOL_DEG`; measured 4.3°). The evidence that replaces the white signature: ≥1 tip anchored on wall-line jamb ENDS running along the tip axis (length ≥ 15 px, endpoint within 6 px of the tip, body away from the opening — at an L-corner of counter joinery the walls run along the strips, never along the diagonal tip axis, so this is the L-corner killer alongside the <90° ceiling), the **span law** — the nearest corridor endpoint beyond the far tip (leaf end caps on leaf corners excluded) sits at `|span − Σ leaf lengths|/Σ ≤ `DOOR_FOLD_STACK_SPAN_RATIO_TOL` (measured 0.159: opening 55.85 px vs Σ 48.05) — and a clear corridor (≤2 crossers; the V's own end cap measures 1). Both tips anchored ⇒ span = tip span (a V drawn closed across the opening). The bbox spans the V ∪ the opening corridor down to the far jamb.
+
+Base confidence `DOOR_FOLD_ASSEMBLY_BASE` 0.65 + the usual label/layer boosts; `opening_check="not_applicable"`. The stack_pair bbox spans the whole opening (both stacks + the open span between them) — the room stage seals it through wall-plane plugs like any swing door; folding candidates get **no** sliding-style room-stage exemption (parked stacks protrude into room space like open leaves).
+
+**Not handled (would need extension):** stacks with 3+ leaves per side (a 6-leaf door parked 3+3 — pairing requires exactly 2+2), a single bifold parked FOLDED at one jamb only (a closed lone V — open_v needs the half-open geometry to measure the mirror/span laws), stroked-only leaves without the white fill signature in the chain/stack_pair patterns (open_v is the only stroked-leaf tier), an open V with an axis-aligned leaf (a bifold off a 45° diagonal wall could fold one leaf onto the horizontal/vertical — the oblique gate would drop it).
 
 ---
 
@@ -318,6 +367,36 @@ These hardcoded in `_pair_door_assemblies` (heuristics.py:1833+, 1730+):
 | `DOOR_SLIDE_ZONE_WIDTH_FACTOR` | 3.0 | Protrusion-zone half-width = × panel half-thickness. |
 | `DOOR_SLIDE_ZONE_MAX_CROSSERS` | 2 | Jamb/end-cap linework in a doorway ≤ 2 crossers; wall hatch continuation ≥ 3. |
 | `DOOR_SLIDE_ASSEMBLY_BASE` | 0.65 | Same tier as the qu/re rect-leaf swing assembly; label (+0.20) / layer (+0.40) boosts apply. |
+| `DOOR_SLIDE_STROKED_RING_SNAP_TOL_PX` | 1.0 | Stroked rings snap at CAD precision; the white-ring 3 px buckets chain them into surrounding wall linework (component >8 segs, rejected). |
+| `DOOR_SLIDE_PARK_GAP_MAX_PX` | 6.0 | parked_leaf panel-to-band-face gap (measured 0.75). Flush, not a pocket cavity (12). |
+| `DOOR_SLIDE_PARK_FACE_COVER_MIN` | 0.80 | The hugged face runs behind the whole panel (measured 0.94); short faces are sills/ticks. |
+| `DOOR_SLIDE_PARK_BAND_MIN_TH_PX` / `_MAX_TH_PX` | 2.0 / 20.0 | Face + partner face = a wall band (measured 7.0), not a lone shelf line. |
+| `DOOR_SLIDE_PARK_JAMB_TOL_PX` | 8.0 | Band end vs panel end alignment (measured 3.0 overhang); parked means AT the jamb. |
+| `DOOR_SLIDE_PARK_SPAN_RATIO_TOL` | 0.15 | Slide law: opening span ≈ panel length (measured 0.000). |
+
+### 4.9c Folding-door detection (§3.10, `detection/doors/constants.py`)
+
+| Constant | Value | Rationale |
+|---|---|---|
+| `DOOR_FOLD_ANGLE_MIN_DEG` | 8.0 | Adjacent-leaf axis delta floor. Below is sliding/collinear territory (sliding pairs ≤6°); GD2's shallowest fold measures 10.1°. |
+| `DOOR_FOLD_ANGLE_MAX_DEG` | 30.0 | Ceiling. Above is corner joinery / 45° bay glazing. Measured folds: 10.1–20.8°. |
+| `DOOR_FOLD_LENGTH_RATIO_TOL` | 0.15 | Leaves of one door are equal panels (measured ≤0.005). |
+| `DOOR_FOLD_HINGE_TOL_PX` | 6.0 | Corner-to-corner contact at the hinge. Leaves share the ring vertex exactly; qu-vs-ring fit offsets ≤0.3 px. |
+| `DOOR_FOLD_MIN_CHAIN_LEAVES` | 3 | A standalone chain needs 3+ leaves (GD2 trifold). A lone 2-leaf V is never emitted. |
+| `DOOR_FOLD_STACK_SPAN_RATIO_TOL` | 0.20 | Span law: outer span between parked stacks ≈ Σ leaf lengths (measured deviations 0.015, 0.001). |
+| `DOOR_FOLD_STACK_MIRROR_TOL_DEG` | 15.0 | Stacks fold off the same wall plane: mean leaf axes mirror about the opening axis (measured ≤0.3°). |
+| `DOOR_FOLD_STACK_PERP_EXTENT_MAX` | 1.25 | Per-stack corner extent perpendicular to the opening axis, × leaf length (measured 0.99–1.00×). |
+| `DOOR_FOLD_ASSEMBLY_BASE` | 0.65 | Same tier as sliding / rect-leaf swing assemblies; label/layer boosts apply. |
+| `DOOR_FOLD_OPEN_ANGLE_MIN_DEG` | 40.0 | open_v floor: below is the nearly-closed chain/stack territory (10.1–20.8°). |
+| `DOOR_FOLD_OPEN_ANGLE_MAX_DEG` | 85.0 | Capped BELOW 90° so orthogonal corner joinery can never match (measured 71.2°). |
+| `DOOR_FOLD_OPEN_OBLIQUE_MIN_DEG` | 8.0 | Leaf lines must be oblique to both axes; keeps bulk linework out of the pair search. |
+| `DOOR_FOLD_LEAF_LINE_SEP_MIN_PX` / `_MAX_PX` | 0.8 / 4.0 | Double-line leaf separation (measured 1.9–2.5); 45° hatch at 5.7 px pitch = 4.03 sep. |
+| `DOOR_FOLD_LEAF_LINE_LEN_RATIO_MIN` | 0.75 | Edge lines of one leaf (measured 0.915 — hinge-miter foreshortening). |
+| `DOOR_FOLD_LEAF_LINE_OVERLAP_MIN` | 0.6 | Axial overlap of the edge lines, × shorter length. |
+| `DOOR_FOLD_JAMB_ANCHOR_TOL_PX` | 6.0 | Jamb line endpoint to leaf tip (measured 3.4/3.6). |
+| `DOOR_FOLD_JAMB_LINE_MIN_LEN_PX` | 15.0 | A jamb anchor is a wall face, not a cap/tick. |
+| `DOOR_FOLD_JAMB_AXIS_TOL_DEG` | 15.0 | Jamb faces run along the opening axis (measured 2.2°). |
+| `DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX` | 6.0 | Corridor half-width for far-jamb/crosser search (measured lateral offsets 1.2–1.8). |
 
 ### 4.10 Wall cross-validation
 
@@ -362,7 +441,8 @@ These were confirmed on the test corpus. The single guard rule that catches both
 | Adjacent (but unpaired) doors sharing a near-shared hinge endpoint that ISN'T a garden-door pair | Not handled | unobserved | Considered as a follow-up to §3.7: a "cross-exclude paths within 5 px of shared endpoints" rule in `_check_opening_clear` for non-double-arc cases. Garden doors don't need it (both halves are in one assembly via the partner-paths threading); leaving the rule out keeps blast radius small until a real case is observed. |
 | Spur > 4 segs | Not handled | observed once on floor-plans | Would need a separate "tail trim" with different criteria. |
 | Multiple cycles at one junction | Partial — pruned one at a time | rare | Iteration handles it eventually but tests should add coverage. |
-| Sliding doors (no arc) | **Handled** (§3.9) | 5-1133 GD4/GD5/GD9 | `_detect_sliding_doors`: leaf_pair + pocket_leaf oriented-rectangle patterns. Folding/bifold doors (GD2, W9) remain out of scope. |
+| Sliding doors (no arc) | **Handled** (§3.9) | 5-1133 GD4/GD5/GD9 | `_detect_sliding_doors`: leaf_pair + pocket_leaf oriented-rectangle patterns. |
+| Folding/bifold doors (no arc) | **Handled** (§3.10) | 5-1133 GD2 trifold, kitchen CL doors, W9 folding wall | `_detect_folding_doors`: hinged-chain + parked-stack-pair patterns over white leaf panels. Lone 2-leaf stacks and 3+3 parked stacks remain out of scope. |
 | Doors with arrow direction indicators | Not handled | unobserved | The arrow would currently be treated as part of the swing component and likely fail axis/angle checks. |
 | Curved (non-circular) door panels | Not handled | rare | `_fit_circle_3pt` assumes a circular arc. Elliptical or freeform paths would mis-fit. |
 | Differentiating door swing from bath fixture without strong context | Heuristic only | systematic | The geometry is genuinely ambiguous. Resolved only by `wall_context + label`. |
@@ -435,12 +515,14 @@ End-of-session detection counts (offline mode, walls enabled, windows disabled).
 
 ### 9.1 floor-plans.pdf (1 page, 1240×1754 px, Microsoft Print to PDF)
 
-9 doors: 7 `single_line_leaf` singles (conf 0.67) + 2 `double_swing` / `swing_layout=garden` composites (conf 0.65). All `arc_source = polyline_arc`.
+11 doors: 7 `single_line_leaf` singles (conf 0.67) + 2 `double_swing` / `swing_layout=garden` composites (conf 0.65) + 1 `sliding`/`parked_leaf` + 1 `folding`/`open_v` (both conf 0.65, added 2026-07-21 — this PDF is no longer a full zero-detection control for §3.9/§3.10; it stays the zero-detection control for the leaf_pair, pocket_leaf, chain and stack_pair sub-patterns).
 
 | entity_id | bbox (x0,y0,x1,y1) | size | conf | type | notes |
 |---|---|---|---|---|---|
 | garden_door_1 | 310, 356 — 420, 410 | 110×54 | 0.65 | double_swing | Recovered by `_split_double_arc` (§3.7). polyline_991 BFS = 24 segs → split 12+12. Replaces the previously-rejected door_0007. |
 | garden_door_2 | 1001, 404 — 1111, 458 | 110×55 | 0.65 | double_swing | Recovered by `_split_double_arc` (§3.7). polyline_993 BFS = 24 segs; 2-cycle at hinge stripped by cycle prune; then 11+11 split. Absorbs the area previously detected as door_0008. |
+| folding (hall/kitchen) | 388, 956 — 412, 1011 | 24×56 | 0.65 | folding / open_v | Paths 1739–1742: two 24.7/23.4 px double-line stroked leaves folded 71.2°, top tip anchored on the jamb band ends at y=955.5, span law 55.85 vs Σ 48.05 (dev 0.159). Bbox spans the V + opening corridor. |
+| sliding (hall) | 388, 1018 — 398, 1118 | 11×100 | 0.65 | sliding / parked_leaf | Paths 945/954/955/1734: a 3.0×51.25 stroked ring parked flush on the jamb band face (gap 0.75, cover 0.94, band 7.0), slide law 51.25 vs 51.25 (dev 0.000). Retires the old door_0011 leaf-fallback on the same ring. Bbox spans panel + opening. |
 | door (long-corridor) | 1096, 649 — 1141, 694 | 45×45 | 0.67 | single_line_leaf | Recovered by cycle pruning (polyline_856 / linework_801 area) |
 | door (long-corridor) | 1041, 704 — 1086, 749 | 45×45 | 0.67 | single_line_leaf | Recovered by spur pruning (linework_1318) |
 | door | 424, 917 — 467, 958 | 43×41 | 0.67 | single_line_leaf | Baseline |
@@ -453,7 +535,13 @@ End-of-session detection counts (offline mode, walls enabled, windows disabled).
 
 ### 9.2 5-1133-WD03.pdf (1 page, Vectorworks output)
 
-12 doors — the 9 swing doors below plus 3 sliding doors (§3.9, added 2026-07-09):
+15 doors — the 9 swing doors below plus 3 sliding doors (§3.9, added 2026-07-09) plus 3 folding doors (§3.10, added 2026-07-16):
+
+| bbox | conf | type | notes |
+|---|---|---|---|
+| 1710.2, 480.7 — 1785.7, 523.2 | 0.81 | folding / chain | GD2 trifold (label boost, −0.04 no-wall assembly penalty). Three 74px leaves hinged zigzag at fold deltas 10.1°/20.6°, drawn nearly closed. |
+| 1894.2, 571.2 — 2288.2, 671.2 | 0.65 | folding / stack_pair | Kitchen "CL doors". Two 2-leaf V-stacks (100px leaves, folds 19.6°) parked at opposite jambs of the 5400mm opening; span law 394 vs 400px. |
+| 2345.2, 126.2 — 2440.2, 510.2 | 0.65 | folding / stack_pair | W9 "folding/sliding doors" wall. Two 2-leaf V-stacks (96px leaves, folds 16.3°/16.6°) parked at opposite jambs; span law 384.1 vs 384.5px. |
 
 | bbox | conf | type | notes |
 |---|---|---|---|
@@ -461,7 +549,7 @@ End-of-session detection counts (offline mode, walls enabled, windows disabled).
 | 1191.2, 834.7 — 1333.3, 841.2 | 0.65 | sliding / leaf_pair | GD5. Two 94.5×6 panels overlapping 0.50, drawn PARKED in the east pocket (door bbox covers only half the doorway — this is why sliding doors are exempt from the room stage's open-leaf veto). |
 | 797.7, 787.7 — 803.7, 882.2 | 0.85 | sliding / pocket_leaf | GD9 (label boost). Vertical 94.5×6 white panel, 74 % flanked between hairline wall faces, protruding 25 px into the doorway. |
 
-Non-detections to preserve (verified not doors / out of scope): the GD2 trifold folding door at (1748, 490–521) and the W9 folding/sliding leaves at (2390–2402, 162–475) — leaves at 16–20° angle offsets; the WALL TYPE 4 ply stack at (1786–1807, 552–575) — lateral offset ≈ 1 thickness, overlap 0.94; the duplicated cistern symbol at (992, 924) — overlap 1.0; the 94.5×2.5 shower screen at (1257, 1053) — below min panel thickness; blind-box panels at (2321, 318) and (2092, 530) — no partner, embedded in dotted track bands, no flank profile.
+Non-detections to preserve (verified not doors): the WALL TYPE 4 ply stack at (1786–1807, 552–575) — lateral offset ≈ 1 thickness, overlap 0.94; the duplicated cistern symbol at (992, 924) — overlap 1.0; the 94.5×2.5 shower screen at (1257, 1053) — below min panel thickness; blind-box panels at (2321, 318) and (2092, 530) — no partner, embedded in dotted track bands, no flank profile. (The GD2 trifold and the W9 folding leaves, formerly listed here as out of scope, are the §3.10 folding detections above.)
 
 The 9 swing doors:
 
@@ -511,10 +599,10 @@ Before merging any door-detection change:
    python app.py extract 5-1133-WD03.pdf --no-gemini --debug --disable-windows
    ```
 3. Targets to hit:
-   - **floor-plans.pdf**: 9 doors at the bboxes in §9.1 — 7 singles at conf 0.67 + 2 `double_swing`/`swing_layout=garden` at conf 0.65. NO sliding doors — this PDF is the zero-detection control for §3.9.
-   - **5-1133-WD03.pdf**: 12 doors at the bboxes in §9.2 — 8 baseline + 1 `double_swing`/`swing_layout=garden` at (1884,772)–(1966,937) + 3 `sliding` (GD4/GD5/GD9). Apply the §9.2 baseline update: (649,592) and (1466,711) at 0.83, garden at 0.65.
+   - **floor-plans.pdf**: 11 doors at the bboxes in §9.1 — 7 singles at conf 0.67 + 2 `double_swing`/`swing_layout=garden` at conf 0.65 + the `sliding`/`parked_leaf` at (388,1018)–(398,1118) + the `folding`/`open_v` at (388,956)–(412,1011), both 0.65. NO other sliding/folding doors — this PDF is the zero-detection control for the leaf_pair, pocket_leaf, chain and stack_pair sub-patterns.
+   - **5-1133-WD03.pdf**: 15 doors at the bboxes in §9.2 — 8 baseline + 1 `double_swing`/`swing_layout=garden` at (1884,772)–(1966,937) + 3 `sliding` (GD4/GD5/GD9) + 3 `folding` (GD2, kitchen CL doors, W9). Apply the §9.2 baseline update: (649,592) and (1466,711) at 0.83, garden at 0.65.
    - (1286, 907)–(1333, 933) stays rejected (the remaining bath-fixture FP), and the §9.2 sliding non-detections stay out.
-   - Room regression on 5-1133 (full run, no flags): 22 rooms (26 predates the 2026-07-09 tile-grid/phantom-wall fixes in walls.py that merged the fragmented WC and Family Bath+Utility rooms). The GD5 seal shifts three room edges by 2–4 px versus the pre-sliding baseline (rooms now split exactly at the wall plane through the door band) and raises the (1053,845)-room confidence 0.70 → 0.85 via added wall contact; anything beyond that — especially a room MERGE across (1082,710)/(1241,846) — means the sliding room-stage exemption broke. The WC room (1053,709) bottoms out at y≈829.7 (the divider band edge) and the (1053,845) bath room's right edge runs straight at x≈1342 — a bite around (1286,907) means the bath-fixture FP regained the bbox seal.
+   - Room regression on 5-1133 (full run, no flags): 18 rooms (16 predates the 2026-07-16 folding-door detection; 22 predates the 2026-07-15/16 lattice-demotion and bay/garden-door seal fixes in walls.py/rooms.py; 26 predates the 2026-07-09 tile-grid/phantom-wall fixes that merged the fragmented WC and Family Bath+Utility rooms). The folding doors reshape rooms ONLY around themselves: the two phantom strip rooms tiling the W9 doorway at (2332,122)–(2411,364) and (2332,354)–(2442,513) dissolve into the door, the kitchen band room (1890,540)–(2292,662) splits at the CL-door plane, the room south of W9 starts at y≈515 (the door band edge), and small outdoor paving pockets outside the kitchen door emerge as door-bearing rooms. Elsewhere unchanged: a room MERGE across (1082,710)/(1241,846) means the sliding room-stage exemption broke; the WC room (1053,709) bottoms out at y≈829.7 (the divider band edge) and the (1053,845) bath room's right edge runs straight at x≈1342 — a bite around (1286,907) means the bath-fixture FP regained the bbox seal.
 
 Note (wall-network rebuild): "walls enabled" now means the internal wall-centerline network + room detection (`--disable-walls` is a deprecated alias for `--disable-rooms`). `wall_context` in door evidence derives from `WallNetwork` corridor tests in `detection/postprocess.py::_cross_validate`; no wall candidates are emitted anymore. Door penalty constants and tiers are unchanged. If a door's `wall_context` flips after touching `WALL_*` constants, widen the network coverage (face collection / pairing tolerances) — never door constants.
 

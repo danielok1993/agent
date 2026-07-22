@@ -256,5 +256,66 @@ class PocketLeafTests(unittest.TestCase):
         self.assertEqual(sliding_of(detect(paths, swings=[swing])), [])
 
 
+def stroked_ring(start_idx, x0, y0, x1, y1):
+    """A closed 4-segment stroked (fill-less) rectangle of `l` items."""
+    return [
+        line(start_idx + 0, (x0, y0), (x1, y0)),
+        line(start_idx + 1, (x1, y0), (x1, y1)),
+        line(start_idx + 2, (x1, y1), (x0, y1)),
+        line(start_idx + 3, (x0, y1), (x0, y0)),
+    ]
+
+
+class ParkedLeafTests(unittest.TestCase):
+    """parked_leaf: a stroked panel parked flush along a wall band that ends
+    at a jamb, with a clear opening of ~one panel length beyond it (the
+    floor-plans.pdf door_0011 geometry, round numbers)."""
+
+    def _scene(self, far_jamb_y=53.0, with_band_partner=True):
+        # Panel ring 3.0 x 50 at x 40.75-43.75, y 100-150; band faces at
+        # x=40 / x=33 ending at the jamb y=103 (3px overhang); opening above
+        # y 53-103 terminated by the far jamb stub.
+        paths = stroked_ring(0, 40.75, 100.0, 43.75, 150.0)
+        paths.append(line(10, (40.0, 103.0), (40.0, 170.0)))
+        if with_band_partner:
+            paths.append(line(11, (33.0, 103.0), (33.0, 170.0)))
+        paths.append(line(12, (40.0, far_jamb_y), (40.0, far_jamb_y - 7.0)))
+        return paths
+
+    def test_parked_panel_detected(self):
+        cands = sliding_of(detect(self._scene()))
+        self.assertEqual(len(cands), 1)
+        self.assertEqual(cands[0].evidence["slide_style"], "parked_leaf")
+        self.assertEqual(cands[0].evidence["leaf_sources"], ["stroked_ring"])
+        self.assertAlmostEqual(cands[0].evidence["span_ratio_dev"], 0.06, delta=0.06)
+        # The bbox spans the opening, not just the parked panel.
+        self.assertLess(cands[0].bbox[1], 60.0)
+
+    def test_span_mismatch_rejected(self):
+        # Far jamb at 20px instead of ~50: the slide law fails.
+        self.assertEqual(sliding_of(detect(self._scene(far_jamb_y=83.0))), [])
+
+    def test_lone_face_without_band_rejected(self):
+        # A shelf line without a band partner is not a wall band.
+        self.assertEqual(
+            sliding_of(detect(self._scene(with_band_partner=False))), [],
+        )
+
+    def test_mid_band_panel_rejected(self):
+        # Faces run past both panel ends: no jamb, not parked at an opening.
+        paths = stroked_ring(0, 40.75, 100.0, 43.75, 150.0)
+        paths.append(line(10, (40.0, 60.0), (40.0, 170.0)))
+        paths.append(line(11, (33.0, 60.0), (33.0, 170.0)))
+        paths.append(line(12, (40.0, 53.0), (40.0, 46.0)))
+        self.assertEqual(sliding_of(detect(paths)), [])
+
+    def test_stroked_rings_never_leaf_pair(self):
+        # Two stroked rings in one band would pass every leaf_pair gate, but
+        # stroked-only panels are excluded from the pair pool.
+        paths = stroked_ring(0, 40.0, 100.0, 43.0, 150.0)
+        paths += stroked_ring(4, 40.5, 130.0, 43.5, 180.0)
+        self.assertEqual(sliding_of(detect(paths)), [])
+
+
 if __name__ == "__main__":
     unittest.main()

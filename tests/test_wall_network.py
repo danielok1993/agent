@@ -558,5 +558,101 @@ class TestWhiteRunBridging(unittest.TestCase):
         self.assertEqual(len(_bridge_white_runs([a, b, c])), 2)
 
 
+def paving_field(start_idx, x0, y0, pitch=31.0, cols=6, rows=5, pen=1.05):
+    """Running-bond paving: continuous course lines, staggered joint lines.
+
+    Mirrors the 5-1133 open-vestibule field: joints on alternating courses
+    only, so joint rungs are chains of pitch-long pieces that never
+    collinear-merge (gaps equal the pitch, far above the merge gap)."""
+    paths = []
+    idx = start_idx
+    x1 = x0 + cols * pitch
+    for r in range(rows + 1):
+        paths.append(hline(idx, x0, x1, y0 + r * pitch, stroke_width=pen))
+        idx += 1
+    for r in range(rows):
+        for c in range(1, cols):
+            if (r + c) % 2 == 0:
+                paths.append(vline(
+                    idx, x0 + c * pitch, y0 + r * pitch, y0 + (r + 1) * pitch,
+                    stroke_width=pen,
+                ))
+                idx += 1
+    return paths
+
+
+class TestLatticeDemotion(unittest.TestCase):
+    """Striped fields (paving bonds, tile fields, treads) are not walls."""
+
+    def _segments_inside(self, network, x0, y0, x1, y1):
+        return [
+            s for s in network.segments
+            if x0 <= (s.p1[0] + s.p2[0]) / 2.0 <= x1
+            and y0 <= (s.p1[1] + s.p2[1]) / 2.0 <= y1
+        ]
+
+    def test_paving_field_forms_no_walls(self):
+        # A room provides real paired faces (the stroke reference) and the
+        # field sits in open space beside it, exactly like the vestibule.
+        paths = rect_room(0, 100, 100, 400, 400) + paving_field(50, 500, 100)
+        network = detect_wall_network(paths)
+        field = self._segments_inside(network, 495, 95, 700, 300)
+        self.assertEqual(field, [])
+
+    def test_paving_field_with_missing_rung_still_demoted(self):
+        # One joint line eaten by a text mask leaves a 2x-pitch gap in the
+        # course rungs; the run must chain across it (the 5-1133 field loses
+        # its x=1070.8 joints under the "VESTIBULE" label).
+        paths = rect_room(0, 100, 100, 400, 400)
+        field = [
+            p for p in paving_field(50, 500, 100)
+            if not (p.points[0][1] == p.points[1][1]
+                    and abs(p.points[0][1] - 193.0) < 1.0)
+        ]
+        network = detect_wall_network(paths + field)
+        inside = self._segments_inside(network, 495, 95, 700, 300)
+        self.assertEqual(inside, [])
+
+    def test_four_parallel_faces_stay_walls(self):
+        # A cavity party wall drawn leaf/cavity/leaf at equal width is four
+        # same-pen faces at equal pitch — one rung short of a striped field,
+        # and its pairs must survive.
+        paths = rect_room(0, 100, 100, 400, 400) + [
+            vline(50 + i, 500 + i * 12.0, 100, 400) for i in range(4)
+        ]
+        network = detect_wall_network(paths)
+        inside = self._segments_inside(network, 495, 95, 545, 405)
+        self.assertGreater(len(inside), 0)
+
+    def test_stacked_wall_belts_stay_walls(self):
+        # Parallel wall bands at quasi-equal spacing whose pieces occupy
+        # DISJOINT spans chain into a rung ladder, but never coexist at one
+        # cross-section — the EXISTING_FLOOR_PLANS-3228943 signature, where
+        # envelope-glued chaining deleted the plan's central wall belt.
+        paths = rect_room(0, 100, 100, 400, 400) + [
+            hline(50, 500, 800, 500), hline(51, 500, 650, 508),
+            hline(52, 650, 800, 516), hline(53, 500, 650, 524),
+            hline(54, 650, 800, 532),
+        ]
+        network = detect_wall_network(paths)
+        inside = self._segments_inside(network, 495, 495, 805, 537)
+        self.assertGreater(len(inside), 0)
+
+    def test_short_pieces_form_no_rungs(self):
+        # Radiator/grille fins: many short parallel same-pen strokes at
+        # equal pitch. Each rung is under WALL_LATTICE_MIN_RUNG_LEN_PX, so
+        # no striped field is declared — and no face is demoted (the fins
+        # were never faces; the flanking wall pair must survive).
+        paths = rect_room(0, 100, 100, 400, 400) + [
+            vline(50, 500, 100, 400), vline(51, 530, 100, 400),
+        ] + [
+            hline(60 + i, 505, 525, 110 + i * 10.0, stroke_width=1.5)
+            for i in range(20)
+        ]
+        network = detect_wall_network(paths)
+        inside = self._segments_inside(network, 495, 95, 545, 405)
+        self.assertGreater(len(inside), 0)
+
+
 if __name__ == "__main__":
     unittest.main()
