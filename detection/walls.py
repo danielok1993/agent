@@ -1496,6 +1496,10 @@ def _line_intersection(
 
 WALL_REDUNDANT_OFFSET_SLACK_PX = 2.0   # extra reach beyond half-thickness when collapsing
 WALL_REDUNDANT_MIN_COVER = 0.80        # fraction of the shorter run covered to call it redundant
+WALL_REDUNDANT_THICKNESS_SLACK_PX = 4.0  # an absorbed duplicate may exceed the kept
+                                         # run's thickness by at most this much — a
+                                         # duplicate measures the SAME band, so only
+                                         # hatch-boundary jitter separates the two
 
 
 def _collapse_redundant_centerlines(segs: list[_Seg]) -> list[_Seg]:
@@ -1506,6 +1510,18 @@ def _collapse_redundant_centerlines(segs: list[_Seg]) -> list[_Seg]:
     few px apart. Those redundant lines fragment the network with dangles and
     enclose thin strip faces that masquerade as rooms. Keep the longest line
     of each overlapping parallel group.
+
+    A "duplicate" meaningfully THICKER than the kept run is a different
+    structure, not a re-measurement: a wall face pairing with another wall's
+    face across a corridor of wall-like width shares one face with the real
+    run, so its centerline sits close enough to pass the offset gate (its own
+    inflated thickness buys the reach), and absorbing it would transfer the
+    corridor-wide thickness onto the ENTIRE run (measured on floor-plans: the
+    bathroom/landing wall's 7.2px run took th 35.2 from a face pairing across
+    the stair corridor over a 41px overlap, and the poisoned solid fenced a
+    16px strip out of the bathroom and 13px off the landing over the whole
+    165px run). Such a pair stays a separate segment — its solid stays local
+    to the overlap where the pair actually measured something.
     """
     ordered = sorted(segs, key=lambda s: -_line_length(s.p1, s.p2))
     kept: list[_Seg] = []
@@ -1528,6 +1544,8 @@ def _collapse_redundant_centerlines(segs: list[_Seg]) -> list[_Seg]:
             lo_k, hi_k = _projected_interval(k.p1, k.p2, ux, uy, k.p1)
             lo_s, hi_s = _projected_interval(s.p1, s.p2, ux, uy, k.p1)
             covered = max(0.0, min(hi_k, hi_s) - max(lo_k, lo_s))
+            if s.thickness > k.thickness + WALL_REDUNDANT_THICKNESS_SLACK_PX:
+                continue
             if covered >= WALL_REDUNDANT_MIN_COVER * len_s:
                 k.indices |= s.indices
                 k.layer_hint = k.layer_hint or s.layer_hint
