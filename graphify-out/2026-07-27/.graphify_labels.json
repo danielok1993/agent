@@ -43,6 +43,7 @@
   "41": "_collect_wall_faces",
   "42": "Codebase Restructure: Packages + heuristics.py Split",
   "43": "Window Detection — Tuning Guide",
+  "44": "_FillRing",
   "45": "150-DPI pixel-space normalization (SCALE)",
   "46": "detection package facade (run_heuristics)",
   "47": "Gemini Vertex AI client",
@@ -100,7 +101,13 @@
   "99": "wall_band_h",
   "100": "TestWindowInteriorClutter",
   "101": "TestMarkerRings",
+  "102": "app.py",
+  "103": "plumber.py",
+  "104": "extractor.py",
   "105": "PageData",
   "106": "TestNetworkQueries",
-  "111": "app.py"
+  "107": "TestWindowArbitraryAngle",
+  "111": "app.py",
+  "112": "TestFloorPlansRegression",
+  "115": "constants.py"
 }

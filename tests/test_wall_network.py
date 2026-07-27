@@ -674,6 +674,40 @@ class TestLatticeDemotion(unittest.TestCase):
         inside = self._segments_inside(network, 495, 95, 545, 405)
         self.assertGreater(len(inside), 0)
 
+    def test_hatch_field_forms_no_diagonal_walls(self):
+        # A wall band's 45deg hatch: short same-pen strokes at a pitch far
+        # tighter than any wall. Two strokes of one field pair with each
+        # other like any parallel pen mates, and at an L-corner the phantom
+        # diagonal band juts out of the wall and chamfers the room corner
+        # (measured on floor-plans: strokes 28.1px apart cut ~16px off
+        # room_0000's and room_0001's top-right corners). The rungs are far
+        # under WALL_LATTICE_MIN_RUNG_LEN_PX, so only the hatch tier — which
+        # drops that floor below WALL_HATCH_MAX_PITCH_PX — catches them.
+        paths = rect_room(0, 100, 100, 400, 400)
+        idx = 50
+        for i in range(20):
+            # 135deg strokes at ~4px perpendicular pitch, 27px long, stepped
+            # along the band exactly as CAD hatch is emitted.
+            x = 500 + i * 5.7
+            paths.append(path(idx, [(x, 220.0), (x + 19.2, 200.8)],
+                              stroke_width=1.0))
+            idx += 1
+        network = detect_wall_network(paths)
+        field = self._segments_inside(network, 495, 195, 640, 225)
+        self.assertEqual(field, [])
+
+    def test_wall_pitch_diagonal_pair_survives_hatch_tier(self):
+        # The hatch tier keys on PITCH, not on being diagonal: a genuine
+        # 45deg bay wall (5-1133) is two faces at wall spacing and must
+        # still pair.
+        paths = rect_room(0, 100, 100, 400, 400) + [
+            path(50, [(500, 300), (600, 200)], stroke_width=1.5),
+            path(51, [(511, 311), (611, 211)], stroke_width=1.5),
+        ]
+        network = detect_wall_network(paths)
+        bay = self._segments_inside(network, 495, 195, 615, 315)
+        self.assertGreater(len(bay), 0)
+
 
 RED = (1.0, 0.0, 0.0)
 BLUE = (0.0, 0.0, 1.0)
