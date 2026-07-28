@@ -14,7 +14,7 @@ from models import Candidate, PathPrimitive, TextSpan
 from detection import detect_wall_network
 from detection.rooms import (
     ROOM_GAP_CLOSE_PX, _door_plugs, _open_leaf_edges, _restrict_swing_plugs,
-    _swing_hinge_edges, _window_seal, detect_rooms,
+    _sliding_end_edges, _swing_hinge_edges, _window_seal, detect_rooms,
 )
 
 PAGE_W, PAGE_H = 1000.0, 800.0
@@ -689,6 +689,71 @@ class TestGardenDoorSeals(unittest.TestCase):
         plugs = _door_plugs(self.BBOX, band)
         self.assertEqual([k for _, k, _ in plugs], ["full"])
         self.assertEqual(_door_plugs(self.BBOX, band, skip_edges=frozenset({0})), [])
+
+
+class TestPlugTailTrim(unittest.TestCase):
+    """Plug extensions end at their supporting material; slide ends veto.
+
+    Geometry mirrors floor-plans door_0011 (vertical pocket slider) and
+    door_0002 (swing whose top-left tail floated 8.7px off material and
+    notched room_0005 beside the jamb).
+    """
+
+    BBOX = (200.0, 100.0, 282.0, 265.0)  # same doorway as TestGardenDoorSeals
+
+    def test_sliding_end_edges_vetoed(self):
+        def cand(bbox, assembly="sliding"):
+            return Candidate("door_0011", "door", bbox, 0.65, evidence={
+                "assembly_type": assembly,
+            })
+        # Vertical slider (floor-plans door_0011): short ends top/bottom.
+        self.assertEqual(
+            _sliding_end_edges(cand((387.5, 1018.3, 398.3, 1117.8))),
+            frozenset({0, 1}),
+        )
+        # Horizontal leaf_pair (5-1133 door_0013): short ends left/right.
+        self.assertEqual(
+            _sliding_end_edges(cand((1191.2, 834.7, 1333.3, 841.2))),
+            frozenset({2, 3}),
+        )
+        # Near-square bbox (diagonal wall) and non-sliding assemblies veto
+        # nothing.
+        self.assertEqual(
+            _sliding_end_edges(cand((100.0, 100.0, 140.0, 150.0))),
+            frozenset(),
+        )
+        self.assertEqual(
+            _sliding_end_edges(
+                cand((387.5, 1018.3, 398.3, 1117.8), assembly="single")
+            ),
+            frozenset(),
+        )
+
+    def test_tail_trimmed_to_jamb_material(self):
+        # Jamb stubs set back from the extended edge ends: the plug must
+        # still reach INTO both jambs but not carry the floating tail
+        # remainder past them into free space.
+        jambs = unary_union([
+            shapely_box(196, 92, 210, 108),
+            shapely_box(272, 92, 286, 108),
+        ])
+        plugs = _door_plugs(self.BBOX, jambs)
+        self.assertEqual([(k, e) for _, k, e in plugs], [("interrupted", 0)])
+        x0, _, x1, _ = plugs[0][0].bounds
+        self.assertGreater(x0, 190.0)   # untrimmed tail started at 188
+        self.assertLess(x0, 197.0)      # still overlaps the left jamb
+        self.assertLess(x1, 292.0)      # untrimmed tail ended at 294
+        self.assertGreater(x1, 285.0)   # still overlaps the right jamb
+
+    def test_tail_kept_on_through_material(self):
+        # A band running the full extended edge supports both tails: the
+        # plug keeps its whole reach (the drawn-through-plane case).
+        band = shapely_box(188, 92, 294, 108)
+        plugs = _door_plugs(self.BBOX, band)
+        self.assertEqual([k for _, k, _ in plugs], ["full"])
+        x0, _, x1, _ = plugs[0][0].bounds
+        self.assertAlmostEqual(x0, 188.0, delta=0.1)
+        self.assertAlmostEqual(x1, 294.0, delta=0.1)
 
 
 class TestSwingHingePlugRestriction(unittest.TestCase):

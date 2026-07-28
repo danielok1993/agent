@@ -164,6 +164,13 @@ ROOM_PLUG_MID_COV_MAX       = 0.25    # mid coverage below this = interrupted wa
 ROOM_PLUG_FULL_COV_MIN      = 0.75    # total coverage above this = wall plane drawn
                                       # through the opening (existing-opening sills,
                                       # closed sliding/garage door panels)
+ROOM_SLIDE_END_ASPECT_MIN   = 2.0     # bbox aspect above which a sliding door's short-
+                                      # end edges are vetoed from plugs: panels lie
+                                      # along the wall, so the bbox elongates along the
+                                      # slide axis (measured 9.2-24x on both reference
+                                      # PDFs) and the short ends CROSS the wall band —
+                                      # never a doorway plane. Near-square bboxes
+                                      # (diagonal walls) veto nothing.
 ROOM_BLIND_WINDOW_MAX_AREA_PX2 = 10000.0  # a closet-scale space whose ONLY opening
                                       # is a window cannot be entered — it is the
                                       # exterior side of that window (a terrace
@@ -348,6 +355,31 @@ def _open_leaf_edges(candidate) -> frozenset[int]:
     return frozenset(edges)
 
 
+def _sliding_end_edges(candidate) -> frozenset[int]:
+    """Bbox short-end edges of a sliding door: across the wall, never wall plane.
+
+    A sliding assembly's panels lie along its wall by construction, so the
+    bbox elongates along the slide axis and the doorway plane is one of the
+    two LONG edges. A short-end edge crosses the wall band, and the only
+    profile it can match is a re-assertion of that band (full cover from the
+    jamb post it crosses plus flanking faces at loose hug) — but its plug is
+    thicker than the linework it shadows and carries SEAL-length tails, so
+    it pokes plug-width notches into the rooms on both sides of the wall
+    (measured on floor-plans door_0011: the bottom end-edge plug bit a
+    12x6px square out of room_0010 and a 7x10px notch out of room_0005 by
+    the "110" dimension). Vetoed outright, like a garden pair's parked-leaf
+    edges. Near-square sliding bboxes (diagonal walls) veto nothing.
+    Edge indices follow _door_plugs' order: 0 top, 1 bottom, 2 left, 3 right.
+    """
+    if candidate.evidence.get("assembly_type") != "sliding":
+        return frozenset()
+    x0, y0, x1, y1 = candidate.bbox
+    w, h = x1 - x0, y1 - y0
+    if max(w, h) < ROOM_SLIDE_END_ASPECT_MIN * min(w, h):
+        return frozenset()
+    return frozenset({2, 3} if w >= h else {0, 1})
+
+
 def _swing_hinge_edges(candidate) -> frozenset[int] | None:
     """Bbox edges meeting at the hinge corner of a single quarter-swing door.
 
@@ -450,7 +482,10 @@ def _door_plugs(
       nothing and sealing hairline gaps in it.
 
     Middling coverage (annotation clutter, no clear plane) qualifies no
-    edge; the caller falls back to the dilated bbox.
+    edge; the caller falls back to the dilated bbox. A qualified plug's
+    end extensions are trimmed back to the farthest sample touching wall
+    material, so a tail reaches INTO its jamb but never floats past it
+    into room floor.
 
     Each plug is returned tagged with the profile that qualified it
     ("interrupted" / "full") so the caller can hold fallback-tier doors'
@@ -533,8 +568,33 @@ def _door_plugs(
         if not (total_cov >= ROOM_PLUG_FULL_COV_MIN or interrupted):
             continue
         kind = "interrupted" if interrupted else "full"
+        # Trim each SEAL-length extension to the material that supports it:
+        # the tail exists to reach the jamb the bbox stopped short of, so it
+        # ends at its farthest sample still touching wall material (within
+        # the plug half-width). A tail hanging in free space — qualified by
+        # the loose hug of a parallel band, or overshooting a crossed jamb's
+        # far face — seals nothing and stamps a plug-width notch into the
+        # adjoining room (door_0002's top-left tail on floor-plans floated
+        # at 8.7px and notched room_0005 beside the jamb). A clearance gap a
+        # trimmed tail no longer bridges is far thinner than the GAP_CLOSE
+        # pinch, so the rooms it separates still split.
+        step = ext_len / (n - 1)
+        tail_n = max(int(ROOM_OPENING_SEAL_PX / step), 1)
+        pos_a = ROOM_OPENING_SEAL_PX
+        for i in range(min(tail_n, n)):
+            if touch[i]:
+                pos_a = min(i * step, ROOM_OPENING_SEAL_PX)
+                break
+        pos_b = ext_len - ROOM_OPENING_SEAL_PX
+        for i in range(n - 1, max(n - 1 - tail_n, -1), -1):
+            if touch[i]:
+                pos_b = max(i * step, ext_len - ROOM_OPENING_SEAL_PX)
+                break
+        spine = LineString(
+            [edge_line.interpolate(pos_a), edge_line.interpolate(pos_b)]
+        )
         plugs.append(
-            (LineString([a, b]).buffer(ROOM_PLUG_HALF_WIDTH_PX, cap_style=2),
+            (spine.buffer(ROOM_PLUG_HALF_WIDTH_PX, cap_style=2),
              kind, edge_idx)
         )
     return plugs
@@ -922,10 +982,12 @@ def detect_rooms(
         )
         # A garden pair's parked-open leaves pin down two edges as room/garden
         # floor; those edges never take a plug, whatever their coverage
-        # profile happens to pattern-match. Single swing doors are further
-        # held to their hinge edges — the wall plane runs through the hinge,
-        # so far-edge plugs only ever fence the swing square out of its room.
-        leaf_edges = _open_leaf_edges(c)
+        # profile happens to pattern-match. A sliding door's short-end edges
+        # cross the wall band and are vetoed the same way. Single swing
+        # doors are further held to their hinge edges — the wall plane runs
+        # through the hinge, so far-edge plugs only ever fence the swing
+        # square out of its room.
+        leaf_edges = _open_leaf_edges(c) | _sliding_end_edges(c)
         plugs = _restrict_swing_plugs(
             c, _door_plugs(c.bbox, local, skip_edges=leaf_edges)
         )
