@@ -371,6 +371,26 @@ class TestNetworkAssembly(unittest.TestCase):
         self.assertLess(len(network.segments), WALL_NETWORK_MIN_SEGMENTS)
         self.assertIsNone(network.merged)
 
+    def test_cross_corridor_pair_does_not_inflate_wall_run(self):
+        # Another wall's face across a corridor of wall-like width pairs with
+        # the left wall's outer face (spacing 35 < WALL_MAX_THICKNESS_PX) over
+        # a short overlap. The redundancy collapse must not absorb that pair
+        # into the left wall's run: its corridor-wide thickness would poison
+        # the whole run (floor-plans bathroom: a 7.2px wall run took th 35.2
+        # from a stair-corridor pair and fenced a 16px strip out of the room).
+        paths = rect_room(0, 100, 100, 400, 300, thickness=8.0)
+        paths.append(vline(8, 135.0, 240.0, 290.0))
+        network = detect_wall_network(paths)
+        runs = [
+            s for s in network.segments
+            if abs(s.p1[0] - s.p2[0]) < 1.0
+            and 98.0 <= (s.p1[0] + s.p2[0]) / 2.0 <= 112.0
+            and abs(s.p2[1] - s.p1[1]) >= 150.0
+        ]
+        self.assertTrue(runs, "left wall run missing from the network")
+        for s in runs:
+            self.assertLessEqual(s.thickness_px, 12.0)
+
 
 class TestNetworkQueries(unittest.TestCase):
     def make_network(self):
