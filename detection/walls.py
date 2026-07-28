@@ -42,6 +42,14 @@ WALL_FACE_MERGE_GAP_PX      = 6.0   # drafting artifacts only; door/window openi
 WALL_MIN_THICKNESS_PX       = 2.0   # thinnest partition at 150 DPI
 WALL_MAX_THICKNESS_PX       = 36.0  # heavy exterior/party walls (a 1:50 blockwork
                                     # band runs ~32px); corridors are far wider
+WALL_THICK_MATERIAL_MAX_PX  = 48.0  # locally thickened masonry (chimney breast /
+                                    # pier: floor-plans' bedroom pier bulges its
+                                    # 19px wall to 39px; a 1:50 400mm band is
+                                    # ~47px). Strong-face pairs in the 36-48px
+                                    # gap form ONLY when the band between the
+                                    # faces carries drawn wall material — an
+                                    # unpaired pier encloses its hatch as a
+                                    # free-space pocket = phantom room
 WALL_PARALLEL_ANGLE_TOL     = 4.0   # degrees, matches WINDOW_ANGLE_TOL_DEG
 WALL_BAND_MIN_ASPECT        = 3.0   # filled rect must be band-like, not a fixture block
 WALL_PAIR_MIN_OVERLAP_PX    = 12.0  # shorter face-pair overlap is coincidence
@@ -783,6 +791,9 @@ class _Seg:
     wall_fill: bool = False             # from a wall-rated fill class (band/ring)
     weak: bool = False                  # sub-threshold pen; only material-backed
                                         # pairs survive (never a face on its own)
+    thick: bool = False                 # pair spacing beyond WALL_MAX_THICKNESS_PX
+                                        # (thickened pier tier); only material-
+                                        # backed pairs survive
     pen: tuple | None = None            # quantized stroke color; None = wildcard
                                         # (fill outlines, filled bands, centerlines)
 
@@ -1457,13 +1468,25 @@ def _merge_collinear_segs(segs: list[_Seg], gap_px: float) -> list[_Seg]:
     return merged
 
 
-def _pair_faces_to_centerlines(faces: list[_Seg]) -> list[_Seg]:
+def _pair_faces_to_centerlines(
+    faces: list[_Seg], thick_tier: bool = False
+) -> list[_Seg]:
     """Every qualifying near-parallel face pair emits a centerline over the
     overlapped extent, carrying the face spacing as thickness.
 
     Unlike the retired detect_walls: no greedy one-partner pairing and no
     length-ratio gate — one long exterior face legitimately pairs with several
     short interior stubs. Duplicate centerlines collapse in the merge stage.
+
+    thick_tier additionally emits STRONG-face pairs spaced between
+    WALL_MAX_THICKNESS_PX and WALL_THICK_MATERIAL_MAX_PX, flagged thick=True
+    — a locally thickened masonry pier (chimney breast) exceeds the normal
+    cap and its enclosed hatch would otherwise survive as a free-space
+    pocket (phantom room). The caller MUST material-gate thick pairs
+    (_band_has_wall_material) exactly like weak ones: at pier spacing the
+    pair could just as well be a face beside a corridor. The interim
+    stroke-reference pairing keeps the tier off so 36-48px annotation
+    coincidences cannot skew the pen statistics.
     """
     n_buckets = max(1, int(math.ceil(180.0 / WALL_PARALLEL_ANGLE_TOL)))
     buckets: dict[int, list[int]] = {}
@@ -1497,7 +1520,17 @@ def _pair_faces_to_centerlines(faces: list[_Seg]) -> list[_Seg]:
                 ) > WALL_PARALLEL_ANGLE_TOL:
                     continue
                 spacing = _perpendicular_spacing(fi.p1, fi.p2, fj.p1, fj.p2)
-                if not (WALL_MIN_THICKNESS_PX <= spacing <= WALL_MAX_THICKNESS_PX):
+                if spacing < WALL_MIN_THICKNESS_PX:
+                    continue
+                thick = spacing > WALL_MAX_THICKNESS_PX
+                if thick and (
+                    not thick_tier
+                    or spacing > WALL_THICK_MATERIAL_MAX_PX
+                    # Pier faces are drawn in the wall pen; the demoted
+                    # tiers (hairline, lattice, light-pen, tile) keep their
+                    # tuned <=36px envelope.
+                    or fi.weak or fj.weak
+                ):
                     continue
                 lo_i, hi_i = _projected_interval(fi.p1, fi.p2, ux, uy, fi.p1)
                 lo_j, hi_j = _projected_interval(fj.p1, fj.p2, ux, uy, fi.p1)
@@ -1522,6 +1555,7 @@ def _pair_faces_to_centerlines(faces: list[_Seg]) -> list[_Seg]:
                     stroke_width=max(fi.stroke_width, fj.stroke_width),
                     wall_fill=fi.wall_fill or fj.wall_fill,
                     weak=fi.weak or fj.weak,
+                    thick=thick,
                 ))
     return centerlines
 
@@ -1760,11 +1794,17 @@ def detect_wall_network(
         f.weak = True
 
     marks = _collect_material_marks(paths)
-    centerlines = _pair_faces_to_centerlines(merged_faces + weak_merged)
-    if weak_merged:
+    centerlines = _pair_faces_to_centerlines(
+        merged_faces + weak_merged, thick_tier=True
+    )
+    if any(c.weak or c.thick for c in centerlines):
+        # Weak pairs (sub-threshold pens) and thick pairs (pier-tier spacing
+        # beyond WALL_MAX_THICKNESS_PX) survive only on drawn wall material
+        # between the faces — otherwise a hairline fixture outline, or a
+        # face beside a corridor of pier-like width, becomes a wall band.
         centerlines = [
             c for c in centerlines
-            if not c.weak or (
+            if not (c.weak or c.thick) or (
                 _line_length(c.p1, c.p2) >= WALL_WEAK_MIN_RUN_PX
                 and _band_has_wall_material(c, marks)
             )
@@ -1773,11 +1813,14 @@ def detect_wall_network(
         # whose band encloses a kept tighter pair over the same span passed
         # the material gate on that inner wall's own hatch/blocking (a tile
         # line paired with a real divider's far face) — drop it, so neither
-        # its centerline nor its outer face reaches the network.
+        # its centerline nor its outer face reaches the network. Thick pairs
+        # get the same treatment: a face 40px off a real wall would pass on
+        # that wall's own hatch.
         material_kept = centerlines
         centerlines = [
             c for c in material_kept
-            if not c.weak or not _claims_interior_pair(c, material_kept)
+            if not (c.weak or c.thick)
+            or not _claims_interior_pair(c, material_kept)
         ]
     weak_paired: set[int] = set()
     for c in centerlines:

@@ -333,6 +333,52 @@ class TestWeakFacePairs(unittest.TestCase):
         self.assertTrue({100, 101} <= paired)
 
 
+class TestThickMaterialPairs(unittest.TestCase):
+    """Pier tier: strong faces spaced past WALL_MAX_THICKNESS_PX pair only
+    on drawn material between them (floor-plans' bedroom chimney breast:
+    a 19px wall bulging to 39px, hatched inside — unpaired, the hatch
+    pocket survives free-space extraction as a phantom room)."""
+
+    @staticmethod
+    def _pier_paths(with_hatch):
+        # Outer face x=100 full height; normal 20px band (inner x=120)
+        # interrupted by a pier bulging to x=140 over y 300-400.
+        paths = [
+            vline(0, 100, 100, 500),
+            vline(1, 120, 100, 300),
+            hline(2, 120, 140, 300),
+            vline(3, 140, 300, 400),
+            hline(4, 120, 140, 400),
+            vline(5, 120, 400, 500),
+        ]
+        if with_hatch:
+            # 45-degree hatch inside the pier band, hairline pen (the real
+            # pier's hatch is a demoted light grey — either way never a
+            # strong face, but always material marks).
+            for i, y in enumerate(range(305, 395, 15)):
+                paths.append(path(
+                    10 + i, [(105, y), (135, y + 30)], stroke_width=0.3,
+                ))
+        return paths
+
+    def test_hatched_pier_pairs_past_normal_cap(self):
+        network = detect_wall_network(self._pier_paths(with_hatch=True))
+        thick = [s for s in network.segments if s.thickness_px > 36.0]
+        self.assertEqual(len(thick), 1)
+        seg = thick[0]
+        self.assertAlmostEqual(seg.thickness_px, 40.0, delta=0.5)
+        self.assertAlmostEqual(seg.p1[0], 120.0, delta=0.5)
+        ys = sorted((seg.p1[1], seg.p2[1]))
+        self.assertAlmostEqual(ys[0], 300.0, delta=2.0)
+        self.assertAlmostEqual(ys[1], 400.0, delta=2.0)
+
+    def test_bare_pier_spacing_does_not_pair(self):
+        # Same geometry, no material: a face beside a corridor of pier-like
+        # width must not become a wall band.
+        network = detect_wall_network(self._pier_paths(with_hatch=False))
+        self.assertFalse(any(s.thickness_px > 36.0 for s in network.segments))
+
+
 class TestNetworkAssembly(unittest.TestCase):
     def test_rect_room_closes(self):
         paths = rect_room(0, 100, 100, 400, 300, thickness=8.0)
