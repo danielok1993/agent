@@ -324,6 +324,10 @@ detail the crops keep.
 
 ## Non-goals
 
+- **Splitting tightly-packed sheets.** The 7 pages that produce a single
+  whole-page region are explicitly out of scope for this spec (decided
+  2026-07-28). They degrade to today's behaviour, so nothing regresses. Revisit
+  after this ships and the output has been seen on real runs.
 - Cross-page reasoning (matching an existing plan to its proposed counterpart).
 - Using region type for anything beyond filtering — no per-type detection tuning.
 - Re-splitting a region flagged `contains_multiple`.
