@@ -73,12 +73,40 @@ splits on every sheet tested. 40px vs 80px differ only on the largest A1 sheets.
 spanning the sheet makes every gutter impossible: `2682241` found **0** regions
 before the filter and 12 after.
 
-**Classification accuracy: 29/29 regions correct across 5 sheets** (Gemini 2.5
-Flash, temperature 0, crops at ~1536px long edge). `2682241` scored 13/13 despite
-having zero extractable text (outlined to curves) and being rotated 90°.
-`1326086` correctly returned **no** floor plan — a true negative confirmed by
-inspection, despite the filename claiming otherwise. Cost: 1,072–4,187 input
-tokens per page.
+**Classification accuracy.** A full sweep over all 20 pages (18 files in `plans/`
+plus both reference PDFs) completed with 0 malformed responses and 0 missing
+region ids, costing 44,437 input / 6,230 output tokens in total — about 2.2k
+input tokens per page.
+
+58 regions across 9 of those files were scored by inspection: **zero floor plans
+missed, zero false floor plans.** `2682241` scored 13/13 despite having zero
+extractable text (outlined to curves) and being rotated 90°; `2710870` scored
+14/14. The only calls I could not confirm were two narrow strips on `1789452`
+(elevation vs section) — neither is a floor plan, so the filtering outcome is
+unaffected.
+
+Two **true negatives** were confirmed by inspection: `PROPOSED_FLOOR_AND_ELEVATIONS-1326086`
+and `EXISTING_FLOOR_AND_ELEVATIONS-1326087` contain only elevations despite their
+filenames. Both are single-page. These pages currently produce phantom doors and
+rooms from elevation linework; under rule 1 they are skipped.
+
+**Coverage is narrower than the headline accuracy suggests:**
+
+| Outcome | Pages | Effect |
+|---|---|---|
+| Split into ≥2 regions | 11/20 | filtering applies |
+| Whole-page fallback (no gutters) | 7/20 | no filtering; behaves as today |
+| Raster scan, no vector ink | 2/20 | out of scope for a vector-first pipeline |
+
+Of the 11 that split, 2 are entirely floor plans (`floor-plans.pdf`, `3228943` —
+nothing to filter), 2 are entirely elevations (correctly skipped), and **7 get
+real noise removal**. Of the 7 that fall back to whole-page, at least three
+(`EXISTING_FLOOR_AND_ELEVATION_PLAN-3055574`,
+`PROPOSED_FLOOR_PLANS_AND_ELEVATIONS-3228948`,
+`REV_._B_SINGLE_PLAN_ALL_INFORMATION-3447461`) do contain elevations and would
+benefit if they split — the gutters between their drawings are below 20px. This
+is the main opportunity for a follow-up, and the reason the gutter threshold
+should stay a named constant.
 
 **Native PDF grouping is not usable as a primary signal.** Only 7 of 20 files
 carry ≥2 drawing-sized clip rects. Where present they are accurate (`2557737`'s
@@ -170,14 +198,22 @@ union pass anyway.
   `detect_schedules`.
 - Everything else is recorded in `regions.json` and dropped.
 
-Three behaviours decide the edge cases:
+Four behaviours decide the edge cases:
 
 1. **Page split into ≥2 regions, no `floor_plan` found** → skip detection for the
-   page, emit `NO_FLOOR_PLAN_REGION`. Verified correct on `1326086`.
+   page, emit `NO_FLOOR_PLAN_REGION`. Verified correct on `1326086` and `1326087`.
 2. **Page did not split (one whole-page region)** → classify it for the record,
    but run detection regardless of the answer. Guarantees never-worse-than-today
-   on dense sheets such as `5-1133`.
-3. **`--no-gemini`** → read the cached classification; if there is no cache, do no
+   on dense sheets such as `5-1133`. Applies to 7/20 pages.
+3. **Page has no vector ink** (`page_type == "raster-heavy"`, zero paths) →
+   segmentation and classification are both skipped entirely; emit
+   `RASTER_PAGE_NO_VECTOR_INK` and let the pipeline behave as it does today. This
+   is not a segmentation failure: `FLOOR_PLAN_-_EXISTING-3565362` and
+   `SECOND_FLOOR_PLAN_ROOF_-_EXISTING-3565363` are scanned images (0 paths, 0 text
+   spans, one full-page image), so there is nothing for a vector-first pipeline to
+   segment or detect. Checking this *before* calling Gemini avoids 2 wasted calls
+   per sweep and stops a raster page being reported as a classification miss.
+4. **`--no-gemini`** → read the cached classification; if there is no cache, do no
    filtering. `--refresh-regions` forces a re-call.
 
 ## Caching
@@ -225,6 +261,7 @@ Warning codes `GEMINI_SCHEMA_MISMATCH`, `GEMINI_UNKNOWN_CANDIDATE_ID` and
 | Code | Severity | When |
 |---|---|---|
 | `NO_FLOOR_PLAN_REGION` | warning | page split into ≥2 regions, none classified `floor_plan` |
+| `RASTER_PAGE_NO_VECTOR_INK` | info | page has no vector paths; segmentation and classification skipped |
 | `REGION_CLASSIFY_PARSE_FAILURE` | error | response was not valid JSON; page falls back to no filtering |
 | `REGION_CLASSIFY_INCOMPLETE` | warning | a region id was missing from the response; that region is treated as `unclassified` and excluded |
 | `REGION_CACHE_MISS_OFFLINE` | warning | `--no-gemini` with no cached `regions.json`; no filtering applied |
@@ -269,10 +306,16 @@ detail the crops keep.
 ## Risks and open questions
 
 - **A missed floor plan silently skips a page.** Rule 1 makes this loud
-  (`NO_FLOOR_PLAN_REGION`) but not recoverable. Accuracy was 29/29 on the sample;
-  a wider sweep over all of `plans/` should run before this is trusted.
-- **Under-splitting on dense sheets.** `5-1133` does not split at all, so it gets
-  no benefit. Acceptable — it degrades to today's behaviour.
+  (`NO_FLOOR_PLAN_REGION`) but not recoverable. The full sweep found zero missed
+  floor plans across 58 scored regions, and both zero-floor-plan pages were
+  confirmed true negatives. This is the failure mode to watch as new drawing
+  producers appear.
+- **Under-splitting is the main limitation, not misclassification.** 7 of 20 pages
+  produce a single whole-page region and get no filtering at all, and at least
+  three of those do contain elevations that should have been excluded. Lowering
+  `SEGMENT_MIN_GUTTER_PX` does not fix it — 12px was measured to give identical
+  splits. A follow-up would need a different mechanism (projection-profile cuts
+  at a lower ink threshold, or clip rects on the files that have them).
 - **The 77 off-page paths on `5-1133`** are excluded by region assignment. Their
   effect on `wall_stroke_reference` must be measured, not assumed.
 - **Rotated sheets.** `2682241` is rotated 90° and classified correctly, but the
