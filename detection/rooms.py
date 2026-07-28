@@ -284,20 +284,33 @@ def _window_seal(candidate) -> Polygon:
 
 
 def _open_leaf_edges(candidate) -> frozenset[int]:
-    """Bbox edges of a garden-layout double door that hold its parked-open leaves.
+    """Bbox edges of a garden-layout double door that are room floor, not wall.
 
     A garden pair is drawn OPEN by construction: the two leaves park at
     opposite outer ends of the opening (along two opposite bbox edges), and
-    the wall plane is one of the two perpendicular edges. The parked leaf is
-    room/garden floor — never wall — so its edge must not take a plug: on
-    5-1133 door 0121 the bottom (leaf) edge crossed the angled bay wall at
-    one end and clipped terrace linework at the other, pattern-matching the
-    interrupted-run doorway signature and fencing a phantom paving-pocket
-    "room" outside the bay. French pairs are exempt: their collinear leaves
-    are drawn closed IN the wall plane, so the leaf edge is exactly the edge
-    that must stay eligible (cf. the closed-leaf plug retry and the sliding
-    white-ring exemption). Edge indices follow _door_plugs' order:
-    0 top, 1 bottom, 2 left, 3 right.
+    the wall plane is one of the two perpendicular edges. Three of the four
+    edges are therefore room/garden floor and must not take a plug:
+
+    - the two parked-leaf edges: on 5-1133 door 0121 the bottom (leaf) edge
+      crossed the angled bay wall at one end and clipped terrace linework at
+      the other, pattern-matching the interrupted-run doorway signature and
+      fencing a phantom paving-pocket "room" outside the bay;
+    - the swing-extent edge opposite the doorway, identified as the edge the
+      merged opening_line lies along: that chord connects the two arc
+      endpoints farthest apart, and for a garden pair those are always the
+      parked leaves' open TIPS (tip-to-tip spans the full opening W; a tip
+      to a closed-position end near mid-doorway spans only ~0.71 W), so the
+      chord edge bounds the swing squares — never the doorway. Measured on
+      floor-plans door_0016: the swing-extent edge anchored on the two jamb
+      walls continuing past the doorway, pattern-matched an interrupted run,
+      and its plug held the bedroom outline 5px short of the doorway (cf.
+      _restrict_swing_plugs, the single-swing analog of this veto).
+
+    French pairs are exempt: their collinear leaves are drawn closed IN the
+    wall plane, so the leaf edge is exactly the edge that must stay eligible
+    (cf. the closed-leaf plug retry and the sliding white-ring exemption).
+    A diagonal garden pair's chord matches no axis edge and adds no veto.
+    Edge indices follow _door_plugs' order: 0 top, 1 bottom, 2 left, 3 right.
     """
     if candidate.evidence.get("swing_layout") != "garden":
         return frozenset()
@@ -321,6 +334,17 @@ def _open_leaf_edges(candidate) -> frozenset[int]:
                 edges.add(2)
             elif abs(cx - x1) <= tol:
                 edges.add(3)
+    chord = candidate.evidence.get("opening_line")
+    if chord and len(chord) == 2:
+        (px, py), (qx, qy) = chord
+        if abs(py - y0) <= tol and abs(qy - y0) <= tol:
+            edges.add(0)
+        elif abs(py - y1) <= tol and abs(qy - y1) <= tol:
+            edges.add(1)
+        elif abs(px - x0) <= tol and abs(qx - x0) <= tol:
+            edges.add(2)
+        elif abs(px - x1) <= tol and abs(qx - x1) <= tol:
+            edges.add(3)
     return frozenset(edges)
 
 

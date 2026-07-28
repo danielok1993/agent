@@ -656,6 +656,31 @@ class TestGardenDoorSeals(unittest.TestCase):
         )
         self.assertEqual(_open_leaf_edges(french), frozenset())
 
+    def test_open_leaf_edges_veto_tip_chord_edge(self):
+        # floor-plans door_0016: leaves parked along the LEFT/RIGHT edges,
+        # doorway at the top. The merged opening_line joins the leaves' open
+        # tips along the BOTTOM edge — the swing-extent side, room floor. It
+        # must be vetoed too: it anchored on the jamb walls continuing past
+        # the doorway, pattern-matched an interrupted run, and its plug held
+        # the bedroom outline 5px short of the doorway.
+        bbox = (1001.0, 403.8, 1110.7, 458.3)
+        garden = Candidate("door_0016", "door", bbox, 0.65, evidence={
+            "swing_layout": "garden",
+            "leaf_bbox_a": (1109.7, 403.8, 1110.7, 458.3),
+            "leaf_bbox_b": (1001.0, 403.8, 1002.0, 458.3),
+            "opening_line": [(1110.2, 458.2), (1001.5, 458.2)],
+        })
+        self.assertEqual(_open_leaf_edges(garden), frozenset({1, 2, 3}))
+        # A diagonal garden pair's chord lies along no axis edge — no veto
+        # beyond the leaf edges themselves.
+        diagonal = Candidate("door_0121", "door", bbox, 0.65, evidence={
+            "swing_layout": "garden",
+            "leaf_bbox_a": (1109.7, 403.8, 1110.7, 458.3),
+            "leaf_bbox_b": (1001.0, 403.8, 1002.0, 458.3),
+            "opening_line": [(1001.5, 403.8), (1110.2, 458.2)],
+        })
+        self.assertEqual(_open_leaf_edges(diagonal), frozenset({2, 3}))
+
     def test_skip_edges_suppresses_qualified_plug(self):
         # A full wall band hugs the top edge: it qualifies as a drawn-through
         # plane — unless the door's own leaf evidence vetoes the edge.
