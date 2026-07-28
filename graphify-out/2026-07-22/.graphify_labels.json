@@ -35,9 +35,7 @@
   "33": "Package __init__ stub",
   "34": "detect_windows",
   "35": "plumber.py",
-  "36": "_prune_arc_spurs",
   "37": "Polyline-Arc Spur Pruning — Design",
-  "38": "TestSwingHingePlugRestriction",
   "39": "Batch PDF Extraction Script Design",
   "40": "rect_room",
   "41": "_collect_wall_faces",
@@ -105,7 +103,6 @@
   "103": "plumber.py",
   "104": "extractor.py",
   "105": "PageData",
-  "106": "_resolve_door_window_conflicts",
   "107": "TestWindowArbitraryAngle",
   "108": "renderer.py",
   "109": "PathPrimitive",
@@ -115,6 +112,5 @@
   "113": "batch_extract.py",
   "114": "app.py",
   "115": "constants.py",
-  "116": "DoorAssemblyTests",
   "117": "app.py"
 }
