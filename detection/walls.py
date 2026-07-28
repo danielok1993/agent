@@ -188,6 +188,28 @@ WALL_LATTICE_OFFSET_TOL_PX   = 1.5   # collinear pieces at one offset are one ru
 WALL_LATTICE_PEN_TOL         = 0.05  # rungs must share a pen: a field is drawn in
                                      # one pen, while a wall face that happens to
                                      # run parallel nearby is penned as the walls
+WALL_HATCH_MAX_PITCH_PX      = 8.0   # a striped field pitched this tightly is the
+                                     # HATCH inside a wall band, and its rungs are
+                                     # exempt from WALL_LATTICE_MIN_RUNG_LEN_PX.
+                                     # That floor sits above WALL_HATCH_MAX_LEN_PX
+                                     # so hatch can never fake a wall-pitch field —
+                                     # but it also let real hatch keep FACE rights,
+                                     # and two strokes of one field pair with each
+                                     # other like any parallel pen mates. Inside a
+                                     # straight band the phantom band hides in the
+                                     # real one; at an L-corner it juts out (measured
+                                     # on floor-plans: strokes 2502/2516 of the 45deg
+                                     # field paired 28.1px apart into a diagonal
+                                     # centerline that chamfered room_0000's and
+                                     # room_0001's top-right corners by ~16px). The
+                                     # pitch is what proves they are not walls: five
+                                     # courses COEXISTING at <= this pitch span <=
+                                     # 32px total, one band's worth
+                                     # (WALL_MAX_THICKNESS_PX 36), so the lines are
+                                     # that band's material, never five walls.
+                                     # Measured: both reference PDFs' hatch fields
+                                     # pitch at 4.05/4.07px, while the tightest real
+                                     # striped field on either is 11.4px.
 
 # Tolerance for two segments to be considered on the same line.
 COLLINEAR_ANGLE_TOL    = 3.0   # degrees
@@ -1232,61 +1254,85 @@ def _demote_lattice_faces(
                         "off": off, "members": [i], "pieces": [(lo, hi)],
                         "total": hi - lo, "lo": lo, "hi": hi,
                     })
-            rungs = [
-                r for r in rows if r["total"] >= WALL_LATTICE_MIN_RUNG_LEN_PX
-            ]
-            if len(rungs) < WALL_LATTICE_MIN_RUNGS:
-                continue
-
-            start = 0
-            while start < len(rungs) - 1:
-                pitch = rungs[start + 1]["off"] - rungs[start]["off"]
-                if not (
-                    WALL_MIN_THICKNESS_PX
-                    <= pitch
-                    <= WALL_MAX_THICKNESS_PX + WALL_LATTICE_PITCH_TOL_PX
-                ) or _rungs_apart(rungs[start], rungs[start + 1]):
-                    start += 1
-                    continue
-                run = [rungs[start], rungs[start + 1]]
-                env_lo = min(rungs[start]["lo"], rungs[start + 1]["lo"])
-                env_hi = max(rungs[start]["hi"], rungs[start + 1]["hi"])
-                nxt = start + 2
-                while nxt < len(rungs):
-                    gap = rungs[nxt]["off"] - run[-1]["off"]
-                    if (
-                        abs(gap - pitch) > WALL_LATTICE_PITCH_TOL_PX
-                        and abs(gap - 2.0 * pitch) > WALL_LATTICE_PITCH_TOL_PX
-                    ):
-                        break
-                    if (
-                        rungs[nxt]["lo"] - env_hi > WALL_LATTICE_TOUCH_GAP_PX
-                        or env_lo - rungs[nxt]["hi"] > WALL_LATTICE_TOUCH_GAP_PX
-                    ):
-                        break
-                    run.append(rungs[nxt])
-                    env_lo = min(env_lo, rungs[nxt]["lo"])
-                    env_hi = max(env_hi, rungs[nxt]["hi"])
-                    nxt += 1
-                # Chained membership is not enough: distinct parallel wall
-                # bands stacked at quasi-equal spacing chain too (measured
-                # on EXISTING_FLOOR_PLANS-3228943: three 8px wall bands at
-                # 8-9px gaps chained into a 5-rung "ladder" and deleted the
-                # plan's central wall belt). A drawn FIELD has its courses
-                # side by side: somewhere along the axis, MIN_RUNGS rungs
-                # coexist. Wall belts never stack that deep — their rungs
-                # occupy disjoint spans that only envelopes glue together.
-                if (
-                    len(run) >= WALL_LATTICE_MIN_RUNGS
-                    and _max_rung_stack(run) >= WALL_LATTICE_MIN_RUNGS
-                ):
-                    for r in run:
-                        lattice.update(r["members"])
-                start = max(nxt - 1, start + 1)
+            # Two tiers over the same rows, scanned independently. The
+            # structural tier catches wall-pitch fields and needs the rung
+            # length floor to tell a paving course from a wall face. The
+            # hatch tier catches fields pitched too tightly to BE walls, and
+            # there the floor must not apply — it is precisely what keeps a
+            # real hatch field's strokes in the strong pipeline.
+            lattice |= _scan_striped_runs(
+                rows,
+                WALL_LATTICE_MIN_RUNG_LEN_PX,
+                WALL_MAX_THICKNESS_PX + WALL_LATTICE_PITCH_TOL_PX,
+            )
+            lattice |= _scan_striped_runs(rows, 0.0, WALL_HATCH_MAX_PITCH_PX)
 
     kept = [f for i, f in enumerate(faces) if i not in lattice]
     demoted = [f for i, f in enumerate(faces) if i in lattice]
     return kept, demoted
+
+
+def _scan_striped_runs(
+    rows: list[dict],
+    min_rung_len: float,
+    max_pitch: float,
+) -> set[int]:
+    """Face indices belonging to striped runs under one tier's thresholds.
+
+    Rungs shorter than min_rung_len are ignored outright; runs chain while
+    the pitch stays equal (one missing rung tolerated) and within max_pitch,
+    and demote only when MIN_RUNGS of them also COEXIST along the axis.
+    """
+    demoted: set[int] = set()
+    rungs = [r for r in rows if r["total"] >= min_rung_len]
+    if len(rungs) < WALL_LATTICE_MIN_RUNGS:
+        return demoted
+
+    start = 0
+    while start < len(rungs) - 1:
+        pitch = rungs[start + 1]["off"] - rungs[start]["off"]
+        if not (
+            WALL_MIN_THICKNESS_PX <= pitch <= max_pitch
+        ) or _rungs_apart(rungs[start], rungs[start + 1]):
+            start += 1
+            continue
+        run = [rungs[start], rungs[start + 1]]
+        env_lo = min(rungs[start]["lo"], rungs[start + 1]["lo"])
+        env_hi = max(rungs[start]["hi"], rungs[start + 1]["hi"])
+        nxt = start + 2
+        while nxt < len(rungs):
+            gap = rungs[nxt]["off"] - run[-1]["off"]
+            if (
+                abs(gap - pitch) > WALL_LATTICE_PITCH_TOL_PX
+                and abs(gap - 2.0 * pitch) > WALL_LATTICE_PITCH_TOL_PX
+            ):
+                break
+            if (
+                rungs[nxt]["lo"] - env_hi > WALL_LATTICE_TOUCH_GAP_PX
+                or env_lo - rungs[nxt]["hi"] > WALL_LATTICE_TOUCH_GAP_PX
+            ):
+                break
+            run.append(rungs[nxt])
+            env_lo = min(env_lo, rungs[nxt]["lo"])
+            env_hi = max(env_hi, rungs[nxt]["hi"])
+            nxt += 1
+        # Chained membership is not enough: distinct parallel wall bands
+        # stacked at quasi-equal spacing chain too (measured on
+        # EXISTING_FLOOR_PLANS-3228943: three 8px wall bands at 8-9px gaps
+        # chained into a 5-rung "ladder" and deleted the plan's central wall
+        # belt). A drawn FIELD has its courses side by side: somewhere along
+        # the axis, MIN_RUNGS rungs coexist. Wall belts never stack that
+        # deep — their rungs occupy disjoint spans that only envelopes glue
+        # together.
+        if (
+            len(run) >= WALL_LATTICE_MIN_RUNGS
+            and _max_rung_stack(run) >= WALL_LATTICE_MIN_RUNGS
+        ):
+            for r in run:
+                demoted.update(r["members"])
+        start = max(nxt - 1, start + 1)
+
+    return demoted
 
 
 def _rungs_apart(a: dict, b: dict) -> bool:
