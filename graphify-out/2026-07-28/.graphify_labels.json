@@ -43,6 +43,7 @@
   "41": "_collect_wall_faces",
   "42": "Codebase Restructure: Packages + heuristics.py Split",
   "43": "Window Detection — Tuning Guide",
+  "44": "renderer.py",
   "45": "150-DPI pixel-space normalization (SCALE)",
   "46": "detection package facade (run_heuristics)",
   "47": "Gemini Vertex AI client",
@@ -100,7 +101,17 @@
   "99": "wall_band_h",
   "100": "TestWindowInteriorClutter",
   "101": "TestMarkerRings",
+  "102": "DoorV2OpeningCheckTests",
+  "103": "PathPrimitive",
+  "104": "detect_doors",
   "105": "PageData",
   "106": "TestNetworkQueries",
-  "111": "app.py"
+  "107": "test_curve_arc_garden_doors.py",
+  "108": "test_door_assembly.py",
+  "109": "_find_openings",
+  "110": "EntranceDoorTests",
+  "111": "app.py",
+  "112": "TestWindowArbitraryAngle",
+  "113": "_dedupe_openings",
+  "114": "TestFloorPlansRegression"
 }
