@@ -1,0 +1,45 @@
+"""Tunable constants for page segmentation.
+
+Values are measured, not guessed — see
+docs/superpowers/specs/2026-07-28-floor-plan-region-filtering-design.md.
+All lengths are 150-DPI pixels.
+"""
+from __future__ import annotations
+
+# Occupancy resolution. Fine enough to resolve a SEGMENT_MIN_GUTTER_PX gap.
+SEGMENT_BIN_PX = 4
+
+# A fully-empty band must be at least this wide to be cut at. Measured
+# insensitive: 12px, 20px and 28px give byte-identical splits on every
+# reference sheet.
+SEGMENT_MIN_GUTTER_PX = 20
+
+# A primitive spanning this fraction of the page in either axis is sheet
+# furniture (border rule, column divider), never drawing content. Load-bearing:
+# without it a single border line makes every gutter impossible.
+SEGMENT_SPAN_FRAC = 0.90
+
+# Backstop against pathological recursion.
+SEGMENT_MAX_DEPTH = 6
+
+# Below this on either side a region cannot be a drawing.
+SEGMENT_MIN_REGION_SIDE_PX = 60
+
+# A caption is a zero-path strip no taller than this. Measured: real captions
+# are 28px; the notes paragraph on 2557737 is 284px and must NOT merge.
+CAPTION_MAX_H_PX = 64
+
+# Vertical gap between a caption and its drawing. Measured 44-48px.
+CAPTION_MAX_GAP_PX = 64
+
+# A caption must overlap its drawing by this fraction of the caption's width.
+CAPTION_MIN_OVERLAP_FRAC = 0.5
+
+# A clip rect is a real drawing boundary only if it holds this share of the
+# page's paths. Measured: text/annotation clips 0.0-1.3%, drawing clips
+# 5.7-62.4% — no overlap between the bands.
+CLIP_MIN_INK_FRAC = 0.05
+
+# A clip covering this much of the page is the whole-sheet clip, not a drawing.
+# Measured whole-sheet clips at 88-97%.
+CLIP_MAX_PAGE_FRAC = 0.80
