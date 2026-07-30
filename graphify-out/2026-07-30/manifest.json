@@ -115,8 +115,8 @@
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "extraction/extractor.py": {
-    "mtime": 1785433253.4999573,
-    "ast_hash": "280a0ee2e6bd0cdea2fbf0a2cc3cd8b4",
+    "mtime": 1785428753.6279614,
+    "ast_hash": "98e9788e89772b7db97d5001b9623d85",
     "semantic_hash": ""
   },
   "extraction/plumber.py": {
@@ -225,9 +225,9 @@
     "semantic_hash": "f59480a3533d0cd2bc6e3c45e3d6e138"
   },
   "project.md": {
-    "mtime": 1785433287.069077,
-    "ast_hash": "927e5e7ccb06d863fdc8e29a34170e0a",
-    "semantic_hash": ""
+    "mtime": 1778788724.6267657,
+    "ast_hash": "40fcafe8312a76fc0d73203cf4b3b4d0",
+    "semantic_hash": "40fcafe8312a76fc0d73203cf4b3b4d0"
   },
   "requirements.txt": {
     "mtime": 1783629104.3955333,
@@ -390,8 +390,8 @@
     "semantic_hash": ""
   },
   "tests/test_extraction_transform.py": {
-    "mtime": 1785433226.4275782,
-    "ast_hash": "6a46b86022e0cf5a9ac4d54ce778d5d1",
+    "mtime": 1785429600.6561897,
+    "ast_hash": "1337ff1fb84ec3fccb25b6c1e347ac90",
     "semantic_hash": ""
   },
   "tests/test_region_cache.py": {
@@ -410,8 +410,8 @@
     "semantic_hash": ""
   },
   "tests/test_region_pipeline.py": {
-    "mtime": 1785433264.022267,
-    "ast_hash": "56b4dd39f5822df7802f16ae7ac1b36f",
+    "mtime": 1785429667.2268715,
+    "ast_hash": "0241178e5bbfa7708c8125251697858b",
     "semantic_hash": ""
   },
   "tools/compare_entities.py": {
