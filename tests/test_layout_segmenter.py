@@ -1,11 +1,15 @@
 """Recursive XY-cut tests (layout/segmenter.py)."""
 import unittest
 
-from models import PageData, PathPrimitive
+from models import PageData, PathPrimitive, TextSpan, Region
 from layout.occupancy import build_ink_map
-from layout.segmenter import _trim, _widest_gap, _clip_cut, _xy_cut
+from layout.segmenter import (
+    _trim, _widest_gap, _clip_cut, _xy_cut,
+    segment_page, page_fallback_region,
+)
 
 PAGE_W, PAGE_H = 400.0, 400.0
+CAPTION_PAGE_H = 700.0   # captions in these fixtures sit below y=340
 BIN = 4
 
 
@@ -114,6 +118,63 @@ class TestXYCut(unittest.TestCase):
         self.assertTrue(all(b[2] <= 200 or b[0] >= 200 for b in boxes))
         self.assertTrue(any(b[0] >= 200 for b in boxes))
         self.assertIn((248, 40, 364, 200), boxes)
+
+
+class TestSegmentPage(unittest.TestCase):
+    def _page_with_caption(self, caption_gap, caption_h):
+        paths = block(0, 100, 100, 300, 300)
+        y0 = 300.0 + caption_gap
+        spans = [TextSpan(text="GROUND FLOOR PLAN", bbox=(120.0, y0, 280.0, y0 + caption_h),
+                          font="Helvetica", size=10.0, color=0, block_no=0, line_no=0)]
+        return PageData(page_number=1, width_px=PAGE_W, height_px=CAPTION_PAGE_H,
+                        paths=paths, text_spans=spans)
+
+    def test_caption_merges_into_its_drawing(self):
+        regions = segment_page(self._page_with_caption(caption_gap=40, caption_h=20))
+        self.assertEqual(len(regions), 1)
+        self.assertGreater(regions[0].bbox[3], 300.0)
+
+    def test_tall_text_block_does_not_merge(self):
+        regions = segment_page(self._page_with_caption(caption_gap=40, caption_h=200))
+        self.assertEqual(len(regions), 2)
+
+    def test_distant_caption_does_not_merge(self):
+        regions = segment_page(self._page_with_caption(caption_gap=200, caption_h=60))
+        self.assertEqual(len(regions), 2)
+
+    def test_regions_get_sequential_ids_and_unclassified_type(self):
+        paths = block(0, 40, 40, 150, 200) + block(500, 250, 40, 360, 200)
+        regions = segment_page(PageData(page_number=1, width_px=PAGE_W,
+                                        height_px=PAGE_H, paths=paths))
+        self.assertEqual([r.region_id for r in regions], ["region_0000", "region_0001"])
+        self.assertTrue(all(r.region_type == "unclassified" for r in regions))
+        self.assertTrue(all(r.source == "whitespace" for r in regions))
+        self.assertTrue(all(r.path_count > 0 for r in regions))
+
+    def test_source_records_clip_involvement(self):
+        paths = block(0, 40, 40, 360, 200)
+        regions = segment_page(PageData(page_number=1, width_px=PAGE_W,
+                                        height_px=PAGE_H, paths=paths),
+                               clip_rects=[(40.0, 40.0, 200.0, 200.0)])
+        self.assertTrue(all(r.source == "whitespace+clip" for r in regions))
+
+    def test_tiny_regions_are_dropped(self):
+        paths = block(0, 40, 40, 200, 200) + block(500, 300, 300, 330, 330)
+        regions = segment_page(PageData(page_number=1, width_px=PAGE_W,
+                                        height_px=PAGE_H, paths=paths))
+        self.assertEqual(len(regions), 1)
+
+    def test_page_with_no_paths_yields_no_regions(self):
+        self.assertEqual(segment_page(PageData(page_number=1, width_px=PAGE_W,
+                                               height_px=PAGE_H)), [])
+
+    def test_page_fallback_region_covers_the_whole_page(self):
+        pd = PageData(page_number=1, width_px=PAGE_W, height_px=PAGE_H,
+                      paths=block(0, 40, 40, 200, 200))
+        r = page_fallback_region(pd)
+        self.assertEqual(r.bbox, (0.0, 0.0, PAGE_W, PAGE_H))
+        self.assertEqual(r.source, "page-fallback")
+        self.assertEqual(r.path_count, len(pd.paths))
 
 
 if __name__ == "__main__":

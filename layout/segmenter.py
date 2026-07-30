@@ -3,8 +3,14 @@ from __future__ import annotations
 
 from typing import Optional
 
-from layout.constants import SEGMENT_MAX_DEPTH
-from layout.occupancy import InkMap
+from models import BBox, PageData, Region
+from layout.clips import clip_cut_positions
+from layout.constants import (
+    CAPTION_MAX_GAP_PX, CAPTION_MAX_H_PX, CAPTION_MIN_OVERLAP_FRAC,
+    SEGMENT_BIN_PX, SEGMENT_MAX_DEPTH, SEGMENT_MIN_GUTTER_PX,
+    SEGMENT_MIN_REGION_SIDE_PX,
+)
+from layout.occupancy import InkMap, build_ink_map
 
 
 def _row_profile(ink: InkMap, r0: int, r1: int, c0: int, c1: int) -> list[int]:
@@ -107,3 +113,104 @@ def _xy_cut(
         return
 
     out.append((r0, r1, c0, c1))
+
+
+def count_paths_in(page_data: PageData, box: BBox) -> int:
+    return sum(1 for p in page_data.paths if _centre_in(p.bbox, box))
+
+
+def _centre_in(bbox: BBox, box: BBox) -> bool:
+    cx, cy = (bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2
+    return box[0] <= cx <= box[2] and box[1] <= cy <= box[3]
+
+
+def _merge_captions(page_data: PageData, boxes: list[BBox]) -> list[BBox]:
+    """Fold zero-path title strips into the drawing they belong to.
+
+    A caption is a region with no vector ink at all, no taller than
+    CAPTION_MAX_H_PX, overlapping a drawing horizontally by at least
+    CAPTION_MIN_OVERLAP_FRAC of its own width, within CAPTION_MAX_GAP_PX
+    vertically. A caption that matches nothing is kept as its own region so the
+    sheet record stays complete.
+    """
+    drawings = [list(b) for b in boxes if count_paths_in(page_data, b) > 0]
+    captions = [b for b in boxes if count_paths_in(page_data, b) == 0]
+    unmerged: list[BBox] = []
+
+    for c in captions:
+        if (c[3] - c[1]) > CAPTION_MAX_H_PX:
+            unmerged.append(c)
+            continue
+        caption_w = c[2] - c[0]
+        best, best_gap = None, None
+        for i, d in enumerate(drawings):
+            overlap = min(c[2], d[2]) - max(c[0], d[0])
+            if overlap < CAPTION_MIN_OVERLAP_FRAC * caption_w:
+                continue
+            gap = c[1] - d[3] if c[1] >= d[3] else d[1] - c[3]
+            if gap < 0 or gap > CAPTION_MAX_GAP_PX:
+                continue
+            if best_gap is None or gap < best_gap:
+                best, best_gap = i, gap
+        if best is None:
+            unmerged.append(c)
+            continue
+        d = drawings[best]
+        d[0], d[1] = min(d[0], c[0]), min(d[1], c[1])
+        d[2], d[3] = max(d[2], c[2]), max(d[3], c[3])
+
+    return [tuple(b) for b in drawings] + unmerged
+
+
+def segment_page(page_data: PageData, clip_rects: list[BBox] | None = None) -> list[Region]:
+    """Split a page into drawing regions. Returns [] for a page with no vector
+    ink (a scanned raster page) — callers must handle that before classifying."""
+    if not page_data.paths:
+        return []
+
+    ink = build_ink_map(page_data, bin_px=SEGMENT_BIN_PX)
+    min_bins = max(1, SEGMENT_MIN_GUTTER_PX // ink.bin_px)
+    cut_rows, cut_cols = clip_cut_positions(clip_rects or [], ink.bin_px)
+
+    leaves: list[tuple[int, int, int, int]] = []
+    _xy_cut(ink, 0, ink.rows, 0, ink.cols, min_bins, cut_rows, cut_cols, 0, leaves)
+
+    boxes = [
+        (float(c0 * ink.bin_px), float(r0 * ink.bin_px),
+         float(c1 * ink.bin_px), float(r1 * ink.bin_px))
+        for r0, r1, c0, c1 in leaves
+    ]
+    # Captions merge BEFORE the min-side filter: a real caption strip is
+    # ~28px tall (measured on floor-plans.pdf: 380x28 and 356x28), well under
+    # SEGMENT_MIN_REGION_SIDE_PX, so filtering first would drop every caption
+    # before it could be folded into the drawing it titles.
+    boxes = _merge_captions(page_data, boxes)
+    boxes = [
+        b for b in boxes
+        if (b[2] - b[0]) >= SEGMENT_MIN_REGION_SIDE_PX
+        and (b[3] - b[1]) >= SEGMENT_MIN_REGION_SIDE_PX
+    ]
+    boxes.sort(key=lambda b: (b[1], b[0]))
+
+    source = "whitespace+clip" if clip_rects else "whitespace"
+    return [
+        Region(
+            region_id=f"region_{i:04d}",
+            bbox=b,
+            region_type="unclassified",
+            path_count=count_paths_in(page_data, b),
+            source=source,
+        )
+        for i, b in enumerate(boxes)
+    ]
+
+
+def page_fallback_region(page_data: PageData) -> Region:
+    """The whole page as a single region, for sheets too dense to split."""
+    return Region(
+        region_id="region_0000",
+        bbox=(0.0, 0.0, page_data.width_px, page_data.height_px),
+        region_type="unclassified",
+        path_count=len(page_data.paths),
+        source="page-fallback",
+    )
