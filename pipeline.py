@@ -16,7 +16,6 @@ from detection import run_heuristics
 from debug.trace import DebugTraceCollector
 from debug.renderer import generate_debug_viewer
 from extraction.renderer import render_page_png, draw_overlay
-from gemini import client as gc
 
 console = Console()
 
@@ -114,118 +113,38 @@ def _room_entity(candidate: Candidate) -> Entity:
     )
 
 
-def merge_gemini_and_heuristics(
-    candidates: list[Candidate],
-    gemini_result: Optional[dict],
-) -> tuple[list[Entity], list[dict]]:
-    # Rooms are heuristic-only: they bypass both the Gemini merge and the
-    # offline thresholds, and are always promoted to entities.
+def finalize_candidates(candidates: list[Candidate]) -> tuple[list[Entity], list[dict]]:
+    """Promote candidates to entities, applying the offline confidence floors.
+
+    Gemini no longer votes on individual candidates, so these floors always
+    apply. Rooms bypass them: they are heuristic-only by design and carry their
+    polygon into Entity.attributes.
+    """
     rooms = [c for c in candidates if c.entity_type == "room"]
-    candidates = [c for c in candidates if c.entity_type != "room"]
+    others = [c for c in candidates if c.entity_type != "room"]
 
-    if not gemini_result:
-        # Offline path: apply stricter per-type acceptance thresholds.
-        # Without Gemini's verification, raw heuristic candidates have poor
-        # precision. Candidates below the threshold are saved as rejected for
-        # debugging but do not become final entities.
-        entities = []
-        rejected_list = []
-        for c in candidates:
-            threshold = OFFLINE_MIN_CONFIDENCE.get(c.entity_type, 0.50)
-            if c.confidence < threshold:
-                rejected_list.append({
-                    "candidate_id": c.candidate_id,
-                    "entity_type": c.entity_type,
-                    "bbox": list(c.bbox),
-                    "reason": f"offline confidence {c.confidence:.3f} < threshold {threshold}",
-                    "source": "offline_filter",
-                })
-                continue
-            entities.append(Entity(
-                entity_id=c.candidate_id,
-                entity_type=c.entity_type,
-                bbox=c.bbox,
-                confidence=c.confidence,
-                source="heuristic",
-                label=c.evidence.get("nearby_label") or c.evidence.get("text"),
-                attributes={"heuristic_confidence": c.confidence, **_door_attribute_overlay(c)},
-            ))
-        entities.extend(_room_entity(c) for c in rooms)
-        return entities, rejected_list
-
-    candidate_map = {c.candidate_id: c for c in candidates}
-    classified_ids: set[str] = set()
-    rejected_ids: set[str] = set()
     entities: list[Entity] = []
     rejected_list: list[dict] = []
-
-    for rej in gemini_result.get("rejected_candidates", []):
-        cid = rej.get("candidate_id", "")
-        rejected_ids.add(cid)
-        if cid in candidate_map:
-            c = candidate_map[cid]
+    for c in others:
+        threshold = OFFLINE_MIN_CONFIDENCE.get(c.entity_type, 0.50)
+        if c.confidence < threshold:
             rejected_list.append({
-                "candidate_id": cid,
+                "candidate_id": c.candidate_id,
                 "entity_type": c.entity_type,
                 "bbox": list(c.bbox),
-                "reason": rej.get("reason", ""),
-                "source": "gemini",
+                "reason": f"offline confidence {c.confidence:.3f} < threshold {threshold}",
+                "source": "offline_filter",
             })
-
-    for key, etype in [
-        ("doors", "door"),
-        ("windows", "window"),
-        ("walls", "wall"),
-        ("labels", "label"),
-        ("schedules", "schedule"),
-    ]:
-        for item in gemini_result.get(key, []):
-            cid = item.get("candidate_id", "")
-            if cid in rejected_ids:
-                continue
-            base = candidate_map.get(cid)
-            if base is None:
-                # Gemini occasionally hallucinates entries for candidates it
-                # was never shown (now more likely: it sees zero wall
-                # candidates but its schema still lists "walls").
-                continue
-            classified_ids.add(cid)
-            bbox = base.bbox
-            heuristic_conf = base.confidence
-            gemini_conf = float(item.get("confidence", 0.0))
-
-            label = item.get("label") or item.get("text")
-
-            entities.append(Entity(
-                entity_id=cid,
-                entity_type=etype,
-                bbox=bbox,
-                confidence=round(max(gemini_conf, heuristic_conf * 0.5 + gemini_conf * 0.5), 3),
-                source="gemini",
-                label=label,
-                attributes={
-                    "heuristic_confidence": heuristic_conf,
-                    "gemini_confidence": gemini_conf,
-                    "gemini_notes": item.get("notes", ""),
-                    "thickness_px": item.get("thickness_px"),
-                    "rows": item.get("rows"),
-                    "cols": item.get("cols"),
-                    **_door_attribute_overlay(base),
-                },
-            ))
-
-    # Heuristic-only fallback for candidates Gemini didn't address
-    for c in candidates:
-        if c.candidate_id not in classified_ids and c.candidate_id not in rejected_ids:
-            entities.append(Entity(
-                entity_id=c.candidate_id,
-                entity_type=c.entity_type,
-                bbox=c.bbox,
-                confidence=c.confidence,
-                source="heuristic",
-                label=c.evidence.get("nearby_label") or c.evidence.get("text"),
-                attributes={"heuristic_confidence": c.confidence, **_door_attribute_overlay(c)},
-            ))
+            continue
+        entities.append(Entity(
+            entity_id=c.candidate_id,
+            entity_type=c.entity_type,
+            bbox=c.bbox,
+            confidence=c.confidence,
+            source="heuristic",
+            label=c.evidence.get("nearby_label") or c.evidence.get("text"),
+            attributes={"heuristic_confidence": c.confidence, **_door_attribute_overlay(c)},
+        ))
 
     entities.extend(_room_entity(c) for c in rooms)
     return entities, rejected_list
@@ -234,11 +153,8 @@ def merge_gemini_and_heuristics(
 def collect_warnings(
     page_data: PageData,
     candidates: list[Candidate],
-    gemini_result: Optional[dict],
     comparison: dict,
-    gemini_skipped: bool,
-    gemini_warnings: list[dict],
-    skip_gemini_flag: bool = False,
+    region_warnings: list[dict],
 ) -> list[dict]:
     warnings = []
     pn = page_data.page_number
@@ -264,19 +180,13 @@ def collect_warnings(
     elif all(c.confidence < 0.40 for c in candidates):
         warn("LOW_HEURISTIC_CONFIDENCE", "info", f"Page {pn}: all candidates have confidence < 0.40")
 
-    if gemini_skipped:
-        if skip_gemini_flag:
-            warn("GEMINI_SKIPPED_FLAG", "info", f"Page {pn}: Gemini skipped (--no-gemini flag)")
-        else:
-            warn("RASTER_HEAVY_SKIPPED", "info", f"Page {pn}: raster-heavy with 0 candidates — Gemini skipped")
-
     for any_img in page_data.images:
         if any_img.pixel_area > 0.80:
             warn("LARGE_IMAGE_COVERAGE", "info",
                  f"Page {pn}: image xref={any_img.xref} covers {any_img.pixel_area:.0%} of page (likely scanned)")
 
     warnings.extend(comparison.get("comparison_warnings", []))
-    warnings.extend(gemini_warnings)
+    warnings.extend(region_warnings)
 
     return warnings
 
@@ -285,7 +195,6 @@ def _page_summary_dict(
     page_data: PageData,
     candidates: list[Candidate],
     entities: list[Entity],
-    gemini_skipped: bool,
     page_warnings: list[dict],
 ) -> dict:
     return {
@@ -297,7 +206,6 @@ def _page_summary_dict(
         "text_span_count": len(page_data.text_spans),
         "image_count": len(page_data.images),
         "candidate_count": len(candidates),
-        "gemini_skipped": gemini_skipped,
         "entity_count": len(entities),
         "warning_count": len(page_warnings),
     }
@@ -319,16 +227,6 @@ def run_extract(
         console.print(f"[red]Error: File not found: {pdf_path}[/red]")
         raise FileNotFoundError(pdf_path)
 
-    # Initialize Gemini client unless skipped
-    gemini_client = None
-    if not skip_gemini:
-        try:
-            gemini_client = gc.init_client()
-        except EnvironmentError as e:
-            console.print(f"[red]Error: {e}[/red]")
-            console.print("[dim]Tip: run 'gcloud auth application-default login' to authenticate[/dim]")
-            raise
-
     doc = fitz.open(str(path))
     total_pages = doc.page_count
     valid_indices = [i for i in page_indices if 0 <= i < total_pages]
@@ -340,10 +238,8 @@ def run_extract(
     all_warnings: list[dict] = []
     total_candidates = 0
     total_entities = 0
-    total_gemini_calls = 0
-    total_gemini_skipped = 0
 
-    steps = ["extract", "render", "plumber", "heuristics", "gemini", "overlay", "save"]
+    steps = ["extract", "render", "plumber", "heuristics", "overlay", "save"]
     n_steps = len(steps)
 
     with Progress(
@@ -407,40 +303,9 @@ def run_extract(
                     str(Path(page_dir) / "debug_viewer.html"),
                 )
 
-            # 5. Gemini — rooms are heuristic-only and excluded from the payload
-            step("gemini")
-            gemini_candidates = [c for c in candidates if c.entity_type != "room"]
-            gemini_result = None
-            gemini_warnings: list[dict] = []
-            gemini_skipped = skip_gemini or gc.should_skip_gemini(page_data, gemini_candidates)
-
-            if not gemini_skipped and gemini_client is not None:
-                try:
-                    gemini_result, gemini_warnings = gc.call_gemini(
-                        gemini_client, page_data, gemini_candidates, render_path
-                    )
-                    total_gemini_calls += 1
-                except Exception as e:
-                    gemini_warnings.append({
-                        "page_number": page_num,
-                        "warning_code": "GEMINI_CALL_FAILED",
-                        "severity": "error",
-                        "message": f"Gemini call failed for page {page_num}: {e}",
-                    })
-                    gemini_skipped = True
-
-            gemini_json: dict
-            if gemini_skipped:
-                total_gemini_skipped += 1
-                reason = "skip_gemini flag" if skip_gemini else "raster-heavy page with zero candidates"
-                gemini_json = {"page_number": page_num, "skipped": True, "reason": reason}
-            else:
-                gemini_json = gemini_result or {}
-            write_json(str(Path(page_dir) / "gemini_result.json"), gemini_json)
-
-            # 6. Merge + overlay
+            # 5. Finalize + overlay
             step("overlay")
-            entities, rejected = merge_gemini_and_heuristics(candidates, gemini_result if not gemini_skipped else None)
+            entities, rejected = finalize_candidates(candidates)
             total_entities += len(entities)
 
             write_json(
@@ -501,17 +366,13 @@ def run_extract(
                 },
             )
 
-            page_warnings = collect_warnings(
-                page_data, candidates, gemini_result,
-                comparison, gemini_skipped, gemini_warnings,
-                skip_gemini_flag=skip_gemini,
-            )
+            page_warnings = collect_warnings(page_data, candidates, comparison, [])
             for w in page_warnings:
                 w.setdefault("page_number", page_num)
             all_warnings.extend(page_warnings)
 
             all_page_summaries.append(
-                _page_summary_dict(page_data, candidates, entities, gemini_skipped, page_warnings)
+                _page_summary_dict(page_data, candidates, entities, page_warnings)
             )
 
     doc.close()
@@ -532,8 +393,6 @@ def run_extract(
                 "total_candidates": total_candidates,
                 "total_entities": total_entities,
                 "total_warnings": len(all_warnings),
-                "gemini_calls": total_gemini_calls,
-                "gemini_skipped_pages": total_gemini_skipped,
             },
         },
     )
