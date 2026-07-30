@@ -101,6 +101,20 @@ class TestXYCut(unittest.TestCase):
         self.assertTrue(all(b[2] <= 200 or b[0] >= 200 for b in boxes))
         self.assertTrue(any(b[0] >= 200 for b in boxes))
 
+    def test_clip_edges_cannot_preempt_the_gutter(self):
+        # Six clip columns inside the LEFT blob, enough to exhaust
+        # SEGMENT_MAX_DEPTH. An implementation that checked clip edges before
+        # gutters would spend its whole depth budget on them and never reach
+        # the real gutter, emitting one region spanning x=88..364. Cutting the
+        # gutter first leaves the right blob its own region, so nothing
+        # straddles x=200. Verified: this fixture fails for a
+        # precedence-inverted _xy_cut and passes for this one.
+        paths = block(0, 40, 40, 150, 200) + block(500, 250, 40, 360, 200)
+        boxes = cut(page(paths), cut_cols={12, 14, 16, 18, 20, 22})
+        self.assertTrue(all(b[2] <= 200 or b[0] >= 200 for b in boxes))
+        self.assertTrue(any(b[0] >= 200 for b in boxes))
+        self.assertIn((248, 40, 364, 200), boxes)
+
 
 if __name__ == "__main__":
     unittest.main()
