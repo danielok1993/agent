@@ -51,12 +51,16 @@ class TestGoldenSegmentation(unittest.TestCase):
 
     def test_5_1133_is_too_dense_to_split(self):
         _, regions = segment("5-1133-WD03.pdf")
-        self.assertLessEqual(len(regions), 1)
+        self.assertEqual(len(regions), 1)
 
 
 class TestSpanFilterIsLoadBearing(unittest.TestCase):
-    """A single border rule spanning the sheet blocks every gutter. Measured:
-    LOCATION_PLAN__BLOCK_PLAN...-2682241 finds 0 regions without the filter."""
+    """This sheet carries full-page border rules. With the span filter applied
+    the ink map has no page-spanning rows and the sheet splits into 13 regions.
+    The counterfactual — 0 regions with the filter disabled — was measured on
+    2026-07-28 but cannot be asserted here: build_ink_map applies the filter
+    unconditionally, and adding a production parameter purely for this test
+    was rejected as over-building."""
 
     PDF = os.path.join(REPO, "plans",
                        "LOCATION_PLAN__BLOCK_PLAN__EXISTING_PLANS_AND_ELEVATIONS-2682241.pdf")
@@ -78,10 +82,10 @@ class TestSpanFilterIsLoadBearing(unittest.TestCase):
         page_data = extract_page(doc, 0)
         doc.close()
         regions = segment_page(page_data)
-        self.assertGreaterEqual(len(regions), 8)
+        self.assertEqual(len(regions), 13)
 
     @unittest.skipUnless(os.path.exists(PDF), "sample sheet not present")
-    def test_ink_map_without_the_span_filter_leaves_no_gutter(self):
+    def test_ink_map_has_no_page_spanning_rows(self):
         doc = fitz.open(self.PDF)
         page_data = extract_page(doc, 0)
         doc.close()
