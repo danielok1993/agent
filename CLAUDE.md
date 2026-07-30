@@ -22,11 +22,13 @@ python app.py inspect path/to/drawing.pdf [--pages 1,3-5]
 
 # Extract — full pipeline, writes to outputs/<timestamp>/
 python app.py extract path/to/drawing.pdf [--pages SPEC] [--out DIR]
-                                          [--no-gemini]
+                                          [--no-gemini] [--refresh-regions]
                                           [--disable-rooms] [--disable-windows]
                                           [--debug]
 # --disable-walls is a deprecated alias for --disable-rooms (skips the wall
 # network + room detection together).
+# --refresh-regions ignores the cached region classification for the page
+# and calls Gemini again instead of reusing gemini/region_cache.py's entry.
 
 # Batch extract — discovers plans/*.pdf, prompts for detection options
 # interactively, runs `app.py extract` 5-at-a-time (ProcessPoolExecutor)
@@ -74,7 +76,11 @@ detection/         # heuristic detection (the split monolith)
                    # white leaf panels (chain + parked stack_pair) plus open_v — the
                    # fill-less tier: a lone half-open V of double-line stroked leaves,
                    # jamb-anchored + span law — tuning guide §3.10
-gemini/client.py   # Vertex AI client (was gemini_client.py)
+layout/            # page segmentation — splits a sheet into its drawings
+  constants.py  occupancy.py  segmenter.py  clips.py  filter.py
+gemini/client.py        # Vertex AI client (was gemini_client.py)
+gemini/classifier.py    # region classification (replaced candidate validation)
+gemini/region_cache.py  # classification cache, keyed by page content hash
 debug/             # trace.py (DebugTraceCollector) + renderer.py (HTML viewer)
 tools/             # standalone dev scripts (numpy/cv2)
 ```
@@ -93,7 +99,7 @@ gcloud config set project <PROJECT_ID>           # or set GOOGLE_CLOUD_PROJECT
 # Optional: GOOGLE_CLOUD_LOCATION (default us-central1)
 ```
 
-Model is hard-coded to `gemini-2.5-flash`. Pass `--no-gemini` to skip Gemini end-to-end (offline mode applies stricter per-type confidence thresholds in `OFFLINE_MIN_CONFIDENCE`).
+Model is hard-coded to `gemini-2.5-flash`, called once per page for region classification (`gemini/classifier.py`) — Gemini no longer votes on individual door/window/room/label/schedule candidates; `pipeline.finalize_candidates` applies the `OFFLINE_MIN_CONFIDENCE` floors unconditionally regardless of Gemini. Pass `--no-gemini` to skip the classification call: a cached classification for the page (`gemini/region_cache.py`, keyed by page content hash) is still used if one exists; only when there is no usable cache does region filtering fall back to detecting the whole, unfiltered page (`REGION_CACHE_MISS_OFFLINE` warning). Pass `--refresh-regions` to force a fresh classification call even when a cache entry exists.
 
 ## Pipeline architecture
 
@@ -101,11 +107,20 @@ Model is hard-coded to `gemini-2.5-flash`. Pass `--no-gemini` to skip Gemini end
 
 1. `extraction.extractor.extract_page` — PyMuPDF `get_drawings()` / `get_text("dict")` / `get_images()` / `get_ocgs()`. **All coordinates are normalized to 150-DPI pixel space via `SCALE = 150/72`** at extraction time. Downstream code (detection, renderer, Gemini bboxes) assumes pixel-space. Don't reintroduce point-space anywhere past `extraction/extractor.py` / `extraction/plumber.py`.
 2. `extraction.renderer.render_page_png` — renders the page PNG at the same 150 DPI used for coordinate normalization, so heuristic bboxes overlay cleanly.
-3. `extraction.plumber.extract_plumber_page` — pdfplumber cross-check (chars/lines/rects/curves/images/tables). `compare_counts` emits `PLUMBER_LARGE_DELTA` warnings when PyMuPDF vs pdfplumber geometry diverges >50%. Tables here feed schedule detection.
-4. `detection.run_heuristics` (`detection/orchestrator.py`) — deterministic detection of doors / windows / rooms / labels / schedules. Doors and windows detect first; the internal wall-centerline network (`detection/walls.py::detect_wall_network`, never emitted as candidates) then cross-validates them and feeds `detection/rooms.py::detect_rooms`, which subtracts wall solids, face linework, and opening seals (wall-plane plugs at doors, bboxes at windows) from the page and emits the enclosed free-space components as room polygons. `--disable-rooms` / `--disable-windows` exist because each detector can dominate noise on different drawing styles. Pass a `DebugTraceCollector` (via `--debug`) to record per-primitive reasoning.
-5. `gemini.client.call_gemini` — sends the page render + candidate JSON (rooms excluded — they are heuristic-only), expects strict JSON matching `REQUIRED_KEYS`. Auto-skipped on raster-heavy pages with zero candidates (`should_skip_gemini`). Parse / schema failures degrade gracefully into warnings, not exceptions.
-6. `pipeline.merge_gemini_and_heuristics` — combines results. With Gemini: blended confidence `0.5*heuristic + 0.5*gemini` (or `max` if higher), Gemini-rejected IDs drop out, unaddressed candidates fall back to heuristic-only. Without Gemini: candidates below `OFFLINE_MIN_CONFIDENCE[type]` move to `rejected` and are not promoted to entities. Room candidates bypass both paths and are always promoted to heuristic-source entities with the polygon in `attributes`.
-7. `renderer.draw_overlay` + JSON dump (`primitives.json`, `candidates.json`, `gemini_result.json`, `final_entities.json`, `pdfplumber_comparison.json`).
+3. `layout.segment_page` + `gemini.classifier.classify_regions` — the page is
+   split into drawing regions at its whitespace gutters (deterministic, from the
+   vector ink's own coordinates), and one Gemini call classifies every region
+   from a per-region crop. Detection then runs ONCE over the union of the
+   `floor_plan` regions, so elevations, location plans and title blocks never
+   reach the detectors. Per-candidate Gemini validation was removed on
+   2026-07-28 — see docs/superpowers/specs/2026-07-28-floor-plan-region-filtering-design.md.
+   Orchestrated by `pipeline.resolve_page_regions`, which caches the classification
+   (`gemini/region_cache.py`, keyed by page content hash — `--refresh-regions` bypasses
+   it) and writes `regions.json` + `region_crops/`.
+4. `extraction.plumber.extract_plumber_page` — pdfplumber cross-check (chars/lines/rects/curves/images/tables). `compare_counts` emits `PLUMBER_LARGE_DELTA` warnings when PyMuPDF vs pdfplumber geometry diverges >50%. Tables here feed schedule detection.
+5. `detection.run_heuristics` (`detection/orchestrator.py`) — deterministic detection of doors / windows / rooms / labels / schedules, run once over the region-filtered page data from stage 3 (skipped entirely when no region qualifies as `floor_plan`). Doors and windows detect first; the internal wall-centerline network (`detection/walls.py::detect_wall_network`, never emitted as candidates) then cross-validates them and feeds `detection/rooms.py::detect_rooms`, which subtracts wall solids, face linework, and opening seals (wall-plane plugs at doors, bboxes at windows) from the page and emits the enclosed free-space components as room polygons. `--disable-rooms` / `--disable-windows` exist because each detector can dominate noise on different drawing styles. Pass a `DebugTraceCollector` (via `--debug`) to record per-primitive reasoning.
+6. `pipeline.finalize_candidates` + `renderer.draw_overlay` — Gemini no longer votes on individual candidates, so `finalize_candidates` applies the `OFFLINE_MIN_CONFIDENCE` floors unconditionally: candidates below threshold move to `rejected` and are not promoted to entities. Room candidates bypass the floors — they are heuristic-only by design and always promoted, with the polygon in `Entity.attributes`. `draw_overlay` then draws entities, rejected candidates, and the page's region outlines onto the render.
+7. JSON dump (`primitives.json`, `candidates.json`, `final_entities.json`, `pdfplumber_comparison.json`) and warning collection.
 
 Aggregate `summary.json` and `warnings.json` are written at the run root once all pages finish.
 
@@ -117,12 +132,13 @@ outputs/<YYYY-MM-DD_HH-MM-SS>/
 ├── warnings.json             # flat list across all pages
 └── pages/page_NN/
     ├── render.png            # 150 DPI render
-    ├── overlay.png           # entities + rejected drawn on render
+    ├── overlay.png           # entities + rejected + region outlines drawn on render
     ├── primitives.json       # raw PyMuPDF paths/text/images
     ├── pdfplumber_comparison.json
+    ├── regions.json          # segmented regions + their Gemini classification
+    ├── region_crops/         # per-region PNG crops sent to Gemini for classification
     ├── candidates.json       # heuristic output
-    ├── gemini_result.json    # Gemini JSON (or {skipped: true, reason})
-    ├── final_entities.json   # merged + rejected
+    ├── final_entities.json   # finalized entities + rejected
     ├── debug_trace.json      # --debug only: per-primitive detection trace
     └── debug_viewer.html     # --debug only: self-contained trace viewer
 ```

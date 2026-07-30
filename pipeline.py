@@ -480,7 +480,8 @@ def run_extract(
             )
 
             overlay_path = str(Path(page_dir) / "overlay.png")
-            draw_overlay(render_path, entities, rejected, overlay_path)
+            draw_overlay(render_path, entities, rejected, overlay_path,
+                         regions=region_result.regions)
 
             # 7. Primitives + warnings
             step("save")

@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional
 import fitz  # PyMuPDF
 from PIL import Image, ImageDraw, ImageFont
-from models import Entity, Candidate, BBox
+from models import Entity, Candidate, Region, BBox
 
 DPI = 150
 SCALE = DPI / 72
@@ -38,6 +38,16 @@ BOX_LINE_WIDTH = 2
 FONT_SIZE = 11
 FILL_ALPHA_FACTOR = 0.30  # fraction of color alpha used for fill
 BORDER_ALPHA_FACTOR = 0.70
+
+# Kept regions are drawn bright, discarded ones muted, so a glance at the
+# overlay shows what detection actually saw.
+REGION_OUTLINE_COLORS: dict[str, tuple[int, int, int, int]] = {
+    "floor_plan":     (255,   0,   0, 220),
+    "schedule_table": (255, 165,   0, 200),
+    "unclassified":   (120, 120, 120, 160),
+    "other":          ( 90, 130, 160, 160),
+}
+REGION_LINE_WIDTH = 3
 
 
 def render_page_png(doc: fitz.Document, page_index: int, out_path: str) -> None:
@@ -165,16 +175,34 @@ def _draw_legend(draw: ImageDraw.ImageDraw, used_types: set[str], img_height: in
         y += FONT_SIZE + 4
 
 
+def _draw_regions(draw: ImageDraw.ImageDraw, regions: list[Region], font) -> None:
+    for region in regions:
+        color = REGION_OUTLINE_COLORS.get(
+            region.region_type, REGION_OUTLINE_COLORS["other"])
+        x0, y0, x1, y1 = [int(v) for v in region.bbox]
+        _draw_dashed_rect(draw, (x0, y0, x1, y1), color, REGION_LINE_WIDTH, dash=14)
+        if font:
+            caption = f"{region.region_id}: {region.region_type}"
+            if region.title:
+                caption += f" — {region.title[:32]}"
+            draw.text((x0 + 5, y0 + 3), caption, fill=(0, 0, 0, 200), font=font)
+            draw.text((x0 + 4, y0 + 2), caption, fill=color, font=font)
+
+
 def draw_overlay(
     render_png_path: str,
     entities: list[Entity],
     rejected: list[dict],
     out_path: str,
+    regions: list[Region] | None = None,
 ) -> None:
     base = Image.open(render_png_path).convert("RGBA")
     overlay = base.copy()
     draw = ImageDraw.Draw(overlay)
     font = _load_font(FONT_SIZE)
+
+    if regions:
+        _draw_regions(draw, regions, font)
 
     used_types: set[str] = set()
     room_index = 0

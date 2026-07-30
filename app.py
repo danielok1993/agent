@@ -96,6 +96,7 @@ def cmd_extract(args: argparse.Namespace) -> None:
         disable_rooms=args.disable_rooms,
         disable_windows=args.disable_windows,
         debug=args.debug,
+        refresh_regions=args.refresh_regions,
     )
 
 
@@ -135,6 +136,12 @@ def main() -> None:
         action="store_true",
         dest="no_gemini",
         help="Skip Gemini calls (heuristics-only mode)",
+    )
+    p_extract.add_argument(
+        "--refresh-regions",
+        action="store_true",
+        dest="refresh_regions",
+        help="Ignore the cached region classification and call Gemini again",
     )
     p_extract.add_argument(
         "--disable-rooms",
