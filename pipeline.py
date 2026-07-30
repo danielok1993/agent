@@ -1,13 +1,14 @@
 from __future__ import annotations
 import json
 import os
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 import fitz
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
-from models import PageData, Candidate, Entity
+from models import PageData, Candidate, Entity, Region, TextSpan
 from extraction.extractor import extract_page
 from extraction.plumber import (
     extract_plumber_page, build_pymupdf_counts, build_plumber_counts, compare_counts
@@ -16,6 +17,13 @@ from detection import run_heuristics
 from debug.trace import DebugTraceCollector
 from debug.renderer import generate_debug_viewer
 from extraction.renderer import render_page_png, draw_overlay
+from layout import (
+    filter_page_data, page_fallback_region, qualifying_clip_rects,
+    region_text_spans, segment_page,
+)
+from gemini import client as gc
+from gemini.classifier import classify_regions
+from gemini.region_cache import load_regions, page_content_hash, save_regions
 
 console = Console()
 
@@ -196,6 +204,7 @@ def _page_summary_dict(
     candidates: list[Candidate],
     entities: list[Entity],
     page_warnings: list[dict],
+    regions: list[Region],
 ) -> dict:
     return {
         "page_number": page_data.page_number,
@@ -208,7 +217,102 @@ def _page_summary_dict(
         "candidate_count": len(candidates),
         "entity_count": len(entities),
         "warning_count": len(page_warnings),
+        "region_count": len(regions),
+        "floor_plan_region_count": sum(1 for r in regions if r.region_type == "floor_plan"),
     }
+
+
+@dataclass
+class PageRegionResult:
+    regions: list[Region]
+    detection_page_data: PageData
+    schedule_spans: Optional[list[TextSpan]]
+    warnings: list[dict]
+    skip_detection: bool
+
+
+def resolve_page_regions(
+    pdf_path: str,
+    page,
+    page_data: PageData,
+    gemini_client,
+    skip_gemini: bool,
+    refresh_regions: bool,
+    crop_dir: str,
+    classify_fn=classify_regions,
+    clip_fn=qualifying_clip_rects,
+) -> PageRegionResult:
+    """Segment the page, classify its regions, and decide what detection sees.
+
+    classify_fn and clip_fn are injectable so the behaviour rules can be tested
+    without credentials or a real fitz.Page.
+    """
+    pn = page_data.page_number
+    warnings: list[dict] = []
+
+    def warn(code, severity, msg):
+        warnings.append({"page_number": pn, "warning_code": code,
+                         "severity": severity, "message": msg})
+
+    def unfiltered(regions):
+        return PageRegionResult(regions, page_data, None, warnings, False)
+
+    # Rule 3: no vector ink at all — a scanned page. Nothing to segment or
+    # classify, and calling Gemini would be a wasted request.
+    if not page_data.paths:
+        warn("RASTER_PAGE_NO_VECTOR_INK", "info",
+             f"Page {pn} has no vector paths — segmentation and classification skipped")
+        return unfiltered([])
+
+    clip_rects = clip_fn(page, page_data) if page is not None else []
+    regions = segment_page(page_data, clip_rects)
+    fallback = len(regions) <= 1
+    if fallback:
+        regions = [page_fallback_region(page_data)]
+
+    content_hash = page_content_hash(page_data)
+    cached = None if refresh_regions else load_regions(pdf_path, pn, content_hash)
+
+    if cached is not None and len(cached) == len(regions):
+        regions = cached
+    elif skip_gemini or gemini_client is None:
+        # Rule 4: offline with no usable cache — record the regions but filter
+        # nothing, so an offline run never silently differs from an online one.
+        warn("REGION_CACHE_MISS_OFFLINE", "warning",
+             f"Page {pn}: no cached region classification and Gemini is disabled — "
+             f"no region filtering applied")
+        return unfiltered(regions)
+    else:
+        try:
+            regions, classify_warnings = classify_fn(
+                gemini_client, page, page_data, regions, crop_dir)
+            for w in classify_warnings:
+                w.setdefault("page_number", pn)
+            warnings.extend(classify_warnings)
+            save_regions(pdf_path, pn, content_hash, regions)
+        except Exception as e:
+            warn("REGION_CLASSIFY_PARSE_FAILURE", "error",
+                 f"Region classification failed for page {pn}: {e}")
+            return unfiltered(regions)
+
+    # Rule 2: the page never split. Classify for the record, but always detect.
+    if fallback:
+        return unfiltered(regions)
+
+    floor_plans = [r for r in regions if r.region_type == "floor_plan"]
+    schedules = [r for r in regions if r.region_type == "schedule_table"]
+
+    # Rule 1: a split page with no floor plan has nothing worth detecting.
+    if not floor_plans:
+        kinds = sorted({r.region_type for r in regions})
+        warn("NO_FLOOR_PLAN_REGION", "warning",
+             f"Page {pn}: {len(regions)} regions found, none classified floor_plan "
+             f"(saw {kinds}) — detection skipped")
+        return PageRegionResult(regions, page_data, None, warnings, True)
+
+    detection_page_data = filter_page_data(page_data, floor_plans)
+    schedule_spans = region_text_spans(page_data, schedules) if schedules else None
+    return PageRegionResult(regions, detection_page_data, schedule_spans, warnings, False)
 
 
 def run_extract(
@@ -220,12 +324,22 @@ def run_extract(
     disable_windows: bool = False,
     debug: bool = False,
     disable_rooms: bool = False,
+    refresh_regions: bool = False,
 ) -> str:
     disable_rooms = disable_rooms or disable_walls
     path = Path(pdf_path)
     if not path.exists():
         console.print(f"[red]Error: File not found: {pdf_path}[/red]")
         raise FileNotFoundError(pdf_path)
+
+    gemini_client = None
+    if not skip_gemini:
+        try:
+            gemini_client = gc.init_client()
+        except EnvironmentError as e:
+            console.print(f"[red]Error: {e}[/red]")
+            console.print("[dim]Tip: run 'gcloud auth application-default login' to authenticate[/dim]")
+            raise
 
     doc = fitz.open(str(path))
     total_pages = doc.page_count
@@ -239,7 +353,7 @@ def run_extract(
     total_candidates = 0
     total_entities = 0
 
-    steps = ["extract", "render", "plumber", "heuristics", "overlay", "save"]
+    steps = ["extract", "render", "regions", "plumber", "heuristics", "overlay", "save"]
     n_steps = len(steps)
 
     with Progress(
@@ -268,6 +382,38 @@ def run_extract(
             render_path = str(Path(page_dir) / "render.png")
             render_page_png(doc, idx, render_path)
 
+            # 2a-2c. Segment, classify, filter
+            step("regions")
+            region_result = resolve_page_regions(
+                pdf_path=str(path),
+                page=doc[idx],
+                page_data=page_data,
+                gemini_client=gemini_client,
+                skip_gemini=skip_gemini,
+                refresh_regions=refresh_regions,
+                crop_dir=str(Path(page_dir) / "region_crops"),
+            )
+            write_json(
+                str(Path(page_dir) / "regions.json"),
+                {
+                    "page_number": page_num,
+                    "skip_detection": region_result.skip_detection,
+                    "regions": [
+                        {
+                            "region_id": r.region_id,
+                            "bbox": list(r.bbox),
+                            "region_type": r.region_type,
+                            "title": r.title,
+                            "confidence": r.confidence,
+                            "contains_multiple": r.contains_multiple,
+                            "path_count": r.path_count,
+                            "source": r.source,
+                        }
+                        for r in region_result.regions
+                    ],
+                },
+            )
+
             # 3. pdfplumber
             step("plumber")
             plumber_page = extract_plumber_page(str(path), idx)
@@ -281,14 +427,18 @@ def run_extract(
             ]
             write_json(str(Path(page_dir) / "pdfplumber_comparison.json"), comparison)
 
-            # 4. Heuristics
+            # 4. Heuristics — one pass over the union of the floor-plan regions
             step("heuristics")
             collector = DebugTraceCollector(page_num) if debug else None
-            candidates = run_heuristics(
-                page_data, plumber_page.get("tables", []),
-                disable_rooms=disable_rooms, disable_windows=disable_windows,
-                collector=collector,
-            )
+            if region_result.skip_detection:
+                candidates = []
+            else:
+                candidates = run_heuristics(
+                    region_result.detection_page_data, plumber_page.get("tables", []),
+                    disable_rooms=disable_rooms, disable_windows=disable_windows,
+                    collector=collector,
+                    schedule_text_spans=region_result.schedule_spans,
+                )
             total_candidates += len(candidates)
             write_json(
                 str(Path(page_dir) / "candidates.json"),
@@ -366,13 +516,15 @@ def run_extract(
                 },
             )
 
-            page_warnings = collect_warnings(page_data, candidates, comparison, [])
+            page_warnings = collect_warnings(
+                page_data, candidates, comparison, region_result.warnings,
+            )
             for w in page_warnings:
                 w.setdefault("page_number", page_num)
             all_warnings.extend(page_warnings)
 
             all_page_summaries.append(
-                _page_summary_dict(page_data, candidates, entities, page_warnings)
+                _page_summary_dict(page_data, candidates, entities, page_warnings, region_result.regions)
             )
 
     doc.close()
