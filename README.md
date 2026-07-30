@@ -1,16 +1,18 @@
 # Architectural PDF Extraction (POC)
 
 Local Python CLI that extracts doors, windows, walls/rooms, labels, and schedules
-from CAD-originated architectural PDFs. It uses a vector-first heuristic pipeline
-with optional Gemini (Vertex AI) validation.
+from CAD-originated architectural PDFs. Detection is a vector-first heuristic
+pipeline; Gemini (Vertex AI) is used once per page, to say which parts of the
+sheet are floor plans so detection can be run on those and not on the
+elevations, site plans and title blocks beside them.
 
 See `CLAUDE.md` for architecture details and `project.md` for the original spec.
 
 ## Requirements
 
 - Python 3.13 (developed on 3.13.7; 3.11+ should work)
-- A GCP project with Vertex AI enabled — only if you want Gemini validation
-  (otherwise run with `--no-gemini`)
+- A GCP project with Vertex AI enabled — only if you want Gemini region
+  classification (otherwise run with `--no-gemini`)
 
 ## Setup
 
@@ -32,8 +34,9 @@ To leave the environment later, run `deactivate`.
 
 ### Gemini / GCP auth (optional)
 
-The pipeline calls Gemini through Vertex AI. Authenticate once before running
-without `--no-gemini`:
+The pipeline calls Gemini through Vertex AI once per page, to classify the
+regions the sheet was split into. Authenticate once before running without
+`--no-gemini`:
 
 ```bash
 gcloud auth application-default login
@@ -41,8 +44,10 @@ gcloud config set project <PROJECT_ID>     # or export GOOGLE_CLOUD_PROJECT=<PRO
 # Optional: export GOOGLE_CLOUD_LOCATION=us-central1   # (default)
 ```
 
-The model is hard-coded to `gemini-2.5-flash`. Skip Gemini entirely with
-`--no-gemini` (heuristics-only mode applies stricter confidence thresholds).
+The model is hard-coded to `gemini-2.5-flash`. Each classification is cached
+beside the input PDF in `.regions_cache/`, so a page costs one real call ever;
+`--no-gemini` reuses that cache and, where there is none, detects on the whole
+unfiltered page rather than guessing.
 
 ## Usage
 
@@ -71,7 +76,8 @@ python app.py extract path/to/drawing.pdf
 | --- | --- |
 | `--pages SPEC` | Page selection, e.g. `1` or `1,3-5` (default: all pages) |
 | `--out DIR` | Parent directory for output (default: `outputs/`) |
-| `--no-gemini` | Skip Gemini calls; run heuristics only |
+| `--no-gemini` | Skip the region-classification call; use a cached classification if one exists, otherwise detect on the whole page |
+| `--refresh-regions` | Ignore any cached region classification and call Gemini again |
 | `--disable-rooms` | Skip wall-network + room detection |
 | `--disable-walls` | Deprecated alias for `--disable-rooms` |
 | `--disable-windows` | Skip window detection |
@@ -109,12 +115,14 @@ outputs/<YYYY-MM-DD_HH-MM-SS>/
 ├── warnings.json             # flat list across all pages
 └── pages/page_NN/
     ├── render.png            # 150 DPI render
-    ├── overlay.png           # entities + rejected drawn on render
+    ├── overlay.png           # entities + rejected + region outlines drawn on render
     ├── primitives.json       # raw PyMuPDF paths/text/images
     ├── pdfplumber_comparison.json
+    ├── regions.json          # segmented regions + their Gemini classification
+    ├── region_crops/         # classification-call only: the per-region PNGs sent
+    │                         # to Gemini (absent on a cache hit or --no-gemini)
     ├── candidates.json       # heuristic output
-    ├── gemini_result.json    # Gemini JSON (or {skipped: true, reason})
-    ├── final_entities.json   # merged + rejected
+    ├── final_entities.json   # finalized entities + rejected
     ├── debug_trace.json      # --debug only
     └── debug_viewer.html     # --debug only
 ```

@@ -7,9 +7,18 @@ loses the detail that distinguishes a floor plan from an elevation. A 1536px
 crop is 2x2 tiles, roughly 1,000 tokens. The per-request limit is 3,600 images,
 so region count is never a constraint.
 
-Measured 2026-07-28 over 20 pages: 0 malformed responses, 0 missing region ids,
-44,437 input tokens total; 58 regions scored by inspection with zero floor
-plans missed and zero false positives.
+HISTORICAL, SUPERSEDED — do not read as validation of the code as it now
+stands. A 2026-07-28 sweep over 20 pages returned 0 malformed responses and 0
+missing region ids, cost 44,437 input tokens in total, and had 58 of its
+regions scored by inspection with zero floor plans missed and zero false
+positives. That was a different partition: the segmenter shipped here produces
+157 regions over the 16 vector sheets in plans/ (26 on 2557737 alone, where
+that sweep saw 10 — measured 2026-07-30 by running qualifying_clip_rects +
+segment_page over page 1 of each file, substituting the page-fallback region
+where the cut yielded <= 1). The accuracy score therefore describes regions
+this code does not produce, and the per-page token figure is roughly 3x low on
+clip-bearing sheets, which send one crop per region. Both need re-measuring
+against the current cut before they mean anything.
 """
 from __future__ import annotations
 

@@ -90,6 +90,32 @@ and `EXISTING_FLOOR_AND_ELEVATIONS-1326087` contain only elevations despite thei
 filenames. Both are single-page. These pages currently produce phantom doors and
 rooms from elevation linework; under rule 1 they are skipped.
 
+> **Superseded 2026-07-30.** The two blocks above were measured against a
+> different partition than the one that shipped, and one of them is wrong.
+>
+> - *Region counts.* The delivered segmenter produces **157** regions over the
+>   16 vector sheets in `plans/` — 26 on `2557737` against the 10 in the table
+>   above, and 21 on `2682241` against 13. Measured by running
+>   `qualifying_clip_rects` + `segment_page` over page 1 of each file and
+>   substituting the page-fallback region where the cut yielded ≤ 1. The
+>   58-region accuracy score and the 44,437-token cost therefore describe
+>   regions this code does not produce; the per-page token figure is roughly 3×
+>   low on clip-bearing sheets, since every region sends its own crop. Neither
+>   figure has been re-measured against the current cut.
+> - *The `1326086` "true negative" is false.* The sheet holds a Ground Floor
+>   Plan and a First Floor Plan. They read as absent because all three
+>   rotation-270 sheets were extracted in the unrotated mediabox frame while
+>   the page size came from the rotated `page.rect`, so the geometry outside
+>   that frame was invisible to segmentation. Fixed in `extraction/extractor.py`
+>   (`page_transform`); `1326086` now yields no gutter at all and falls back to
+>   whole-page detection.
+> - *Path coverage is not universally ~100%.* Measured across `plans/` after
+>   the rotation fix: 0.65 on `2682241`, 0.85 on `2710870`, 0.89 on `1326087`,
+>   0.94–1.00 on the rest. The shortfall is ink inside leaves discarded by
+>   `SEGMENT_MIN_REGION_SIDE_PX`. `REGION_MIN_COVERAGE_FRAC` (pipeline.py) now
+>   suppresses filtering below 0.90; folding those leaves into their neighbours
+>   is a follow-up.
+
 **Coverage is narrower than the headline accuracy suggests:**
 
 | Outcome | Pages | Effect |
@@ -265,6 +291,9 @@ Warning codes `GEMINI_SCHEMA_MISMATCH`, `GEMINI_UNKNOWN_CANDIDATE_ID` and
 | `REGION_CLASSIFY_PARSE_FAILURE` | error | response was not valid JSON; page falls back to no filtering |
 | `REGION_CLASSIFY_INCOMPLETE` | warning | a region id was missing from the response; that region is treated as `unclassified` and excluded |
 | `REGION_CACHE_MISS_OFFLINE` | warning | `--no-gemini` with no cached `regions.json`; no filtering applied |
+| `REGION_CLASSIFY_FAILED` | error | the classification call itself raised (auth, network); no filtering applied — added 2026-07-30, distinct from the parse failure above, which never raises |
+| `REGION_CACHE_WRITE_FAILED` | warning | classification succeeded but could not be written to `.regions_cache/`; the result is still used — added 2026-07-30 |
+| `REGION_COVERAGE_TOO_LOW` | warning | the regions hold < `REGION_MIN_COVERAGE_FRAC` of the page's paths; regions recorded, no filtering applied — added 2026-07-30 |
 
 ## Testing
 
