@@ -8,10 +8,15 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from models import PageData, PathPrimitive, Region
+from models import PageData, PathPrimitive, Region, TextSpan
 from pipeline import resolve_page_regions
 
 PAGE_W, PAGE_H = 400.0, 400.0
+
+# Text fixtures for two_blob_page(): one span sits inside each blob, so tests
+# can tell "the schedule region's own text" apart from "the whole page's text".
+BLOB0_TEXT = "LOUNGE"
+BLOB1_TEXT = "DOOR SCHEDULE"
 
 
 def block(idx, x0, y0, x1, y1):
@@ -27,7 +32,14 @@ def block(idx, x0, y0, x1, y1):
 
 def two_blob_page():
     paths = block(0, 40, 40, 150, 200) + block(500, 250, 40, 360, 200)
-    return PageData(page_number=1, width_px=PAGE_W, height_px=PAGE_H, paths=paths)
+    text_spans = [
+        TextSpan(text=BLOB0_TEXT, bbox=(60.0, 90.0, 100.0, 100.0), font="Arial",
+                 size=10.0, color=0, block_no=0, line_no=0),
+        TextSpan(text=BLOB1_TEXT, bbox=(270.0, 90.0, 330.0, 100.0), font="Arial",
+                 size=10.0, color=0, block_no=1, line_no=0),
+    ]
+    return PageData(page_number=1, width_px=PAGE_W, height_px=PAGE_H,
+                    paths=paths, text_spans=text_spans)
 
 
 def one_blob_page():
@@ -102,6 +114,20 @@ class TestRuleOneNoFloorPlan(RegionRuleTestCase):
                               stub_classifier({0: "floor_plan", 1: "floor_plan"}))
         self.assertEqual(len(result.detection_page_data.paths),
                          len(two_blob_page().paths))
+
+    def test_no_floor_plan_but_schedule_present_still_detects_the_schedule(self):
+        # A door/window schedule sheet: no floor plan anywhere, but a
+        # schedule_table region exists. Detection must not be skipped
+        # wholesale — it should run with an empty path set (no phantom
+        # doors/rooms from elevation linework) so detect_schedules still
+        # sees the schedule region's own text.
+        result = self.resolve(two_blob_page(),
+                              stub_classifier({0: "elevation", 1: "schedule_table"}))
+        self.assertFalse(result.skip_detection)
+        self.assertEqual(result.detection_page_data.paths, [])
+        self.assertEqual([s.text for s in result.schedule_spans], [BLOB1_TEXT])
+        self.assertIn("NO_FLOOR_PLAN_REGION",
+                      [w["warning_code"] for w in result.warnings])
 
 
 class TestRuleTwoWholePageFallback(RegionRuleTestCase):
@@ -179,12 +205,21 @@ class TestScheduleScoping(RegionRuleTestCase):
     def test_schedule_regions_supply_their_own_text_spans(self):
         result = self.resolve(two_blob_page(),
                               stub_classifier({0: "floor_plan", 1: "schedule_table"}))
-        self.assertIsNotNone(result.schedule_spans)
+        # Scoped to the schedule_table region's own text only — not the
+        # floor_plan region's text, and not the whole page's.
+        self.assertEqual([s.text for s in result.schedule_spans], [BLOB1_TEXT])
 
-    def test_no_schedule_region_means_no_scoping(self):
-        result = self.resolve(two_blob_page(),
+    def test_no_schedule_region_means_page_wide_schedule_spans(self):
+        page_data = two_blob_page()
+        result = self.resolve(page_data,
                               stub_classifier({0: "floor_plan", 1: "elevation"}))
-        self.assertIsNone(result.schedule_spans)
+        # No schedule_table region exists, so scoping falls back to the WHOLE
+        # page's spans — including the span that sits outside the floor_plan
+        # region (region 0), proving this isn't secretly floor-plan-scoped.
+        self.assertEqual(result.schedule_spans, page_data.text_spans)
+        outside_floor_plan = next(
+            s for s in page_data.text_spans if s.text == BLOB1_TEXT)
+        self.assertIn(outside_floor_plan, result.schedule_spans)
 
 
 if __name__ == "__main__":

@@ -308,10 +308,22 @@ def resolve_page_regions(
         warn("NO_FLOOR_PLAN_REGION", "warning",
              f"Page {pn}: {len(regions)} regions found, none classified floor_plan "
              f"(saw {kinds}) — detection skipped")
+        if schedules:
+            # No floor plan, but there IS a schedule to read. Detect with an
+            # empty path set: that keeps Rule 1's real purpose (no phantom
+            # doors or rooms conjured from elevation linework) while still
+            # letting detect_schedules see the schedule region's text.
+            return PageRegionResult(
+                regions, filter_page_data(page_data, []),
+                region_text_spans(page_data, schedules), warnings, False)
         return PageRegionResult(regions, page_data, None, warnings, True)
 
     detection_page_data = filter_page_data(page_data, floor_plans)
-    schedule_spans = region_text_spans(page_data, schedules) if schedules else None
+    # Schedules live outside the floor plans. With schedule_table regions we
+    # scope to them; without, fall back to the WHOLE page's spans — never the
+    # floor-plan-filtered ones, or a mislabelled schedule region would be lost.
+    schedule_spans = (region_text_spans(page_data, schedules) if schedules
+                      else page_data.text_spans)
     return PageRegionResult(regions, detection_page_data, schedule_spans, warnings, False)
 
 
