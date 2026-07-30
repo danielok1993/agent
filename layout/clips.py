@@ -8,10 +8,9 @@ supplement the whitespace cut.
 """
 from __future__ import annotations
 
+from extraction.extractor import SCALE, normalize_bbox, page_transform
 from models import BBox, PageData
 from layout.constants import CLIP_MAX_PAGE_FRAC, CLIP_MIN_INK_FRAC
-
-SCALE = 150 / 72
 
 
 def qualifying_clip_rects_from_boxes(
@@ -57,6 +56,10 @@ def qualifying_clip_rects(page, page_data: PageData) -> list[BBox]:
     PDF exposes none, which is the common case."""
     import fitz
 
+    # Scissor rects come off the page in the same UNROTATED frame as
+    # get_drawings(), so they take the same transform the primitives did.
+    transform = page_transform(page, SCALE)
+
     boxes: list[BBox] = []
     try:
         drawings = page.get_drawings(extended=True)
@@ -67,10 +70,8 @@ def qualifying_clip_rects(page, page_data: PageData) -> list[BBox]:
         if s is None:
             continue
         r = fitz.Rect(s)
-        boxes.append((
-            round(r.x0 * SCALE), round(r.y0 * SCALE),
-            round(r.x1 * SCALE), round(r.y1 * SCALE),
-        ))
+        x0, y0, x1, y1 = normalize_bbox((r.x0, r.y0, r.x1, r.y1), transform)
+        boxes.append((round(x0), round(y0), round(x1), round(y1)))
     return qualifying_clip_rects_from_boxes(boxes, page_data)
 
 

@@ -4,10 +4,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import dataclasses
+
 from models import PageData, PathPrimitive, Region
 from gemini.region_cache import (
-    cache_file, load_regions, page_content_hash, regions_from_dicts,
-    regions_to_dicts, save_regions,
+    cache_file, cache_key, load_regions, page_content_hash, region_geometry_hash,
+    regions_from_dicts, regions_to_dicts, save_regions,
 )
 
 
@@ -47,6 +49,45 @@ class TestContentHash(unittest.TestCase):
         a = page([path(0, 1, 2, 3, 4)])
         b = page([path(0, 1, 2, 3, 4), path(1, 5, 6, 7, 8)])
         self.assertNotEqual(page_content_hash(a), page_content_hash(b))
+
+
+class TestGeometryIsPartOfTheKey(unittest.TestCase):
+    """Region bboxes ARE the filtering contract, and entries are permanent, so a
+    changed segmentation must be a cache MISS — never a silent override."""
+
+    def test_same_geometry_gives_the_same_key(self):
+        pd = page([path(0, 1, 2, 3, 4)])
+        self.assertEqual(cache_key(pd, regions()), cache_key(pd, regions()))
+
+    def test_a_moved_region_changes_the_key(self):
+        pd = page([path(0, 1, 2, 3, 4)])
+        moved = regions()
+        moved[0] = dataclasses.replace(moved[0], bbox=(0.0, 0.0, 60.0, 50.0))
+        self.assertNotEqual(cache_key(pd, regions()), cache_key(pd, moved))
+
+    def test_a_different_region_count_changes_the_key(self):
+        pd = page([path(0, 1, 2, 3, 4)])
+        self.assertNotEqual(cache_key(pd, regions()), cache_key(pd, regions()[:1]))
+
+    def test_a_different_source_changes_the_key(self):
+        pd = page([path(0, 1, 2, 3, 4)])
+        resourced = regions()
+        resourced[0] = dataclasses.replace(resourced[0], source="page-fallback")
+        self.assertNotEqual(cache_key(pd, regions()), cache_key(pd, resourced))
+
+    def test_the_classification_itself_is_not_part_of_the_key(self):
+        # The cache exists to supply the classification, so it cannot be an
+        # input to its own lookup.
+        pd = page([path(0, 1, 2, 3, 4)])
+        classified = regions()
+        classified[0] = dataclasses.replace(classified[0], region_type="elevation",
+                                            confidence=0.1, title="X")
+        self.assertEqual(region_geometry_hash(regions()),
+                         region_geometry_hash(classified))
+
+    def test_the_page_content_still_matters(self):
+        a, b = page([path(0, 1, 2, 3, 4)]), page([path(0, 1, 2, 3, 9)])
+        self.assertNotEqual(cache_key(a, regions()), cache_key(b, regions()))
 
 
 class TestRoundTrip(unittest.TestCase):

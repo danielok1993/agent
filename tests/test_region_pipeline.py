@@ -7,9 +7,10 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from models import PageData, PathPrimitive, Region, TextSpan
-from pipeline import resolve_page_regions
+from pipeline import REGION_MIN_COVERAGE_FRAC, resolve_page_regions
 
 PAGE_W, PAGE_H = 400.0, 400.0
 
@@ -40,6 +41,18 @@ def two_blob_page():
     ]
     return PageData(page_number=1, width_px=PAGE_W, height_px=PAGE_H,
                     paths=paths, text_spans=text_spans)
+
+
+def page_with_a_dropped_strip():
+    """two_blob_page plus a 52px-tall strip of real drawing.
+
+    It is its own leaf, but shorter than SEGMENT_MIN_REGION_SIDE_PX, so the
+    segmenter discards it and filter_page_data would delete its 12 paths —
+    13% of the sheet.
+    """
+    pd = two_blob_page()
+    pd.paths = pd.paths + block(1000, 40, 300, 350, 348)
+    return pd
 
 
 def one_blob_page():
@@ -199,6 +212,81 @@ class TestRuleFourOfflineCache(RegionRuleTestCase):
                               stub_classifier({0: "elevation", 1: "elevation"}),
                               refresh_regions=True)
         self.assertTrue(result.skip_detection)
+
+
+class TestRuleFiveCoverageGuard(RegionRuleTestCase):
+    """Filtering only pays if the regions hold the sheet's ink."""
+
+    def codes(self, result):
+        return [w["warning_code"] for w in result.warnings]
+
+    def test_low_coverage_warns_and_filters_nothing(self):
+        page_data = page_with_a_dropped_strip()
+        result = self.resolve(page_data,
+                              stub_classifier({0: "floor_plan", 1: "elevation"}))
+        self.assertIn("REGION_COVERAGE_TOO_LOW", self.codes(result))
+        self.assertFalse(result.skip_detection)
+        self.assertEqual(len(result.detection_page_data.paths), len(page_data.paths))
+
+    def test_low_coverage_still_records_the_regions(self):
+        result = self.resolve(page_with_a_dropped_strip(),
+                              stub_classifier({0: "floor_plan", 1: "elevation"}))
+        self.assertEqual([r.region_type for r in result.regions],
+                         ["floor_plan", "elevation"])
+
+    def test_healthy_coverage_does_not_warn(self):
+        result = self.resolve(two_blob_page(),
+                              stub_classifier({0: "floor_plan", 1: "elevation"}))
+        self.assertNotIn("REGION_COVERAGE_TOO_LOW", self.codes(result))
+        self.assertLess(len(result.detection_page_data.paths),
+                        len(two_blob_page().paths))
+
+    def test_the_guard_cannot_fire_on_a_page_fallback_page(self):
+        # The fallback region covers the sheet by construction, so it must be
+        # unreachable there even at a floor nothing could satisfy.
+        with mock.patch("pipeline.REGION_MIN_COVERAGE_FRAC", 1.1):
+            result = self.resolve(one_blob_page(), stub_classifier({0: "floor_plan"}))
+        self.assertNotIn("REGION_COVERAGE_TOO_LOW", self.codes(result))
+        self.assertFalse(result.skip_detection)
+
+    def test_the_guard_cannot_fire_on_a_zero_path_page(self):
+        with mock.patch("pipeline.REGION_MIN_COVERAGE_FRAC", 1.1):
+            result = self.resolve(raster_page(), stub_classifier({}))
+        self.assertNotIn("REGION_COVERAGE_TOO_LOW", self.codes(result))
+
+    def test_the_floor_sits_between_the_measured_bands(self):
+        self.assertEqual(REGION_MIN_COVERAGE_FRAC, 0.90)
+
+
+class TestClassificationFailureHandling(RegionRuleTestCase):
+    def test_a_raising_classifier_is_not_reported_as_a_parse_failure(self):
+        def boom(*args, **kwargs):
+            raise RuntimeError("401 unauthenticated")
+
+        result = self.resolve(two_blob_page(), boom)
+        codes = [w["warning_code"] for w in result.warnings]
+        self.assertIn("REGION_CLASSIFY_FAILED", codes)
+        self.assertNotIn("REGION_CLASSIFY_PARSE_FAILURE", codes)
+        self.assertFalse(result.skip_detection)
+        self.assertEqual(len(result.detection_page_data.paths),
+                         len(two_blob_page().paths))
+
+    def test_a_failed_cache_write_does_not_discard_the_classification(self):
+        # The API call is billed and already succeeded; a read-only input
+        # directory must not throw its result away.
+        def unwritable(*args, **kwargs):
+            raise OSError("Read-only file system")
+
+        with mock.patch("pipeline.save_regions", unwritable):
+            result = self.resolve(two_blob_page(),
+                                  stub_classifier({0: "floor_plan", 1: "elevation"}))
+        codes = [w["warning_code"] for w in result.warnings]
+        self.assertIn("REGION_CACHE_WRITE_FAILED", codes)
+        self.assertNotIn("REGION_CLASSIFY_FAILED", codes)
+        self.assertEqual([r.region_type for r in result.regions],
+                         ["floor_plan", "elevation"])
+        self.assertLess(len(result.detection_page_data.paths),
+                        len(two_blob_page().paths))
 
 
 class TestScheduleScoping(RegionRuleTestCase):

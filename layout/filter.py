@@ -29,6 +29,20 @@ def filter_page_data(page_data: PageData, regions: list[Region]) -> PageData:
     return out
 
 
+def assigned_path_fraction(page_data: PageData, regions: list[Region]) -> float:
+    """Share of the page's paths that any region would keep.
+
+    Deliberately the same centre-containment rule filter_page_data uses, so a
+    caller gauging how much filtering would cost measures exactly what it would
+    actually lose. 1.0 for a page with no paths (nothing to lose).
+    """
+    if not page_data.paths:
+        return 1.0
+    boxes = [r.bbox for r in regions]
+    inside = sum(1 for p in page_data.paths if _centre_in_any(p.bbox, boxes))
+    return inside / len(page_data.paths)
+
+
 def region_text_spans(page_data: PageData, regions: list[Region]) -> list[TextSpan]:
     """Text spans inside the given regions. Used to scope schedule detection to
     schedule_table regions without touching geometry detection."""

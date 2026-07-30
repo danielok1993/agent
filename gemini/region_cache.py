@@ -1,4 +1,5 @@
-"""On-disk cache of region classifications, keyed by page content.
+"""On-disk cache of region classifications, keyed by page content AND the
+segmentation of that page (see cache_key).
 
 --no-gemini is the normal way this tool is run. Without a cache that flag would
 silently disable region filtering, so offline runs would disagree with online
@@ -30,9 +31,33 @@ def page_content_hash(page_data: PageData) -> str:
     return h.hexdigest()[:16]
 
 
-def cache_file(pdf_path: str, page_number: int, content_hash: str) -> Path:
+def region_geometry_hash(regions: list[Region]) -> str:
+    """Stable digest of a segmentation's geometry — the boxes and where they
+    came from, never the classification, which is what the cache supplies."""
+    h = hashlib.sha256()
+    h.update(f"n={len(regions)}|".encode())
+    for r in regions:
+        h.update(f"{r.source}:{r.bbox[0]:.2f},{r.bbox[1]:.2f},"
+                 f"{r.bbox[2]:.2f},{r.bbox[3]:.2f};".encode())
+    return h.hexdigest()[:16]
+
+
+def cache_key(page_data: PageData, regions: list[Region]) -> str:
+    """Cache identity: the page's content AND the segmentation of it.
+
+    Region bboxes are the filtering contract — they decide what detection
+    sees — so a cached classification is only valid for the exact geometry it
+    was made against. Keying on page content alone lets any later change to
+    layout/ silently pair old bboxes with a new cut, and cache entries are
+    permanent by design. Changing the cut therefore invalidates every existing
+    entry; that is the point.
+    """
+    return f"{page_content_hash(page_data)}-{region_geometry_hash(regions)}"
+
+
+def cache_file(pdf_path: str, page_number: int, key: str) -> Path:
     pdf = Path(pdf_path)
-    return pdf.parent / CACHE_DIR_NAME / f"{pdf.stem}_p{page_number:02d}_{content_hash}.json"
+    return pdf.parent / CACHE_DIR_NAME / f"{pdf.stem}_p{page_number:02d}_{key}.json"
 
 
 def regions_to_dicts(regions: list[Region]) -> list[dict]:
@@ -67,8 +92,8 @@ def regions_from_dicts(data: list[dict]) -> list[Region]:
     ]
 
 
-def load_regions(pdf_path: str, page_number: int, content_hash: str) -> Optional[list[Region]]:
-    target = cache_file(pdf_path, page_number, content_hash)
+def load_regions(pdf_path: str, page_number: int, key: str) -> Optional[list[Region]]:
+    target = cache_file(pdf_path, page_number, key)
     if not target.exists():
         return None
     try:
@@ -79,14 +104,14 @@ def load_regions(pdf_path: str, page_number: int, content_hash: str) -> Optional
 
 
 def save_regions(
-    pdf_path: str, page_number: int, content_hash: str, regions: list[Region]
+    pdf_path: str, page_number: int, key: str, regions: list[Region]
 ) -> None:
-    target = cache_file(pdf_path, page_number, content_hash)
+    target = cache_file(pdf_path, page_number, key)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(
         json.dumps({
             "page_number": page_number,
-            "content_hash": content_hash,
+            "cache_key": key,
             "regions": regions_to_dicts(regions),
         }, indent=2),
         encoding="utf-8",

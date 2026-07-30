@@ -1,9 +1,10 @@
 """Page segmentation: split a sheet into its constituent drawings."""
 from layout.clips import clip_cut_positions, qualifying_clip_rects
-from layout.filter import filter_page_data, region_text_spans
+from layout.filter import assigned_path_fraction, filter_page_data, region_text_spans
 from layout.segmenter import count_paths_in, page_fallback_region, segment_page
 
 __all__ = [
+    "assigned_path_fraction",
     "clip_cut_positions",
     "count_paths_in",
     "filter_page_data",

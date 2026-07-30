@@ -18,12 +18,12 @@ from debug.trace import DebugTraceCollector
 from debug.renderer import generate_debug_viewer
 from extraction.renderer import render_page_png, draw_overlay
 from layout import (
-    filter_page_data, page_fallback_region, qualifying_clip_rects,
-    region_text_spans, segment_page,
+    assigned_path_fraction, filter_page_data, page_fallback_region,
+    qualifying_clip_rects, region_text_spans, segment_page,
 )
 from gemini import client as gc
 from gemini.classifier import classify_regions
-from gemini.region_cache import load_regions, page_content_hash, save_regions
+from gemini.region_cache import cache_key, load_regions, save_regions
 
 console = Console()
 
@@ -75,6 +75,17 @@ OFFLINE_MIN_CONFIDENCE: dict[str, float] = {
     "label":    0.65,
     "schedule": 0.50,
 }
+
+# Region filtering only pays if the regions actually hold the sheet's ink.
+# Segmentation can drop a leaf (anything under SEGMENT_MIN_REGION_SIDE_PX, or a
+# page-spanning primitive that never entered the ink map), and filter_page_data
+# then deletes its contents outright — losing real drawing, not page furniture.
+# Below this share of the page's paths, record the regions but filter nothing.
+# Measured over the 16 vector sample sheets in plans/ (assigned-path fraction,
+# after the rotation fix): the two problem sheets sit at 0.65 and 0.85 and a
+# third at 0.89, every healthy sheet at 0.94-1.00 — the corpus separates
+# cleanly, and 0.90 sits in the gap.
+REGION_MIN_COVERAGE_FRAC = 0.90
 
 
 # Door-only candidate-evidence keys carried through to Entity.attributes so
@@ -270,10 +281,13 @@ def resolve_page_regions(
     if fallback:
         regions = [page_fallback_region(page_data)]
 
-    content_hash = page_content_hash(page_data)
-    cached = None if refresh_regions else load_regions(pdf_path, pn, content_hash)
+    # The key covers the freshly-computed region geometry as well as the page
+    # content, so a change to layout/ is a cache MISS rather than a silent
+    # reuse of stale bboxes — and region bboxes ARE the filtering contract.
+    key = cache_key(page_data, regions)
+    cached = None if refresh_regions else load_regions(pdf_path, pn, key)
 
-    if cached is not None and len(cached) == len(regions):
+    if cached is not None:
         regions = cached
     elif skip_gemini or gemini_client is None:
         # Rule 4: offline with no usable cache — record the regions but filter
@@ -289,14 +303,34 @@ def resolve_page_regions(
             for w in classify_warnings:
                 w.setdefault("page_number", pn)
             warnings.extend(classify_warnings)
-            save_regions(pdf_path, pn, content_hash, regions)
         except Exception as e:
-            warn("REGION_CLASSIFY_PARSE_FAILURE", "error",
+            # NOT a parse failure — apply_classification reports those itself,
+            # without raising. Anything that lands here is auth, network, or a
+            # programming error.
+            warn("REGION_CLASSIFY_FAILED", "error",
                  f"Region classification failed for page {pn}: {e}")
             return unfiltered(regions)
+        # Outside the try: the call above is billed and has already succeeded,
+        # so a read-only input directory must not throw its result away.
+        try:
+            save_regions(pdf_path, pn, key, regions)
+        except Exception as e:
+            warn("REGION_CACHE_WRITE_FAILED", "warning",
+                 f"Page {pn}: region classification succeeded but could not be "
+                 f"cached ({e}) — the next run will call the API again")
 
     # Rule 2: the page never split. Classify for the record, but always detect.
     if fallback:
+        return unfiltered(regions)
+
+    # Rule 5: the regions do not hold enough of the sheet to filter by. Record
+    # them, warn, and let detection see the whole page — losing a third of a
+    # drawing is strictly worse than the elevation noise filtering removes.
+    coverage = assigned_path_fraction(page_data, regions)
+    if coverage < REGION_MIN_COVERAGE_FRAC:
+        warn("REGION_COVERAGE_TOO_LOW", "warning",
+             f"Page {pn}: regions hold only {coverage:.0%} of the page's paths "
+             f"(floor is {REGION_MIN_COVERAGE_FRAC:.0%}) — no region filtering applied")
         return unfiltered(regions)
 
     floor_plans = [r for r in regions if r.region_type == "floor_plan"]
