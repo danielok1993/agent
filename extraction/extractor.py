@@ -199,6 +199,13 @@ def extract_text(page: fitz.Page, scale: "float | fitz.Matrix | Transform" = SCA
 
 def extract_images(page: fitz.Page, doc: fitz.Document,
                    scale: "float | fitz.Matrix | Transform" = SCALE) -> list[ImageRef]:
+    # Images take the SCALE only, never the rotation: unlike get_drawings() and
+    # get_text(), page.get_image_bbox() already honours /Rotate and hands back
+    # coordinates in the rotated page.rect frame. Putting them through the full
+    # transform rotates them a second time and lands them off the page
+    # (measured on 1326087, rot 270: (2140.8, 45.3, 2436.3, 299.3) became
+    # (45.3, -682.2, 299.3, -386.7)).
+    image_scale = transform_scale(_as_transform(scale))
     page_area = page.rect.width * page.rect.height
     images = []
     for img in page.get_images(full=True):
@@ -210,7 +217,7 @@ def extract_images(page: fitz.Page, doc: fitz.Document,
         except Exception:
             continue
 
-        bbox = normalize_bbox(bbox_raw, scale)
+        bbox = normalize_bbox(bbox_raw, image_scale)
         raw_w = bbox_raw.width
         raw_h = bbox_raw.height
         raw_area = raw_w * raw_h
