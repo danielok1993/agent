@@ -118,7 +118,7 @@ Model is hard-coded to `gemini-2.5-flash`, called once per page for region class
    (`gemini/region_cache.py`, keyed by page content hash — `--refresh-regions` bypasses
    it) and writes `regions.json` + `region_crops/`.
 4. `extraction.plumber.extract_plumber_page` — pdfplumber cross-check (chars/lines/rects/curves/images/tables). `compare_counts` emits `PLUMBER_LARGE_DELTA` warnings when PyMuPDF vs pdfplumber geometry diverges >50%. Tables here feed schedule detection.
-5. `detection.run_heuristics` (`detection/orchestrator.py`) — deterministic detection of doors / windows / rooms / labels / schedules, run once over the region-filtered page data from stage 3 (skipped entirely when no region qualifies as `floor_plan`). Doors and windows detect first; the internal wall-centerline network (`detection/walls.py::detect_wall_network`, never emitted as candidates) then cross-validates them and feeds `detection/rooms.py::detect_rooms`, which subtracts wall solids, face linework, and opening seals (wall-plane plugs at doors, bboxes at windows) from the page and emits the enclosed free-space components as room polygons. `--disable-rooms` / `--disable-windows` exist because each detector can dominate noise on different drawing styles. Pass a `DebugTraceCollector` (via `--debug`) to record per-primitive reasoning.
+5. `detection.run_heuristics` (`detection/orchestrator.py`) — deterministic detection of doors / windows / rooms / labels / schedules, run once over the region-filtered page data from stage 3 (skipped entirely only when a split page has neither a `floor_plan` nor a `schedule_table` region; a schedule-only sheet still runs heuristics over an empty path set so `detect_schedules` can read the schedule). Doors and windows detect first; the internal wall-centerline network (`detection/walls.py::detect_wall_network`, never emitted as candidates) then cross-validates them and feeds `detection/rooms.py::detect_rooms`, which subtracts wall solids, face linework, and opening seals (wall-plane plugs at doors, bboxes at windows) from the page and emits the enclosed free-space components as room polygons. `--disable-rooms` / `--disable-windows` exist because each detector can dominate noise on different drawing styles. Pass a `DebugTraceCollector` (via `--debug`) to record per-primitive reasoning.
 6. `pipeline.finalize_candidates` + `renderer.draw_overlay` — Gemini no longer votes on individual candidates, so `finalize_candidates` applies the `OFFLINE_MIN_CONFIDENCE` floors unconditionally: candidates below threshold move to `rejected` and are not promoted to entities. Room candidates bypass the floors — they are heuristic-only by design and always promoted, with the polygon in `Entity.attributes`. `draw_overlay` then draws entities, rejected candidates, and the page's region outlines onto the render.
 7. JSON dump (`primitives.json`, `candidates.json`, `final_entities.json`, `pdfplumber_comparison.json`) and warning collection.
 
@@ -136,7 +136,8 @@ outputs/<YYYY-MM-DD_HH-MM-SS>/
     ├── primitives.json       # raw PyMuPDF paths/text/images
     ├── pdfplumber_comparison.json
     ├── regions.json          # segmented regions + their Gemini classification
-    ├── region_crops/         # per-region PNG crops sent to Gemini for classification
+    ├── region_crops/         # classification-call only: per-region PNG crops sent to
+    │                         # Gemini (absent on a cache hit, --no-gemini, or a raster page)
     ├── candidates.json       # heuristic output
     ├── final_entities.json   # finalized entities + rejected
     ├── debug_trace.json      # --debug only: per-primitive detection trace

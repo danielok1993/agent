@@ -32,11 +32,11 @@ class TestDrawOverlayWithRegions(unittest.TestCase):
 
     def test_region_outline_changes_pixels(self):
         draw_overlay(self.render, [], [], self.out)
-        plain = list(Image.open(self.out).convert("RGB").getdata())
+        plain = Image.open(self.out).convert("RGB").tobytes()
         regions = [Region(region_id="region_0000", bbox=(10.0, 10.0, 200.0, 200.0),
                           region_type="floor_plan")]
         draw_overlay(self.render, [], [], self.out, regions=regions)
-        with_regions = list(Image.open(self.out).convert("RGB").getdata())
+        with_regions = Image.open(self.out).convert("RGB").tobytes()
         self.assertNotEqual(plain, with_regions)
 
     def test_entities_still_draw_alongside_regions(self):
