@@ -5,8 +5,10 @@ while page.rect — the source of width_px/height_px — and the render both hon
 /Rotate. Region segmentation sizes its grid from width_px/height_px and silently
 discards every mark outside it, so a frame mismatch deletes drawing.
 
-page.get_image_bbox() is the exception: it already honours /Rotate, so images
-take the scale only. Every test here builds its own rotated PDF in a tempdir —
+page.get_image_info() — the single-pass source of image bboxes — returns the
+same UNROTATED frame, so images take the full transform like every other
+primitive. (The per-image get_image_bbox() it replaced honoured /Rotate and
+took the scale only.) Every test here builds its own rotated PDF in a tempdir —
 the checked-out repo carries no rotated sample sheet, so real-sheet coverage
 would silently skip everywhere but the machine that wrote it.
 """
@@ -137,9 +139,11 @@ class TestExtractPageFrame(RotatedPdfTestCase):
                     pd.height_px, (PAGE_W_PT if turned else PAGE_H_PT) * SCALE)
 
     def test_images_are_scaled_but_never_rotated_twice(self):
-        # get_image_bbox already honours /Rotate. Applying the rotation on top
-        # sends the box off-page (measured on 1326087, rot 270: the correct
-        # (2140.8, 45.3, 2436.3, 299.3) became (45.3, -682.2, 299.3, -386.7)).
+        # The image box must end up rotated into the page frame exactly once:
+        # applying the rotation to an already-rotated source (or never
+        # applying it) sends the box off-page — the inside-the-page assertions
+        # above catch that; here the side lengths prove the box was never
+        # resized on the way.
         expected_sides = {round((IMAGE_RECT[2] - IMAGE_RECT[0]) * SCALE, 3),
                           round((IMAGE_RECT[3] - IMAGE_RECT[1]) * SCALE, 3)}
         for rotation in (0, 90, 180, 270):
