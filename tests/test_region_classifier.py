@@ -3,11 +3,16 @@
 No API calls: apply_classification is tested against recorded response text.
 """
 import json
+import tempfile
+import types as pytypes
 import unittest
+from pathlib import Path
+
+import fitz
 
 from models import PageData, Region, TextSpan
 from gemini.classifier import (
-    REGION_TYPES, apply_classification, region_title_text,
+    REGION_TYPES, apply_classification, classify_regions, region_title_text,
 )
 
 
@@ -93,6 +98,64 @@ class TestApplyClassification(unittest.TestCase):
         self.assertIn("floor_plan", REGION_TYPES)
         self.assertIn("schedule_table", REGION_TYPES)
         self.assertIn("other", REGION_TYPES)
+
+
+class _CapturingClient:
+    """Stands in for genai.Client, recording the config it was called with."""
+
+    def __init__(self, text):
+        self.models = self
+        self.config = None
+        self._text = text
+
+    def generate_content(self, *, model, contents, config):
+        self.config = config
+        return pytypes.SimpleNamespace(text=self._text)
+
+
+class TestRequestShape(unittest.TestCase):
+    """The response must be schema-constrained at decode time.
+
+    Plain JSON mode does not constrain generation: on 2026-08-05 a response for
+    sheet 2682241 started as valid JSON and then degenerated mid-stream into an
+    off-topic fragment, breaking the object separator. A response_schema makes
+    that structurally impossible.
+    """
+
+    def call(self):
+        doc = fitz.open()
+        doc.new_page(width=400, height=400)
+        page_data = PageData(page_number=1, width_px=800.0, height_px=800.0)
+        regions = [region(0)]
+        client = _CapturingClient(response(
+            [{"id": 0, "type": "floor_plan", "title": None, "confidence": 1.0,
+              "contains_multiple": False, "notes": ""}]))
+        with tempfile.TemporaryDirectory() as tmp:
+            out, warnings = classify_regions(
+                client, doc[0], page_data, regions, str(Path(tmp) / "crops"))
+        doc.close()
+        return client.config, out, warnings
+
+    def test_the_request_carries_a_response_schema(self):
+        config, _, _ = self.call()
+        self.assertIsNotNone(config.response_schema)
+
+    def test_the_schema_constrains_type_to_the_taxonomy(self):
+        config, _, _ = self.call()
+        item = config.response_schema.properties["regions"].items
+        self.assertEqual(list(item.properties["type"].enum), REGION_TYPES)
+
+    def test_the_schema_requires_an_id_for_every_region(self):
+        # Region identity is the whole contract — apply_classification matches
+        # responses to regions by id and silently ignores items without one.
+        config, _, _ = self.call()
+        item = config.response_schema.properties["regions"].items
+        self.assertIn("id", item.required)
+
+    def test_a_schema_valid_response_still_classifies(self):
+        _, out, warnings = self.call()
+        self.assertEqual(out[0].region_type, "floor_plan")
+        self.assertEqual(warnings, [])
 
 
 class TestRegionTitleText(unittest.TestCase):

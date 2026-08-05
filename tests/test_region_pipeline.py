@@ -9,6 +9,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+from gemini.classifier import apply_classification
+from gemini.region_cache import CACHE_DIR_NAME
 from models import PageData, PathPrimitive, Region, TextSpan
 from pipeline import REGION_MIN_COVERAGE_FRAC, resolve_page_regions
 
@@ -63,6 +65,19 @@ def one_blob_page():
 def raster_page():
     return PageData(page_number=1, width_px=PAGE_W, height_px=PAGE_H,
                     page_type="raster-heavy")
+
+
+def parse_failing_classifier(calls):
+    """A classifier whose response does not parse.
+
+    Runs the REAL apply_classification over corrupt text, so the caller sees
+    exactly what the incident produced: every region unclassified, plus a
+    REGION_CLASSIFY_PARSE_FAILURE warning, with nothing raised.
+    """
+    def _classify(client, page, page_data, regions, crop_dir, **kwargs):
+        calls.append(1)
+        return apply_classification("not json at all", regions)
+    return _classify
 
 
 def stub_classifier(types_by_index):
@@ -280,6 +295,54 @@ class TestClassificationFailureHandling(RegionRuleTestCase):
         self.assertFalse(result.skip_detection)
         self.assertEqual(len(result.detection_page_data.paths),
                          len(two_blob_page().paths))
+
+    def cache_files(self):
+        return sorted(p.name for p in (Path(self.tmp) / CACHE_DIR_NAME).glob("*.json"))
+
+    def test_a_parse_failure_detects_the_whole_page(self):
+        # A response that does not parse leaves every region "unclassified",
+        # which reads as "no floor plan" and would skip detection entirely.
+        # It carries no information, so it must degrade exactly like the
+        # raising path: warn, detect everything.
+        result = self.resolve(two_blob_page(), parse_failing_classifier([]))
+        self.assertIn("REGION_CLASSIFY_PARSE_FAILURE",
+                      [w["warning_code"] for w in result.warnings])
+        self.assertFalse(result.skip_detection)
+        self.assertEqual(len(result.detection_page_data.paths),
+                         len(two_blob_page().paths))
+
+    def test_a_parse_failure_is_never_cached(self):
+        self.resolve(two_blob_page(), parse_failing_classifier([]))
+        self.assertEqual(self.cache_files(), [])
+
+    def test_a_parse_failure_does_not_poison_the_next_run(self):
+        # The incident: the all-unclassified region list was cached, so every
+        # later run loaded it and skipped detection without calling the API
+        # again. A second resolve must reach the classifier.
+        calls = []
+        page_data = two_blob_page()
+        self.resolve(page_data, parse_failing_classifier(calls))
+        second = self.resolve(page_data,
+                              stub_classifier({0: "floor_plan", 1: "elevation"}))
+        self.assertEqual(len(calls), 1, "first run must have called the classifier")
+        self.assertEqual([r.region_type for r in second.regions],
+                         ["floor_plan", "elevation"])
+        self.assertFalse(second.skip_detection)
+
+    def test_an_incomplete_classification_is_still_cached(self):
+        # Partial information is real information: region 0 classified, region
+        # 1 unaddressed (REGION_CLASSIFY_INCOMPLETE). Only a TOTAL parse
+        # failure skips the cache.
+        def partial(client, page, page_data, regions, crop_dir, **kwargs):
+            return apply_classification(
+                '{"regions": [{"id": 0, "type": "floor_plan", "title": null,'
+                ' "confidence": 1.0, "contains_multiple": false, "notes": ""}]}',
+                regions)
+
+        result = self.resolve(two_blob_page(), partial)
+        self.assertIn("REGION_CLASSIFY_INCOMPLETE",
+                      [w["warning_code"] for w in result.warnings])
+        self.assertEqual(len(self.cache_files()), 1)
 
     def test_a_failed_cache_write_does_not_discard_the_classification(self):
         # The API call is billed and already succeeded; a read-only input

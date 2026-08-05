@@ -47,6 +47,36 @@ REGION_TYPES = [
     "detail", "other",
 ]
 
+# Constrained decoding. JSON mode alone only asks for JSON; it does not
+# constrain the decoder, and on 2026-08-05 a response for sheet 2682241 began
+# as valid JSON, degenerated mid-stream into an off-topic fragment, and lost an
+# object separator. With a schema the decoder cannot emit that. The prose shape
+# stays in SYSTEM_PROMPT: it documents intent and steers the VALUES, which no
+# schema can.
+RESPONSE_SCHEMA = types.Schema(
+    type=types.Type.OBJECT,
+    required=["regions"],
+    properties={
+        "regions": types.Schema(
+            type=types.Type.ARRAY,
+            items=types.Schema(
+                type=types.Type.OBJECT,
+                # id is the whole matching contract — apply_classification
+                # keys responses to regions by it and ignores items without.
+                required=["id", "type", "confidence"],
+                properties={
+                    "id": types.Schema(type=types.Type.INTEGER),
+                    "type": types.Schema(type=types.Type.STRING, enum=REGION_TYPES),
+                    "title": types.Schema(type=types.Type.STRING, nullable=True),
+                    "confidence": types.Schema(type=types.Type.NUMBER),
+                    "contains_multiple": types.Schema(type=types.Type.BOOLEAN),
+                    "notes": types.Schema(type=types.Type.STRING),
+                },
+            ),
+        ),
+    },
+)
+
 SYSTEM_PROMPT = f"""\
 You are an expert reader of architectural drawing sheets (UK planning and
 building-regulation drawings).
@@ -223,6 +253,7 @@ def classify_regions(
             system_instruction=SYSTEM_PROMPT,
             temperature=0.0,
             response_mime_type="application/json",
+            response_schema=RESPONSE_SCHEMA,
         ),
     )
     return apply_classification(response.text, regions)
