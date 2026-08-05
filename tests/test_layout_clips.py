@@ -56,10 +56,10 @@ class TestClipGating(unittest.TestCase):
 
 
 class TestClipCutPositions(unittest.TestCase):
-    def test_edges_become_bin_indices_on_both_axes(self):
+    def test_edges_become_bin_indices_carrying_their_rects_extent(self):
         rows, cols = clip_cut_positions([(40.0, 80.0, 200.0, 240.0)], bin_px=4)
-        self.assertEqual(cols, {10, 50})
-        self.assertEqual(rows, {20, 60})
+        self.assertEqual(cols, {(10, 20, 60), (50, 20, 60)})
+        self.assertEqual(rows, {(20, 10, 50), (60, 10, 50)})
 
 
 if __name__ == "__main__":

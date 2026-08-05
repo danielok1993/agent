@@ -33,8 +33,12 @@ def page(paths):
 def cut(page_data, min_gutter_px=20, cut_rows=frozenset(), cut_cols=frozenset()):
     ink = build_ink_map(page_data, bin_px=BIN)
     out = []
+    # Bare ints are edges with unbounded perpendicular extent — the tests
+    # here exercise cut precedence, not extent gating.
+    rows = {c if isinstance(c, tuple) else (c, 0, 10**9) for c in cut_rows}
+    cols = {c if isinstance(c, tuple) else (c, 0, 10**9) for c in cut_cols}
     _xy_cut(ink, 0, ink.rows, 0, ink.cols, max(1, min_gutter_px // BIN),
-            set(cut_rows), set(cut_cols), 0, out)
+            rows, cols, 0, out)
     return [(c0 * BIN, r0 * BIN, c1 * BIN, r1 * BIN) for r0, r1, c0, c1 in out]
 
 
@@ -52,10 +56,14 @@ class TestProfileHelpers(unittest.TestCase):
         self.assertIsNone(_widest_gap([0, 0, 0, 5, 0, 0, 0], 0, 3))
 
     def test_clip_cut_returns_a_position_with_ink_on_both_sides(self):
-        self.assertEqual(_clip_cut([5, 5, 5, 5], 0, {2}), 2)
+        self.assertEqual(_clip_cut([5, 5, 5, 5], 0, {(2, 0, 100)}, 0, 100), 2)
 
     def test_clip_cut_rejects_a_position_with_ink_on_one_side_only(self):
-        self.assertIsNone(_clip_cut([0, 0, 5, 5], 0, {1}))
+        self.assertIsNone(_clip_cut([0, 0, 5, 5], 0, {(1, 0, 100)}, 0, 100))
+
+    def test_clip_cut_rejects_an_edge_whose_rect_misses_the_cell(self):
+        # Edge extent 50..100 vs cell perpendicular span 0..40: no overlap.
+        self.assertIsNone(_clip_cut([5, 5, 5, 5], 0, {(2, 50, 100)}, 0, 40))
 
 
 class TestXYCut(unittest.TestCase):
@@ -157,6 +165,29 @@ class TestSegmentPage(unittest.TestCase):
                                         height_px=PAGE_H, paths=paths),
                                clip_rects=[(40.0, 40.0, 200.0, 200.0)])
         self.assertTrue(all(r.source == "whitespace+clip" for r in regions))
+
+    def test_clip_edge_only_cuts_cells_its_rect_overlaps(self):
+        # Top: one continuous drawing crossing x=204 — no gutter anywhere.
+        # Bottom: two drawings 8px apart (too narrow for a gutter), separated
+        # only by the left edge of a clip rect hugging the bottom-right one.
+        # That edge exists at y 250..360 only: it must cut the bottom pair and
+        # must NOT split the top drawing (measured on 2387826/2682241: the
+        # location plan's clip edge sliced the floor plans at the top of the
+        # sheet into two floor_plan regions each).
+        paths = (block(0, 40, 40, 360, 200)
+                 + block(500, 40, 250, 196, 360)
+                 + block(700, 204, 250, 356, 360))
+        regions = segment_page(
+            PageData(page_number=1, width_px=PAGE_W, height_px=PAGE_H,
+                     paths=paths),
+            clip_rects=[(204.0, 250.0, 360.0, 360.0)])
+        self.assertEqual(len(regions), 3)
+        top = [r for r in regions if r.bbox[1] < 240]
+        self.assertEqual(len(top), 1)
+        self.assertLess(top[0].bbox[0], 204.0)
+        self.assertGreater(top[0].bbox[2], 204.0)
+        bottom = [r for r in regions if r.bbox[1] >= 240]
+        self.assertEqual(len(bottom), 2)
 
     def test_tiny_regions_are_dropped(self):
         paths = block(0, 40, 40, 200, 200) + block(500, 300, 300, 330, 330)

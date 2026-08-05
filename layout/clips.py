@@ -77,13 +77,21 @@ def qualifying_clip_rects(page, page_data: PageData) -> list[BBox]:
 
 def clip_cut_positions(
     clip_rects: list[BBox], bin_px: int
-) -> tuple[set[int], set[int]]:
-    """Convert clip edges to (row_bins, col_bins) cut candidates."""
-    rows: set[int] = set()
-    cols: set[int] = set()
+) -> tuple[set[tuple[int, int, int]], set[tuple[int, int, int]]]:
+    """Convert clip edges to (row, col) cut candidates, in bin indices.
+
+    Each candidate is (position, perp_lo, perp_hi): the edge coordinate plus
+    the donating rect's extent along the perpendicular axis. An edge only
+    exists where its rect does — flattening to bare coordinates let the
+    location plan's clip edge on 2387826 slice both floor plans at the top of
+    the sheet, drawings the clip never touches."""
+    rows: set[tuple[int, int, int]] = set()
+    cols: set[tuple[int, int, int]] = set()
     for x0, y0, x1, y1 in clip_rects:
-        cols.add(int(x0 / bin_px))
-        cols.add(int(x1 / bin_px))
-        rows.add(int(y0 / bin_px))
-        rows.add(int(y1 / bin_px))
+        c_lo, c_hi = int(x0 / bin_px), int(x1 / bin_px)
+        r_lo, r_hi = int(y0 / bin_px), int(y1 / bin_px)
+        cols.add((c_lo, r_lo, r_hi))
+        cols.add((c_hi, r_lo, r_hi))
+        rows.add((r_lo, c_lo, c_hi))
+        rows.add((r_hi, c_lo, c_hi))
     return rows, cols
