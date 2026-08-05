@@ -1,5 +1,7 @@
 from __future__ import annotations
 import math
+from bisect import bisect_left, bisect_right
+from typing import Iterator
 from models import BBox, Candidate, PathPrimitive
 from detection.geometry import (
     _bbox_union, _interval_overlap, _line_length,
@@ -134,6 +136,12 @@ WINDOW_BLOCK_CAP_CROSS_RATIO  = 0.75  # a line >= this fraction of the block's d
                                       # never a window jamb
 
 
+# Cell size for the two page-wide lookup grids below (the block-cap cross test
+# and the band-interior clutter scan). Not a tunable: it only trades cells
+# visited against records per cell, never which records pass the exact tests.
+_GRID_PX = 64.0
+
+
 def _line_records(paths: list[PathPrimitive]) -> list[dict]:
     """All straight line primitives with endpoints, length and direction.
 
@@ -167,16 +175,31 @@ def _block_cap_records(paths: list[PathPrimitive]) -> list[dict]:
     X-ed blocks — a crossed box is a post/column symbol (the 5-1133 bathroom
     shower-screen end post), not a jamb.
     """
+    # A cross stroke has BOTH endpoints inside the block's bbox +- 1px, so it
+    # lies entirely inside a box no wider than the block itself. Bucketing the
+    # page's lines by their first endpoint means the cross test only looks at
+    # the handful of cells that box touches, instead of walking every path once
+    # per bar candidate.
+    grid: dict[tuple[int, int], list[tuple[float, float, float, float, float]]] = {}
+    for q in paths:
+        if q.item_type != "l" or len(q.points) < 2:
+            continue
+        (ax, ay), (bx, by) = q.points[0], q.points[-1]
+        grid.setdefault((int(ax // _GRID_PX), int(ay // _GRID_PX)), []).append(
+            (ax, ay, bx, by, _line_length((ax, ay), (bx, by))))
+
     def crossed(p: PathPrimitive, diag: float) -> bool:
         x0, y0, x1, y1 = p.bbox
-        for q in paths:
-            if q.item_type != "l" or len(q.points) < 2:
-                continue
-            (ax, ay), (bx, by) = q.points[0], q.points[-1]
-            if (x0 - 1.0 <= ax <= x1 + 1.0 and y0 - 1.0 <= ay <= y1 + 1.0
-                    and x0 - 1.0 <= bx <= x1 + 1.0 and y0 - 1.0 <= by <= y1 + 1.0
-                    and _line_length((ax, ay), (bx, by)) >= WINDOW_BLOCK_CAP_CROSS_RATIO * diag):
-                return True
+        lo_x, hi_x = x0 - 1.0, x1 + 1.0
+        lo_y, hi_y = y0 - 1.0, y1 + 1.0
+        need = WINDOW_BLOCK_CAP_CROSS_RATIO * diag
+        for cx in range(int(lo_x // _GRID_PX), int(hi_x // _GRID_PX) + 1):
+            for cy in range(int(lo_y // _GRID_PX), int(hi_y // _GRID_PX) + 1):
+                for ax, ay, bx, by, length in grid.get((cx, cy), ()):
+                    if (lo_x <= ax <= hi_x and lo_y <= ay <= hi_y
+                            and lo_x <= bx <= hi_x and lo_y <= by <= hi_y
+                            and length >= need):
+                        return True
         return False
 
     recs: list[dict] = []
@@ -358,51 +381,156 @@ def _tight_band(records: list[dict]) -> list[dict]:
     return best
 
 
-def _spanning_glazing(glaze_pool: list[dict], c1: dict, c2: dict) -> list[dict]:
+# Bin width for the glazing index below. Not a tunable: it is exactly the width
+# of the window _spanning_glazing tests span-starts against, so a query always
+# touches at most two bins.
+_GLAZE_U_BIN_PX = WINDOW_SPAN_OVERSHOOT_PX + WINDOW_SPAN_COVER_TOL_PX
+
+
+def _glaze_index(glaze_pool: list[dict]) -> tuple[dict[int, tuple[list[float], list[int]]], list[dict]]:
+    """Two-axis lookup structure over a frame's glazing pool.
+
+    Every cap pair asks the same question — "which panes start beside cap 1, end
+    beside cap 2, and sit inside the caps' facing extent?" — and answering it by
+    scanning the whole pool once per pair is what makes window detection
+    quadratic on dense sheets (measured: 88% of the stage on a 51k-path sheet,
+    308k pairs x the full pool). Both axes of that question are bounded windows,
+    so both can be answered by lookup instead: bucket the pool by span START
+    (bins of _GLAZE_U_BIN_PX along the run axis), and sort each bucket by perp so
+    the facing-extent window is a bisect.
+
+    Returns ``(buckets, pool)`` where ``buckets[b]`` is ``(perps, positions)`` —
+    the bucket's perp offsets in ascending order alongside the matching *pool
+    positions*, so the caller can restore pool order. That matters:
+    _dedupe_by_perp resolves exact (perp, -len) ties by input order, so a
+    reordered scan could otherwise keep a different record. Build this AFTER
+    _merge_mullion_chains appends its chains — they are part of the pool the
+    pairs must see.
+    """
+    buckets: dict[int, list[int]] = {}
+    for k, g in enumerate(glaze_pool):
+        buckets.setdefault(int(g["span"][0] // _GLAZE_U_BIN_PX), []).append(k)
+    index: dict[int, tuple[list[float], list[int]]] = {}
+    for b, ks in buckets.items():
+        ks.sort(key=lambda k: glaze_pool[k]["perp"])
+        index[b] = ([glaze_pool[k]["perp"] for k in ks], ks)
+    return index, glaze_pool
+
+
+def _spanning_glazing(glaze_index: tuple[dict[int, tuple[list[float], list[int]]], list[dict]],
+                      c1: dict, c2: dict) -> list[dict]:
     """Distinct parallel glazing lines that connect cap ``c1`` to cap ``c2``.
 
     A glazing line qualifies when its perp offset lies within the caps' combined
     facing extent and its run-span covers the gap between the two cap positions
     (so it physically bridges the opening). Returns the tightest pane-deep band
     of de-duplicated offsets.
+
+    The span-start and perp tests are answered off ``glaze_index`` rather than by
+    scanning the pool; every surviving record still faces the exact comparisons,
+    and the survivors are re-sorted into pool order before de-duplication, so the
+    result is identical to the full scan, ties included.
     """
+    index, pool = glaze_index
     ext_lo = min(c1["span"][0], c2["span"][0]) - WINDOW_SPAN_PERP_TOL_PX
     ext_hi = max(c1["span"][1], c2["span"][1]) + WINDOW_SPAN_PERP_TOL_PX
-    spanning = [g for g in glaze_pool
-                if ext_lo <= g["perp"] <= ext_hi
-                and c1["perp"] - WINDOW_SPAN_OVERSHOOT_PX <= g["span"][0] <= c1["perp"] + WINDOW_SPAN_COVER_TOL_PX
-                and c2["perp"] - WINDOW_SPAN_COVER_TOL_PX <= g["span"][1] <= c2["perp"] + WINDOW_SPAN_OVERSHOOT_PX]
-    return _tight_band(_dedupe_by_perp(spanning))
+    s1_lo = c1["perp"] - WINDOW_SPAN_OVERSHOOT_PX
+    s1_hi = c1["perp"] + WINDOW_SPAN_COVER_TOL_PX
+    s2_lo = c2["perp"] - WINDOW_SPAN_COVER_TOL_PX
+    s2_hi = c2["perp"] + WINDOW_SPAN_OVERSHOOT_PX
+    hits: list[int] = []
+    for b in range(int(s1_lo // _GLAZE_U_BIN_PX), int(s1_hi // _GLAZE_U_BIN_PX) + 1):
+        bucket = index.get(b)
+        if bucket is None:
+            continue
+        perps, positions = bucket
+        for k in positions[bisect_left(perps, ext_lo):bisect_right(perps, ext_hi)]:
+            span = pool[k]["span"]
+            if s1_lo <= span[0] <= s1_hi and s2_lo <= span[1] <= s2_hi:
+                hits.append(k)
+    hits.sort()
+    return _tight_band(_dedupe_by_perp([pool[k] for k in hits]))
 
 
-def _find_openings(cap_pool: list[dict], glaze_pool: list[dict]) -> list[dict]:
+# Bin width for the cap-pair pruning below. Not a tunable: any value strictly
+# greater than WINDOW_CAP_MAX_LEN_PX makes the same-or-adjacent-bin rule exact.
+_CAP_V_BIN_PX = WINDOW_CAP_MAX_LEN_PX + 4.0
+
+
+def _facing_cap_pairs(caps: list[dict]) -> Iterator[tuple[int, int, float]]:
+    """Index pairs ``(i, j, width)`` of caps that face each other across an opening.
+
+    ``caps`` must be sorted by ``perp`` (position along the run axis). Yields in
+    the exact order of the brute-force double loop — candidate numbering and NMS
+    input order depend on it.
+
+    The gates below are unchanged; what changes is which pairs get to see them.
+    The perp sort alone bounds the pair set along u only (the inner loop breaks
+    past WINDOW_MAX_WIDTH_PX), leaving every cap in a 280px slab paired with
+    every other, metres apart along v. But the align gate demands
+    ``_interval_overlap >= WINDOW_CAP_ALIGN_OVERLAP * min(len)``, and min len is
+    at least WINDOW_CAP_MIN_LEN_PX, so partners' v-spans genuinely INTERSECT;
+    spans are at most WINDOW_CAP_MAX_LEN_PX long, so two intersecting spans start
+    within that of each other and land in the same or adjacent _CAP_V_BIN_PX bin.
+    Bucketing by span start therefore drops only pairs the align gate rejects.
+    """
+    bins: dict[int, list[int]] = {}
+    for i, c in enumerate(caps):
+        bins.setdefault(int(c["span"][0] // _CAP_V_BIN_PX), []).append(i)
+
+    for i, c1 in enumerate(caps):
+        # Bins hold ascending indices, which (caps being perp-sorted) is also
+        # ascending perp — so each slice can be cut at the width limit, with a
+        # 1px slack so float rounding can never drop a pair the exact
+        # comparison below would have kept.
+        b = int(c1["span"][0] // _CAP_V_BIN_PX)
+        limit = c1["perp"] + WINDOW_MAX_WIDTH_PX + 1.0
+        js: list[int] = []
+        for k in (b - 1, b, b + 1):
+            lst = bins.get(k)
+            if not lst:
+                continue
+            lo = bisect_right(lst, i)
+            hi = bisect_right(lst, limit, lo, key=lambda idx: caps[idx]["perp"])
+            js.extend(lst[lo:hi])
+        js.sort()
+
+        len1, span1 = c1["len"], c1["span"]
+        for j in js:
+            c2 = caps[j]
+            width = c2["perp"] - c1["perp"]
+            if width < WINDOW_MIN_WIDTH_PX:
+                continue
+            if width > WINDOW_MAX_WIDTH_PX:
+                break  # sorted by perp: no farther cap can be closer
+            len2 = c2["len"]
+            shorter, longer = (len1, len2) if len1 < len2 else (len2, len1)
+            if shorter / longer < WINDOW_CAP_LEN_RATIO:
+                continue
+            if _interval_overlap(span1, c2["span"]) < WINDOW_CAP_ALIGN_OVERLAP * shorter:
+                continue
+            yield i, j, width
+
+
+def _find_openings(cap_pool: list[dict],
+                   glaze_index: tuple[dict[int, tuple[list[float], list[int]]], list[dict]]) -> list[dict]:
     """Pair facing caps and confirm a glazing band bridges each opening.
 
-    ``cap_pool`` runs perpendicular to the opening (the jambs); ``glaze_pool``
-    runs along it (the panes). Caps are sorted by position along the run axis so
-    the inner loop can break once the opening exceeds the max window width.
+    ``cap_pool`` runs perpendicular to the opening (the jambs); the glazing pool
+    behind ``glaze_index`` runs along it (the panes). Caps are sorted by position
+    along the run axis, which is the frame _facing_cap_pairs enumerates in.
     """
     caps = sorted(
         (c for c in cap_pool if WINDOW_CAP_MIN_LEN_PX <= c["len"] <= WINDOW_CAP_MAX_LEN_PX),
         key=lambda c: c["perp"],
     )
     openings: list[dict] = []
-    for i, c1 in enumerate(caps):
-        for c2 in caps[i + 1:]:
-            width = c2["perp"] - c1["perp"]
-            if width < WINDOW_MIN_WIDTH_PX:
-                continue
-            if width > WINDOW_MAX_WIDTH_PX:
-                break  # sorted by perp: no farther cap can be closer
-            if min(c1["len"], c2["len"]) / max(c1["len"], c2["len"]) < WINDOW_CAP_LEN_RATIO:
-                continue
-            overlap = _interval_overlap(c1["span"], c2["span"])
-            if overlap < WINDOW_CAP_ALIGN_OVERLAP * min(c1["len"], c2["len"]):
-                continue
-            band = _spanning_glazing(glaze_pool, c1, c2)
-            if len(band) < WINDOW_MIN_GLAZING_LINES:
-                continue
-            openings.append({"c1": c1, "c2": c2, "glaze": band, "width": width})
+    for i, j, width in _facing_cap_pairs(caps):
+        c1, c2 = caps[i], caps[j]
+        band = _spanning_glazing(glaze_index, c1, c2)
+        if len(band) < WINDOW_MIN_GLAZING_LINES:
+            continue
+        openings.append({"c1": c1, "c2": c2, "glaze": band, "width": width})
     return openings
 
 
@@ -427,10 +555,38 @@ def _dedupe_openings(cands: list[Candidate]) -> list[Candidate]:
     return kept
 
 
+def _clutter_grid(recs: list[dict], paths: list[PathPrimitive]) -> tuple[
+        list[PathPrimitive], dict[tuple[int, int], list[int]], dict[tuple[int, int], list[tuple[dict, float, float]]]]:
+    """Page-wide point buckets for _band_interior_clutter.
+
+    The clutter scan asks which primitives have a point (shapes) or a midpoint
+    (lines) inside one opening's band — a region a few hundred px across on a
+    page that can be metres wide. Walking every path and every line record per
+    accepted opening is O(openings x n); bucketing those points ONCE per page
+    turns it into a lookup over the cells the band's bbox touches.
+
+    Shapes are indexed under every cell any of their own points falls in (so a
+    primitive straddling cells is still found from either side) and carry their
+    position in the returned list, which is how the caller counts each shape
+    once. Lines are indexed by the single midpoint the scan tests.
+    """
+    shape_list = [p for p in paths if p.item_type != "l" and len(p.points) >= 2]
+    shape_cells: dict[tuple[int, int], list[int]] = {}
+    for k, p in enumerate(shape_list):
+        for cell in {(int(px // _GRID_PX), int(py // _GRID_PX)) for px, py in p.points}:
+            shape_cells.setdefault(cell, []).append(k)
+    line_cells: dict[tuple[int, int], list[tuple[dict, float, float]]] = {}
+    for r in recs:
+        mx = (r["a"][0] + r["b"][0]) / 2
+        my = (r["a"][1] + r["b"][1]) / 2
+        line_cells.setdefault((int(mx // _GRID_PX), int(my // _GRID_PX)), []).append((r, mx, my))
+    return shape_list, shape_cells, line_cells
+
+
 def _band_interior_clutter(u_lo: float, u_hi: float, v_lo: float, v_hi: float,
                            ux: float, uy: float, vx: float, vy: float,
                            used_idxs: set[int], glaze_angle: float, cap_angle: float,
-                           recs: list[dict], paths: list[PathPrimitive]) -> tuple[int, int]:
+                           grid: tuple) -> tuple[int, int]:
     """Clutter strictly between the glazing panes — empty for a real window.
 
     The scan region is the oriented rectangle ``u ∈ [u_lo, u_hi]`` (the run axis,
@@ -451,28 +607,43 @@ def _band_interior_clutter(u_lo: float, u_hi: float, v_lo: float, v_hi: float,
     block-cap quads and mullion-bridge blocks (framed multi-light windows draw
     those BETWEEN the panes), so the frame's structure never rejects itself —
     while foreign quads (crosshatch fill) still count.
+
+    The candidates come from ``grid`` (see _clutter_grid) rather than from the
+    whole page: (u, v) is orthonormal, so the region's four corners map straight
+    back to page coordinates, and a point inside the oriented rectangle is
+    necessarily inside that rectangle's axis-aligned bbox. Every candidate still
+    faces the exact (u, v) test, so the counts are unchanged.
     """
+    shape_list, shape_cells, line_cells = grid
+    xs = [u * ux + v * vx for u in (u_lo, u_hi) for v in (v_lo, v_hi)]
+    ys = [u * uy + v * vy for u in (u_lo, u_hi) for v in (v_lo, v_hi)]
+    cells = [(cx, cy)
+             for cx in range(int(min(xs) // _GRID_PX), int(max(xs) // _GRID_PX) + 1)
+             for cy in range(int(min(ys) // _GRID_PX), int(max(ys) // _GRID_PX) + 1)]
+
     shapes = oblique = 0
-    for p in paths:
-        if p.item_type == "l" or len(p.points) < 2:
-            continue
-        if p.path_index in used_idxs:
-            continue
-        if any(u_lo <= px * ux + py * uy <= u_hi
-               and v_lo <= px * vx + py * vy <= v_hi
-               for px, py in p.points):
-            shapes += 1
-    for r in recs:
-        if r["path"].path_index in used_idxs:
-            continue
-        mx = (r["a"][0] + r["b"][0]) / 2
-        my = (r["a"][1] + r["b"][1]) / 2
-        if not (u_lo <= mx * ux + my * uy <= u_hi
-                and v_lo <= mx * vx + my * vy <= v_hi):
-            continue
-        if (_angle_diff_mod180(r["angle"], cap_angle) > WINDOW_ANGLE_TOL_DEG
-                and _angle_diff_mod180(r["angle"], glaze_angle) > WINDOW_ANGLE_TOL_DEG):
-            oblique += 1
+    seen: set[int] = set()
+    for cell in cells:
+        for k in shape_cells.get(cell, ()):
+            if k in seen:
+                continue  # indexed under several cells; count it once
+            seen.add(k)
+            p = shape_list[k]
+            if p.path_index in used_idxs:
+                continue
+            if any(u_lo <= px * ux + py * uy <= u_hi
+                   and v_lo <= px * vx + py * vy <= v_hi
+                   for px, py in p.points):
+                shapes += 1
+        for r, mx, my in line_cells.get(cell, ()):
+            if r["path"].path_index in used_idxs:
+                continue
+            if not (u_lo <= mx * ux + my * uy <= u_hi
+                    and v_lo <= mx * vx + my * vy <= v_hi):
+                continue
+            if (_angle_diff_mod180(r["angle"], cap_angle) > WINDOW_ANGLE_TOL_DEG
+                    and _angle_diff_mod180(r["angle"], glaze_angle) > WINDOW_ANGLE_TOL_DEG):
+                oblique += 1
     return shapes, oblique
 
 
@@ -490,6 +661,7 @@ def detect_windows(paths: list[PathPrimitive]) -> list[Candidate]:
     cap_recs = [r for r in recs
                 if WINDOW_CAP_MIN_LEN_PX <= r["len"] <= WINDOW_CAP_MAX_LEN_PX]
     cap_recs += _block_cap_records(paths)
+    clutter_grid = _clutter_grid(recs, paths)
 
     # Each cap-orientation group fixes a rotated frame (u perpendicular to the
     # caps, v along them). Caps are paired and a glazing band confirmed entirely
@@ -503,7 +675,7 @@ def detect_windows(paths: list[PathPrimitive]) -> list[Candidate]:
         glaze_pool = [_glaze_record(r, ux, uy, vx, vy) for r in recs
                       if _angle_diff_mod180(r["angle"], glaze_angle) <= WINDOW_ANGLE_TOL_DEG]
         glaze_pool = _merge_mullion_chains(glaze_pool, caps)
-        for opening in _find_openings(caps, glaze_pool):
+        for opening in _find_openings(caps, _glaze_index(glaze_pool)):
             c1, c2, band = opening["c1"], opening["c2"], opening["glaze"]
 
             cap_len = (c1["len"] + c2["len"]) / 2
@@ -537,7 +709,7 @@ def detect_windows(paths: list[PathPrimitive]) -> list[Candidate]:
             v_hi = max(perps) + WINDOW_INTERIOR_BAND_PAD_PX
             shapes, oblique = _band_interior_clutter(
                 c1["perp"], c2["perp"], v_lo, v_hi, ux, uy, vx, vy,
-                used_idxs, glaze_angle, cap_angle, recs, paths)
+                used_idxs, glaze_angle, cap_angle, clutter_grid)
             if shapes > WINDOW_INTERIOR_SHAPE_MAX or oblique > WINDOW_INTERIOR_OBLIQUE_MAX:
                 continue
 
