@@ -50,12 +50,23 @@ def _widest_gap(profile: list[int], offset: int, min_bins: int) -> Optional[tupl
     return None if best is None else (offset + best[0], offset + best[1])
 
 
-def _clip_cut(profile: list[int], offset: int, cut_positions: set[int]) -> Optional[int]:
-    """First clip edge lying strictly inside the span with ink on both sides."""
+def _clip_cut(
+    profile: list[int], offset: int,
+    cuts: set[tuple[int, int, int]],
+    perp_lo: int, perp_hi: int,
+) -> Optional[int]:
+    """First clip edge lying strictly inside the span with ink on both sides.
+
+    An edge qualifies only where its donating rect actually is: its extent
+    along the perpendicular axis must overlap the cell being cut. Without
+    this, a clip edge is applied page-globally along its whole axis and cuts
+    straight through drawings elsewhere on the sheet."""
     n = len(profile)
-    for pos in sorted(cut_positions):
+    for pos, lo, hi in sorted(cuts):
         idx = pos - offset
         if idx <= 0 or idx >= n:
+            continue
+        if min(hi, perp_hi) - max(lo, perp_lo) <= 0:
             continue
         if any(profile[:idx]) and any(profile[idx:]):
             return pos
@@ -66,8 +77,8 @@ def _xy_cut(
     ink: InkMap,
     r0: int, r1: int, c0: int, c1: int,
     min_bins: int,
-    cut_rows: set[int],
-    cut_cols: set[int],
+    cut_rows: set[tuple[int, int, int]],
+    cut_cols: set[tuple[int, int, int]],
     depth: int,
     out: list[tuple[int, int, int, int]],
 ) -> None:
@@ -100,13 +111,13 @@ def _xy_cut(
             _xy_cut(ink, r0, r1, m, c1, min_bins, cut_rows, cut_cols, depth + 1, out)
         return
 
-    m = _clip_cut(rows, r0, cut_rows)
+    m = _clip_cut(rows, r0, cut_rows, c0, c1)
     if m is not None:
         _xy_cut(ink, r0, m, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out)
         _xy_cut(ink, m, r1, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out)
         return
 
-    m = _clip_cut(cols, c0, cut_cols)
+    m = _clip_cut(cols, c0, cut_cols, r0, r1)
     if m is not None:
         _xy_cut(ink, r0, r1, c0, m, min_bins, cut_rows, cut_cols, depth + 1, out)
         _xy_cut(ink, r0, r1, m, c1, min_bins, cut_rows, cut_cols, depth + 1, out)
