@@ -27,7 +27,7 @@ Door detection has three stages, in strict order:
    After arc pairing (and the swing-anchored single-line pass), `_detect_sliding_doors` (`detection/doors/sliding.py`) runs INSIDE `_pair_door_assemblies`, before the fallback passes: sliding doors have no arc at all and are detected from oriented panel-rectangle patterns (§3.9). `_detect_folding_doors` (`detection/doors/folding.py`) runs immediately after it: folding/bifold doors are arc-less too, detected as hinge-connected runs of equal white leaf panels at shallow fold angles (§3.10). Both kinds of candidates carry their `assembly_type` ("sliding" / "folding"), and because their `component_path_indices` contain the panels' primitives, `_dedupe_door_components` retires the 0.35 leaf-fallback candidates the same rectangles used to produce.
 4. **Cross-validate** — `_cross_validate(candidates, walls)` applies a `wall_context` penalty when the door has no overlapping wall.
 
-After pairing, `merge_gemini_and_heuristics` (offline mode) applies `OFFLINE_MIN_CONFIDENCE["door"] = 0.55` as the floor for being promoted to an `Entity`.
+After pairing, `pipeline.finalize_candidates` applies `OFFLINE_MIN_CONFIDENCE["door"] = 0.55` as the floor for being promoted to an `Entity`. That floor is unconditional — Gemini classifies drawing regions, not individual candidates, so it never votes a door up or down.
 
 ---
 

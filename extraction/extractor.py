@@ -13,13 +13,73 @@ PAGE_LARGE_IMAGE_FRAC = 0.20   # single image > 20% of page area → "large"
 PAGE_RASTER_COVERAGE_MIN = 0.20
 
 
-def normalize_bbox(bbox: tuple, scale: float = SCALE) -> BBox:
-    x0, y0, x1, y1 = bbox
-    return (x0 * scale, y0 * scale, x1 * scale, y1 * scale)
+# A page transform is a 6-tuple (a, b, c, d, e, f) in PyMuPDF's row-vector
+# convention: x' = a*x + c*y + e, y' = b*x + d*y + f. A bare float is still
+# accepted everywhere and means "uniform scale, no rotation".
+Transform = tuple[float, float, float, float, float, float]
 
 
-def normalize_point(pt: tuple, scale: float = SCALE) -> tuple[float, float]:
-    return (pt[0] * scale, pt[1] * scale)
+def _as_transform(scale: "float | fitz.Matrix | Transform") -> Transform:
+    if isinstance(scale, (int, float)):
+        s = float(scale)
+        return (s, 0.0, 0.0, s, 0.0, 0.0)
+    if isinstance(scale, fitz.Matrix):
+        return (scale.a, scale.b, scale.c, scale.d, scale.e, scale.f)
+    a, b, c, d, e, f = scale
+    return (float(a), float(b), float(c), float(d), float(e), float(f))
+
+
+def page_transform(page: fitz.Page, scale: float = SCALE) -> Transform:
+    """SCALE composed with the page's /Rotate, as one affine transform.
+
+    page.rect honours rotation, but get_drawings() and get_text() both return
+    coordinates in the UNROTATED mediabox frame, and render_page_png renders
+    rotated. Without this the primitives, the declared page size and the PNG
+    live in different frames — cosmetically an overlay offset, but fatal to
+    region segmentation, whose grid is sized from width_px/height_px and which
+    silently discards every mark that falls outside it.
+
+    Composed in plain Python floats rather than as
+    `page.rotation_matrix * fitz.Matrix(SCALE, SCALE)` because fitz matrix
+    arithmetic is single-precision: that product comes back with a =
+    2.0833332538604736 instead of SCALE, which would nudge every coordinate on
+    every UNROTATED page too. Here rotation == 0 gives exactly (SCALE, 0, 0,
+    SCALE, 0, 0), i.e. x * SCALE — a true no-op.
+    """
+    r = page.rotation_matrix
+    return (r.a * scale, r.b * scale, r.c * scale,
+            r.d * scale, r.e * scale, r.f * scale)
+
+
+def transform_scale(t: Transform) -> float:
+    """The uniform scale factor of a rotate+scale transform. hypot is exact for
+    the four legal /Rotate values (one of a, b is always 0)."""
+    return math.hypot(t[0], t[1])
+
+
+def _apply(t: Transform, x: float, y: float) -> tuple[float, float]:
+    return (x * t[0] + y * t[2] + t[4], x * t[1] + y * t[3] + t[5])
+
+
+def normalize_bbox(bbox: tuple, scale: "float | fitz.Matrix | Transform" = SCALE) -> BBox:
+    """Transform an axis-aligned box and re-normalise it.
+
+    A 90/270 rotation maps corners to corners but swaps which is min and which
+    is max, so the four corners are mapped and min/max taken explicitly — an
+    inverted bbox would silently break every downstream `bbox[2]-bbox[0]`.
+    """
+    t = _as_transform(scale)
+    x0, y0, x1, y1 = bbox[0], bbox[1], bbox[2], bbox[3]
+    corners = [_apply(t, x0, y0), _apply(t, x1, y0),
+               _apply(t, x1, y1), _apply(t, x0, y1)]
+    xs = [c[0] for c in corners]
+    ys = [c[1] for c in corners]
+    return (min(xs), min(ys), max(xs), max(ys))
+
+
+def normalize_point(pt: tuple, scale: "float | fitz.Matrix | Transform" = SCALE) -> tuple[float, float]:
+    t = _as_transform(scale)
+    return _apply(t, pt[0], pt[1])
 
 
 def _color_tuple(c) -> Optional[tuple[float, float, float]]:
@@ -35,7 +95,7 @@ def _color_tuple(c) -> Optional[tuple[float, float, float]]:
     return None
 
 
-def extract_paths(page: fitz.Page, scale: float = SCALE) -> list[PathPrimitive]:
+def extract_paths(page: fitz.Page, scale: "float | fitz.Matrix | Transform" = SCALE) -> list[PathPrimitive]:
     """Explode each drawing into one PathPrimitive per atomic item (l/c/re/qu).
 
     PyMuPDF groups items that share graphical properties into a single drawing
@@ -43,6 +103,18 @@ def extract_paths(page: fitz.Page, scale: float = SCALE) -> list[PathPrimitive]:
     meaningless for multi-segment paths, breaking all geometric heuristics.
     Each item becomes its own primitive so angle, length, and bbox are exact.
     """
+    t = _as_transform(scale)
+    ta, tb, tc, td, te, tf = t
+    # Resolved once per page: this is the hot loop, hundreds of thousands of
+    # points on a busy sheet. Point order is preserved — heuristics rely on
+    # points[0]/points[-1] being meaningful.
+    def tp(pt):
+        return (pt[0] * ta + pt[1] * tc + te, pt[0] * tb + pt[1] * td + tf)
+
+    # A rotation does not change pen width, so stroke widths take the
+    # transform's scale factor only.
+    stroke_scale = transform_scale(t)
+
     paths = []
     prim_idx = 0
     for d in page.get_drawings():
@@ -52,7 +124,7 @@ def extract_paths(page: fitz.Page, scale: float = SCALE) -> list[PathPrimitive]:
 
         color = _color_tuple(d.get("color"))
         fill = _color_tuple(d.get("fill"))
-        stroke_width = float(d.get("width", 0) or 0) * scale
+        stroke_width = float(d.get("width", 0) or 0) * stroke_scale
         dashes = str(d.get("dashes", "") or "")
         layer = d.get("layer")
 
@@ -61,19 +133,19 @@ def extract_paths(page: fitz.Page, scale: float = SCALE) -> list[PathPrimitive]:
             points: list[tuple[float, float]] = []
 
             if kind == "l":
-                points = [normalize_point(item[1], scale), normalize_point(item[2], scale)]
+                points = [tp(item[1]), tp(item[2])]
             elif kind == "c":
-                points = [normalize_point(pt, scale) for pt in item[1:]]
+                points = [tp(pt) for pt in item[1:]]
             elif kind == "re":
                 r = item[1]
                 points = [
-                    normalize_point((r.x0, r.y0), scale),
-                    normalize_point((r.x1, r.y0), scale),
-                    normalize_point((r.x1, r.y1), scale),
-                    normalize_point((r.x0, r.y1), scale),
+                    tp((r.x0, r.y0)),
+                    tp((r.x1, r.y0)),
+                    tp((r.x1, r.y1)),
+                    tp((r.x0, r.y1)),
                 ]
             elif kind == "qu":
-                points = [normalize_point(pt, scale) for pt in item[1]]
+                points = [tp(pt) for pt in item[1]]
             else:
                 continue
 
@@ -100,7 +172,7 @@ def extract_paths(page: fitz.Page, scale: float = SCALE) -> list[PathPrimitive]:
     return paths
 
 
-def extract_text(page: fitz.Page, scale: float = SCALE) -> list[TextSpan]:
+def extract_text(page: fitz.Page, scale: "float | fitz.Matrix | Transform" = SCALE) -> list[TextSpan]:
     spans = []
     raw = page.get_text("dict", flags=fitz.TEXT_PRESERVE_WHITESPACE)
     for block in raw.get("blocks", []):
@@ -125,7 +197,15 @@ def extract_text(page: fitz.Page, scale: float = SCALE) -> list[TextSpan]:
     return spans
 
 
-def extract_images(page: fitz.Page, doc: fitz.Document, scale: float = SCALE) -> list[ImageRef]:
+def extract_images(page: fitz.Page, doc: fitz.Document,
+                   scale: "float | fitz.Matrix | Transform" = SCALE) -> list[ImageRef]:
+    # Images take the SCALE only, never the rotation: unlike get_drawings() and
+    # get_text(), page.get_image_bbox() already honours /Rotate and hands back
+    # coordinates in the rotated page.rect frame. Putting them through the full
+    # transform rotates them a second time and lands them off the page
+    # (measured on 1326087, rot 270: (2140.8, 45.3, 2436.3, 299.3) became
+    # (45.3, -682.2, 299.3, -386.7)).
+    image_scale = transform_scale(_as_transform(scale))
     page_area = page.rect.width * page.rect.height
     images = []
     for img in page.get_images(full=True):
@@ -137,7 +217,7 @@ def extract_images(page: fitz.Page, doc: fitz.Document, scale: float = SCALE) ->
         except Exception:
             continue
 
-        bbox = normalize_bbox(bbox_raw, scale)
+        bbox = normalize_bbox(bbox_raw, image_scale)
         raw_w = bbox_raw.width
         raw_h = bbox_raw.height
         raw_area = raw_w * raw_h
@@ -193,13 +273,15 @@ def classify_page(
 
 def extract_page(doc: fitz.Document, page_index: int) -> PageData:
     page = doc[page_index]
-    scale = SCALE
-    width_px = page.rect.width * scale
-    height_px = page.rect.height * scale
+    # width/height come from page.rect (rotated), so the geometry must be put
+    # in that same frame — see page_transform.
+    transform = page_transform(page, SCALE)
+    width_px = page.rect.width * SCALE
+    height_px = page.rect.height * SCALE
 
-    paths = extract_paths(page, scale)
-    text_spans = extract_text(page, scale)
-    images = extract_images(page, doc, scale)
+    paths = extract_paths(page, transform)
+    text_spans = extract_text(page, transform)
+    images = extract_images(page, doc, transform)
     ocg_names = get_ocg_names(doc)
     page_type = classify_page(paths, images, width_px, height_px)
 

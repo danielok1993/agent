@@ -71,6 +71,23 @@ class Entity:
     attributes: dict = field(default_factory=dict)
 
 
+@dataclass
+class Region:
+    """One drawing on a sheet, found by whitespace segmentation.
+
+    bbox is 150-DPI pixels in PAGE space — regions select which primitives
+    detection sees, they never crop or translate coordinates.
+    """
+    region_id: str                     # "region_0000"
+    bbox: BBox
+    region_type: str = "unclassified"  # taxonomy value from the classifier
+    title: Optional[str] = None
+    confidence: float = 0.0
+    contains_multiple: bool = False
+    path_count: int = 0
+    source: Literal["whitespace", "whitespace+clip", "page-fallback"] = "whitespace"
+
+
 class PlumberCounts(TypedDict):
     chars: int
     lines: int
