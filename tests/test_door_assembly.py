@@ -28,7 +28,7 @@ from detection.doors.constants import (
     DOOR_V2_OPENING_CLEAR_BOOST, DOOR_V2_OPENING_OBSTRUCTED_PENALTY,
 )
 from models import Candidate, PathPrimitive, TextSpan
-from pipeline import merge_gemini_and_heuristics
+from pipeline import finalize_candidates
 
 
 def path(
@@ -450,7 +450,7 @@ class SingleLineLeafTests(unittest.TestCase):
     def test_arc_fallback_dropped_from_offline_entities(self) -> None:
         # End-to-end: a capped arc-only candidate must not become a final Entity in offline mode.
         doors = detect_doors(quarter_arc_lines(0), [])
-        entities, _ = merge_gemini_and_heuristics(doors, None)
+        entities, _ = finalize_candidates(doors)
         self.assertEqual(0, len(entities))
 
     def test_thin_rect_leaf_companion_line_excluded_from_opening_check(self) -> None:
@@ -505,7 +505,7 @@ class DoorEvidencePropagationTests(unittest.TestCase):
             evidence={},
         )
 
-        entities, rejected = merge_gemini_and_heuristics([door_cand, window_cand], None)
+        entities, rejected = finalize_candidates([door_cand, window_cand])
 
         self.assertEqual(0, len(rejected))
         self.assertEqual(2, len(entities))
@@ -724,7 +724,7 @@ class DoubleDoorTests(unittest.TestCase):
             confidence=0.70,  # above OFFLINE_MIN_CONFIDENCE["door"]=0.55
             evidence={"method": "door_assembly", "assembly_type": "double_swing"},
         )
-        entities, rejected = merge_gemini_and_heuristics([cand], None)
+        entities, rejected = finalize_candidates([cand])
         self.assertEqual(0, len(rejected))
         self.assertEqual(1, len(entities))
         self.assertEqual("double_swing", entities[0].attributes.get("assembly_type"))

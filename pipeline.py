@@ -1,13 +1,14 @@
 from __future__ import annotations
 import json
 import os
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 import fitz
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
-from models import PageData, Candidate, Entity
+from models import PageData, Candidate, Entity, Region, TextSpan
 from extraction.extractor import extract_page
 from extraction.plumber import (
     extract_plumber_page, build_pymupdf_counts, build_plumber_counts, compare_counts
@@ -16,7 +17,13 @@ from detection import run_heuristics
 from debug.trace import DebugTraceCollector
 from debug.renderer import generate_debug_viewer
 from extraction.renderer import render_page_png, draw_overlay
+from layout import (
+    assigned_path_fraction, filter_page_data, page_fallback_region,
+    qualifying_clip_rects, region_text_spans, segment_page,
+)
 from gemini import client as gc
+from gemini.classifier import classify_regions
+from gemini.region_cache import cache_key, load_regions, save_regions
 
 console = Console()
 
@@ -69,6 +76,17 @@ OFFLINE_MIN_CONFIDENCE: dict[str, float] = {
     "schedule": 0.50,
 }
 
+# Region filtering only pays if the regions actually hold the sheet's ink.
+# Segmentation can drop a leaf (anything under SEGMENT_MIN_REGION_SIDE_PX, or a
+# page-spanning primitive that never entered the ink map), and filter_page_data
+# then deletes its contents outright — losing real drawing, not page furniture.
+# Below this share of the page's paths, record the regions but filter nothing.
+# Measured over the 16 vector sample sheets in plans/ (assigned-path fraction,
+# after the rotation fix): the two problem sheets sit at 0.65 and 0.85 and a
+# third at 0.89, every healthy sheet at 0.94-1.00 — the corpus separates
+# cleanly, and 0.90 sits in the gap.
+REGION_MIN_COVERAGE_FRAC = 0.90
+
 
 # Door-only candidate-evidence keys carried through to Entity.attributes so
 # downstream consumers of final_entities.json see the entrance-door subtype
@@ -114,118 +132,38 @@ def _room_entity(candidate: Candidate) -> Entity:
     )
 
 
-def merge_gemini_and_heuristics(
-    candidates: list[Candidate],
-    gemini_result: Optional[dict],
-) -> tuple[list[Entity], list[dict]]:
-    # Rooms are heuristic-only: they bypass both the Gemini merge and the
-    # offline thresholds, and are always promoted to entities.
+def finalize_candidates(candidates: list[Candidate]) -> tuple[list[Entity], list[dict]]:
+    """Promote candidates to entities, applying the offline confidence floors.
+
+    Gemini no longer votes on individual candidates, so these floors always
+    apply. Rooms bypass them: they are heuristic-only by design and carry their
+    polygon into Entity.attributes.
+    """
     rooms = [c for c in candidates if c.entity_type == "room"]
-    candidates = [c for c in candidates if c.entity_type != "room"]
+    others = [c for c in candidates if c.entity_type != "room"]
 
-    if not gemini_result:
-        # Offline path: apply stricter per-type acceptance thresholds.
-        # Without Gemini's verification, raw heuristic candidates have poor
-        # precision. Candidates below the threshold are saved as rejected for
-        # debugging but do not become final entities.
-        entities = []
-        rejected_list = []
-        for c in candidates:
-            threshold = OFFLINE_MIN_CONFIDENCE.get(c.entity_type, 0.50)
-            if c.confidence < threshold:
-                rejected_list.append({
-                    "candidate_id": c.candidate_id,
-                    "entity_type": c.entity_type,
-                    "bbox": list(c.bbox),
-                    "reason": f"offline confidence {c.confidence:.3f} < threshold {threshold}",
-                    "source": "offline_filter",
-                })
-                continue
-            entities.append(Entity(
-                entity_id=c.candidate_id,
-                entity_type=c.entity_type,
-                bbox=c.bbox,
-                confidence=c.confidence,
-                source="heuristic",
-                label=c.evidence.get("nearby_label") or c.evidence.get("text"),
-                attributes={"heuristic_confidence": c.confidence, **_door_attribute_overlay(c)},
-            ))
-        entities.extend(_room_entity(c) for c in rooms)
-        return entities, rejected_list
-
-    candidate_map = {c.candidate_id: c for c in candidates}
-    classified_ids: set[str] = set()
-    rejected_ids: set[str] = set()
     entities: list[Entity] = []
     rejected_list: list[dict] = []
-
-    for rej in gemini_result.get("rejected_candidates", []):
-        cid = rej.get("candidate_id", "")
-        rejected_ids.add(cid)
-        if cid in candidate_map:
-            c = candidate_map[cid]
+    for c in others:
+        threshold = OFFLINE_MIN_CONFIDENCE.get(c.entity_type, 0.50)
+        if c.confidence < threshold:
             rejected_list.append({
-                "candidate_id": cid,
+                "candidate_id": c.candidate_id,
                 "entity_type": c.entity_type,
                 "bbox": list(c.bbox),
-                "reason": rej.get("reason", ""),
-                "source": "gemini",
+                "reason": f"offline confidence {c.confidence:.3f} < threshold {threshold}",
+                "source": "offline_filter",
             })
-
-    for key, etype in [
-        ("doors", "door"),
-        ("windows", "window"),
-        ("walls", "wall"),
-        ("labels", "label"),
-        ("schedules", "schedule"),
-    ]:
-        for item in gemini_result.get(key, []):
-            cid = item.get("candidate_id", "")
-            if cid in rejected_ids:
-                continue
-            base = candidate_map.get(cid)
-            if base is None:
-                # Gemini occasionally hallucinates entries for candidates it
-                # was never shown (now more likely: it sees zero wall
-                # candidates but its schema still lists "walls").
-                continue
-            classified_ids.add(cid)
-            bbox = base.bbox
-            heuristic_conf = base.confidence
-            gemini_conf = float(item.get("confidence", 0.0))
-
-            label = item.get("label") or item.get("text")
-
-            entities.append(Entity(
-                entity_id=cid,
-                entity_type=etype,
-                bbox=bbox,
-                confidence=round(max(gemini_conf, heuristic_conf * 0.5 + gemini_conf * 0.5), 3),
-                source="gemini",
-                label=label,
-                attributes={
-                    "heuristic_confidence": heuristic_conf,
-                    "gemini_confidence": gemini_conf,
-                    "gemini_notes": item.get("notes", ""),
-                    "thickness_px": item.get("thickness_px"),
-                    "rows": item.get("rows"),
-                    "cols": item.get("cols"),
-                    **_door_attribute_overlay(base),
-                },
-            ))
-
-    # Heuristic-only fallback for candidates Gemini didn't address
-    for c in candidates:
-        if c.candidate_id not in classified_ids and c.candidate_id not in rejected_ids:
-            entities.append(Entity(
-                entity_id=c.candidate_id,
-                entity_type=c.entity_type,
-                bbox=c.bbox,
-                confidence=c.confidence,
-                source="heuristic",
-                label=c.evidence.get("nearby_label") or c.evidence.get("text"),
-                attributes={"heuristic_confidence": c.confidence, **_door_attribute_overlay(c)},
-            ))
+            continue
+        entities.append(Entity(
+            entity_id=c.candidate_id,
+            entity_type=c.entity_type,
+            bbox=c.bbox,
+            confidence=c.confidence,
+            source="heuristic",
+            label=c.evidence.get("nearby_label") or c.evidence.get("text"),
+            attributes={"heuristic_confidence": c.confidence, **_door_attribute_overlay(c)},
+        ))
 
     entities.extend(_room_entity(c) for c in rooms)
     return entities, rejected_list
@@ -234,11 +172,8 @@ def merge_gemini_and_heuristics(
 def collect_warnings(
     page_data: PageData,
     candidates: list[Candidate],
-    gemini_result: Optional[dict],
     comparison: dict,
-    gemini_skipped: bool,
-    gemini_warnings: list[dict],
-    skip_gemini_flag: bool = False,
+    region_warnings: list[dict],
 ) -> list[dict]:
     warnings = []
     pn = page_data.page_number
@@ -264,19 +199,13 @@ def collect_warnings(
     elif all(c.confidence < 0.40 for c in candidates):
         warn("LOW_HEURISTIC_CONFIDENCE", "info", f"Page {pn}: all candidates have confidence < 0.40")
 
-    if gemini_skipped:
-        if skip_gemini_flag:
-            warn("GEMINI_SKIPPED_FLAG", "info", f"Page {pn}: Gemini skipped (--no-gemini flag)")
-        else:
-            warn("RASTER_HEAVY_SKIPPED", "info", f"Page {pn}: raster-heavy with 0 candidates — Gemini skipped")
-
     for any_img in page_data.images:
         if any_img.pixel_area > 0.80:
             warn("LARGE_IMAGE_COVERAGE", "info",
                  f"Page {pn}: image xref={any_img.xref} covers {any_img.pixel_area:.0%} of page (likely scanned)")
 
     warnings.extend(comparison.get("comparison_warnings", []))
-    warnings.extend(gemini_warnings)
+    warnings.extend(region_warnings)
 
     return warnings
 
@@ -285,8 +214,8 @@ def _page_summary_dict(
     page_data: PageData,
     candidates: list[Candidate],
     entities: list[Entity],
-    gemini_skipped: bool,
     page_warnings: list[dict],
+    regions: list[Region],
 ) -> dict:
     return {
         "page_number": page_data.page_number,
@@ -297,10 +226,139 @@ def _page_summary_dict(
         "text_span_count": len(page_data.text_spans),
         "image_count": len(page_data.images),
         "candidate_count": len(candidates),
-        "gemini_skipped": gemini_skipped,
         "entity_count": len(entities),
         "warning_count": len(page_warnings),
+        "region_count": len(regions),
+        "floor_plan_region_count": sum(1 for r in regions if r.region_type == "floor_plan"),
     }
+
+
+@dataclass
+class PageRegionResult:
+    regions: list[Region]
+    detection_page_data: PageData
+    schedule_spans: Optional[list[TextSpan]]
+    warnings: list[dict]
+    skip_detection: bool
+
+
+def resolve_page_regions(
+    pdf_path: str,
+    page,
+    page_data: PageData,
+    gemini_client,
+    skip_gemini: bool,
+    refresh_regions: bool,
+    crop_dir: str,
+    classify_fn=classify_regions,
+    clip_fn=qualifying_clip_rects,
+) -> PageRegionResult:
+    """Segment the page, classify its regions, and decide what detection sees.
+
+    classify_fn and clip_fn are injectable so the behaviour rules can be tested
+    without credentials or a real fitz.Page.
+    """
+    pn = page_data.page_number
+    warnings: list[dict] = []
+
+    def warn(code, severity, msg):
+        warnings.append({"page_number": pn, "warning_code": code,
+                         "severity": severity, "message": msg})
+
+    def unfiltered(regions):
+        return PageRegionResult(regions, page_data, None, warnings, False)
+
+    # Rule 3: no vector ink at all — a scanned page. Nothing to segment or
+    # classify, and calling Gemini would be a wasted request.
+    if not page_data.paths:
+        warn("RASTER_PAGE_NO_VECTOR_INK", "info",
+             f"Page {pn} has no vector paths — segmentation and classification skipped")
+        return unfiltered([])
+
+    clip_rects = clip_fn(page, page_data) if page is not None else []
+    regions = segment_page(page_data, clip_rects)
+    fallback = len(regions) <= 1
+    if fallback:
+        regions = [page_fallback_region(page_data)]
+
+    # The key covers the freshly-computed region geometry as well as the page
+    # content, so a change to layout/ is a cache MISS rather than a silent
+    # reuse of stale bboxes — and region bboxes ARE the filtering contract.
+    key = cache_key(page_data, regions)
+    cached = None if refresh_regions else load_regions(pdf_path, pn, key)
+
+    if cached is not None:
+        regions = cached
+    elif skip_gemini or gemini_client is None:
+        # Rule 4: offline with no usable cache — record the regions but filter
+        # nothing, so an offline run never silently differs from an online one.
+        warn("REGION_CACHE_MISS_OFFLINE", "warning",
+             f"Page {pn}: no cached region classification and Gemini is disabled — "
+             f"no region filtering applied")
+        return unfiltered(regions)
+    else:
+        try:
+            regions, classify_warnings = classify_fn(
+                gemini_client, page, page_data, regions, crop_dir)
+            for w in classify_warnings:
+                w.setdefault("page_number", pn)
+            warnings.extend(classify_warnings)
+        except Exception as e:
+            # NOT a parse failure — apply_classification reports those itself,
+            # without raising. Anything that lands here is auth, network, or a
+            # programming error.
+            warn("REGION_CLASSIFY_FAILED", "error",
+                 f"Region classification failed for page {pn}: {e}")
+            return unfiltered(regions)
+        # Outside the try: the call above is billed and has already succeeded,
+        # so a read-only input directory must not throw its result away.
+        try:
+            save_regions(pdf_path, pn, key, regions)
+        except Exception as e:
+            warn("REGION_CACHE_WRITE_FAILED", "warning",
+                 f"Page {pn}: region classification succeeded but could not be "
+                 f"cached ({e}) — the next run will call the API again")
+
+    # Rule 2: the page never split. Classify for the record, but always detect.
+    if fallback:
+        return unfiltered(regions)
+
+    # Rule 5: the regions do not hold enough of the sheet to filter by. Record
+    # them, warn, and let detection see the whole page — losing a third of a
+    # drawing is strictly worse than the elevation noise filtering removes.
+    coverage = assigned_path_fraction(page_data, regions)
+    if coverage < REGION_MIN_COVERAGE_FRAC:
+        warn("REGION_COVERAGE_TOO_LOW", "warning",
+             f"Page {pn}: regions hold only {coverage:.0%} of the page's paths "
+             f"(floor is {REGION_MIN_COVERAGE_FRAC:.0%}) — no region filtering applied")
+        return unfiltered(regions)
+
+    floor_plans = [r for r in regions if r.region_type == "floor_plan"]
+    schedules = [r for r in regions if r.region_type == "schedule_table"]
+
+    # Rule 1: a split page with no floor plan has nothing worth detecting.
+    if not floor_plans:
+        kinds = sorted({r.region_type for r in regions})
+        warn("NO_FLOOR_PLAN_REGION", "warning",
+             f"Page {pn}: {len(regions)} regions found, none classified floor_plan "
+             f"(saw {kinds}) — detection skipped")
+        if schedules:
+            # No floor plan, but there IS a schedule to read. Detect with an
+            # empty path set: that keeps Rule 1's real purpose (no phantom
+            # doors or rooms conjured from elevation linework) while still
+            # letting detect_schedules see the schedule region's text.
+            return PageRegionResult(
+                regions, filter_page_data(page_data, []),
+                region_text_spans(page_data, schedules), warnings, False)
+        return PageRegionResult(regions, page_data, None, warnings, True)
+
+    detection_page_data = filter_page_data(page_data, floor_plans)
+    # Schedules live outside the floor plans. With schedule_table regions we
+    # scope to them; without, fall back to the WHOLE page's spans — never the
+    # floor-plan-filtered ones, or a mislabelled schedule region would be lost.
+    schedule_spans = (region_text_spans(page_data, schedules) if schedules
+                      else page_data.text_spans)
+    return PageRegionResult(regions, detection_page_data, schedule_spans, warnings, False)
 
 
 def run_extract(
@@ -312,6 +370,7 @@ def run_extract(
     disable_windows: bool = False,
     debug: bool = False,
     disable_rooms: bool = False,
+    refresh_regions: bool = False,
 ) -> str:
     disable_rooms = disable_rooms or disable_walls
     path = Path(pdf_path)
@@ -319,7 +378,6 @@ def run_extract(
         console.print(f"[red]Error: File not found: {pdf_path}[/red]")
         raise FileNotFoundError(pdf_path)
 
-    # Initialize Gemini client unless skipped
     gemini_client = None
     if not skip_gemini:
         try:
@@ -340,10 +398,8 @@ def run_extract(
     all_warnings: list[dict] = []
     total_candidates = 0
     total_entities = 0
-    total_gemini_calls = 0
-    total_gemini_skipped = 0
 
-    steps = ["extract", "render", "plumber", "heuristics", "gemini", "overlay", "save"]
+    steps = ["extract", "render", "regions", "plumber", "heuristics", "overlay", "save"]
     n_steps = len(steps)
 
     with Progress(
@@ -372,6 +428,38 @@ def run_extract(
             render_path = str(Path(page_dir) / "render.png")
             render_page_png(doc, idx, render_path)
 
+            # 2a-2c. Segment, classify, filter
+            step("regions")
+            region_result = resolve_page_regions(
+                pdf_path=str(path),
+                page=doc[idx],
+                page_data=page_data,
+                gemini_client=gemini_client,
+                skip_gemini=skip_gemini,
+                refresh_regions=refresh_regions,
+                crop_dir=str(Path(page_dir) / "region_crops"),
+            )
+            write_json(
+                str(Path(page_dir) / "regions.json"),
+                {
+                    "page_number": page_num,
+                    "skip_detection": region_result.skip_detection,
+                    "regions": [
+                        {
+                            "region_id": r.region_id,
+                            "bbox": list(r.bbox),
+                            "region_type": r.region_type,
+                            "title": r.title,
+                            "confidence": r.confidence,
+                            "contains_multiple": r.contains_multiple,
+                            "path_count": r.path_count,
+                            "source": r.source,
+                        }
+                        for r in region_result.regions
+                    ],
+                },
+            )
+
             # 3. pdfplumber
             step("plumber")
             plumber_page = extract_plumber_page(str(path), idx)
@@ -385,14 +473,18 @@ def run_extract(
             ]
             write_json(str(Path(page_dir) / "pdfplumber_comparison.json"), comparison)
 
-            # 4. Heuristics
+            # 4. Heuristics — one pass over the union of the floor-plan regions
             step("heuristics")
             collector = DebugTraceCollector(page_num) if debug else None
-            candidates = run_heuristics(
-                page_data, plumber_page.get("tables", []),
-                disable_rooms=disable_rooms, disable_windows=disable_windows,
-                collector=collector,
-            )
+            if region_result.skip_detection:
+                candidates = []
+            else:
+                candidates = run_heuristics(
+                    region_result.detection_page_data, plumber_page.get("tables", []),
+                    disable_rooms=disable_rooms, disable_windows=disable_windows,
+                    collector=collector,
+                    schedule_text_spans=region_result.schedule_spans,
+                )
             total_candidates += len(candidates)
             write_json(
                 str(Path(page_dir) / "candidates.json"),
@@ -407,40 +499,9 @@ def run_extract(
                     str(Path(page_dir) / "debug_viewer.html"),
                 )
 
-            # 5. Gemini — rooms are heuristic-only and excluded from the payload
-            step("gemini")
-            gemini_candidates = [c for c in candidates if c.entity_type != "room"]
-            gemini_result = None
-            gemini_warnings: list[dict] = []
-            gemini_skipped = skip_gemini or gc.should_skip_gemini(page_data, gemini_candidates)
-
-            if not gemini_skipped and gemini_client is not None:
-                try:
-                    gemini_result, gemini_warnings = gc.call_gemini(
-                        gemini_client, page_data, gemini_candidates, render_path
-                    )
-                    total_gemini_calls += 1
-                except Exception as e:
-                    gemini_warnings.append({
-                        "page_number": page_num,
-                        "warning_code": "GEMINI_CALL_FAILED",
-                        "severity": "error",
-                        "message": f"Gemini call failed for page {page_num}: {e}",
-                    })
-                    gemini_skipped = True
-
-            gemini_json: dict
-            if gemini_skipped:
-                total_gemini_skipped += 1
-                reason = "skip_gemini flag" if skip_gemini else "raster-heavy page with zero candidates"
-                gemini_json = {"page_number": page_num, "skipped": True, "reason": reason}
-            else:
-                gemini_json = gemini_result or {}
-            write_json(str(Path(page_dir) / "gemini_result.json"), gemini_json)
-
-            # 6. Merge + overlay
+            # 5. Finalize + overlay
             step("overlay")
-            entities, rejected = merge_gemini_and_heuristics(candidates, gemini_result if not gemini_skipped else None)
+            entities, rejected = finalize_candidates(candidates)
             total_entities += len(entities)
 
             write_json(
@@ -453,7 +514,8 @@ def run_extract(
             )
 
             overlay_path = str(Path(page_dir) / "overlay.png")
-            draw_overlay(render_path, entities, rejected, overlay_path)
+            draw_overlay(render_path, entities, rejected, overlay_path,
+                         regions=region_result.regions)
 
             # 7. Primitives + warnings
             step("save")
@@ -502,16 +564,14 @@ def run_extract(
             )
 
             page_warnings = collect_warnings(
-                page_data, candidates, gemini_result,
-                comparison, gemini_skipped, gemini_warnings,
-                skip_gemini_flag=skip_gemini,
+                page_data, candidates, comparison, region_result.warnings,
             )
             for w in page_warnings:
                 w.setdefault("page_number", page_num)
             all_warnings.extend(page_warnings)
 
             all_page_summaries.append(
-                _page_summary_dict(page_data, candidates, entities, gemini_skipped, page_warnings)
+                _page_summary_dict(page_data, candidates, entities, page_warnings, region_result.regions)
             )
 
     doc.close()
@@ -532,8 +592,6 @@ def run_extract(
                 "total_candidates": total_candidates,
                 "total_entities": total_entities,
                 "total_warnings": len(all_warnings),
-                "gemini_calls": total_gemini_calls,
-                "gemini_skipped_pages": total_gemini_skipped,
             },
         },
     )

@@ -1,0 +1,97 @@
+"""Diff two extraction runs by their final entities.
+
+Usage:
+    python tools/compare_entities.py OLD_RUN_DIR NEW_RUN_DIR
+"""
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+
+def load(run_dir: str) -> dict[str, dict[str, list[dict]]]:
+    out: dict[str, dict[str, list[dict]]] = {}
+    for page in sorted(Path(run_dir).glob("pages/page_*/final_entities.json")):
+        payload = json.loads(page.read_text(encoding="utf-8"))
+        out[page.parent.name] = {
+            "entities": payload.get("entities", []),
+            "rejected": payload.get("rejected", []),
+        }
+    return out
+
+
+def key(e: dict) -> tuple:
+    return (e["entity_type"], e["entity_id"],
+            tuple(round(v, 2) for v in e["bbox"]),
+            round(e["confidence"], 3),
+            json.dumps(e.get("attributes", {}), sort_keys=True, default=str))
+
+
+def rejected_key(e: dict) -> tuple:
+    return (str(e.get("entity_type")), str(e.get("candidate_id")),
+            tuple(round(v, 2) for v in e.get("bbox", [])),
+            str(e.get("reason")))
+
+
+def main(old_dir: str, new_dir: str) -> int:
+    old, new = load(old_dir), load(new_dir)
+    pages = sorted(set(old) | set(new))
+    identical = True
+
+    for page in pages:
+        old_entities = old.get(page, {}).get("entities", [])
+        new_entities = new.get(page, {}).get("entities", [])
+        a = {key(e) for e in old_entities}
+        b = {key(e) for e in new_entities}
+        counts_a: dict[str, int] = {}
+        counts_b: dict[str, int] = {}
+        for e in old_entities:
+            counts_a[e["entity_type"]] = counts_a.get(e["entity_type"], 0) + 1
+        for e in new_entities:
+            counts_b[e["entity_type"]] = counts_b.get(e["entity_type"], 0) + 1
+
+        print(f"\n=== {page}")
+        for etype in sorted(set(counts_a) | set(counts_b)):
+            na, nb = counts_a.get(etype, 0), counts_b.get(etype, 0)
+            flag = "" if na == nb else "   <== CHANGED"
+            print(f"    {etype:10s} old={na:4d}  new={nb:4d}{flag}")
+
+        only_old, only_new = a - b, b - a
+        if only_old or only_new:
+            identical = False
+            print(f"    {len(only_old)} entities only in OLD, {len(only_new)} only in NEW")
+            for k in sorted(only_old)[:8]:
+                print(f"      OLD {k[0]:8s} {k[1]:14s} bbox={k[2]} conf={k[3]} attrs={k[4]}")
+            for k in sorted(only_new)[:8]:
+                print(f"      NEW {k[0]:8s} {k[1]:14s} bbox={k[2]} conf={k[3]} attrs={k[4]}")
+
+        # Rejected candidates: separate from the accepted-entity table/diff above so
+        # neither view masks the other (a run can hold accepted entities steady while
+        # its rejected set shifts, or vice versa).
+        old_rejected = old.get(page, {}).get("rejected", [])
+        new_rejected = new.get(page, {}).get("rejected", [])
+        ra = {rejected_key(e) for e in old_rejected}
+        rb = {rejected_key(e) for e in new_rejected}
+        n_ra, n_rb = len(old_rejected), len(new_rejected)
+        r_flag = "" if n_ra == n_rb else "   <== CHANGED"
+        print(f"    {'rejected':10s} old={n_ra:4d}  new={n_rb:4d}{r_flag}")
+
+        only_old_r, only_new_r = ra - rb, rb - ra
+        if only_old_r or only_new_r:
+            identical = False
+            print(f"    {len(only_old_r)} rejected only in OLD, {len(only_new_r)} only in NEW")
+            for k in sorted(only_old_r)[:8]:
+                print(f"      OLD rejected {k[0]:8s} {k[1]:14s} bbox={k[2]} reason={k[3]}")
+            for k in sorted(only_new_r)[:8]:
+                print(f"      NEW rejected {k[0]:8s} {k[1]:14s} bbox={k[2]} reason={k[3]}")
+
+    print("\nIDENTICAL" if identical else "\nDIFFERENCES FOUND")
+    return 0 if identical else 1
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        print(__doc__)
+        sys.exit(2)
+    sys.exit(main(sys.argv[1], sys.argv[2]))

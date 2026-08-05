@@ -5,4 +5,11 @@ outputs/
 
 .DS_Store
 
-plans/
+# Anchored to the repo root: the sample-PDF folder only. Unanchored, this also
+# swallowed docs/superpowers/plans/, whose sibling specs/ dir is tracked.
+/plans/
+
+.regions_cache/
+
+# Subagent-driven-development scratch (ledgers, briefs, review packages)
+.superpowers/

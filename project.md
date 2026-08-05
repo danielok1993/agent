@@ -82,6 +82,11 @@ This should produce:
 - rendered page images
 - simple visual debug overlays showing extracted lines, curves, text boxes, tables, and detected candidates
 
+> Note (2026-07-28): gemini_result.json is no longer written. Per-candidate
+> Gemini validation was replaced by floor-plan region classification, which
+> writes regions.json (and region_crops/ when a classification call is made).
+> See docs/superpowers/specs/2026-07-28-floor-plan-region-filtering-design.md.
+
 Extraction requirements:
 - Open the PDF with PyMuPDF.
 - Extract page dimensions.
@@ -276,5 +281,12 @@ Prioritize:
 5. simple geometry heuristics
 6. pdfplumber cross-checking and table extraction
 7. Gemini validation of extracted candidates
+
+> Note (2026-07-28): priority 7 was answered and superseded. Gemini no longer
+> votes on individual candidates; it is called once per page to say which
+> regions of a sheet are floor plans, so detection runs on those and not on the
+> elevations and title blocks beside them. The confidence floors in
+> OFFLINE_MIN_CONFIDENCE now apply unconditionally. See
+> docs/superpowers/specs/2026-07-28-floor-plan-region-filtering-design.md.
 
 The goal is not perfect extraction. The goal is to prove whether PDF-native extraction plus targeted Gemini reasoning is worth pursuing further.

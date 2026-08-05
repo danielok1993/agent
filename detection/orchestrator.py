@@ -1,5 +1,5 @@
 from __future__ import annotations
-from models import Candidate, PageData
+from models import Candidate, PageData, TextSpan
 from debug.trace import DebugTraceCollector
 from detection.doors.assembly import door_open_leaf_path_indices
 from detection.doors.detect import detect_doors
@@ -20,6 +20,7 @@ def run_heuristics(
     disable_windows: bool = False,
     collector: DebugTraceCollector | None = None,
     disable_rooms: bool = False,
+    schedule_text_spans: list[TextSpan] | None = None,
 ) -> list[Candidate]:
     disable_rooms = disable_rooms or disable_walls
 
@@ -68,6 +69,13 @@ def run_heuristics(
     # (bboxes of adjacent L-shaped rooms overlap even though the polygon faces
     # are disjoint by construction).
     labels = detect_labels(page_data.text_spans, all_geo)
-    schedules = detect_schedules(page_data.text_spans, plumber_tables)
+
+    # Schedules live outside the floor plans, so when the page carries
+    # schedule_table regions their text is passed in separately rather than
+    # coming from the (floor-plan-filtered) page_data.
+    schedules = detect_schedules(
+        page_data.text_spans if schedule_text_spans is None else schedule_text_spans,
+        plumber_tables,
+    )
 
     return _suppress(all_geo + labels + schedules) + rooms
