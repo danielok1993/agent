@@ -173,6 +173,57 @@ def _merge_captions(page_data: PageData, boxes: list[BBox]) -> list[BBox]:
     return [tuple(b) for b in drawings] + unmerged
 
 
+def _edge_gap_sq(a: BBox, b: BBox) -> float:
+    """Squared gap between two boxes' nearest edges (0 when they touch)."""
+    dx = max(b[0] - a[2], a[0] - b[2], 0.0)
+    dy = max(b[1] - a[3], a[1] - b[3], 0.0)
+    return dx * dx + dy * dy
+
+
+def _overlap_area(a: BBox, b: BBox) -> float:
+    w = min(a[2], b[2]) - max(a[0], b[0])
+    h = min(a[3], b[3]) - max(a[1], b[1])
+    return w * h if (w > 0 and h > 0) else 0.0
+
+
+def _fold_small_leaves(
+    page_data: PageData, kept: list[BBox], small: list[BBox]
+) -> list[BBox]:
+    """Union each path-bearing sub-min-side leaf into its nearest kept box.
+
+    Dropping the leaf drops its paths from coverage, and on dense sheets the
+    dropped leaves are anything but empty: 2682241's skinny scale-bar strips
+    (24x348px, 8,134 paths each) held 34.5% of the sheet's paths, pushing
+    assigned_path_fraction to 0.655 — under REGION_MIN_COVERAGE_FRAC, so
+    region filtering never activated and detection saw all 148k paths.
+
+    Two leaves never fold: zero-path leaves (unmerged text fragments — no
+    coverage to recover, folding only grows a region's classification crop),
+    and leaves whose union would INCREASE the grown box's overlap with any
+    other kept box. The union is a full rectangle, so folding a leaf that
+    sits diagonal to its host annexes the space in between — a page-wide
+    980x4 border fragment (2682241, 1 path) folded into a tall region would
+    stretch it across its neighbours' columns and feed their ink to whatever
+    the host region classifies as. Such a leaf tries the next-nearest box,
+    and drops (the pre-fold behaviour) when every candidate would leak.
+    """
+    kept = [list(b) for b in sorted(kept, key=lambda b: (b[1], b[0]))]
+    eps = 1e-6
+    for s in sorted(small, key=lambda b: (b[1], b[0])):
+        if count_paths_in(page_data, s) == 0:
+            continue
+        for k in sorted(kept, key=lambda k: _edge_gap_sq(s, tuple(k))):
+            union = (min(k[0], s[0]), min(k[1], s[1]),
+                     max(k[2], s[2]), max(k[3], s[3]))
+            if any(_overlap_area(union, tuple(o)) >
+                   _overlap_area(tuple(k), tuple(o)) + eps
+                   for o in kept if o is not k):
+                continue
+            k[0], k[1], k[2], k[3] = union
+            break
+    return [tuple(b) for b in kept]
+
+
 def segment_page(page_data: PageData, clip_rects: list[BBox] | None = None) -> list[Region]:
     """Split a page into drawing regions. Returns [] for a page with no vector
     ink (a scanned raster page) — callers must handle that before classifying."""
@@ -196,11 +247,17 @@ def segment_page(page_data: PageData, clip_rects: list[BBox] | None = None) -> l
     # SEGMENT_MIN_REGION_SIDE_PX, so filtering first would drop every caption
     # before it could be folded into the drawing it titles.
     boxes = _merge_captions(page_data, boxes)
-    boxes = [
-        b for b in boxes
-        if (b[2] - b[0]) >= SEGMENT_MIN_REGION_SIDE_PX
-        and (b[3] - b[1]) >= SEGMENT_MIN_REGION_SIDE_PX
-    ]
+    kept, small = [], []
+    for b in boxes:
+        if (b[2] - b[0]) >= SEGMENT_MIN_REGION_SIDE_PX \
+                and (b[3] - b[1]) >= SEGMENT_MIN_REGION_SIDE_PX:
+            kept.append(b)
+        else:
+            small.append(b)
+    # Path-bearing small leaves fold into their nearest kept region instead of
+    # dropping — see _fold_small_leaves. With no kept region at all the page
+    # falls back to whole-page detection anyway, so nothing needs folding.
+    boxes = _fold_small_leaves(page_data, kept, small) if kept else []
     boxes.sort(key=lambda b: (b[1], b[0]))
 
     source = "whitespace+clip" if clip_rects else "whitespace"

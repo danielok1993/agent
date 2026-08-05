@@ -189,11 +189,78 @@ class TestSegmentPage(unittest.TestCase):
         bottom = [r for r in regions if r.bbox[1] >= 240]
         self.assertEqual(len(bottom), 2)
 
-    def test_tiny_regions_are_dropped(self):
+    def test_tiny_path_bearing_regions_fold_instead_of_dropping(self):
+        # A sub-min-side leaf with ink folds into the nearest kept region: the
+        # region count stays 1 but its bbox must grow to cover the leaf, so
+        # filtering keeps the leaf's paths (dropping them is what pushed
+        # 2682241 to 0.655 coverage and suppressed filtering entirely).
         paths = block(0, 40, 40, 200, 200) + block(500, 300, 300, 330, 330)
         regions = segment_page(PageData(page_number=1, width_px=PAGE_W,
                                         height_px=PAGE_H, paths=paths))
         self.assertEqual(len(regions), 1)
+        self.assertGreaterEqual(regions[0].bbox[2], 330.0)
+        self.assertGreaterEqual(regions[0].bbox[3], 330.0)
+
+    def test_small_leaf_folds_into_the_nearest_kept_region(self):
+        # Skinny dense strip between two drawings, nearer the left one
+        # (measured on 2682241: 24px-wide strips holding 8,134 paths were
+        # dropped, costing 34.5% of the sheet's coverage). The LEFT region
+        # must absorb it; the right one must not stretch toward it.
+        drawing = block(0, 40, 40, 200, 200)
+        strip = block(500, 240, 40, 264, 200)      # 24px wide, gap 40 left
+        second = block(900, 320, 40, 380, 200)     # gap 56 to the right
+        pd = PageData(page_number=1, width_px=PAGE_W, height_px=PAGE_H,
+                      paths=drawing + strip + second)
+        regions = segment_page(pd)
+        self.assertEqual(len(regions), 2)
+        left = min(regions, key=lambda r: r.bbox[0])
+        right = max(regions, key=lambda r: r.bbox[0])
+        self.assertGreaterEqual(left.bbox[2], 264.0)
+        self.assertGreaterEqual(right.bbox[0], 300.0)
+        from layout.filter import assigned_path_fraction
+        self.assertEqual(assigned_path_fraction(pd, regions), 1.0)
+
+    def test_fold_never_leaks_another_region_into_the_union(self):
+        # Leaf nearest to tall region A, but union(A, leaf) would newly cover
+        # region B's column — folding there would feed B's ink to whatever A
+        # classifies as. The fold must go to the next-nearest non-leaking
+        # region (B) instead.
+        a = block(0, 40, 40, 100, 340)          # tall left column
+        b = block(500, 200, 280, 360, 340)      # bottom-right
+        leaf = block(900, 200, 40, 224, 100)    # top-right, 24px wide
+        regions = segment_page(PageData(page_number=1, width_px=PAGE_W,
+                                        height_px=PAGE_H, paths=a + b + leaf))
+        self.assertEqual(len(regions), 2)
+        left = min(regions, key=lambda r: r.bbox[0])
+        right = max(regions, key=lambda r: r.bbox[0])
+        self.assertLessEqual(left.bbox[2], 104.0)      # A untouched
+        self.assertLessEqual(right.bbox[1], 100.0)     # B grew up over the leaf
+        self.assertGreaterEqual(right.bbox[0], 196.0)
+
+    def test_leaf_that_would_leak_everywhere_still_drops(self):
+        # A page-wide strip below two side-by-side drawings: union with either
+        # would swallow the other, so it must drop exactly as before the fold
+        # existed (this is the Rule-5 coverage-guard fixture's shape).
+        paths = (block(0, 40, 40, 150, 200) + block(500, 250, 40, 360, 200)
+                 + block(1000, 40, 300, 350, 348))
+        regions = segment_page(PageData(page_number=1, width_px=PAGE_W,
+                                        height_px=PAGE_H, paths=paths))
+        self.assertEqual(len(regions), 2)
+        for r in regions:
+            self.assertLessEqual(r.bbox[3], 204.0)
+
+    def test_zero_path_small_leaves_still_drop(self):
+        # An unmerged text-only fragment holds no coverage; folding it would
+        # grow a region's crop for nothing.
+        paths = block(0, 100, 100, 300, 300)
+        spans = [TextSpan(text="NOTE", bbox=(120.0, 600.0, 170.0, 640.0),
+                          font="Helvetica", size=10.0, color=0,
+                          block_no=0, line_no=0)]
+        pd = PageData(page_number=1, width_px=PAGE_W, height_px=CAPTION_PAGE_H,
+                      paths=paths, text_spans=spans)
+        regions = segment_page(pd)
+        self.assertEqual(len(regions), 1)
+        self.assertLessEqual(regions[0].bbox[3], 400.0)
 
     def test_page_with_no_paths_yields_no_regions(self):
         self.assertEqual(segment_page(PageData(page_number=1, width_px=PAGE_W,

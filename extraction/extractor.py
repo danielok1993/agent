@@ -199,31 +199,49 @@ def extract_text(page: fitz.Page, scale: "float | fitz.Matrix | Transform" = SCA
 
 def extract_images(page: fitz.Page, doc: fitz.Document,
                    scale: "float | fitz.Matrix | Transform" = SCALE) -> list[ImageRef]:
-    # Images take the SCALE only, never the rotation: unlike get_drawings() and
-    # get_text(), page.get_image_bbox() already honours /Rotate and hands back
-    # coordinates in the rotated page.rect frame. Putting them through the full
-    # transform rotates them a second time and lands them off the page
-    # (measured on 1326087, rot 270: (2140.8, 45.3, 2436.3, 299.3) became
-    # (45.3, -682.2, 299.3, -386.7)).
-    image_scale = transform_scale(_as_transform(scale))
+    # get_image_info() hands back coordinates in the UNROTATED mediabox frame,
+    # exactly like get_drawings()/get_text() — and unlike the per-image
+    # get_image_bbox() it replaced, which honoured /Rotate and therefore took
+    # the scale only. Images now go through the full transform like every
+    # other primitive (measured on 1326086, rot 270: info bbox
+    # (696.7, 1026.5, 818.6, 1168.5) vs get_image_bbox's rotated
+    # (1026.5, 23.4, 1168.5, 145.3) — scale-only left it off-page).
     page_area = page.rect.width * page.rect.height
+
+    # One content-stream traversal for every image on the page. The previous
+    # per-image get_image_bbox() loop re-ran MuPDF's page content filter once
+    # per call — ≈6 of 574477's 7.5 minutes on its 3,691-image sheet
+    # (docs/2026-08-04 findings). get_images(full=True) yields one row per
+    # image *reference name* (one xref displayed twice = two rows), and
+    # get_image_info() yields display instances in the same order, so rows
+    # pair with instances per-xref FIFO — a flat xref→bbox map would collapse
+    # multi-display images onto their first occurrence.
+    try:
+        instances: dict[int, list[fitz.Rect]] = {}
+        for inst in page.get_image_info(xrefs=True):
+            instances.setdefault(inst.get("xref", 0), []).append(
+                fitz.Rect(inst["bbox"]))
+    except Exception:
+        instances = {}
+
+    meta_by_xref: dict[int, dict] = {}
     images = []
     for img in page.get_images(full=True):
         xref = img[0]
-        try:
-            bbox_raw = page.get_image_bbox(img)
-            if bbox_raw is None:
-                continue
-        except Exception:
-            continue
+        queue = instances.get(xref)
+        if not queue:
+            continue  # referenced in resources but never drawn
+        bbox_raw = queue.pop(0)
 
-        bbox = normalize_bbox(bbox_raw, image_scale)
+        bbox = normalize_bbox(bbox_raw, scale)
         raw_w = bbox_raw.width
         raw_h = bbox_raw.height
         raw_area = raw_w * raw_h
         pixel_area = raw_area / page_area if page_area > 0 else 0.0
 
-        info = doc.extract_image(xref)
+        if xref not in meta_by_xref:
+            meta_by_xref[xref] = doc.extract_image(xref)
+        info = meta_by_xref[xref]
         colorspace = info.get("colorspace", 0) if info else 0
         cs_name = {1: "Gray", 3: "RGB", 4: "CMYK"}.get(colorspace, str(colorspace))
 
