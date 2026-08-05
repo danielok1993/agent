@@ -305,10 +305,23 @@ def resolve_page_regions(
             warnings.extend(classify_warnings)
         except Exception as e:
             # NOT a parse failure — apply_classification reports those itself,
-            # without raising. Anything that lands here is auth, network, or a
-            # programming error.
+            # without raising, and they are handled just below. Anything that
+            # lands here is auth, network, or a programming error.
             warn("REGION_CLASSIFY_FAILED", "error",
                  f"Region classification failed for page {pn}: {e}")
+            return unfiltered(regions)
+        # A response that did not parse carries no information: every region
+        # stays "unclassified", which Rule 1 reads as "no floor plan" and would
+        # skip detection — for this run AND every later one, since caching it
+        # makes a one-off flake permanent (measured 2026-08-05 on sheet
+        # 2682241: a mid-stream-corrupted response zeroed the sheet until a
+        # --refresh-regions happened to land a parseable reply). So a parse
+        # failure degrades exactly like the raising path above: warn (the
+        # classifier already did), detect the whole page, cache nothing. A
+        # PARTIAL response (REGION_CLASSIFY_INCOMPLETE) is real information and
+        # still caches.
+        if any(w.get("warning_code") == "REGION_CLASSIFY_PARSE_FAILURE"
+               for w in classify_warnings):
             return unfiltered(regions)
         # Outside the try: the call above is billed and has already succeeded,
         # so a read-only input directory must not throw its result away.
