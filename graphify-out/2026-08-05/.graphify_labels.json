@@ -118,20 +118,12 @@
   "116": "Floor-plan region filtering",
   "117": "TestWindowInteriorClutter",
   "118": "qualifying_clip_rects",
-  "119": "qualifying_clip_rects",
   "120": "TestNetworkQueries",
-  "121": "SplitDoubleArcTests",
   "122": "test_door_assembly.py",
   "123": "batch_extract.py",
-  "124": "2026-08-05 — Gemini region-classification parse failures poison the cache (handoff)",
-  "125": "framed_triple_window",
   "126": "_segments_min_distance",
   "127": "File Structure",
-  "128": "2026-08-05 — detect_windows performance on giant sheets (handoff)",
   "129": "segmenter.py",
-  "130": "EntranceDoorTests",
   "131": "test_layout_segmenter.py",
-  "132": "TestProfileHelpers",
-  "133": "TestExtractImagesInstances",
-  "134": "TestWindowArbitraryAngle"
+  "132": "TestProfileHelpers"
 }
