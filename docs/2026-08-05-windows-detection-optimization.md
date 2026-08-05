@@ -1,5 +1,26 @@
 # 2026-08-05 — detect_windows performance on giant sheets (handoff)
 
+> **Status: done** (branch `perf/windows-detection-optimization`). All four plan
+> items landed; every gate below passed, output byte-identical on all four
+> sheets. Measured on the same machine and the same region-cache entries
+> (2682241's cache was refreshed by the parse-failure fix, so its filtered page
+> is 59,130 paths here, not the 50,995 quoted below):
+>
+> | Sheet | paths | windows before | windows after | detection total |
+> |---|---|---|---|---|
+> | 5-1133 p1 (whole page) | 8,542 | 1.2 s | 0.2 s | — |
+> | floor-plans p1 (whole page) | 3,764 | 0.4 s | 0.1 s | — |
+> | 2682241 (filtered) | 59,130 | 115.6 s | **3.2 s** | 117.7 s → 5.2 s |
+> | 1789452 (filtered) | 131,853 | 318.1 s | **6.0 s** | 323.7 s → 11.6 s |
+>
+> Items 3 and 4 were *not* skippable: with the glazing scan indexed, the
+> post-fix profile of 1789452 put `crossed()` at 27.3 s and
+> `_band_interior_clutter` at 11.6 s (of 60.9 s under the profiler) — the exact
+> condition their entries name. Item 1 also needed a second axis: perp alone
+> left `_spanning_glazing` at 70% of the remaining time on 2682241 (14.0 s of
+> 20 s), so the pool is bucketed by span START as well, which is the tighter
+> window (16 px vs ~76 px).
+
 Task for the next agent: make `detection/windows.py::detect_windows` fast on
 100k+-path sheets **without changing its output by a single byte**. This is a
 pure performance task — no detection-behavior change, no constant tuning, no

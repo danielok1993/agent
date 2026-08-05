@@ -133,5 +133,10 @@
   "131": "test_layout_segmenter.py",
   "132": "TestProfileHelpers",
   "133": "TestExtractImagesInstances",
-  "134": "TestWindowArbitraryAngle"
+  "134": "TestWindowArbitraryAngle",
+  "135": "DoorAssemblyTests",
+  "136": "client.py",
+  "137": "_dedupe_openings",
+  "138": "_frame_axes",
+  "139": "_merge_mullion_chains"
 }

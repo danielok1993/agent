@@ -19,7 +19,14 @@ import os
 import unittest
 
 from detection import detect_windows
+from detection.geometry import _interval_overlap
 from detection.postprocess import _resolve_door_window_conflicts
+from detection.windows import (
+    WINDOW_CAP_ALIGN_OVERLAP, WINDOW_CAP_LEN_RATIO, WINDOW_MAX_WIDTH_PX,
+    WINDOW_MIN_WIDTH_PX, WINDOW_SPAN_COVER_TOL_PX, WINDOW_SPAN_OVERSHOOT_PX,
+    WINDOW_SPAN_PERP_TOL_PX, _dedupe_by_perp, _facing_cap_pairs,
+    _glaze_index, _spanning_glazing, _tight_band,
+)
 from models import BBox, Candidate, PathPrimitive
 
 
@@ -594,6 +601,142 @@ class TestFloorPlansRegression(unittest.TestCase):
         for cx, cy in self.FP_CENTERS:
             self.assertFalse(any(_covers(c.bbox, cx, cy, pad=4) for c in wins),
                              f"false positive detected near ({cx},{cy})")
+
+
+class TestWindowPruningEquivalence(unittest.TestCase):
+    """The spatial pruning inside detect_windows must be output-identical.
+
+    `_facing_cap_pairs` (v-bucketed) and `_spanning_glazing` (perp-indexed) only
+    exist to skip work the gates provably reject. These tests pin them against
+    brute-force references on synthetic dense data — the same shape of input the
+    100k-path sheets produce, where the pruning actually bites.
+    """
+
+    @staticmethod
+    def _dense_caps(n: int = 400) -> list[dict]:
+        """Caps scattered over a page-sized (u, v) field, perp-sorted.
+
+        Deterministic LCG rather than `random` so a failure reproduces exactly.
+        Cap lengths straddle the [3, 36] pool bounds and spans are built from
+        the length, so the facing gate sees realistic partners.
+        """
+        caps: list[dict] = []
+        seed = 12345
+        for i in range(n):
+            seed = (seed * 1103515245 + 12345) % (2 ** 31)
+            u = (seed % 90000) / 100.0            # 0-900 px along the run axis
+            seed = (seed * 1103515245 + 12345) % (2 ** 31)
+            v = (seed % 60000) / 100.0            # 0-600 px along the caps
+            seed = (seed * 1103515245 + 12345) % (2 ** 31)
+            length = 3.0 + (seed % 3400) / 100.0  # 3.0 - 37.0 px
+            caps.append({"idx": i, "perp": u, "span": (v, v + length),
+                         "len": length, "block": False})
+        return sorted(caps, key=lambda c: c["perp"])
+
+    @staticmethod
+    def _brute_pairs(caps: list[dict]) -> list[tuple[int, int, float]]:
+        """The pre-optimization double loop, verbatim."""
+        out: list[tuple[int, int, float]] = []
+        for i, c1 in enumerate(caps):
+            for j in range(i + 1, len(caps)):
+                c2 = caps[j]
+                width = c2["perp"] - c1["perp"]
+                if width < WINDOW_MIN_WIDTH_PX:
+                    continue
+                if width > WINDOW_MAX_WIDTH_PX:
+                    break
+                if min(c1["len"], c2["len"]) / max(c1["len"], c2["len"]) < WINDOW_CAP_LEN_RATIO:
+                    continue
+                overlap = _interval_overlap(c1["span"], c2["span"])
+                if overlap < WINDOW_CAP_ALIGN_OVERLAP * min(c1["len"], c2["len"]):
+                    continue
+                out.append((i, j, width))
+        return out
+
+    def test_facing_cap_pairs_match_brute_force(self):
+        caps = self._dense_caps()
+        expected = self._brute_pairs(caps)
+        self.assertGreater(len(expected), 500, "test data must exercise the pruning")
+        self.assertEqual(list(_facing_cap_pairs(caps)), expected)
+
+    def test_facing_cap_pairs_survive_negative_and_binned_coordinates(self):
+        """Caps straddling 0 and a bin edge — floor() on negatives, adjacency."""
+        caps = sorted(
+            [{"idx": 0, "perp": 0.0, "span": (-0.5, 19.5), "len": 20.0},
+             {"idx": 1, "perp": 40.0, "span": (-20.0, 0.0), "len": 20.0},
+             {"idx": 2, "perp": 60.0, "span": (-2.0, 18.0), "len": 20.0},
+             {"idx": 3, "perp": 90.0, "span": (39.5, 59.5), "len": 20.0},
+             {"idx": 4, "perp": 120.0, "span": (38.0, 58.0), "len": 20.0}],
+            key=lambda c: c["perp"])
+        self.assertEqual(list(_facing_cap_pairs(caps)), self._brute_pairs(caps))
+
+    @staticmethod
+    def _dense_glaze(caps: list[dict], n: int = 500) -> list[dict]:
+        """Glazing pool in unsorted pool order: field noise + real bridging panes.
+
+        The noise is what the old full-pool scan walked for every pair; the
+        panes are seeded off actual cap pairs so bands actually form (random
+        spans essentially never satisfy the bridging gate).
+        """
+        pool: list[dict] = []
+        seed = 999331
+        for i in range(n):
+            seed = (seed * 1103515245 + 12345) % (2 ** 31)
+            perp = (seed % 60000) / 100.0
+            seed = (seed * 1103515245 + 12345) % (2 ** 31)
+            lo = (seed % 90000) / 100.0
+            seed = (seed * 1103515245 + 12345) % (2 ** 31)
+            length = 10.0 + (seed % 20000) / 100.0
+            pool.append({"idx": i, "path": None, "len": length,
+                         "perp": perp, "span": (lo, lo + length)})
+        for i, j, width in _facing_cap_pairs(caps):
+            if i % 5:
+                continue
+            v_lo = max(caps[i]["span"][0], caps[j]["span"][0])
+            for d in (0.5, 2.0, 3.5):
+                pool.append({"idx": len(pool), "path": None, "len": width,
+                             "perp": v_lo + d,
+                             "span": (caps[i]["perp"] + 0.5, caps[j]["perp"] - 0.5)})
+        # Exact perp/len ties: _dedupe_by_perp resolves those by POOL ORDER, so
+        # a reordered scan would silently swap which record survives.
+        pool.append(dict(pool[-1], idx=len(pool)))
+        return pool
+
+    @staticmethod
+    def _brute_spanning(pool: list[dict], c1: dict, c2: dict) -> list[dict]:
+        """The pre-optimization full-pool scan, verbatim."""
+        ext_lo = min(c1["span"][0], c2["span"][0]) - WINDOW_SPAN_PERP_TOL_PX
+        ext_hi = max(c1["span"][1], c2["span"][1]) + WINDOW_SPAN_PERP_TOL_PX
+        spanning = [g for g in pool
+                    if ext_lo <= g["perp"] <= ext_hi
+                    and c1["perp"] - WINDOW_SPAN_OVERSHOOT_PX <= g["span"][0] <= c1["perp"] + WINDOW_SPAN_COVER_TOL_PX
+                    and c2["perp"] - WINDOW_SPAN_COVER_TOL_PX <= g["span"][1] <= c2["perp"] + WINDOW_SPAN_OVERSHOOT_PX]
+        return _tight_band(_dedupe_by_perp(spanning))
+
+    def test_spanning_glazing_index_matches_brute_force(self):
+        caps = self._dense_caps(120)
+        pool = self._dense_glaze(caps)
+        index = _glaze_index(pool)
+        hits = 0
+        for i, j, _width in _facing_cap_pairs(caps):
+            expected = self._brute_spanning(pool, caps[i], caps[j])
+            got = _spanning_glazing(index, caps[i], caps[j])
+            self.assertEqual([id(r) for r in got], [id(r) for r in expected],
+                             f"band differs for cap pair ({i}, {j})")
+            hits += len(expected)
+        self.assertGreater(hits, 0, "test data must produce spanning bands")
+
+    def test_spanning_glazing_index_keeps_pool_order_on_exact_ties(self):
+        """Two records at the same perp AND len: pool order picks the survivor."""
+        first = {"idx": 0, "path": None, "len": 50.0, "perp": 10.0, "span": (0.0, 50.0)}
+        second = dict(first, idx=1)
+        third = {"idx": 2, "path": None, "len": 50.0, "perp": 14.0, "span": (0.0, 50.0)}
+        c1 = {"perp": 0.0, "span": (8.0, 16.0), "len": 8.0}
+        c2 = {"perp": 50.0, "span": (8.0, 16.0), "len": 8.0}
+        for pool in ([first, second, third], [second, first, third]):
+            band = _spanning_glazing(_glaze_index(pool), c1, c2)
+            self.assertEqual([r["idx"] for r in band],
+                             [r["idx"] for r in self._brute_spanning(pool, c1, c2)])
 
 
 if __name__ == "__main__":

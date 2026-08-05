@@ -1,6 +1,6 @@
 {
   ".claude/settings.json": {
-    "mtime": 1785938210.860948,
+    "mtime": 1785938851.2712982,
     "ast_hash": "473680d7735143dc7ee5bfe7c21148ae",
     "semantic_hash": ""
   },
@@ -105,8 +105,8 @@
     "semantic_hash": ""
   },
   "detection/windows.py": {
-    "mtime": 1783629104.376792,
-    "ast_hash": "68c58cb3f80aeb82aa9ce6f64dd649c4",
+    "mtime": 1785941352.7450368,
+    "ast_hash": "61854abb0317adffaf62d4b98c87d49a",
     "semantic_hash": ""
   },
   "extraction/__init__.py": {
@@ -150,7 +150,7 @@
     "semantic_hash": ""
   },
   "pipeline.py": {
-    "mtime": 1785938395.1448088,
+    "mtime": 1785938851.0839682,
     "ast_hash": "671a29dcaa905a89020989a229408e49",
     "semantic_hash": ""
   },
@@ -190,7 +190,7 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1785938482.1848288,
+    "mtime": 1785938851.053274,
     "ast_hash": "efdfa774ba9d9d1bbda2889734927387",
     "semantic_hash": ""
   },
@@ -245,8 +245,8 @@
     "semantic_hash": "ac7be7bda3d0e8349e4a8b5c033eab80"
   },
   "tests/test_window_detection.py": {
-    "mtime": 1783629104.3964303,
-    "ast_hash": "52eb0e7e72a413461ed2e4f863f47939",
+    "mtime": 1785940471.4523082,
+    "ast_hash": "b9843a00e79d8133edc60512efddcc83",
     "semantic_hash": ""
   },
   "docs/window-detection-tuning-guide.md": {
@@ -380,7 +380,7 @@
     "semantic_hash": ""
   },
   "gemini/classifier.py": {
-    "mtime": 1785938378.3060992,
+    "mtime": 1785938851.053443,
     "ast_hash": "ef1ec8ab6921212f0d9d17557d92f2e3",
     "semantic_hash": ""
   },
@@ -400,7 +400,7 @@
     "semantic_hash": ""
   },
   "tests/test_region_classifier.py": {
-    "mtime": 1785938354.0152278,
+    "mtime": 1785938851.0841315,
     "ast_hash": "3535bbbe49ca9a402ac836c53ea4a061",
     "semantic_hash": ""
   },
@@ -410,7 +410,7 @@
     "semantic_hash": ""
   },
   "tests/test_region_pipeline.py": {
-    "mtime": 1785938339.7128048,
+    "mtime": 1785938851.0842462,
     "ast_hash": "3bdfa0c5ada465ba931bc9108fad77e4",
     "semantic_hash": ""
   },
@@ -445,8 +445,8 @@
     "semantic_hash": ""
   },
   "docs/2026-08-05-windows-detection-optimization.md": {
-    "mtime": 1785938210.7397614,
-    "ast_hash": "eebac85baafdb4ab133733e508c01327",
+    "mtime": 1785941387.8140996,
+    "ast_hash": "79429227ca5544ba416e2f8d498014c3",
     "semantic_hash": ""
   }
 }
