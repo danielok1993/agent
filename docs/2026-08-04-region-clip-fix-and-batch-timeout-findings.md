@@ -225,3 +225,34 @@ ls -lT outputs/<run>/pages/page_01/    # render(2) → regions(3) → plumber(4)
 
 Batch tally observed by the user (18 PDFs, 5 workers): 14 ✓, 4 ✗ — the
 four sheets above, all at exactly `timeout (5 minutes)`.
+
+---
+
+## 2026-08-05 addendum — fixes landed, attribution corrected
+
+Branch `fix/batch-timeout-remediation`: fixes 1–3 implemented (process-group
+kill + 30-min `--timeout-minutes` default; single-pass `get_image_info`
+image extraction; path-bearing small leaves fold into the nearest kept
+region with a no-leak overlap gate). Measured: 574477 end-to-end
+454.6 s → 9.1 s with identical detection output (46 candidates /
+15 entities); coverage reaches 1.000 on every vector sheet, filtering
+newly activates on 2682241 / 2710870 / 1326087.
+
+**Fix 4 attribution correction**: with per-stage timing logs
+(`detection.orchestrator` logger, INFO), the giant-sheet time is in
+`detect_windows`, NOT the wall pair-scan the stack samples suggested —
+windows runs before walls, which is what "pure-Python, pre-rooms" was
+actually sampling. Measured on floor_plan-filtered inputs: 2682241
+(51k paths) windows 84.1 s of 86.1 s total, wall_network 0.46 s; 1789452
+(127k paths) windows 315.1 s of 320.5 s, wall_network 2.38 s. Scaling is
+~quadratic in path count. Any future optimization effort belongs in
+`detection/windows.py`'s pair scan, not `detection/walls.py`. With
+fixes 1–3 all four timeout sheets fit comfortably inside the 30-minute
+default budget, so that optimization was deferred.
+
+Two pre-existing quirks documented while verifying image parity, both now
+handled by the single-pass implementation: `get_images(full=True)` yields
+one row per reference *name* (one xref drawn twice = two rows), and
+`get_image_info` returns UNROTATED mediabox coordinates (like
+`get_drawings`, unlike the rotated-frame `get_image_bbox` it replaced), so
+images now take the full page transform.
