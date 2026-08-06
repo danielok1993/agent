@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 
 from regression import corpus, ground_truth as gt
+from regression import verdicts as verdicts_module
 from regression.verdicts import Verdict, record_verdicts
 
 
@@ -169,6 +170,62 @@ class VerdictWriterTests(unittest.TestCase):
         self.assertFalse((gt.TRUTH_DIR / "s01.json").exists())
         sheets = json.loads(corpus.MANIFEST_PATH.read_text(encoding="utf-8"))["sheets"]
         self.assertNotIn("labeled", {s["slug"]: s for s in sheets}["s01"])
+
+    # -- Fix round 1 -----------------------------------------------------
+
+    def test_a_three_element_bbox_raises_and_writes_nothing(self):
+        self._existing_truth()
+        before = (gt.TRUTH_DIR / "s01.json").read_text(encoding="utf-8")
+        with self.assertRaises(ValueError):
+            record_verdicts("s01", [Verdict(page=1, entity=door(bbox=(1.0, 2.0, 3.0)),
+                                            correct=True)],
+                            today="2026-08-06")
+        self.assertEqual((gt.TRUTH_DIR / "s01.json").read_text(encoding="utf-8"),
+                         before)
+
+    def test_an_empty_entity_type_raises_and_writes_nothing(self):
+        self._existing_truth()
+        before = (gt.TRUTH_DIR / "s01.json").read_text(encoding="utf-8")
+        bad = door()
+        bad["entity_type"] = ""
+        with self.assertRaises(ValueError):
+            record_verdicts("s01", [Verdict(page=1, entity=bad, correct=True)],
+                            today="2026-08-06")
+        self.assertEqual((gt.TRUTH_DIR / "s01.json").read_text(encoding="utf-8"),
+                         before)
+
+    def test_shape_on_a_non_room_entity_raises_and_writes_nothing(self):
+        self._existing_truth()
+        before = (gt.TRUTH_DIR / "s01.json").read_text(encoding="utf-8")
+        with self.assertRaises(ValueError):
+            record_verdicts("s01", [Verdict(page=1, entity=door(), correct=True,
+                                            shape="approved")],
+                            today="2026-08-06")
+        self.assertEqual((gt.TRUTH_DIR / "s01.json").read_text(encoding="utf-8"),
+                         before)
+
+    def test_a_non_room_entity_with_a_polygon_attribute_writes_no_polygon(self):
+        entity = door()
+        entity["attributes"] = {"polygon": [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]}
+        record_verdicts("s01", [Verdict(page=1, entity=entity, correct=True)],
+                        today="2026-08-06")
+        self.assertNotIn("polygon", self._load()["pages"]["1"]["confirmed"][0])
+
+    def test_a_dump_truth_failure_still_leaves_the_manifest_flagged_labeled(self):
+        def _boom(_truth):
+            raise RuntimeError("disk full")
+
+        original = verdicts_module.dump_truth
+        verdicts_module.dump_truth = _boom
+        self.addCleanup(lambda: setattr(verdicts_module, "dump_truth", original))
+
+        with self.assertRaises(RuntimeError):
+            record_verdicts("s01", [Verdict(page=1, entity=door(), correct=True)],
+                            today="2026-08-06")
+
+        sheets = json.loads(corpus.MANIFEST_PATH.read_text(encoding="utf-8"))["sheets"]
+        by_slug = {s["slug"]: s for s in sheets}
+        self.assertTrue(by_slug["s01"]["labeled"])
 
 
 if __name__ == "__main__":

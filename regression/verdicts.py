@@ -38,7 +38,8 @@ class Verdict:
 
 def _truth_item(verdict: Verdict) -> TruthItem:
     entity = verdict.entity
-    raw_polygon = (entity.get("attributes") or {}).get("polygon")
+    is_room = entity["entity_type"] == "room"
+    raw_polygon = (entity.get("attributes") or {}).get("polygon") if is_room else None
     polygon = ([[float(x), float(y)] for x, y in raw_polygon]
                if raw_polygon and len(raw_polygon) >= 3 else None)
     return TruthItem(type=entity["entity_type"],
@@ -66,9 +67,27 @@ def record_verdicts(slug: str, verdicts: list[Verdict],
     if entry is None:
         raise ValueError(f"{slug} is not in fixtures/MANIFEST.json")
     for verdict in verdicts:
-        if verdict.shape is not None and verdict.shape not in SHAPES:
-            raise ValueError(f"{slug}: shape must be one of {list(SHAPES)}, "
-                             f"got {verdict.shape!r}")
+        entity = verdict.entity
+        entity_type = entity.get("entity_type")
+        if not entity_type:
+            raise ValueError(f"{slug}: entity is missing entity_type: {entity!r}")
+        bbox = entity.get("bbox")
+        if not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
+            raise ValueError(f"{slug}: entity bbox must be four numbers, "
+                             f"got {bbox!r} (entity_type={entity_type!r})")
+        try:
+            [float(v) for v in bbox]
+        except (TypeError, ValueError):
+            raise ValueError(f"{slug}: entity bbox must be four numbers, "
+                             f"got {bbox!r} (entity_type={entity_type!r})")
+        if verdict.shape is not None:
+            if entity_type != "room":
+                raise ValueError(
+                    f"{slug}: shape is rooms-only, but entity_type is "
+                    f"{entity_type!r}")
+            if verdict.shape not in SHAPES:
+                raise ValueError(f"{slug}: shape must be one of {list(SHAPES)}, "
+                                 f"got {verdict.shape!r}")
         if verdict.page < 1:
             raise ValueError(f"{slug}: page numbers are 1-based, "
                              f"got {verdict.page}")
@@ -94,6 +113,14 @@ def record_verdicts(slug: str, verdicts: list[Verdict],
         target = page.confirmed if verdict.correct else page.false_positives
         target.append(_truth_item(verdict))
 
-    path = dump_truth(truth)
+    # Flag the manifest BEFORE writing the truth file, not after. If the
+    # second write fails (disk full, a concurrent manifest edit, permissions),
+    # this order leaves manifest-labeled + truth-unlabeled -- exactly the
+    # combination sweep._labeled_but_unreviewed exists to catch, so the next
+    # sweep exits 1 with an actionable message instead of staying quiet. The
+    # reverse order fails silently: truth would hold the new verdicts with
+    # reviewed set, but the durable "these verdicts existed" manifest marker
+    # would never arm, and nothing checks for that combination. Do not
+    # "tidy" this back.
     set_labeled(slug, True)
-    return path
+    return dump_truth(truth)
