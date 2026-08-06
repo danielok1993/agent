@@ -133,9 +133,19 @@ outputs/<YYYY-MM-DD_HH-MM-SS>/
 ## Tests
 
 ```bash
-# Run the full suite
+# Fast tier — synthetic topologies, ~10s
 python -m unittest discover tests
 
 # Run a single test
 python -m unittest tests.test_door_assembly.TestDoorAssembly.test_<name>
+
+# Regression tier — the 20-sheet corpus vs. committed ground truth, ~3min
+python tools/regress.py
 ```
+
+`tools/regress.py` needs the corpus downloaded (see above). It scores each
+sheet's detections against `tests/ground_truth/sNN.json` — geometric matching,
+never entity ids — and exits 1 on a lost confirmed detection or a returned
+false positive, 2 if sheets are missing, 0 otherwise. New detections never fail
+the sweep; they print under `REVIEW` for the user to verdict. See CLAUDE.md's
+"Regression testing" section for the full labeling loop.

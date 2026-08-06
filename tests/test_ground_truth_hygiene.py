@@ -17,7 +17,7 @@ STREET_RE = re.compile(
     r"\b\d+[a-z]?\s+[A-Z][a-z]+(\s+[A-Z][a-z]+)*\s+"
     r"(street|road|lane|avenue|close|drive|way|crescent|terrace|court|place)\b",
     re.IGNORECASE)
-MAX_LEN = {"note": 300}
+MAX_LEN = {"note": 300, "pdf_sha256": 64}
 DEFAULT_MAX_LEN = 60
 
 

@@ -39,9 +39,54 @@ python -m unittest discover tests
 python -m unittest tests.test_door_assembly.TestDoorAssembly.test_<name>
 ```
 
-Sample PDFs `5-1133-WD03.pdf` and `floor-plans.pdf` are checked in for quick runs.
+No PDF is committed to this repo. For a quick run, download the regression
+corpus (see "Regression testing" below) and point `app.py` at any sheet under
+`fixtures/sheets/` — `s01` (formerly `floor-plans.pdf`) and `s02` (formerly
+`5-1133-WD03.pdf`) are the two primary references.
 
 `--debug` writes `debug_trace.json` + a self-contained `debug_viewer.html` per page (per-primitive detection trace for diagnosing missed/false door detections — see the tuning guide's debug-trace playbook).
+
+## Regression testing
+
+Two tiers:
+
+```bash
+python -m unittest discover tests   # ~10s — synthetic topologies, run constantly
+python tools/regress.py             # ~3min — 20 real sheets vs. committed ground truth
+```
+
+The corpus lives in `fixtures/sheets/` and is **not** committed (NDA). Download
+the bundle — location in `fixtures/MANIFEST.json` — and verify with
+`python tools/fetch_fixtures.py`. Sheets are named by slug (`s01`…`s20`); the
+two primary references are `s01` (formerly floor-plans.pdf) and `s02` (the WD03
+working drawing).
+
+`tests/ground_truth/sNN.json` holds the user's verdicts and is committed. Three
+lists per page: `confirmed` (correct detections), `false_positives` (wrong
+detections, matched against emitted entities only), and `deferred` (misses the
+user reported that we consciously chose not to fix). Matching is geometric —
+type + IoU ≥ 0.5 — because entity ids are ordinal and shift when detection
+changes.
+
+`regress.py` exits 1 on a lost `confirmed` entity, a returned false positive, or
+a sheet whose bytes no longer match the manifest; 2 when sheets are missing from
+disk; 0 otherwise. **New detections never fail the sweep** — they print under
+REVIEW and wait for a verdict.
+
+The loop when tuning detection:
+
+1. `python tools/regress.py`
+2. The user opens `debug_viewer.html` and reports path indices of misses and
+   false positives.
+3. Record the verdicts in `tests/ground_truth/sNN.json` — a data commit.
+4. Fix the algorithm, and pin the topology with a synthetic test in the fast tier.
+5. `regress.py` again: no lost `confirmed`, no returned false positives. A
+   `deferred` entry that flips to CLOSED is confirmed by the user, then promoted
+   to `confirmed`.
+
+A revised drawing is adopted as a **new** slug (`python tools/add_sheet.py`),
+never dropped over an existing one — an existing slug's bytes are immutable
+because its ground truth is pinned to them.
 
 ## Module layout
 
