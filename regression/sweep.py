@@ -6,10 +6,15 @@ means detection ran over the whole page instead of the floor-plan regions —
 which changes what is detected — so it is surfaced per sheet.
 
 Output is persisted under outputs/regress/<slug>/ (gitignored) rather than a
-temp directory, and each sheet is extracted with debug=True: the render, the
-overlay, the debug viewer and the per-category review images are what a human
-needs in order to act on a REVIEW line, and they used to be deleted the instant
-scoring finished.
+temp directory: the render, the overlay and the per-category review images are
+what a human needs in order to act on a REVIEW line, and they used to be
+deleted the instant scoring finished. The per-primitive debug trace
+(debug_trace.json + debug_viewer.html) is opt-in (`debug_traces=True`), not
+unconditional: it scales with primitive count rather than page count, and on
+the corpus's heavier sheets (s16, s18) it added 200-300MB per sheet -- far
+past the +100MB-per-sheet threshold that keeps it off by default. Measured on
+the reference sheet s01 alone it looked cheap (+11.1MB); it is not cheap on
+the corpus as a whole. See tools/regress.py's --debug flag.
 """
 from __future__ import annotations
 
@@ -125,7 +130,7 @@ def score_sheet(slug: str, truth: SheetTruth, pages: dict[int, list[dict]],
     return result
 
 
-def sweep(slugs: list[str] | None = None) -> list[SheetResult]:
+def sweep(slugs: list[str] | None = None, debug_traces: bool = False) -> list[SheetResult]:
     # slugs=[] is a deliberate "sweep nothing" request and must stay empty --
     # `or` would treat it the same as slugs=None ("sweep everything").
     wanted = slugs if slugs is not None else [s["slug"] for s in manifest_sheets()
@@ -165,7 +170,7 @@ def sweep(slugs: list[str] | None = None) -> list[SheetResult]:
         # so a second call would delete the run that just finished.
         out_parent = reset_slug_dir(slug)
         run_extract(str(path), list(range(entry["pages"])),
-                    out_parent=str(out_parent), skip_gemini=True, debug=True)
+                    out_parent=str(out_parent), skip_gemini=True, debug=debug_traces)
         run = latest_run(slug)
         pages = _entities_by_page(str(run)) if run else {}
         cache_miss = _cache_missed(str(run)) if run else False
