@@ -67,7 +67,7 @@ tools/regress.py                   # the sweep
 `fixtures/MANIFEST.json` is committed and is the authority on corpus membership:
 
 ```json
-{"storage": "<bundle location, human-readable>",
+{"storage": "the corpus bundle is not public — ask the maintainer for it, and make sure every sheet is downloaded before sweeping",
  "sheets": [{"slug": "s07", "file": "s07-existing-floor-plans.pdf",
              "sha256": "9f2c…", "pages": 1, "tier": "corpus"}]}
 ```
@@ -242,13 +242,6 @@ are already well understood.
 **Phase 3 — corpus labeling.** Sheets labeled one at a time, as each is tuned.
 Not 900 entities up front. Each newly labeled sheet becomes a gate the moment its
 first verdict lands.
-
-## Open item
-
-`MANIFEST.json`'s `storage` field needs the actual bundle location (a
-human-readable pointer — bucket path, shared-drive folder, or wherever the
-renamed sheets end up). It is the string `fetch_fixtures.py` prints when a sheet
-is missing, so it must be filled in during Phase 1.
 
 ## Risks
 

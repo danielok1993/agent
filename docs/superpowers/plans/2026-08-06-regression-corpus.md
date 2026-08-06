@@ -326,7 +326,8 @@ import fitz
 REPO = Path(__file__).resolve().parent.parent
 SHEETS = REPO / "fixtures" / "sheets"
 MANIFEST = REPO / "fixtures" / "MANIFEST.json"
-STORAGE_NOTE = "TODO-STORAGE-LOCATION"
+STORAGE_NOTE = ("the corpus bundle is not public — ask the maintainer for it, "
+                "and make sure every sheet is downloaded before sweeping")
 
 # (slug, new filename, source path relative to the repo root, tier)
 PLAN = [
@@ -592,9 +593,9 @@ through tests/fixtures.require_sheet, so a clone without the bundle skips them
 cleanly. Detection output verified identical on s01 and s07."
 ```
 
-- [ ] **Step 10: Hand off the storage upload (human step)**
+- [ ] **Step 10: Note the storage upload in the report (no check-in)**
 
-Report to the user: the 20 renamed files plus `fixtures/sheets/.regions_cache/` need uploading to shared storage under their new names, and the real storage location must replace `TODO-STORAGE-LOCATION` in `fixtures/MANIFEST.json`. Do not proceed to Task 3 without asking whether they want that string filled in now.
+State in the task report that the 20 renamed files plus `fixtures/sheets/.regions_cache/` still need uploading to shared storage under their new names — a human step, outside this plan. Do not pause for it; the manifest's `storage` field is a standing instruction, not a location, and needs no further input.
 
 ---
 
@@ -810,11 +811,14 @@ def check_corpus() -> CorpusStatus:
 
 def main() -> int:
     status = check_corpus()
-    storage = load_manifest().get("storage") or "(storage location not recorded)"
+    storage = load_manifest().get("storage") or "ask the maintainer for the bundle"
     print(f"corpus: {len(status.present)} present, {len(status.missing)} missing, "
           f"{len(status.mismatched)} mismatched, {len(status.untracked)} untracked")
+    if status.missing:
+        print(f"\n{len(status.missing)} sheet(s) missing — the sweep is incomplete "
+              f"until every sheet is downloaded. {storage}")
     for slug in status.missing:
-        print(f"  MISSING     {slug} — download from {storage}")
+        print(f"  MISSING     {slug}")
     for slug in status.mismatched:
         print(f"  MISMATCH    {slug} — bytes differ from the manifest; "
               f"a revised drawing must be adopted as a NEW slug "
