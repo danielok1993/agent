@@ -92,7 +92,7 @@ The loop when tuning detection:
    cases, not written by default — it cost 200-300MB/sheet on the corpus's
    heaviest sheets.
 3. `python tools/review.py <slug>` — ticks the correct detections, then the
-   wrong ones (Tab to toggle, not Space); anything ticked in neither is
+   wrong ones (Space to toggle); anything ticked in neither is
    postponed and reappears next sweep. It writes `tests/ground_truth/<slug>.json`
    and sets `"labeled": true` in `fixtures/MANIFEST.json` (absent/false means
    adopted-but-unlabeled, which stays valid for every not-yet-reviewed sheet).

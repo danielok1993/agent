@@ -19,7 +19,7 @@ verdicts are committed; the sweep re-checks every one of them on demand.
 
 | Tier | Command | Runtime | What it covers |
 |---|---|---|---|
-| Unit | `python -m unittest discover tests` | ~8s | Synthetic geometry, 599 tests. Run constantly. |
+| Unit | `python -m unittest discover tests` | ~8s | Synthetic geometry, 603 tests. Run constantly. |
 | Sweep | `python tools/regress.py` | ~2:15 | 20 real sheets vs. committed verdicts. |
 
 The sweep is deliberately NOT in `unittest discover` — a 2-minute suite stops
@@ -182,7 +182,16 @@ terminal's REVIEW lines — then asks **twice**:
 
 Anything ticked in neither pass stays unreviewed and reappears on the next
 sweep — "I can't tell from this image" costs nothing. **The toggle key is
-Tab, not Space** — Space types into the fuzzy filter.
+Space.** The first choice on every screen is `— none of these —`; ticking it
+means the whole selection is empty, no matter what else got ticked alongside
+it — a second, visible way to postpone a screen on top of the picker's own
+correct empty-Enter behavior.
+
+Recording a false positive is expected to turn the *next* sweep red: it will
+exit 1 (§6) until the detector stops emitting that detection. That is by
+design, not a break — it is the queue of detector work the verdicts you just
+recorded created. Don't be alarmed by a red sweep right after a review
+session.
 
 Review images are drawn once, at sweep time, from that sweep's full
 unreviewed set — they are a snapshot, not a live view. If a session is
@@ -259,7 +268,7 @@ happens:
    matching the sweep's REVIEW lines. For a hard case, re-run with `--debug`
    and open `debug_viewer.html` instead (§4).
 3. `python tools/review.py sNN` — tick the correct detections, then the wrong
-   ones (Tab to toggle); anything ticked in neither is postponed and
+   ones (Space to toggle); anything ticked in neither is postponed and
    reappears next sweep. This writes `tests/ground_truth/sNN.json` and sets
    `"labeled": true` in `fixtures/MANIFEST.json` (§8) — commit both as a data
    commit, no code.
