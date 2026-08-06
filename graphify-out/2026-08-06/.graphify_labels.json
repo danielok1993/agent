@@ -152,10 +152,8 @@
   "150": "fill_ring",
   "151": "normalize_bbox",
   "152": "TestExtractImagesInstances",
-  "153": "_scan_striped_runs",
   "154": "TestSpanFilterIsLoadBearing",
   "155": "TestWindowTightPairInterior",
   "156": "TestBlindWindowPocket",
-  "157": "TestFloorPlansRegression",
   "158": "MANIFEST.json"
 }

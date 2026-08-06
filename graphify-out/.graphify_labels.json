@@ -152,8 +152,16 @@
   "150": "fill_ring",
   "151": "normalize_bbox",
   "152": "TestExtractImagesInstances",
+  "153": "fill_ring",
   "154": "TestSpanFilterIsLoadBearing",
   "155": "TestWindowTightPairInterior",
   "156": "TestBlindWindowPocket",
-  "158": "MANIFEST.json"
+  "157": "apply_classification",
+  "158": "MANIFEST.json",
+  "159": "vline",
+  "160": "TestRequestShape",
+  "161": "SweepSlugsArgumentTests",
+  "162": "TestNetworkQueries",
+  "163": "TestThickMaterialPairs",
+  "164": "TestFloorPlansRegression"
 }

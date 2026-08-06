@@ -45,6 +45,16 @@ from regression.verdicts import Verdict, record_verdicts  # noqa: E402
 # skipped" -- a scripted caller must not read a plain 0 as "all clean."
 EXIT_SHEET_FAILED = 1
 
+# A real entity id is always "<type>_<digits>" (door_0007, room_0012), so this
+# can never collide with one. It is the first choice in every _pick() list and
+# is authoritative: ticking it means "none of these", full stop, even if other
+# choices are also ticked in the same pass. This is belt-and-braces on top of
+# `inquirer.checkbox` already returning [] correctly on an empty Enter (see
+# _pick's docstring) -- a second, visible way to say "postpone all", and a
+# second layer of protection if that prompt behavior ever changes.
+_SKIP_ALL = "__none__"
+_SKIP_ALL_LABEL = "— none of these —"
+
 
 def _centre(bbox) -> str:
     return f"({round((bbox[0] + bbox[2]) / 2)},{round((bbox[1] + bbox[3]) / 2)})"
@@ -58,18 +68,34 @@ def _choice(entity: dict) -> Choice:
 
 
 def _pick(message: str, entities: list[dict]) -> set[str]:
-    """Multi-select over entities; returns the chosen entity ids."""
+    """Multi-select over entities; returns the chosen entity ids.
+
+    Uses `inquirer.checkbox`, NOT `inquirer.fuzzy(multiselect=True)`: the
+    fuzzy prompt cannot express an empty selection -- pressing Enter with
+    nothing ticked falls back to capturing whatever choice is currently
+    highlighted (InquirerPy's own `_handle_enter` docstring says so), so a
+    labeler who presses Enter to postpone a screen they cannot judge instead
+    FABRICATES a verdict. `checkbox` returns `[]` on an empty Enter, which is
+    the behavior this tool's whole "postponing costs nothing" design depends
+    on.
+
+    The `_SKIP_ALL` sentinel is a second, independent guarantee of the same
+    thing: if it is ticked, the selection is empty, regardless of what else
+    got ticked alongside it in the same pass.
+    """
     if not entities:
         return set()
-    chosen = inquirer.fuzzy(
+    choices = [Choice(_SKIP_ALL, name=_SKIP_ALL_LABEL)] + [_choice(e) for e in entities]
+    chosen = set(inquirer.checkbox(
         message=message,
-        choices=[_choice(e) for e in entities],
-        multiselect=True,
+        choices=choices,
         border=True,
-        instruction="(type to filter, tab to tick, enter to submit)",
+        instruction="(space to tick, enter to submit)",
         transformer=lambda picked: f"{len(picked)} selected",
-    ).execute()
-    return set(chosen or [])
+    ).execute() or [])
+    if _SKIP_ALL in chosen:
+        return set()
+    return chosen
 
 
 def _shape_and_note(entity: dict) -> tuple[str, str]:
@@ -109,6 +135,15 @@ def review_sheet(slug: str) -> int:
         return 0
 
     run = latest_run(slug)
+    if run is None:
+        # pending() above read a run that existed a moment ago -- a
+        # concurrent `regress.py --sheet <slug>` can wipe it
+        # (run_dir.reset_slug_dir) in between. Nothing has been shown to the
+        # user yet, so there is nothing unsafe about just stopping here.
+        print(f"{slug}: SKIPPED — sweep output vanished mid-review (a concurrent "
+              f"regress.py run?) — re-run: python tools/regress.py --sheet {slug}")
+        return 0
+
     verdicts: list[Verdict] = []
     for number, by_type in sorted(by_page.items()):
         page_dir = run / "pages" / f"page_{number:02d}"
@@ -116,7 +151,15 @@ def review_sheet(slug: str) -> int:
             image = page_dir / f"review_{etype}.png"
             print(f"\n{slug} page {number} — {etype.upper()}S "
                   f"({len(entities)} unreviewed)")
-            print(f"  open: {image}")
+            if image.exists():
+                print(f"  open: {image}")
+            else:
+                # write_review_overlays skips a page with no render.png, but
+                # pending() still offers its entities -- sending the user to a
+                # path that was never written is worse than saying so plainly.
+                print(f"  (no review image at {image} -- render.png was "
+                      f"missing when the sweep ran; judge from memory or "
+                      f"re-run python tools/regress.py --sheet {slug})")
 
             correct = _pick(f"Select CORRECT {etype}s", entities)
             leftovers = [e for e in entities if e["entity_id"] not in correct]
@@ -150,8 +193,13 @@ def review_sheet(slug: str) -> int:
         print(f"\n{slug}: NOT RECORDED — {exc}")
         return 0
     confirmed = sum(1 for v in verdicts if v.correct)
+    false_positives = len(verdicts) - confirmed
     print(f"\n{slug}: wrote {path} "
-          f"(+{confirmed} confirmed, +{len(verdicts) - confirmed} false positives)")
+          f"(+{confirmed} confirmed, +{false_positives} false positives)")
+    if false_positives:
+        print(f"  by design: the next sweep will exit 1 on these {false_positives} "
+              f"until the detector stops emitting them -- that's expected, the "
+              f"queue of detector work these verdicts just created, not a break.")
     print(f"  commit: git add {path} fixtures/MANIFEST.json")
     return len(verdicts)
 
@@ -181,7 +229,10 @@ def main() -> int:
             # still cost only this one sheet, not the rest of a 20-sheet
             # walk. It must also not report success: EXIT_SHEET_FAILED is
             # returned once the walk finishes so a scripted run notices.
-            print(f"\n{slug}: FAILED — {exc}")
+            # repr(), not str(): a bare TypeError() or similar has an empty
+            # str(), and this print is the ONLY thing that makes a failure
+            # visible during an unattended multi-sheet walk.
+            print(f"\n{slug}: FAILED — {exc!r}")
             failed = True
     return EXIT_SHEET_FAILED if failed else 0
 
