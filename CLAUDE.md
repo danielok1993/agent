@@ -48,6 +48,11 @@ corpus (see "Regression testing" below) and point `app.py` at any sheet under
 
 ## Regression testing
 
+**Before changing detection, read `docs/regression-testing-guide.md`.** It covers
+reading the sweep report, the ground-truth file format and the rules for editing
+it, adopting/revising sheets, the invariants (no committed PDFs, no
+address-bearing text), and the traps that have already shipped bugs here.
+
 Two tiers:
 
 ```bash
