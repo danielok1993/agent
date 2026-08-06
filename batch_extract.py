@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Batch PDF extraction script — discovers all PDFs in plans/ folder,
+Batch PDF extraction script — discovers all PDFs in fixtures/sheets/ folder,
 prompts for detection options, and runs extraction in parallel (5 at a time).
 """
 from __future__ import annotations
@@ -125,17 +125,18 @@ def main() -> None:
         sys.exit(1)
 
     # Find PDFs
-    plans_dir = Path("plans")
+    plans_dir = Path("fixtures/sheets")
     if not plans_dir.exists():
-        print("Error: plans/ folder not found.", file=sys.stderr)
+        print("Error: fixtures/sheets/ not found. Run: python tools/fetch_fixtures.py",
+              file=sys.stderr)
         sys.exit(1)
 
     pdfs = find_pdfs(plans_dir)
     if not pdfs:
-        print("No PDFs found in plans/ folder. Exiting.")
+        print("No PDFs found in fixtures/sheets/. Exiting.")
         sys.exit(0)
 
-    print(f"\nFound {len(pdfs)} PDFs in plans/\n")
+    print(f"\nFound {len(pdfs)} PDFs in fixtures/sheets/\n")
 
     # Prompt user for options
     enable_windows = prompt_bool("Enable window detection?", default=True)

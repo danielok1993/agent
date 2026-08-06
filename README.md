@@ -96,11 +96,15 @@ python app.py extract path/to/drawing.pdf --disable-rooms --disable-windows --de
 python app.py extract path/to/drawing.pdf --out /tmp/runs
 ```
 
-Sample PDFs `5-1133-WD03.pdf` and `floor-plans.pdf` are checked in for quick runs.
+The regression corpus lives in `fixtures/sheets/` and is **not** committed: the
+sheets are NDA-covered. Download the bundle (see `fixtures/MANIFEST.json`'s
+`storage` field for how to get it) and verify it with
+`python tools/fetch_fixtures.py`. Sheets are referred to by slug — `s01` and
+`s02` are the two primary reference sheets.
 
 ### Batch extract
 
-Discovers `plans/*.pdf`, prompts interactively for detection options, and runs
+Discovers `fixtures/sheets/*.pdf`, prompts interactively for detection options, and runs
 `app.py extract` five at a time (`ProcessPoolExecutor`):
 
 ```bash
@@ -130,9 +134,19 @@ outputs/<YYYY-MM-DD_HH-MM-SS>/
 ## Tests
 
 ```bash
-# Run the full suite
+# Fast tier — synthetic topologies, ~10s
 python -m unittest discover tests
 
 # Run a single test
 python -m unittest tests.test_door_assembly.TestDoorAssembly.test_<name>
+
+# Regression tier — the 20-sheet corpus vs. committed ground truth, ~3min
+python tools/regress.py
 ```
+
+`tools/regress.py` needs the corpus downloaded (see above). It scores each
+sheet's detections against `tests/ground_truth/sNN.json` — geometric matching,
+never entity ids — and exits 1 on a lost confirmed detection or a returned
+false positive, 2 if sheets are missing, 0 otherwise. New detections never fail
+the sweep; they print under `REVIEW` for the user to verdict. See CLAUDE.md's
+"Regression testing" section for the full labeling loop.

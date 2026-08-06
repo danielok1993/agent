@@ -1,0 +1,31 @@
+{
+  "sheet": "s01",
+  "pdf_sha256": "0867a4be9327989619cd71a783eb701ea11ff231877b548209764eaad2527559",
+  "reviewed": "2026-08-06",
+  "pages": {
+    "1": {
+      "confirmed": [
+        {
+          "type": "window",
+          "bbox": [954.7499338785808, 811.4999771118165, 961.2499237060548, 888.4999593098959],
+          "note": "Ground truth established interactively; see test_window_detection.py::TestFloorPlansRegression."
+        },
+        {
+          "type": "window",
+          "bbox": [867.4999872843425, 895.7499821980795, 922.7500279744467, 917.7499771118165],
+          "note": "Ground truth established interactively; see test_window_detection.py::TestFloorPlansRegression."
+        },
+        {
+          "type": "window",
+          "bbox": [1078.249994913737, 1375.249989827474, 1128.7501017252605, 1396.999994913737],
+          "note": "Ground truth established interactively; see test_window_detection.py::TestFloorPlansRegression."
+        },
+        {
+          "type": "window",
+          "bbox": [903.499984741211, 1375.249989827474, 980.0001144409181, 1396.999994913737],
+          "note": "Ground truth established interactively; see test_window_detection.py::TestFloorPlansRegression."
+        }
+      ]
+    }
+  }
+}

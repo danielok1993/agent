@@ -58,9 +58,9 @@ reference PDFs.
 | Sheet | Regions | Outcome |
 |---|---|---|
 | `floor-plans.pdf` | 2 | both floor plans, cleanly split |
-| `EXISTING_AND_PROPOSED_ELEVATIONS_AND_FLOOR_PLANS-2557737` | 10 | all 3 floor plans isolated |
-| `LOCATION_PLAN__BLOCK_PLAN__EXISTING_PLANS_AND_ELEVATIONS-2682241` | 13 | both floor plans isolated |
-| `PROPOSED_FLOOR_AND_ELEVATIONS-1326086` | 3 | 3 elevations, no floor plan present |
+| `s03` | 10 | all 3 floor plans isolated |
+| `s11` | 13 | both floor plans isolated |
+| `s12` | 3 | 3 elevations, no floor plan present |
 | `5-1133-WD03.pdf` | 1 | no gutters; whole-page fallback |
 
 Path coverage: **100%** on `floor-plans.pdf`, **99.1%** on `5-1133` (the 77
@@ -70,7 +70,7 @@ unassigned paths sit at x≈2495 on a 2480px-wide page — off the sheet edge).
 splits on every sheet tested. 40px vs 80px differ only on the largest A1 sheets.
 
 **Dropping page-spanning primitives is load-bearing.** A single border rule
-spanning the sheet makes every gutter impossible: `2682241` found **0** regions
+spanning the sheet makes every gutter impossible: `s11` found **0** regions
 before the filter and 12 after.
 
 **Classification accuracy.** A full sweep over all 20 pages (18 files in `plans/`
@@ -79,14 +79,14 @@ region ids, costing 44,437 input / 6,230 output tokens in total — about 2.2k
 input tokens per page.
 
 58 regions across 9 of those files were scored by inspection: **zero floor plans
-missed, zero false floor plans.** `2682241` scored 13/13 despite having zero
-extractable text (outlined to curves) and being rotated 90°; `2710870` scored
-14/14. The only calls I could not confirm were two narrow strips on `1789452`
+missed, zero false floor plans.** `s11` scored 13/13 despite having zero
+extractable text (outlined to curves) and being rotated 90°; `s16` scored
+14/14. The only calls I could not confirm were two narrow strips on `s18`
 (elevation vs section) — neither is a floor plan, so the filtering outcome is
 unaffected.
 
-Two **true negatives** were confirmed by inspection: `PROPOSED_FLOOR_AND_ELEVATIONS-1326086`
-and `EXISTING_FLOOR_AND_ELEVATIONS-1326087` contain only elevations despite their
+Two **true negatives** were confirmed by inspection: `s12`
+and `s05` contain only elevations despite their
 filenames. Both are single-page. These pages currently produce phantom doors and
 rooms from elevation linework; under rule 1 they are skipped.
 
@@ -94,23 +94,23 @@ rooms from elevation linework; under rule 1 they are skipped.
 > different partition than the one that shipped, and one of them is wrong.
 >
 > - *Region counts.* The delivered segmenter produces **157** regions over the
->   16 vector sheets in `plans/` — 26 on `2557737` against the 10 in the table
->   above, and 21 on `2682241` against 13. Measured by running
+>   16 vector sheets in `plans/` — 26 on `s03` against the 10 in the table
+>   above, and 21 on `s11` against 13. Measured by running
 >   `qualifying_clip_rects` + `segment_page` over page 1 of each file and
 >   substituting the page-fallback region where the cut yielded ≤ 1. The
 >   58-region accuracy score and the 44,437-token cost therefore describe
 >   regions this code does not produce; the per-page token figure is roughly 3×
 >   low on clip-bearing sheets, since every region sends its own crop. Neither
 >   figure has been re-measured against the current cut.
-> - *The `1326086` "true negative" is false.* The sheet holds a Ground Floor
+> - *The `s12` "true negative" is false.* The sheet holds a Ground Floor
 >   Plan and a First Floor Plan. They read as absent because all three
 >   rotation-270 sheets were extracted in the unrotated mediabox frame while
 >   the page size came from the rotated `page.rect`, so the geometry outside
 >   that frame was invisible to segmentation. Fixed in `extraction/extractor.py`
->   (`page_transform`); `1326086` now yields no gutter at all and falls back to
+>   (`page_transform`); `s12` now yields no gutter at all and falls back to
 >   whole-page detection.
 > - *Path coverage is not universally ~100%.* Measured across `plans/` after
->   the rotation fix: 0.65 on `2682241`, 0.85 on `2710870`, 0.89 on `1326087`,
+>   the rotation fix: 0.65 on `s11`, 0.85 on `s16`, 0.89 on `s05`,
 >   0.94–1.00 on the rest. The shortfall is ink inside leaves discarded by
 >   `SEGMENT_MIN_REGION_SIDE_PX`. `REGION_MIN_COVERAGE_FRAC` (pipeline.py) now
 >   suppresses filtering below 0.90; folding those leaves into their neighbours
@@ -124,18 +124,18 @@ rooms from elevation linework; under rule 1 they are skipped.
 | Whole-page fallback (no gutters) | 7/20 | no filtering; behaves as today |
 | Raster scan, no vector ink | 2/20 | out of scope for a vector-first pipeline |
 
-Of the 11 that split, 2 are entirely floor plans (`floor-plans.pdf`, `3228943` —
+Of the 11 that split, 2 are entirely floor plans (`floor-plans.pdf`, `s07` —
 nothing to filter), 2 are entirely elevations (correctly skipped), and **7 get
 real noise removal**. Of the 7 that fall back to whole-page, at least three
-(`EXISTING_FLOOR_AND_ELEVATION_PLAN-3055574`,
-`PROPOSED_FLOOR_PLANS_AND_ELEVATIONS-3228948`,
-`REV_._B_SINGLE_PLAN_ALL_INFORMATION-3447461`) do contain elevations and would
+(`s06`,
+`s15`,
+`s17`) do contain elevations and would
 benefit if they split — the gutters between their drawings are below 20px. This
 is the main opportunity for a follow-up, and the reason the gutter threshold
 should stay a named constant.
 
 **Native PDF grouping is not usable as a primary signal.** Only 7 of 20 files
-carry ≥2 drawing-sized clip rects. Where present they are accurate (`2557737`'s
+carry ≥2 drawing-sized clip rects. Where present they are accurate (`s03`'s
 clips matched the whitespace cut almost exactly), but both reference PDFs have
 none, and on `5-1133` all 4,202 clips are text and annotation masks. Clips are
 therefore used only as an additional cut hint, gated on ink content.
@@ -158,7 +158,7 @@ Pure geometry, no API, no I/O. Testable offline.
 ```
 
 Clips are cut *hints*, not regions. Qualifying clips overlap and nest each other
-(five of them do on `REV_._B_SINGLE_PLAN_ALL_INFORMATION-3447461`); feeding them
+(five of them do on `s17`); feeding them
 as cut candidates preserves the invariant that the output is a partition — every
 primitive belongs to exactly one region.
 
@@ -168,7 +168,7 @@ horizontally overlapping a drawing region by ≥ 50% of its width, within
 matters because drawing titles otherwise split off as their own regions — on
 `floor-plans.pdf` at 20px, "PROPOSED GROUND FLOOR PLAN" and "PROPOSED FIRST FLOOR
 PLAN" each became a separate zero-path region. A tall multi-line text block (the
-notes paragraph on `2557737`, 568×284px) is not a caption and stays separate.
+notes paragraph on `s03`, 568×284px) is not a caption and stays separate.
 
 ### Constants
 
@@ -212,7 +212,7 @@ constraint.
 ```
 
 `contains_multiple` records an imperfect split (both merged elevation strips on
-`2557737` were correctly flagged). It is informational — it does not change
+`s03` were correctly flagged). It is informational — it does not change
 behaviour, because a region holding two floor plans is handled correctly by the
 union pass anyway.
 
@@ -227,15 +227,15 @@ union pass anyway.
 Four behaviours decide the edge cases:
 
 1. **Page split into ≥2 regions, no `floor_plan` found** → skip detection for the
-   page, emit `NO_FLOOR_PLAN_REGION`. Verified correct on `1326086` and `1326087`.
+   page, emit `NO_FLOOR_PLAN_REGION`. Verified correct on `s12` and `s05`.
 2. **Page did not split (one whole-page region)** → classify it for the record,
    but run detection regardless of the answer. Guarantees never-worse-than-today
    on dense sheets such as `5-1133`. Applies to 7/20 pages.
 3. **Page has no vector ink** (`page_type == "raster-heavy"`, zero paths) →
    segmentation and classification are both skipped entirely; emit
    `RASTER_PAGE_NO_VECTOR_INK` and let the pipeline behave as it does today. This
-   is not a segmentation failure: `FLOOR_PLAN_-_EXISTING-3565362` and
-   `SECOND_FLOOR_PLAN_ROOF_-_EXISTING-3565363` are scanned images (0 paths, 0 text
+   is not a segmentation failure: `s09` and
+   `s19` are scanned images (0 paths, 0 text
    spans, one full-page image), so there is nothing for a vector-first pipeline to
    segment or detect. Checking this *before* calling Gemini avoids 2 wasted calls
    per sweep and stops a raster page being reported as a classification miss.
@@ -298,8 +298,8 @@ Warning codes `GEMINI_SCHEMA_MISMATCH`, `GEMINI_UNKNOWN_CANDIDATE_ID` and
 ## Testing
 
 **Segmenter** — pure geometry, no API. Golden region counts and floor-plan
-identification on `floor-plans.pdf` (2 regions), `2557737` (10 regions, 3 floor
-plans), `5-1133` (1 fallback region), and the span-line filter on `2682241` (0
+identification on `floor-plans.pdf` (2 regions), `s03` (10 regions, 3 floor
+plans), `5-1133` (1 fallback region), and the span-line filter on `s11` (0
 regions without it, 12 with).
 
 **Classifier** — tested against a recorded fixture response, not a live call.
@@ -347,7 +347,7 @@ detail the crops keep.
   at a lower ink threshold, or clip rects on the files that have them).
 - **The 77 off-page paths on `5-1133`** are excluded by region assignment. Their
   effect on `wall_stroke_reference` must be measured, not assumed.
-- **Rotated sheets.** `2682241` is rotated 90° and classified correctly, but the
+- **Rotated sheets.** `s11` is rotated 90° and classified correctly, but the
   caption-merge rule assumes captions sit above or below their drawing. Sideways
   captions will not merge; this costs a text hint, not a region.
 

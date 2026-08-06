@@ -171,7 +171,7 @@ class TestSegmentPage(unittest.TestCase):
         # Bottom: two drawings 8px apart (too narrow for a gutter), separated
         # only by the left edge of a clip rect hugging the bottom-right one.
         # That edge exists at y 250..360 only: it must cut the bottom pair and
-        # must NOT split the top drawing (measured on 2387826/2682241: the
+        # must NOT split the top drawing (measured on s20/s11: the
         # location plan's clip edge sliced the floor plans at the top of the
         # sheet into two floor_plan regions each).
         paths = (block(0, 40, 40, 360, 200)
@@ -193,7 +193,7 @@ class TestSegmentPage(unittest.TestCase):
         # A sub-min-side leaf with ink folds into the nearest kept region: the
         # region count stays 1 but its bbox must grow to cover the leaf, so
         # filtering keeps the leaf's paths (dropping them is what pushed
-        # 2682241 to 0.655 coverage and suppressed filtering entirely).
+        # s11 to 0.655 coverage and suppressed filtering entirely).
         paths = block(0, 40, 40, 200, 200) + block(500, 300, 300, 330, 330)
         regions = segment_page(PageData(page_number=1, width_px=PAGE_W,
                                         height_px=PAGE_H, paths=paths))
@@ -203,7 +203,7 @@ class TestSegmentPage(unittest.TestCase):
 
     def test_small_leaf_folds_into_the_nearest_kept_region(self):
         # Skinny dense strip between two drawings, nearer the left one
-        # (measured on 2682241: 24px-wide strips holding 8,134 paths were
+        # (measured on s11: 24px-wide strips holding 8,134 paths were
         # dropped, costing 34.5% of the sheet's coverage). The LEFT region
         # must absorb it; the right one must not stretch toward it.
         drawing = block(0, 40, 40, 200, 200)

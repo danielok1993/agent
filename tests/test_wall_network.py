@@ -694,7 +694,7 @@ class TestLatticeDemotion(unittest.TestCase):
     def test_stacked_wall_belts_stay_walls(self):
         # Parallel wall bands at quasi-equal spacing whose pieces occupy
         # DISJOINT spans chain into a rung ladder, but never coexist at one
-        # cross-section — the EXISTING_FLOOR_PLANS-3228943 signature, where
+        # cross-section — the s07 signature, where
         # envelope-glued chaining deleted the plan's central wall belt.
         paths = rect_room(0, 100, 100, 400, 400) + [
             hline(50, 500, 800, 500), hline(51, 500, 650, 508),

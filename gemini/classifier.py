@@ -12,7 +12,7 @@ stands. A 2026-07-28 sweep over 20 pages returned 0 malformed responses and 0
 missing region ids, cost 44,437 input tokens in total, and had 58 of its
 regions scored by inspection with zero floor plans missed and zero false
 positives. That was a different partition: the segmenter shipped here produces
-157 regions over the 16 vector sheets in plans/ (26 on 2557737 alone, where
+157 regions over the 16 vector sheets in plans/ (26 on s03 alone, where
 that sweep saw 10 — measured 2026-07-30 by running qualifying_clip_rects +
 segment_page over page 1 of each file, substituting the page-fallback region
 where the cut yielded <= 1). The accuracy score therefore describes regions
@@ -48,7 +48,7 @@ REGION_TYPES = [
 ]
 
 # Constrained decoding. JSON mode alone only asks for JSON; it does not
-# constrain the decoder, and on 2026-08-05 a response for sheet 2682241 began
+# constrain the decoder, and on 2026-08-05 a response for sheet s11 began
 # as valid JSON, degenerated mid-stream into an off-topic fragment, and lost an
 # object separator. With a schema the decoder cannot emit that. The prose shape
 # stays in SYSTEM_PROMPT: it documents intent and steers the VALUES, which no

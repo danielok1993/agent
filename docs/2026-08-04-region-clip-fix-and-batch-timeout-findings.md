@@ -35,10 +35,10 @@ Measured attributions (every split matched a clip edge from elsewhere):
 
 | Sheet | Bogus cut | Donating clip (px, 150 DPI) |
 |---|---|---|
-| 2387826 | x=948 through both floor plans (top of sheet) | location plan clip `(948, 3345, 2700, 4859)` (bottom of sheet) |
-| 2682241 | x=1924 through first-floor plan (y 864–1724) | `(1926, 3434, 2595, 4821)` |
-| 2682241 | y=728 slicing existing-plan top strip | `(1507, 728, 2446, 1880)` |
-| 2557737 | x=1572 splitting elevation pair; y=1504/1652 fragmenting right-column floor plan into 3 (two frags classified at 0.80) | `(283, 267, 1574, 1504)` and `(287, 1652, 3108, 2944)` |
+| s20 | x=948 through both floor plans (top of sheet) | location plan clip `(948, 3345, 2700, 4859)` (bottom of sheet) |
+| s11 | x=1924 through first-floor plan (y 864–1724) | `(1926, 3434, 2595, 4821)` |
+| s11 | y=728 slicing existing-plan top strip | `(1507, 728, 2446, 1880)` |
+| s03 | x=1572 splitting elevation pair; y=1504/1652 fragmenting right-column floor plan into 3 (two frags classified at 0.80) | `(283, 267, 1574, 1504)` and `(287, 1652, 3108, 2944)` |
 
 ### Fix
 
@@ -53,19 +53,19 @@ first (4 regions, top drawing split), passes after.
 ### Sweep (old vs new segmentation, all `plans/*.pdf` + both reference PDFs)
 
 Sheets without qualifying clips are byte-identical by construction
-(574477, 1789452, and others did not appear in the diff). Reference PDFs
+(s14, s18, and others did not appear in the diff). Reference PDFs
 have no qualifying clips → golden tests untouched.
 
 | Sheet | Regions | assigned_path_fraction | Verdict |
 |---|---|---|---|
-| 2387826 | 14 → 10 | 0.943 → 0.943 | 4 floor_plan fragments → 2 whole plans; elevations merge same-type |
-| 2682241 | 21 → 13 | 0.654 → 0.655 | both plans whole; elevation/block_plan groups merge |
-| 2557737 | 26 → 18 | 0.989 → 0.991 | all mergers same-type (verified against classified run `outputs/2026-07-30_21-13-08`); right floor plan healed |
-| 2710870 | 20 → 15 | 0.853 → 0.880 | coverage-suppressed both ways → no detection change |
-| 3447461 | 19 → 19 | 0.993 → 0.997 | the 5-clip sheet clips were built for; legit splits kept |
-| 3055574 | 8 → 7 | 1.000 → 1.000 | merged bottom strip is the title block (rendered and checked) |
-| 3055578 | 3 → 3 | 1.000 → 1.000 | one box grew 4px |
-| 4103493, 4103495 | same | same | SAME |
+| s20 | 14 → 10 | 0.943 → 0.943 | 4 floor_plan fragments → 2 whole plans; elevations merge same-type |
+| s11 | 21 → 13 | 0.654 → 0.655 | both plans whole; elevation/block_plan groups merge |
+| s03 | 26 → 18 | 0.989 → 0.991 | all mergers same-type (verified against classified run `outputs/2026-07-30_21-13-08`); right floor plan healed |
+| s16 | 20 → 15 | 0.853 → 0.880 | coverage-suppressed both ways → no detection change |
+| s17 | 19 → 19 | 0.993 → 0.997 | the 5-clip sheet clips were built for; legit splits kept |
+| s06 | 8 → 7 | 1.000 → 1.000 | merged bottom strip is the title block (rendered and checked) |
+| s13 | 3 → 3 | 1.000 → 1.000 | one box grew 4px |
+| s04, s08 | same | same | SAME |
 
 No sheet lost coverage. Detection input changes on **no** sheet: fragments
 that merged were same-type, and the two coverage-suppressed sheets detect
@@ -79,7 +79,7 @@ the PDFs, not in the repo root).
 ## Part 2 — Investigation (no fix applied): four sheets time out in batch
 
 User report: `batch_extract.py` marks these ✗ `timeout (5 minutes)`:
-2682241, 574477, 2710870, 1789452.
+s11, s14, s16, s18.
 
 ### Verdict
 
@@ -87,25 +87,25 @@ User report: `batch_extract.py` marks these ✗ `timeout (5 minutes)`:
 
 | Sheet | Page paths | Images (p1) | Cause | Detection input today |
 |---|---|---|---|---|
-| PROPOSED_FLOOR_PLANS-574477 | 18,346 | **3,691** | stage-1 `extract_images`: per-image `get_image_bbox` → MuPDF content filter per call ≈ 6 of its 7.5 min | filtered, 17,657 paths (one floor_plan region, 96% of ink) |
-| LOCATION…-2682241 | 148,257 | 0 | stage-5 detection | whole page (coverage 0.655 < 0.90 gate) |
-| PROPOSED_PLANS…-2710870 | 298,603 | 1 | stage-5 detection | whole page (coverage 0.880 < 0.90 gate) |
-| REV…-1789452 | 258,400 | 1 | stage-5 detection | filtered, **127,087** floor_plan paths (coverage ~0.96, filtering ACTIVE) |
+| s14 | 18,346 | **3,691** | stage-1 `extract_images`: per-image `get_image_bbox` → MuPDF content filter per call ≈ 6 of its 7.5 min | filtered, 17,657 paths (one floor_plan region, 96% of ink) |
+| s11 | 148,257 | 0 | stage-5 detection | whole page (coverage 0.655 < 0.90 gate) |
+| s16 | 298,603 | 1 | stage-5 detection | whole page (coverage 0.880 < 0.90 gate) |
+| s18 | 258,400 | 1 | stage-5 detection | filtered, **127,087** floor_plan paths (coverage ~0.96, filtering ACTIVE) |
 
 Proof points that the clip fix is not the cause:
 
-- 574477 and 1789452 have **no qualifying clips** → segmentation
+- s14 and s18 have **no qualifying clips** → segmentation
   byte-identical pre/post fix; both have exactly **one** geometry hash in
   `plans/.regions_cache` (classification reused across both batches).
-- 2682241's **pre-fix** batch run (15:28, dir since deleted) was already
+- s11's **pre-fix** batch run (15:28, dir since deleted) was already
   incomplete — no `warnings.json`, i.e. killed mid-run at the 5-min timeout
   before the fix existed.
-- 2682241/2710870 are coverage-suppressed both before and after → identical
+- s11/s16 are coverage-suppressed both before and after → identical
   whole-page detection load.
 
 ### Timings (measured, contention-free, `--no-gemini`, cache hits)
 
-- **574477**: `454.56 s real / 451.44 s user`, exit 0, 46 candidates /
+- **s14**: `454.56 s real / 451.44 s user`, exit 0, 46 candidates /
   15 entities, peak RSS 558 MB. Reproduced twice (second run also exit 0).
   Stack samples (macOS `sample`) at t=90 s, t=240 s and t=360 s all inside
   `pdf_filter_page_contents` → `PdfSanitizeFilterOptions2::image_filter`
@@ -116,7 +116,7 @@ Proof points that the clip fix is not the cause:
   (`page.get_image_bbox(img)` per image); **identical loop exists on
   `main`** (`git show main:extraction/extractor.py`, line 134) — not a
   branch regression.
-- **2710870**: stages 1–4 took **12 seconds total** (file mtimes:
+- **s16**: stages 1–4 took **12 seconds total** (file mtimes:
   render.png 16:55:06, regions.json :09, pdfplumber_comparison.json :16
   for a 16:55:04 start). Everything after is stage-5 detection:
   **≥ 58 minutes without completing** (run was killed externally when its
@@ -134,7 +134,7 @@ Proof points that the clip fix is not the cause:
 `run_extract` uses `subprocess.run(cmd, shell=True, timeout=300)` where cmd
 is `source .venv/bin/activate && python app.py extract …`. On timeout,
 only the **shell** is killed; the python grandchild survives. Measured: an
-orphaned `app.py extract …2710870` (PPID 1) at 99% CPU, 23+ minutes after
+orphaned `app.py extract …s16` (PPID 1) at 99% CPU, 23+ minutes after
 its "timeout"; killed manually. Consequences: every batch retry runs on a
 machine still burning cores from previous attempts (the user's "keep
 timing out" experience), and "timed-out" work sometimes completes later
@@ -161,8 +161,8 @@ progress (`detection/walls.py:464` moves ≥1 ring pool→accepted per pass;
 `detection/walls.py:1390` collinear merge strictly reduces segment count
 per pass — worst case **O(n³)**, a slowness suspect on 100k+ faces, never
 non-terminating). `doors/arcs.py` `while True` loops walk visited-sets or
-are capped (`DOOR_POLYLINE_CYCLE_MAX_SEGMENTS`). Empirically 574477
-terminates (twice); 2710870 unproven beyond 58 min (bounded by analysis,
+are capped (`DOOR_POLYLINE_CYCLE_MAX_SEGMENTS`). Empirically s14
+terminates (twice); s16 unproven beyond 58 min (bounded by analysis,
 not by observation).
 
 ---
@@ -175,7 +175,7 @@ Ordered by value/effort:
    Launch without `shell=True` (use `.venv/bin/python` directly — no
    activate needed), `start_new_session=True`, on `TimeoutExpired` send
    `os.killpg(os.getpgid(p.pid), SIGKILL)`. Raise per-PDF timeout to
-   ≥ 30 min or make it a CLI flag — note 2710870 exceeds even 58 min until
+   ≥ 30 min or make it a CLI flag — note s16 exceeds even 58 min until
    fix 4 lands, so consider a `--skip` list or per-sheet budget.
 2. **`extract_images` single-pass** (`extraction/extractor.py:200`):
    replace the per-image `get_image_bbox` loop with one
@@ -184,21 +184,21 @@ Ordered by value/effort:
    transform (NOT rotation — see the e97c551 rationale in the code
    comment and `[[pymupdf-rotation-frame-gotcha]]`), `pixel_area`
    computed from raw (point-space) bbox vs page.rect area, and dedup
-   semantics of `get_images(full=True)`. Expected: 574477 ≈ 7.5 min →
-   ≈ 90 s. Verify bbox parity on 574477 + 1326087 (rot 270) + 3447461
+   semantics of `get_images(full=True)`. Expected: s14 ≈ 7.5 min →
+   ≈ 90 s. Verify bbox parity on s14 + s05 (rot 270) + s17
    (31 images) before/after.
 3. **Fold dropped sub-min-side leaves into the nearest kept region**
    (the region-filtering branch's known deferred follow-up) so coverage
    clears `REGION_MIN_COVERAGE_FRAC` (0.90) and filtering activates on
-   the giants. Measured stakes: 2682241 coverage 0.655 → detection input
+   the giants. Measured stakes: s11 coverage 0.655 → detection input
    would drop 148,257 → ≈ 51k paths (floor_plan regions 29,719 + 21,276);
-   2710870 coverage 0.880 → 298,603 → 73,874 (cached classification,
+   s16 coverage 0.880 → 298,603 → 73,874 (cached classification,
    entry `…-eca91b20b29056c9`: GROUND 50,050 + FIRST 23,824). Pair scans
    are superlinear so expect better-than-4× wall-clock. Risk: folding must
    not change which regions classify as what (geometry change → cache
    miss → one re-classification call per sheet, by design).
 4. **Detection performance on giant path counts** — the only rescue for
-   1789452 (127k paths already filtered). Where the time is: pure-Python
+   s18 (127k paths already filtered). Where the time is: pure-Python
    wall pair-scanning before rooms (no GEOS in samples at 5 and 25 min);
    prime suspects are the O(n²) face-pair loops and the O(n³)-worst-case
    collinear merge (`detection/walls.py:1390`). Profile properly with
@@ -233,17 +233,17 @@ four sheets above, all at exactly `timeout (5 minutes)`.
 Branch `fix/batch-timeout-remediation`: fixes 1–3 implemented (process-group
 kill + 30-min `--timeout-minutes` default; single-pass `get_image_info`
 image extraction; path-bearing small leaves fold into the nearest kept
-region with a no-leak overlap gate). Measured: 574477 end-to-end
+region with a no-leak overlap gate). Measured: s14 end-to-end
 454.6 s → 9.1 s with identical detection output (46 candidates /
 15 entities); coverage reaches 1.000 on every vector sheet, filtering
-newly activates on 2682241 / 2710870 / 1326087.
+newly activates on s11 / s16 / s05.
 
 **Fix 4 attribution correction**: with per-stage timing logs
 (`detection.orchestrator` logger, INFO), the giant-sheet time is in
 `detect_windows`, NOT the wall pair-scan the stack samples suggested —
 windows runs before walls, which is what "pure-Python, pre-rooms" was
-actually sampling. Measured on floor_plan-filtered inputs: 2682241
-(51k paths) windows 84.1 s of 86.1 s total, wall_network 0.46 s; 1789452
+actually sampling. Measured on floor_plan-filtered inputs: s11
+(51k paths) windows 84.1 s of 86.1 s total, wall_network 0.46 s; s18
 (127k paths) windows 315.1 s of 320.5 s, wall_network 2.38 s. Scaling is
 ~quadratic in path count. Any future optimization effort belongs in
 `detection/windows.py`'s pair scan, not `detection/walls.py`. With

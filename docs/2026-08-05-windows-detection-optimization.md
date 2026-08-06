@@ -3,21 +3,21 @@
 > **Status: done** (branch `perf/windows-detection-optimization`). All four plan
 > items landed; every gate below passed, output byte-identical on all four
 > sheets. Measured on the same machine and the same region-cache entries
-> (2682241's cache was refreshed by the parse-failure fix, so its filtered page
+> (s11's cache was refreshed by the parse-failure fix, so its filtered page
 > is 59,130 paths here, not the 50,995 quoted below):
 >
 > | Sheet | paths | windows before | windows after | detection total |
 > |---|---|---|---|---|
 > | 5-1133 p1 (whole page) | 8,542 | 1.2 s | 0.2 s | — |
 > | floor-plans p1 (whole page) | 3,764 | 0.4 s | 0.1 s | — |
-> | 2682241 (filtered) | 59,130 | 115.6 s | **3.2 s** | 117.7 s → 5.2 s |
-> | 1789452 (filtered) | 131,853 | 318.1 s | **6.0 s** | 323.7 s → 11.6 s |
+> | s11 (filtered) | 59,130 | 115.6 s | **3.2 s** | 117.7 s → 5.2 s |
+> | s18 (filtered) | 131,853 | 318.1 s | **6.0 s** | 323.7 s → 11.6 s |
 >
 > Items 3 and 4 were *not* skippable: with the glazing scan indexed, the
-> post-fix profile of 1789452 put `crossed()` at 27.3 s and
+> post-fix profile of s18 put `crossed()` at 27.3 s and
 > `_band_interior_clutter` at 11.6 s (of 60.9 s under the profiler) — the exact
 > condition their entries name. Item 1 also needed a second axis: perp alone
-> left `_spanning_glazing` at 70% of the remaining time on 2682241 (14.0 s of
+> left `_spanning_glazing` at 70% of the remaining time on s11 (14.0 s of
 > 20 s), so the pool is bucketed by span START as well, which is the tighter
 > window (16 px vs ~76 px).
 
@@ -45,16 +45,16 @@ Measured on floor_plan-filtered inputs (region cache classifications):
 
 | Sheet | Paths into detection | windows | wall_network | total detection |
 |---|---|---|---|---|
-| 2682241 | 50,995 | **84.1 s** | 0.46 s | 86.1 s |
-| 1789452 | 127,087 | **315.1 s** | 2.38 s | 320.5 s |
+| s11 | 50,995 | **84.1 s** | 0.46 s | 86.1 s |
+| s18 | 127,087 | **315.1 s** | 2.38 s | 320.5 s |
 
 Scaling ≈ quadratic in path count (2.49× paths → 3.75× time). *Estimated*:
-2710870 filtered (~74k paths) ≈ 110 s; unfiltered whole-page giants were the
+s16 filtered (~74k paths) ≈ 110 s; unfiltered whole-page giants were the
 >5-min / >58-min batch-timeout cases.
 
 Deferred because fixes 1–3 already put all four timeout sheets comfortably
 inside the batch runner's new 30-minute default. This task is the remaining
-win: it turns ~5 min of windows scanning on 1789452 into seconds.
+win: it turns ~5 min of windows scanning on s18 into seconds.
 
 ## Where the time goes
 
@@ -88,7 +88,7 @@ records in an orientation frame, G = glazing records in a frame):
    - `_band_interior_clutter` (`windows.py:430`) — per accepted opening,
      scans all paths + all line records → O(openings·n).
 
-cProfile on 2682241's filtered 50,995 paths (77.6 s under the profiler vs
+cProfile on s11's filtered 50,995 paths (77.6 s under the profiler vs
 84.1 s plain — consistent; 28 raw windows found, 65.6M function calls):
 
 | function | ncalls | tottime | cumtime | share |
@@ -107,7 +107,7 @@ the stage. The pair enumeration itself (5.3M `_interval_overlap` calls and
 the min/max churn around them) is the ~5 s that remains once the scan is
 indexed. `_band_interior_clutter` and `crossed()` are noise on this sheet
 (143 and 1 calls) — touch them only if they surface in the *post-fix*
-profile of 1789452.
+profile of s18.
 
 ## Optimization plan (pruning-only, output-identical)
 
@@ -137,17 +137,17 @@ changes a threshold or a comparison. Ordered by measured payoff:
    (i, j) order of the current perp-sorted double loop** so `openings` — and
    therefore candidate numbering and NMS input order — stay byte-identical.
 3. **Spatial grid for `_band_interior_clutter`** — only if the post-1+2
-   profile of 1789452 still shows it (143 calls / 0.9 s on 2682241). One
+   profile of s18 still shows it (143 calls / 0.9 s on s11). One
    coarse grid of path bboxes per page; per opening, test only primitives
    whose bbox intersects the oriented band's axis-aligned bbox (bbox
    intersection is necessary for any point to lie inside the oriented rect,
    so the surviving set is identical).
 4. **Prefilter `crossed()` in `_block_cap_records`** — same condition:
-   measured at 0.008 s on 2682241, so almost certainly skip. Cross strokes
+   measured at 0.008 s on s11, so almost certainly skip. Cross strokes
    must be ≥ `0.75 · diag`, diag ≤ hypot(36, 8) ≈ 37 px, both endpoints
    inside the block bbox ± 1 px.
 
-Expected end state: windows stage seconds, not minutes, on 1789452's 127k
+Expected end state: windows stage seconds, not minutes, on s18's 127k
 paths (*estimated* from removing the pairs·G term; re-measure, don't trust
 the estimate).
 
@@ -158,8 +158,8 @@ the estimate).
    (`TestWindow51133Topology`, `TestFloorPlansRegression` — they run the real
    reference PDFs).
 2. **Byte-identical `detect_windows` output** on: `5-1133-WD03.pdf` p1 and
-   `floor-plans.pdf` p1 (whole page), plus the filtered giants 2682241 and
-   1789452 (recipes below). Dump full candidates (id, bbox, confidence, the
+   `floor-plans.pdf` p1 (whole page), plus the filtered giants s11 and
+   s18 (recipes below). Dump full candidates (id, bbox, confidence, the
    whole evidence dict) in returned order — candidate order IS part of the
    contract (`window_NNNN` numbering, NMS input order).
 3. **Byte-identical `candidates.json` + `final_entities.json`** from a full
@@ -167,7 +167,7 @@ the estimate).
    convention (see memory / prior branches): detection regressions gate on
    the two reference PDFs ONLY — plans/ comparisons are informative, never
    the gate.
-4. Re-measure stage timings on 2682241 + 1789452 and record before/after in
+4. Re-measure stage timings on s11 + s18 and record before/after in
    the commit message. Numbers are measured, never estimated
    ([[verify-before-asserting]]).
 
@@ -185,13 +185,13 @@ from layout.filter import filter_page_data
 from models import Region
 from detection import run_heuristics
 
-PDF = "plans/REV_._PROPOSED_PLANS_AND_ELEVATIONS-1789452.pdf"  # or 2682241
+PDF = "s18"  # or s11
 floor_plans = []
-for f in sorted(glob.glob("plans/.regions_cache/*1789452*")):
+for f in sorted(glob.glob("plans/.regions_cache/*s18*")):
     fp = [Region(**r) for r in json.load(open(f))["regions"]
           if r["region_type"] == "floor_plan"]
     if fp:                      # parse-failed entries cache as all-unclassified
-        floor_plans = fp        # — never pick those (2682241 has one)
+        floor_plans = fp        # — never pick those (s11 has one)
 doc = fitz.open(PDF)
 pd = extract_page(doc, 0)
 filtered = filter_page_data(pd, floor_plans)
@@ -221,7 +221,7 @@ filtering). cProfile: wrap the `detect_windows` call in
 - **Region cache**: entries live in `plans/.regions_cache/`, keyed
   `<content-hash>-<geometry-hash>`; several geometries per sheet coexist
   (pre-clip-fix, pre-fold, post-fold). A Gemini parse failure is cached as
-  all-`unclassified` (2682241's `…-f2b9314d4207b160` entry, 2026-08-05) —
+  all-`unclassified` (s11's `…-f2b9314d4207b160` entry, 2026-08-05) —
   always select entries by checking for `floor_plan` regions, and know that
   such an entry makes the real pipeline skip detection for the sheet until
   `--refresh-regions`.

@@ -26,7 +26,6 @@ from extraction.extractor import (
 )
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ROTATED_SHEET = os.path.join(REPO, "plans", "PROPOSED_FLOOR_AND_ELEVATIONS-1326086.pdf")
 
 # The synthetic sheet, in unrotated mediabox points.
 PAGE_W_PT, PAGE_H_PT = 200.0, 400.0
@@ -201,9 +200,9 @@ class TestExtractPageFrame(RotatedPdfTestCase):
         self.assertAlmostEqual(line_a.points[-1][0], 20.0 * SCALE, places=3)
         self.assertAlmostEqual(line_a.points[-1][1], 140.0 * SCALE, places=3)
 
-    @unittest.skipUnless(os.path.exists(ROTATED_SHEET), "sample sheet not present")
     def test_real_rotated_sheet_lands_entirely_inside_the_render_frame(self):
-        doc = fitz.open(ROTATED_SHEET)
+        from tests.fixtures import require_sheet
+        doc = fitz.open(require_sheet(self, "s12"))
         try:
             self.assertEqual(doc[0].rotation, 270)
             pd = extract_page(doc, 0)

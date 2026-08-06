@@ -1,7 +1,7 @@
 """Native PDF clip rects, used as extra cut hints for the segmenter.
 
 Clip rects are NOT used as regions. They overlap and nest each other (five do
-on REV_._B_SINGLE_PLAN_ALL_INFORMATION-3447461), so feeding them as cut
+on s17), so feeding them as cut
 candidates is what preserves the invariant that segmentation yields a
 partition. They are also absent on 13 of 20 sample files, so they can only ever
 supplement the whitespace cut.
@@ -83,7 +83,7 @@ def clip_cut_positions(
     Each candidate is (position, perp_lo, perp_hi): the edge coordinate plus
     the donating rect's extent along the perpendicular axis. An edge only
     exists where its rect does — flattening to bare coordinates let the
-    location plan's clip edge on 2387826 slice both floor plans at the top of
+    location plan's clip edge on s20 slice both floor plans at the top of
     the sheet, drawings the clip never touches."""
     rows: set[tuple[int, int, int]] = set()
     cols: set[tuple[int, int, int]] = set()
