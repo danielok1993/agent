@@ -22,6 +22,7 @@ import fitz  # noqa: E402
 
 from regression import corpus as fx  # noqa: E402
 from regression.ground_truth import write_empty_truth  # noqa: E402
+from regression.hygiene import address_match  # noqa: E402
 
 
 def next_slug(sheets: list[dict]) -> str:
@@ -38,6 +39,13 @@ def _kebab(desc: str) -> str:
 
 
 def adopt(source: Path, desc: str) -> dict:
+    hit = address_match(desc)
+    if hit is not None:
+        raise ValueError(f"--desc {desc!r} looks address-bearing ({hit!r}) — "
+                         f"the manifest is tracked in git and --desc becomes "
+                         f"its filename verbatim (kebab-cased); use the "
+                         f"drawing type only, e.g. 'existing-floor-plans'")
+
     digest = fx.sha256_of(source)
     for entry in fx.manifest_sheets():
         if entry["sha256"] == digest:

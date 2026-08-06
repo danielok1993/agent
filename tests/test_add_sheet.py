@@ -78,3 +78,21 @@ class AdoptTests(unittest.TestCase):
     def test_a_description_with_spaces_is_kebab_cased(self):
         entry = adopt(self.incoming, "Existing Floor Plans")
         self.assertEqual(entry["file"], "s01-existing-floor-plans.pdf")
+
+    def test_a_street_address_desc_is_rejected(self):
+        # --desc is copied verbatim (kebab-cased) into the tracked manifest's
+        # `file` value -- an address-bearing desc must never reach it.
+        with self.assertRaises(ValueError) as ctx:
+            adopt(self.incoming, "14 Bramble Road proposed")
+        self.assertIn("address-bearing", str(ctx.exception))
+        # Nothing should have been written on rejection.
+        self.assertEqual(fx.manifest_sheets(), [])
+
+    def test_a_postcode_bearing_desc_is_rejected(self):
+        with self.assertRaises(ValueError) as ctx:
+            adopt(self.incoming, "site at SW1A 1AA")
+        self.assertIn("address-bearing", str(ctx.exception))
+
+    def test_an_ordinary_drawing_type_desc_is_accepted(self):
+        entry = adopt(self.incoming, "existing-floor-plans")
+        self.assertEqual(entry["file"], "s01-existing-floor-plans.pdf")
