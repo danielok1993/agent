@@ -67,7 +67,7 @@ class MatchTests(unittest.TestCase):
 
     def test_the_best_overlap_wins_not_the_first(self):
         truth = [TruthItem("door", (0, 0, 10, 10))]
-        actual = [entity("door", (4, 0, 14, 10), "far"), entity("door", (1, 0, 11, 10), "near")]
+        actual = [entity("door", (2, 0, 12, 10), "far"), entity("door", (1, 0, 11, 10), "near")]
         result = match_entities(truth, actual)
         self.assertEqual(result.matched[0][1]["entity_id"], "near")
 
