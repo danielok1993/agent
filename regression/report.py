@@ -34,6 +34,7 @@ class SheetResult:
     counts: dict[str, tuple[int, int]] = field(default_factory=dict)
     region_cache_miss: bool = False
     unscored_pages: list[int] = field(default_factory=list)
+    run_dir: str | None = None
 
     @property
     def is_regression(self) -> bool:
@@ -97,8 +98,20 @@ def render(results: list[SheetResult]) -> str:
             lines.append(f"    REVIEW gap closed: {item.type} @ {_centre(item.bbox)} — "
                          f"confirm it, then promote it to `confirmed`")
         for ent in r.unreviewed:
-            lines.append(f"    REVIEW new {ent['entity_type']} @ {_centre(ent['bbox'])} "
-                         f"conf {ent.get('confidence', 0):.2f}")
+            # entity_id is display-only: it identifies this detection within
+            # THIS sweep's output so the user can find it on the review image.
+            # Ids are ordinal and shift between runs, so it is never written
+            # to ground truth and never used for matching.
+            name = ent.get("entity_id") or ent["entity_type"]
+            lines.append(f"    REVIEW new {name}  "
+                         f"conf {ent.get('confidence', 0):.2f}  {_centre(ent['bbox'])}")
+        # Only unreviewed items are actionable via tools/review.py. A closed
+        # deferred gap is promoted by hand (see the plan's "Out of scope"),
+        # so pointing at review.py for one would send the user somewhere that
+        # cannot help them.
+        if r.run_dir and r.unreviewed:
+            lines.append(f"    images: {r.run_dir}/pages/  "
+                         f"— then: python tools/review.py {r.slug}")
         if r.region_cache_miss:
             lines.append("    REGION CACHE MISS — classification fell back to the whole "
                          "page; detection scope differs from the labeled run")

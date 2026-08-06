@@ -130,3 +130,37 @@ class RenderTests(unittest.TestCase):
     def test_a_region_cache_miss_is_surfaced(self):
         text = render([SheetResult(slug="s07", status="ok", region_cache_miss=True)])
         self.assertIn("REGION CACHE MISS", text)
+
+
+class ReviewLineIdentityTests(unittest.TestCase):
+    def _result(self, **kwargs):
+        return SheetResult(
+            slug="s01",
+            unreviewed=[{"entity_id": "door_0007", "entity_type": "door",
+                         "bbox": [1200.0, 870.0, 1240.0, 900.0], "confidence": 0.82}],
+            **kwargs)
+
+    def test_review_line_names_the_entity_id(self):
+        out = render([self._result()])
+        self.assertIn("door_0007", out)
+
+    def test_review_line_still_carries_confidence_and_centre(self):
+        out = render([self._result()])
+        self.assertIn("conf 0.82", out)
+        self.assertIn("(1220,885)", out)
+
+    def test_review_line_falls_back_to_the_type_without_an_id(self):
+        result = SheetResult(slug="s01",
+                             unreviewed=[{"entity_type": "window",
+                                          "bbox": [0.0, 0.0, 10.0, 10.0]}])
+        out = render([result])
+        self.assertIn("REVIEW new window", out)
+
+    def test_run_dir_is_printed_when_there_are_review_items(self):
+        out = render([self._result(run_dir="outputs/regress/s01/2026-08-06_15-19-08")])
+        self.assertIn("outputs/regress/s01/2026-08-06_15-19-08", out)
+
+    def test_run_dir_is_not_printed_when_nothing_needs_review(self):
+        clean = SheetResult(slug="s01", status="ok",
+                            run_dir="outputs/regress/s01/2026-08-06_15-19-08")
+        self.assertNotIn("outputs/regress", render([clean]))
