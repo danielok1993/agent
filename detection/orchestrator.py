@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 @contextmanager
 def _stage(name: str):
     """Per-stage wall-clock log line. Detection on 100k+-path sheets runs for
-    minutes to hours (2710870: >58 min pre-rooms, 2026-08-04 findings); these
+    minutes to hours (s16: >58 min pre-rooms, 2026-08-04 findings); these
     lines attribute the time without needing root for a profiler."""
     t0 = time.monotonic()
     yield

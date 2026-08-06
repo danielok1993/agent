@@ -1,6 +1,6 @@
 """run_heuristics emits per-stage wall-clock timings on its module logger.
 
-The 2026-08-04 batch-timeout investigation attributed 2710870's >58-minute
+The 2026-08-04 batch-timeout investigation attributed s16's >58-minute
 detection run to "somewhere pre-rooms" only via stack sampling; stage timings
 make the attribution reproducible without root.
 """

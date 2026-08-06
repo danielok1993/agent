@@ -10,7 +10,7 @@ on this machine, 2026-08-05, branch `fix/batch-timeout-remediation`
 
 ## The incident (evidence)
 
-Sheet `plans/LOCATION_PLAN__BLOCK_PLAN__EXISTING_PLANS_AND_ELEVATIONS-2682241.pdf`
+Sheet `s11`
 failed classification **twice in a row** — a 12:44 batch run and a 14:49
 `--refresh-regions` run — while every other sheet in the same batch classified
 correctly. From `outputs/2026-08-05_14-48-44/warnings.json`:
@@ -32,7 +32,7 @@ The response *starts* correct, then degenerates: a stray off-topic fragment
 breaks the JSON and the object separator for region 1 is gone. This is
 mid-stream token corruption (JSON mode does not constrain decoding), not a
 prompt or crop problem — the same call succeeded on 9 other sheets minutes
-earlier and 2682241 itself classified fine on 2026-08-04 (its two older cache
+earlier and s11 itself classified fine on 2026-08-04 (its two older cache
 entries hold real types).
 
 ### Consequence chain (the actual bug)
@@ -51,7 +51,7 @@ What happened next is worse than the flaky response:
    (`pipeline.py:339-353`): `NO_FLOOR_PLAN_REGION`, **detection skipped
    entirely**, zero candidates (`NO_CANDIDATES`).
 4. Every later run loads the poisoned entry
-   (`plans/.regions_cache/LOCATION_…-2682241_p01_29d82e10ad3426f6-f2b9314d4207b160.json`,
+   (`plans/.regions_cache/s11_p01_29d82e10ad3426f6-f2b9314d4207b160.json`,
    13 regions, all `unclassified`, confidence 0.0) and skips detection again —
    until a `--refresh-regions` happens to get a parseable response.
 
@@ -176,11 +176,11 @@ TDD (RED first — both fail today):
 ## Cleanup after the fix lands
 
 - Delete or refresh the poisoned entry: rerun
-  `python app.py extract plans/LOCATION_PLAN__BLOCK_PLAN__EXISTING_PLANS_AND_ELEVATIONS-2682241.pdf --refresh-regions`
+  `python app.py extract s11 --refresh-regions`
   (with Fix A it should parse; with Fix B a repeat flake no longer caches),
-  or simply `rm plans/.regions_cache/*2682241*f2b9314d4207b160.json` — the
+  or simply `rm plans/.regions_cache/*s11*f2b9314d4207b160.json` — the
   cache is derived data, safe to delete.
-- Expected post-fix state for 2682241: classification with 2 `floor_plan`
+- Expected post-fix state for s11: classification with 2 `floor_plan`
   regions (its 2026-08-04 entries had 2 at the current-era segmentation;
   the pre-clip-fix entry had 4 fragments), detection runs, candidates > 0.
 - Live boundedness check stays: one API call per page per geometry, none

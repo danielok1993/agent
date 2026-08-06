@@ -273,8 +273,8 @@ class TestRuleFiveCoverageGuard(RegionRuleTestCase):
     # independently re-measured on re-review. These are the two bands the floor
     # has to separate; asserting the constant's value instead would only detect
     # that somebody changed it.
-    MEASURED_FAILING = {"2682241": 0.654, "2710870": 0.853, "1326087": 0.886}
-    MEASURED_LOWEST_HEALTHY = 0.943  # 2387826
+    MEASURED_FAILING = {"s11": 0.654, "s16": 0.853, "s05": 0.886}
+    MEASURED_LOWEST_HEALTHY = 0.943  # s20
 
     def test_the_floor_sits_between_the_measured_bands(self):
         self.assertGreater(REGION_MIN_COVERAGE_FRAC, max(self.MEASURED_FAILING.values()),

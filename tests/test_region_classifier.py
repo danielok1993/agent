@@ -117,7 +117,7 @@ class TestRequestShape(unittest.TestCase):
     """The response must be schema-constrained at decode time.
 
     Plain JSON mode does not constrain generation: on 2026-08-05 a response for
-    sheet 2682241 started as valid JSON and then degenerated mid-stream into an
+    sheet s11 started as valid JSON and then degenerated mid-stream into an
     off-topic fragment, breaking the object separator. A response_schema makes
     that structurally impossible.
     """

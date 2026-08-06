@@ -314,7 +314,7 @@ def resolve_page_regions(
         # stays "unclassified", which Rule 1 reads as "no floor plan" and would
         # skip detection — for this run AND every later one, since caching it
         # makes a one-off flake permanent (measured 2026-08-05 on sheet
-        # 2682241: a mid-stream-corrupted response zeroed the sheet until a
+        # s11: a mid-stream-corrupted response zeroed the sheet until a
         # --refresh-regions happened to land a parseable reply). So a parse
         # failure degrades exactly like the raising path above: warn (the
         # classifier already did), detect the whole page, cache nothing. A

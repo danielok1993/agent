@@ -72,7 +72,7 @@
 - Consumes: `models.PageData`, `models.PathPrimitive`, `models.TextSpan`
 - Produces: `layout.occupancy.InkMap` (fields `bins: list[bytearray]`, `rows: int`, `cols: int`, `bin_px: int`); `build_ink_map(page_data: PageData, bin_px: int = SEGMENT_BIN_PX) -> InkMap`; `is_page_spanning(p: PathPrimitive, width_px: float, height_px: float, span_frac: float = SEGMENT_SPAN_FRAC) -> bool`
 
-**Why the span filter matters:** a sheet border drawn as four individual full-width/full-height lines makes every whitespace gutter impossible. Measured: `LOCATION_PLAN__BLOCK_PLAN__EXISTING_PLANS_AND_ELEVATIONS-2682241.pdf` found **0** regions without this filter and 12 with it. A 3508×1px border line has a tiny bbox *area*, so an area-based filter does not catch it — the test is per-axis extent.
+**Why the span filter matters:** a sheet border drawn as four individual full-width/full-height lines makes every whitespace gutter impossible. Measured: `s11` found **0** regions without this filter and 12 with it. A 3508×1px border line has a tiny bbox *area*, so an area-based filter does not catch it — the test is per-axis extent.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -207,7 +207,7 @@ SEGMENT_MAX_DEPTH = 6
 SEGMENT_MIN_REGION_SIDE_PX = 60
 
 # A caption is a zero-path strip no taller than this. Measured: real captions
-# are 28px; the notes paragraph on 2557737 is 284px and must NOT merge.
+# are 28px; the notes paragraph on s03 is 284px and must NOT merge.
 CAPTION_MAX_H_PX = 64
 
 # Vertical gap between a caption and its drawing. Measured 44-48px.
@@ -675,7 +675,7 @@ Create `layout/clips.py`:
 """Native PDF clip rects, used as extra cut hints for the segmenter.
 
 Clip rects are NOT used as regions. They overlap and nest each other (five do
-on REV_._B_SINGLE_PLAN_ALL_INFORMATION-3447461), so feeding them as cut
+on s17), so feeding them as cut
 candidates is what preserves the invariant that segmentation yields a
 partition. They are also absent on 13 of 20 sample files, so they can only ever
 supplement the whitespace cut.
@@ -786,7 +786,7 @@ git commit -m "feat(layout): gate native clip rects by ink share and page area"
 - Consumes: `_xy_cut` (Task 2), `clip_cut_positions` (Task 3)
 - Produces: `models.Region`; `layout.segmenter.segment_page(page_data: PageData, clip_rects: list[BBox] | None = None) -> list[Region]`; `layout.segmenter.page_fallback_region(page_data: PageData) -> Region`; `layout.segmenter.count_paths_in(page_data: PageData, box: BBox) -> int`
 
-Captions must merge because drawing titles otherwise split off as their own zero-path regions — measured on `floor-plans.pdf`, where "PROPOSED GROUND FLOOR PLAN" and "PROPOSED FIRST FLOOR PLAN" each became a separate region. A caption that finds no drawing to merge into is **kept** as its own region so `regions.json` records the whole sheet (the 568×284px notes block on `2557737` is one of these).
+Captions must merge because drawing titles otherwise split off as their own zero-path regions — measured on `floor-plans.pdf`, where "PROPOSED GROUND FLOOR PLAN" and "PROPOSED FIRST FLOOR PLAN" each became a separate region. A caption that finds no drawing to merge into is **kept** as its own region so `regions.json` records the whole sheet (the 568×284px notes block on `s03` is one of these).
 
 - [ ] **Step 1: Write the failing test**
 
@@ -1291,10 +1291,10 @@ class TestGoldenSegmentation(unittest.TestCase):
 
 class TestSpanFilterIsLoadBearing(unittest.TestCase):
     """A single border rule spanning the sheet blocks every gutter. Measured:
-    LOCATION_PLAN__BLOCK_PLAN...-2682241 finds 0 regions without the filter."""
+    s11 finds 0 regions without the filter."""
 
     PDF = os.path.join(REPO, "plans",
-                       "LOCATION_PLAN__BLOCK_PLAN__EXISTING_PLANS_AND_ELEVATIONS-2682241.pdf")
+                       "s11")
 
     @unittest.skipUnless(os.path.exists(PDF), "sample sheet not present")
     def test_sheet_has_page_spanning_primitives(self):
@@ -3137,7 +3137,7 @@ Expected: `IDENTICAL`, and `warnings.json` must NOT contain `REGION_CACHE_MISS_O
 
 ```bash
 source .venv/bin/activate
-python app.py extract "plans/PROPOSED_FLOOR_AND_ELEVATIONS-1326086.pdf" --out /tmp/regionplan-tn
+python app.py extract "s12" --out /tmp/regionplan-tn
 python -c "
 import json,glob
 w = sorted(glob.glob('/tmp/regionplan-tn/*/warnings.json'))[-1]
@@ -3154,7 +3154,7 @@ Expected: `True`, and 0 entities. This page contains only elevations; today it p
 
 ```bash
 source .venv/bin/activate
-python app.py extract "plans/FLOOR_PLAN_-_EXISTING-3565362.pdf" --out /tmp/regionplan-raster
+python app.py extract "s09" --out /tmp/regionplan-raster
 python -c "
 import json,glob
 w = sorted(glob.glob('/tmp/regionplan-raster/*/warnings.json'))[-1]
@@ -3180,7 +3180,7 @@ git commit -m "test: entity-diff tool for before/after regression runs
 
 Verified on the reference PDFs: floor-plans.pdf is identical (12 doors,
 4 windows, 13 rooms), 5-1133 is identical via the whole-page fallback
-region, offline cached runs match online runs, 1326086 is correctly
+region, offline cached runs match online runs, s12 is correctly
 skipped as having no floor plan, and the raster page skips segmentation
 without an API call."
 ```

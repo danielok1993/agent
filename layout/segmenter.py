@@ -192,7 +192,7 @@ def _fold_small_leaves(
     """Union each path-bearing sub-min-side leaf into its nearest kept box.
 
     Dropping the leaf drops its paths from coverage, and on dense sheets the
-    dropped leaves are anything but empty: 2682241's skinny scale-bar strips
+    dropped leaves are anything but empty: s11's skinny scale-bar strips
     (24x348px, 8,134 paths each) held 34.5% of the sheet's paths, pushing
     assigned_path_fraction to 0.655 — under REGION_MIN_COVERAGE_FRAC, so
     region filtering never activated and detection saw all 148k paths.
@@ -202,7 +202,7 @@ def _fold_small_leaves(
     and leaves whose union would INCREASE the grown box's overlap with any
     other kept box. The union is a full rectangle, so folding a leaf that
     sits diagonal to its host annexes the space in between — a page-wide
-    980x4 border fragment (2682241, 1 path) folded into a tall region would
+    980x4 border fragment (s11, 1 path) folded into a tall region would
     stretch it across its neighbours' columns and feed their ink to whatever
     the host region classifies as. Such a leaf tries the next-nearest box,
     and drops (the pre-fold behaviour) when every candidate would leak.

@@ -26,7 +26,7 @@ SEGMENT_MAX_DEPTH = 6
 SEGMENT_MIN_REGION_SIDE_PX = 60
 
 # A caption is a zero-path strip no taller than this. Measured: real captions
-# are 28px; the notes paragraph on 2557737 is 284px and must NOT merge.
+# are 28px; the notes paragraph on s03 is 284px and must NOT merge.
 CAPTION_MAX_H_PX = 64
 
 # Vertical gap between a caption and its drawing. Measured 44-48px.

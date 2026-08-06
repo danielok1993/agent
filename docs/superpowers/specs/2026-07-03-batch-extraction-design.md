@@ -67,10 +67,10 @@ The script will:
 As each PDF is processed, the script prints a line for each completed extraction (in the order they complete):
 
 ```
-[1/17] ✓ EXISTING_FIRST_FLOOR_PLAN-4103493.pdf → outputs/2026-07-03_10-30-45/
-[2/17] ✓ PROPOSED_FLOOR_PLANS-574477.pdf → outputs/2026-07-03_10-30-45/
+[1/17] ✓ s04 → outputs/2026-07-03_10-30-45/
+[2/17] ✓ s14 → outputs/2026-07-03_10-30-45/
 [3/17] ✗ BROKEN_FILE.pdf (exit code 1: error details here)
-[4/17] ✓ LOCATION_PLAN_AND_ALL_EXISTING_INFORMATION-772263.pdf → outputs/2026-07-03_10-30-45/
+[4/17] ✓ s10 → outputs/2026-07-03_10-30-45/
 ```
 
 Details:

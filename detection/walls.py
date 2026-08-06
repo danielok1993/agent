@@ -1329,7 +1329,7 @@ def _scan_striped_runs(
             nxt += 1
         # Chained membership is not enough: distinct parallel wall bands
         # stacked at quasi-equal spacing chain too (measured on
-        # EXISTING_FLOOR_PLANS-3228943: three 8px wall bands at 8-9px gaps
+        # s07: three 8px wall bands at 8-9px gaps
         # chained into a 5-rung "ladder" and deleted the plan's central wall
         # belt). A drawn FIELD has its courses side by side: somewhere along
         # the axis, MIN_RUNGS rungs coexist. Wall belts never stack that

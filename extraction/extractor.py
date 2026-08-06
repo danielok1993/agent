@@ -203,14 +203,14 @@ def extract_images(page: fitz.Page, doc: fitz.Document,
     # exactly like get_drawings()/get_text() — and unlike the per-image
     # get_image_bbox() it replaced, which honoured /Rotate and therefore took
     # the scale only. Images now go through the full transform like every
-    # other primitive (measured on 1326086, rot 270: info bbox
+    # other primitive (measured on s12, rot 270: info bbox
     # (696.7, 1026.5, 818.6, 1168.5) vs get_image_bbox's rotated
     # (1026.5, 23.4, 1168.5, 145.3) — scale-only left it off-page).
     page_area = page.rect.width * page.rect.height
 
     # One content-stream traversal for every image on the page. The previous
     # per-image get_image_bbox() loop re-ran MuPDF's page content filter once
-    # per call — ≈6 of 574477's 7.5 minutes on its 3,691-image sheet
+    # per call — ≈6 of s14's 7.5 minutes on its 3,691-image sheet
     # (docs/2026-08-04 findings). get_images(full=True) yields one row per
     # image *reference name* (one xref displayed twice = two rows), and
     # get_image_info() yields display instances in the same order, so rows
