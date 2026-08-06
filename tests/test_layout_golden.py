@@ -11,12 +11,11 @@ import fitz
 from extraction.extractor import extract_page
 from layout import qualifying_clip_rects, segment_page
 from layout.occupancy import build_ink_map, is_page_spanning
+from tests.fixtures import require_sheet
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
-def segment(pdf_name, page_index=0, use_clips=True):
-    path = os.path.join(REPO, pdf_name)
+def segment(test_case, slug, page_index=0, use_clips=True):
+    path = require_sheet(test_case, slug)
     doc = fitz.open(path)
     page_data = extract_page(doc, page_index)
     clips = qualifying_clip_rects(doc[page_index], page_data) if use_clips else []
@@ -27,15 +26,15 @@ def segment(pdf_name, page_index=0, use_clips=True):
 
 class TestGoldenSegmentation(unittest.TestCase):
     def test_floor_plans_splits_into_two_regions(self):
-        page_data, regions = segment("floor-plans.pdf")
+        page_data, regions = segment(self, "s01")
         self.assertEqual(len(regions), 2)
 
     def test_floor_plans_assigns_every_path(self):
-        page_data, regions = segment("floor-plans.pdf")
+        page_data, regions = segment(self, "s01")
         self.assertEqual(sum(r.path_count for r in regions), len(page_data.paths))
 
     def test_floor_plans_captions_merged_so_titles_are_inside_regions(self):
-        page_data, regions = segment("floor-plans.pdf")
+        page_data, regions = segment(self, "s01")
         titles = {"PROPOSED GROUND FLOOR PLAN", "PROPOSED FIRST FLOOR PLAN"}
         found = set()
         for span in page_data.text_spans:
@@ -50,7 +49,7 @@ class TestGoldenSegmentation(unittest.TestCase):
         self.assertEqual(found, titles)
 
     def test_5_1133_is_too_dense_to_split(self):
-        _, regions = segment("5-1133-WD03.pdf")
+        _, regions = segment(self, "s02")
         self.assertEqual(len(regions), 1)
 
 
@@ -62,33 +61,27 @@ class TestSpanFilterIsLoadBearing(unittest.TestCase):
     unconditionally, and adding a production parameter purely for this test
     was rejected as over-building."""
 
-    PDF = os.path.join(REPO, "plans",
-                       "LOCATION_PLAN__BLOCK_PLAN__EXISTING_PLANS_AND_ELEVATIONS-2682241.pdf")
-
-    @unittest.skipUnless(os.path.exists(PDF), "sample sheet not present")
-    def test_sheet_has_page_spanning_primitives(self):
-        doc = fitz.open(self.PDF)
+    def _page_data(self):
+        doc = fitz.open(require_sheet(self, "s11"))
         page_data = extract_page(doc, 0)
         doc.close()
+        return page_data
+
+    def test_sheet_has_page_spanning_primitives(self):
+        page_data = self._page_data()
         spanning = [
             p for p in page_data.paths
             if is_page_spanning(p, page_data.width_px, page_data.height_px)
         ]
         self.assertGreater(len(spanning), 0)
 
-    @unittest.skipUnless(os.path.exists(PDF), "sample sheet not present")
     def test_sheet_splits_into_many_regions_with_the_filter(self):
-        doc = fitz.open(self.PDF)
-        page_data = extract_page(doc, 0)
-        doc.close()
+        page_data = self._page_data()
         regions = segment_page(page_data)
         self.assertEqual(len(regions), 13)
 
-    @unittest.skipUnless(os.path.exists(PDF), "sample sheet not present")
     def test_ink_map_has_no_page_spanning_rows(self):
-        doc = fitz.open(self.PDF)
-        page_data = extract_page(doc, 0)
-        doc.close()
+        page_data = self._page_data()
         ink = build_ink_map(page_data)
         spanning_rows = sum(
             1 for r in range(ink.rows) if sum(ink.bins[r]) > 0.9 * ink.cols

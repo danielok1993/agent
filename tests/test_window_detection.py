@@ -579,9 +579,8 @@ class TestFloorPlansRegression(unittest.TestCase):
     FP_CENTERS = [(980, 783), (1053, 812), (980, 936), (1004, 1118)]  # toilet, sink, toilet, door-leaf
 
     def setUp(self):
-        self.pdf = os.path.join(os.path.dirname(__file__), os.pardir, "floor-plans.pdf")
-        if not os.path.exists(self.pdf):
-            self.skipTest("floor-plans.pdf not present")
+        from tests.fixtures import require_sheet
+        self.pdf = str(require_sheet(self, "s01"))
 
     def test_exactly_four_ground_truth_windows(self):
         import fitz

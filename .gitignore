@@ -5,9 +5,11 @@ outputs/
 
 .DS_Store
 
-# Anchored to the repo root: the sample-PDF folder only. Unanchored, this also
-# swallowed docs/superpowers/plans/, whose sibling specs/ dir is tracked.
-/plans/
+# The corpus sheets are NDA-covered and never committed. Only the manifest is
+# tracked; fixtures/sheets/ is populated by manual download —
+# see tools/fetch_fixtures.py and docs/superpowers/specs/2026-08-06-regression-corpus-design.md
+/fixtures/*
+!/fixtures/MANIFEST.json
 
 .regions_cache/
 

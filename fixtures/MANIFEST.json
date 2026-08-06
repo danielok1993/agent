@@ -1,0 +1,145 @@
+{
+  "storage": "the corpus bundle is not public \u2014 ask the maintainer for it, and make sure every sheet is downloaded before sweeping",
+  "sheets": [
+    {
+      "slug": "s01",
+      "file": "s01-floor-plans.pdf",
+      "sha256": "0867a4be9327989619cd71a783eb701ea11ff231877b548209764eaad2527559",
+      "pages": 1,
+      "tier": "reference"
+    },
+    {
+      "slug": "s02",
+      "file": "s02-working-drawing-wd03.pdf",
+      "sha256": "ffa95b78a6135e04d042af44ea82c9c9615a040f08f74cb45afc865cb334ec81",
+      "pages": 1,
+      "tier": "reference"
+    },
+    {
+      "slug": "s03",
+      "file": "s03-existing-and-proposed-elevations-and-floor-plans.pdf",
+      "sha256": "bc2be15405f93f3e040176a648d3ee9b2f59557ed9f3bceb61b2b13ad309ff40",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s04",
+      "file": "s04-existing-first-floor-plan.pdf",
+      "sha256": "8fb24eec19869af3cfe6c17c76ce15a9a8038b851303b6c369e1ce6bd0d0c642",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s05",
+      "file": "s05-existing-floor-and-elevations.pdf",
+      "sha256": "422db0de3a8585f44c3e7ee49a0bcd196ca0e38f5ec386ab3e639a46b7ccdfc2",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s06",
+      "file": "s06-existing-floor-and-elevation-plan.pdf",
+      "sha256": "7f84f2522a1f2de9504198040e91463b5def4ed0652a5b27bec9f99431d79396",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s07",
+      "file": "s07-existing-floor-plans.pdf",
+      "sha256": "298618e57ad657bd8d36e958d66352fe3ba03d4910c42ec31b96d0af0469d542",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s08",
+      "file": "s08-existing-ground-floor-plan.pdf",
+      "sha256": "b1c63004aaa0e0c4e615f27da51ae2997a5429de21b2dd7e4259a73360181c8d",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s09",
+      "file": "s09-floor-plan-existing.pdf",
+      "sha256": "c8f8a2d7a930c6928968699eb33072c9dddef6e301036d302ebab300cf03b279",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s10",
+      "file": "s10-location-plan-and-all-existing-information.pdf",
+      "sha256": "f11fd02ac85a803122faf053c2c620b40acf3d654cc954531e7c24489d07eba9",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s11",
+      "file": "s11-location-plan-block-plan-existing-plans-and-elevations.pdf",
+      "sha256": "6bf0b55d7119b264859baa4a9423c6a499fa88e87f8f4e0067fe8ed9382f9c6b",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s12",
+      "file": "s12-proposed-floor-and-elevations.pdf",
+      "sha256": "8740486a22f62df959d9b5bbd6b9e98890e5bf9ee0d9e6faf3ca8bbb10222b3d",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s13",
+      "file": "s13-proposed-floor-and-elevation-plan.pdf",
+      "sha256": "5e129cffcaad38ac4ed74badbf8686885f07fad9fd16c1de842b803574532923",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s14",
+      "file": "s14-proposed-floor-plans.pdf",
+      "sha256": "2d45c8bb26cef5c88b92f6ea74c74ba024e77c474fff20465aa613f8fcf415ce",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s15",
+      "file": "s15-proposed-floor-plans-and-elevations.pdf",
+      "sha256": "0bdd3e6e14c75ed80d46093be9b7fd1278e240cf2a1047fe83a85e2eee777db1",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s16",
+      "file": "s16-proposed-plans-and-elevations.pdf",
+      "sha256": "43b50b757cc679e89e0cf85041914f2693d81cd46a2c7ea778c0fae1699b2b5b",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s17",
+      "file": "s17-rev-b-single-plan-all-information.pdf",
+      "sha256": "08dbfbb5bdc93b53780d73ef2e05f20cf254b4605d5d8176484f5983e53912f6",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s18",
+      "file": "s18-rev-proposed-plans-and-elevations.pdf",
+      "sha256": "40c4ccdbebe82cd39588c2eb9b3706be9c14d4bf77d1010634b81979914cc98b",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s19",
+      "file": "s19-second-floor-plan-roof-existing.pdf",
+      "sha256": "05d56d8d16fccfc7885b710ab87bc637bafb313969f4cd2451370a95d8da93ef",
+      "pages": 1,
+      "tier": "corpus"
+    },
+    {
+      "slug": "s20",
+      "file": "s20-single-plan-all-information.pdf",
+      "sha256": "9e3c33ddbd643af548de06c76074c3eb1e45102c51fb1472424354c1267f00bc",
+      "pages": 1,
+      "tier": "corpus"
+    }
+  ]
+}

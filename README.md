@@ -96,11 +96,14 @@ python app.py extract path/to/drawing.pdf --disable-rooms --disable-windows --de
 python app.py extract path/to/drawing.pdf --out /tmp/runs
 ```
 
-Sample PDFs `5-1133-WD03.pdf` and `floor-plans.pdf` are checked in for quick runs.
+The regression corpus lives in `fixtures/sheets/` and is **not** committed: the
+sheets are NDA-covered. Download the bundle (location in `fixtures/MANIFEST.json`)
+and verify it with `python tools/fetch_fixtures.py`. Sheets are referred to by
+slug — `s01` and `s02` are the two primary reference sheets.
 
 ### Batch extract
 
-Discovers `plans/*.pdf`, prompts interactively for detection options, and runs
+Discovers `fixtures/sheets/*.pdf`, prompts interactively for detection options, and runs
 `app.py extract` five at a time (`ProcessPoolExecutor`):
 
 ```bash
