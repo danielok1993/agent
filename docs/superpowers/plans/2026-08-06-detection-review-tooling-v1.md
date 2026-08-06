@@ -872,6 +872,22 @@ class VerdictWriterTests(unittest.TestCase):
         self.assertEqual((gt.TRUTH_DIR / "s01.json").read_text(encoding="utf-8"),
                          before)
 
+    def test_ground_truth_from_another_pdf_raises_and_writes_nothing(self):
+        (gt.TRUTH_DIR / "s01.json").write_text(json.dumps({
+            "sheet": "s01", "pdf_sha256": "9" * 64, "reviewed": "2026-01-01",
+            "pages": {},
+        }, indent=2) + "\n", encoding="utf-8")
+        before = (gt.TRUTH_DIR / "s01.json").read_text(encoding="utf-8")
+
+        with self.assertRaises(ValueError):
+            record_verdicts("s01", [Verdict(page=1, entity=door(), correct=True)],
+                            today="2026-08-06")
+
+        self.assertEqual((gt.TRUTH_DIR / "s01.json").read_text(encoding="utf-8"),
+                         before)
+        sheets = json.loads(corpus.MANIFEST_PATH.read_text(encoding="utf-8"))["sheets"]
+        self.assertNotIn("labeled", {s["slug"]: s for s in sheets}["s01"])
+
     def test_an_empty_verdict_list_writes_nothing(self):
         record_verdicts("s01", [], today="2026-08-06")
         self.assertFalse((gt.TRUTH_DIR / "s01.json").exists())
@@ -996,6 +1012,17 @@ def record_verdicts(slug: str, verdicts: list[Verdict],
                              f"got {verdict.page}")
 
     truth: SheetTruth = load_truth(slug)
+    # Refuse to mix two drawings' verdicts in one file. `or entry[...]` alone
+    # would silently keep a stale hash, producing a truth file that sweep.py
+    # rejects as sha_mismatch on its very next run. review_session.pending
+    # blocks this earlier; the check is repeated here because this function is
+    # the only writer and must hold the invariant on its own.
+    if truth.pdf_sha256 and truth.pdf_sha256 != entry["sha256"]:
+        raise ValueError(
+            f"{slug}: ground truth was reviewed against a different PDF "
+            f"({truth.pdf_sha256} vs the manifest's {entry['sha256']}). A "
+            f"revised drawing is adopted as a NEW slug, never merged into an "
+            f"existing one.")
     truth.slug = slug
     truth.pdf_sha256 = truth.pdf_sha256 or entry["sha256"]
     truth.reviewed = today or datetime.date.today().isoformat()
@@ -1643,11 +1670,38 @@ class PendingTests(unittest.TestCase):
         with self.assertRaises(ReviewBlocked):
             pending("s01")
 
-    def test_a_missing_sweep_meta_is_tolerated(self):
-        # Output from before sweep_meta.json existed. The disk-vs-manifest sha
-        # check still applies; the run's own provenance is simply unknown.
+    def test_a_missing_sweep_meta_blocks(self):
+        # Unknown provenance is not a tolerable state: there is no way to tell
+        # which drawing these images show, and a wrong verdict is permanent.
         run = self._persist("s01", {1: [entity("door_0001", "door", (0, 0, 10, 10))]})
         (run / "sweep_meta.json").unlink()
+        with self.assertRaises(SweepOutputStale):
+            pending("s01")
+
+    def test_an_unreadable_sweep_meta_blocks(self):
+        run = self._persist("s01", {1: [entity("door_0001", "door", (0, 0, 10, 10))]})
+        (run / "sweep_meta.json").write_text("{ not json", encoding="utf-8")
+        with self.assertRaises(ReviewBlocked):
+            pending("s01")
+
+    def test_ground_truth_reviewed_against_another_pdf_blocks(self):
+        # sweep.py already fails this state (status "sha_mismatch", exit 1).
+        # Appending here would write verdicts the next sweep refuses to score.
+        self._persist("s01", {1: [entity("door_0001", "door", (0, 0, 10, 10))]})
+        (gt.TRUTH_DIR / "s01.json").write_text(json.dumps({
+            "sheet": "s01", "pdf_sha256": "9" * 64, "reviewed": "2026-01-01",
+            "pages": {},
+        }, indent=2) + "\n", encoding="utf-8")
+        with self.assertRaises(SweepOutputStale):
+            pending("s01")
+
+    def test_ground_truth_with_no_recorded_sha_is_fine(self):
+        # An adopted-but-unlabeled sheet: write_empty_truth sets the sha, but a
+        # hand-made file may not. Absent is not a mismatch.
+        self._persist("s01", {1: [entity("door_0001", "door", (0, 0, 10, 10))]})
+        (gt.TRUTH_DIR / "s01.json").write_text(json.dumps({
+            "sheet": "s01", "pdf_sha256": None, "reviewed": None, "pages": {},
+        }, indent=2) + "\n", encoding="utf-8")
         self.assertEqual(sorted(pending("s01")), [1])
 
     def test_everything_is_pending_on_an_unlabeled_sheet(self):
@@ -1789,9 +1843,15 @@ def _check_provenance(slug: str, run) -> None:
 
     meta_path = run / "sweep_meta.json"
     if not meta_path.exists():
-        # Output from before sweep_meta.json existed. The disk-vs-manifest
-        # check above still holds; this run's own provenance is just unknown.
-        return
+        # Unknown provenance, not legacy tolerance: every sweep since the
+        # stamp was introduced writes it, so a run without one is either from
+        # before this tooling existed or was assembled by hand. Either way
+        # there is no way to tell which drawing the images show, and a wrong
+        # verdict is permanent. Cheap to fix: re-sweep.
+        raise SweepOutputStale(
+            f"{slug}: sweep output carries no sweep_meta.json, so the drawing "
+            f"it was produced from is unknown — "
+            f"re-run: python tools/regress.py --sheet {slug}")
     try:
         swept_sha = json.loads(meta_path.read_text(encoding="utf-8"))["sha256"]
     except (json.JSONDecodeError, KeyError, OSError) as exc:
@@ -1825,6 +1885,20 @@ def pending(slug: str) -> dict[int, dict[str, list[dict]]]:
         raise ReviewBlocked(
             f"{slug}: tests/ground_truth/{slug}.json is unreadable — {exc}"
         ) from exc
+
+    # The existing verdicts were reviewed against a different drawing.
+    # sweep.py already refuses to score this state (status "sha_mismatch",
+    # exit 1), so appending here would write verdicts the very next sweep
+    # rejects -- and would mix two drawings' verdicts in one file while doing
+    # it. Blocked at the door instead.
+    entry = sheet_entry(slug)
+    if truth.pdf_sha256 and truth.pdf_sha256 != entry["sha256"]:
+        raise SweepOutputStale(
+            f"{slug}: tests/ground_truth/{slug}.json was reviewed against a "
+            f"different PDF ({truth.pdf_sha256[:12]}… vs the manifest's "
+            f"{entry['sha256'][:12]}…). A revised drawing is adopted as a NEW "
+            f"slug (python tools/add_sheet.py); its verdicts are never merged "
+            f"into the old one.")
 
     result: dict[int, dict[str, list[dict]]] = {}
     for number, entities in sorted(_entities_by_page(str(run)).items()):
