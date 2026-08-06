@@ -16,7 +16,8 @@ from pathlib import Path
 import regression.corpus as fx
 import regression.ground_truth as gt
 from regression.ground_truth import PageTruth, SheetTruth, TruthItem
-from regression.sweep import _labeled_but_unreviewed, score_sheet, sweep
+from regression.sweep import (PRUNE_PAGE_ENTRIES, _labeled_but_unreviewed,
+                              _prune_unread_page_output, score_sheet, sweep)
 
 
 def entity(kind, bbox, eid="e0"):
@@ -327,6 +328,75 @@ class UnreviewedByPageTests(unittest.TestCase):
         result = score_sheet("s01", truth, pages)
 
         self.assertEqual(result.unreviewed_by_page, {})
+
+
+class PruneUnreadPageOutputTests(unittest.TestCase):
+    """A fake run directory stands in for a real extraction (fast tier, no
+    pipeline invoked): one page carrying every prunable entry plus every kept
+    entry, so a single pass proves both that the unread files are gone and
+    that nothing a human or later tooling reads was touched.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.run = Path(self.tmp.name) / "2026-08-06_00-00-00"
+        self.page_dir = self.run / "pages" / "page_01"
+        self.page_dir.mkdir(parents=True)
+
+        self.pruned_files = ["primitives.json", "candidates.json",
+                             "pdfplumber_comparison.json", "regions.json"]
+        self.pruned_dirs = ["region_crops"]
+        self.kept_files = ["render.png", "overlay.png", "final_entities.json",
+                           "review_door.png", "review_room.png"]
+
+        for name in self.pruned_files + self.kept_files:
+            (self.page_dir / name).write_text("x", encoding="utf-8")
+        for name in self.pruned_dirs:
+            d = self.page_dir / name
+            d.mkdir()
+            (d / "region_0.png").write_bytes(b"x")
+
+        # Run-root files (sibling of pages/, not inside a page dir) must
+        # survive untouched -- the prune list is page-level only.
+        (self.run / "sweep_meta.json").write_text("{}", encoding="utf-8")
+        (self.run / "warnings.json").write_text("{}", encoding="utf-8")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_prune_list_matches_what_the_function_deletes(self):
+        # Documents the exact contract PRUNE_PAGE_ENTRIES commits to, so a
+        # future edit to the constant is forced to update this test too.
+        self.assertEqual(set(PRUNE_PAGE_ENTRIES),
+                         set(self.pruned_files) | set(self.pruned_dirs))
+
+    def test_prune_removes_the_unread_files_and_dirs(self):
+        _prune_unread_page_output(self.run)
+
+        for name in self.pruned_files:
+            self.assertFalse((self.page_dir / name).exists(), name)
+        for name in self.pruned_dirs:
+            self.assertFalse((self.page_dir / name).exists(), name)
+
+    def test_prune_preserves_everything_review_and_tooling_read(self):
+        _prune_unread_page_output(self.run)
+
+        for name in self.kept_files:
+            self.assertTrue((self.page_dir / name).exists(), name)
+        self.assertTrue((self.run / "sweep_meta.json").exists())
+        self.assertTrue((self.run / "warnings.json").exists())
+
+    def test_prune_is_safe_to_call_when_nothing_prunable_is_present(self):
+        for name in self.pruned_files:
+            (self.page_dir / name).unlink()
+        for name in self.pruned_dirs:
+            import shutil
+            shutil.rmtree(self.page_dir / name)
+
+        _prune_unread_page_output(self.run)  # must not raise
+
+        for name in self.kept_files:
+            self.assertTrue((self.page_dir / name).exists(), name)
 
 
 if __name__ == "__main__":

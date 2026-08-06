@@ -15,10 +15,19 @@ the corpus's heavier sheets (s16, s18) it added 200-300MB per sheet -- far
 past the +100MB-per-sheet threshold that keeps it off by default. Measured on
 the reference sheet s01 alone it looked cheap (+11.1MB); it is not cheap on
 the corpus as a whole. See tools/regress.py's --debug flag.
+
+Persisting also surfaced a second cost: `pipeline.run_extract` always writes
+several page-level files (primitives.json, candidates.json,
+pdfplumber_comparison.json, regions.json, region_crops/) that nothing in this
+package reads back and no review step opens -- 139MB for primitives.json
+alone on one page of s18. `_prune_unread_page_output` deletes them from the
+sweep's own copy after scoring and after the review images are drawn; see
+that function's docstring for the measured numbers and the escape hatch.
 """
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 from pipeline import run_extract
@@ -28,6 +37,16 @@ from regression.matching import match_entities
 from regression.report import SheetResult
 from regression.review_render import write_review_overlays
 from regression.run_dir import latest_run, reset_slug_dir
+
+# Page-level entries a sweep never reads back and a human never opens while
+# giving verdicts: nothing in regression/, tools/, or tests/ reads
+# primitives.json, candidates.json, pdfplumber_comparison.json, regions.json,
+# or region_crops/ (verified by grep before this constant was written). Kept
+# as a module constant so it stays greppable and easy to amend if a future
+# reader is added for one of them.
+PRUNE_PAGE_ENTRIES = ("primitives.json", "candidates.json",
+                     "pdfplumber_comparison.json", "regions.json",
+                     "region_crops")
 
 
 def evaluate_page(truth_page: PageTruth, entities: list[dict]) -> dict:
@@ -75,6 +94,37 @@ def _cache_missed(run_dir: str) -> bool:
     # root (pipeline.run_extract), not a bare flat list.
     codes = {w.get("warning_code") for w in payload.get("warnings", [])}
     return "REGION_CACHE_MISS_OFFLINE" in codes
+
+
+def _prune_unread_page_output(run: Path) -> None:
+    """Delete the page-level files a sweep persists but never uses.
+
+    Making sweep output persistent (instead of a `tempfile.TemporaryDirectory`
+    deleted within milliseconds of scoring) surfaced a cost that always
+    existed but was previously invisible: `primitives.json` alone measured
+    139MB on a single page for s18, a 1.3MB PDF -- and s18/s16 together left
+    over 300MB of page output EACH with the debug trace off. None of
+    PRUNE_PAGE_ENTRIES is read by anything in regression/, tools/, or tests/
+    (grepped before adding this function); they exist only because
+    `pipeline.run_extract` always writes the full per-page contract for
+    `app.py extract`, which this sweep does not get to change (`pipeline.py`
+    is read-only in this plan). The sweep prunes its OWN copy after scoring
+    and after `write_review_overlays` has drawn from `render.png` --
+    `pipeline.py`'s output contract for ordinary `app.py extract` runs is
+    untouched.
+
+    Anyone who needs `primitives.json` (or another pruned file) for a
+    specific sheet still has the escape hatch: run
+    `python app.py extract fixtures/sheets/<file>` directly and it will be
+    right there, unpruned.
+    """
+    for page_dir in run.glob("pages/page_*"):
+        for name in PRUNE_PAGE_ENTRIES:
+            target = page_dir / name
+            if target.is_dir():
+                shutil.rmtree(target, ignore_errors=True)
+            elif target.exists():
+                target.unlink()
 
 
 def _labeled_but_unreviewed(entry: dict, truth: SheetTruth) -> bool:
@@ -188,5 +238,9 @@ def sweep(slugs: list[str] | None = None, debug_traces: bool = False) -> list[Sh
             for number, unreviewed in result.unreviewed_by_page.items():
                 write_review_overlays(run / "pages" / f"page_{number:02d}",
                                       unreviewed)
+            # Prune after scoring AND after write_review_overlays -- both
+            # already read what they need (final_entities.json, render.png)
+            # before anything here is deleted.
+            _prune_unread_page_output(run)
         results.append(result)
     return results
