@@ -74,9 +74,12 @@ type + IoU ≥ 0.5 — because entity ids are ordinal and shift when detection
 changes.
 
 `regress.py` exits 1 on a lost `confirmed` entity, a returned false positive, or
-a sheet whose bytes no longer match the manifest; 2 when sheets are missing from
-disk; 0 otherwise. **New detections never fail the sweep** — they print under
-REVIEW and wait for a verdict.
+a sheet whose bytes no longer match the manifest — plus two more triggers the
+guide's §6 table covers in full (an unscored ground-truth page, and a
+manifest sheet marked `"labeled": true` whose truth file is missing or
+reverted to `reviewed: null`); 2 when sheets are missing from disk; 0
+otherwise. **New detections never fail the sweep** — they print under REVIEW
+and wait for a verdict.
 
 The loop when tuning detection:
 
@@ -104,7 +107,7 @@ The loop when tuning detection:
    sweep's unreviewed detections, not this promotion.
 
 See `docs/regression-testing-guide.md` §4/§8 for the sweep-output and
-review-tooling details.
+review-tooling details, and §6 for the full exit-code table.
 
 A revised drawing is adopted as a **new** slug (`python tools/add_sheet.py`),
 never dropped over an existing one — an existing slug's bytes are immutable

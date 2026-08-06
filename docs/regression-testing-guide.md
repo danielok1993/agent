@@ -173,10 +173,9 @@ The walk is **sheet → page → category**, category being
 most numerous and most often wrong, rooms last because judging a room is
 slower and the earlier passes warm up the eye on the same drawing. Per
 category it prints the path to that category's `review_<type>.png` — one
-image per page per entity type, drawn once at sweep time from the sweep's full
-unreviewed set, each detection stamped with a short id (`d7` = door_0007,
-`w3` = window_0003, `r2` = room_0002) matching the terminal's REVIEW lines —
-then asks **twice**:
+image per page per entity type, each detection stamped with a short id
+(`d7` = door_0007, `w3` = window_0003, `r2` = room_0002) matching the
+terminal's REVIEW lines — then asks **twice**:
 
 1. which detections are CORRECT
 2. of what's left, which are WRONG
@@ -184,6 +183,18 @@ then asks **twice**:
 Anything ticked in neither pass stays unreviewed and reappears on the next
 sweep — "I can't tell from this image" costs nothing. **The toggle key is
 Tab, not Space** — Space types into the fuzzy filter.
+
+Review images are drawn once, at sweep time, from that sweep's full
+unreviewed set — they are a snapshot, not a live view. If a session is
+interrupted partway through a sheet and resumed later against the same sweep
+output (no re-sweep in between), the picker correctly shrinks to what is
+still actually unreviewed, but the image on disk still shows every box from
+the original set — including ones a prior partial session already gave a
+verdict to. The picker is always the authority; re-run
+`python tools/regress.py --sheet <slug>` to redraw the images. This matters
+in practice: labeling 19 sheets is multi-session work, and a
+`review_door.png` still showing yesterday's confirmed door is expected, not
+a sign the verdict was lost.
 
 A room ticked CORRECT gets one more prompt: is the recorded polygon the
 outline you want (`approved`), or a real room whose shape still needs work
