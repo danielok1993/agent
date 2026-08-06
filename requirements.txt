@@ -6,3 +6,4 @@ Pillow>=10.3.0
 shapely>=2.0.0
 rich>=13.7.0
 opencv-python-headless>=4.9.0
+InquirerPy>=0.3.4
