@@ -16,7 +16,7 @@ from pathlib import Path
 import regression.corpus as fx
 import regression.ground_truth as gt
 from regression.ground_truth import PageTruth, SheetTruth, TruthItem
-from regression.sweep import score_sheet, sweep
+from regression.sweep import _labeled_but_unreviewed, score_sheet, sweep
 
 
 def entity(kind, bbox, eid="e0"):
@@ -105,6 +105,105 @@ class ShaMismatchAgainstTruthTests(unittest.TestCase):
         entry = fx.sheet_entry("s23")
         self.assertIsNone(truth.pdf_sha256)
         self.assertFalse(bool(truth.pdf_sha256) and truth.pdf_sha256 != entry["sha256"])
+
+
+class LabeledFlagTests(unittest.TestCase):
+    """A `"labeled": true` manifest entry is a durable claim that a human has
+    recorded verdicts for this sheet. If the ground truth file later vanishes
+    (a forgotten commit, a stray `git rm`, a bad merge) or reverts to
+    `reviewed: null`, that claim is now contradicted -- a regression-class
+    failure, not a silent "unlabeled" line among 19 clean ones.
+
+    The `_labeled_but_unreviewed` cases run entirely against synthetic
+    SheetTruth/entry values (no I/O, no pipeline). The two sweep()-level
+    cases below it use the same temp-dir monkeypatch as
+    ShaMismatchAgainstTruthTests, and are safe to run end-to-end because
+    both hit `continue` in sweep() before `run_extract` is ever called.
+    """
+
+    def test_flag_set_and_truth_reviewed_is_clean(self):
+        entry = {"slug": "s01", "labeled": True}
+        truth = SheetTruth(slug="s01", reviewed="2026-08-06")
+        self.assertFalse(_labeled_but_unreviewed(entry, truth))
+
+    def test_flag_set_and_truth_missing_is_flagged(self):
+        # load_truth() for a sheet with no file on disk returns this exact
+        # shape: SheetTruth(slug=slug) with reviewed defaulting to None.
+        entry = {"slug": "s01", "labeled": True}
+        truth = SheetTruth(slug="s01")
+        self.assertTrue(_labeled_but_unreviewed(entry, truth))
+
+    def test_flag_set_and_truth_present_but_reviewed_null_is_flagged(self):
+        entry = {"slug": "s01", "labeled": True}
+        truth = SheetTruth(slug="s01", reviewed=None)
+        self.assertTrue(_labeled_but_unreviewed(entry, truth))
+
+    def test_flag_absent_and_unlabeled_truth_is_unchanged_behaviour(self):
+        entry = {"slug": "s09"}  # no "labeled" key at all
+        truth = SheetTruth(slug="s09")
+        self.assertFalse(_labeled_but_unreviewed(entry, truth))
+
+    def test_flag_false_and_unlabeled_truth_is_unchanged_behaviour(self):
+        entry = {"slug": "s09", "labeled": False}
+        truth = SheetTruth(slug="s09")
+        self.assertFalse(_labeled_but_unreviewed(entry, truth))
+
+
+class LabeledFlagSweepIntegrationTests(unittest.TestCase):
+    """End-to-end through sweep() for the two failing cases -- both exit via
+    `continue` before `run_extract`, so no pipeline runs.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        root = Path(self.tmp.name)
+        (root / "sheets").mkdir()
+        self._saved_corpus = (fx.FIXTURES_DIR, fx.SHEETS_DIR, fx.MANIFEST_PATH)
+        fx.FIXTURES_DIR = root
+        fx.SHEETS_DIR = root / "sheets"
+        fx.MANIFEST_PATH = root / "MANIFEST.json"
+        self._saved_truth_dir = gt.TRUTH_DIR
+        gt.TRUTH_DIR = root / "ground_truth"
+
+    def tearDown(self):
+        fx.FIXTURES_DIR, fx.SHEETS_DIR, fx.MANIFEST_PATH = self._saved_corpus
+        gt.TRUTH_DIR = self._saved_truth_dir
+        self.tmp.cleanup()
+
+    def _write_sheet(self, name, data=b"%PDF-1.4 labeled sheet"):
+        path = fx.SHEETS_DIR / name
+        path.write_bytes(data)
+        return fx.sha256_of(path)
+
+    def test_a_labeled_sheet_with_no_ground_truth_file_fails_the_sweep(self):
+        sha = self._write_sheet("s27-x.pdf")
+        fx.MANIFEST_PATH.write_text(json.dumps({"storage": "the bundle", "sheets": [
+            {"slug": "s27", "file": "s27-x.pdf", "sha256": sha,
+             "pages": 1, "tier": "corpus", "labeled": True},
+        ]}))
+        # No tests/ground_truth/s27.json written at all.
+
+        results = sweep(["s27"])
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].status, "labeled_but_unreviewed")
+        self.assertTrue(results[0].is_regression)
+
+    def test_a_labeled_sheet_whose_truth_reverted_to_unreviewed_fails_the_sweep(self):
+        sha = self._write_sheet("s28-x.pdf")
+        fx.MANIFEST_PATH.write_text(json.dumps({"storage": "the bundle", "sheets": [
+            {"slug": "s28", "file": "s28-x.pdf", "sha256": sha,
+             "pages": 1, "tier": "corpus", "labeled": True},
+        ]}))
+        gt.TRUTH_DIR.mkdir(parents=True, exist_ok=True)
+        (gt.TRUTH_DIR / "s28.json").write_text(json.dumps(
+            {"sheet": "s28", "pdf_sha256": sha, "reviewed": None, "pages": {}}))
+
+        results = sweep(["s28"])
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].status, "labeled_but_unreviewed")
+        self.assertTrue(results[0].is_regression)
 
 
 class SweepSlugsArgumentTests(unittest.TestCase):

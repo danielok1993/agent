@@ -80,6 +80,11 @@ class ExitCodeTests(unittest.TestCase):
         self.assertEqual(exit_code([SheetResult(slug="s07", status="sha_mismatch")]),
                          EXIT_REGRESSION)
 
+    def test_a_labeled_but_unreviewed_sheet_exits_one(self):
+        self.assertEqual(
+            exit_code([SheetResult(slug="s01", status="labeled_but_unreviewed")]),
+            EXIT_REGRESSION)
+
     def test_a_missing_sheet_exits_two(self):
         self.assertEqual(exit_code([SheetResult(slug="s14", status="missing")]),
                          EXIT_INCOMPLETE)
@@ -116,6 +121,11 @@ class RenderTests(unittest.TestCase):
         text = render([r])
         self.assertIn("unlabeled", text)
         self.assertNotIn("every detection is unreviewed", text)
+
+    def test_a_labeled_but_unreviewed_sheet_names_the_file_to_restore(self):
+        text = render([SheetResult(slug="s01", status="labeled_but_unreviewed")])
+        self.assertIn("labeled", text)
+        self.assertIn("tests/ground_truth/s01.json", text)
 
     def test_a_region_cache_miss_is_surfaced(self):
         text = render([SheetResult(slug="s07", status="ok", region_cache_miss=True)])

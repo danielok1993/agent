@@ -6,7 +6,8 @@
       "file": "s01-floor-plans.pdf",
       "sha256": "0867a4be9327989619cd71a783eb701ea11ff231877b548209764eaad2527559",
       "pages": 1,
-      "tier": "reference"
+      "tier": "reference",
+      "labeled": true
     },
     {
       "slug": "s02",

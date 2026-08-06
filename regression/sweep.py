@@ -65,6 +65,24 @@ def _cache_missed(run_dir: str) -> bool:
     return "REGION_CACHE_MISS_OFFLINE" in codes
 
 
+def _labeled_but_unreviewed(entry: dict, truth: SheetTruth) -> bool:
+    """True when the manifest claims this sheet has been labeled but its
+    ground truth says otherwise.
+
+    `fixtures/MANIFEST.json` entries carry an optional `"labeled": true` --
+    a durable, diffable claim set once a human has recorded verdicts for a
+    sheet (see tools such as regress.py's labeling loop). Ground truth itself
+    lives in a separate file (tests/ground_truth/<slug>.json) that can vanish
+    independently -- a forgotten commit, a stray `git rm`, a bad merge -- and
+    `load_truth` reads a missing file exactly the same as a present one with
+    `reviewed: null` (SheetTruth.is_labeled is False either way). Without this
+    check that loss is invisible: the sweep would print "unlabeled" among 19
+    other clean lines and exit 0, and every verdict a human recorded for that
+    sheet would have evaporated with no failing signal.
+    """
+    return bool(entry.get("labeled")) and not truth.is_labeled
+
+
 def score_sheet(slug: str, truth: SheetTruth, pages: dict[int, list[dict]],
                 cache_miss: bool = False) -> SheetResult:
     """Score one sheet's per-page pipeline output against its ground truth.
@@ -118,6 +136,10 @@ def sweep(slugs: list[str] | None = None) -> list[SheetResult]:
             continue
 
         truth = load_truth(slug)
+        if _labeled_but_unreviewed(entry, truth):
+            results.append(SheetResult(slug=slug, status="labeled_but_unreviewed"))
+            continue
+
         # The manifest's sha256 is what's on disk NOW; truth.pdf_sha256 is
         # what the ground truth was reviewed against. An operator who pastes
         # a fresh hash into the manifest instead of adopting a new slug would

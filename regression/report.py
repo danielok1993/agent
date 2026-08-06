@@ -4,8 +4,9 @@ Exit codes:
   0  clean, or REVIEW items only (new detections, closed gaps)
   1  a regression: a confirmed entity vanished, a known false positive came
      back, a sheet's bytes no longer match the manifest (or no longer match
-     what its ground truth was reviewed against), or a page named in ground
-     truth was never scored
+     what its ground truth was reviewed against), a page named in ground
+     truth was never scored, or a manifest entry marked `"labeled": true`
+     has ground truth that is missing or reverted to `reviewed: null`
   2  the corpus is incomplete — some manifest sheets are not downloaded
 
 New detections never fail the sweep. Improving detection must not turn the
@@ -37,7 +38,7 @@ class SheetResult:
     @property
     def is_regression(self) -> bool:
         return (bool(self.lost or self.returned_fps or self.unscored_pages)
-                or self.status == "sha_mismatch")
+                or self.status in ("sha_mismatch", "labeled_but_unreviewed"))
 
 
 def _centre(bbox) -> str:
@@ -52,6 +53,12 @@ def render(results: list[SheetResult]) -> str:
             continue
         if r.status == "sha_mismatch":
             lines.append(f"{r.slug}  ✗ content changed since ground truth was recorded")
+            continue
+        if r.status == "labeled_but_unreviewed":
+            lines.append(f"{r.slug}  ✗ manifest claims this sheet is labeled "
+                         f"(\"labeled\": true), but its ground truth is missing or "
+                         f"unlabeled (reviewed: null) — restore "
+                         f"tests/ground_truth/{r.slug}.json")
             continue
         counts = "  ".join(f"{kind} {found}/{total}"
                            for kind, (found, total) in sorted(r.counts.items()))

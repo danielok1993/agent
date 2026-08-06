@@ -78,7 +78,12 @@ The loop when tuning detection:
 1. `python tools/regress.py`
 2. The user opens `debug_viewer.html` and reports path indices of misses and
    false positives.
-3. Record the verdicts in `tests/ground_truth/sNN.json` — a data commit.
+3. Record the verdicts in `tests/ground_truth/sNN.json` — a data commit — and set
+   `"labeled": true` on that sheet's `fixtures/MANIFEST.json` entry (absent/false
+   means adopted-but-unlabeled, which stays valid for every not-yet-reviewed
+   sheet). Once flagged, the sweep exits 1 if that ground truth ever goes
+   missing or reverts to `reviewed: null` — a durable, diffable record that the
+   verdicts existed, so their loss can't pass silently.
 4. Fix the algorithm, and pin the topology with a synthetic test in the fast tier.
 5. `regress.py` again: no lost `confirmed`, no returned false positives. A
    `deferred` entry that flips to CLOSED is confirmed by the user, then promoted
