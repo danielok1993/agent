@@ -81,18 +81,30 @@ REVIEW and wait for a verdict.
 The loop when tuning detection:
 
 1. `python tools/regress.py`
-2. The user opens `debug_viewer.html` and reports path indices of misses and
-   false positives.
-3. Record the verdicts in `tests/ground_truth/sNN.json` — a data commit — and set
-   `"labeled": true` on that sheet's `fixtures/MANIFEST.json` entry (absent/false
-   means adopted-but-unlabeled, which stays valid for every not-yet-reviewed
-   sheet). Once flagged, the sweep exits 1 if that ground truth ever goes
-   missing or reverts to `reviewed: null` — a durable, diffable record that the
-   verdicts existed, so their loss can't pass silently.
+2. Open `outputs/regress/<slug>/<timestamp>/pages/page_NN/review_<type>.png`
+   — every unreviewed detection is stamped with a short id (`d7` = door_0007)
+   matching the sweep's REVIEW lines. Output persists there (gitignored,
+   wiped per slug on that slug's next sweep) precisely so this image exists
+   to open; `debug_viewer.html` is opt-in (`regress.py --debug`) for the hard
+   cases, not written by default — it cost 200-300MB/sheet on the corpus's
+   heaviest sheets.
+3. `python tools/review.py <slug>` — ticks the correct detections, then the
+   wrong ones (Tab to toggle, not Space); anything ticked in neither is
+   postponed and reappears next sweep. It writes `tests/ground_truth/<slug>.json`
+   and sets `"labeled": true` in `fixtures/MANIFEST.json` (absent/false means
+   adopted-but-unlabeled, which stays valid for every not-yet-reviewed sheet).
+   Once flagged, the sweep exits 1 if that ground truth ever goes missing or
+   reverts to `reviewed: null` — a durable, diffable record that the verdicts
+   existed, so their loss can't pass silently. Commit both files as a data
+   commit.
 4. Fix the algorithm, and pin the topology with a synthetic test in the fast tier.
 5. `regress.py` again: no lost `confirmed`, no returned false positives. A
    `deferred` entry that flips to CLOSED is confirmed by the user, then promoted
-   to `confirmed`.
+   to `confirmed` by hand — `tools/review.py` only records verdicts on a
+   sweep's unreviewed detections, not this promotion.
+
+See `docs/regression-testing-guide.md` §4/§8 for the sweep-output and
+review-tooling details.
 
 A revised drawing is adopted as a **new** slug (`python tools/add_sheet.py`),
 never dropped over an existing one — an existing slug's bytes are immutable
