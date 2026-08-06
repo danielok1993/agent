@@ -207,7 +207,7 @@ Note the module-level `REGRESS_OUT` is read *inside* each function via the modul
 source .venv/bin/activate && python -m unittest tests.test_run_dir -v
 ```
 
-Expected: 7 tests, OK
+Expected: all tests OK
 
 - [ ] **Step 5: Commit**
 
@@ -293,15 +293,22 @@ Replace the REVIEW-line loop (currently lines 99-101):
             # THIS sweep's output so the user can find it on the review image.
             # Ids are ordinal and shift between runs, so it is never written
             # to ground truth and never used for matching.
-            name = ent.get("entity_id") or f"new {ent['entity_type']}"
+            name = ent.get("entity_id") or ent["entity_type"]
             lines.append(f"    REVIEW new {name}  "
                          f"conf {ent.get('confidence', 0):.2f}  {_centre(ent['bbox'])}")
-        if r.run_dir and (r.unreviewed or r.closed_deferred):
+        # Only unreviewed items are actionable via tools/review.py. A closed
+        # deferred gap is promoted by hand (see the plan's "Out of scope"),
+        # so pointing at review.py for one would send the user somewhere that
+        # cannot help them.
+        if r.run_dir and r.unreviewed:
             lines.append(f"    images: {r.run_dir}/pages/  "
                          f"— then: python tools/review.py {r.slug}")
 ```
 
-The fallback keeps the pre-existing wording (`REVIEW new window`) for a dict with no id, so a hand-constructed result still reads sensibly.
+`name` is the bare id or the bare type — the `REVIEW new ` prefix is already in
+the f-string, so prefixing `new` again here would print `REVIEW new new window`.
+The fallback keeps the pre-existing wording (`REVIEW new window`) for a dict
+with no id, so a hand-constructed result still reads sensibly.
 
 - [ ] **Step 4: Run the tests to verify they pass**
 
@@ -336,7 +343,8 @@ git commit -m "feat: name the entity and its review images on REVIEW lines"
   - `TruthItem.polygon: list[list[float]] | None`
   - `TruthItem.shape: str | None` — `"approved"` or `"partial"`
   - `regression.ground_truth.SHAPES: tuple[str, str]`
-  - `regression.ground_truth.dump_truth(truth: SheetTruth) -> Path`
+  - `regression.ground_truth.dumps_truth(truth: SheetTruth) -> str` — the exact on-disk text
+  - `regression.ground_truth.dump_truth(truth: SheetTruth) -> Path` — writes it
 
 - [ ] **Step 1: Write the failing test**
 
@@ -362,19 +370,78 @@ class TruthWriteTests(unittest.TestCase):
         (gt.TRUTH_DIR / f"{slug}.json").write_text(
             json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
-    def test_a_file_without_the_new_fields_round_trips_unchanged(self):
-        payload = {
-            "sheet": "s01", "pdf_sha256": "abc", "reviewed": "2026-08-06",
-            "pages": {"1": {"confirmed": [
-                {"type": "window", "bbox": [1.0, 2.0, 3.0, 4.0], "note": "n"}]}},
-        }
-        self._write("s01", payload)
-        before = (gt.TRUTH_DIR / "s01.json").read_text(encoding="utf-8")
+    def _write_raw(self, slug, text):
+        (gt.TRUTH_DIR / f"{slug}.json").write_text(text, encoding="utf-8")
+
+    def test_a_committed_style_file_round_trips_byte_identically(self):
+        # Written in the exact shape the committed corpus uses: bbox arrays
+        # stay on ONE line. json.dumps(indent=2) explodes them to one number
+        # per line, so a fixture written with the same serializer under test
+        # would pass while the real file churned 31 lines into 51. This
+        # fixture is a literal on purpose.
+        text = (
+            '{\n'
+            '  "sheet": "s01",\n'
+            '  "pdf_sha256": "abc",\n'
+            '  "reviewed": "2026-08-06",\n'
+            '  "pages": {\n'
+            '    "1": {\n'
+            '      "confirmed": [\n'
+            '        {\n'
+            '          "type": "window",\n'
+            '          "bbox": [954.7499338785808, 811.4999771118165, '
+            '961.2499237060548, 888.4999593098959],\n'
+            '          "note": "n"\n'
+            '        }\n'
+            '      ]\n'
+            '    }\n'
+            '  }\n'
+            '}\n'
+        )
+        self._write_raw("s01", text)
 
         gt.dump_truth(gt.load_truth("s01"))
 
         self.assertEqual((gt.TRUTH_DIR / "s01.json").read_text(encoding="utf-8"),
-                         before)
+                         text)
+
+    def test_polygons_also_stay_on_one_line(self):
+        text = (
+            '{\n'
+            '  "sheet": "s07",\n'
+            '  "pdf_sha256": "abc",\n'
+            '  "reviewed": "2026-08-06",\n'
+            '  "pages": {\n'
+            '    "1": {\n'
+            '      "confirmed": [\n'
+            '        {\n'
+            '          "type": "room",\n'
+            '          "bbox": [0.0, 0.0, 10.0, 10.0],\n'
+            '          "polygon": [[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], '
+            '[0.0, 10.0]],\n'
+            '          "shape": "partial"\n'
+            '        }\n'
+            '      ]\n'
+            '    }\n'
+            '  }\n'
+            '}\n'
+        )
+        self._write_raw("s07", text)
+
+        gt.dump_truth(gt.load_truth("s07"))
+
+        self.assertEqual((gt.TRUTH_DIR / "s07.json").read_text(encoding="utf-8"),
+                         text)
+
+    def test_dumping_is_idempotent(self):
+        self._write("s08", {"sheet": "s08", "pdf_sha256": "x", "reviewed": None,
+                            "pages": {"1": {"confirmed": [
+                                {"type": "door", "bbox": [1.0, 2.0, 3.0, 4.0]}]}}})
+        gt.dump_truth(gt.load_truth("s08"))
+        once = (gt.TRUTH_DIR / "s08.json").read_text(encoding="utf-8")
+        gt.dump_truth(gt.load_truth("s08"))
+        self.assertEqual((gt.TRUTH_DIR / "s08.json").read_text(encoding="utf-8"),
+                         once)
 
     def test_polygon_and_shape_round_trip(self):
         payload = {
@@ -485,27 +552,85 @@ Extend `_item` — insert before the `return`:
 
 and add `polygon=polygon, shape=shape,` to the `TruthItem(...)` construction.
 
-Append the writer:
+Append the writer. **Geometry arrays must stay on one line.** The committed
+corpus writes `"bbox": [954.74, 811.49, 961.24, 888.49]` inline;
+`json.dumps(indent=2)` explodes it to one number per line, turning `s01.json`
+from 31 lines into 51 and making every future verdict diff unreadable — a
+40-vertex room polygon would become 80 lines. Serialize by substituting a
+token for each geometry array, dumping, then swapping the compact literal
+back in. `json.dumps(float(v))` reproduces `float.__repr__` exactly, which is
+what `json` itself emits, so the numbers are textually identical.
 
 ```python
-def _item_payload(item: TruthItem) -> dict:
+def _inline_number_array(values, inline: dict[str, str]) -> str:
+    """Stash a flat number array as a one-line literal; return its token.
+
+    json.dumps per element rather than a blanket float() cast: `bbox` is
+    already floats (load_truth coerces it) and `path_indices` is ints, and
+    coercing those to 1.0, 2.0 would rewrite files that use them.
+    """
+    token = f"@@INLINE{len(inline)}@@"
+    inline[token] = "[" + ", ".join(json.dumps(v) for v in values) + "]"
+    return token
+
+
+def _inline_point_array(points, inline: dict[str, str]) -> str:
+    """Stash a polygon as a one-line literal; return its token.
+
+    A polygon on one line means a shape change shows up as ONE changed line
+    in review, rather than a diff hunk spanning the whole outline.
+    """
+    token = f"@@INLINE{len(inline)}@@"
+    inline[token] = "[" + ", ".join(
+        f"[{json.dumps(float(x))}, {json.dumps(float(y))}]" for x, y in points) + "]"
+    return token
+
+
+def _item_payload(item: TruthItem, inline: dict[str, str]) -> dict:
     """Serialize one verdict, omitting everything left at its default.
 
     Ground truth is read by humans in diffs, so an item carries only the
     fields that were actually set rather than a wall of nulls.
     """
-    payload: dict = {"type": item.type, "bbox": [float(v) for v in item.bbox]}
+    payload: dict = {"type": item.type,
+                     "bbox": _inline_number_array(item.bbox, inline)}
     if item.tag:
         payload["tag"] = item.tag
     if item.path_indices:
-        payload["path_indices"] = list(item.path_indices)
+        payload["path_indices"] = _inline_number_array(item.path_indices, inline)
     if item.polygon:
-        payload["polygon"] = [[float(x), float(y)] for x, y in item.polygon]
+        payload["polygon"] = _inline_point_array(item.polygon, inline)
     if item.shape:
         payload["shape"] = item.shape
     if item.note:
         payload["note"] = item.note
     return payload
+
+
+def dumps_truth(truth: SheetTruth) -> str:
+    """Serialize a sheet's verdicts exactly as they are stored on disk.
+
+    Split out from dump_truth so the formatting is testable without touching
+    the filesystem.
+    """
+    inline: dict[str, str] = {}
+    pages: dict[str, dict] = {}
+    for number in sorted(truth.pages):
+        page = truth.pages[number]
+        lists = {v: [_item_payload(i, inline) for i in getattr(page, v)]
+                 for v in VERDICTS}
+        lists = {name: items for name, items in lists.items() if items}
+        if lists:
+            pages[str(number)] = lists
+    text = json.dumps({"sheet": truth.slug,
+                       "pdf_sha256": truth.pdf_sha256,
+                       "reviewed": truth.reviewed,
+                       "pages": pages}, indent=2)
+    for token, literal in inline.items():
+        # json.dumps(token) is the token WITH its quotes, so the replacement
+        # swaps the whole JSON string for a bare array literal.
+        text = text.replace(json.dumps(token), literal)
+    return text + "\n"
 
 
 def dump_truth(truth: SheetTruth) -> Path:
@@ -515,21 +640,14 @@ def dump_truth(truth: SheetTruth) -> Path:
     so a review session's diff shows only the verdicts it actually added.
     """
     TRUTH_DIR.mkdir(parents=True, exist_ok=True)
-    pages: dict[str, dict] = {}
-    for number in sorted(truth.pages):
-        page = truth.pages[number]
-        lists = {v: [_item_payload(i) for i in getattr(page, v)] for v in VERDICTS}
-        lists = {name: items for name, items in lists.items() if items}
-        if lists:
-            pages[str(number)] = lists
     path = truth_path(truth.slug)
-    path.write_text(json.dumps({"sheet": truth.slug,
-                                "pdf_sha256": truth.pdf_sha256,
-                                "reviewed": truth.reviewed,
-                                "pages": pages}, indent=2) + "\n",
-                    encoding="utf-8")
+    path.write_text(dumps_truth(truth), encoding="utf-8")
     return path
 ```
+
+`json.dumps` escapes nothing inside the `@@INLINE0@@` token, so the
+`text.replace(json.dumps(token), literal)` substitution is exact. Tokens are
+numbered per call, so they never collide across items.
 
 - [ ] **Step 4: Run the full suite to verify nothing regressed**
 
@@ -539,26 +657,40 @@ source .venv/bin/activate && python -m unittest discover tests
 
 Expected: OK. `tests/test_ground_truth_hygiene.py` and `tests/test_sweep.py` exercise the loader and must stay green.
 
-- [ ] **Step 5: Verify the real ground truth still round-trips**
+- [ ] **Step 5: Verify every committed ground-truth file round-trips byte-identically**
 
 ```bash
 source .venv/bin/activate && python -c "
-from regression.ground_truth import load_truth, truth_path, _item_payload, VERDICTS
-import json
-before = truth_path('s01').read_text(encoding='utf-8')
-t = load_truth('s01')
-pages = {}
-for n in sorted(t.pages):
-    lists = {v: [_item_payload(i) for i in getattr(t.pages[n], v)] for v in VERDICTS}
-    lists = {k: v for k, v in lists.items() if v}
-    if lists: pages[str(n)] = lists
-after = json.dumps({'sheet': t.slug, 'pdf_sha256': t.pdf_sha256,
-                    'reviewed': t.reviewed, 'pages': pages}, indent=2) + '\n'
-print('IDENTICAL' if before == after else 'DIFFERS')
+import difflib
+from pathlib import Path
+from regression.ground_truth import TRUTH_DIR, dumps_truth, load_truth
+
+failed = []
+for path in sorted(TRUTH_DIR.glob('*.json')):
+    before = path.read_text(encoding='utf-8')
+    after = dumps_truth(load_truth(path.stem))
+    if before == after:
+        print(f'{path.name}  IDENTICAL')
+    else:
+        failed.append(path.name)
+        print(f'{path.name}  DIFFERS')
+        print(''.join(list(difflib.unified_diff(
+            before.splitlines(True), after.splitlines(True),
+            fromfile='committed', tofile='dumps_truth'))[:24]))
+raise SystemExit(1 if failed else 0)
 "
 ```
 
-Expected: `IDENTICAL`. This deliberately does not write the file. If it prints `DIFFERS`, diff the two strings and fix `_item_payload` — do not reformat `s01.json` to match the writer.
+Expected: every file `IDENTICAL`, exit 0. This reads only — it never writes.
+
+This is the real gate. The unit tests use literal fixtures, but the committed
+corpus is the thing that must not churn: a `dump_truth` that reformats
+`s01.json` would put 20 lines of pure formatting noise in the first review
+commit and hide the verdicts actually being added.
+
+If a file `DIFFERS`, fix the serializer to match the committed file. **Do not
+reformat the committed file to match the serializer** — its formatting is the
+specification here, and rewriting it would silently discard the check.
 
 - [ ] **Step 6: Commit**
 
@@ -884,7 +1016,7 @@ def record_verdicts(slug: str, verdicts: list[Verdict],
 source .venv/bin/activate && python -m unittest tests.test_verdicts -v
 ```
 
-Expected: 13 tests, OK
+Expected: all tests OK
 
 - [ ] **Step 6: Run the full suite**
 
@@ -1108,7 +1240,7 @@ def write_review_overlays(page_dir: Path, unreviewed: list[dict]) -> list[Path]:
 source .venv/bin/activate && python -m unittest tests.test_review_render -v
 ```
 
-Expected: 8 tests, OK
+Expected: all tests OK
 
 - [ ] **Step 5: Commit**
 
@@ -1130,7 +1262,9 @@ Replace the temp directory with the persistent one, keep the debug viewer, and d
 
 **Interfaces:**
 - Consumes: `run_dir.reset_slug_dir`, `run_dir.latest_run`, `review_render.write_review_overlays`, `report.SheetResult.run_dir` (Task 2)
-- Produces: `SheetResult.unreviewed_by_page: dict[int, list[dict]]` — unreviewed entities keyed by 1-based page number. `SheetResult.unreviewed` stays the flat list it is today.
+- Produces:
+  - `SheetResult.unreviewed_by_page: dict[int, list[dict]]` — unreviewed entities keyed by 1-based page number. `SheetResult.unreviewed` stays the flat list it is today.
+  - `<run>/sweep_meta.json` — `{"slug": ..., "sha256": ...}`, the PDF hash this run was produced from. Task 7 reads it to refuse recording verdicts against superseded output.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -1240,6 +1374,13 @@ Replace the extraction block (currently lines 152-158):
         result = score_sheet(slug, truth, pages, cache_miss=cache_miss)
         if run is not None:
             result.run_dir = str(run)
+            # Stamp the run with the sha it was produced from. A review session
+            # can start days later; without this it cannot tell whether the
+            # images it is showing came from the PDF currently on disk, and
+            # would happily record verdicts against a superseded drawing.
+            (run / "sweep_meta.json").write_text(
+                json.dumps({"slug": slug, "sha256": entry["sha256"]}, indent=2)
+                + "\n", encoding="utf-8")
             for number, unreviewed in result.unreviewed_by_page.items():
                 write_review_overlays(run / "pages" / f"page_{number:02d}",
                                       unreviewed)
@@ -1353,11 +1494,19 @@ anything unticked in both stays unreviewed and comes back next sweep.
 - Test: `tests/test_review_session.py`
 
 **Interfaces:**
-- Consumes: `run_dir.latest_run`, `sweep.evaluate_page`, `sweep._entities_by_page`, `ground_truth.load_truth`, `verdicts.Verdict`, `verdicts.record_verdicts`, `review_render.short_id`
+- Consumes: `run_dir.latest_run`, `sweep.evaluate_page`, `sweep._entities_by_page`, `ground_truth.load_truth`, `corpus.sheet_entry`, `corpus.sheet_path`, `corpus.sha256_of`, `verdicts.Verdict`, `verdicts.record_verdicts`, `review_render.short_id`
 - Produces:
   - `regression.review_session.CATEGORY_ORDER: tuple[str, ...]`
   - `regression.review_session.pending(slug: str) -> dict[int, dict[str, list[dict]]]` — page → entity type → unreviewed entities, types in `CATEGORY_ORDER`
-  - `regression.review_session.SweepOutputMissing` — raised when the slug has no persisted run
+  - `regression.review_session.ReviewBlocked(RuntimeError)` — base: this sheet cannot be reviewed right now, report and skip
+  - `regression.review_session.SweepOutputMissing(ReviewBlocked)` — no persisted run
+  - `regression.review_session.SweepOutputStale(ReviewBlocked)` — the run does not match the PDF now on disk
+
+**Every bad state is a `ReviewBlocked`, never a crash.** The spec requires a
+sheet with missing output, a sha mismatch, or unreadable ground truth to be
+reported and skipped. `python tools/review.py` with no arguments walks all 20
+sheets; one unreadable ground-truth file must not take the other 19 down, and
+verdicts must never be recorded against output produced from a superseded PDF.
 
 - [ ] **Step 1: Add the dependency**
 
@@ -1390,9 +1539,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from regression import ground_truth as gt, run_dir
-from regression.review_session import (CATEGORY_ORDER, SweepOutputMissing,
+from regression import corpus, ground_truth as gt, run_dir
+from regression.review_session import (CATEGORY_ORDER, ReviewBlocked,
+                                       SweepOutputMissing, SweepOutputStale,
                                        pending)
+
+SHEET_BYTES = b"%PDF-1.4 pretend sheet\n"
 
 
 def entity(entity_id, etype, bbox, confidence=0.8, attributes=None):
@@ -1415,8 +1567,34 @@ class PendingTests(unittest.TestCase):
         gt.TRUTH_DIR.mkdir()
         self.addCleanup(lambda: setattr(gt, "TRUTH_DIR", self._truth_dir))
 
-    def _persist(self, slug, pages: dict[int, list[dict]]):
+        self._sheets_dir = corpus.SHEETS_DIR
+        corpus.SHEETS_DIR = root / "sheets"
+        corpus.SHEETS_DIR.mkdir()
+        (corpus.SHEETS_DIR / "s01.pdf").write_bytes(SHEET_BYTES)
+        self.addCleanup(lambda: setattr(corpus, "SHEETS_DIR", self._sheets_dir))
+
+        # The real sha of the bytes just written, so the fixture cannot drift
+        # from a hard-coded literal.
+        self.sha = corpus.sha256_of(corpus.SHEETS_DIR / "s01.pdf")
+
+        self._manifest = corpus.MANIFEST_PATH
+        corpus.MANIFEST_PATH = root / "MANIFEST.json"
+        self._write_manifest(self.sha)
+        self.addCleanup(lambda: setattr(corpus, "MANIFEST_PATH", self._manifest))
+
+    def _write_manifest(self, sha):
+        corpus.MANIFEST_PATH.write_text(json.dumps({
+            "storage": "",
+            "sheets": [{"slug": "s01", "file": "s01.pdf", "sha256": sha,
+                        "pages": 2}],
+        }, indent=2) + "\n", encoding="utf-8")
+
+    def _persist(self, slug, pages: dict[int, list[dict]], swept_sha=None):
         run = run_dir.reset_slug_dir(slug) / "2026-08-06_15-19-08"
+        run.mkdir(parents=True)
+        (run / "sweep_meta.json").write_text(json.dumps(
+            {"slug": slug, "sha256": swept_sha or self.sha}, indent=2) + "\n",
+            encoding="utf-8")
         for number, entities in pages.items():
             page_dir = run / "pages" / f"page_{number:02d}"
             page_dir.mkdir(parents=True)
@@ -1428,6 +1606,49 @@ class PendingTests(unittest.TestCase):
     def test_a_slug_with_no_persisted_run_raises(self):
         with self.assertRaises(SweepOutputMissing):
             pending("s01")
+
+    def test_a_run_from_a_different_pdf_is_stale(self):
+        self._persist("s01", {1: [entity("door_0001", "door", (0, 0, 10, 10))]},
+                      swept_sha="0" * 64)
+        with self.assertRaises(SweepOutputStale):
+            pending("s01")
+
+    def test_a_pdf_that_no_longer_matches_the_manifest_is_stale(self):
+        self._persist("s01", {1: [entity("door_0001", "door", (0, 0, 10, 10))]})
+        self._write_manifest("f" * 64)
+        with self.assertRaises(SweepOutputStale):
+            pending("s01")
+
+    def test_a_slug_absent_from_the_manifest_is_blocked(self):
+        self._persist("s01", {1: [entity("door_0001", "door", (0, 0, 10, 10))]})
+        self._write_manifest(self.sha)
+        corpus.MANIFEST_PATH.write_text(
+            json.dumps({"storage": "", "sheets": []}, indent=2) + "\n",
+            encoding="utf-8")
+        with self.assertRaises(ReviewBlocked):
+            pending("s01")
+
+    def test_unreadable_ground_truth_is_blocked_not_a_crash(self):
+        self._persist("s01", {1: [entity("door_0001", "door", (0, 0, 10, 10))]})
+        (gt.TRUTH_DIR / "s01.json").write_text("{ not json", encoding="utf-8")
+        with self.assertRaises(ReviewBlocked):
+            pending("s01")
+
+    def test_invalid_ground_truth_is_blocked_not_a_crash(self):
+        self._persist("s01", {1: [entity("door_0001", "door", (0, 0, 10, 10))]})
+        (gt.TRUTH_DIR / "s01.json").write_text(json.dumps({
+            "sheet": "s01", "pdf_sha256": "x", "reviewed": None,
+            "pages": {"1": {"confirmed": [{"type": "door", "bbox": [1.0]}]}},
+        }, indent=2), encoding="utf-8")
+        with self.assertRaises(ReviewBlocked):
+            pending("s01")
+
+    def test_a_missing_sweep_meta_is_tolerated(self):
+        # Output from before sweep_meta.json existed. The disk-vs-manifest sha
+        # check still applies; the run's own provenance is simply unknown.
+        run = self._persist("s01", {1: [entity("door_0001", "door", (0, 0, 10, 10))]})
+        (run / "sweep_meta.json").unlink()
+        self.assertEqual(sorted(pending("s01")), [1])
 
     def test_everything_is_pending_on_an_unlabeled_sheet(self):
         self._persist("s01", {1: [entity("door_0001", "door", (0, 0, 10, 10)),
@@ -1499,9 +1720,16 @@ sweep and the review session then agree by construction, and a review session
 started days later still sees exactly what the report printed.
 
 No detection is re-run. A sweep must have been run first.
+
+Every unreviewable state raises ReviewBlocked rather than propagating. A
+review walk covers all 20 corpus sheets by default, so one unreadable ground
+truth file must cost that one sheet, not the whole session.
 """
 from __future__ import annotations
 
+import json
+
+from regression.corpus import sha256_of, sheet_entry, sheet_path
 from regression.ground_truth import load_truth
 from regression.run_dir import latest_run
 from regression.sweep import _entities_by_page, evaluate_page
@@ -1512,8 +1740,16 @@ from regression.sweep import _entities_by_page, evaluate_page
 CATEGORY_ORDER = ("door", "window", "room", "label", "schedule")
 
 
-class SweepOutputMissing(RuntimeError):
+class ReviewBlocked(RuntimeError):
+    """This sheet cannot be reviewed right now. Report it and move on."""
+
+
+class SweepOutputMissing(ReviewBlocked):
     """No persisted sweep output for this slug."""
+
+
+class SweepOutputStale(ReviewBlocked):
+    """The persisted output does not describe the PDF now on disk."""
 
 
 def _ordered(types: list[str]) -> list[str]:
@@ -1522,11 +1758,58 @@ def _ordered(types: list[str]) -> list[str]:
     return known + unknown
 
 
+def _check_provenance(slug: str, run) -> None:
+    """Refuse to review output that does not describe the current drawing.
+
+    Two independent ways the images can lie about what they show:
+
+      * the PDF on disk no longer hashes to what the manifest records -- the
+        drawing was revised in place, which the corpus rules forbid (a revision
+        is adopted as a NEW slug) but which a stray copy can still cause;
+      * the run was produced from a different sha than the manifest now holds
+        -- someone swept, then swapped the PDF and updated the manifest.
+
+    Either way the review image shows one drawing while ground truth would be
+    pinned to another, and the verdicts would be silently wrong forever.
+    """
+    entry = sheet_entry(slug)
+    if entry is None:
+        raise ReviewBlocked(f"{slug} is not in fixtures/MANIFEST.json")
+
+    path = sheet_path(slug)
+    if path is None:
+        raise ReviewBlocked(f"{slug} is not downloaded — "
+                            f"run: python tools/fetch_fixtures.py")
+
+    if sha256_of(path) != entry["sha256"]:
+        raise SweepOutputStale(
+            f"{slug}: the PDF on disk no longer matches fixtures/MANIFEST.json. "
+            f"A revised drawing is adopted as a NEW slug "
+            f"(python tools/add_sheet.py), never dropped over an existing one.")
+
+    meta_path = run / "sweep_meta.json"
+    if not meta_path.exists():
+        # Output from before sweep_meta.json existed. The disk-vs-manifest
+        # check above still holds; this run's own provenance is just unknown.
+        return
+    try:
+        swept_sha = json.loads(meta_path.read_text(encoding="utf-8"))["sha256"]
+    except (json.JSONDecodeError, KeyError, OSError) as exc:
+        raise ReviewBlocked(f"{slug}: {meta_path} is unreadable — {exc}") from exc
+    if swept_sha != entry["sha256"]:
+        raise SweepOutputStale(
+            f"{slug}: this sweep output was produced from a different PDF — "
+            f"re-run: python tools/regress.py --sheet {slug}")
+
+
 def pending(slug: str) -> dict[int, dict[str, list[dict]]]:
     """Unreviewed detections, keyed by 1-based page then entity type.
 
     Pages and types with nothing left to review are omitted entirely, so an
     empty return means the sheet is fully reviewed.
+
+    Raises ReviewBlocked (or a subclass) for every state that makes reviewing
+    this sheet unsafe; callers report and skip rather than crashing.
     """
     run = latest_run(slug)
     if run is None:
@@ -1534,7 +1817,15 @@ def pending(slug: str) -> dict[int, dict[str, list[dict]]]:
             f"no persisted sweep output for {slug} — "
             f"run: python tools/regress.py --sheet {slug}")
 
-    truth = load_truth(slug)
+    _check_provenance(slug, run)
+
+    try:
+        truth = load_truth(slug)
+    except (ValueError, json.JSONDecodeError, OSError) as exc:
+        raise ReviewBlocked(
+            f"{slug}: tests/ground_truth/{slug}.json is unreadable — {exc}"
+        ) from exc
+
     result: dict[int, dict[str, list[dict]]] = {}
     for number, entities in sorted(_entities_by_page(str(run)).items()):
         unreviewed = evaluate_page(truth.page(number), entities)["unreviewed"]
@@ -1553,7 +1844,7 @@ def pending(slug: str) -> dict[int, dict[str, list[dict]]]:
 source .venv/bin/activate && python -m unittest tests.test_review_session -v
 ```
 
-Expected: 8 tests, OK
+Expected: all tests OK
 
 - [ ] **Step 6: Write `tools/review.py`**
 
@@ -1588,7 +1879,7 @@ from InquirerPy.base.control import Choice  # noqa: E402
 
 from regression.corpus import manifest_sheets  # noqa: E402
 from regression.review_render import short_id  # noqa: E402
-from regression.review_session import SweepOutputMissing, pending  # noqa: E402
+from regression.review_session import ReviewBlocked, pending  # noqa: E402
 from regression.run_dir import latest_run  # noqa: E402
 from regression.verdicts import Verdict, record_verdicts  # noqa: E402
 
@@ -1634,11 +1925,15 @@ def _shape_and_note(entity: dict) -> tuple[str, str]:
 
 
 def review_sheet(slug: str) -> int:
-    """Walk one sheet's pending detections. Returns how many were recorded."""
+    """Walk one sheet's pending detections. Returns how many were recorded.
+
+    Never raises for a sheet-level problem: a bad state is printed and the
+    sheet is skipped, so a 20-sheet walk survives one broken sheet.
+    """
     try:
         by_page = pending(slug)
-    except SweepOutputMissing as exc:
-        print(f"{slug}: {exc}")
+    except ReviewBlocked as exc:
+        print(f"{slug}: SKIPPED — {exc}")
         return 0
 
     if not by_page:
@@ -1678,7 +1973,14 @@ def review_sheet(slug: str) -> int:
 
     # Written once, after the whole sheet: an interrupted session loses at most
     # the sheet in progress rather than half-writing a page.
-    path = record_verdicts(slug, verdicts)
+    try:
+        path = record_verdicts(slug, verdicts)
+    except ValueError as exc:
+        # record_verdicts validates before writing anything, so the ground
+        # truth on disk is untouched here. Losing this sheet's answers is
+        # bad; writing them somewhere wrong would be worse.
+        print(f"\n{slug}: NOT RECORDED — {exc}")
+        return 0
     confirmed = sum(1 for v in verdicts if v.correct)
     print(f"\n{slug}: wrote {path} "
           f"(+{confirmed} confirmed, +{len(verdicts) - confirmed} false positives)")
@@ -1695,7 +1997,14 @@ def main() -> int:
     slugs = args.slugs or [s["slug"] for s in manifest_sheets()
                            if s.get("tier") != "retired"]
     for slug in slugs:
-        review_sheet(slug)
+        try:
+            review_sheet(slug)
+        except KeyboardInterrupt:
+            # Ctrl-C at a prompt abandons THIS sheet (nothing has been written
+            # for it yet -- the write happens once, at the end) and stops the
+            # walk. Verdicts recorded for earlier sheets are already on disk.
+            print(f"\n{slug}: interrupted, nothing recorded for this sheet")
+            return 130
     return 0
 
 
@@ -1858,8 +2167,28 @@ git commit -m "docs: the review-tooling regression loop"
 - [ ] The debug-trace measurement from Task 6 step 9 is recorded in a commit message
 - [ ] `docs/regression-testing-guide.md` describes the loop that exists
 
-## Out of scope (V2)
+## Out of scope
 
-Room drift scoring (polygon IoU bands, accept-new-baseline pass) and the agent
-flags (`--confirm/--reject/--accept-shape`). Both are guards over labels that do
-not exist yet. See pieces 6–7 of the spec.
+**Room drift scoring** (polygon IoU bands, accept-new-baseline pass) and the
+**agent flags** (`--confirm/--reject/--accept-shape`) — spec pieces 6–7. Both
+are guards over labels that do not exist yet.
+
+**Promoting a CLOSED deferred gap to `confirmed`** stays a hand edit.
+`tools/review.py` handles *unreviewed* detections only. Three reasons it is not
+in V1:
+
+1. Promotion is a **mutation**, not an append — the item leaves `deferred` and
+   enters `confirmed`. `record_verdicts` only appends, and widening it to
+   remove entries is the one operation that can destroy a recorded verdict.
+2. `evaluate_page` returns `closed_deferred` as truth items with the matching
+   entity discarded (`[t for t, _ent in gaps.matched]`), so the current
+   geometry is not even carried through. Promoting would need that plumbing.
+3. **It cannot happen yet.** There are zero `deferred` entries in the corpus,
+   and nothing in V1 writes one — so no gap can close until a later phase adds
+   deferral. Building the promotion path now would ship untestable-in-practice
+   code.
+
+Task 2 therefore does *not* point at `tools/review.py` when only
+`closed_deferred` is present; the existing "confirm it, then promote it to
+`confirmed`" line stays, and it is honest about being manual. When deferral is
+added, promotion joins it in the same phase.
