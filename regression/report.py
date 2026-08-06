@@ -3,7 +3,9 @@
 Exit codes:
   0  clean, or REVIEW items only (new detections, closed gaps)
   1  a regression: a confirmed entity vanished, a known false positive came
-     back, or a sheet's bytes no longer match the manifest
+     back, a sheet's bytes no longer match the manifest (or no longer match
+     what its ground truth was reviewed against), or a page named in ground
+     truth was never scored
   2  the corpus is incomplete — some manifest sheets are not downloaded
 
 New detections never fail the sweep. Improving detection must not turn the
@@ -30,10 +32,12 @@ class SheetResult:
     closed_deferred: list[TruthItem] = field(default_factory=list)
     counts: dict[str, tuple[int, int]] = field(default_factory=dict)
     region_cache_miss: bool = False
+    unscored_pages: list[int] = field(default_factory=list)
 
     @property
     def is_regression(self) -> bool:
-        return bool(self.lost or self.returned_fps) or self.status == "sha_mismatch"
+        return (bool(self.lost or self.returned_fps or self.unscored_pages)
+                or self.status == "sha_mismatch")
 
 
 def _centre(bbox) -> str:
@@ -65,6 +69,11 @@ def render(results: list[SheetResult]) -> str:
         for item in r.returned_fps:
             lines.append(f"    ✗ FALSE POSITIVE RETURNED {item.type} @ {_centre(item.bbox)}"
                          f"{'  ' + item.note if item.note else ''}")
+        if r.unscored_pages:
+            pages = ", ".join(str(p) for p in r.unscored_pages)
+            lines.append(f"    ✗ UNSCORED PAGE(S) {pages} — ground truth exists for "
+                         f"{'this page' if len(r.unscored_pages) == 1 else 'these pages'} "
+                         f"but the run produced no output for {'it' if len(r.unscored_pages) == 1 else 'them'}")
         for item in r.closed_deferred:
             lines.append(f"    REVIEW gap closed: {item.type} @ {_centre(item.bbox)} — "
                          f"confirm it, then promote it to `confirmed`")

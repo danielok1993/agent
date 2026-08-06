@@ -13,7 +13,7 @@ from pathlib import Path
 
 from pipeline import run_extract
 from regression.corpus import manifest_sheets, sha256_of, sheet_entry, sheet_path
-from regression.ground_truth import PageTruth, load_truth
+from regression.ground_truth import PageTruth, SheetTruth, load_truth
 from regression.matching import match_entities
 from regression.report import SheetResult
 
@@ -65,6 +65,39 @@ def _cache_missed(run_dir: str) -> bool:
     return "REGION_CACHE_MISS_OFFLINE" in codes
 
 
+def score_sheet(slug: str, truth: SheetTruth, pages: dict[int, list[dict]],
+                cache_miss: bool = False) -> SheetResult:
+    """Score one sheet's per-page pipeline output against its ground truth.
+
+    `pages` is what the run actually produced (keyed by 1-based page number,
+    the same convention `truth.pages` uses). Every page named in the ground
+    truth must be present here — a page the run never emitted output for
+    (a hand-edited ground-truth file pointing at a page the sheet does not
+    have, or a trimmed `pages` count in the manifest) would otherwise make
+    every `confirmed` item on it silently unreachable: it can never match,
+    never gets scored, and the sweep would print a clean line and exit 0
+    despite covering none of that page's verdicts. `unscored_pages` surfaces
+    that gap explicitly and is regression-class (see `SheetResult.is_regression`).
+    """
+    result = SheetResult(slug=slug,
+                         status="unlabeled" if not truth.is_labeled else "ok",
+                         region_cache_miss=cache_miss)
+    for number, entities in sorted(pages.items()):
+        scored = evaluate_page(truth.page(number), entities)
+        result.lost += scored["lost"]
+        result.returned_fps += scored["returned_fps"]
+        result.closed_deferred += scored["closed_deferred"]
+        result.unreviewed += scored["unreviewed"]
+        for kind, (found, total) in scored["counts"].items():
+            prev_found, prev_total = result.counts.get(kind, (0, 0))
+            result.counts[kind] = (prev_found + found, prev_total + total)
+
+    result.unscored_pages = sorted(set(truth.pages) - set(pages))
+    if result.is_regression:
+        result.status = "regression"
+    return result
+
+
 def sweep(slugs: list[str] | None = None) -> list[SheetResult]:
     wanted = slugs or [s["slug"] for s in manifest_sheets()
                        if s.get("tier") != "retired"]
@@ -83,25 +116,20 @@ def sweep(slugs: list[str] | None = None) -> list[SheetResult]:
             continue
 
         truth = load_truth(slug)
+        # The manifest's sha256 is what's on disk NOW; truth.pdf_sha256 is
+        # what the ground truth was reviewed against. An operator who pastes
+        # a fresh hash into the manifest instead of adopting a new slug would
+        # pass the check above (disk now matches the manifest) while silently
+        # scoring stale verdicts against a drawing nobody reviewed.
+        if truth.pdf_sha256 and truth.pdf_sha256 != entry["sha256"]:
+            results.append(SheetResult(slug=slug, status="sha_mismatch"))
+            continue
+
         with tempfile.TemporaryDirectory() as out_parent:
             run_dir = run_extract(str(path), list(range(entry["pages"])),
                                   out_parent=out_parent, skip_gemini=True)
             pages = _entities_by_page(run_dir)
             cache_miss = _cache_missed(run_dir)
 
-        result = SheetResult(slug=slug,
-                             status="unlabeled" if not truth.is_labeled else "ok",
-                             region_cache_miss=cache_miss)
-        for number, entities in sorted(pages.items()):
-            scored = evaluate_page(truth.page(number), entities)
-            result.lost += scored["lost"]
-            result.returned_fps += scored["returned_fps"]
-            result.closed_deferred += scored["closed_deferred"]
-            result.unreviewed += scored["unreviewed"]
-            for kind, (found, total) in scored["counts"].items():
-                prev_found, prev_total = result.counts.get(kind, (0, 0))
-                result.counts[kind] = (prev_found + found, prev_total + total)
-        if result.is_regression:
-            result.status = "regression"
-        results.append(result)
+        results.append(score_sheet(slug, truth, pages, cache_miss=cache_miss))
     return results
