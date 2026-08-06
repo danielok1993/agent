@@ -97,9 +97,10 @@ python app.py extract path/to/drawing.pdf --out /tmp/runs
 ```
 
 The regression corpus lives in `fixtures/sheets/` and is **not** committed: the
-sheets are NDA-covered. Download the bundle (location in `fixtures/MANIFEST.json`)
-and verify it with `python tools/fetch_fixtures.py`. Sheets are referred to by
-slug — `s01` and `s02` are the two primary reference sheets.
+sheets are NDA-covered. Download the bundle (see `fixtures/MANIFEST.json`'s
+`storage` field for how to get it) and verify it with
+`python tools/fetch_fixtures.py`. Sheets are referred to by slug — `s01` and
+`s02` are the two primary reference sheets.
 
 ### Batch extract
 

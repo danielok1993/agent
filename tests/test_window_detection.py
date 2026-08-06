@@ -1,9 +1,9 @@
 """Window detection tests.
 
-Ground truth was established interactively on floor-plans.pdf: exactly four
-windows, each drawn as a thin glazing rectangle — a tight cluster of >=3
-parallel, equal-length "glazing" lines (glass-pane edges + centerline) closed
-at both ends by short perpendicular "cap" lines. See
+Ground truth was established interactively on s01 (formerly floor-plans.pdf):
+exactly four windows, each drawn as a thin glazing rectangle — a tight cluster
+of >=3 parallel, equal-length "glazing" lines (glass-pane edges + centerline)
+closed at both ends by short perpendicular "cap" lines. See
 docs/window-detection-tuning-guide.md for the topology reference.
 
 These tests pin:
@@ -12,10 +12,9 @@ These tests pin:
     too thick), and
   * door entities suppress overlapping window candidates
     (_resolve_door_window_conflicts), and
-  * the real floor-plans.pdf yields exactly the four ground-truth windows.
+  * the real s01 yields exactly the four ground-truth windows.
 """
 import math
-import os
 import unittest
 
 from detection import detect_windows

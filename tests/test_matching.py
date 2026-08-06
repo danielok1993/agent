@@ -28,7 +28,11 @@ class IouTests(unittest.TestCase):
     def test_half_overlap_scores_one_third(self):
         self.assertAlmostEqual(iou((0, 0, 10, 10), (5, 0, 15, 10)), 1 / 3)
 
-    def test_zero_area_boxes_do_not_divide_by_zero(self):
+    def test_a_zero_area_box_scores_zero_via_the_empty_intersection_check(self):
+        # A point box's intersection with anything is empty, so this exits
+        # through the `ix1 <= ix0 or iy1 <= iy0` early return -- it does not
+        # exercise a union-is-zero division guard (there is no reachable
+        # input past that early return where union can be zero).
         self.assertEqual(iou((5, 5, 5, 5), (0, 0, 10, 10)), 0.0)
 
 

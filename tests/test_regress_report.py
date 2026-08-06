@@ -103,6 +103,19 @@ class RenderTests(unittest.TestCase):
         text = render([SheetResult(slug="s09", status="unlabeled",
                                    unreviewed=[entity("door", (0, 0, 10, 10))])])
         self.assertIn("unlabeled", text)
+        self.assertIn("every detection is unreviewed", text)
+
+    def test_an_unlabeled_sheet_with_recorded_verdicts_does_not_claim_none_reviewed(self):
+        # reviewed: null with populated verdict lists is a real state (a
+        # hand-edited ground-truth file, or one written before it was
+        # reviewed) -- it must not claim "every detection is unreviewed"
+        # when counts/closed_deferred show verdicts were actually scored.
+        r = SheetResult(slug="s09", status="unlabeled",
+                        counts={"door": (1, 1)},
+                        closed_deferred=[TruthItem("room", (0, 0, 10, 10))])
+        text = render([r])
+        self.assertIn("unlabeled", text)
+        self.assertNotIn("every detection is unreviewed", text)
 
     def test_a_region_cache_miss_is_surfaced(self):
         text = render([SheetResult(slug="s07", status="ok", region_cache_miss=True)])

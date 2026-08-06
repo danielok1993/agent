@@ -1,9 +1,10 @@
-"""Golden segmentation results on the checked-in reference PDFs.
+"""Golden segmentation results on the corpus reference sheets (s01, s02, s11).
 
 Measured 2026-07-28. A failure here means segmentation behaviour changed on a
-real sheet — investigate before touching the expected numbers.
+real sheet — investigate before touching the expected numbers. The sheets
+themselves are NDA-covered and gitignored (fixtures/sheets/); these tests
+skip via tests.fixtures.require_sheet when the corpus isn't downloaded.
 """
-import os
 import unittest
 
 import fitz

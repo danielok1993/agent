@@ -20,12 +20,21 @@ def iou(a: BBox, b: BBox) -> float:
     ix0, iy0 = max(a[0], b[0]), max(a[1], b[1])
     ix1, iy1 = min(a[2], b[2]), min(a[3], b[3])
     if ix1 <= ix0 or iy1 <= iy0:
+        # Empty (or degenerate/zero-area) intersection. This also covers a
+        # zero-area input box: if either box has zero width or height, its
+        # intersection with anything is empty too, so it is caught here
+        # rather than needing a separate check.
         return 0.0
     inter = (ix1 - ix0) * (iy1 - iy0)
+    # ix0 < ix1 <= a[2] and a[0] <= ix0 together force a[0] < a[2] (and
+    # likewise for b), so both boxes are non-degenerate here and
+    # union = area_a + area_b - inter is always > 0 whenever inter > 0 --
+    # union can never be zero past this point, so no second zero-guard on
+    # the division below is reachable.
     area_a = max(0.0, a[2] - a[0]) * max(0.0, a[3] - a[1])
     area_b = max(0.0, b[2] - b[0]) * max(0.0, b[3] - b[1])
     union = area_a + area_b - inter
-    return inter / union if union > 0 else 0.0
+    return inter / union
 
 
 @dataclass

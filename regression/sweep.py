@@ -99,8 +99,10 @@ def score_sheet(slug: str, truth: SheetTruth, pages: dict[int, list[dict]],
 
 
 def sweep(slugs: list[str] | None = None) -> list[SheetResult]:
-    wanted = slugs or [s["slug"] for s in manifest_sheets()
-                       if s.get("tier") != "retired"]
+    # slugs=[] is a deliberate "sweep nothing" request and must stay empty --
+    # `or` would treat it the same as slugs=None ("sweep everything").
+    wanted = slugs if slugs is not None else [s["slug"] for s in manifest_sheets()
+                                              if s.get("tier") != "retired"]
     results: list[SheetResult] = []
     for slug in wanted:
         entry = sheet_entry(slug)

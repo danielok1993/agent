@@ -61,7 +61,19 @@ def render(results: list[SheetResult]) -> str:
         if r.closed_deferred:
             tail.append(f"gaps CLOSED {len(r.closed_deferred)}")
         if r.status == "unlabeled":
-            tail.append("unlabeled — every detection is unreviewed")
+            # status=="unlabeled" only means `reviewed` is unset; it does not
+            # mean the file has no verdict lists (a hand-edited truth file
+            # can carry `confirmed`/`deferred` entries under a null
+            # `reviewed`). r.lost/r.returned_fps are always empty here (they
+            # would have promoted status to "regression"), but r.counts and
+            # r.closed_deferred are not -- claiming "every detection is
+            # unreviewed" while those are non-empty would contradict the
+            # counts and REVIEW lines printed right below it.
+            if r.counts or r.closed_deferred:
+                tail.append("unlabeled (reviewed not set), but this sheet has "
+                            "recorded verdicts — scored anyway")
+            else:
+                tail.append("unlabeled — every detection is unreviewed")
         lines.append(f"{r.slug}  {counts}  {'  '.join(tail)}".rstrip())
         for item in r.lost:
             lines.append(f"    ✗ LOST {item.type} @ {_centre(item.bbox)}"

@@ -107,6 +107,42 @@ class ShaMismatchAgainstTruthTests(unittest.TestCase):
         self.assertFalse(bool(truth.pdf_sha256) and truth.pdf_sha256 != entry["sha256"])
 
 
+class SweepSlugsArgumentTests(unittest.TestCase):
+    """`slugs=[]` is a deliberate "sweep nothing" request and must stay
+    empty -- `slugs or [...]` would treat it the same as `slugs=None`
+    ("sweep everything"), which is not what an empty list means.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        root = Path(self.tmp.name)
+        (root / "sheets").mkdir()
+        self._saved_corpus = (fx.FIXTURES_DIR, fx.SHEETS_DIR, fx.MANIFEST_PATH)
+        fx.FIXTURES_DIR = root
+        fx.SHEETS_DIR = root / "sheets"
+        fx.MANIFEST_PATH = root / "MANIFEST.json"
+        fx.MANIFEST_PATH.write_text(json.dumps({"storage": "the bundle", "sheets": [
+            {"slug": "s01", "file": "s01-x.pdf", "sha256": "0" * 64,
+             "pages": 1, "tier": "corpus"},
+        ]}))
+
+    def tearDown(self):
+        fx.FIXTURES_DIR, fx.SHEETS_DIR, fx.MANIFEST_PATH = self._saved_corpus
+        self.tmp.cleanup()
+
+    def test_an_explicit_empty_list_sweeps_nothing(self):
+        self.assertEqual(sweep([]), [])
+
+    def test_none_defaults_to_every_manifest_sheet(self):
+        # s01's file is never written to disk in this synthetic corpus, so
+        # this exercises the "missing" short-circuit rather than the
+        # pipeline -- it only proves slugs=None reaches the manifest sheet
+        # at all, which slugs=[] must not.
+        results = sweep(None)
+        self.assertEqual([r.slug for r in results], ["s01"])
+        self.assertEqual(results[0].status, "missing")
+
+
 class ScoreSheetUnscoredPagesTests(unittest.TestCase):
     """Fix: a page named in ground truth but absent from the run's output
     (hand-edited truth pointing at a page the sheet doesn't have, or a

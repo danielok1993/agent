@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 import regression.corpus as fx
+import tests.fixtures as fixtures_mod
 from tests.fixtures import require_sheet
 
 
@@ -34,6 +35,11 @@ class LoaderTests(unittest.TestCase):
 
     def tearDown(self):
         fx.FIXTURES_DIR, fx.SHEETS_DIR, fx.MANIFEST_PATH = self._saved
+        # test_require_sheet_skips_when_the_file_is_absent trips the one-shot
+        # warning flag; reset it so it doesn't stay burned for the rest of
+        # the suite (which would silently swallow a genuinely-missing corpus
+        # elsewhere) and doesn't print a false alarm about this temp dir.
+        fixtures_mod._WARNED = False
         self.tmp.cleanup()
 
     def test_manifest_sheets_are_returned_in_slug_order(self):

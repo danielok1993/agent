@@ -176,10 +176,12 @@ TDD (RED first — both fail today):
 ## Cleanup after the fix lands
 
 - Delete or refresh the poisoned entry: rerun
-  `python app.py extract s11 --refresh-regions`
+  `python app.py extract fixtures/sheets/s11-location-plan-block-plan-existing-plans-and-elevations.pdf --refresh-regions`
   (with Fix A it should parse; with Fix B a repeat flake no longer caches),
-  or simply `rm plans/.regions_cache/*s11*f2b9314d4207b160.json` — the
-  cache is derived data, safe to delete.
+  or simply `rm fixtures/sheets/.regions_cache/*s11*f2b9314d4207b160.json` —
+  the cache now lives alongside the sheet under `fixtures/sheets/` (this
+  incident predates the `fixtures/sheets/` migration, when it was still
+  `plans/.regions_cache/`) and is derived data, safe to delete.
 - Expected post-fix state for s11: classification with 2 `floor_plan`
   regions (its 2026-08-04 entries had 2 at the current-era segmentation;
   the pre-clip-fix entry had 4 fragments), detection runs, candidates > 0.

@@ -30,7 +30,7 @@ python app.py extract path/to/drawing.pdf [--pages SPEC] [--out DIR]
 # --refresh-regions ignores the cached region classification for the page
 # and calls Gemini again instead of reusing gemini/region_cache.py's entry.
 
-# Batch extract — discovers plans/*.pdf, prompts for detection options
+# Batch extract — discovers fixtures/sheets/*.pdf, prompts for detection options
 # interactively, runs `app.py extract` 5-at-a-time (ProcessPoolExecutor)
 python batch_extract.py
 
@@ -56,10 +56,10 @@ python tools/regress.py             # ~3min — 20 real sheets vs. committed gro
 ```
 
 The corpus lives in `fixtures/sheets/` and is **not** committed (NDA). Download
-the bundle — location in `fixtures/MANIFEST.json` — and verify with
-`python tools/fetch_fixtures.py`. Sheets are named by slug (`s01`…`s20`); the
-two primary references are `s01` (formerly floor-plans.pdf) and `s02` (the WD03
-working drawing).
+the bundle — see `fixtures/MANIFEST.json`'s `storage` field for how to get it —
+and verify with `python tools/fetch_fixtures.py`. Sheets are named by slug
+(`s01`…`s20`); the two primary references are `s01` (formerly floor-plans.pdf)
+and `s02` (the WD03 working drawing).
 
 `tests/ground_truth/sNN.json` holds the user's verdicts and is committed. Three
 lists per page: `confirmed` (correct detections), `false_positives` (wrong
@@ -96,7 +96,7 @@ The root holds thin orchestration entry points; detection and I/O live in packag
 app.py             # argparse shell
 pipeline.py        # run_extract — the 7-stage orchestrator
 inspector.py       # inspect-command logic
-batch_extract.py   # interactive parallel batch runner over plans/*.pdf
+batch_extract.py   # interactive parallel batch runner over fixtures/sheets/*.pdf
 models.py          # shared dataclasses (depended on by everything)
 
 extraction/        # PDF -> normalized primitives + rendering (owns SCALE)
