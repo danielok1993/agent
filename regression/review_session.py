@@ -45,7 +45,7 @@ def _ordered(types: list[str]) -> list[str]:
     return known + unknown
 
 
-def _check_provenance(slug: str, run) -> None:
+def _check_provenance(slug: str, run) -> dict:
     """Refuse to review output that does not describe the current drawing.
 
     Two independent ways the images can lie about what they show:
@@ -58,6 +58,9 @@ def _check_provenance(slug: str, run) -> None:
 
     Either way the review image shows one drawing while ground truth would be
     pinned to another, and the verdicts would be silently wrong forever.
+
+    Returns the manifest entry so `pending()` doesn't re-parse the manifest
+    a second time just to read the same sha back.
     """
     entry = sheet_entry(slug)
     if entry is None:
@@ -94,6 +97,8 @@ def _check_provenance(slug: str, run) -> None:
             f"{slug}: this sweep output was produced from a different PDF — "
             f"re-run: python tools/regress.py --sheet {slug}")
 
+    return entry
+
 
 def pending(slug: str) -> dict[int, dict[str, list[dict]]]:
     """Unreviewed detections, keyed by 1-based page then entity type.
@@ -110,7 +115,7 @@ def pending(slug: str) -> dict[int, dict[str, list[dict]]]:
             f"no persisted sweep output for {slug} — "
             f"run: python tools/regress.py --sheet {slug}")
 
-    _check_provenance(slug, run)
+    entry = _check_provenance(slug, run)
 
     try:
         truth = load_truth(slug)
@@ -124,7 +129,6 @@ def pending(slug: str) -> dict[int, dict[str, list[dict]]]:
     # exit 1), so appending here would write verdicts the very next sweep
     # rejects -- and would mix two drawings' verdicts in one file while doing
     # it. Blocked at the door instead.
-    entry = sheet_entry(slug)
     if truth.pdf_sha256 and truth.pdf_sha256 != entry["sha256"]:
         raise SweepOutputStale(
             f"{slug}: tests/ground_truth/{slug}.json was reviewed against a "

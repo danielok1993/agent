@@ -14,6 +14,14 @@ The walk is sheet -> page -> category. Each category prints the path to its
 review image, then asks twice: which are CORRECT, then which of the rest are
 WRONG. Anything ticked in neither stays unreviewed and comes back next sweep,
 so "I cannot tell from this image" costs nothing.
+
+Review images (`review_<type>.png`) are drawn once, at sweep time, from that
+sweep's full unreviewed set. If a session is interrupted partway through a
+sheet and resumed later against the same sweep output, the picker correctly
+shrinks to what is still actually unreviewed, but the image on disk still
+shows every box from the original set, including ones already given a
+verdict. The picker is always the authority; re-run
+`python tools/regress.py --sheet <slug>` to redraw the images.
 """
 from __future__ import annotations
 
@@ -31,6 +39,11 @@ from regression.review_render import short_id  # noqa: E402
 from regression.review_session import ReviewBlocked, pending  # noqa: E402
 from regression.run_dir import latest_run  # noqa: E402
 from regression.verdicts import Verdict, record_verdicts  # noqa: E402
+
+# Distinct from 130 (Ctrl-C, which stops the whole walk immediately): this is
+# "the walk finished, but at least one sheet failed unexpectedly and was
+# skipped" -- a scripted caller must not read a plain 0 as "all clean."
+EXIT_SHEET_FAILED = 1
 
 
 def _centre(bbox) -> str:
@@ -76,8 +89,14 @@ def _shape_and_note(entity: dict) -> tuple[str, str]:
 def review_sheet(slug: str) -> int:
     """Walk one sheet's pending detections. Returns how many were recorded.
 
-    Never raises for a sheet-level problem: a bad state is printed and the
-    sheet is skipped, so a 20-sheet walk survives one broken sheet.
+    Handles sheet-level STATE problems only: missing sweep output, stale
+    provenance, unreadable ground truth, and a rejected write are each
+    printed and treated as "nothing recorded for this sheet" rather than
+    raised. It does NOT guarantee immunity from every possible failure --
+    an error from the interactive prompt layer itself (InquirerPy /
+    prompt_toolkit erroring on a headless or unsupported terminal, for
+    instance) propagates out of here. main()'s per-slug loop is what keeps
+    one such failure from taking down the rest of a multi-sheet walk.
     """
     try:
         by_page = pending(slug)
@@ -145,6 +164,7 @@ def main() -> int:
 
     slugs = args.slugs or [s["slug"] for s in manifest_sheets()
                            if s.get("tier") != "retired"]
+    failed = False
     for slug in slugs:
         try:
             review_sheet(slug)
@@ -154,7 +174,16 @@ def main() -> int:
             # walk. Verdicts recorded for earlier sheets are already on disk.
             print(f"\n{slug}: interrupted, nothing recorded for this sheet")
             return 130
-    return 0
+        except Exception as exc:
+            # Anything review_sheet doesn't already turn into a printed
+            # skip (see its docstring) -- e.g. the interactive prompt layer
+            # itself erroring on a headless or unsupported terminal -- must
+            # still cost only this one sheet, not the rest of a 20-sheet
+            # walk. It must also not report success: EXIT_SHEET_FAILED is
+            # returned once the walk finishes so a scripted run notices.
+            print(f"\n{slug}: FAILED — {exc}")
+            failed = True
+    return EXIT_SHEET_FAILED if failed else 0
 
 
 if __name__ == "__main__":
