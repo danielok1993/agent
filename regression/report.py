@@ -35,6 +35,10 @@ class SheetResult:
     region_cache_miss: bool = False
     unscored_pages: list[int] = field(default_factory=list)
     run_dir: str | None = None
+    # Unreviewed entities keyed by 1-based page number. `unreviewed` stays the
+    # flat list the report prints; this is what review images and the review
+    # session need, because an entity means nothing without its page.
+    unreviewed_by_page: dict[int, list[dict]] = field(default_factory=dict)
 
     @property
     def is_regression(self) -> bool:

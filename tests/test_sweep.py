@@ -292,5 +292,42 @@ class ScoreSheetUnscoredPagesTests(unittest.TestCase):
         self.assertFalse(result.is_regression)
 
 
+class UnreviewedByPageTests(unittest.TestCase):
+    def _entity(self, entity_id, bbox):
+        return {"entity_id": entity_id, "entity_type": "door",
+                "bbox": list(bbox), "confidence": 0.8, "attributes": {}}
+
+    def test_unreviewed_is_grouped_by_page(self):
+        truth = SheetTruth(slug="s01", reviewed="2026-08-06")
+        pages = {1: [self._entity("door_0001", (0, 0, 10, 10))],
+                 2: [self._entity("door_0002", (20, 20, 30, 30)),
+                     self._entity("door_0003", (40, 40, 50, 50))]}
+
+        result = score_sheet("s01", truth, pages)
+
+        self.assertEqual(sorted(result.unreviewed_by_page), [1, 2])
+        self.assertEqual(len(result.unreviewed_by_page[1]), 1)
+        self.assertEqual(len(result.unreviewed_by_page[2]), 2)
+
+    def test_the_flat_unreviewed_list_still_holds_everything(self):
+        truth = SheetTruth(slug="s01", reviewed="2026-08-06")
+        pages = {1: [self._entity("door_0001", (0, 0, 10, 10))],
+                 2: [self._entity("door_0002", (20, 20, 30, 30))]}
+
+        result = score_sheet("s01", truth, pages)
+
+        self.assertEqual(len(result.unreviewed), 2)
+
+    def test_a_page_with_nothing_unreviewed_gets_no_entry(self):
+        truth = SheetTruth(slug="s01", reviewed="2026-08-06")
+        truth.pages[1] = PageTruth(confirmed=[
+            TruthItem(type="door", bbox=(0.0, 0.0, 10.0, 10.0))])
+        pages = {1: [self._entity("door_0001", (0, 0, 10, 10))]}
+
+        result = score_sheet("s01", truth, pages)
+
+        self.assertEqual(result.unreviewed_by_page, {})
+
+
 if __name__ == "__main__":
     unittest.main()
