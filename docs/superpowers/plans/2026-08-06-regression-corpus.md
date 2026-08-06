@@ -13,7 +13,7 @@
 - **Run everything inside the venv:** `source .venv/bin/activate` before any `python` command. Bare `python` is not on PATH.
 - **Tests are `unittest`, not pytest.** Run with `python -m unittest tests.test_x.ClassName.test_name`.
 - **No PDF may be committed.** `fixtures/sheets/` is gitignored; only `fixtures/MANIFEST.json` and `tests/ground_truth/*.json` are committed.
-- **No address-bearing data in git.** Planning-portal application IDs (e.g. `2682241`) resolve to a property address on the public portal and count as address-bearing. They must not appear in any tracked file after Task 3.
+- **No address-bearing data in git.** Planning-portal application IDs (e.g. `123456`) resolve to a property address on the public portal and count as address-bearing. They must not appear in any tracked file after Task 3.
 - **All coordinates are 150-DPI pixel space, top-left origin, y-down.** `BBox` is `(x0, y0, x1, y1)`. Never reintroduce point-space.
 - **Never add a `Co-Authored-By` trailer to commits.**
 - **Slug content is immutable.** A revised drawing is adopted as a new slug; an existing slug's bytes never change.
@@ -22,28 +22,34 @@
 
 ## Slug Assignment (authoritative — used by Tasks 2 and 3)
 
-| Slug | New filename | Former filename | Portal ID |
-|---|---|---|---|
-| s01 | `s01-floor-plans.pdf` | `floor-plans.pdf` | — |
-| s02 | `s02-working-drawing-wd03.pdf` | `5-1133-WD03.pdf` | — |
-| s03 | `s03-existing-and-proposed-elevations-and-floor-plans.pdf` | `EXISTING_AND_PROPOSED_ELEVATIONS_AND_FLOOR_PLANS-2557737.pdf` | 2557737 |
-| s04 | `s04-existing-first-floor-plan.pdf` | `EXISTING_FIRST_FLOOR_PLAN-4103493.pdf` | 4103493 |
-| s05 | `s05-existing-floor-and-elevations.pdf` | `EXISTING_FLOOR_AND_ELEVATIONS-1326087.pdf` | 1326087 |
-| s06 | `s06-existing-floor-and-elevation-plan.pdf` | `EXISTING_FLOOR_AND_ELEVATION_PLAN-3055574.pdf` | 3055574 |
-| s07 | `s07-existing-floor-plans.pdf` | `EXISTING_FLOOR_PLANS-3228943.pdf` | 3228943 |
-| s08 | `s08-existing-ground-floor-plan.pdf` | `EXISTING_GROUND_FLOOR_PLAN-4103495.pdf` | 4103495 |
-| s09 | `s09-floor-plan-existing.pdf` | `FLOOR_PLAN_-_EXISTING-3565362.pdf` | 3565362 |
-| s10 | `s10-location-plan-and-all-existing-information.pdf` | `LOCATION_PLAN_AND_ALL_EXISTING_INFORMATION-772263.pdf` | 772263 |
-| s11 | `s11-location-plan-block-plan-existing-plans-and-elevations.pdf` | `LOCATION_PLAN__BLOCK_PLAN__EXISTING_PLANS_AND_ELEVATIONS-2682241.pdf` | 2682241 |
-| s12 | `s12-proposed-floor-and-elevations.pdf` | `PROPOSED_FLOOR_AND_ELEVATIONS-1326086.pdf` | 1326086 |
-| s13 | `s13-proposed-floor-and-elevation-plan.pdf` | `PROPOSED_FLOOR_AND_ELEVATION_PLAN-3055578.pdf` | 3055578 |
-| s14 | `s14-proposed-floor-plans.pdf` | `PROPOSED_FLOOR_PLANS-574477.pdf` | 574477 |
-| s15 | `s15-proposed-floor-plans-and-elevations.pdf` | `PROPOSED_FLOOR_PLANS_AND_ELEVATIONS-3228948.pdf` | 3228948 |
-| s16 | `s16-proposed-plans-and-elevations.pdf` | `PROPOSED_PLANS_AND_ELEVATIONS-2710870.pdf` | 2710870 |
-| s17 | `s17-rev-b-single-plan-all-information.pdf` | `REV_._B_SINGLE_PLAN_ALL_INFORMATION-3447461.pdf` | 3447461 |
-| s18 | `s18-rev-proposed-plans-and-elevations.pdf` | `REV_._PROPOSED_PLANS_AND_ELEVATIONS-1789452.pdf` | 1789452 |
-| s19 | `s19-second-floor-plan-roof-existing.pdf` | `SECOND_FLOOR_PLAN_ROOF_-_EXISTING-3565363.pdf` | 3565363 |
-| s20 | `s20-single-plan-all-information.pdf` | `SINGLE_PLAN_ALL_INFORMATION-2387826.pdf` | 2387826 |
+| Slug | New filename |
+|---|---|
+| s01 | `s01-floor-plans.pdf` |
+| s02 | `s02-working-drawing-wd03.pdf` |
+| s03 | `s03-existing-and-proposed-elevations-and-floor-plans.pdf` |
+| s04 | `s04-existing-first-floor-plan.pdf` |
+| s05 | `s05-existing-floor-and-elevations.pdf` |
+| s06 | `s06-existing-floor-and-elevation-plan.pdf` |
+| s07 | `s07-existing-floor-plans.pdf` |
+| s08 | `s08-existing-ground-floor-plan.pdf` |
+| s09 | `s09-floor-plan-existing.pdf` |
+| s10 | `s10-location-plan-and-all-existing-information.pdf` |
+| s11 | `s11-location-plan-block-plan-existing-plans-and-elevations.pdf` |
+| s12 | `s12-proposed-floor-and-elevations.pdf` |
+| s13 | `s13-proposed-floor-and-elevation-plan.pdf` |
+| s14 | `s14-proposed-floor-plans.pdf` |
+| s15 | `s15-proposed-floor-plans-and-elevations.pdf` |
+| s16 | `s16-proposed-plans-and-elevations.pdf` |
+| s17 | `s17-rev-b-single-plan-all-information.pdf` |
+| s18 | `s18-rev-proposed-plans-and-elevations.pdf` |
+| s19 | `s19-second-floor-plan-roof-existing.pdf` |
+| s20 | `s20-single-plan-all-information.pdf` |
+
+The original filenames and planning-portal application IDs each slug was migrated
+from are deliberately not recorded here — they resolve to a property address on
+the public planning portal (see the Global Constraints "No address-bearing data
+in git" rule above), and this table's whole purpose is to be the safe, durable
+record of slug identity once that link is gone.
 
 `s01` and `s02` are `tier: "reference"`; `s03`–`s20` are `tier: "corpus"`. `plans/PROPOSED_GROUND_FLOOR_PLANS_AND_EXTENSION_ELEVATIONS-963191.tif` is a raster TIFF, not a PDF — it is **not** part of the corpus. Leave it in storage, unreferenced.
 
@@ -293,12 +299,15 @@ This task moves files, generates the manifest, and updates every consumer in one
 
 - [ ] **Step 1: Capture the pre-migration baseline**
 
-The migration must not change detection output. Snapshot two sheets first:
+The migration must not change detection output. Snapshot two sheets first — s01
+(already at its slug filename) and s07 (still at its pre-migration path under
+`plans/`, whose exact original filename is deliberately not recorded in this
+tracked plan; substitute it from the working tree at execution time):
 
 ```bash
 source .venv/bin/activate
 python app.py extract floor-plans.pdf --no-gemini --out /tmp/premig-s01
-python app.py extract plans/EXISTING_FLOOR_PLANS-3228943.pdf --no-gemini --out /tmp/premig-s07
+python app.py extract plans/<s07's pre-migration filename> --no-gemini --out /tmp/premig-s07
 ```
 
 Note the two run directory paths printed — they are needed in Step 8.
@@ -330,45 +339,54 @@ STORAGE_NOTE = ("the corpus bundle is not public — ask the maintainer for it, 
                 "and make sure every sheet is downloaded before sweeping")
 
 # (slug, new filename, source path relative to the repo root, tier)
+#
+# The source path for s03-s20 was that sheet's original planning-portal
+# filename under plans/ (e.g. "plans/EXISTING_FLOOR_PLANS-<portal id>.pdf").
+# Those filenames are deliberately not reproduced here — the portal id embedded
+# in each one resolves to a property address on the public planning portal —
+# so this listing is illustrative of the PLAN's shape, not a runnable copy of
+# the one-shot script that actually executed (tools/migrate_fixtures.py,
+# since deleted; see the "Slug Assignment" table above for the resulting
+# slug -> filename mapping, which is the durable, safe record).
 PLAN = [
     ("s01", "s01-floor-plans.pdf", "floor-plans.pdf", "reference"),
     ("s02", "s02-working-drawing-wd03.pdf", "5-1133-WD03.pdf", "reference"),
     ("s03", "s03-existing-and-proposed-elevations-and-floor-plans.pdf",
-     "plans/EXISTING_AND_PROPOSED_ELEVATIONS_AND_FLOOR_PLANS-2557737.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s04", "s04-existing-first-floor-plan.pdf",
-     "plans/EXISTING_FIRST_FLOOR_PLAN-4103493.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s05", "s05-existing-floor-and-elevations.pdf",
-     "plans/EXISTING_FLOOR_AND_ELEVATIONS-1326087.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s06", "s06-existing-floor-and-elevation-plan.pdf",
-     "plans/EXISTING_FLOOR_AND_ELEVATION_PLAN-3055574.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s07", "s07-existing-floor-plans.pdf",
-     "plans/EXISTING_FLOOR_PLANS-3228943.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s08", "s08-existing-ground-floor-plan.pdf",
-     "plans/EXISTING_GROUND_FLOOR_PLAN-4103495.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s09", "s09-floor-plan-existing.pdf",
-     "plans/FLOOR_PLAN_-_EXISTING-3565362.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s10", "s10-location-plan-and-all-existing-information.pdf",
-     "plans/LOCATION_PLAN_AND_ALL_EXISTING_INFORMATION-772263.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s11", "s11-location-plan-block-plan-existing-plans-and-elevations.pdf",
-     "plans/LOCATION_PLAN__BLOCK_PLAN__EXISTING_PLANS_AND_ELEVATIONS-2682241.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s12", "s12-proposed-floor-and-elevations.pdf",
-     "plans/PROPOSED_FLOOR_AND_ELEVATIONS-1326086.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s13", "s13-proposed-floor-and-elevation-plan.pdf",
-     "plans/PROPOSED_FLOOR_AND_ELEVATION_PLAN-3055578.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s14", "s14-proposed-floor-plans.pdf",
-     "plans/PROPOSED_FLOOR_PLANS-574477.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s15", "s15-proposed-floor-plans-and-elevations.pdf",
-     "plans/PROPOSED_FLOOR_PLANS_AND_ELEVATIONS-3228948.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s16", "s16-proposed-plans-and-elevations.pdf",
-     "plans/PROPOSED_PLANS_AND_ELEVATIONS-2710870.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s17", "s17-rev-b-single-plan-all-information.pdf",
-     "plans/REV_._B_SINGLE_PLAN_ALL_INFORMATION-3447461.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s18", "s18-rev-proposed-plans-and-elevations.pdf",
-     "plans/REV_._PROPOSED_PLANS_AND_ELEVATIONS-1789452.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s19", "s19-second-floor-plan-roof-existing.pdf",
-     "plans/SECOND_FLOOR_PLAN_ROOF_-_EXISTING-3565363.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
     ("s20", "s20-single-plan-all-information.pdf",
-     "plans/SINGLE_PLAN_ALL_INFORMATION-2387826.pdf", "corpus"),
+     "plans/<original filename, redacted>", "corpus"),
 ]
 
 
@@ -609,16 +627,13 @@ State in the task report that the 20 renamed files plus `fixtures/sheets/.region
 
 - [ ] **Step 1: Rewrite every portal ID to its slug**
 
-```bash
-cd /Users/nestimate/Documents/GitHub/agent
-FILES=$(git grep -l -E "2557737|4103493|1326087|3055574|3228943|4103495|3565362|772263|2682241|1326086|3055578|574477|3228948|2710870|3447461|1789452|3565363|2387826" -- '*.py' '*.md' | grep -v graphify-out)
-for pair in 2557737:s03 4103493:s04 1326087:s05 3055574:s06 3228943:s07 4103495:s08 \
-            3565362:s09 772263:s10 2682241:s11 1326086:s12 3055578:s13 574477:s14 \
-            3228948:s15 2710870:s16 3447461:s17 1789452:s18 3565363:s19 2387826:s20; do
-  id="${pair%%:*}"; slug="${pair##*:}"
-  echo "$FILES" | xargs sed -i '' "s/${id}/${slug}/g"
-done
-```
+This was a one-shot substitution: for each of the 18 corpus sheets (s03-s20),
+every tracked `*.py`/`*.md` file mentioning that sheet's planning-portal
+application ID had the ID rewritten to the sheet's slug (`sed -i` over the
+`git grep -l` hit list, one pass per id:slug pair). It has already been run —
+the id:slug pairs themselves are not reproduced in this plan, for the same
+reason the "Slug Assignment" table above no longer carries them: the ids are
+address-bearing, and this plan is a tracked file.
 
 - [ ] **Step 2: Read the diff and fix the wreckage**
 
@@ -627,20 +642,32 @@ git diff --stat
 git diff | less
 ```
 
-Mechanical substitution mangles prose. Fix by hand:
-- Full former filenames now read `EXISTING_FLOOR_PLANS-s07.pdf` — rewrite the whole reference to `s07`.
-- Sentences like "measured on 2682241" become "measured on s11" — correct, keep.
-- The spec written today (`docs/superpowers/specs/2026-08-06-regression-corpus-design.md`) is exempt: it documents the migration and its slug table legitimately pairs IDs with slugs. **Exclude it** — if `git diff` shows it changed, revert that one file with `git checkout -- <path>`.
-- `docs/superpowers/plans/2026-08-06-regression-corpus.md` (this plan) is likewise exempt for the same reason.
+Mechanical substitution mangles prose. Fixed by hand:
+- Full former filenames like `EXISTING_FLOOR_PLANS-<id>.pdf` became `EXISTING_FLOOR_PLANS-s07.pdf` — rewrite the whole reference to `s07`.
+- Sentences like "measured on `<id>`" become "measured on s11" — correct, keep.
+- The spec (`docs/superpowers/specs/2026-08-06-regression-corpus-design.md`) and this plan (`docs/superpowers/plans/2026-08-06-regression-corpus.md`) carry no portal IDs at all — nothing to exclude.
 
 - [ ] **Step 3: Verify no portal ID survives**
 
+`git grep -E` does not support `\b` on this git version — it always matches
+nothing, so a check built on it "passes" vacuously whether or not an ID is
+still present. Use `-P` (PCRE) instead, which does support `\b`.
+
+The 18 literal ids substituted in Step 1 are deliberately not reproduced in
+this tracked file (that would defeat the whole point of Task 3), so this
+check is pattern-based rather than a literal list: every portal-sourced
+filename this migration touched has the shape
+`SCREAMING_SNAKE_NAME-<6-7 digit id>.pdf`, and Step 2 converted every bare
+"measured on `<id>`"-style mention to its slug — so no tracked file should
+still contain either shape:
+
 ```bash
-git grep -n -E "\b(2557737|4103493|1326087|3055574|3228943|4103495|3565362|772263|2682241|1326086|3055578|574477|3228948|2710870|3447461|1789452|3565363|2387826)\b" \
-  -- '*.py' '*.md' | grep -v graphify-out | grep -v "2026-08-06-regression-corpus"
+git grep -n -P '[A-Z][A-Z_.]*-[0-9]{6,7}\.pdf' -- '*.py' '*.md' | grep -v graphify-out
 ```
 
-Expected: no output.
+Expected: no output. (An operator re-running the actual Task-1-era scrub with
+the real id list in hand can instead grep for those literal ids directly —
+just don't paste the list into a tracked file afterward.)
 
 - [ ] **Step 4: Run the suite**
 
