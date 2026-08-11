@@ -49,3 +49,24 @@ def sha256_of(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1 << 20), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def set_labeled(slug: str, value: bool = True) -> None:
+    """Flip a manifest entry's `labeled` flag and write the manifest back.
+
+    `labeled: true` is the durable, diffable claim that a human recorded
+    verdicts for this sheet -- the sweep fails when a flagged sheet's ground
+    truth goes missing (see sweep._labeled_but_unreviewed), so setting it is
+    what makes a review session's work impossible to lose silently.
+
+    The manifest's on-disk order is preserved: `load_manifest` reads the file
+    as written, unlike `manifest_sheets` which sorts a copy.
+    """
+    manifest = load_manifest()
+    for entry in manifest.get("sheets", []):
+        if entry["slug"] == slug:
+            entry["labeled"] = value
+            MANIFEST_PATH.write_text(json.dumps(manifest, indent=2) + "\n",
+                                     encoding="utf-8")
+            return
+    raise ValueError(f"{slug} is not in {MANIFEST_PATH}")
