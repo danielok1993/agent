@@ -202,6 +202,19 @@ class TestResolvePageScales(unittest.TestCase):
             stored=[])
         self.assertIsNotNone(result.page_scale)
 
+    def test_a_none_denominator_candidate_does_not_poison_the_sole_candidate(self):
+        # A ScaleInfo with no denominator (source="unresolved", say) sitting
+        # first in viewports+texts must not become page_scale, and must not
+        # block the one real denominator from resolving as the sole candidate.
+        page = self.blank_page([span("1:50@A3", (10.0, 10.0, 60.0, 20.0))])
+        result = resolve_page_scales(
+            page_data=page,
+            regions=[region("region_0000", (900.0, 900.0, 950.0, 950.0))],
+            viewports=[ScaleInfo(denominator=None, source="unresolved")],
+            stored=[])
+        self.assertEqual(result.page_scale.denominator, 50.0)
+        self.assertEqual(result.by_region["region_0000"].denominator, 50.0)
+
     def test_s04s_real_floats_do_not_warn_about_multiple_scales(self):
         result = resolve_page_scales(
             page_data=self.blank_page(),

@@ -159,12 +159,13 @@ def resolve_page_scales(
     # Clustered, not counted as raw floats — s04's two 1:50 viewports measure
     # 49.995 and 50.001, which as distinct floats would make a single-scale
     # sheet look multi-scale.
+    scored_candidates = [info for info in list(viewports) + texts
+                         if info.denominator is not None]
     distinct = canonical_denominators(
-        info.denominator for info in list(viewports) + texts
-        if info.denominator is not None)
+        info.denominator for info in scored_candidates)
     sole_candidate: Optional[ScaleInfo] = None
     if len(distinct) == 1:
-        sole_candidate = (viewports + texts)[0]
+        sole_candidate = scored_candidates[0]
     # page_scale is only ever set when the sheet states ONE scale. A sheet
     # carrying several has no scale "as a whole" — s17 states 1:50, 1:100,
     # 1:500 and 1:1250 at once, and picking any of them for summary.json
