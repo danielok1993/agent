@@ -180,6 +180,20 @@ def score_sheet(slug: str, truth: SheetTruth, pages: dict[int, list[dict]],
     return result
 
 
+def _extract_for_sweep(path, page_count: int, out_parent, debug_traces: bool) -> None:
+    """run_extract as the sweep needs it: offline, and never interactive.
+
+    allow_scale_prompt=False is NOT redundant with the tty gate. The sweep
+    calls run_extract in-process, so a regress run started from a terminal
+    inherits that terminal's stdin and sys.stdin.isatty() is True. Seven of
+    the twenty corpus sheets resolve no scale, so without this a sweep would
+    stop and wait for input on the common path.
+    """
+    run_extract(str(path), list(range(page_count)),
+                out_parent=str(out_parent), skip_gemini=True,
+                debug=debug_traces, allow_scale_prompt=False)
+
+
 def sweep(slugs: list[str] | None = None, debug_traces: bool = False) -> list[SheetResult]:
     # slugs=[] is a deliberate "sweep nothing" request and must stay empty --
     # `or` would treat it the same as slugs=None ("sweep everything").
@@ -219,8 +233,7 @@ def sweep(slugs: list[str] | None = None, debug_traces: bool = False) -> list[Sh
         # reset_slug_dir is called exactly once -- it wipes the previous sweep,
         # so a second call would delete the run that just finished.
         out_parent = reset_slug_dir(slug)
-        run_extract(str(path), list(range(entry["pages"])),
-                    out_parent=str(out_parent), skip_gemini=True, debug=debug_traces)
+        _extract_for_sweep(path, entry["pages"], out_parent, debug_traces)
         run = latest_run(slug)
         pages = _entities_by_page(str(run)) if run else {}
         cache_miss = _cache_missed(str(run)) if run else False

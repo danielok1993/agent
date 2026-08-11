@@ -97,6 +97,7 @@ def cmd_extract(args: argparse.Namespace) -> None:
         disable_windows=args.disable_windows,
         debug=args.debug,
         refresh_regions=args.refresh_regions,
+        allow_scale_prompt=not args.no_scale_prompt,
     )
 
 
@@ -166,6 +167,13 @@ def main() -> None:
         action="store_true",
         dest="debug",
         help="Write debug_trace.json per page with per-primitive detection trace",
+    )
+    p_extract.add_argument(
+        "--no-scale-prompt",
+        action="store_true",
+        help="Never ask for a drawing scale; record it as unresolved instead. "
+             "Set automatically by batch_extract and regress.py, which run "
+             "unattended but may still inherit a terminal.",
     )
     p_extract.set_defaults(func=cmd_extract)
 

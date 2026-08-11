@@ -447,6 +447,7 @@ def run_extract(
     debug: bool = False,
     disable_rooms: bool = False,
     refresh_regions: bool = False,
+    allow_scale_prompt: bool = True,
 ) -> str:
     disable_rooms = disable_rooms or disable_walls
     path = Path(pdf_path)
@@ -561,10 +562,7 @@ def run_extract(
                 stored=load_stored(str(path), page_num),
                 pdf_path=str(path),
                 crop_fn=scale_crop,
-                # Task 8 replaces this literal with the run_extract parameter.
-                # It must NOT stay True: regress.py calls run_extract
-                # in-process and would inherit a real terminal.
-                allow_prompt=True,
+                allow_prompt=allow_scale_prompt,
             )
 
             # 3. pdfplumber
