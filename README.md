@@ -148,5 +148,84 @@ python tools/regress.py
 sheet's detections against `tests/ground_truth/sNN.json` — geometric matching,
 never entity ids — and exits 1 on a lost confirmed detection or a returned
 false positive, 2 if sheets are missing, 0 otherwise. New detections never fail
-the sweep; they print under `REVIEW` for the user to verdict. See CLAUDE.md's
-"Regression testing" section for the full labeling loop.
+the sweep; they print under `REVIEW` for you to verdict.
+
+## Reviewing new detections
+
+A new detection is not a failure — it is a question. The sweep cannot know
+whether a door it just found is real, so it prints it under `REVIEW` and waits
+for your verdict. Recording that verdict is what turns it into a gate.
+
+```bash
+python tools/regress.py --sheet s01     # 1. sweep the sheet
+                                        # 2. open the review image it names
+python tools/review.py s01              # 3. tick the correct ones, then the wrong ones
+```
+
+### 1. Sweep
+
+Every sheet with unreviewed detections prints its id, confidence and centre,
+then where to look and what to run next:
+
+```
+s01  window 4/4  unreviewed 24
+    REVIEW new door_0007  conf 0.67  (485,1364)
+    REVIEW new room_0003  conf 0.85  (1056,549)
+    …
+    images: outputs/regress/s01/2026-08-10_14-13-29/pages/  — then: python tools/review.py s01
+```
+
+The entity id (`door_0007`) is **display-only**. Ids are ordinal — `door_0007`
+becomes `door_0006` the moment an earlier door stops being detected — so they
+are never written to ground truth and never used for matching. They exist so
+you can find the box on the image.
+
+### 2. Open the review image
+
+`outputs/regress/<slug>/<timestamp>/pages/page_NN/review_<type>.png` — one per
+entity type, with every unreviewed detection stamped with a short id: `d7` is
+`door_0007`, `r3` is `room_0003`, matching the `REVIEW` lines above.
+
+That directory persists (it is gitignored) precisely so this image exists to
+open. It is **wiped at the start of that slug's next sweep**, so copy out
+anything you want to keep. `debug_viewer.html` is opt-in via
+`python tools/regress.py --debug` — it costs 200–300MB per sheet on the
+corpus's heaviest sheets, so it is for the hard cases, not routine review.
+
+### 3. Record the verdicts
+
+```bash
+python tools/review.py              # every sheet with unreviewed detections
+python tools/review.py s01          # one sheet
+python tools/review.py s01 s07      # several
+```
+
+It walks sheet → page → category, printing the path to each review image, then
+asking twice: **which are correct**, then **which of the rest are wrong**.
+Space toggles a checkbox, Enter confirms; each list ends with a "none of these"
+option. Anything you tick in neither list stays unreviewed and comes back next
+sweep — "I can't tell from this image" costs nothing.
+
+`review.py` never re-runs detection. It reads what the sweep already persisted,
+so run the sweep first.
+
+On finishing a sheet it writes `tests/ground_truth/<slug>.json` and sets
+`"labeled": true` on that sheet's `fixtures/MANIFEST.json` entry. Commit both
+together as a data commit — no code change belongs in it.
+
+| Exit | Meaning |
+| --- | --- |
+| 0 | Walk finished, every sheet handled |
+| 1 | Walk finished but a sheet failed unexpectedly and was skipped |
+| 130 | Ctrl-C — abandons the current sheet (nothing was written for it); sheets completed earlier are already on disk |
+
+### After reviewing
+
+Re-run `python tools/regress.py`. Sheets you just labeled now have real gates:
+losing a confirmed detection, or re-emitting one you marked wrong, fails the
+sweep. A detection you marked correct that the next algorithm change breaks is
+exactly what this whole loop exists to catch.
+
+See `docs/regression-testing-guide.md` for the ground-truth file format, the
+rules for editing it by hand, adopting new sheets, and the traps that have
+already shipped bugs here.
