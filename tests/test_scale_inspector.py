@@ -63,6 +63,31 @@ class TestUnboundScaleLines(unittest.TestCase):
         self.assertIn("1:100", joined)
         self.assertIn("1:50", joined)
 
+    def test_unmatched_closing_tag_in_raw_does_not_crash(self):
+        # Regression: raw text containing unmatched closing tags like [/bold]
+        # must not crash the function. The escaping should neutralize the brackets.
+        # These test cases reproduce the defects found in code review.
+        test_cases = [
+            "1:50 & 1/100 [/bold] extra",
+            "[/nonexistent]",
+            "[/]",
+        ]
+        for raw in test_cases:
+            lines = unbound_scale_lines([], [text(50.0, raw)])
+            # The function should not crash
+            self.assertEqual(len(lines), 1)
+            # The escaped bracket text should survive in the output
+            # (escaped with backslash so Rich won't parse it)
+            self.assertIn("\\[", lines[0])
+
+    def test_text_scale_with_none_denominator_is_skipped(self):
+        # Regression: ScaleInfo with None denominator should be skipped, not crash.
+        # The viewport branch already guards against this; the text branch must too.
+        # When a text scale's denominator is None, it's filtered out during processing.
+        lines = unbound_scale_lines([], [text(None, "Some text")])
+        # The entry is skipped, producing an empty list
+        self.assertEqual(len(lines), 0)
+
 
 if __name__ == "__main__":
     unittest.main()

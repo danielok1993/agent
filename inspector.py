@@ -8,6 +8,7 @@ from rich.table import Table
 from rich.panel import Panel
 from rich.tree import Tree
 from rich import box as rich_box
+from rich.markup import escape as rich_escape
 from models import PageData, ScaleInfo
 from extraction.extractor import extract_page, SCALE
 from extraction.plumber import extract_plumber_page, build_plumber_counts, build_pymupdf_counts, compare_counts
@@ -62,13 +63,16 @@ def unbound_scale_lines(
     # by text at all.
     seen: set[tuple[str, Optional[float]]] = set()
     for info in texts:
+        if info.denominator is None:
+            continue
         raw = (info.raw or "").strip()
         key = (raw.lower(), info.denominator)
         if key in seen:
             continue
         seen.add(key)
+        escaped_raw = rich_escape(raw) if raw else ""
         lines.append(f"[bold]Scale (text):[/bold] "
-                     f"{format_scale(info.denominator)} — {raw!r}")
+                     f"{format_scale(info.denominator)} — {escaped_raw!r}")
     return lines
 
 
