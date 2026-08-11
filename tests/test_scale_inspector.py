@@ -5,6 +5,8 @@ what the sheet states and stops there -- and it never prompts.
 """
 import unittest
 
+from rich.console import Console
+
 from inspector import unbound_scale_lines
 from models import ScaleInfo
 
@@ -65,20 +67,26 @@ class TestUnboundScaleLines(unittest.TestCase):
 
     def test_unmatched_closing_tag_in_raw_does_not_crash(self):
         # Regression: raw text containing unmatched closing tags like [/bold]
-        # must not crash the function. The escaping should neutralize the brackets.
+        # must not crash when rendered through Rich. The escaping should
+        # neutralize the brackets so Rich's markup parser treats them as literal.
         # These test cases reproduce the defects found in code review.
         test_cases = [
-            "1:50 & 1/100 [/bold] extra",
-            "[/nonexistent]",
-            "[/]",
+            ("1:50 & 1/100 [/bold] extra", "[/bold]"),
+            ("[/nonexistent]", "[/nonexistent]"),
+            ("[/]", "[/]"),
         ]
-        for raw in test_cases:
+        for raw, expected_bracket_text in test_cases:
             lines = unbound_scale_lines([], [text(50.0, raw)])
-            # The function should not crash
             self.assertEqual(len(lines), 1)
-            # The escaped bracket text should survive in the output
-            # (escaped with backslash so Rich won't parse it)
-            self.assertIn("\\[", lines[0])
+
+            # The critical test: render the line through Rich console without crashing
+            console = Console(record=True, width=120)
+            console.print(lines[0])
+            output = console.export_text()
+
+            # The literal bracket text must appear in the rendered output
+            self.assertIn(expected_bracket_text, output,
+                         f"Expected '{expected_bracket_text}' in output for raw: {raw}")
 
     def test_text_scale_with_none_denominator_is_skipped(self):
         # Regression: ScaleInfo with None denominator should be skipped, not crash.

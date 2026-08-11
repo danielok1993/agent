@@ -72,7 +72,7 @@ def unbound_scale_lines(
         seen.add(key)
         escaped_raw = rich_escape(raw) if raw else ""
         lines.append(f"[bold]Scale (text):[/bold] "
-                     f"{format_scale(info.denominator)} — {escaped_raw!r}")
+                     f"{format_scale(info.denominator)} — '{escaped_raw}'")
     return lines
 
 
