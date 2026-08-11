@@ -287,6 +287,73 @@ class TestResolvePageScales(unittest.TestCase):
                 allow_prompt=True)
         self.assertEqual(rendered, ["region_0000"])
 
+    def _suspend_recorder(self):
+        """A suspend_display factory that logs enter/exit, for the tests below."""
+        from contextlib import contextmanager
+        events = []
+
+        @contextmanager
+        def suspend():
+            events.append("enter")
+            try:
+                yield
+            finally:
+                events.append("exit")
+
+        return events, suspend
+
+    def test_the_display_is_suspended_around_an_actual_prompt(self):
+        from unittest import mock
+        events, suspend = self._suspend_recorder()
+        with mock.patch("scale.resolver.can_prompt", return_value=True), \
+             mock.patch("scale.resolver.prompt_for_scale", return_value="1:100"):
+            resolve_page_scales(
+                page_data=self.blank_page(),
+                regions=[region("region_0000", (0.0, 0.0, 100.0, 100.0))],
+                viewports=[], stored=[],
+                allow_prompt=True, suspend_display=suspend)
+        self.assertEqual(events, ["enter", "exit"])
+
+    def test_the_display_is_not_suspended_when_nothing_prompts(self):
+        """The regression: a live rich Progress torn down on a page that
+        resolved its own scale strands a frozen half-drawn bar on screen.
+        Prompting being POSSIBLE is not prompting."""
+        from unittest import mock
+        events, suspend = self._suspend_recorder()
+        with mock.patch("scale.resolver.can_prompt", return_value=True), \
+             mock.patch("scale.resolver.prompt_for_scale") as never:
+            resolve_page_scales(
+                page_data=self.blank_page(),
+                regions=[region("region_0000", (0.0, 0.0, 100.0, 100.0))],
+                viewports=[viewport(50.0, (0.0, 0.0, 200.0, 200.0))],
+                stored=[], allow_prompt=True, suspend_display=suspend)
+        never.assert_not_called()
+        self.assertEqual(events, [])
+
+    def test_the_display_is_restored_when_the_prompt_raises(self):
+        from unittest import mock
+        events, suspend = self._suspend_recorder()
+        with mock.patch("scale.resolver.can_prompt", return_value=True), \
+             mock.patch("scale.resolver.prompt_for_scale",
+                        side_effect=RuntimeError("boom")):
+            with self.assertRaises(RuntimeError):
+                resolve_page_scales(
+                    page_data=self.blank_page(),
+                    regions=[region("region_0000", (0.0, 0.0, 100.0, 100.0))],
+                    viewports=[], stored=[],
+                    allow_prompt=True, suspend_display=suspend)
+        self.assertEqual(events, ["enter", "exit"])
+
+    def test_prompting_works_with_no_suspend_display(self):
+        from unittest import mock
+        with mock.patch("scale.resolver.can_prompt", return_value=True), \
+             mock.patch("scale.resolver.prompt_for_scale", return_value="1:100"):
+            result = resolve_page_scales(
+                page_data=self.blank_page(),
+                regions=[region("region_0000", (0.0, 0.0, 100.0, 100.0))],
+                viewports=[], stored=[], allow_prompt=True)
+        self.assertEqual(result.by_region["region_0000"].denominator, 100.0)
+
     def test_a_crop_that_cannot_be_rendered_still_prompts(self):
         from unittest import mock
 

@@ -12,8 +12,9 @@ describes what was intended, and on s13 those differ.
 """
 from __future__ import annotations
 
+from contextlib import nullcontext
 from dataclasses import dataclass, field
-from typing import Callable, Optional
+from typing import Callable, ContextManager, Optional
 
 from models import PageData, Region, ScaleInfo
 from scale.prompt import can_prompt, prompt_for_scale
@@ -140,6 +141,7 @@ def resolve_page_scales(
     pdf_path: Optional[str] = None,
     crop_fn: Optional[Callable[[Region], Optional[str]]] = None,
     allow_prompt: bool = False,
+    suspend_display: Optional[Callable[[], ContextManager]] = None,
 ) -> PageScales:
     """Resolve a scale for every floor-plan region on one page."""
     result = PageScales()
@@ -225,8 +227,16 @@ def resolve_page_scales(
                     crop_hint = crop_fn(region)
                 except Exception:
                     crop_hint = None
-            typed = prompt_for_scale(region.region_id,
-                                     crop_hint or "(no crop available)")
+            # Entered ONLY here, around the blocking read itself — not around
+            # the whole resolve. The caller's live progress display must be
+            # torn down for input() to draw on a clean line, but tearing it
+            # down whenever a prompt is merely POSSIBLE leaves a frozen
+            # half-finished bar on every interactive page that resolves
+            # normally, which is every page on a sheet that states its scale.
+            with (suspend_display() if suspend_display is not None
+                  else nullcontext()):
+                typed = prompt_for_scale(region.region_id,
+                                         crop_hint or "(no crop available)")
             if typed:
                 newly_entered.append(StoredScale(region.bbox, typed))
                 info = _stored_info(typed)

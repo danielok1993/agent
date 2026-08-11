@@ -1,6 +1,7 @@
 from __future__ import annotations
 import json
 import os
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -27,7 +28,6 @@ from layout import (
 from gemini import client as gc
 from gemini.classifier import classify_regions, render_region_crop
 from gemini.region_cache import cache_key, load_regions, save_regions
-from scale.prompt import can_prompt
 from scale.resolver import PageScales, resolve_page_scales
 from scale.store import load_stored
 from scale.units import format_scale
@@ -566,22 +566,32 @@ def run_extract(
             # batch_extract.py, tools/regress.py, any redirected/non-tty
             # console — untouched: they never prompt, so their output must
             # not gain a stop/start around every page's scale step.
-            prompting_possible = allow_scale_prompt and can_prompt()
-            if prompting_possible:
-                progress.stop()
-            try:
-                page_scales = resolve_page_scales(
-                    page_data=page_data,
-                    regions=region_result.regions,
-                    viewports=viewport_scales(doc, doc[idx]),
-                    stored=load_stored(str(path), page_num),
-                    pdf_path=str(path),
-                    crop_fn=scale_crop,
-                    allow_prompt=allow_scale_prompt,
-                )
-            finally:
-                if prompting_possible:
-                    progress.start()
+            @contextmanager
+            def suspend_progress(_progress=progress):
+                """Tear the live display down for the duration of a prompt.
+
+                The resolver enters this ONLY around the blocking read, never
+                merely because a prompt was possible: Progress.stop() leaves
+                its last frame painted on the terminal, so suspending on every
+                interactive page strands a half-drawn bar above the output of
+                every sheet that resolved its own scale.
+                """
+                _progress.stop()
+                try:
+                    yield
+                finally:
+                    _progress.start()
+
+            page_scales = resolve_page_scales(
+                page_data=page_data,
+                regions=region_result.regions,
+                viewports=viewport_scales(doc, doc[idx]),
+                stored=load_stored(str(path), page_num),
+                pdf_path=str(path),
+                crop_fn=scale_crop,
+                allow_prompt=allow_scale_prompt,
+                suspend_display=suspend_progress,
+            )
 
             # 3. pdfplumber
             step("plumber")
