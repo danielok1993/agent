@@ -163,14 +163,5 @@
   "161": "SweepSlugsArgumentTests",
   "162": "TestNetworkQueries",
   "163": "TestThickMaterialPairs",
-  "164": "TestFloorPlansRegression",
-  "165": "ScaleInfo",
-  "166": "Architecture",
-  "167": "test_scale_units.py",
-  "168": "scales_in_text",
-  "169": "File Structure",
-  "170": "DoorV2OpeningCheckTests",
-  "171": "test_curve_arc_garden_doors.py",
-  "172": "denominator_from_c",
-  "173": "TestSlugForPath"
+  "164": "TestFloorPlansRegression"
 }
