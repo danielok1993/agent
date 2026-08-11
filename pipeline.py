@@ -10,6 +10,7 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
 from rich.table import Table
 from rich import box as rich_box
+from rich.markup import escape as rich_escape
 from models import PageData, Candidate, Entity, Region, TextSpan
 from extraction.extractor import extract_page
 from extraction.plumber import (
@@ -232,9 +233,15 @@ def scale_table(page_scales: PageScales, regions: list[Region]) -> Table:
             shown, style = "UNKNOWN", "yellow"
         else:
             shown, style = format_scale(info.denominator), "green"
-        evidence = info.raw or ""
+        # info.raw and info.conflict are lifted verbatim from PDF text (e.g.
+        # scale/text.py's raw=span.text.strip() keeps the whole span, not just
+        # the matched "1:N"), so they can contain bracket sequences Rich would
+        # otherwise try to parse as markup — escape before it reaches add_row.
+        # shown/style stay unescaped: they are program-controlled and their
+        # markup is intentional.
+        evidence = rich_escape(info.raw) if info.raw else ""
         if info.conflict:
-            evidence = f"CONFLICT — {info.conflict}"
+            evidence = f"CONFLICT — {rich_escape(info.conflict)}"
             style = "red"
         elif info.nominal is not None and info.denominator is not None \
                 and abs(info.nominal - info.denominator) > 0.05:
@@ -246,7 +253,7 @@ def scale_table(page_scales: PageScales, regions: list[Region]) -> Table:
         info = page_scales.page_scale
         table.add_row("(page)", "—",
                       f"[green]{format_scale(info.denominator)}[/green]",
-                      info.source, info.raw or "")
+                      info.source, rich_escape(info.raw) if info.raw else "")
     return table
 
 

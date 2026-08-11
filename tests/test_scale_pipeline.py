@@ -45,6 +45,15 @@ class TestScaleTable(unittest.TestCase):
         out = self.render(scales, [region("region_0002")])
         self.assertIn("1:100", out)
 
+    def test_unmatched_bracket_in_raw_text_does_not_raise(self):
+        """raw is lifted verbatim from PDF text and can contain a bracket
+        sequence Rich would otherwise try to parse as markup — an unmatched
+        closing tag raises rich.errors.MarkupError unless it is escaped."""
+        scales = PageScales(by_region={"region_0002": ScaleInfo(
+            denominator=100.0, source="text", raw="SCALE 1:100 [/see detail]")})
+        out = self.render(scales, [region("region_0002")])
+        self.assertIn("[/see detail]", out)
+
 
 class TestScaleSummaryDict(unittest.TestCase):
     def test_shape_is_json_serialisable(self):
