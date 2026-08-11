@@ -8,6 +8,8 @@ from typing import Optional
 import fitz
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
+from rich.table import Table
+from rich import box as rich_box
 from models import PageData, Candidate, Entity, Region, TextSpan
 from extraction.extractor import extract_page
 from extraction.plumber import (
@@ -22,8 +24,12 @@ from layout import (
     qualifying_clip_rects, region_text_spans, segment_page,
 )
 from gemini import client as gc
-from gemini.classifier import classify_regions
+from gemini.classifier import classify_regions, render_region_crop
 from gemini.region_cache import cache_key, load_regions, save_regions
+from scale.resolver import PageScales, resolve_page_scales
+from scale.store import load_stored
+from scale.units import format_scale
+from scale.viewport import viewport_scales
 
 console = Console()
 
@@ -210,12 +216,61 @@ def collect_warnings(
     return warnings
 
 
+def scale_table(page_scales: PageScales, regions: list[Region]) -> Table:
+    """The per-region scale table printed after each page."""
+    types = {r.region_id: r.region_type for r in regions}
+    table = Table(title="Scales", box=rich_box.SIMPLE_HEAVY)
+    table.add_column("Region")
+    table.add_column("Type")
+    table.add_column("Scale", justify="right")
+    table.add_column("Source")
+    table.add_column("Evidence")
+
+    for region_id in sorted(page_scales.by_region):
+        info = page_scales.by_region[region_id]
+        if info.denominator is None:
+            shown, style = "UNKNOWN", "yellow"
+        else:
+            shown, style = format_scale(info.denominator), "green"
+        evidence = info.raw or ""
+        if info.conflict:
+            evidence = f"CONFLICT — {info.conflict}"
+            style = "red"
+        elif info.nominal is not None and info.denominator is not None \
+                and abs(info.nominal - info.denominator) > 0.05:
+            evidence = f"{evidence} → nearest standard {format_scale(info.nominal)}"
+        table.add_row(region_id, types.get(region_id, "—"),
+                      f"[{style}]{shown}[/{style}]", info.source, evidence)
+
+    if not page_scales.by_region and page_scales.page_scale is not None:
+        info = page_scales.page_scale
+        table.add_row("(page)", "—",
+                      f"[green]{format_scale(info.denominator)}[/green]",
+                      info.source, info.raw or "")
+    return table
+
+
+def scale_summary_dict(page_scales: PageScales) -> dict:
+    """The scales block written into each page's summary.json entry."""
+    def one(info):
+        return {"denominator": info.denominator, "source": info.source,
+                "raw": info.raw, "nominal": info.nominal,
+                "conflict": info.conflict,
+                "bbox": list(info.bbox) if info.bbox else None}
+
+    return {
+        "by_region": {rid: one(info) for rid, info in page_scales.by_region.items()},
+        "page_scale": one(page_scales.page_scale) if page_scales.page_scale else None,
+    }
+
+
 def _page_summary_dict(
     page_data: PageData,
     candidates: list[Candidate],
     entities: list[Entity],
     page_warnings: list[dict],
     regions: list[Region],
+    page_scales: PageScales,
 ) -> dict:
     return {
         "page_number": page_data.page_number,
@@ -230,6 +285,7 @@ def _page_summary_dict(
         "warning_count": len(page_warnings),
         "region_count": len(regions),
         "floor_plan_region_count": sum(1 for r in regions if r.region_type == "floor_plan"),
+        "scales": scale_summary_dict(page_scales),
     }
 
 
@@ -412,7 +468,8 @@ def run_extract(
     total_candidates = 0
     total_entities = 0
 
-    steps = ["extract", "render", "regions", "plumber", "heuristics", "overlay", "save"]
+    steps = ["extract", "render", "regions", "scale", "plumber", "heuristics",
+             "overlay", "save"]
     n_steps = len(steps)
 
     with Progress(
@@ -471,6 +528,36 @@ def run_extract(
                         for r in region_result.regions
                     ],
                 },
+            )
+
+            # 2d. Scale — needs the classified regions to bind against.
+            step("scale")
+
+            def scale_crop(region, _page_dir=page_dir, _idx=idx):
+                """A crop of one region, rendered if it is not already there.
+
+                region_crops/ is written only by the Gemini classification
+                call, so on a cache hit, with --no-gemini, or on a raster page
+                the directory is empty. The prompt must not send the user to a
+                path that does not exist.
+                """
+                target = Path(_page_dir) / "region_crops" / f"{region.region_id}.png"
+                if not target.exists():
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    render_region_crop(doc[_idx], region.bbox, str(target))
+                return str(target)
+
+            page_scales = resolve_page_scales(
+                page_data=page_data,
+                regions=region_result.regions,
+                viewports=viewport_scales(doc, doc[idx]),
+                stored=load_stored(str(path), page_num),
+                pdf_path=str(path),
+                crop_fn=scale_crop,
+                # Task 8 replaces this literal with the run_extract parameter.
+                # It must NOT stay True: regress.py calls run_extract
+                # in-process and would inherit a real terminal.
+                allow_prompt=True,
             )
 
             # 3. pdfplumber
@@ -579,12 +666,16 @@ def run_extract(
             page_warnings = collect_warnings(
                 page_data, candidates, comparison, region_result.warnings,
             )
+            page_warnings.extend(page_scales.warnings)
             for w in page_warnings:
                 w.setdefault("page_number", page_num)
             all_warnings.extend(page_warnings)
 
+            console.print(scale_table(page_scales, region_result.regions))
+
             all_page_summaries.append(
-                _page_summary_dict(page_data, candidates, entities, page_warnings, region_result.regions)
+                _page_summary_dict(page_data, candidates, entities, page_warnings,
+                                   region_result.regions, page_scales)
             )
 
     doc.close()
