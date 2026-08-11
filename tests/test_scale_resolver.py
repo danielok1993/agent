@@ -328,6 +328,38 @@ class TestResolvePageScales(unittest.TestCase):
         self.assertEqual(result.by_region["region_0009"].denominator, 20.0)
         self.assertEqual(result.by_region["region_0009"].source, "user")
 
+    def test_multiple_scales_with_no_regions_warn_unbound(self):
+        # The --no-gemini-with-cold-cache case: regions collapse to nothing,
+        # so the per-region loop never runs and never gets a chance to warn.
+        result = resolve_page_scales(
+            page_data=self.blank_page(),
+            regions=[],
+            viewports=[viewport(50.0, (0.0, 0.0, 50.0, 50.0)),
+                       viewport(100.0, (0.0, 0.0, 200.0, 200.0))],
+            stored=[])
+        codes = [w["warning_code"] for w in result.warnings]
+        self.assertEqual(codes.count("SCALE_MULTIPLE_UNBOUND"), 1)
+
+    def test_multiple_scales_with_only_non_floor_plan_regions_warn_unbound(self):
+        result = resolve_page_scales(
+            page_data=self.blank_page(),
+            regions=[region("region_0000", (0.0, 0.0, 100.0, 100.0), "elevation")],
+            viewports=[viewport(50.0, (0.0, 0.0, 50.0, 50.0)),
+                       viewport(100.0, (0.0, 0.0, 200.0, 200.0))],
+            stored=[])
+        codes = [w["warning_code"] for w in result.warnings]
+        self.assertEqual(codes.count("SCALE_MULTIPLE_UNBOUND"), 1)
+
+    def test_a_single_sheet_wide_scale_with_no_regions_does_not_warn(self):
+        # Guards the fix for the case above: the existing
+        # test_page_scale_is_reported_when_there_are_no_regions case (exactly
+        # one scale, no regions) must never gain a spurious warning.
+        page = self.blank_page([span("1:50@A3", (10.0, 10.0, 60.0, 20.0))])
+        result = resolve_page_scales(page_data=page, regions=[],
+                                     viewports=[], stored=[])
+        self.assertNotIn("SCALE_MULTIPLE_UNBOUND",
+                         [w["warning_code"] for w in result.warnings])
+
     def test_every_warning_carries_the_page_number(self):
         result = resolve_page_scales(
             page_data=self.blank_page(),

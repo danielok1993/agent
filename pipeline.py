@@ -27,6 +27,7 @@ from layout import (
 from gemini import client as gc
 from gemini.classifier import classify_regions, render_region_crop
 from gemini.region_cache import cache_key, load_regions, save_regions
+from scale.prompt import can_prompt
 from scale.resolver import PageScales, resolve_page_scales
 from scale.store import load_stored
 from scale.units import format_scale
@@ -555,15 +556,32 @@ def run_extract(
                     render_region_crop(doc[_idx], region.bbox, str(target))
                 return str(target)
 
-            page_scales = resolve_page_scales(
-                page_data=page_data,
-                regions=region_result.regions,
-                viewports=viewport_scales(doc, doc[idx]),
-                stored=load_stored(str(path), page_num),
-                pdf_path=str(path),
-                crop_fn=scale_crop,
-                allow_prompt=allow_scale_prompt,
-            )
+            # An interactive prompt can only fire when allow_scale_prompt is
+            # set AND stdin is a real terminal — the same gate scale/prompt.py
+            # itself checks. Only then is the live Progress display stopped:
+            # its Live proxy hides the cursor and repaints the spinner line
+            # ~10x/second, so input() would be drawn at an invisible cursor on
+            # a line being erased. Gating on the *possibility* of a prompt
+            # (rather than stopping unconditionally) keeps unattended runs —
+            # batch_extract.py, tools/regress.py, any redirected/non-tty
+            # console — untouched: they never prompt, so their output must
+            # not gain a stop/start around every page's scale step.
+            prompting_possible = allow_scale_prompt and can_prompt()
+            if prompting_possible:
+                progress.stop()
+            try:
+                page_scales = resolve_page_scales(
+                    page_data=page_data,
+                    regions=region_result.regions,
+                    viewports=viewport_scales(doc, doc[idx]),
+                    stored=load_stored(str(path), page_num),
+                    pdf_path=str(path),
+                    crop_fn=scale_crop,
+                    allow_prompt=allow_scale_prompt,
+                )
+            finally:
+                if prompting_possible:
+                    progress.start()
 
             # 3. pdfplumber
             step("plumber")
@@ -676,7 +694,8 @@ def run_extract(
                 w.setdefault("page_number", page_num)
             all_warnings.extend(page_warnings)
 
-            console.print(scale_table(page_scales, region_result.regions))
+            if page_scales.by_region or page_scales.page_scale is not None:
+                console.print(scale_table(page_scales, region_result.regions))
 
             all_page_summaries.append(
                 _page_summary_dict(page_data, candidates, entities, page_warnings,

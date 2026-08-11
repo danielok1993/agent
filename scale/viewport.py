@@ -102,21 +102,31 @@ def parse_measure_viewports(
 
 def viewport_bbox_to_px(
     bbox_pt_yup: tuple[float, float, float, float],
-    mediabox: tuple[float, float, float, float],
+    cropbox: tuple[float, float, float, float],
     transform: tuple[float, float, float, float, float, float],
 ) -> BBox:
     """Convert a raw /VP bbox into 150-DPI pixel space.
 
-    Two steps, in this order. First flip y about the mediabox, because
-    xref_get_key returns PDF-native coordinates (y-up, bottom-left) while
-    get_drawings() and everything downstream are y-down, top-left. Then apply
-    the page transform, which carries SCALE and any /Rotate.
+    Two steps, in this order. First flip y about the CROPBOX, not the
+    mediabox: xref_get_key returns the /VP /BBox in the PDF's raw content-
+    stream space (y-up, origin at the page's default user space), and that is
+    exactly the space get_drawings()/get_text() coordinates are ALSO drawn
+    from before PyMuPDF's own y-down/top-left normalization — a
+    normalization that is anchored on the cropbox, not the mediabox
+    (verified via fitz: page.transformation_matrix's translation is
+    (-cropbox.x0, +cropbox.y1), and a shape drawn at page-space (0,0) lands
+    in the raw content stream at (cropbox.x0, cropbox.y1)). Using the
+    mediabox here is only correct by coincidence on pages where cropbox ==
+    mediabox (true of the whole corpus today); on a page whose cropbox is
+    inset from its mediabox it silently mis-binds every viewport bbox by
+    (cropbox.x0 - mediabox.x0, mediabox.y1 - cropbox.y1). Then apply the page
+    transform, which carries SCALE and any /Rotate.
     """
-    mx0, _my0, _mx1, my1 = mediabox
-    x0 = bbox_pt_yup[0] - mx0
-    x1 = bbox_pt_yup[2] - mx0
-    y0 = my1 - bbox_pt_yup[3]
-    y1 = my1 - bbox_pt_yup[1]
+    cx0, _cy0, _cx1, cy1 = cropbox
+    x0 = bbox_pt_yup[0] - cx0
+    x1 = bbox_pt_yup[2] - cx0
+    y0 = cy1 - bbox_pt_yup[3]
+    y1 = cy1 - bbox_pt_yup[1]
 
     a, b, c, d, e, f = transform
     corners = [
@@ -141,8 +151,8 @@ def viewport_scales(doc, page) -> list[ScaleInfo]:
     if kind != "array":
         return []
 
-    mediabox = (page.mediabox.x0, page.mediabox.y0,
-                page.mediabox.x1, page.mediabox.y1)
+    cropbox = (page.cropbox.x0, page.cropbox.y0,
+               page.cropbox.x1, page.cropbox.y1)
     transform = page_transform(page)
 
     out: list[ScaleInfo] = []
@@ -151,7 +161,7 @@ def viewport_scales(doc, page) -> list[ScaleInfo]:
         out.append(ScaleInfo(
             denominator=denominator,
             source="viewport",
-            bbox=viewport_bbox_to_px(bbox_pt, mediabox, transform),
+            bbox=viewport_bbox_to_px(bbox_pt, cropbox, transform),
             raw=f"C={c:g}",
             nominal=snap_to_standard(denominator),
         ))

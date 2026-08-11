@@ -243,6 +243,16 @@ def resolve_page_scales(
                  f"Page {page_number}: {region.region_id} measures "
                  f"{format_scale(info.denominator)} but {info.conflict}")
 
+    if not floor_plans and len(distinct) > 1:
+        # Nothing above ever ran: the per-region loop only warns about a
+        # sheet-wide multiplicity when there IS a region to fail to bind to.
+        # A sheet stating several scales with no floor-plan region at all
+        # (e.g. --no-gemini against a cold region cache, which collapses
+        # regions to whole-page or none) must not resolve in silence.
+        warn("SCALE_MULTIPLE_UNBOUND", "warning",
+             f"Page {page_number}: {len(distinct)} scales found on the sheet "
+             f"but no floor plan region to bind them to")
+
     if unresolved:
         warn("SCALE_UNRESOLVED", "warning",
              f"Page {page_number}: no scale resolved for {', '.join(unresolved)}")

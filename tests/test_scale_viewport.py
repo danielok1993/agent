@@ -11,6 +11,7 @@ from scale.viewport import (
     parse_measure_viewports,
     split_pdf_dicts,
     viewport_bbox_to_px,
+    viewport_scales,
 )
 
 # s06, verbatim. Two nested viewports: the outer measures 1:146, the inner
@@ -95,7 +96,7 @@ class TestViewportBboxToPx(unittest.TestCase):
         # s17's 1:1250 inset on a 2384x1684pt sheet sits near the TOP.
         px = viewport_bbox_to_px(
             (2100.0, 1267.0, 2296.0, 1519.0),
-            mediabox=(0.0, 0.0, 2384.0, 1684.0),
+            cropbox=(0.0, 0.0, 2384.0, 1684.0),
             transform=self.IDENTITY,
         )
         s = 150 / 72
@@ -105,7 +106,7 @@ class TestViewportBboxToPx(unittest.TestCase):
     def test_x_is_offset_by_the_mediabox_origin(self):
         px = viewport_bbox_to_px(
             (10.0, 0.0, 20.0, 100.0),
-            mediabox=(5.0, 0.0, 105.0, 100.0),
+            cropbox=(5.0, 0.0, 105.0, 100.0),
             transform=self.IDENTITY,
         )
         s = 150 / 72
@@ -115,7 +116,7 @@ class TestViewportBboxToPx(unittest.TestCase):
     def test_result_is_ordered_x0_y0_x1_y1(self):
         px = viewport_bbox_to_px(
             (10.0, 20.0, 30.0, 40.0),
-            mediabox=(0.0, 0.0, 100.0, 100.0),
+            cropbox=(0.0, 0.0, 100.0, 100.0),
             transform=self.IDENTITY,
         )
         self.assertLess(px[0], px[2])
@@ -128,11 +129,77 @@ class TestViewportBboxToPx(unittest.TestCase):
         rot270 = (0.0, -1.0, 1.0, 0.0, 0.0, 200.0)
         px = viewport_bbox_to_px(
             (10.0, 20.0, 30.0, 40.0),
-            mediabox=(0.0, 0.0, 100.0, 200.0),
+            cropbox=(0.0, 0.0, 100.0, 200.0),
             transform=rot270,
         )
         self.assertLess(px[0], px[2])
         self.assertLess(px[1], px[3])
+
+
+class _Rect:
+    """Just enough of fitz.Rect for viewport_scales: x0/y0/x1/y1 attributes."""
+
+    def __init__(self, x0, y0, x1, y1):
+        self.x0, self.y0, self.x1, self.y1 = x0, y0, x1, y1
+
+
+class _Matrix:
+    """Just enough of fitz.Matrix for page_transform: a/b/c/d/e/f attributes."""
+
+    def __init__(self, a, b, c, d, e, f):
+        self.a, self.b, self.c, self.d, self.e, self.f = a, b, c, d, e, f
+
+
+class _FakePage:
+    """A page double with no fitz dependency -- no PDF is ever opened.
+
+    Only test_scale_corpus.py is allowed to open a real PDF; viewport_scales
+    only touches page.xref, page.cropbox, page.mediabox and
+    page.rotation_matrix, all of which this fakes directly.
+    """
+
+    def __init__(self, mediabox, cropbox, xref=1):
+        self.mediabox = _Rect(*mediabox)
+        self.cropbox = _Rect(*cropbox)
+        self.rotation_matrix = _Matrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)  # unrotated
+        self.xref = xref
+
+
+class _FakeDoc:
+    def __init__(self, vp_array_text):
+        self._vp = vp_array_text
+
+    def xref_get_key(self, xref, key):
+        assert key == "VP"
+        return ("array", self._vp)
+
+
+class TestViewportScalesUsesTheCropbox(unittest.TestCase):
+    """The bug lived here, not in viewport_bbox_to_px's arithmetic: the flip
+    formula is unchanged, only which box viewport_scales hands it changed
+    from page.mediabox to page.cropbox. Pinned with a page double whose
+    cropbox is inset from its mediabox in BOTH origin and extent, since
+    every real corpus sheet has cropbox == mediabox and could never catch
+    this."""
+
+    def test_bbox_lands_in_the_cropbox_relative_frame(self):
+        # mediabox (0,0,600,800); cropbox inset on both origin and extent to
+        # (50,100,550,700) -- exactly the shape get_drawings()/get_text()
+        # report relative to, per PyMuPDF's own page.transformation_matrix.
+        vp = ("[<</Type/Viewport/BBox[100 200 300 400]/Measure<</Type/Measure"
+              "/Subtype/RL/X[<</C 35.27546/U( )>>]>>>>]")
+        page = _FakePage(mediabox=(0.0, 0.0, 600.0, 800.0),
+                         cropbox=(50.0, 100.0, 550.0, 700.0))
+        doc = _FakeDoc(vp)
+
+        found = viewport_scales(doc, page)
+
+        self.assertEqual(len(found), 1)
+        s = 150 / 72
+        expected = ((100.0 - 50.0) * s, (700.0 - 400.0) * s,
+                    (300.0 - 50.0) * s, (700.0 - 200.0) * s)
+        for got, want in zip(found[0].bbox, expected):
+            self.assertAlmostEqual(got, want, places=3)
 
 
 if __name__ == "__main__":
