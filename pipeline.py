@@ -28,7 +28,7 @@ from layout import (
 from gemini import client as gc
 from gemini.classifier import classify_regions, render_region_crop
 from gemini.region_cache import cache_key, load_regions, save_regions
-from scale.factor import detection_scale
+from scale.factor import DetectionScale, detection_scale
 from scale.resolver import PageScales, resolve_page_scales
 from scale.store import load_stored
 from scale.units import format_scale
@@ -259,7 +259,7 @@ def scale_table(page_scales: PageScales, regions: list[Region]) -> Table:
     return table
 
 
-def scale_summary_dict(page_scales: PageScales, det_scale=None) -> dict:
+def scale_summary_dict(page_scales: PageScales, det_scale: DetectionScale | None = None) -> dict:
     """The scales block written into each page's summary.json entry."""
     def one(info):
         return {"denominator": info.denominator, "source": info.source,
@@ -287,7 +287,7 @@ def _page_summary_dict(
     page_warnings: list[dict],
     regions: list[Region],
     page_scales: PageScales,
-    det_scale=None,
+    det_scale: DetectionScale | None = None,
 ) -> dict:
     return {
         "page_number": page_data.page_number,

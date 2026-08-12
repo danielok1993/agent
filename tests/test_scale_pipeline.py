@@ -96,5 +96,31 @@ class TestWarningCountIncludesScaleWarnings(unittest.TestCase):
         self.assertEqual(summary["warning_count"], 1)
 
 
+class TestSummaryDetectionSurvivesSkipDetection(unittest.TestCase):
+    """det_scale is resolved before the skip_detection branch in run_extract
+    (so the summary always records the factor), and _page_summary_dict is
+    the sole place that turns it into the "detection" block. This pins that
+    the summary path is unconditional: calling it with a populated det_scale
+    and empty candidates/entities (the skip_detection shape) still produces
+    a fully-populated "detection" key — the summary does not depend on
+    whether detection actually ran.
+    """
+
+    def test_detection_block_populated_when_candidates_are_empty(self):
+        from models import PageData
+        from pipeline import _page_summary_dict
+        from scale.factor import DetectionScale
+
+        page_data = PageData(page_number=1, width_px=10.0, height_px=10.0)
+        det_scale = DetectionScale(factor=0.5, denominator=100.0,
+                                   source="floor_plan_regions")
+        summary = _page_summary_dict(
+            page_data, [], [], [], [], PageScales(), det_scale)
+        detection = summary["scales"]["detection"]
+        self.assertEqual(detection["factor"], 0.5)
+        self.assertEqual(detection["denominator"], 100.0)
+        self.assertEqual(detection["source"], "floor_plan_regions")
+
+
 if __name__ == "__main__":
     unittest.main()
