@@ -160,6 +160,25 @@ checkpoint rule (one fix, one sweep, then ask):**
 - **s14 — 2 RETURNED FPs** (window + room), not in the original top-10
   table.
 
+**Baseline-worktree verification (2026-08-12, same day):** every
+identity-tier surprise above was re-run on a throwaway worktree of the
+branch point (`b0e705a`, pre-scale-code) with the same corpus, venv and
+caches. Verdicts (full line-by-line comparison:
+`.superpowers/sdd/2026-08-12-scale-aware-wall-room-gates/baseline-comparison.md`,
+session artifact):
+
+- **s02, s04, s14, s11 — identity HELD.** All four reproduce their LOST /
+  RETURNED / REVIEW lines byte-for-byte on the pre-branch baseline,
+  including s02's stale-region-cache schedule loss and s11's 2 REVIEW
+  doors. They are pre-existing corpus debt, invisible until this sweep only
+  because the last full sweep predates the scale-extraction merge.
+- **s06, s12 — the LOST rooms are scale-induced (NEW),** confirmed absent
+  on baseline. Each comes WITH an improvement on the same sheet: one
+  pre-existing room FP vanished on s06 (569,402) and one on s12 (342,378) —
+  the predicted phantom-wall payoff. Whether each lost room reappears as a
+  differently-drawn REVIEW room or is a true miss is the user's verdict at
+  review time.
+
 **Not a surprise, expected:** s13's 4 LOST + 9 REVIEW (largest rescale in
 the corpus, ~0.37×) and s03/s06/s07/s17's REVIEW lines (1:100/mixed tiers,
 scale-aware gates now active).
