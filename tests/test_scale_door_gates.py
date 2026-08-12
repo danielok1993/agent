@@ -69,3 +69,51 @@ class TestDoorGatesConstruction(unittest.TestCase):
                         DOOR_FOLD_LEAF_LINE_SEP_MAX_PX)
         self.assertEqual(g.DOOR_SLIDE_PANEL_MIN_THICKNESS_PX,
                          DOOR_SLIDE_PANEL_MIN_THICKNESS_PX * 0.5)
+
+
+from detection import detect_doors
+from detection.doors.arcs import _collect_door_swings, _is_arc_like
+from models import PathPrimitive
+
+
+def prim(idx, item_type, points, stroke_width=1.0, fill=None):
+    xs = [p[0] for p in points]
+    ys = [p[1] for p in points]
+    return PathPrimitive(
+        path_index=idx, item_type=item_type,
+        bbox=(min(xs), min(ys), max(xs), max(ys)),
+        color=(0, 0, 0), fill=fill, stroke_width=stroke_width,
+        dashes=None, layer="", points=points)
+
+
+def quarter_bezier(idx, cx, cy, r):
+    """A quarter-arc cubic Bezier of radius r, hinged at (cx, cy).
+
+    r is a WORLD extent: it halves on a 1:100 export.
+    """
+    k = 0.5523 * r
+    return prim(idx, "c", [(cx + r, cy), (cx + r, cy + k), (cx + k, cy + r), (cx, cy + r)])
+
+
+class TestArcGatesThreading(unittest.TestCase):
+    def test_is_arc_like_requires_gates_keyword(self):
+        p = quarter_bezier(0, 100, 100, 50)
+        with self.assertRaises(TypeError):
+            _is_arc_like(p)          # no gates -> must NOT silently run unscaled
+
+    def test_small_arc_rejected_at_f1_accepted_at_half(self):
+        # radius 12 -> size 12px: under the 20px floor at f=1.0, over the
+        # scaled 10px floor at f=0.5.
+        p = quarter_bezier(0, 100, 100, 12)
+        self.assertFalse(_is_arc_like(p, gates=DoorGates.at(1.0)))
+        self.assertTrue(_is_arc_like(p, gates=DoorGates.at(0.5)))
+
+    def test_collect_swings_requires_gates_keyword(self):
+        with self.assertRaises(TypeError):
+            _collect_door_swings([quarter_bezier(0, 100, 100, 50)])
+
+    def test_detect_doors_identity_factor_equals_omitted(self):
+        paths = [quarter_bezier(0, 100, 100, 50)]
+        self.assertEqual(
+            [c.bbox for c in detect_doors(paths, [])],
+            [c.bbox for c in detect_doors(paths, [], None, scale_factor=1.0)])
