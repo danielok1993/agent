@@ -3,6 +3,7 @@ import unittest
 
 from models import PathPrimitive
 from detection import detect_doors
+from detection.doors.constants import DOOR_GATES_UNSCALED
 from detection.doors.models import _DoorSwing
 from detection.doors.sliding import (
     _collect_slide_panels, _detect_sliding_doors, _fit_oriented_rect,
@@ -67,7 +68,7 @@ def sliding_of(candidates):
 def detect(paths, swings=()):
     line_paths = [p for p in paths if p.item_type == "l"]
     candidates, _ = _detect_sliding_doors(
-        paths, line_paths, list(swings), [], None, 0,
+        paths, line_paths, list(swings), [], None, 0, gates=DOOR_GATES_UNSCALED,
     )
     return candidates
 
@@ -156,7 +157,7 @@ class LeafPairTests(unittest.TestCase):
             + white_ring(5, (345.0, 300.0), 90.0, 6.0, 0.0)
             + [qu_panel(9, (345.0, 300.0), 90.0, 6.0, 0.0)]
         )
-        panels = _collect_slide_panels(paths)
+        panels = _collect_slide_panels(paths, gates=DOOR_GATES_UNSCALED)
         self.assertEqual(len(panels), 2)
         sliding = sliding_of(detect(paths))
         self.assertEqual(len(sliding), 1)

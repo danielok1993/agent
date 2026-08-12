@@ -13,11 +13,12 @@ from detection.doors.sliding import _detect_sliding_doors
 from detection.doors.constants import (
     DOOR_ARC_FALLBACK_MAX, DOOR_ASSEMBLY_CONNECT_TOL_PX, DOOR_ASSEMBLY_LINE_LEAF_BASE,
     DOOR_DOUBLE_LEAF_CENTER_TOL_PX, DOOR_DOUBLE_LEAF_GAP_PX, DOOR_DOUBLE_LEAF_OVERLAP_PX,
-    DOOR_FALLBACK_CONFIDENCE, DOOR_GATES_UNSCALED, DOOR_HU_FAR_PENALTY, DOOR_HU_PLAUSIBLE_BOOST,
+    DOOR_FALLBACK_CONFIDENCE, DOOR_HU_FAR_PENALTY, DOOR_HU_PLAUSIBLE_BOOST,
     DOOR_HU_THRESHOLD_FAR, DOOR_HU_THRESHOLD_VERIFIED, DOOR_HU_VERIFIED_BOOST, DOOR_LABEL_PATTERN,
     DOOR_LABEL_SEARCH_RADIUS_PX, DOOR_LAYER_KEYWORDS, DOOR_LEAF_RADIUS_RATIO_TOL,
     DOOR_THRESHOLD_CONFIDENCE_BOOST, DOOR_THRESHOLD_ENDPOINT_TOL_PX, DOOR_THRESHOLD_PARALLEL_TOL_DEG,
     DOOR_V2_BRIDGE_BUFFER_PX, DOOR_V2_OPENING_CLEAR_BOOST, DOOR_V2_OPENING_OBSTRUCTED_PENALTY,
+    DoorGates,
 )
 
 
@@ -205,6 +206,7 @@ def _pair_door_assemblies(
     text_spans: list[TextSpan],
     paths: list[PathPrimitive],
     collector: DebugTraceCollector | None = None,
+    *, gates: DoorGates,
 ) -> list[Candidate]:
     candidates: list[Candidate] = []
     used_swings: set[int] = set()
@@ -364,9 +366,7 @@ def _pair_door_assemblies(
         if swing_idx in used_swings:
             continue
         exclude = set(swing.component_path_indices)
-        # gates not yet threaded into assembly.py (a later task); DOOR_GATES_UNSCALED
-        # is exact-identity at factor 1.0, so this preserves current unscaled behavior.
-        line_leaf = _find_anchored_leaf_line(swing, line_paths, exclude, gates=DOOR_GATES_UNSCALED)
+        line_leaf = _find_anchored_leaf_line(swing, line_paths, exclude, gates=gates)
         if line_leaf is None:
             continue
 
@@ -496,7 +496,7 @@ def _pair_door_assemblies(
     # passes so _dedupe_door_components later retires the leaf-fallback
     # candidates the same panel rectangles would produce.
     sliding_candidates, cand_idx = _detect_sliding_doors(
-        paths, line_paths, swings, text_spans, collector, cand_idx,
+        paths, line_paths, swings, text_spans, collector, cand_idx, gates=gates,
     )
     candidates.extend(sliding_candidates)
 
@@ -507,7 +507,7 @@ def _pair_door_assemblies(
     # pair's parallelism gate (≤6°), so the two detectors never compete for
     # the same panel pair.
     folding_candidates, cand_idx = _detect_folding_doors(
-        paths, text_spans, collector, cand_idx,
+        paths, text_spans, collector, cand_idx, gates=gates,
     )
     candidates.extend(folding_candidates)
 

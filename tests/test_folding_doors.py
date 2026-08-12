@@ -2,6 +2,7 @@ import math
 import unittest
 
 from detection import detect_doors
+from detection.doors.constants import DOOR_GATES_UNSCALED
 from detection.doors.folding import _detect_folding_doors
 from detection.doors.sliding import _collect_slide_panels
 from tests.test_sliding_doors import line, prim, qu_panel, rect_corners, white_ring
@@ -55,7 +56,7 @@ def folding_of(candidates):
 
 
 def detect(paths):
-    candidates, _ = _detect_folding_doors(paths, [], None, 0)
+    candidates, _ = _detect_folding_doors(paths, [], None, 0, gates=DOOR_GATES_UNSCALED)
     return candidates
 
 

@@ -192,41 +192,26 @@ class TestDoorGatesUnscaledStopgapRatchet(unittest.TestCase):
     """Ratchet on detection/'s production uses of DOOR_GATES_UNSCALED.
 
     DOOR_GATES_UNSCALED is a TRANSITIONAL STOPGAP, not a sanctioned pattern.
-    detection/doors/assembly.py is not yet threaded with the real scaled
-    `gates` (that is a later task's job — `_pair_door_assemblies` still
-    reads bare DOOR_ASSEMBLY_CONNECT_TOL_PX / DOOR_THRESHOLD_ENDPOINT_TOL_PX
-    directly). Its one call into `_find_anchored_leaf_line` — which now
-    requires `gates` as a keyword-only, no-default parameter — is hardcoded
-    to `gates=DOOR_GATES_UNSCALED` purely to preserve exact factor-1.0
-    behavior until assembly.py gets threaded properly.
+    The one stopgap that existed — assembly.py's call into
+    `_find_anchored_leaf_line` hardcoded to `gates=DOOR_GATES_UNSCALED` — has
+    now been retired: `_pair_door_assemblies` is threaded with a real scaled
+    `gates` parameter and passes it through instead.
 
-    This is a RATCHET, not a plain "must never appear" guard: the stopgap
-    legitimately exists right now, so a plain assertNotIn would fail
-    immediately and for the wrong reason. Instead this pins the CURRENT set
-    of production usages exactly via EXPECTED_USAGES, and fails if that set
-    changes in EITHER direction:
-      - a SECOND stopgap appearing anywhere in detection/ (regression:
-        someone reaches for DOOR_GATES_UNSCALED instead of threading gates
-        properly) changes the found count/location and fails;
-      - the known stopgap being removed (the count drops to zero) without
-        this test being updated also fails — that is the deliberate
-        trip-wire.
+    This is a RATCHET, not a plain "must never appear" guard, so it keeps
+    scanning rather than being deleted: EXPECTED_USAGES must stay the empty
+    tuple `()` forever now. If it ever finds a usage, that is a regression —
+    someone reached for DOOR_GATES_UNSCALED as a shortcut instead of
+    threading gates properly — and the test must fail, not be "fixed" by
+    re-populating EXPECTED_USAGES.
 
-    THE TASK THAT THREADS GATES INTO assembly.py MUST replace the
-    assembly.py call site's `gates=DOOR_GATES_UNSCALED` with the real
-    threaded `gates`, and when it does, update EXPECTED_USAGES below to the
-    empty tuple `()` — that edit is the mechanical proof the stopgap was
-    actually retired, not just a ledger note.
-
-    Matching is by a stable substring (the calling function's name, e.g.
-    "_find_anchored_leaf_line") plus the DOOR_GATES_UNSCALED name itself —
-    never by line number, which shifts as the file is edited around it.
+    Matching is by a stable substring (the calling function's name) plus the
+    DOOR_GATES_UNSCALED name itself — never by line number, which shifts as
+    the file is edited around it.
     """
 
     # (repo-relative path, stable substring expected on that usage's line)
-    EXPECTED_USAGES: tuple[tuple[str, str], ...] = (
-        ("detection/doors/assembly.py", "_find_anchored_leaf_line"),
-    )
+    # Must stay empty: the assembly.py stopgap has been retired.
+    EXPECTED_USAGES: tuple[tuple[str, str], ...] = ()
 
     def test_door_gates_unscaled_stopgap_set_is_exactly_known(self):
         findings = _production_door_gates_unscaled_usages()
@@ -250,3 +235,27 @@ class TestDoorGatesUnscaledStopgapRatchet(unittest.TestCase):
                 f"{rel_expected} matching {substr!r}; found {matches}.\n"
                 f"All findings: {findings}",
             )
+
+
+from detection.doors.sliding import _collect_slide_panels
+
+
+class TestSlidingGatesThreading(unittest.TestCase):
+    def test_collect_panels_requires_gates_keyword(self):
+        with self.assertRaises(TypeError):
+            _collect_slide_panels([])
+
+    def test_thin_short_panel_rejected_at_f1_accepted_at_half(self):
+        # 15 x 1.8px panel: length under DOOR_MIN_SIZE_PX (20) and thickness
+        # under DOOR_SLIDE_PANEL_MIN_THICKNESS_PX (3.0) at f=1.0; both clear
+        # their scaled floors (10.0 / 1.5) at f=0.5. Aspect 8.3 > 4.0.
+        panel = prim(0, "qu", [(0, 0), (15, 0), (15, 1.8), (0, 1.8)])
+        self.assertEqual(_collect_slide_panels([panel], gates=DoorGates.at(1.0)), [])
+        self.assertEqual(len(_collect_slide_panels([panel], gates=DoorGates.at(0.5))), 1)
+
+    def test_panel_thickness_ceiling_scales(self):
+        # 60 x 15px panel: inside the 3-20px window at f=1.0, above the scaled
+        # 1.5-10px window at f=0.5. Pins that MAX scales, not just MIN.
+        panel = prim(0, "qu", [(0, 0), (60, 0), (60, 15), (0, 15)])
+        self.assertEqual(len(_collect_slide_panels([panel], gates=DoorGates.at(1.0))), 1)
+        self.assertEqual(_collect_slide_panels([panel], gates=DoorGates.at(0.5)), [])

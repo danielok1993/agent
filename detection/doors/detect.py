@@ -23,5 +23,6 @@ def detect_doors(
         collector.init_primitives(paths)
     swings = _collect_door_swings(paths, collector, gates=gates)
     leaves = _collect_door_leaves(paths, collector, gates=gates)
-    candidates = _pair_door_assemblies(swings, leaves, text_spans, paths, collector)
+    candidates = _pair_door_assemblies(swings, leaves, text_spans, paths, collector,
+                                       gates=gates)
     return _merge_double_door_assemblies(candidates)

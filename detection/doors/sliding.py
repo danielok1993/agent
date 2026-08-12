@@ -15,21 +15,19 @@ from detection.walls import _is_background_fill
 from detection.doors.models import _DoorSwing
 from detection.doors.constants import (
     DOOR_LABEL_PATTERN, DOOR_LABEL_SEARCH_RADIUS_PX, DOOR_LAYER_KEYWORDS,
-    DOOR_LEAF_ASPECT_MIN, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX, DOOR_MAX_SIZE_PX,
-    DOOR_MIN_SIZE_PX, DOOR_SLIDE_ASSEMBLY_BASE, DOOR_SLIDE_AXIS_TOL_DEG,
-    DOOR_SLIDE_FLANK_GAP_MAX_PX, DOOR_SLIDE_FLANK_GAP_MIN_PX,
+    DOOR_LEAF_ASPECT_MIN, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX,
+    DOOR_SLIDE_ASSEMBLY_BASE, DOOR_SLIDE_AXIS_TOL_DEG,
     DOOR_SLIDE_FLANK_LINE_MIN_LEN_FRAC, DOOR_SLIDE_FLANK_MAX_FRAC,
     DOOR_SLIDE_FLANK_MIN_FRAC, DOOR_SLIDE_FLANK_SIDE_MIN_FRAC,
     DOOR_SLIDE_LATERAL_FACTOR, DOOR_SLIDE_LENGTH_RATIO_TOL,
     DOOR_SLIDE_OVERLAP_MAX_FRAC, DOOR_SLIDE_OVERLAP_MIN_FRAC,
-    DOOR_SLIDE_PANEL_MAX_THICKNESS_PX, DOOR_SLIDE_PANEL_MERGE_TOL_PX,
-    DOOR_SLIDE_PANEL_MIN_THICKNESS_PX, DOOR_SLIDE_PARK_BAND_MAX_TH_PX,
-    DOOR_SLIDE_PARK_BAND_MIN_TH_PX, DOOR_SLIDE_PARK_FACE_COVER_MIN,
-    DOOR_SLIDE_PARK_GAP_MAX_PX, DOOR_SLIDE_PARK_JAMB_TOL_PX,
+    DOOR_SLIDE_PANEL_MERGE_TOL_PX,
+    DOOR_SLIDE_PARK_FACE_COVER_MIN,
     DOOR_SLIDE_PARK_SPAN_RATIO_TOL, DOOR_SLIDE_PROTRUSION_MAX_FRAC,
     DOOR_SLIDE_PROTRUSION_MIN_FRAC, DOOR_SLIDE_RECT_PARALLEL_TOL_DEG,
     DOOR_SLIDE_RECT_PERP_TOL_DEG, DOOR_SLIDE_STROKED_RING_SNAP_TOL_PX,
     DOOR_SLIDE_ZONE_MAX_CROSSERS, DOOR_SLIDE_ZONE_WIDTH_FACTOR,
+    DoorGates,
 )
 
 
@@ -110,13 +108,13 @@ def _fit_oriented_rect(points: list[tuple[float, float]]) -> dict | None:
     }
 
 
-def _panel_shape_ok(rect: dict) -> bool:
+def _panel_shape_ok(rect: dict, *, gates: DoorGates) -> bool:
     return (
-        DOOR_MIN_SIZE_PX <= rect["length"] <= DOOR_MAX_SIZE_PX
+        gates.DOOR_MIN_SIZE_PX <= rect["length"] <= gates.DOOR_MAX_SIZE_PX
         and rect["length"] / rect["thickness"] >= DOOR_LEAF_ASPECT_MIN
-        and DOOR_SLIDE_PANEL_MIN_THICKNESS_PX
+        and gates.DOOR_SLIDE_PANEL_MIN_THICKNESS_PX
         <= rect["thickness"]
-        <= DOOR_SLIDE_PANEL_MAX_THICKNESS_PX
+        <= gates.DOOR_SLIDE_PANEL_MAX_THICKNESS_PX
     )
 
 
@@ -212,7 +210,8 @@ def _stroked_ring_rects(paths: list[PathPrimitive]) -> list[tuple[dict, list[int
 
 
 def _collect_slide_panels(
-    paths: list[PathPrimitive], include_stroked_rings: bool = False
+    paths: list[PathPrimitive], include_stroked_rings: bool = False,
+    *, gates: DoorGates,
 ) -> list[_SlidePanel]:
     raw: list[_SlidePanel] = []
 
@@ -220,7 +219,7 @@ def _collect_slide_panels(
         if path.item_type not in ("re", "qu") or len(path.points) < 4:
             continue
         rect = _fit_oriented_rect(list(path.points))
-        if rect is None or not _panel_shape_ok(rect):
+        if rect is None or not _panel_shape_ok(rect, gates=gates):
             continue
         raw.append(_SlidePanel(
             center=rect["center"], length=rect["length"], thickness=rect["thickness"],
@@ -233,7 +232,7 @@ def _collect_slide_panels(
         ))
 
     for rect, indices, first_path in _white_ring_rects(paths):
-        if not _panel_shape_ok(rect):
+        if not _panel_shape_ok(rect, gates=gates):
             continue
         raw.append(_SlidePanel(
             center=rect["center"], length=rect["length"], thickness=rect["thickness"],
@@ -250,7 +249,7 @@ def _collect_slide_panels(
     # gates supply the missing evidence — the pair pool excludes them.
     if include_stroked_rings:
         for rect, indices, first_path in _stroked_ring_rects(paths):
-            if not _panel_shape_ok(rect):
+            if not _panel_shape_ok(rect, gates=gates):
                 continue
             raw.append(_SlidePanel(
                 center=rect["center"], length=rect["length"], thickness=rect["thickness"],
@@ -339,6 +338,7 @@ def _merge_spans(spans: list[tuple[float, float]]) -> list[tuple[float, float]]:
 def _pocket_leaf_match(
     panel: _SlidePanel,
     line_paths: list[PathPrimitive],
+    *, gates: DoorGates,
 ) -> dict | None:
     """pocket_leaf pattern: a white panel flanked on both sides by wall faces
     over part of its length, protruding into clear space at one end."""
@@ -370,7 +370,7 @@ def _pocket_leaf_match(
             continue
         lat = (d1 + d2) / 2
         gap = abs(lat) - half_th
-        if not (DOOR_SLIDE_FLANK_GAP_MIN_PX <= gap <= DOOR_SLIDE_FLANK_GAP_MAX_PX):
+        if not (gates.DOOR_SLIDE_FLANK_GAP_MIN_PX <= gap <= gates.DOOR_SLIDE_FLANK_GAP_MAX_PX):
             continue
         lo, hi = min(t1, t2), max(t1, t2)
         lo, hi = max(lo, -half_len), min(hi, half_len)
@@ -432,6 +432,7 @@ def _pocket_leaf_match(
 def _parked_leaf_match(
     panel: _SlidePanel,
     line_paths: list[PathPrimitive],
+    *, gates: DoorGates,
 ) -> tuple[dict, list[tuple[float, float]]] | None:
     """parked_leaf pattern: a thin closed panel parked flush along one face of
     a wall band that ends at a jamb, with a clear opening of ~one panel length
@@ -466,7 +467,7 @@ def _parked_leaf_match(
     face = None
     for lat, lo, hi in parallels:
         gap = abs(lat) - half_th
-        if not (DOOR_SLIDE_FLANK_GAP_MIN_PX <= gap <= DOOR_SLIDE_PARK_GAP_MAX_PX):
+        if not (gates.DOOR_SLIDE_FLANK_GAP_MIN_PX <= gap <= gates.DOOR_SLIDE_PARK_GAP_MAX_PX):
             continue
         cover = (min(hi, half_len) - max(lo, -half_len)) / panel.length
         if cover < DOOR_SLIDE_PARK_FACE_COVER_MIN:
@@ -483,7 +484,7 @@ def _parked_leaf_match(
     band = None
     for lat, lo, hi in parallels:
         depth = (lat - face_lat) * side
-        if not (DOOR_SLIDE_PARK_BAND_MIN_TH_PX <= depth <= DOOR_SLIDE_PARK_BAND_MAX_TH_PX):
+        if not (gates.DOOR_SLIDE_PARK_BAND_MIN_TH_PX <= depth <= gates.DOOR_SLIDE_PARK_BAND_MAX_TH_PX):
             continue
         if min(hi, face_hi) - max(lo, face_lo) < 0.5 * (face_hi - face_lo):
             continue
@@ -496,7 +497,7 @@ def _parked_leaf_match(
     # 3) The band ends at a jamb aligned with one panel end (both faces end
     #    together there), and runs past the panel's other end.
     jamb = None
-    tol = DOOR_SLIDE_PARK_JAMB_TOL_PX
+    tol = gates.DOOR_SLIDE_PARK_JAMB_TOL_PX
     if (
         abs(face_lo + half_len) <= tol
         and face_hi >= half_len - tol
@@ -574,6 +575,7 @@ def _detect_sliding_doors(
     text_spans: list[TextSpan],
     collector: DebugTraceCollector | None,
     cand_idx: int,
+    *, gates: DoorGates,
 ) -> tuple[list[Candidate], int]:
     """Detect arc-less sliding doors. Returns (candidates, next candidate index).
 
@@ -585,7 +587,7 @@ def _detect_sliding_doors(
     rectangles would otherwise produce (without ever suppressing neighbours
     that merely share wall linework).
     """
-    panels = _collect_slide_panels(paths, include_stroked_rings=True)
+    panels = _collect_slide_panels(paths, include_stroked_rings=True, gates=gates)
     candidates: list[Candidate] = []
 
     def mint(
@@ -660,7 +662,7 @@ def _detect_sliding_doors(
         # panel; a leaf attached to a swing arc is the swing's business.
         if any(_bboxes_overlap(panel.bbox, swing.bbox) for swing in swings):
             continue
-        metrics = _pocket_leaf_match(panel, line_paths)
+        metrics = _pocket_leaf_match(panel, line_paths, gates=gates)
         if metrics is None:
             continue
         panel.consumed = True
@@ -671,7 +673,7 @@ def _detect_sliding_doors(
             continue
         if any(_bboxes_overlap(panel.bbox, swing.bbox) for swing in swings):
             continue
-        match = _parked_leaf_match(panel, line_paths)
+        match = _parked_leaf_match(panel, line_paths, gates=gates)
         if match is None:
             continue
         metrics, corridor = match

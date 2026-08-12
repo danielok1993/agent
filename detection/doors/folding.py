@@ -25,6 +25,7 @@ from detection.doors.constants import (
     DOOR_FOLD_STACK_SPAN_RATIO_TOL, DOOR_LABEL_PATTERN, DOOR_LABEL_SEARCH_RADIUS_PX,
     DOOR_LAYER_KEYWORDS, DOOR_MAX_SIZE_PX, DOOR_MIN_SIZE_PX,
     DOOR_SLIDE_AXIS_TOL_DEG, DOOR_SLIDE_PANEL_MERGE_TOL_PX,
+    DoorGates,
 )
 
 
@@ -445,6 +446,7 @@ def _detect_folding_doors(
     text_spans: list[TextSpan],
     collector: DebugTraceCollector | None,
     cand_idx: int,
+    *, gates: DoorGates,
 ) -> tuple[list[Candidate], int]:
     """Detect arc-less folding/bifold doors. Returns (candidates, next index).
 
@@ -458,7 +460,7 @@ def _detect_folding_doors(
     `_dedupe_door_components` retires the leaf-fallback candidates the same
     rectangles produce.
     """
-    panels = _collect_slide_panels(paths)
+    panels = _collect_slide_panels(paths, gates=gates)
     _absorb_hinged_white_rings(panels, paths)
     panels = [p for p in panels if p.white]
     edges = _fold_edges(panels)
