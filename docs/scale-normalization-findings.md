@@ -84,14 +84,16 @@ False positives from committed ground truth vs resolved scale:
 ## 4. Constant classification table
 
 Classes: **W** = world-space (× f; areas × f²), **P** = paper-space
-(unchanged), **D** = dimensionless (unchanged), **U** = uncertain — must be
-measured on the real 1:100 sheets (s05/s07/s12) before the class is frozen.
-`f = 50 / nominal_denominator` (1:100 → 0.5).
+(unchanged), **D** = dimensionless (unchanged). (Formerly also **U** =
+uncertain, pending measurement; all U rows were resolved 2026-08-12 — see
+§4b — and none remain.) `f = 50 / nominal_denominator` (1:100 → 0.5).
 
-Status: **preliminary** — set during the 2026-08-12 brainstorm from each
-constant's documented rationale. The implementation branch verifies every
-use site and replaces U entries with measured verdicts. Update this table in
-place; it is the successor branches' starting point.
+Status: **frozen** — set during the 2026-08-12 brainstorm from each
+constant's documented rationale, then every U entry resolved to W or P by
+corpus measurement or explicit conservative-default rule (§4b). Tasks 3–4
+implement this table verbatim; they do not re-derive classes. A future
+branch may still revisit a P verdict flagged "revisit if 1:100 sweep shows
+artifacts" — that is a new decision, not a reopening of this table.
 
 ### detection/walls.py
 
@@ -106,8 +108,8 @@ place; it is the successor branches' starting point.
 | WALL_PARALLEL_ANGLE_TOL | D | angle |
 | WALL_BAND_MIN_ASPECT | D | ratio |
 | WALL_PAIR_MIN_OVERLAP_PX | W | coincidence floor on face overlap |
-| WALL_CENTERLINE_MERGE_GAP_PX | U | dedupe tolerance — thickness-tied (W?) or drafting (P?) |
-| WALL_JUNCTION_SNAP_PX | U | endpoint reach — construction tolerance vs world gap |
+| WALL_CENTERLINE_MERGE_GAP_PX | P | measured 2026-08-12: no corpus signal (small tolerance, not a hatch/geometry quantity); conservative default, unchanged behavior at every f; revisit if 1:100 sweep shows artifacts |
+| WALL_JUNCTION_SNAP_PX | P | measured 2026-08-12: no corpus signal; conservative default (§4b); revisit if 1:100 sweep shows artifacts |
 | WALL_JUNCTION_MIN_ANGLE_DEG | D | angle |
 | WALL_NETWORK_MIN_SEGMENTS | D | count |
 | WALL_LIGHT_PEN_MIN_CHANNEL | P | color |
@@ -119,31 +121,31 @@ place; it is the successor branches' starting point.
 | WALL_MARKER_MAX_SIDE_PX | P | leader/dimension arrowheads are ~2–4mm of paper |
 | WALL_HATCH_MIN_SEGMENTS | D | count |
 | WALL_HATCH_MIN_RATIO | D | ratio |
-| WALL_HATCH_MAX_LEN_PX | U | hatch stroke length — convention likely paper-space; interacts with LATTICE_MIN_RUNG_LEN ordering (design §4) |
+| WALL_HATCH_MAX_LEN_PX | P | measured 2026-08-12 (§4b): length ratio unstable across reasonable filter widths (0.47–1.06, straddling both thresholds depending on the hatch-angle band chosen) — not a robust signal; conservative default (paper-space, unchanged); interacts with LATTICE_MIN_RUNG_LEN ordering (design §4); revisit at the 1:100 regression review |
 | WALL_WEAK_STROKE_RATIO | D | pen ratio |
 | WALL_WEAK_MIN_RUN_PX | W | partition run length |
 | WALL_WEAK_MATERIAL_MIN_MARKS | D | count |
 | WALL_WEAK_MATERIAL_MIN_SPAN | D | fraction |
-| WALL_WEAK_MATERIAL_PER_100PX | U | density per WORLD length — but mark spacing may be paper-spaced hatch; measure |
+| WALL_WEAK_MATERIAL_PER_100PX | W | measured 2026-08-12 (§4b): follows the WALL_HATCH_MAX_PITCH_PX verdict per the mark-spacing rule (density = marks per band px; mark spacing measured world-space, ratio ≈0.50–0.55) — move into gates dataclass, × f |
 | WALL_WEAK_MATERIAL_EDGE_PX | P | pen-adjacent exclusion |
 | WALL_WEAK_MATERIAL_ANGLE_MIN/MAX | D | angles |
-| WALL_WEAK_CLAIM_MARGIN_PX | U | thickness-comparison margin |
+| WALL_WEAK_CLAIM_MARGIN_PX | P | measured 2026-08-12: no corpus signal (small tolerance); conservative default (§4b); revisit if 1:100 sweep shows artifacts |
 | WALL_WEAK_CLAIM_OVERLAP_FRAC | D | fraction |
 | WALL_LATTICE_MIN_RUNGS | D | count (5 keeps cavity party wall out) |
-| WALL_LATTICE_PITCH_TOL_PX | U | pitch equality tolerance |
+| WALL_LATTICE_PITCH_TOL_PX | P | measured 2026-08-12: no corpus signal (small tolerance); conservative default (§4b); revisit if 1:100 sweep shows artifacts |
 | WALL_LATTICE_MIN_RUNG_LEN_PX | W | 48px ≈ 406mm at 1:50; **key phantom-wall gate at 1:100** — must stay above hatch-len cap in effect |
-| WALL_LATTICE_TOUCH_GAP_PX | U | rung chaining reach |
+| WALL_LATTICE_TOUCH_GAP_PX | P | measured 2026-08-12: no corpus signal (small tolerance); conservative default (§4b); revisit if 1:100 sweep shows artifacts |
 | WALL_LATTICE_OFFSET_TOL_PX | P | collinearity tolerance |
 | WALL_LATTICE_PEN_TOL | P | pen |
-| WALL_HATCH_MAX_PITCH_PX | U | **critical**: hatch pitch measured 4.05/4.07px vs tightest real field 11.4px at 1:50; if hatch is paper-spaced the margin holds at 1:100, if world-spaced the classes collide at f=0.5 — measure on s05/s07/s12 |
+| WALL_HATCH_MAX_PITCH_PX | W | measured 2026-08-12 (§4b): pitch ratio ≈0.50–0.55, robust across every angle-band width tried (0.500–0.551) — hatch pitch is world-space; move into gates dataclass, × f. This closes the gap with `WALL_LATTICE_MIN_RUNG_LEN_PX` at 1:100 (both shrink by f=0.5 together) rather than colliding |
 | WALL_WHITE_TOUCH_TOL_PX | P | contact tolerance |
 | WALL_WHITE_SPAN_MIN_FRAC | D | fraction |
 | WALL_WHITE_TEXT_COVER_FRAC | D | fraction |
 | WALL_JOINERY_BRIDGE_GAP_PX | W | open span between cavity segments (wardrobe runs) |
-| WALL_JOINERY_BRIDGE_SLACK_PX | U | band-test slack |
+| WALL_JOINERY_BRIDGE_SLACK_PX | P | measured 2026-08-12: no corpus signal (small tolerance); conservative default (§4b); revisit if 1:100 sweep shows artifacts |
 | WALL_REDUNDANT_OFFSET_SLACK_PX | P | collapse tolerance |
 | WALL_REDUNDANT_MIN_COVER | D | fraction |
-| WALL_REDUNDANT_THICKNESS_SLACK_PX | U | thickness-comparison slack (the 4px far-face gate) |
+| WALL_REDUNDANT_THICKNESS_SLACK_PX | P | measured 2026-08-12: no corpus signal (thickness-comparison slack, the 4px far-face gate); conservative default (§4b); revisit if 1:100 sweep shows artifacts |
 
 ### detection/rooms.py
 
@@ -153,14 +155,14 @@ place; it is the successor branches' starting point.
 | ROOM_MAX_PAGE_AREA_FRAC, ROOM_HOLE_AREA_FRAC_MAX | D | fractions |
 | ROOM_WALL_DILATE_PX, ROOM_LINE_BARRIER_PX | P | pen-tied standoff; MUST remain equal to each other (barrier-standoff rule) |
 | ROOM_BARRIER_STROKE_RATIO, ROOM_PAIRED_FACE_MIN_FRAC, ROOM_WALL_PEN_MIN_FRAC | D | ratios/fractions |
-| ROOM_PLUG_MID_NEAR_PX | U | hug distance |
-| ROOM_GAP_CLOSE_PX | U | drafting gaps (P?) vs joint gaps that scale (W?); must stay < scaled thinnest doorway (design §4) |
-| ROOM_EROSION_PX | U | wall-sliver scale — thickness-tied? |
+| ROOM_PLUG_MID_NEAR_PX | P | measured 2026-08-12: no corpus signal (hug distance); conservative default (§4b); revisit if 1:100 sweep shows artifacts |
+| ROOM_GAP_CLOSE_PX | P | measured 2026-08-12: no corpus signal; conservative default (§4b) — must stay < scaled thinnest doorway (design §4); revisit if 1:100 sweep shows artifacts |
+| ROOM_EROSION_PX | P | measured 2026-08-12: no corpus signal (wall-sliver scale); conservative default (§4b); revisit if 1:100 sweep shows artifacts |
 | ROOM_BORDER_TOL_PX, ROOM_CONTACT_TOL_PX, ROOM_MASS_TOUCH_TOL_PX | P | contact tolerances |
 | ROOM_WALL_CONTACT_MIN, ROOM_MAJOR_MASS_FRAC | D | fractions |
 | ROOM_SIMPLIFY_TOL_PX | P | sub-pen-width simplification |
 | ROOM_OPENING_SEAL_PX | W | reach into jambs the arc stopped short of |
-| ROOM_PLUG_NEAR_PX | U | edge-hugs-material distance |
+| ROOM_PLUG_NEAR_PX | P | measured 2026-08-12: no corpus signal (edge-hugs-material distance); conservative default (§4b); revisit if 1:100 sweep shows artifacts |
 | ROOM_PLUG_SAMPLE_PX | P | numeric sampling resolution (finer relative sampling at small f is harmless) |
 | ROOM_PLUG_ANCHOR_WIN_PX | W | "a jamb is jamb-sized" — jamb size is world-sized |
 | ROOM_PLUG_HALF_WIDTH_PX | W | wall-band half-thickness |
@@ -171,6 +173,99 @@ place; it is the successor branches' starting point.
 | ROOM_PLUG_IN_WALL_FRAC, ROOM_FOLD_SPAN_TOL, ROOM_OPENING_TEXT_COVER_MAX | D | fractions |
 | ROOM_FOLD_STACK_NEAR_PX, ROOM_FOLD_JAMB_MIN_LEN_PX | W | threshold depth / jamb-scale |
 | ROOM_FOLD_GAP_ESCAPE_PX | P | ray-start construction offset |
+
+## 4b. Measurements (2026-08-12)
+
+**Question:** is hatch geometry (stroke length, pitch, mark density)
+paper-space (same px on 1:50 and 1:100 sheets) or world-space (halved px on
+1:100)? Measured on the corpus's five sheets with a resolved single scale
+per page and enough hatch ink to be usable: s01, s02 (1:50) vs s05, s07, s12
+(1:100). Script: `extraction.extractor.extract_page`, page 0 of each sheet
+(all five are single-page PDFs), no detection/Gemini calls. Script lived at
+`<scratchpad>/measure_hatch.py` (not committed — scratchpad only, per the
+brief).
+
+**Method.** `hatch_strokes()`: unfilled `l` items, length 3–60px, off-axis
+angle (deviation from the nearest 90°) inside a band — the brief's starting
+script used 20–70°. `pitches()`: group by 2°-wide angle bins, project stroke
+midpoints onto the field normal, sort, keep consecutive gaps in (0.5, 20)px
+as same-field pitch samples.
+
+**Refinement made and why.** The angle histogram (5° bins of off-axis angle)
+showed a dominant peak in the 45°±5° bin on **all five sheets** (e.g. s01:
+1263/1507 strokes at the 45° bin; s07: 91/96) — the standard ANSI31 hatch
+convention — with a long, thinner tail at other angles (angled walls,
+leader/dimension diagonals, bay-window framing). The brief's literal 20–70°
+band mixes that tail in, and per-sheet the tail's size varies independent of
+scale, so it pollutes the length statistic differently sheet to sheet.
+Reported below: (a) the literal brief script (20–70° band, "primary"), and
+(b) a sensitivity sweep over four progressively tighter hatch-angle bands to
+check whether the ratio verdict is stable.
+
+**Per-sheet raw numbers, primary run (20–70° band, brief's literal script):**
+
+| Sheet | Scale | n strokes | n pitch samples | median length (px) | median pitch (px) |
+|---|---|---|---|---|---|
+| s01 | 1:50 | 1507 | 946 | 12.37 | 2.83 |
+| s02 | 1:50 | 923 | 189 | 12.97 | 6.37 |
+| s05 | 1:100 | 1417 | 830 | 14.50 | 2.30 |
+| s07 | 1:100 | 96 | 21 | 7.42 | 1.46 |
+| s12 | 1:100 | 616 | 234 | 6.37 | 4.42 |
+
+Group medians (median of the two/three per-sheet medians, per the brief):
+1:50 length = 12.67px, 1:100 length = 7.42px → **length ratio = 0.586**.
+1:50 pitch = 4.60px, 1:100 pitch = 2.30px → **pitch ratio = 0.500**.
+
+s07 is thin (n pitch samples = 21, below the "n < 50 → note it" bar in the
+brief's practical notes) — it is the low-ink sheet of the three 1:100
+references; s05 and s12 both clear 200+ pitch samples and carry the group
+median.
+
+**Sensitivity sweep (off-axis angle-band half-width around the 45° hatch
+peak), pitch ratio vs. length ratio:**
+
+| Band (off-axis°) | Pitch ratio | Length ratio |
+|---|---|---|
+| 20–70 (brief literal) | 0.500 | 0.586 |
+| 35–55 | 0.525 | 0.472 |
+| 38–52 | 0.551 | 0.472 |
+| 40–50 | 0.511 | 0.878 |
+| 42–48 | 0.506 | 1.056 |
+
+**Sanity anchor.** CLAUDE.md/tuning-guide era measurement: hatch pitch
+~4.05/4.07px on s01/s02 (measured against the production `_scan_striped_runs`
+algorithm, not this proxy). This script's s01/s02 pitch medians (2.73–2.83,
+5.35–6.37 across bands) are the right order of magnitude but not an exact
+match, as expected — different measurement method (any diagonal stroke
+proxy vs. the production paired-face striped-run scan) — consistent with,
+not a substitute for, the historical number.
+
+**Verdicts:**
+
+- **Pitch is robust**: ratio stays in a tight 0.50–0.55 band across every
+  angle-band width tried, always well under the ≤0.65 world-space threshold.
+  `WALL_HATCH_MAX_PITCH_PX` → **W** (world-space). `WALL_WEAK_MATERIAL_PER_100PX`
+  follows by the brief's explicit rule (mark spacing is the load-bearing
+  quantity in a per-band-px density) → **W**.
+- **Length is not robust**: the ratio swings from 0.472 to 1.056 — crossing
+  BOTH the ≤0.65 world-space and the ≥0.8 paper-space thresholds — purely
+  from angle-band width choice, not from any change in the underlying scale
+  question. This is exactly the "noisy" case the brief anticipated; no
+  single measured ratio can be trusted as the verdict. `WALL_HATCH_MAX_LEN_PX`
+  → **P** (conservative default, unchanged behavior), flagged for the 1:100
+  regression review — including its documented ordering interaction with
+  `WALL_LATTICE_MIN_RUNG_LEN_PX` (W, scales down at 1:100): if the margin
+  between the two narrows in practice, that is the sheet to revisit this on.
+
+**Remaining small-tolerance U rows** (`WALL_CENTERLINE_MERGE_GAP_PX`,
+`WALL_JUNCTION_SNAP_PX`, `WALL_WEAK_CLAIM_MARGIN_PX`,
+`WALL_LATTICE_PITCH_TOL_PX`, `WALL_LATTICE_TOUCH_GAP_PX`,
+`WALL_JOINERY_BRIDGE_SLACK_PX`, `WALL_REDUNDANT_THICKNESS_SLACK_PX`,
+`ROOM_PLUG_MID_NEAR_PX`, `ROOM_PLUG_NEAR_PX`, `ROOM_GAP_CLOSE_PX`,
+`ROOM_EROSION_PX`) have no corpus signal to measure — they are dedupe/
+tolerance/slack constants, not geometry with a paper-vs-world reading — and
+are frozen **P** by the brief's Step 3 rule: conservative default, unchanged
+behavior at every factor, revisit if the 1:100 sweep shows artifacts.
 
 ## 5. Decisions (2026-08-12 brainstorm, user-approved)
 
