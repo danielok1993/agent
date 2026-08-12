@@ -52,6 +52,9 @@ def build_extract_command(
         cmd.append("--disable-walls")
     if not use_gemini:
         cmd.append("--no-gemini")
+    # Unconditional: batch is never interactive, and the child inherits this
+    # terminal's stdin, so the tty gate alone would not stop it prompting.
+    cmd.append("--no-scale-prompt")
     return cmd
 
 
@@ -66,6 +69,7 @@ def _run_with_group_kill(
     """
     with subprocess.Popen(
         cmd,
+        stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,

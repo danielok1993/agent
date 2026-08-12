@@ -1,16 +1,16 @@
-# Graph Report - agent  (2026-08-11)
+# Graph Report - agent  (2026-08-06)
 
 ## Corpus Check
-- 157 files · ~222,341 words
+- 124 files · ~184,907 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2597 nodes · 6431 edges · 174 communities (111 shown, 63 thin omitted)
-- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 354 edges (avg confidence: 0.51)
+- 2280 nodes · 5602 edges · 165 communities (100 shown, 65 thin omitted)
+- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 302 edges (avg confidence: 0.51)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f2dee476`
+- Built from commit: `44904c0b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -174,23 +174,14 @@
 - [[_COMMUNITY_TestNetworkQueries|TestNetworkQueries]]
 - [[_COMMUNITY_TestThickMaterialPairs|TestThickMaterialPairs]]
 - [[_COMMUNITY_TestFloorPlansRegression|TestFloorPlansRegression]]
-- [[_COMMUNITY_ScaleInfo|ScaleInfo]]
-- [[_COMMUNITY_Architecture|Architecture]]
-- [[_COMMUNITY_test_scale_units.py|test_scale_units.py]]
-- [[_COMMUNITY_scales_in_text|scales_in_text]]
-- [[_COMMUNITY_File Structure|File Structure]]
-- [[_COMMUNITY_DoorV2OpeningCheckTests|DoorV2OpeningCheckTests]]
-- [[_COMMUNITY_test_curve_arc_garden_doors.py|test_curve_arc_garden_doors.py]]
-- [[_COMMUNITY_denominator_from_c|denominator_from_c]]
-- [[_COMMUNITY_TestSlugForPath|TestSlugForPath]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `PathPrimitive` - 198 edges
-2. `PageData` - 121 edges
-3. `Candidate` - 107 edges
-4. `TextSpan` - 105 edges
-5. `Region` - 77 edges
-6. `detect_wall_network()` - 70 edges
+2. `Candidate` - 107 edges
+3. `PageData` - 98 edges
+4. `TextSpan` - 96 edges
+5. `detect_wall_network()` - 70 edges
+6. `Region` - 61 edges
 7. `detect_windows()` - 52 edges
 8. `TruthItem` - 49 edges
 9. `detect_doors()` - 45 edges
@@ -215,7 +206,7 @@
 - **5-1133-WD03 proposed lower ground floor: walls, windows, doors** — 5_1133_wd03, 5_1133_wd03_cavity_walls, 5_1133_wd03_windows, 5_1133_wd03_folding_sliding_doors [EXTRACTED 1.00]
 - **floor-plans proposed ground & first floor plans with rooms and rooflights** — floor_plans, floor_plans_ground_floor, floor_plans_first_floor, floor_plans_velux [EXTRACTED 1.00]
 
-## Communities (174 total, 63 thin omitted)
+## Communities (165 total, 65 thin omitted)
 
 ### Community 0 - "Pipeline Orchestration & Extraction"
 Cohesion: 0.08
@@ -226,28 +217,28 @@ Cohesion: 0.18
 Nodes (15): cache_file(), load_regions(), Path, On-disk cache of region classifications, keyed by page content AND the segmentat, Stable digest of a segmentation's geometry — the boxes and where they     came f, region_geometry_hash(), regions_from_dicts(), regions_to_dicts() (+7 more)
 
 ### Community 2 - "Window Detection & Tests"
-Cohesion: 0.25
-Nodes (6): A real window's glazing band is clear glass — nothing between the panes.     An, Control: the bare 2-line capped opening with an empty band interior is         s, 5-1133 FP w19/w21/w25/w32/w33: an insulation-hatched wall. The two         wall, Insulation hatch drawn with pure line segments (no re/qu/c): the         diagona, Decorations OUTSIDE the pane band (here, well beyond a cap along the         run, TestWindowInteriorClutter
+Cohesion: 0.15
+Nodes (12): diagonal_window(), path(), A real window's glazing band is clear glass — nothing between the panes.     An, Control: the bare 2-line capped opening with an empty band interior is         s, 5-1133 FP w19/w21/w25/w32/w33: an insulation-hatched wall. The two         wall, Insulation hatch drawn with pure line segments (no re/qu/c): the         diagona, Decorations OUTSIDE the pane band (here, well beyond a cap along the         run, Regression (the bug this gate first introduced): a 45-deg window must         no (+4 more)
 
 ### Community 3 - "Door Detection & Tests"
-Cohesion: 0.12
-Nodes (16): detect_doors(), DoorAssemblyTests, EntranceDoorTests, line(), path(), PolylineArcBinCapTests, quarter_arc_lines(), Regression + new-feature tests for entrance-door threshold-line handling.      G (+8 more)
+Cohesion: 0.07
+Nodes (27): _check_opening_clear(), Check if the door opening (bridge between arc endpoints) is free of crossing lin, detect_doors(), _curve(), CurveArcGardenDoorTests, _line(), _quarter_arc_bezier(), Garden-door detection for native single-Bezier (`curve_arc`) swings.  The polyli (+19 more)
 
 ### Community 4 - "Pipeline Design Concepts (docs)"
 Cohesion: 0.14
 Nodes (12): Algorithm reference, Commands, Data model, Gemini / GCP auth, graphify, Module layout, Other rules, Output layout (+4 more)
 
 ### Community 5 - "Wall Cross-Validation"
-Cohesion: 0.17
-Nodes (17): _cross_validate(), Validate doors/windows against the wall-centerline network.      Doors keep the, One merged wall-face run with the evidence its members carried., WallFace, continuous_h_wall(), door(), face(), h_wall_with_gap() (+9 more)
+Cohesion: 0.11
+Nodes (25): _cross_validate(), True when a wall FACE line runs unbroken through the bbox span.      A real wind, Validate doors/windows against the wall-centerline network.      Doors keep the, _wall_runs_through(), One wall centerline segment (pixel space, y-down)., One merged wall-face run with the evidence its members carried., Connected wall-centerline network (internal-only, never serialized)., Path indices of every face that contributed to a centerline. (+17 more)
 
 ### Community 6 - "Double-Door Merge & Gemini Client"
 Cohesion: 0.13
 Nodes (15): Detect a 2-leaf simple chain that is two arc halves meeting at a hinge.      The, _split_double_arc(), _double_arc(), Build one (PathPrimitive, p1, p2, length, angle) tuple shaped like     the segs, Tests for _split_double_arc.      Detects the 2-leaf simple chain that is two ar, Two 11-seg quarter arcs sharing a hinge (0, 0) with antiparallel         walk-di, A clean 11-seg quarter arc has only ~8° per-seg deltas — well         below the, The §3.6 cap-extension pattern: 11-seg arc + 2-seg perpendicular         axis ca (+7 more)
 
 ### Community 7 - "Debug Trace Collector"
-Cohesion: 0.08
-Nodes (56): _absorb_hinged_white_rings(), _detect_folding_doors(), _double_line_leaves(), _fold_edges(), _fold_groups(), _leaf_tip(), _mean_axis_deg(), _open_v_match() (+48 more)
+Cohesion: 0.09
+Nodes (58): _nearest_pair_distance(), _absorb_hinged_white_rings(), _detect_folding_doors(), _double_line_leaves(), _fold_edges(), _fold_groups(), _leaf_tip(), _mean_axis_deg() (+50 more)
 
 ### Community 8 - "Arc Detection Primitives"
 Cohesion: 0.20
@@ -266,8 +257,8 @@ Cohesion: 0.11
 Nodes (23): 5-1133-WD03 Proposed Lower Ground Floor (Construction Issue), New brick masonry cavity walls (U=0.12), Folding/sliding doors, Room labels (Bedroom 1/3, Hall, Patio), Drawing Ref 1133-WD03 (Scale 1:50@A3), Replacement windows W1-W6, CAD-originated Architectural PDF, Door (architectural element) (+15 more)
 
 ### Community 12 - "Double-Arc Split Tests"
-Cohesion: 0.20
-Nodes (19): build_plumber_counts(), build_pymupdf_counts(), compare_counts(), _delta_pct(), extract_plumber_document(), extract_plumber_page(), extract_tables(), _normalize_bbox_plumber() (+11 more)
+Cohesion: 0.22
+Nodes (18): build_plumber_counts(), build_pymupdf_counts(), compare_counts(), _delta_pct(), extract_plumber_document(), extract_plumber_page(), extract_tables(), _normalize_bbox_plumber() (+10 more)
 
 ### Community 13 - "Window Geometry Internals"
 Cohesion: 0.06
@@ -278,8 +269,8 @@ Cohesion: 0.08
 Nodes (28): detect(), EndToEndTests, fold_chain(), FoldChainTests, folding_of(), leaf(), OpenVTests, parked_stack() (+20 more)
 
 ### Community 15 - "Arc Cap-Trim Tests"
-Cohesion: 0.09
-Nodes (33): detect_labels(), Detect architectural labels (e.g. D-01, W-03) near geometric candidates.      Re, Per-stage wall-clock log line. Detection on 100k+-path sheets runs for     minut, run_heuristics(), _stage(), _building_masses(), detect_rooms(), _folding_chain_gap_plug() (+25 more)
+Cohesion: 0.12
+Nodes (27): _component_indices(), _dedupe_door_components(), door_open_leaf_path_indices(), Prefer the strongest door when two candidates use the same primitives., Path indices of swing doors' OPEN leaf linework.      A swing door's leaf is dra, _bbox_area(), _bbox_center(), detect_labels() (+19 more)
 
 ### Community 16 - "Arc Cycle-Cap Pruning Tests"
 Cohesion: 0.16
@@ -287,7 +278,7 @@ Nodes (13): _prune_arc_cycle_caps(), Remove a small closed-cycle cap attached at
 
 ### Community 17 - "arcs.py"
 Cohesion: 0.11
-Nodes (17): _native_curve_chains(), Group native `c` (Bezier) primitives by endpoint adjacency.      PDF arcs are of, ChainedCurveSwingDetectionTests, _circle_arc_chain(), _curve(), FitCircle3PtTests, NativeCurveChainsTests, _qu_leaf() (+9 more)
+Nodes (19): _fit_circle_3pt(), _native_curve_chains(), Fit a circle through 3 points. Returns (cx, cy, radius) or None if     the point, Group native `c` (Bezier) primitives by endpoint adjacency.      PDF arcs are of, ChainedCurveSwingDetectionTests, _circle_arc_chain(), _curve(), FitCircle3PtTests (+11 more)
 
 ### Community 18 - "windows.py"
 Cohesion: 0.06
@@ -302,44 +293,44 @@ Cohesion: 0.05
 Nodes (43): 10. Pipeline-level constraints to honor, 11. How to verify a change won't regress, 1. Pipeline shape, 2. The `_detect_polyline_arc_bboxes` micro-pipeline, 3.10 Folding/bifold doors — no arc (`detection/doors/folding.py`), 3.1 Single full-quarter Bezier (`curve_arc`), 3.2 Chained Beziers — full or partial swing (`curve_arc_chain`), 3.3 Clean polyline arc (`polyline_arc`) (+35 more)
 
 ### Community 21 - "_fit_circle_3pt"
-Cohesion: 0.16
-Nodes (17): _draw_dashed_rect(), _draw_entity_box(), _draw_entity_polygon(), _draw_legend(), draw_overlay(), _draw_regions(), _load_font(), BBox (+9 more)
+Cohesion: 0.15
+Nodes (16): _draw_dashed_rect(), _draw_entity_box(), _draw_entity_polygon(), _draw_legend(), draw_overlay(), _draw_regions(), _load_font(), BBox (+8 more)
 
 ### Community 22 - "geometry.py"
-Cohesion: 0.11
-Nodes (40): _arc_corners(), _collect_door_swings(), _detect_curve_arc_double_partners(), _detect_polyline_arc_bboxes(), _estimate_arc_sweep_deg(), _fit_circle_3pt(), _is_arc_like(), BBox (+32 more)
+Cohesion: 0.15
+Nodes (31): _arc_corners(), _collect_door_swings(), _detect_curve_arc_double_partners(), _detect_polyline_arc_bboxes(), _estimate_arc_sweep_deg(), _is_arc_like(), BBox, Detect door-swing arcs approximated by connected short line segments.      Some (+23 more)
 
 ### Community 23 - "Hu-Moment Template Tool"
 Cohesion: 0.47
 Nodes (5): hu_log(), main(), rasterize_segments(), Extract Hu Moment template from confirmed door arcs in a pipeline output run., Draw line segments onto a normalized binary canvas.
 
 ### Community 24 - "hline"
-Cohesion: 0.12
-Nodes (19): door_open_leaf_path_indices(), _leaf_ink_indices(), _merge_double_door_assemblies(), Merge pairs of adjacent single-door assemblies into double-swing candidates., A single-swing candidate's leaf linework, pinned by its evidence:     leaf line, Path indices of swing doors' OPEN leaf linework.      A swing door's leaf is dra, DoubleDoorTests, OpenLeafExclusionTests (+11 more)
+Cohesion: 0.14
+Nodes (16): _leaf_ink_indices(), _merge_double_door_assemblies(), Merge pairs of adjacent single-door assemblies into double-swing candidates., A single-swing candidate's leaf linework, pinned by its evidence:     leaf line, DoubleDoorTests, OpenLeafExclusionTests, Tests for _merge_double_door_assemblies: adjacent single-door assembly merging., Arcs on the same side (both above leaf line) → merges into double_swing. (+8 more)
 
 ### Community 31 - "README stub"
-Cohesion: 0.12
-Nodes (15): 1. Sweep, 2. Open the review image, 3. Record the verdicts, After reviewing, Architectural PDF Extraction (POC), Batch extract, Extract — full pipeline, Gemini / GCP auth (optional) (+7 more)
+Cohesion: 0.18
+Nodes (10): Architectural PDF Extraction (POC), Batch extract, Extract — full pipeline, Gemini / GCP auth (optional), Inspect — terminal summary only, Output layout, Requirements, Setup (+2 more)
 
 ### Community 34 - "detect_windows"
-Cohesion: 0.05
-Nodes (41): detect_wall_network(), _equivalent_sides(), _is_light_pen(), Build the internal wall-centerline network for a page.      exclude_path_indices, Faint (light-grey/pastel) ink: every channel at/above the light floor., (short, long) of the rectangle with this polygon's area and perimeter.      The, fill_ring(), hline() (+33 more)
+Cohesion: 0.19
+Nodes (10): paving_field(), Running-bond paving: continuous course lines, staggered joint lines.      Mirror, Four wall bands forming a closed rectangular room (outer faces at the     given, Striped fields (paving bonds, tile fields, treads) are not walls., Stroke-color pen identity: pairing, faint-ink demotion, dimension     chains, an, rect_room(), TestLatticeDemotion, TestPenGates (+2 more)
 
 ### Community 35 - "plumber.py"
 Cohesion: 0.18
 Nodes (9): _prune_arc_spurs(), Remove short leaf-spurs (door stops, cap lines) from an arc component.      A cl, PruneArcSpursTests, A closed 4-segment loop has every vertex at degree 2 — no leaf         exists to, 11-segment arc whose far endpoint is a degree-3 junction because         two 1-s, linework_1318 shape: 11-segment arc whose far endpoint becomes a         degree-, A Y-junction with one short branch (2 segs) and one long branch         (5 segs,, A small Y-junction component where every walk fits in the spur         cap. Prun (+1 more)
 
 ### Community 36 - "_projected_interval"
-Cohesion: 0.14
-Nodes (13): assigned_path_fraction(), _centre_in_any(), filter_page_data(), BBox, Reduce a PageData to the primitives inside a set of regions.  This filters, it d, A copy of page_data holding only primitives whose bbox centre falls in     one o, Share of the page's paths that any region would keep.      Deliberately the same, path() (+5 more)
+Cohesion: 0.20
+Nodes (9): filter_page_data(), A copy of page_data holding only primitives whose bbox centre falls in     one o, ImageRef, path(), Region filtering tests (layout/filter.py)., region(), span(), TestFilterPageData (+1 more)
 
 ### Community 37 - "Polyline-Arc Spur Pruning — Design"
 Cohesion: 0.12
 Nodes (16): Algorithm, Behavior contract, Call site change, Closed-cycle appendages — out of scope, Constant location, Debug trace, Files changed, Fix (+8 more)
 
 ### Community 38 - "renderer.py"
-Cohesion: 0.22
-Nodes (10): build_ink_map(), is_page_spanning(), Binary ink occupancy map over a page, used to find whitespace gutters., True for sheet furniture: a border rule or column divider that runs the     leng, page(), path(), Ink occupancy map tests (layout/occupancy.py)., span() (+2 more)
+Cohesion: 0.25
+Nodes (9): build_ink_map(), is_page_spanning(), True for sheet furniture: a border rule or column divider that runs the     leng, page(), path(), Ink occupancy map tests (layout/occupancy.py)., span(), TestBuildInkMap (+1 more)
 
 ### Community 39 - "Batch PDF Extraction Script Design"
 Cohesion: 0.14
@@ -350,8 +341,8 @@ Cohesion: 0.42
 Nodes (5): PageTruth, evaluate_page(), Score one page's entities against its three verdict lists., entity(), EvaluatePageTests
 
 ### Community 41 - "_collect_wall_faces"
-Cohesion: 0.16
-Nodes (10): clip_cut_positions(), BBox, qualifying_clip_rects_from_boxes(), Keep only clips that look like real drawing boundaries.      Measured on the sam, Convert clip edges to (row, col) cut candidates, in bin indices.      Each candi, dot(), page_with(), Clip-rect gating tests (layout/clips.py). (+2 more)
+Cohesion: 0.18
+Nodes (8): BBox, qualifying_clip_rects_from_boxes(), Keep only clips that look like real drawing boundaries.      Measured on the sam, dot(), page_with(), Clip-rect gating tests (layout/clips.py)., TestClipCutPositions, TestClipGating
 
 ### Community 42 - "Codebase Restructure: Packages + heuristics.py Split"
 Cohesion: 0.18
@@ -362,64 +353,64 @@ Cohesion: 0.17
 Nodes (11): 1. The signature (cap-anchored), 1b. Framed multi-light windows (5-1133 W8), 2. Pipeline shape, 3. Why both filters are needed (floor-plans.pdf), 4. The constants, 5.1 floor-plans.pdf (offline, walls on/off both give 4), 5.2 5-1133-WD03.pdf, 5. Reference data — current detection state (regression target) (+3 more)
 
 ### Community 44 - "renderer.py"
-Cohesion: 0.18
-Nodes (17): generate_debug_viewer(), Generate a self-contained HTML debug viewer for door detection traces., Write a single-file HTML viewer embedding the render image and trace JSON., Document, render_page_png(), Text spans inside the given regions. Used to scope schedule detection to     sch, region_text_spans(), _candidate_to_dict() (+9 more)
+Cohesion: 0.16
+Nodes (20): generate_debug_viewer(), Generate a self-contained HTML debug viewer for door detection traces., Write a single-file HTML viewer embedding the render image and trace JSON., Document, render_page_png(), assigned_path_fraction(), Share of the page's paths that any region would keep.      Deliberately the same, Entity (+12 more)
 
 ### Community 98 - "vline"
 Cohesion: 0.12
 Nodes (15): 2026-08-04 — Clip-cut region splitting fix + batch timeout investigation, 2026-08-05 addendum — fixes landed, attribution corrected, `batch_extract.py` orphan bug (found, not yet fixed), Bug, Fix, Gemini call-boundedness audit (user asked "no infinite AI calls"), Loop-termination audit (user asked "no infinite loops"), Part 1 — Fix (done): clip edges sliced drawings they never touch (+7 more)
 
 ### Community 99 - "wall_band_h"
-Cohesion: 0.14
-Nodes (17): Drop window candidates that materially sit on a detected door.      Door symbols, _resolve_door_window_conflicts(), Barrier polygon sealing a window opening.      A horizontal/vertical window's bb, _window_seal(), _area(), _dedupe_openings(), BBox, Suppress overlapping detections from duplicate cap pairs (greedy NMS).      Dupl (+9 more)
+Cohesion: 0.15
+Nodes (15): Drop window candidates that materially sit on a detected door.      Door symbols, _resolve_door_window_conflicts(), Candidate, DoorEvidencePropagationTests, Verify Step 4 — door evidence keys land in Entity.attributes in offline mode., TestDiagonalWindowSeal, BBox, Windows are drawn at any angle, not just axis-aligned. The cap-anchored     mode (+7 more)
 
 ### Community 100 - "TestWindowInteriorClutter"
-Cohesion: 0.17
-Nodes (9): _door_attribute_overlay(), finalize_candidates(), Selected door-evidence keys to merge into Entity.attributes. {} for None / non-d, Promote candidates to entities, applying the offline confidence floors.      Gem, _room_entity(), cand(), finalize_candidates applies the offline confidence floors unconditionally., TestFinalizeCandidates (+1 more)
+Cohesion: 0.16
+Nodes (9): _door_attribute_overlay(), finalize_candidates(), Promote candidates to entities, applying the offline confidence floors.      Gem, Selected door-evidence keys to merge into Entity.attributes. {} for None / non-d, assembly_type must reach Entity.attributes through the pipeline passthrough., cand(), finalize_candidates applies the offline confidence floors unconditionally., TestFinalizeCandidates (+1 more)
 
 ### Community 101 - "TestMarkerRings"
-Cohesion: 0.13
-Nodes (16): hline(), horizontal_window(), A clean 2-line capped rectangle IS a window on 5-1133 (see Window B:         two, 5-1133 FP window_0006: 3 short parallel lines whose opening (15px) is         fa, Three parallel lines with no perpendicular end-caps (e.g. a run of         dimen, Three parallel lines spaced far apart (e.g. stair treads) exceed the         gla, The tight-pair interior gate (WINDOW_TIGHT_PAIR_GAP_PX /     WINDOW_TIGHT_PAIR_J, 5-1133 window_0020: the "recess" niche — a drawn rectangle whose         long si (+8 more)
+Cohesion: 0.17
+Nodes (10): hline(), horizontal_window(), A clean 2-line capped rectangle IS a window on 5-1133 (see Window B:         two, 5-1133 FP window_0006: 3 short parallel lines whose opening (15px) is         fa, Three parallel lines with no perpendicular end-caps (e.g. a run of         dimen, Three parallel lines spaced far apart (e.g. stair treads) exceed the         gla, A W1-style horizontal window: 3 tight horizontal glazing lines centered     in a, A W4-style vertical window: 3 tight vertical glazing lines closed by two     hor (+2 more)
 
 ### Community 102 - "DoorV2OpeningCheckTests"
 Cohesion: 0.29
 Nodes (6): Bbox edges meeting at the hinge corner of a single quarter-swing door.      A sw, Hold a single swing door to plugs on its hinge edges, one plane only.      A qua, _restrict_swing_plugs(), _swing_hinge_edges(), Single swing doors: plugs live on the hinge edges, one wall plane.      Geometry, TestSwingHingePlugRestriction
 
 ### Community 103 - "PathPrimitive"
-Cohesion: 0.16
-Nodes (16): _check_provenance(), _ordered(), pending(), What a persisted sweep still needs verdicts on.  Reads the run output the sweep, Unreviewed detections, keyed by 1-based page then entity type.      Pages and ty, This sheet cannot be reviewed right now. Report it and move on., No persisted sweep output for this slug., The persisted output does not describe the PDF now on disk. (+8 more)
+Cohesion: 0.19
+Nodes (12): pending(), Unreviewed detections, keyed by 1-based page then entity type.      Pages and ty, This sheet cannot be reviewed right now. Report it and move on., No persisted sweep output for this slug., The persisted output does not describe the PDF now on disk., ReviewBlocked, SweepOutputMissing, SweepOutputStale (+4 more)
 
 ### Community 104 - "detect_doors"
-Cohesion: 0.17
-Nodes (22): _apply(), _as_transform(), classify_page(), _color_tuple(), extract_document(), extract_images(), extract_page(), extract_paths() (+14 more)
+Cohesion: 0.18
+Nodes (21): _apply(), _as_transform(), classify_page(), _color_tuple(), extract_document(), extract_images(), extract_page(), extract_paths() (+13 more)
 
 ### Community 105 - "PageData"
 Cohesion: 0.53
 Nodes (5): key(), load(), main(), Diff two extraction runs by their final entities.  Usage:     python tools/compa, rejected_key()
 
 ### Community 106 - "TestNetworkQueries"
-Cohesion: 0.12
-Nodes (14): SheetTruth, _labeled_but_unreviewed(), True when the manifest claims this sheet has been labeled but its     ground tru, Score one sheet's per-page pipeline output against its ground truth.      `pages, score_sheet(), entity(), LabeledFlagTests, Sweep correctness that does not require running the real pipeline.  `regression. (+6 more)
+Cohesion: 0.17
+Nodes (12): SheetTruth, _labeled_but_unreviewed(), True when the manifest claims this sheet has been labeled but its     ground tru, Score one sheet's per-page pipeline output against its ground truth.      `pages, score_sheet(), entity(), LabeledFlagTests, Sweep correctness that does not require running the real pipeline.  `regression. (+4 more)
 
 ### Community 107 - "vline"
-Cohesion: 0.16
-Nodes (12): _point_in_bbox(), Minimum distance between two line segments., _segments_min_distance(), BBox, Measure whether a bbox contains wall-like material fill.      Many architectural, True when any centerline corridor (dilated by thickness/2 + expand) hits bbox., Max fraction of the bbox long axis covered by one near-collinear centerline., True when the two segments cross at an interior point.      _segments_min_distan (+4 more)
+Cohesion: 0.15
+Nodes (16): _bbox_expanded(), _bbox_union(), _bboxes_overlap(), _point_in_bbox(), BBox, Minimum distance between two line segments., _segments_min_distance(), BBox (+8 more)
 
 ### Community 108 - "_bridge_white_runs"
-Cohesion: 0.20
-Nodes (16): Path to a downloaded sheet, or None when it is not on disk., sheet_entry(), sheet_path(), latest_run(), Path, Where a sweep leaves its output.  Sweeps used to extract into a `tempfile.Tempor, Wipe and recreate this slug's output directory., The most recent run directory for this slug, or None.      Timestamp names sort (+8 more)
+Cohesion: 0.15
+Nodes (25): Path, Path to a downloaded sheet, or None when it is not on disk., sha256_of(), sheet_entry(), sheet_path(), load_truth(), _check_provenance(), _ordered() (+17 more)
 
 ### Community 109 - "_find_openings"
-Cohesion: 0.12
-Nodes (16): _dedupe_by_perp(), _glaze_index(), Collapse near-collinear duplicates (same perp offset) to one record.      A toil, Largest run of panes spaced like glazing, not like stair treads.      Walks the, Two-axis lookup structure over a frame's glazing pool.      Every cap pair asks, Distinct parallel glazing lines that connect cap ``c1`` to cap ``c2``.      A gl, _spanning_glazing(), _tight_band() (+8 more)
+Cohesion: 0.10
+Nodes (26): _interval_overlap(), _area(), _dedupe_by_perp(), _dedupe_openings(), _facing_cap_pairs(), _find_openings(), _glaze_index(), BBox (+18 more)
 
 ### Community 110 - "EntranceDoorTests"
-Cohesion: 0.11
-Nodes (12): _door_plugs(), _open_leaf_edges(), Bbox edges of a garden-layout double door that are room floor, not wall.      A, Bbox short-end edges of a sliding door: across the wall, never wall plane., Thin barrier bands along the wall planes through a detected door.      The door, _sliding_end_edges(), Wide garden pairs: jamb-scale anchor window + parked-leaf edge veto., Plug extensions end at their supporting material; slide ends veto.      Geometry (+4 more)
+Cohesion: 0.08
+Nodes (29): _building_masses(), detect_rooms(), _door_plugs(), _folding_chain_gap_plug(), _free_space_components(), _open_leaf_edges(), Room detection: rooms are the connected free-space components between walls.  Ea, Fraction of a bbox area covered by the text spans lying over it. (+21 more)
 
 ### Community 111 - "app.py"
-Cohesion: 0.05
-Nodes (68): _interval_overlap(), _line_angle_deg(), _line_length(), _perpendicular_spacing(), _project_onto_axis(), _projected_interval(), Project segment (p1, p2) onto a unit axis and return (lo, hi) scalars., Scalar projection of p onto the unit axis (dx, dy) from origin. (+60 more)
+Cohesion: 0.06
+Nodes (65): _line_angle_deg(), _line_length(), _perpendicular_spacing(), _project_onto_axis(), _projected_interval(), Project segment (p1, p2) onto a unit axis and return (lo, hi) scalars., Scalar projection of p onto the unit axis (dx, dy) from origin., _band_has_wall_material() (+57 more)
 
 ### Community 112 - "RotatedPdfTestCase"
 Cohesion: 0.18
@@ -430,12 +421,12 @@ Cohesion: 0.12
 Nodes (16): File Structure, Floor-Plan Region Filtering Implementation Plan, Global Constraints, Self-Review, Task 10: Wire segmentation, classification and filtering into the pipeline, Task 11: Overlay outlines, CLI flag, and docs, Task 12: Regression verification on the reference PDFs, Task 1: Ink occupancy map (+8 more)
 
 ### Community 114 - "TestAnnotationPenBarriers"
-Cohesion: 0.36
-Nodes (6): block(), cut(), page(), Recursive XY-cut tests (layout/segmenter.py)., A solid-ish blob: a horizontal line every 4px so every bin row is inked., TestXYCut
+Cohesion: 0.42
+Nodes (5): block(), cut(), page(), A solid-ish blob: a horizontal line every 4px so every bin row is inked., TestXYCut
 
 ### Community 115 - "_collect_wall_faces"
-Cohesion: 0.15
-Nodes (13): _collect_fill_rings(), _collect_wall_faces(), _fill_key(), _FillRing, _is_dashed(), _rate_fill_classes(), A closed same-fill polygon reconstructed from exploded `l` items., Annotation arrowhead: a tiny filled triangle or concave dart.          Walls are (+5 more)
+Cohesion: 0.17
+Nodes (14): _bridge_white_runs(), _equivalent_sides(), _FillRing, _rate_fill_classes(), (short, long) of the rectangle with this polygon's area and perimeter.      The, A closed same-fill polygon reconstructed from exploded `l` items., Annotation arrowhead: a tiny filled triangle or concave dart.          Walls are, Classify each fill color as wall material (True) or furniture (False).      Vect (+6 more)
 
 ### Community 116 - "Floor-plan region filtering"
 Cohesion: 0.12
@@ -446,24 +437,24 @@ Cohesion: 0.16
 Nodes (9): _centre(), exit_code(), Sweep results, their rendering, and the exit-code contract.  Exit codes:   0  cl, render(), SheetResult, ExitCodeTests, Report shaping and exit codes.  The sweep itself (which runs the pipeline over r, RenderTests (+1 more)
 
 ### Community 118 - "qualifying_clip_rects"
-Cohesion: 0.29
-Nodes (4): _far_wall_network(), Minimal non-empty wall network located far from the doors under test., A single_line_leaf door with no surrounding wall AND no nearby label         is, A single_line_leaf door with no wall but WITH a nearby door label         (e.g.
+Cohesion: 0.24
+Nodes (5): DoorAssemblyTests, _far_wall_network(), Minimal non-empty wall network located far from the doors under test., A single_line_leaf door with no surrounding wall AND no nearby label         is, A single_line_leaf door with no wall but WITH a nearby door label         (e.g.
 
 ### Community 119 - "qualifying_clip_rects"
 Cohesion: 0.31
 Nodes (5): qualifying_clip_rects(), Read scissor rects off a fitz.Page and gate them. Returns [] if the     PDF expo, Golden segmentation results on the corpus reference sheets (s01, s02, s11).  Mea, segment(), TestGoldenSegmentation
 
 ### Community 120 - "TestNetworkQueries"
-Cohesion: 0.14
-Nodes (16): load_manifest(), manifest_sheets(), Path, Resolution of corpus fixture sheets by slug.  The PDFs are NDA-covered and never, The committed manifest, or an empty corpus when it is absent., The corpus slug for a PDF path, or None if it is not a corpus sheet.      Compar, Flip a manifest entry's `labeled` flag and write the manifest back.      `labele, set_labeled() (+8 more)
+Cohesion: 0.16
+Nodes (12): load_manifest(), manifest_sheets(), Resolution of corpus fixture sheets by slug.  The PDFs are NDA-covered and never, The committed manifest, or an empty corpus when it is absent., Flip a manifest entry's `labeled` flag and write the manifest back.      `labele, set_labeled(), CheckCorpusTests, The corpus verifier classifies each manifest sheet against the disk. (+4 more)
 
 ### Community 121 - "SplitDoubleArcTests"
 Cohesion: 0.15
 Nodes (15): DeliberateVerdictsTests, EnterWithNothingTickedTests, entity(), _HeadlessReviewSheetTests, Path, tools/review.py's `_pick` / `review_sheet`, driven through the real InquirerPy p, Shared fixture: one fake corpus sheet with a persisted sweep run.      Mirrors t, The C1 regression test.      Against the old `inquirer.fuzzy(multiselect=True)` (+7 more)
 
 ### Community 122 - "test_door_assembly.py"
-Cohesion: 0.19
-Nodes (10): TruthItem, iou(), match_entities(), MatchResult, BBox, Matching ground-truth items to pipeline output.  Entity ids are ordinal — door_0, entity(), IouTests (+2 more)
+Cohesion: 0.18
+Nodes (11): TruthItem, Regression corpus: fixture resolution, ground truth, matching, and the sweep., iou(), match_entities(), MatchResult, BBox, Matching ground-truth items to pipeline output.  Entity ids are ordinal — door_0, entity() (+3 more)
 
 ### Community 123 - "batch_extract.py"
 Cohesion: 0.13
@@ -474,8 +465,8 @@ Cohesion: 0.22
 Nodes (8): 2026-08-05 — Gemini region-classification parse failures poison the cache (handoff), Cleanup after the fix lands, Consequence chain (the actual bug), Conventions for this repo, Current implementation facts, Fix A — constrained decoding via `response_schema`, Fix B — never cache a parse-failed classification, The incident (evidence)
 
 ### Community 125 - "framed_triple_window"
-Cohesion: 0.15
-Nodes (14): diagonal_window(), framed_triple_window(), path(), quad(), Window detection tests.  Ground truth was established interactively on s01 (form, Regression (the bug this gate first introduced): a 45-deg window must         no, The gate works in the rotated frame too: a 45-deg insulation-hatched         wal, A horizontal window rotated by `deg` about (cx, cy).      Identical cap-anchored (+6 more)
+Cohesion: 0.25
+Nodes (5): framed_triple_window(), quad(), 5-1133 W8: a three-light frame tagged with a single label. Two full-span     rai, Collinear segments merge only across a gap a mullion block occupies —         th, A block with an X drawn through it is a post/column symbol (the         5-1133 b
 
 ### Community 126 - "_segments_min_distance"
 Cohesion: 0.52
@@ -490,12 +481,12 @@ Cohesion: 0.25
 Nodes (7): 2026-08-05 — detect_windows performance on giant sheets (handoff), Constraints and gotchas, Optimization plan (pruning-only, output-identical), Reproduction recipes (self-contained — scratchpad scripts die with the session), Verification gates (all must pass, in this order), Where the time goes, Why this task exists (and why it was deferred)
 
 ### Community 129 - "segmenter.py"
-Cohesion: 0.17
-Nodes (16): Native PDF clip rects, used as extra cut hints for the segmenter.  Clip rects ar, Tunable constants for page segmentation.  Values are measured, not guessed — see, Page segmentation: split a sheet into its constituent drawings., _centre_in(), count_paths_in(), _edge_gap_sq(), _fold_small_leaves(), _merge_captions() (+8 more)
+Cohesion: 0.13
+Nodes (24): clip_cut_positions(), Native PDF clip rects, used as extra cut hints for the segmenter.  Clip rects ar, Convert clip edges to (row, col) cut candidates, in bin indices.      Each candi, Tunable constants for page segmentation.  Values are measured, not guessed — see, Page segmentation: split a sheet into its constituent drawings., InkMap, Binary ink occupancy map over a page, used to find whitespace gutters., bins[row][col] is 1 where drawn ink falls, 0 elsewhere. (+16 more)
 
 ### Community 130 - "EntranceDoorTests"
-Cohesion: 0.13
-Nodes (19): _cache_file(), _from_dicts(), load_stored(), match_stored(), _merge(), BBox, Path, Tier 4 persistence — where a scale the user typed is kept.  Two back-ends, mirro (+11 more)
+Cohesion: 0.19
+Nodes (6): hline(), path(), Partition wall in the joinery pen: two hairline faces with diagonal     hatch st, TestFaceCollection, TestWeakFacePairs, weak_hatched_band_h()
 
 ### Community 131 - "test_layout_segmenter.py"
 Cohesion: 0.24
@@ -513,13 +504,9 @@ Nodes (8): Path, door_0007 -> d7. Unparseable ids are returned unchanged., Draw 
 Cohesion: 0.11
 Nodes (7): TestCase, Path, Skip helper for tests that need a real corpus sheet.  Corpus knowledge lives in, Return the sheet's path, or skip the test with an actionable message., require_sheet(), LoaderTests, The corpus loader resolves slugs against the committed manifest.  Every test bui
 
-### Community 135 - "DoorAssemblyTests"
-Cohesion: 0.24
-Nodes (4): _prune_unread_page_output(), Delete the page-level files a sweep persists but never uses.      Making sweep o, PruneUnreadPageOutputTests, A fake run directory stands in for a real extraction (fast tier, no     pipeline
-
 ### Community 136 - "client.py"
-Cohesion: 0.12
-Nodes (19): dump_truth(), dumps_truth(), _inline_number_array(), _inline_point_array(), _item(), _item_payload(), load_truth(), Path (+11 more)
+Cohesion: 0.18
+Nodes (16): dump_truth(), dumps_truth(), _inline_number_array(), _inline_point_array(), _item(), _item_payload(), Path, The user's per-sheet verdicts, and how they are read.  One file per sheet under (+8 more)
 
 ### Community 137 - "_dedupe_openings"
 Cohesion: 0.25
@@ -530,8 +517,8 @@ Cohesion: 0.12
 Nodes (16): Constraints, Design, Detection Review Tooling — Design, Effort, Goals, Non-goals, Open questions, Piece 1 — the sweep persists its output (+8 more)
 
 ### Community 139 - "_merge_mullion_chains"
-Cohesion: 0.13
-Nodes (30): _door_fallback_candidate(), _find_threshold_line(), _nearest_pair_distance(), _pair_door_assemblies(), BBox, Find an entrance-door threshold/sill line parallel to the leaf long axis.      T, Parse an evidence bbox value defensively; return None on any invalid shape., _safe_bbox() (+22 more)
+Cohesion: 0.14
+Nodes (15): _door_fallback_candidate(), _find_threshold_line(), _pair_door_assemblies(), BBox, Find an entrance-door threshold/sill line parallel to the leaf long axis.      T, Parse an evidence bbox value defensively; return None on any invalid shape., _safe_bbox(), _find_anchored_leaf_line() (+7 more)
 
 ### Community 140 - "ShaMismatchAgainstTruthTests"
 Cohesion: 0.18
@@ -546,8 +533,8 @@ Cohesion: 0.12
 Nodes (15): Adoption — `tools/add_sheet.py`, Architecture, Constraints, Fixture layout, Ground truth, Naming, Non-goals, Phasing (+7 more)
 
 ### Community 143 - "wall_band_v"
-Cohesion: 0.15
-Nodes (12): InkMap, bins[row][col] is 1 where drawn ink falls, 0 elsewhere., _clip_cut(), _col_profile(), Strip empty margins; returns absolute (start, end) bin indices., Widest fully-empty internal run of at least min_bins. Leading and     trailing r, First clip edge lying strictly inside the span with ink on both sides.      An e, _row_profile() (+4 more)
+Cohesion: 0.18
+Nodes (8): _clip_cut(), Strip empty margins; returns absolute (start, end) bin indices., Widest fully-empty internal run of at least min_bins. Leading and     trailing r, First clip edge lying strictly inside the span with ink on both sides.      An e, _trim(), _widest_gap(), Recursive XY-cut tests (layout/segmenter.py)., TestProfileHelpers
 
 ### Community 144 - "Regression Testing — Working Guide"
 Cohesion: 0.12
@@ -562,8 +549,8 @@ Cohesion: 0.14
 Nodes (13): Detection Review Tooling V1 — Implementation Plan, Done when, File Structure, Global Constraints, Out of scope, Task 1: Persistent sweep output directory, Task 2: Entity ids in the REVIEW lines, Task 3: Ground truth carries room polygons (+5 more)
 
 ### Community 148 - "count_paths_in"
-Cohesion: 0.11
-Nodes (12): can_prompt(), parse_answer(), prompt_for_scale(), Tier 4 input — ask the user, but only when someone is there to answer.  batch_ex, True only when stdin is a real terminal., The denominator in an answer, accepting "1:100" or "100". None to skip., Ask once for one region's scale. Returns "1:100", or None if skipped.      Asked, FakeStream (+4 more)
+Cohesion: 0.21
+Nodes (8): detect_wall_network(), _is_light_pen(), Build the internal wall-centerline network for a page.      exclude_path_indices, Faint (light-grey/pastel) ink: every channel at/above the light floor., Horizontal wall drawn as two stroked faces., TestCenterlines, TestNetworkAssembly, wall_band_h()
 
 ### Community 150 - "fill_ring"
 Cohesion: 0.18
@@ -574,68 +561,28 @@ Cohesion: 0.50
 Nodes (3): Client, init_client(), Vertex AI client construction.  Per-candidate validation was removed on 2026-07-
 
 ### Community 153 - "fill_ring"
-Cohesion: 0.15
-Nodes (13): bind_scale(), binding_texts(), _caption_distance(), _centroid(), _contains(), The resolution ladder, and how a scale binds to a floor plan.  Binding is what m, How far a text span sits from a region, or None if it is not near it.      Horiz, Every text scale near enough to this region to be about it, nearest first. (+5 more)
+Cohesion: 0.20
+Nodes (7): fill_ring(), marker_ring(), Closed filled rectangle exploded into 4 chained `l` items., Filled triangle/dart exploded into chained `l` items (a leader tip)., Leader/dimension arrowheads share the wall pen on Vectorworks-style     exports;, TestFillClassRating, TestMarkerRings
+
+### Community 155 - "TestWindowTightPairInterior"
+Cohesion: 0.20
+Nodes (6): The tight-pair interior gate (WINDOW_TIGHT_PAIR_GAP_PX /     WINDOW_TIGHT_PAIR_J, 5-1133 window_0020: the "recess" niche — a drawn rectangle whose         long si, 5-1133 window_0016/0017: a step in a solid-filled wall block — the         step', floor-plans true windows draw a narrow double glazing line (panes         1.75px, 5-1133 window_0022 (real diagonal 2-pane window): its band sits at         the c, TestWindowTightPairInterior
 
 ### Community 156 - "TestBlindWindowPocket"
-Cohesion: 0.50
-Nodes (3): Windows are drawn at any angle, not just axis-aligned. The cap-anchored     mode, 5-1133-WD03.pdf missed window at path idx 6475: three glazing panes         at 1, TestWindowArbitraryAngle
+Cohesion: 0.14
+Nodes (13): _band_interior_clutter(), _cap_orientation_frames(), _clutter_grid(), detect_windows(), _frame_axes(), _merge_mullion_chains(), Caps grouped by direction into overlapping frames, each ``(center, caps)``., Unit run-axis u (perpendicular to the caps) and perp-axis v (along caps).      C (+5 more)
 
 ### Community 157 - "apply_classification"
 Cohesion: 0.37
 Nodes (5): apply_classification(), Apply a classification response to a region list.      Returns new Region object, region(), response(), TestApplyClassification
 
 ### Community 159 - "vline"
-Cohesion: 0.23
-Nodes (6): detect_windows(), Detect windows as capped openings bridged by a parallel glazing band.      For e, _covers(), Ground truth captured interactively on 5-1133-WD03.pdf (run     2026-06-19_12-02, A toilet/sink fixture is a hatch of stacked short segments plus         collinea, TestWindow51133Topology
+Cohesion: 0.29
+Nodes (5): _covers(), Ground truth captured interactively on 5-1133-WD03.pdf (run     2026-06-19_12-02, A toilet/sink fixture is a hatch of stacked short segments plus         collinea, TestWindow51133Topology, vline()
 
 ### Community 160 - "TestRequestShape"
 Cohesion: 0.25
 Nodes (4): _CapturingClient, Stands in for genai.Client, recording the config it was called with., The response must be schema-constrained at decode time.      Plain JSON mode doe, TestRequestShape
-
-### Community 161 - "SweepSlugsArgumentTests"
-Cohesion: 0.25
-Nodes (7): Resolve a scale for every floor-plan region on one page., resolve_page_scales(), The renumbering hazard, end to end.          A scale stored against what used to, region(), span(), TestResolvePageScales, viewport()
-
-### Community 162 - "TestNetworkQueries"
-Cohesion: 0.11
-Nodes (12): parse_measure_viewports(), BBox, Convert a raw /VP bbox into 150-DPI pixel space.      Two steps, in this order., Split a PDF array string into its top-level ``<< >>`` dictionaries.      Depth-c, Every rectilinear measure viewport, as ``(bbox_pt_yup, c)``.      The bbox is le, split_pdf_dicts(), viewport_bbox_to_px(), Parsing /VP -> /Measure viewport dictionaries.  The array strings below are copi (+4 more)
-
-### Community 163 - "TestThickMaterialPairs"
-Cohesion: 0.12
-Nodes (14): Drawing-scale resolution: read a 1:N scale from the PDF and bind it to a plan., _stored_info(), Tier 2 — the scale a sheet prints as text.  Three corpus sheets carry no viewpor, Every scale printed on the page, each carrying its span's bbox., text_scales(), The nearest standard scale within tolerance, or None.      None is a real answer, snap_to_standard(), Tier 1 — the scale the PDF states in its own viewport measure dictionaries.  A C (+6 more)
-
-### Community 165 - "ScaleInfo"
-Cohesion: 0.19
-Nodes (15): A drawing scale, and the evidence it came from.      `denominator` 100.0 means 1, ScaleInfo, _page_summary_dict(), The per-region scale table printed after each page., The scales block written into each page's summary.json entry., scale_summary_dict(), scale_table(), PageScales (+7 more)
-
-### Community 166 - "Architecture"
-Cohesion: 0.08
-Nodes (23): Architecture, Console output, Constraints, Data model, Evidence, Floor Plan Scale Extraction — Design, Measured coverage, Module layout (+15 more)
-
-### Community 167 - "test_scale_units.py"
-Cohesion: 0.13
-Nodes (12): canonical_denominators(), cluster_denominators(), format_scale(), Scale arithmetic shared by every resolution tier.  A PDF /Measure dictionary sta, Group near-equal denominators, largest group first in input order.      Lives he, One representative per cluster — how many DISTINCT scales are present., Render a denominator for display: 1:100, or 1:136.4 when it is not whole., Scale arithmetic: PDF /Measure conversion factors to a 1:N denominator.  Every n (+4 more)
-
-### Community 168 - "scales_in_text"
-Cohesion: 0.21
-Nodes (3): Every 1:N denominator stated in one string, in the order written., scales_in_text(), TestScalesInText
-
-### Community 169 - "File Structure"
-Cohesion: 0.13
-Nodes (14): File Structure, Floor Plan Scale Extraction Implementation Plan, Global Constraints, Self-Review, Task 10: Corpus expectations, Task 1: Units and the `ScaleInfo` model, Task 2: Tier 1 — viewport parsing, Task 3: Tier 2 — text parsing (+6 more)
-
-### Community 170 - "DoorV2OpeningCheckTests"
-Cohesion: 0.24
-Nodes (4): _check_opening_clear(), Check if the door opening (bridge between arc endpoints) is free of crossing lin, DoorV2OpeningCheckTests, Tests for v2 bridge-line opening check and arc sweep estimation.
-
-### Community 171 - "test_curve_arc_garden_doors.py"
-Cohesion: 0.27
-Nodes (8): _curve(), CurveArcGardenDoorTests, _line(), _quarter_arc_bezier(), Garden-door detection for native single-Bezier (`curve_arc`) swings.  The polyli, Two arcs sharing an endpoint with continuous tangent (smooth         S-curve) mu, Build a cubic Bezier approximating the 90° quarter circle centered at     ``hing, The 5-1133-WD03.pdf door_0007 + door_0008 topology, simplified.          Two sta
-
-### Community 172 - "denominator_from_c"
-Cohesion: 0.33
-Nodes (3): denominator_from_c(), The 1:N denominator for a /Measure /X conversion factor., TestDenominatorFromC
 
 ## Ambiguous Edges - Review These
 - `5-1133-WD03 Proposed Lower Ground Floor (Construction Issue)` → `Schedule (door/window/finish table)`  [AMBIGUOUS]
@@ -644,9 +591,9 @@ Nodes (3): denominator_from_c(), The 1:N denominator for a /Measure /X conversio
   floor-plans.pdf · relation: references
 
 ## Knowledge Gaps
-- **339 isolated node(s):** `storage`, `sheets`, `Project purpose`, `Algorithm reference`, `Commands` (+334 more)
+- **303 isolated node(s):** `storage`, `sheets`, `Project purpose`, `Algorithm reference`, `Commands` (+298 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **63 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **65 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -655,13 +602,13 @@ _Questions this graph is uniquely positioned to answer:_
   _Edge tagged AMBIGUOUS (relation: references) - confidence is low._
 - **What is the exact relationship between `Door (architectural element)` and `floor-plans Proposed Ground & First Floor Plans (3 Penparcau Road)`?**
   _Edge tagged AMBIGUOUS (relation: references) - confidence is low._
-- **Why does `PathPrimitive` connect `_merge_mullion_chains` to `Pipeline Orchestration & Extraction`, `Door Assembly & Heuristics Core`, `Window Detection & Tests`, `Door Detection & Tests`, `test_layout_segmenter.py`, `Wall Cross-Validation`, `Double-Door Merge & Gemini Client`, `Debug Trace Collector`, `_dedupe_openings`, `Wall Network Construction & Tests`, `Room Detection Tests`, `Room Polygonization Internals`, `Arc Cap-Trim Tests`, `Arc Cycle-Cap Pruning Tests`, `arcs.py`, `wall_band_v`, `Arc Spur-Pruning Tests`, `geometry.py`, `hline`, `TestBlindWindowPocket`, `vline`, `detect_windows`, `plumber.py`, `_projected_interval`, `TestFloorPlansRegression`, `renderer.py`, `_collect_wall_faces`, `DoorV2OpeningCheckTests`, `test_curve_arc_garden_doors.py`, `wall_band_h`, `TestMarkerRings`, `DoorV2OpeningCheckTests`, `detect_doors`, `vline`, `_find_openings`, `EntranceDoorTests`, `app.py`, `TestAnnotationPenBarriers`, `_collect_wall_faces`, `framed_triple_window`?**
-  _High betweenness centrality (0.171) - this node is a cross-community bridge._
-- **Why does `TextSpan` connect `Arc Cap-Trim Tests` to `Door Detection & Tests`, `test_layout_segmenter.py`, `Wall Cross-Validation`, `Debug Trace Collector`, `Arc Detection Primitives`, `Room Detection Tests`, `Wall Network Construction & Tests`, `_merge_mullion_chains`, `wall_band_v`, `arcs.py`, `hline`, `fill_ring`, `apply_classification`, `TestRequestShape`, `SweepSlugsArgumentTests`, `detect_windows`, `TestThickMaterialPairs`, `_projected_interval`, `renderer.py`, `scales_in_text`, `DoorV2OpeningCheckTests`, `renderer.py`, `wall_band_h`, `DoorV2OpeningCheckTests`, `detect_doors`, `EntranceDoorTests`, `app.py`, `TestAnnotationPenBarriers`, `_collect_wall_faces`?**
-  _High betweenness centrality (0.081) - this node is a cross-community bridge._
-- **Why does `Candidate` connect `wall_band_h` to `Window Detection & Tests`, `Door Detection & Tests`, `Wall Cross-Validation`, `Debug Trace Collector`, `Room Detection Tests`, `_merge_mullion_chains`, `Arc Cap-Trim Tests`, `_fit_circle_3pt`, `geometry.py`, `hline`, `TestBlindWindowPocket`, `vline`, `TestFloorPlansRegression`, `ScaleInfo`, `DoorV2OpeningCheckTests`, `renderer.py`, `TestWindowInteriorClutter`, `TestMarkerRings`, `DoorV2OpeningCheckTests`, `_find_openings`, `EntranceDoorTests`, `app.py`, `qualifying_clip_rects`, `framed_triple_window`?**
-  _High betweenness centrality (0.072) - this node is a cross-community bridge._
+- **Why does `PathPrimitive` connect `Debug Trace Collector` to `Pipeline Orchestration & Extraction`, `segmenter.py`, `Door Assembly & Heuristics Core`, `Door Detection & Tests`, `test_layout_segmenter.py`, `Wall Cross-Validation`, `Double-Door Merge & Gemini Client`, `EntranceDoorTests`, `Window Detection & Tests`, `_dedupe_openings`, `Wall Network Construction & Tests`, `_merge_mullion_chains`, `Room Detection Tests`, `Room Polygonization Internals`, `Arc Cap-Trim Tests`, `Arc Cycle-Cap Pruning Tests`, `arcs.py`, `wall_band_v`, `Arc Spur-Pruning Tests`, `count_paths_in`, `geometry.py`, `hline`, `fill_ring`, `TestWindowTightPairInterior`, `TestBlindWindowPocket`, `vline`, `detect_windows`, `plumber.py`, `_projected_interval`, `TestNetworkQueries`, `renderer.py`, `TestThickMaterialPairs`, `TestFloorPlansRegression`, `_collect_wall_faces`, `wall_band_h`, `TestMarkerRings`, `DoorV2OpeningCheckTests`, `detect_doors`, `vline`, `_find_openings`, `EntranceDoorTests`, `app.py`, `TestAnnotationPenBarriers`, `_collect_wall_faces`, `qualifying_clip_rects`, `framed_triple_window`?**
+  _High betweenness centrality (0.227) - this node is a cross-community bridge._
+- **Why does `Candidate` connect `wall_band_h` to `Window Detection & Tests`, `Door Detection & Tests`, `Wall Cross-Validation`, `Debug Trace Collector`, `Room Detection Tests`, `_merge_mullion_chains`, `Arc Cap-Trim Tests`, `_fit_circle_3pt`, `geometry.py`, `hline`, `TestWindowTightPairInterior`, `TestBlindWindowPocket`, `vline`, `TestFloorPlansRegression`, `renderer.py`, `TestWindowInteriorClutter`, `TestMarkerRings`, `DoorV2OpeningCheckTests`, `_find_openings`, `EntranceDoorTests`, `qualifying_clip_rects`?**
+  _High betweenness centrality (0.082) - this node is a cross-community bridge._
+- **Why does `TextSpan` connect `Arc Cap-Trim Tests` to `Door Detection & Tests`, `test_layout_segmenter.py`, `Wall Cross-Validation`, `Debug Trace Collector`, `Arc Detection Primitives`, `Room Detection Tests`, `Wall Network Construction & Tests`, `_merge_mullion_chains`, `wall_band_v`, `arcs.py`, `count_paths_in`, `geometry.py`, `hline`, `apply_classification`, `TestRequestShape`, `_projected_interval`, `renderer.py`, `renderer.py`, `wall_band_h`, `DoorV2OpeningCheckTests`, `detect_doors`, `EntranceDoorTests`, `app.py`, `TestAnnotationPenBarriers`, `_collect_wall_faces`, `qualifying_clip_rects`?**
+  _High betweenness centrality (0.060) - this node is a cross-community bridge._
 - **Are the 85 inferred relationships involving `PathPrimitive` (e.g. with `DebugTraceCollector` and `_SlidePanel`) actually correct?**
   _`PathPrimitive` has 85 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 37 inferred relationships involving `PageData` (e.g. with `InkMap` and `PageRegionResult`) actually correct?**
-  _`PageData` has 37 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 40 inferred relationships involving `Candidate` (e.g. with `_SlidePanel` and `PageRegionResult`) actually correct?**
+  _`Candidate` has 40 INFERRED edges - model-reasoned connections that need verification._

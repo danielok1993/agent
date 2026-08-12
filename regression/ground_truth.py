@@ -52,6 +52,15 @@ class SheetTruth:
     pdf_sha256: str | None = None
     reviewed: str | None = None
     pages: dict[int, PageTruth] = field(default_factory=dict)
+    # page number -> [{"bbox": [...], "scale": "1:100"}, ...].
+    #
+    # Keyed by the region's geometry, not its id: region ids are ordinal and
+    # renumber whenever segmentation changes, and a stored scale outranks
+    # every detected one, so a mis-attached entry would override a correct
+    # reading. Same reason the verdict lists match on bbox rather than on
+    # entity id. Carried through load and dump so tools/review.py cannot
+    # erase it when it rewrites a sheet's verdicts.
+    scales: dict[int, list[dict]] = field(default_factory=dict)
 
     @property
     def is_labeled(self) -> bool:
@@ -109,10 +118,21 @@ def load_truth(slug: str) -> SheetTruth:
                              f"{sorted(unknown)}; expected {list(VERDICTS)}")
         pages[int(number)] = PageTruth(
             **{v: [_item(r, slug) for r in lists.get(v, [])] for v in VERDICTS})
+    scales = {
+        int(number): [
+            {"bbox": [float(v) for v in item["bbox"]],
+             "scale": str(item["scale"])}
+            for item in entries
+            if isinstance(item.get("bbox"), list) and len(item["bbox"]) == 4
+            and item.get("scale")
+        ]
+        for number, entries in (payload.get("scales") or {}).items()
+    }
     return SheetTruth(slug=payload.get("sheet", slug),
                       pdf_sha256=payload.get("pdf_sha256"),
                       reviewed=payload.get("reviewed"),
-                      pages=pages)
+                      pages=pages,
+                      scales=scales)
 
 
 def write_empty_truth(slug: str, sha: str) -> Path:
@@ -185,10 +205,24 @@ def dumps_truth(truth: SheetTruth) -> str:
         lists = {name: items for name, items in lists.items() if items}
         if lists:
             pages[str(number)] = lists
-    text = json.dumps({"sheet": truth.slug,
-                       "pdf_sha256": truth.pdf_sha256,
-                       "reviewed": truth.reviewed,
-                       "pages": pages}, indent=2)
+    payload: dict = {"sheet": truth.slug,
+                     "pdf_sha256": truth.pdf_sha256,
+                     "reviewed": truth.reviewed}
+    # Omitted when empty so every existing ground-truth file re-serializes
+    # byte-identically -- the round-trip guarantee dump_truth documents.
+    if truth.scales:
+        payload["scales"] = {
+            str(number): [
+                # Same one-line bbox treatment verdict items get, so a
+                # re-segmentation shows as one changed line, not four.
+                {"bbox": _inline_number_array(item["bbox"], inline),
+                 "scale": item["scale"]}
+                for item in truth.scales[number]
+            ]
+            for number in sorted(truth.scales)
+        }
+    payload["pages"] = pages
+    text = json.dumps(payload, indent=2)
     for token, literal in inline.items():
         # json.dumps(token) is the token WITH its quotes, so the replacement
         # swaps the whole JSON string for a bare array literal.

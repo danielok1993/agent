@@ -43,6 +43,20 @@ def sheet_path(slug: str) -> Path | None:
     return path if path.exists() else None
 
 
+def slug_for_path(path) -> str | None:
+    """The corpus slug for a PDF path, or None if it is not a corpus sheet.
+
+    Compared by resolved path so a relative argument and an absolute one agree.
+    """
+    target = Path(path).resolve()
+    if target.parent != SHEETS_DIR.resolve():
+        return None
+    for entry in manifest_sheets():
+        if entry.get("file") == target.name:
+            return entry.get("slug")
+    return None
+
+
 def sha256_of(path: Path) -> str:
     digest = hashlib.sha256()
     with open(path, "rb") as handle:

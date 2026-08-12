@@ -151,6 +151,8 @@ layout/            # page segmentation — splits a sheet into its drawings
 gemini/client.py        # Vertex AI client (was gemini_client.py)
 gemini/classifier.py    # region classification (replaced candidate validation)
 gemini/region_cache.py  # classification cache, keyed by page content + region geometry
+scale/            # drawing-scale resolution: /VP measure viewports, scale text,
+                  # a tty-gated prompt, and geometric binding to floor_plan regions
 debug/             # trace.py (DebugTraceCollector) + renderer.py (HTML viewer)
 tools/             # standalone dev scripts (numpy/cv2)
 ```
@@ -231,7 +233,14 @@ Notable extractor behavior: `extract_paths` explodes each `get_drawings()` entry
 
 ## Warning codes
 
-Warnings are structured dicts with `warning_code`, `severity`, `message`, `page_number`. The set is intentionally small — when adding a new warning, follow the existing `SCREAMING_SNAKE_CASE` convention and emit from either `pipeline.collect_warnings`, `extraction.plumber.compare_counts`, or `gemini.client._validate_response`.
+Warnings are structured dicts with `warning_code`, `severity`, `message`,
+`page_number`. The set is intentionally small — when adding a new warning,
+follow the existing `SCREAMING_SNAKE_CASE` convention and emit from
+`pipeline.collect_warnings`, `extraction.plumber.compare_counts`,
+`gemini.client._validate_response`, or `scale.resolver.resolve_page_scales`
+(which returns them on `PageScales.warnings` for `run_extract` to fold into
+the page's warning list — only the resolver knows which tier resolved a
+region, so only it can say why one did not).
 
 ## graphify
 

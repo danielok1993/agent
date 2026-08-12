@@ -1,5 +1,6 @@
 from __future__ import annotations
 from pathlib import Path
+from typing import Optional
 import fitz
 import pdfplumber
 from rich.console import Console
@@ -7,10 +8,14 @@ from rich.table import Table
 from rich.panel import Panel
 from rich.tree import Tree
 from rich import box as rich_box
-from models import PageData
+from rich.markup import escape as rich_escape
+from models import PageData, ScaleInfo
 from extraction.extractor import extract_page, SCALE
 from extraction.plumber import extract_plumber_page, build_plumber_counts, build_pymupdf_counts, compare_counts
 from detection import run_heuristics
+from scale.text import text_scales
+from scale.units import cluster_denominators, format_scale
+from scale.viewport import viewport_scales
 
 console = Console()
 
@@ -25,6 +30,50 @@ PAGE_TYPE_COLORS = {
 def _page_type_styled(page_type: str) -> str:
     color = PAGE_TYPE_COLORS.get(page_type, "white")
     return f"[{color}]{page_type}[/{color}]"
+
+
+def unbound_scale_lines(
+    viewports: list[ScaleInfo], texts: list[ScaleInfo]
+) -> list[str]:
+    """Scales stated on the sheet, unbound to any drawing.
+
+    inspect does not segment regions, so there is nothing to bind to. Repeated
+    viewport scales are counted rather than repeated — s17 states 1:100 four
+    times, once per plan.
+    """
+    if not viewports and not texts:
+        return ["[dim]Scales: none found in viewports or text[/dim]"]
+
+    lines: list[str] = []
+
+    # Grouped with cluster_denominators, not counted by raw float. s17's four
+    # 1:100 viewports measure 99.986, 99.988, 99.993 and 99.995 — keying on
+    # the float prints four identical "1:100" lines instead of one "(×4)".
+    groups = cluster_denominators(
+        info.denominator for info in viewports if info.denominator is not None)
+    for group in groups:
+        suffix = f" (×{len(group)})" if len(group) > 1 else ""
+        lines.append(f"[bold]Scale (viewport):[/bold] "
+                     f"{format_scale(group[0])}{suffix}")
+
+    # Keyed on (raw, denominator), not raw alone: one span can state several
+    # scales. s20's title block reads "1:50  & 1:100" and text_scales emits
+    # two ScaleInfos sharing that raw string — deduping on raw would list
+    # 1:50 and silently drop 1:100, on one of only three sheets that resolve
+    # by text at all.
+    seen: set[tuple[str, Optional[float]]] = set()
+    for info in texts:
+        if info.denominator is None:
+            continue
+        raw = (info.raw or "").strip()
+        key = (raw.lower(), info.denominator)
+        if key in seen:
+            continue
+        seen.add(key)
+        escaped_raw = rich_escape(raw) if raw else ""
+        lines.append(f"[bold]Scale (text):[/bold] "
+                     f"{format_scale(info.denominator)} — '{escaped_raw}'")
+    return lines
 
 
 def print_file_header(pdf_path: str, doc: fitz.Document) -> None:
@@ -45,6 +94,7 @@ def print_page_summary(
     plumber_page: dict,
     comparison: dict,
     candidates,
+    scale_lines: list[str],
 ) -> None:
     pymupdf_counts = build_pymupdf_counts(page_data)
     plumber_counts = build_plumber_counts(plumber_page)
@@ -90,6 +140,8 @@ def print_page_summary(
 
     for w in comparison.get("comparison_warnings", []):
         meta_lines.append(f"[yellow]⚠ {w['message']}[/yellow]")
+
+    meta_lines.extend(scale_lines)
 
     console.print(Panel("\n".join(meta_lines), expand=False))
 
@@ -145,7 +197,9 @@ def inspect_pdf(pdf_path: str, page_indices: list[int]) -> None:
         plumber_counts = build_plumber_counts(plumber_page)
         comparison = compare_counts(pymupdf_counts, plumber_counts)
         candidates = run_heuristics(page_data, plumber_page.get("tables", []))
-        print_page_summary(page_data, plumber_page, comparison, candidates)
+        scale_lines = unbound_scale_lines(
+            viewport_scales(doc, doc[idx]), text_scales(page_data))
+        print_page_summary(page_data, plumber_page, comparison, candidates, scale_lines)
         print_candidates_tree(candidates)
         console.rule()
 

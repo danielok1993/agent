@@ -88,6 +88,24 @@ class Region:
     source: Literal["whitespace", "whitespace+clip", "page-fallback"] = "whitespace"
 
 
+@dataclass
+class ScaleInfo:
+    """A drawing scale, and the evidence it came from.
+
+    `denominator` 100.0 means 1:100. `bbox` is the extent of the evidence in
+    150-DPI pixels — a viewport's rectangle or a text span's box — and is what
+    binds a scale to a region. `nominal` is the nearest standard scale when the
+    measured value is within tolerance, and None when it is not (s13 measures
+    1:136.4 and snaps to nothing).
+    """
+    denominator: Optional[float]
+    source: Literal["viewport", "text", "user", "unresolved"]
+    bbox: Optional[BBox] = None
+    raw: Optional[str] = None
+    nominal: Optional[float] = None
+    conflict: Optional[str] = None
+
+
 class PlumberCounts(TypedDict):
     chars: int
     lines: int
