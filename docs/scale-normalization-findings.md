@@ -164,8 +164,7 @@ checkpoint rule (one fix, one sweep, then ask):**
 identity-tier surprise above was re-run on a throwaway worktree of the
 branch point (`b0e705a`, pre-scale-code) with the same corpus, venv and
 caches. Verdicts (full line-by-line comparison:
-`.superpowers/sdd/2026-08-12-scale-aware-wall-room-gates/baseline-comparison.md`,
-session artifact):
+`docs/scale-baseline-comparison-2026-08-12.md`):
 
 - **s02, s04, s14, s11 — identity HELD.** All four reproduce their LOST /
   RETURNED / REVIEW lines byte-for-byte on the pre-branch baseline,
