@@ -81,6 +81,106 @@ False positives from committed ground truth vs resolved scale:
   this data because nothing was detected to review. Do not read the FP table
   as an upper bound on the scale problem.
 
+### Post-scaling sweep outcome (2026-08-12)
+
+`tools/fetch_fixtures.py`: 20 present, 0 missing, 0 mismatched, 0 untracked —
+corpus intact. `tools/regress.py` on `feat/scale-aware-wall-room-gates`
+(commits through `e86d3ab`): **exit 1**.
+
+**Cross-check against this table's own baseline FP counts (measured before
+any scale code existed) resolves most of the exit-1 noise as pre-existing,
+not branch-caused.** Re-running today's sweep's `FALSE POSITIVE RETURNED`
+tallies against the row above landed exact or near-exact on 7 of 9 sheets:
+s15 82=82, s03 21=21, s17 18=18, s18 15=15, s16 6=6, s20 6=6, s08 3=3. A
+`RETURNED` false positive by construction matches an entry already sitting
+in that sheet's `ground_truth` `false_positives` list (§ground-truth-format),
+so reproducing the *exact* pre-branch count is direct evidence the detector
+still emits the same old, already-known-wrong candidates — not new ones this
+branch introduced. Do not read this exit code as this branch failing; read
+it as the corpus's already-documented FP debt (per this section) still
+being unpaid, which is exactly the state the FP table above predicts.
+
+| Sheet | Scale tier | REVIEW | LOST | RETURNED FP | Read |
+|---|---|---|---|---|---|
+| s01 | 1:50 | 0 | 0 | 0 | clean |
+| s02 | 1:50 | 1 (schedule) | 1 (schedule) | 0 | **surprise, see below** |
+| s03 | mixed (0.5) | 5 | 0 | 21 | FP count matches pre-branch baseline exactly; REVIEW expected |
+| s04 | 1:50 | 1 (window) | 0 | 2 (room) | **surprise, see below** |
+| s05 | 1:100 | 0 | 0 | 0 | clean |
+| s06 | 1:100 | 7 | 1 (room) | 2 (room) | REVIEW expected; LOST is new, see below |
+| s07 | 1:100 | 1 | 0 | 0 | clean, REVIEW expected |
+| s08 | 1:50 | 0 | 0 | 3 | FP count matches pre-branch baseline exactly |
+| s09 | — (no floor plan) | unlabeled | — | — | n/a |
+| s10 | unresolved | 0 | 0 | 1 (room) | **surprise, minor, see below** |
+| s11 | unresolved | 2 (door) | 0 | 3 (room) | **surprise, see below** |
+| s12 | 1:100 | 0 | 1 (room) | 21 | FP count ≈ pre-branch (22); LOST is new, see below |
+| s13 | ~1:136.4 | 9 | 4 (1 door, 3 room) | 0 | REVIEW + LOST both expected at this scale |
+| s14 | 1:50 | 0 | 0 | 2 (window+room) | **surprise, minor, see below** |
+| s15 | 1:50 | 0 | 0 | 82 | FP count matches pre-branch baseline exactly |
+| s16 | unresolved | 14 | 0 | 6 | FP count matches pre-branch baseline exactly; REVIEW is a surprise |
+| s17 | mixed (0.5) | 5 | 0 | 18 | FP count matches pre-branch baseline exactly; REVIEW expected |
+| s18 | unresolved | 0 | 0 | 15 | FP count matches pre-branch baseline exactly |
+| s19 | — (no floor plan) | unlabeled | — | — | n/a |
+| s20 | unresolved | 0 | 0 | 6 | FP count matches pre-branch baseline exactly |
+
+**Identity-tier surprises (1:50 / unresolved sheets — factor 1.0 end-to-end,
+expected byte-identical to pre-branch), not yet bisected per the standing
+checkpoint rule (one fix, one sweep, then ask):**
+
+- **s02 — LOST schedule, `REGION_CACHE_MISS` warning.** The sweep's own
+  message: "classification fell back to the whole page; detection scope
+  differs from the labeled run." `gemini/region_cache.py::cache_key` hashes
+  page content + region geometry (`page_content_hash` /
+  `region_geometry_hash`); neither `layout/` nor `gemini/region_cache.py` is
+  touched on this branch (diff stat: only `detection/orchestrator.py`,
+  `detection/rooms.py`, `detection/walls.py`, `pipeline.py`, `scale/factor.py`
+  + tests + docs). A stale cache entry does exist on disk
+  (`fixtures/sheets/.regions_cache/s02-working-drawing-wd03_p01_*.json`,
+  dated Jul 30) whose key no longer matches — i.e. something upstream of
+  this branch (plausibly the already-merged `feat/scale-extraction`, which
+  touched extraction) changed `page_content_hash`'s inputs and invalidated
+  every cached classification project-wide. Likely **not** caused by this
+  branch, but it does mean s02 did not actually exercise a byte-identical
+  region-filtered detection pass this sweep — re-verify after a
+  `--refresh-regions` run repopulates the cache.
+- **s04 — 2 RETURNED room FPs, 1 REVIEW window**, not present in this
+  section's original pre-branch top-10 table (small enough to have been
+  omitted, or genuinely new).
+- **s06 — 1 LOST room** (1:100 tier, so within this branch's direct scope —
+  a room the scale-aware gates now draw differently enough to drop below
+  IoU 0.5 against the confirmed polygon, with no compensating REVIEW room at
+  the same location).
+- **s11 — 2 REVIEW new doors, 3 RETURNED room FPs**, unresolved tier
+  (factor 1.0). New door candidates appearing with no wall/room gate change
+  in effect at f=1.0 is the more notable identity flag — plausibly a
+  downstream cross-validation effect if the (supposedly identical) room
+  network output isn't byte-identical at f=1.0, but unverified.
+- **s12 — 1 LOST room** on top of the near-exact 21/22 pre-branch FP count
+  (1:100 tier, in-scope like s06).
+- **s14 — 2 RETURNED FPs** (window + room), not in the original top-10
+  table.
+
+**Not a surprise, expected:** s13's 4 LOST + 9 REVIEW (largest rescale in
+the corpus, ~0.37×) and s03/s06/s07/s17's REVIEW lines (1:100/mixed tiers,
+scale-aware gates now active).
+
+**Review images** (per the sweep's own `images:` lines) —
+`outputs/regress/<slug>/<timestamp>/pages/page_NN/review_<type>.png`, e.g.
+`outputs/regress/s03/2026-08-12_13-16-13/pages/page_01/review_window.png`,
+`.../s06/2026-08-12_13-16-21/pages/page_01/review_room.png`,
+`.../s07/2026-08-12_13-16-28/.../review_room.png`,
+`.../s11/2026-08-12_13-16-34/.../review_door.png`,
+`.../s13/2026-08-12_13-16-52/.../review_room.png`,
+`.../s16/2026-08-12_13-17-34/.../review_room.png`,
+`.../s17/2026-08-12_13-17-57/.../review_window.png`. Verdicts for the
+expected-change sheets: `python tools/review.py s05 s07 s12 s03 s17 s13 s06`.
+
+**Status:** the identity-tier surprises above are unresolved and block
+treating this sweep as clean; per the task-6 hard rule they are reported,
+not fixed, here. The controller should bisect s02/s04/s06/s11/s12/s14
+(one fix, one sweep, then ask) before the expected-change sheets go to the
+user for review.
+
 ## 4. Constant classification table
 
 Classes: **W** = world-space (× f; areas × f²), **P** = paper-space
