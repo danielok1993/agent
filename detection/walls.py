@@ -219,9 +219,81 @@ WALL_HATCH_MAX_PITCH_PX      = 8.0   # a striped field pitched this tightly is t
                                      # pitch at 4.05/4.07px, while the tightest real
                                      # striped field on either is 11.4px.
 
+WALL_JOINERY_BRIDGE_GAP_PX      = 80.0  # max open span between accepted white
+                                        # rings of one joinery/hollow-wall run
+                                        # (open wardrobe fronts between boxes).
+                                        # Defined here (not beside its sibling
+                                        # WALL_JOINERY_BRIDGE_SLACK_PX near
+                                        # _bridge_white_runs below) so WallGates.at()
+                                        # can reference it before that point in the
+                                        # module.
+
 # Tolerance for two segments to be considered on the same line.
 COLLINEAR_ANGLE_TOL    = 3.0   # degrees
 COLLINEAR_OFFSET_TOL   = 4.0   # px perpendicular distance between lines
+
+
+@dataclass(frozen=True)
+class WallGates:
+    """World-space wall gates, pre-multiplied by the detection factor.
+
+    Fields keep the exact names of the module constants they scale, so a
+    use site reads `gates.WALL_MAX_THICKNESS_PX` where it read the module
+    constant. Paper-space constants (pen widths, tick sizes, drafting
+    tolerances) deliberately have NO field here — they never scale.
+    At factor 1.0 every field equals its constant exactly.
+    """
+    factor: float
+    WALL_FACE_MIN_LEN_PX: float
+    WALL_MIN_THICKNESS_PX: float
+    WALL_MAX_THICKNESS_PX: float
+    WALL_THICK_MATERIAL_MAX_PX: float
+    WALL_PAIR_MIN_OVERLAP_PX: float
+    WALL_FILL_CLASS_MIN_INK_PX: float
+    WALL_FILL_BLOCK_MAX_SIDE_PX: float
+    WALL_WEAK_MIN_RUN_PX: float
+    WALL_LATTICE_MIN_RUNG_LEN_PX: float
+    WALL_JOINERY_BRIDGE_GAP_PX: float
+    WALL_HATCH_MAX_LEN_PX: float
+    WALL_HATCH_MAX_PITCH_PX: float
+    WALL_WEAK_MATERIAL_PER_100PX: float
+
+    @classmethod
+    def at(cls, factor: float) -> "WallGates":
+        assert factor > 0, "scale factor must be positive"
+        return cls(
+            factor=factor,
+            WALL_FACE_MIN_LEN_PX=WALL_FACE_MIN_LEN_PX * factor,
+            # Floor: below ~1px the pair search chases pen-width noise.
+            WALL_MIN_THICKNESS_PX=max(1.0, WALL_MIN_THICKNESS_PX * factor),
+            WALL_MAX_THICKNESS_PX=WALL_MAX_THICKNESS_PX * factor,
+            WALL_THICK_MATERIAL_MAX_PX=WALL_THICK_MATERIAL_MAX_PX * factor,
+            WALL_PAIR_MIN_OVERLAP_PX=WALL_PAIR_MIN_OVERLAP_PX * factor,
+            WALL_FILL_CLASS_MIN_INK_PX=WALL_FILL_CLASS_MIN_INK_PX * factor,
+            WALL_FILL_BLOCK_MAX_SIDE_PX=WALL_FILL_BLOCK_MAX_SIDE_PX * factor,
+            WALL_WEAK_MIN_RUN_PX=WALL_WEAK_MIN_RUN_PX * factor,
+            # WALL_HATCH_MAX_LEN_PX is also W and scales by the identical
+            # factor, so the two stay exactly equal at every f (both 48.0
+            # at f=1.0) — no cross-class floor needed (see
+            # docs/scale-normalization-findings.md §4b).
+            WALL_LATTICE_MIN_RUNG_LEN_PX=WALL_LATTICE_MIN_RUNG_LEN_PX * factor,
+            WALL_JOINERY_BRIDGE_GAP_PX=WALL_JOINERY_BRIDGE_GAP_PX * factor,
+            WALL_HATCH_MAX_LEN_PX=WALL_HATCH_MAX_LEN_PX * factor,
+            WALL_HATCH_MAX_PITCH_PX=WALL_HATCH_MAX_PITCH_PX * factor,
+            # Density (marks per 100 PAPER-px of band length), not a length:
+            # world-spaced marks pack 2x tighter per paper-px at f=0.5, so
+            # the minimum must RISE to keep noise out — divide, not
+            # multiply (see docs/scale-normalization-findings.md §4b).
+            WALL_WEAK_MATERIAL_PER_100PX=WALL_WEAK_MATERIAL_PER_100PX / factor,
+        )
+
+    def __post_init__(self):
+        # Programming-error asserts (never factor-dependent in [0.25, 4]).
+        assert self.WALL_MIN_THICKNESS_PX < self.WALL_MAX_THICKNESS_PX
+        assert self.WALL_MAX_THICKNESS_PX < self.WALL_THICK_MATERIAL_MAX_PX
+
+
+WALL_GATES_UNSCALED = WallGates.at(1.0)
 
 
 def _pen_key(color) -> tuple | None:
@@ -281,9 +353,9 @@ class _FillRing:
     long: float                         # roots of x^2 - (P/2)x + A
     indices: set[int]                   # contributing path indices
 
-    def is_band(self) -> bool:
+    def is_band(self, gates: WallGates) -> bool:
         return (
-            self.short <= WALL_MAX_THICKNESS_PX
+            self.short <= gates.WALL_MAX_THICKNESS_PX
             and self.long / self.short >= WALL_BAND_MIN_ASPECT
         )
 
@@ -366,7 +438,9 @@ def _collect_fill_rings(paths: list[PathPrimitive]) -> list[_FillRing]:
     return rings
 
 
-def _rate_fill_classes(rings: list[_FillRing]) -> dict[tuple, bool]:
+def _rate_fill_classes(
+    rings: list[_FillRing], *, gates: WallGates = WALL_GATES_UNSCALED
+) -> dict[tuple, bool]:
     """Classify each fill color as wall material (True) or furniture (False).
 
     Vectorworks-style exports draw both walls and furniture as unstroked
@@ -385,12 +459,12 @@ def _rate_fill_classes(rings: list[_FillRing]) -> dict[tuple, bool]:
         if r.is_marker():
             continue  # arrowhead glyphs rate as bands and would skew the class
         entry = stats.setdefault(r.key, [0.0, 0.0])
-        entry[0 if r.is_band() else 1] += r.long
+        entry[0 if r.is_band(gates) else 1] += r.long
 
     return {
         key: band >= block
         for key, (band, block) in stats.items()
-        if band + block >= WALL_FILL_CLASS_MIN_INK_PX
+        if band + block >= gates.WALL_FILL_CLASS_MIN_INK_PX
     }
 
 
@@ -406,6 +480,7 @@ WALL_WHITE_TEXT_COVER_FRAC  = 0.3   # contained text covering this much of a
 
 def _white_wall_candidates(
     rings: list[_FillRing], text_spans: list[TextSpan],
+    *, gates: WallGates = WALL_GATES_UNSCALED,
 ) -> list[_FillRing]:
     """Background-colored rings that could be hollow walls or built-in runs.
 
@@ -419,7 +494,8 @@ def _white_wall_candidates(
     """
     candidates = [
         r for r in rings
-        if _is_background_fill(r.key) and r.short <= WALL_FILL_BLOCK_MAX_SIDE_PX
+        if _is_background_fill(r.key)
+        and r.short <= gates.WALL_FILL_BLOCK_MAX_SIDE_PX
     ]
     if not candidates:
         return []
@@ -475,15 +551,16 @@ def _accept_white_walls(candidates: list[_FillRing], material) -> list[_FillRing
     return accepted
 
 
-WALL_JOINERY_BRIDGE_GAP_PX      = 80.0  # max open span between accepted white
-                                        # rings of one joinery/hollow-wall run
-                                        # (open wardrobe fronts between boxes)
+# WALL_JOINERY_BRIDGE_GAP_PX now lives in the top constants block (WallGates
+# needs it before this point in the module) — see there for the field.
 WALL_JOINERY_BRIDGE_SLACK_PX    = 8.0   # bridge hull may be this much thicker
                                         # than its fattest end ring — thicker
                                         # hulls mean the rings are not aligned
 
 
-def _bridge_white_runs(accepted: list[_FillRing]) -> list:
+def _bridge_white_runs(
+    accepted: list[_FillRing], *, gates: WallGates = WALL_GATES_UNSCALED
+) -> list:
     """Band-shaped convex hulls closing the gaps in accepted white-ring runs.
 
     A wardrobe or joinery run bounds a room like a partition, but is drawn as
@@ -517,7 +594,7 @@ def _bridge_white_runs(accepted: list[_FillRing]) -> list:
             gap = accepted[i].poly.distance(accepted[j].poly)
             if gap <= WALL_WHITE_TOUCH_TOL_PX:
                 parent[find(i)] = find(j)
-            elif gap <= WALL_JOINERY_BRIDGE_GAP_PX:
+            elif gap <= gates.WALL_JOINERY_BRIDGE_GAP_PX:
                 pairs.append((gap, i, j))
 
     bridges = []
@@ -818,6 +895,7 @@ def _collect_wall_faces(
     fill_is_wall: dict[tuple, bool] | None = None,
     marker_indices: frozenset[int] | set[int] = frozenset(),
     exclude_indices: frozenset[int] | set[int] = frozenset(),
+    *, gates: WallGates = WALL_GATES_UNSCALED,
 ) -> tuple[list[_Seg], list[_Seg]]:
     """Return (stroked wall faces, filled-band centerlines)."""
     faces: list[_Seg] = []
@@ -825,7 +903,7 @@ def _collect_wall_faces(
 
     if fill_is_wall is None:
         rings = _collect_fill_rings(paths)
-        fill_is_wall = _rate_fill_classes(rings)
+        fill_is_wall = _rate_fill_classes(rings, gates=gates)
         marker_indices = {
             i for r in rings if r.is_marker() for i in r.indices
         }
@@ -853,7 +931,7 @@ def _collect_wall_faces(
         filled_outline = _wall_fill(p)
         if p.item_type == "l" and len(p.points) >= 2 and (stroked or filled_outline):
             a, b = p.points[0], p.points[-1]
-            if _line_length(a, b) < WALL_FACE_MIN_LEN_PX:
+            if _line_length(a, b) < gates.WALL_FACE_MIN_LEN_PX:
                 continue
             faces.append(_Seg(
                 p1=a, p2=b, layer=p.layer, layer_hint=_wall_layer_hint(p.layer),
@@ -870,9 +948,11 @@ def _collect_wall_faces(
             d01 = _line_length(pts[0], pts[1])
             d12 = _line_length(pts[1], pts[2])
             short, long_ = min(d01, d12), max(d01, d12)
-            if not (WALL_MIN_THICKNESS_PX <= short <= WALL_MAX_THICKNESS_PX):
+            if not (
+                gates.WALL_MIN_THICKNESS_PX <= short <= gates.WALL_MAX_THICKNESS_PX
+            ):
                 continue
-            if long_ < WALL_FACE_MIN_LEN_PX or short < 1e-6:
+            if long_ < gates.WALL_FACE_MIN_LEN_PX or short < 1e-6:
                 continue
             if long_ / short < WALL_BAND_MIN_ASPECT:
                 continue
@@ -895,6 +975,7 @@ def _collect_wall_faces(
 def _collect_weak_faces(
     paths: list[PathPrimitive],
     exclude_indices: frozenset[int] | set[int] = frozenset(),
+    *, gates: WallGates = WALL_GATES_UNSCALED,
 ) -> list[_Seg]:
     """Hairline solid lines long enough to be wall pieces.
 
@@ -914,7 +995,7 @@ def _collect_weak_faces(
         if _is_dashed(p.dashes):
             continue
         a, b = p.points[0], p.points[-1]
-        if _line_length(a, b) < WALL_FACE_MIN_LEN_PX:
+        if _line_length(a, b) < gates.WALL_FACE_MIN_LEN_PX:
             continue
         weak.append(_Seg(
             p1=a, p2=b, layer=p.layer, layer_hint=_wall_layer_hint(p.layer),
@@ -924,7 +1005,9 @@ def _collect_weak_faces(
     return weak
 
 
-def _dimension_line_indices(paths: list[PathPrimitive]) -> set[int]:
+def _dimension_line_indices(
+    paths: list[PathPrimitive], *, gates: WallGates = WALL_GATES_UNSCALED
+) -> set[int]:
     """Path indices of dimension-chain lines: annotation, never wall faces.
 
     A dimension line ends in a short oblique tick CENTERED on each endpoint
@@ -951,7 +1034,7 @@ def _dimension_line_indices(paths: list[PathPrimitive]) -> set[int]:
         if WALL_DIM_TICK_MIN_LEN_PX <= length <= WALL_DIM_TICK_MAX_LEN_PX:
             mid = ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
             ticks.append((mid, a, b, _line_angle_deg(a, b), _pen_key(p.color)))
-        if length >= WALL_FACE_MIN_LEN_PX and p.color is not None:
+        if length >= gates.WALL_FACE_MIN_LEN_PX and p.color is not None:
             lines.append(p)
     if not ticks or not lines:
         return set()
@@ -1001,7 +1084,7 @@ def _dimension_line_indices(paths: list[PathPrimitive]) -> set[int]:
 
 
 def _collect_material_marks(
-    paths: list[PathPrimitive],
+    paths: list[PathPrimitive], *, gates: WallGates = WALL_GATES_UNSCALED,
 ) -> list[tuple[tuple[float, float], float]]:
     """(midpoint, angle) of every short solid stroke, gathered once per page.
 
@@ -1024,7 +1107,7 @@ def _collect_material_marks(
         if _is_dashed(p.dashes):
             continue
         a, b = p.points[0], p.points[-1]
-        if not (2.0 <= _line_length(a, b) <= WALL_HATCH_MAX_LEN_PX):
+        if not (2.0 <= _line_length(a, b) <= gates.WALL_HATCH_MAX_LEN_PX):
             continue
         mid = ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
         angle = _line_angle_deg(a, b)
@@ -1041,7 +1124,8 @@ def _collect_material_marks(
 
 
 def _band_has_wall_material(
-    c: _Seg, marks: list[tuple[tuple[float, float], float]]
+    c: _Seg, marks: list[tuple[tuple[float, float], float]],
+    *, gates: WallGates = WALL_GATES_UNSCALED,
 ) -> bool:
     """True when the band under a centerline carries drawn wall material.
 
@@ -1075,12 +1159,14 @@ def _band_has_wall_material(
             ts.append(t)
     if len(ts) < WALL_WEAK_MATERIAL_MIN_MARKS:
         return False
-    if len(ts) < (length / 100.0) * WALL_WEAK_MATERIAL_PER_100PX:
+    if len(ts) < (length / 100.0) * gates.WALL_WEAK_MATERIAL_PER_100PX:
         return False
     return (max(ts) - min(ts)) >= WALL_WEAK_MATERIAL_MIN_SPAN * length
 
 
-def _face_is_material_backed(f: _Seg, marks: list[tuple]) -> bool:
+def _face_is_material_backed(
+    f: _Seg, marks: list[tuple], *, gates: WallGates = WALL_GATES_UNSCALED,
+) -> bool:
     """True when same-pen hatch strokes hug one flank of the face's run.
 
     A hatched wall band is often drawn with only ONE long face: the outer
@@ -1097,7 +1183,7 @@ def _face_is_material_backed(f: _Seg, marks: list[tuple]) -> bool:
     it, past the edge margin.
     """
     length = _line_length(f.p1, f.p2)
-    if length < WALL_WEAK_MIN_RUN_PX or f.pen is None:
+    if length < gates.WALL_WEAK_MIN_RUN_PX or f.pen is None:
         return False
     ux = (f.p2[0] - f.p1[0]) / length
     uy = (f.p2[1] - f.p1[1]) / length
@@ -1121,7 +1207,7 @@ def _face_is_material_backed(f: _Seg, marks: list[tuple]) -> bool:
         ts.append(t)
     if len(ts) < WALL_WEAK_MATERIAL_MIN_MARKS:
         return False
-    if len(ts) < (length / 100.0) * WALL_WEAK_MATERIAL_PER_100PX:
+    if len(ts) < (length / 100.0) * gates.WALL_WEAK_MATERIAL_PER_100PX:
         return False
     return (max(ts) - min(ts)) >= WALL_WEAK_MATERIAL_MIN_SPAN * length
 
@@ -1176,7 +1262,7 @@ def _claims_interior_pair(c: _Seg, kept: list[_Seg]) -> bool:
 
 
 def _demote_lattice_faces(
-    faces: list[_Seg],
+    faces: list[_Seg], *, gates: WallGates = WALL_GATES_UNSCALED,
 ) -> tuple[list[_Seg], list[_Seg]]:
     """Split merged faces into (kept, striped-field members).
 
@@ -1273,10 +1359,13 @@ def _demote_lattice_faces(
             # real hatch field's strokes in the strong pipeline.
             lattice |= _scan_striped_runs(
                 rows,
-                WALL_LATTICE_MIN_RUNG_LEN_PX,
-                WALL_MAX_THICKNESS_PX + WALL_LATTICE_PITCH_TOL_PX,
+                gates.WALL_LATTICE_MIN_RUNG_LEN_PX,
+                gates.WALL_MAX_THICKNESS_PX + WALL_LATTICE_PITCH_TOL_PX,
+                gates=gates,
             )
-            lattice |= _scan_striped_runs(rows, 0.0, WALL_HATCH_MAX_PITCH_PX)
+            lattice |= _scan_striped_runs(
+                rows, 0.0, gates.WALL_HATCH_MAX_PITCH_PX, gates=gates,
+            )
 
     kept = [f for i, f in enumerate(faces) if i not in lattice]
     demoted = [f for i, f in enumerate(faces) if i in lattice]
@@ -1287,6 +1376,7 @@ def _scan_striped_runs(
     rows: list[dict],
     min_rung_len: float,
     max_pitch: float,
+    *, gates: WallGates = WALL_GATES_UNSCALED,
 ) -> set[int]:
     """Face indices belonging to striped runs under one tier's thresholds.
 
@@ -1303,7 +1393,7 @@ def _scan_striped_runs(
     while start < len(rungs) - 1:
         pitch = rungs[start + 1]["off"] - rungs[start]["off"]
         if not (
-            WALL_MIN_THICKNESS_PX <= pitch <= max_pitch
+            gates.WALL_MIN_THICKNESS_PX <= pitch <= max_pitch
         ) or _rungs_apart(rungs[start], rungs[start + 1]):
             start += 1
             continue
@@ -1376,12 +1466,26 @@ def _max_rung_stack(run: list[dict]) -> int:
     return deepest
 
 
-def _merge_collinear_segs(segs: list[_Seg], gap_px: float) -> list[_Seg]:
+def _merge_collinear_segs(
+    segs: list[_Seg], gap_px: float, *, gates: WallGates = WALL_GATES_UNSCALED,
+) -> list[_Seg]:
     """Merge segments lying on the same infinite line into runs.
 
     Bridges gaps up to gap_px; keeps the max thickness, unions path indices,
     and ORs layer hints across merged members.
+
+    COLLINEAR_OFFSET_TOL is scaled by gates.factor (not a WallGates field —
+    it is private to this function and not on the brief's frozen table, but
+    it gates the same "is this the same drawn line" world-space judgment as
+    WALL_MIN_THICKNESS_PX: at f=1.0 a 4.0px offset tolerance sits comfortably
+    above WALL_MIN_THICKNESS_PX (2.0), but left unscaled it would exceed a
+    shrunk-world wall's own thickness at smaller f and silently fuse a real
+    wall's two faces into one line, which then can never pair. Measured via
+    the shrunk-world synthetic test: an 8px-at-1:50 band shrinks to 4px at
+    f=0.5, exactly the unscaled tolerance, and the two faces merged into a
+    single line with zero centerlines recovered.
     """
+    offset_tol = COLLINEAR_OFFSET_TOL * gates.factor
     if not segs:
         return []
 
@@ -1428,7 +1532,7 @@ def _merge_collinear_segs(segs: list[_Seg], gap_px: float) -> list[_Seg]:
 
                 # Perpendicular offset from a's line to b
                 offset = abs((b.p1[0] - a.p1[0]) * (-uy) + (b.p1[1] - a.p1[1]) * ux)
-                if offset > COLLINEAR_OFFSET_TOL:
+                if offset > offset_tol:
                     continue
 
                 t_b1 = _project_onto_axis(b.p1, a.p1, ux, uy)
@@ -1469,7 +1573,8 @@ def _merge_collinear_segs(segs: list[_Seg], gap_px: float) -> list[_Seg]:
 
 
 def _pair_faces_to_centerlines(
-    faces: list[_Seg], thick_tier: bool = False
+    faces: list[_Seg], thick_tier: bool = False,
+    *, gates: WallGates = WALL_GATES_UNSCALED,
 ) -> list[_Seg]:
     """Every qualifying near-parallel face pair emits a centerline over the
     overlapped extent, carrying the face spacing as thickness.
@@ -1520,12 +1625,12 @@ def _pair_faces_to_centerlines(
                 ) > WALL_PARALLEL_ANGLE_TOL:
                     continue
                 spacing = _perpendicular_spacing(fi.p1, fi.p2, fj.p1, fj.p2)
-                if spacing < WALL_MIN_THICKNESS_PX:
+                if spacing < gates.WALL_MIN_THICKNESS_PX:
                     continue
-                thick = spacing > WALL_MAX_THICKNESS_PX
+                thick = spacing > gates.WALL_MAX_THICKNESS_PX
                 if thick and (
                     not thick_tier
-                    or spacing > WALL_THICK_MATERIAL_MAX_PX
+                    or spacing > gates.WALL_THICK_MATERIAL_MAX_PX
                     # Pier faces are drawn in the wall pen; the demoted
                     # tiers (hairline, lattice, light-pen, tile) keep their
                     # tuned <=36px envelope.
@@ -1535,7 +1640,7 @@ def _pair_faces_to_centerlines(
                 lo_i, hi_i = _projected_interval(fi.p1, fi.p2, ux, uy, fi.p1)
                 lo_j, hi_j = _projected_interval(fj.p1, fj.p2, ux, uy, fi.p1)
                 lo, hi = max(lo_i, lo_j), min(hi_i, hi_j)
-                if hi - lo < WALL_PAIR_MIN_OVERLAP_PX:
+                if hi - lo < gates.WALL_PAIR_MIN_OVERLAP_PX:
                     continue
 
                 # Midline: offset half the spacing from fi's line toward fj.
@@ -1684,6 +1789,7 @@ def _snap_intersections(segs: list[_Seg]) -> None:
 def detect_wall_network(
     paths: list[PathPrimitive], text_spans: list[TextSpan] | None = None,
     exclude_path_indices: set[int] | None = None,
+    scale_factor: float = 1.0,
 ) -> WallNetwork:
     """Build the internal wall-centerline network for a page.
 
@@ -1691,20 +1797,27 @@ def detect_wall_network(
     the open leaves of detected swing doors (door symbol ink in the wall
     pen, standing parallel to real walls — pairing them inflates the wall
     band across the swing side; see door_open_leaf_path_indices).
+
+    scale_factor — 50 / nominal_denominator (1:100 -> 0.5), pre-multiplies
+    the world-space gates (WallGates) so a page's own drawn scale is
+    honored instead of assuming every sheet is 1:50. Identity at 1.0.
     """
+    gates = WallGates.at(scale_factor)
     # Dimension-chain lines (oblique end ticks on both endpoints) are
     # annotation in wall-strength pens — excluded from face collection
     # entirely, alongside the door open-leaf ink.
     excluded = frozenset(exclude_path_indices or ()) | frozenset(
-        _dimension_line_indices(paths)
+        _dimension_line_indices(paths, gates=gates)
     )
     rings = _collect_fill_rings(paths)
-    fill_is_wall = _rate_fill_classes(rings)
+    fill_is_wall = _rate_fill_classes(rings, gates=gates)
     marker_indices = {i for r in rings if r.is_marker() for i in r.indices}
     faces, bands = _collect_wall_faces(
-        paths, fill_is_wall, marker_indices, excluded
+        paths, fill_is_wall, marker_indices, excluded, gates=gates
     )
-    merged_faces = _merge_collinear_segs(faces, gap_px=WALL_FACE_MERGE_GAP_PX)
+    merged_faces = _merge_collinear_segs(
+        faces, gap_px=WALL_FACE_MERGE_GAP_PX, gates=gates
+    )
 
     # Striped fields (paving bonds, tile fields, stair treads, roof tiling,
     # table rows): >= 5 parallel same-pen faces at equal wall-like pitch are
@@ -1714,7 +1827,7 @@ def detect_wall_network(
     # vestibule into phantom rooms. Demote members to the material-gated
     # weak pipeline before the pairing statistics, so a large field cannot
     # skew the paired-pen stroke reference either.
-    merged_faces, lattice_faces = _demote_lattice_faces(merged_faces)
+    merged_faces, lattice_faces = _demote_lattice_faces(merged_faces, gates=gates)
     for f in lattice_faces:
         f.stroked = False
         f.stroke_width = 0.0
@@ -1751,7 +1864,7 @@ def detect_wall_network(
     # the hairline joinery pen. Fill outlines and layer-hinted faces carry
     # their own evidence and are never demoted.
     interim_paired: set[int] = set()
-    for c in _pair_faces_to_centerlines(merged_faces):
+    for c in _pair_faces_to_centerlines(merged_faces, gates=gates):
         interim_paired |= c.indices
     entries = sorted(
         (f.stroke_width, _line_length(f.p1, f.p2))
@@ -1788,14 +1901,15 @@ def detect_wall_network(
     # gate runs on the raw pairs, before centerline merging, so a weak pair
     # can never ride in on a strong run's coattails.
     weak_merged = _merge_collinear_segs(
-        _collect_weak_faces(paths, excluded), gap_px=WALL_FACE_MERGE_GAP_PX
+        _collect_weak_faces(paths, excluded, gates=gates),
+        gap_px=WALL_FACE_MERGE_GAP_PX, gates=gates,
     ) + demoted + lattice_faces + light_faces
     for f in weak_merged:
         f.weak = True
 
-    marks = _collect_material_marks(paths)
+    marks = _collect_material_marks(paths, gates=gates)
     centerlines = _pair_faces_to_centerlines(
-        merged_faces + weak_merged, thick_tier=True
+        merged_faces + weak_merged, thick_tier=True, gates=gates,
     )
     if any(c.weak or c.thick for c in centerlines):
         # Weak pairs (sub-threshold pens) and thick pairs (pier-tier spacing
@@ -1805,8 +1919,8 @@ def detect_wall_network(
         centerlines = [
             c for c in centerlines
             if not (c.weak or c.thick) or (
-                _line_length(c.p1, c.p2) >= WALL_WEAK_MIN_RUN_PX
-                and _band_has_wall_material(c, marks)
+                _line_length(c.p1, c.p2) >= gates.WALL_WEAK_MIN_RUN_PX
+                and _band_has_wall_material(c, marks, gates=gates)
             )
         ]
         # Second pass over the material-kept pairs: an over-wide weak pair
@@ -1829,7 +1943,7 @@ def detect_wall_network(
 
     centerlines += bands
     centerlines = _merge_collinear_segs(
-        centerlines, gap_px=WALL_CENTERLINE_MERGE_GAP_PX
+        centerlines, gap_px=WALL_CENTERLINE_MERGE_GAP_PX, gates=gates,
     )
     centerlines = _collapse_redundant_centerlines(centerlines)
     centerlines = [c for c in centerlines if _line_length(c.p1, c.p2) >= 1.0]
@@ -1873,7 +1987,7 @@ def detect_wall_network(
                 id(f) in strong_ids
                 and f.stroked
                 and not f.wall_fill
-                and _face_is_material_backed(f, marks)
+                and _face_is_material_backed(f, marks, gates=gates)
             ),
             pen=f.pen,
         )
@@ -1887,7 +2001,7 @@ def detect_wall_network(
     fill_polygons = [
         r.poly for r in rings
         if fill_is_wall.get(r.key, False)
-        and r.short <= WALL_FILL_BLOCK_MAX_SIDE_PX
+        and r.short <= gates.WALL_FILL_BLOCK_MAX_SIDE_PX
         and not r.is_marker()
     ]
 
@@ -1897,7 +2011,7 @@ def detect_wall_network(
     # openings — which only room detection has (_accept_white_walls is
     # called from rooms.py, where hollow runs interrupted by windows still
     # anchor on the bboxes).
-    white_bands = _white_wall_candidates(rings, text_spans or [])
+    white_bands = _white_wall_candidates(rings, text_spans or [], gates=gates)
     return WallNetwork(
         segments=segments, merged=merged, faces=face_lines,
         fill_polygons=fill_polygons, white_bands=white_bands,
