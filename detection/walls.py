@@ -567,10 +567,17 @@ WALL_JOINERY_BRIDGE_SLACK_PX    = 8.0   # bridge hull may be this much thicker
                                         # hulls mean the rings are not aligned
 
 
-def _bridge_white_runs(
-    accepted: list[_FillRing], *, gates: WallGates = WALL_GATES_UNSCALED
-) -> list:
+def _bridge_white_runs(accepted: list[_FillRing], *, gates: WallGates) -> list:
     """Band-shaped convex hulls closing the gaps in accepted white-ring runs.
+
+    gates is keyword-only and REQUIRED (no WALL_GATES_UNSCALED default):
+    detect_rooms (detection/rooms.py) is this function's only production
+    call site, called from a different module than the one that owns
+    WALL_JOINERY_BRIDGE_GAP_PX — a default here let that call site silently
+    bridge at the unscaled 80px gap on every non-1:50 sheet, invisible to a
+    bare-name grep for the constant (see docs/scale-normalization-findings.md
+    §4b). A missing gates= at a cross-module call site must now be a
+    TypeError, not silent unscaled behavior.
 
     A wardrobe or joinery run bounds a room like a partition, but is drawn as
     spaced boxes (dividers) with open fronts between them. Bridge nearby

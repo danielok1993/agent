@@ -38,7 +38,7 @@ from models import BBox, Candidate, TextSpan
 from detection.geometry import _line_angle_deg, _line_length
 from detection.walls import (
     WALL_HATCH_MAX_LEN_PX, WALL_MAX_THICKNESS_PX, WALL_MIN_STROKE_WIDTH_PX,
-    WallNetwork,
+    WallGates, WallNetwork,
     _accept_white_walls, _bridge_white_runs, _is_diagonal_hatch_angle,
 )
 
@@ -763,6 +763,14 @@ def detect_rooms(
     scale_factor: float = 1.0,
 ) -> list[Candidate]:
     gates = RoomGates.at(scale_factor)
+    # WallGates.at(), not just RoomGates.at(): _bridge_white_runs is owned
+    # by walls.py and its WALL_JOINERY_BRIDGE_GAP_PX field lives on
+    # WallGates, not duplicated onto RoomGates (unlike WALL_MAX_THICKNESS_PX
+    # / WALL_HATCH_MAX_LEN_PX, which rooms.py's own barrier-face logic reads
+    # directly and so does carry local RoomGates fields) — this is the
+    # minimal wiring that gets a scaled gates object to rooms' one call
+    # into a walls.py helper.
+    wall_gates = WallGates.at(scale_factor)
     if network is None or network.is_empty():
         return []
 
@@ -995,7 +1003,7 @@ def detect_rooms(
             r.poly.buffer(ROOM_WALL_DILATE_PX, join_style=2)
             for r in white_walls
         ]
-        solid_parts += _bridge_white_runs(white_walls)
+        solid_parts += _bridge_white_runs(white_walls, gates=wall_gates)
 
     solids = unary_union(solid_parts)
     wall_material = unary_union([solids] + line_parts)

@@ -12,10 +12,14 @@ from detection import detect_rooms, detect_wall_network
 from detection.rooms import ROOM_MIN_AREA_PX2, ROOM_GATES_UNSCALED, RoomGates
 from detection.walls import (
     COLLINEAR_OFFSET_TOL, WALL_HATCH_MAX_LEN_PX, WALL_HATCH_MAX_PITCH_PX,
+    WALL_JOINERY_BRIDGE_GAP_PX,
     WALL_MAX_THICKNESS_PX, WALL_MIN_THICKNESS_PX, WALL_WEAK_MATERIAL_PER_100PX,
-    WallGates, WALL_GATES_UNSCALED, _Seg, _merge_collinear_segs,
+    WallGates, WALL_GATES_UNSCALED, _Seg, _bridge_white_runs,
+    _merge_collinear_segs,
 )
-from tests.test_wall_network import hline, path, vline, wall_band_h, wall_band_v
+from tests.test_wall_network import (
+    hline, path, vline, wall_band_h, wall_band_v, white_ring,
+)
 
 
 def _hface(y, x0=0.0, x1=100.0):
@@ -134,6 +138,57 @@ class TestMergeCollinearOffsetScaling(unittest.TestCase):
         self.assertEqual(len(merged), 1)
 
 
+class TestBridgeWhiteRunsGapScaling(unittest.TestCase):
+    """_bridge_white_runs is detect_rooms's ONLY production call site
+    (detection/rooms.py, solid_parts += _bridge_white_runs(white_walls)),
+    and it used to pass no gates — silently running the bridging at the
+    unscaled 80px WALL_JOINERY_BRIDGE_GAP_PX on every non-1:50 sheet. At
+    f=0.5 that unscaled gap is double the correctly-scaled reach (40px),
+    the over-bridging failure class _bridge_white_runs's own docstring
+    warns about. gates is now keyword-only and REQUIRED (finding 2), so a
+    future missed gates= at this cross-module call site is a TypeError,
+    not silent unscaled behavior.
+
+    A world gap of 90px does not qualify at f=1.0 (90 > WALL_JOINERY_
+    BRIDGE_GAP_PX 80) — the base case does not bridge. Its 0.5-shrunk twin
+    (45px) must reproduce that SAME outcome under correctly-scaled gates
+    (WALL_JOINERY_BRIDGE_GAP_PX * 0.5 = 40; 45 > 40, still no bridge) —
+    but bridges incorrectly under the unscaled default (45 < 80), which is
+    exactly the bug this branch fixes.
+    """
+
+    def test_base_gap_exceeds_unscaled_reach_no_bridge(self):
+        a = white_ring(100, 100, 140, 110)
+        b = white_ring(230, 100, 270, 110)  # gap = 230 - 140 = 90
+        self.assertAlmostEqual(a.poly.distance(b.poly), 90.0)
+        self.assertEqual(
+            _bridge_white_runs([a, b], gates=WallGates.at(1.0)), []
+        )
+
+    def test_shrunk_twin_still_exceeds_scaled_reach_no_bridge(self):
+        a = white_ring(50.0, 50.0, 70.0, 55.0)
+        b = white_ring(115.0, 50.0, 135.0, 55.0)  # gap = 115 - 70 = 45
+        self.assertAlmostEqual(a.poly.distance(b.poly), 45.0)
+        gates = WallGates.at(0.5)
+        self.assertEqual(gates.WALL_JOINERY_BRIDGE_GAP_PX, 40.0)
+        self.assertEqual(_bridge_white_runs([a, b], gates=gates), [])
+
+    def test_blind_shrunk_twin_over_bridges_on_unscaled_gates(self):
+        # The negative control: the SAME shrunk-twin rings, but run with
+        # the unscaled default (the bug being fixed) — 45 < 80 wrongly
+        # qualifies and bridges the gap that should stay open at f=0.5.
+        a = white_ring(50.0, 50.0, 70.0, 55.0)
+        b = white_ring(115.0, 50.0, 135.0, 55.0)
+        bridges = _bridge_white_runs([a, b], gates=WALL_GATES_UNSCALED)
+        self.assertEqual(len(bridges), 1)
+
+    def test_gates_is_keyword_only_and_required(self):
+        a = white_ring(100, 100, 140, 110)
+        b = white_ring(230, 100, 270, 110)
+        with self.assertRaises(TypeError):
+            _bridge_white_runs([a, b])
+
+
 class TestWallNetworkScaled(unittest.TestCase):
     def test_identity_factor_equals_omitted(self):
         paths = room_box_walls()
@@ -244,9 +299,12 @@ class TestOrchestratorForwardsFactor(unittest.TestCase):
         rooms_scaled = [c for c in scaled if c.entity_type == "room"]
         rooms_blind = [c for c in blind if c.entity_type == "room"]
         self.assertEqual(len(rooms_scaled), 1)
-        # The blind run may or may not find the room (thickness 4px vs
-        # unscaled gates) — the discriminating assertion is only that the
-        # factor CHANGED the outcome pathway; assert on the scaled result.
+        # The blind (unscaled) run loses the room entirely: the shrunk
+        # walls' 4px face spacing falls at/under the unscaled 4.0px
+        # COLLINEAR_OFFSET_TOL and fuses into one unpairable line — proof
+        # the factor reaches run_heuristics all the way through to rooms,
+        # not just that it changes some intermediate pathway.
+        self.assertEqual(len(rooms_blind), 0)
 
 
 if __name__ == "__main__":

@@ -10,6 +10,7 @@ from shapely.geometry import Point as ShapelyPoint, box as shapely_box
 from models import PathPrimitive
 from detection import WallNetwork, detect_wall_network
 from detection.walls import (
+    WALL_GATES_UNSCALED,
     WALL_JOINERY_BRIDGE_GAP_PX,
     WALL_JOINERY_BRIDGE_SLACK_PX,
     WALL_NETWORK_MIN_SEGMENTS,
@@ -593,7 +594,7 @@ class TestWhiteRunBridging(unittest.TestCase):
         # (the wardrobe-run case) — the span must still be closed.
         a = white_ring(100, 100, 140, 110)
         b = white_ring(180, 100, 220, 110)
-        bridges = _bridge_white_runs([a, b])
+        bridges = _bridge_white_runs([a, b], gates=WALL_GATES_UNSCALED)
         self.assertEqual(len(bridges), 1)
         self.assertTrue(bridges[0].contains(ShapelyPoint(160, 105)))
 
@@ -613,7 +614,9 @@ class TestWhiteRunBridging(unittest.TestCase):
         self.assertLessEqual(
             short, max(a.short, d.short) + WALL_JOINERY_BRIDGE_SLACK_PX
         )
-        self.assertEqual(_bridge_white_runs([a, b, c, d]), [])
+        self.assertEqual(
+            _bridge_white_runs([a, b, c, d], gates=WALL_GATES_UNSCALED), []
+        )
 
     def test_connected_components_bridge_once(self):
         # Three collinear clusters: closing a-b and b-c connects everything;
@@ -622,7 +625,9 @@ class TestWhiteRunBridging(unittest.TestCase):
         b = white_ring(150, 100, 170, 110)
         c = white_ring(195, 100, 215, 110)
         self.assertLessEqual(a.poly.distance(c.poly), WALL_JOINERY_BRIDGE_GAP_PX)
-        self.assertEqual(len(_bridge_white_runs([a, b, c])), 2)
+        self.assertEqual(
+            len(_bridge_white_runs([a, b, c], gates=WALL_GATES_UNSCALED)), 2
+        )
 
 
 def paving_field(start_idx, x0, y0, pitch=31.0, cols=6, rows=5, pen=1.05):
