@@ -121,7 +121,7 @@ artifacts" — that is a new decision, not a reopening of this table.
 | WALL_MARKER_MAX_SIDE_PX | P | leader/dimension arrowheads are ~2–4mm of paper |
 | WALL_HATCH_MIN_SEGMENTS | D | count |
 | WALL_HATCH_MIN_RATIO | D | ratio |
-| WALL_HATCH_MAX_LEN_PX | P | measured 2026-08-12 (§4b): length ratio unstable across reasonable filter widths (0.47–1.06, straddling both thresholds depending on the hatch-angle band chosen) — not a robust signal; conservative default (paper-space, unchanged); interacts with LATTICE_MIN_RUNG_LEN ordering (design §4); revisit at the 1:100 regression review |
+| WALL_HATCH_MAX_LEN_PX | W | measured 2026-08-12, revised after code review (§4b): length ratio ≈0.47–0.59 at every adequately-sampled angle band (per-sheet n≥95, well above the brief's n<50 caution), matching pitch's robust W verdict on the same strokes; initial 0.47–1.06 spread traced to small-sample noise in the two narrowest bands (deciding-sheet n as low as 227), not a real signal, and de-censoring the length cap (60px→150px) ruled out truncation bias as the cause — move into gates dataclass, × f. Scales together with WALL_LATTICE_MIN_RUNG_LEN_PX (both W, both 48px×f), preserving their current exact-equality relationship at every f instead of colliding |
 | WALL_WEAK_STROKE_RATIO | D | pen ratio |
 | WALL_WEAK_MIN_RUN_PX | W | partition run length |
 | WALL_WEAK_MATERIAL_MIN_MARKS | D | count |
@@ -133,7 +133,7 @@ artifacts" — that is a new decision, not a reopening of this table.
 | WALL_WEAK_CLAIM_OVERLAP_FRAC | D | fraction |
 | WALL_LATTICE_MIN_RUNGS | D | count (5 keeps cavity party wall out) |
 | WALL_LATTICE_PITCH_TOL_PX | P | measured 2026-08-12: no corpus signal (small tolerance); conservative default (§4b); revisit if 1:100 sweep shows artifacts |
-| WALL_LATTICE_MIN_RUNG_LEN_PX | W | 48px ≈ 406mm at 1:50; **key phantom-wall gate at 1:100** — must stay above hatch-len cap in effect |
+| WALL_LATTICE_MIN_RUNG_LEN_PX | W | 48px ≈ 406mm at 1:50; **key phantom-wall gate at 1:100** — updated 2026-08-12 (§4b): WALL_HATCH_MAX_LEN_PX is also W (both 48px × f), so at every f the two scale together and stay exactly equal, matching the 1:50 baseline relationship; no clamp risk, no collision, and the rung floor legitimately shrinks to ~24px at 1:100 so the design's predicted s12 phantom-wall fix (§3) is not neutralized |
 | WALL_LATTICE_TOUCH_GAP_PX | P | measured 2026-08-12: no corpus signal (small tolerance); conservative default (§4b); revisit if 1:100 sweep shows artifacts |
 | WALL_LATTICE_OFFSET_TOL_PX | P | collinearity tolerance |
 | WALL_LATTICE_PEN_TOL | P | pen |
@@ -232,6 +232,57 @@ peak), pitch ratio vs. length ratio:**
 | 40–50 | 0.511 | 0.878 |
 | 42–48 | 0.506 | 1.056 |
 
+**Fix (2026-08-12, code review): length re-measured with censoring removed.**
+Code review flagged that the shared `3.0 <= length <= 60.0` filter in
+`hatch_strokes()` right-truncates the sample, and if world-space diagonal
+ink near/above 60px is disproportionately excluded at 1:50 vs 1:100 that
+would bias the length ratio upward toward false paper-space readings. Also
+flagged: length and pitch are measured off the SAME drawn hatch strokes, so
+it would be physically odd for them to land in different scale classes —
+the more parsimonious read of instability is a noisy proxy, not a real
+paper/world split. Re-ran with the length cap raised to 150px (`3.0 <=
+length <= 150.0`, well above every sheet's measured tail — the true max
+across all five sheets is 184.6px on s02, but that is itself an
+outlier reaching only 7% of s02's population above 60px; 150px comfortably
+covers the bulk of the tail without re-admitting unrelated long diagonal
+wall/leader ink) and pitch computation unchanged:
+
+| Band (off-axis°) | Pitch ratio (len≤150) | Length ratio (len≤60, original) | Length ratio (len≤150, de-censored) |
+|---|---|---|---|
+| 20–70 (brief literal) | 0.520 | 0.586 | 0.584 |
+| 35–55 | 0.608 | 0.472 | 0.472 |
+| 38–52 | 0.611 | 0.472 | 0.467 |
+| 40–50 | 0.570 | 0.878 | 0.878 |
+| 42–48 | 0.565 | 1.056 | 1.056 |
+
+De-censoring moved the length ratio by ≤0.005 in every band tested — the
+censoring hypothesis is empirically **not** the source of instability (the
+>60px tail is dominated by non-45° ink that the angle filter already
+excludes at narrow bands, and is a negligible fraction of the population at
+wide bands: s01/s05 <0.3% over 60px, s07 0%, s12 1.8%, s02 7%). What
+changes the ratio is the angle-band width itself, and per-sheet sample
+count explains why: s12's own median length is unstable as the band
+narrows (n=627→276→227, median 6.37px→13.97px→24.93px) purely from losing
+samples, and because the three 1:100 sheets' medians (s05, s07, s12) are
+themselves close together, this instability flips *which sheet* the
+group's median-of-three lands on — at the two broad/medium bands (20–70,
+35–55, 38–52) the group median is s07's own value (7.42px, the sheet's
+thinnest and most stable), landing the ratio at 0.47–0.59; at the two
+narrowest bands (40–50, 42–48) s12's inflated small-sample median (13.97,
+24.93) or s05's (16.79) takes over, landing the ratio at 0.88–1.06 on n as
+low as 227. That is aggregation noise from small samples at extreme
+band widths, not a competing physical signal — and unlike pitch (robustly
+W, 0.50–0.61, in every band including the narrow ones, on the *same*
+underlying stroke sets), length only leaves the world-space range when the
+per-sheet sample collapses. Taking the three bands with adequate sample
+depth (per-sheet n across s01/s02/s05/s07/s12 — 20–70: 96–1508; 35–55:
+95–1359; 38–52: 95–1331 — every sheet still clears the brief's n<50
+caution line) as the trustworthy reads, length ratio is consistently ≤0.65
+(0.584, 0.472,
+0.467) — **world-space**, matching pitch. The two narrow bands are excluded
+from the verdict as sample-starved (n≤276 for the deciding sheet), not
+because they disagree with the desired answer.
+
 **Sanity anchor.** CLAUDE.md/tuning-guide era measurement: hatch pitch
 ~4.05/4.07px on s01/s02 (measured against the production `_scan_striped_runs`
 algorithm, not this proxy). This script's s01/s02 pitch medians (2.73–2.83,
@@ -247,15 +298,32 @@ not a substitute for, the historical number.
   `WALL_HATCH_MAX_PITCH_PX` → **W** (world-space). `WALL_WEAK_MATERIAL_PER_100PX`
   follows by the brief's explicit rule (mark spacing is the load-bearing
   quantity in a per-band-px density) → **W**.
-- **Length is not robust**: the ratio swings from 0.472 to 1.056 — crossing
-  BOTH the ≤0.65 world-space and the ≥0.8 paper-space thresholds — purely
-  from angle-band width choice, not from any change in the underlying scale
-  question. This is exactly the "noisy" case the brief anticipated; no
-  single measured ratio can be trusted as the verdict. `WALL_HATCH_MAX_LEN_PX`
-  → **P** (conservative default, unchanged behavior), flagged for the 1:100
-  regression review — including its documented ordering interaction with
-  `WALL_LATTICE_MIN_RUNG_LEN_PX` (W, scales down at 1:100): if the margin
-  between the two narrows in practice, that is the sheet to revisit this on.
+- **Length is world-space**, revised after the de-censoring fix above. The
+  raw ratio range (0.47–1.06) looked noisy, but de-censoring ruled out the
+  originally-suspected cause (right-truncation bias) and traced the
+  remaining spread to small-sample instability in the two narrowest angle
+  bands (s12's own median swings 6.37px→24.93px as its sample shrinks from
+  627 to 227). At every band with an adequate sample (20–70, 35–55, 38–52;
+  n≥227, mostly n>300), the ratio is consistently ≤0.65 (0.584, 0.472,
+  0.467), matching pitch's robust W verdict on the *same* underlying hatch
+  strokes — the parsimonious read is one physical signal (CAD hatch
+  patterns typically scale their stroke length and pitch together with plot
+  scale), not two. `WALL_HATCH_MAX_LEN_PX` → **W** (world-space; move into
+  gates dataclass, × f). This also resolves the ordering concern raised in
+  review: `WALL_LATTICE_MIN_RUNG_LEN_PX` (also W, 48px × f) and
+  `WALL_HATCH_MAX_LEN_PX` (48px × f) now scale by the identical factor at
+  every f, so their relationship at 1:50 (currently exactly equal, 48.0 ==
+  48.0) is preserved unchanged at every scale — no clamp, no collision.
+  Had `WALL_HATCH_MAX_LEN_PX` stayed **P** (48px, unscaled) while
+  `WALL_LATTICE_MIN_RUNG_LEN_PX` scaled to 48×f, the required ordering
+  `48f > 48` would be false for every f < 1: at 1:100 (f=0.5) the rung
+  floor's own scaled value (24px) sits *below* the unscaled hatch cap
+  (48px), so a gates constructor enforcing the ordering invariant would
+  have to clamp the rung floor up to ~49px at every 1:100-and-smaller
+  sheet — well above the ~24px the design's s12 phantom-wall fix (§3, the
+  "tile field's rungs are ~24px, under the 48px floor" mechanism) requires
+  to actually fire. The W verdict avoids that outcome entirely rather than
+  relying on a clamp to paper over it.
 
 **Remaining small-tolerance U rows** (`WALL_CENTERLINE_MERGE_GAP_PX`,
 `WALL_JUNCTION_SNAP_PX`, `WALL_WEAK_CLAIM_MARGIN_PX`,
