@@ -259,3 +259,28 @@ class TestSlidingGatesThreading(unittest.TestCase):
         panel = prim(0, "qu", [(0, 0), (60, 0), (60, 15), (0, 15)])
         self.assertEqual(len(_collect_slide_panels([panel], gates=DoorGates.at(1.0))), 1)
         self.assertEqual(_collect_slide_panels([panel], gates=DoorGates.at(0.5)), [])
+
+
+from detection.doors.folding import _double_line_leaves
+
+
+class TestFoldingGatesThreading(unittest.TestCase):
+    def test_double_line_leaves_requires_gates_keyword(self):
+        with self.assertRaises(TypeError):
+            _double_line_leaves([])
+
+    def test_fold_leaf_line_separation_is_paper_space(self):
+        # DOOR_FOLD_LEAF_LINE_SEP_MIN/MAX_PX gate a drawn ink separation (P).
+        # Scaling them is what zeroed s06 in the spec's §3 table.
+        from detection.doors.constants import (
+            DOOR_FOLD_LEAF_LINE_SEP_MAX_PX, DOOR_FOLD_LEAF_LINE_SEP_MIN_PX)
+        g = DoorGates.at(0.5)
+        self.assertFalse(hasattr(g, "DOOR_FOLD_LEAF_LINE_SEP_MIN_PX"))
+        self.assertFalse(hasattr(g, "DOOR_FOLD_LEAF_LINE_SEP_MAX_PX"))
+        self.assertEqual((DOOR_FOLD_LEAF_LINE_SEP_MIN_PX,
+                          DOOR_FOLD_LEAF_LINE_SEP_MAX_PX), (0.8, 4.0))
+
+    def test_jamb_min_length_scales(self):
+        g = DoorGates.at(0.5)
+        self.assertAlmostEqual(g.DOOR_FOLD_JAMB_LINE_MIN_LEN_PX, 7.5)
+        self.assertAlmostEqual(g.DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX, 3.0)

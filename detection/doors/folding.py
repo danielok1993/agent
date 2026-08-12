@@ -14,16 +14,16 @@ from detection.walls import _is_background_fill
 from detection.doors.sliding import _SlidePanel, _collect_slide_panels, _corners_bbox
 from detection.doors.constants import (
     DOOR_FOLD_ANGLE_MAX_DEG, DOOR_FOLD_ANGLE_MIN_DEG, DOOR_FOLD_ASSEMBLY_BASE,
-    DOOR_FOLD_HINGE_TOL_PX, DOOR_FOLD_JAMB_ANCHOR_TOL_PX,
-    DOOR_FOLD_JAMB_AXIS_TOL_DEG, DOOR_FOLD_JAMB_LINE_MIN_LEN_PX,
+    DOOR_FOLD_HINGE_TOL_PX,
+    DOOR_FOLD_JAMB_AXIS_TOL_DEG,
     DOOR_FOLD_LEAF_LINE_LEN_RATIO_MIN, DOOR_FOLD_LEAF_LINE_OVERLAP_MIN,
     DOOR_FOLD_LEAF_LINE_SEP_MAX_PX, DOOR_FOLD_LEAF_LINE_SEP_MIN_PX,
     DOOR_FOLD_LENGTH_RATIO_TOL, DOOR_FOLD_MIN_CHAIN_LEAVES,
     DOOR_FOLD_OPEN_ANGLE_MAX_DEG, DOOR_FOLD_OPEN_ANGLE_MIN_DEG,
-    DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX, DOOR_FOLD_OPEN_OBLIQUE_MIN_DEG,
+    DOOR_FOLD_OPEN_OBLIQUE_MIN_DEG,
     DOOR_FOLD_STACK_MIRROR_TOL_DEG, DOOR_FOLD_STACK_PERP_EXTENT_MAX,
     DOOR_FOLD_STACK_SPAN_RATIO_TOL, DOOR_LABEL_PATTERN, DOOR_LABEL_SEARCH_RADIUS_PX,
-    DOOR_LAYER_KEYWORDS, DOOR_MAX_SIZE_PX, DOOR_MIN_SIZE_PX,
+    DOOR_LAYER_KEYWORDS,
     DOOR_SLIDE_AXIS_TOL_DEG, DOOR_SLIDE_PANEL_MERGE_TOL_PX,
     DoorGates,
 )
@@ -219,7 +219,9 @@ def _mean_axis_deg(angles: list[float]) -> float:
     return (math.degrees(math.atan2(sy, sx)) / 2) % 180.0
 
 
-def _double_line_leaves(line_paths: list[PathPrimitive]) -> list[_SlidePanel]:
+def _double_line_leaves(
+    line_paths: list[PathPrimitive], *, gates: DoorGates,
+) -> list[_SlidePanel]:
     """Thin double-line leaves: two near-parallel OBLIQUE lines of near-equal
     length a hair apart — the fill-less drawing of one folding leaf (no white
     ring, no qu outline). Corners are ordered line-major: [a1, a2, b1, b2].
@@ -231,7 +233,7 @@ def _double_line_leaves(line_paths: list[PathPrimitive]) -> list[_SlidePanel]:
         if not ok:
             continue
         length = _distance(p1, p2)
-        if not (DOOR_MIN_SIZE_PX * 0.7 <= length <= DOOR_MAX_SIZE_PX):
+        if not (gates.DOOR_MIN_SIZE_PX * 0.7 <= length <= gates.DOOR_MAX_SIZE_PX):
             continue
         angle = _line_angle_deg(p1, p2) % 180.0
         if min(angle % 90.0, 90.0 - angle % 90.0) < DOOR_FOLD_OPEN_OBLIQUE_MIN_DEG:
@@ -302,6 +304,7 @@ def _open_v_match(
     a: _SlidePanel,
     b: _SlidePanel,
     line_paths: list[PathPrimitive],
+    *, gates: DoorGates,
 ) -> tuple[dict, list[tuple[float, float]]] | None:
     """open_v pattern: a lone bifold drawn half-open as a wide V. The physical
     gates that replace the white joinery signature: the leaves mirror about
@@ -341,14 +344,14 @@ def _open_v_match(
         if path.path_index in own:
             continue
         ok, p1, p2 = _is_line_path(path)
-        if not ok or _distance(p1, p2) < DOOR_FOLD_JAMB_LINE_MIN_LEN_PX:
+        if not ok or _distance(p1, p2) < gates.DOOR_FOLD_JAMB_LINE_MIN_LEN_PX:
             continue
         if _angle_diff_mod180(_line_angle_deg(p1, p2), axis_deg) > DOOR_FOLD_JAMB_AXIS_TOL_DEG:
             continue
         for ti, tip in enumerate(tips):
             other = tips[1 - ti]
             for pe, po in ((p1, p2), (p2, p1)):
-                if _distance(pe, tip) > DOOR_FOLD_JAMB_ANCHOR_TOL_PX:
+                if _distance(pe, tip) > gates.DOOR_FOLD_JAMB_ANCHOR_TOL_PX:
                     continue
                 away = (
                     (po[0] - tip[0]) * (other[0] - tip[0])
@@ -383,7 +386,7 @@ def _open_v_match(
                 rx, ry = pe[0] - tip[0], pe[1] - tip[1]
                 s = rx * vx + ry * vy
                 lat = -rx * vy + ry * vx
-                if abs(lat) > DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX:
+                if abs(lat) > gates.DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX:
                     continue
                 if s < tip_span + 4.0:
                     continue
@@ -415,7 +418,7 @@ def _open_v_match(
             lats.append(-rx * vy + ry * vx)
         if max(ss) < 2.0 or min(ss) > span - 2.0:
             continue
-        if min(abs(lats[0]), abs(lats[1])) > DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX:
+        if min(abs(lats[0]), abs(lats[1])) > gates.DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX:
             continue
         crossers += 1
     if crossers > 2:
@@ -553,13 +556,13 @@ def _detect_folding_doors(
     # leaves (the fill-less drawing style). Its fold-angle window (40-85°) is
     # disjoint from chain/stack_pair (8-30°), so the patterns never compete.
     line_paths = [p for p in paths if p.item_type == "l"]
-    leaves = _double_line_leaves(line_paths)
+    leaves = _double_line_leaves(line_paths, gates=gates)
     for i in range(len(leaves)):
         for j in range(i + 1, len(leaves)):
             a, b = leaves[i], leaves[j]
             if a.consumed or b.consumed:
                 continue
-            match = _open_v_match(a, b, line_paths)
+            match = _open_v_match(a, b, line_paths, gates=gates)
             if match is None:
                 continue
             metrics, corridor = match
