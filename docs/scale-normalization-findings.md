@@ -126,7 +126,7 @@ artifacts" — that is a new decision, not a reopening of this table.
 | WALL_WEAK_MIN_RUN_PX | W | partition run length |
 | WALL_WEAK_MATERIAL_MIN_MARKS | D | count |
 | WALL_WEAK_MATERIAL_MIN_SPAN | D | fraction |
-| WALL_WEAK_MATERIAL_PER_100PX | W | measured 2026-08-12 (§4b): follows the WALL_HATCH_MAX_PITCH_PX verdict per the mark-spacing rule (density = marks per band px; mark spacing measured world-space, ratio ≈0.50–0.55) — move into gates dataclass, × f |
+| WALL_WEAK_MATERIAL_PER_100PX | W | measured 2026-08-12 (§4b): follows the WALL_HATCH_MAX_PITCH_PX verdict per the mark-spacing rule (mark spacing measured world-space, ratio ≈0.50–0.55) — but it is a DENSITY (marks per 100 paper-px of band length), so it scales **÷ f**, not × f: at f=0.5 world-spaced marks pack 2× tighter per paper-px, and the MINIMUM must rise to keep discrimination. Dimensional check against the measured separations: real partitions ≥4.8/100px and noise ≤2.6 at 1:50 → at 1:100 ≥9.6 vs ≤5.2; the unscaled gate (3) admits noise, ×f (1.5) is worse, ÷f (6) separates cleanly. (Direction corrected 2026-08-12 by the controller after Task 2 review — the original row said × f.) |
 | WALL_WEAK_MATERIAL_EDGE_PX | P | pen-adjacent exclusion |
 | WALL_WEAK_MATERIAL_ANGLE_MIN/MAX | D | angles |
 | WALL_WEAK_CLAIM_MARGIN_PX | P | measured 2026-08-12: no corpus signal (small tolerance); conservative default (§4b); revisit if 1:100 sweep shows artifacts |
