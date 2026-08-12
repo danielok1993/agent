@@ -199,6 +199,50 @@ not fixed, here. The controller should bisect s02/s04/s06/s11/s12/s14
 (one fix, one sweep, then ask) before the expected-change sheets go to the
 user for review.
 
+### Re-sweep after the bridging fix (2026-08-12)
+
+One Critical fix landed since the table above: `_bridge_white_runs` (called
+from `detect_rooms`) now receives scaled `WallGates` instead of silently
+falling back to its unscaled default (`415d4b1`, doc note §4a "(b)";
+confirmed `e86d3ab` — the commit the table above was recorded at — is an
+ancestor of `415d4b1` via `git merge-base --is-ancestor`). Re-ran
+`python tools/regress.py` at `fb8f418`: **exit 1** (same as before — expected,
+this corpus carries pre-existing FP/REVIEW debt per §3 above, not a new
+failure).
+
+**Result: every one of the 20 sheets reproduced its REVIEW/LOST/RETURNED
+lines byte-for-byte against the table above** — same counts, same
+coordinates, checked line-by-line, not just totals. This holds both for the
+11 factor-1.0 sheets (identity expected and confirmed unchanged) **and** for
+all 7 scale-affected sheets (s03, s05, s06, s07, s12, s13, s17) that the
+bridging fix could plausibly have changed. The fix landed with zero
+observable effect on this corpus's regression output — not a red flag (a
+correctness fix can be inert on a given corpus if the buggy path wasn't
+exercised differently by these 20 sheets' geometry), but it means this sweep
+gives no positive evidence the fix changed behavior anywhere, only that it
+introduced no regression. Full per-sheet comparison table and reasoning:
+`.superpowers/sdd/2026-08-12-scale-aware-wall-room-gates/resweep-report.md`.
+
+**Review images** (fresh timestamped paths this run, same pages as before):
+`outputs/regress/s03/2026-08-12_13-48-35/pages/page_01/review_window.png`,
+`.../s06/2026-08-12_13-48-42/.../review_room.png`,
+`.../s07/2026-08-12_13-48-50/.../review_room.png`,
+`.../s11/2026-08-12_13-48-56/.../review_door.png`,
+`.../s13/2026-08-12_13-49-13/.../review_room.png`,
+`.../s16/2026-08-12_13-49-54/.../review_room.png`,
+`.../s17/2026-08-12_13-50-17/.../review_window.png`. Sheets with unreviewed
+detections this sweep: s02, s03, s04, s06, s07, s11, s13, s16, s17 —
+
+```
+python tools/review.py s02 s03 s04 s06 s07 s11 s13 s16 s17
+```
+
+**Status unchanged:** the identity-tier surprises (s02/s04/s06/s11/s12/s14)
+are still unresolved and still block treating this sweep as clean; this
+re-sweep neither fixes nor worsens them, and no algorithm changes were made
+to investigate them (out of scope for this pass). The controller's
+bisect-then-ask plan above still stands.
+
 ## 4. Constant classification table
 
 Classes: **W** = world-space (× f; areas × f²), **P** = paper-space
