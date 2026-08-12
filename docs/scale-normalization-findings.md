@@ -535,6 +535,14 @@ behavior at every factor, revisit if the 1:100 sweep shows artifacts.
 
 ## 6. Deferred work (for successor branches)
 
+- **Doors:** s11 carries a concrete assembly-merge test case (reported by
+  the user 2026-08-12): a double door detected as TWO half-width singles —
+  the french/garden pair merge does not fire on that drawing. The halves sit
+  at ~IoU 0.5 against the true full-width door, exactly the matcher's
+  boundary, so they are deliberately left UNREVIEWED (either verdict could
+  misfire against the future fixed detection); record the full door as a
+  hand-written `deferred` miss when its extent is confirmed. Pre-dates the
+  scale branch (baseline-verified byte-identical).
 - **Doors:** `DOOR_*` constants in `detection/doors/constants.py` — arc
   radii, leaf lengths, panel sizes are world-space (an 838mm leaf is 24.8px
   at 1:100, likely under current radius floors → predicts *misses* on
