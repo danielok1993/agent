@@ -150,8 +150,8 @@
     "semantic_hash": ""
   },
   "pipeline.py": {
-    "mtime": 1786536706.1753569,
-    "ast_hash": "8c0d34a81280cdc2a18970fdc465319e",
+    "mtime": 1786536328.478717,
+    "ast_hash": "31bc473a8d655c14cefc283f79c08f79",
     "semantic_hash": ""
   },
   "tests/__init__.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1786537418.5790002,
-    "ast_hash": "19224450af1c2fbc320576818daca010",
+    "mtime": 1786525220.6307116,
+    "ast_hash": "20ef925314941273e0c1b0a274dff2bf",
     "semantic_hash": ""
   },
   "README.md": {
@@ -500,7 +500,7 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s01.json": {
-    "mtime": 1786536809.0277789,
+    "mtime": 1786525484.2947102,
     "ast_hash": "a9601ea14fc3d2c2afe00efd4d02e0bd",
     "semantic_hash": ""
   },
@@ -745,8 +745,8 @@
     "semantic_hash": ""
   },
   "tests/test_scale_pipeline.py": {
-    "mtime": 1786536713.5534317,
-    "ast_hash": "aeb0e83c5af3af77760e9a5e48ee4f7b",
+    "mtime": 1786525220.642588,
+    "ast_hash": "b2d6d44cba9a91227225a7d0efccee65",
     "semantic_hash": ""
   },
   "tests/test_scale_prompt.py": {
@@ -815,8 +815,8 @@
     "semantic_hash": ""
   },
   "docs/scale-normalization-findings.md": {
-    "mtime": 1786537798.0849783,
-    "ast_hash": "809d72f644297a9446d6fcd1f1a97aa1",
+    "mtime": 1786535449.7111676,
+    "ast_hash": "55c507632d7be763cb5461b0616c829f",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-08-12-scale-aware-wall-room-gates.md": {
