@@ -54,11 +54,20 @@ geometry-based scale inference for unresolved sheets.
 New pure function `detection_scale(page_scales: PageScales,
 regions: list[Region]) -> tuple[float, list[dict]]`:
 
-1. Collect floor-plan regions with a bound scale; pick the **area-dominant**
-   nominal denominator (sum of region areas per denominator, largest wins).
-   If bound floor-plan regions disagree, emit `SCALE_MIXED_FLOOR_PLANS`
-   naming the scales present and the winner (s03: 1:100 wins over one 1:50
-   region; s17: decided by area).
+1. Collect floor-plan regions with a bound scale; pick the **ink-dominant**
+   nominal denominator (sum of contained path counts per denominator,
+   largest wins — gates act on primitives, not blank paper, so path count
+   beats bbox area as the dominance measure). If bound floor-plan regions
+   disagree, emit `SCALE_MIXED_FLOOR_PLANS` naming the scales present and
+   the winner.
+
+   **This single-factor treatment of mixed pages (s03, s17) is interim, not
+   the end state.** The correct behavior — each plan detected at its own
+   scale — requires per-scale-group detection passes with frozen
+   union-level statistics, which is a measured-risk pipeline restructure
+   deferred to a follow-up branch (findings doc §6 has the design sketch
+   and the s01 degradation evidence that shapes it). Until then the warning
+   guarantees mixed pages are never silently mispriced.
 2. No bound floor-plan scales → fall back to `page_scale` (covers s02,
    where region filtering is suppressed and the caption binds page-level).
 3. Nothing resolved → factor **1.0**. No new warning — the resolver already
@@ -148,7 +157,7 @@ constructor) for these orderings so a bad factor fails loudly, not silently.
 
 ### 5. Testing
 
-- **Unit — factor:** area-dominant pick; page-scale fallback; unresolved →
+- **Unit — factor:** ink-dominant pick; page-scale fallback; unresolved →
   1.0; mixed → `SCALE_MIXED_FLOOR_PLANS`; nominal preferred over raw;
   clamp behavior.
 - **Identity:** all existing synthetic tests run at the default factor

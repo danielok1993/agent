@@ -185,10 +185,13 @@ place; it is the successor branches' starting point.
    ('user'-source stored scales, as s01 already has). Rejected: geometric
    scale inference (guess-based subsystem; wrong guesses silently distort
    every gate).
-3. **Mixed-scale pages (s03, s17): area-dominant floor-plan scale** + a
-   `SCALE_MIXED_FLOOR_PLANS` warning. Per-scale-group detection deferred —
-   per-region detection is a measured regression (see memory/CLAUDE.md:
-   "never run heuristics per region").
+3. **Mixed-scale pages (s03, s17): ink-dominant floor-plan scale (by path
+   count per region)** + a `SCALE_MIXED_FLOOR_PLANS` warning — explicitly
+   **interim**. The user's requirement (2026-08-12) is that each plan runs
+   at its own scale even on a single page; that fix is deferred to a
+   follow-up because it is a pipeline restructure with measured regression
+   risk, not a bolt-on (see §6, "Per-scale-group detection", for the
+   evidence and the design sketch).
 4. **Nominal denominator preferred over raw** so 1:50 is exactly f=1.0.
 5. **Clamp f to [0.25, 4.0]**, outside → 1.0 + `SCALE_FACTOR_CLAMPED`.
 6. **s13 conflict:** viewport (~1:136) wins over caption text, per the
@@ -215,9 +218,35 @@ place; it is the successor branches' starting point.
 - **Layout segmentation:** `SEGMENT_MIN_REGION_SIDE_PX` etc. measure
   *drawing extents*, which scale — but region filtering has its own
   coverage guard; audit before touching.
-- **Per-scale-group detection** for mixed pages (s03, s17): would need the
-  union-per-scale-group compromise between "once over the union" and the
-  known per-region degradation. Not designed.
+- **Per-scale-group detection** for mixed pages (s03, s17) — **required
+  follow-up, not optional** (user requirement 2026-08-12: each plan must
+  run at the scale attached to that plan, even on a single page).
+
+  *Why it isn't a bolt-on:* running detection on less than the union is a
+  measured regression. On s01 (2026-07-28, both regions the SAME scale),
+  per-region passes degraded rooms: 13 rooms / 478,923px² → 14 / 446,261px²
+  — kitchen units carved out of DINING/SITTING+KITCHEN (148,895 → 118,073px²),
+  UTILITY/STORE spuriously split (17,430 → 10,526 + 6,144). Mechanism:
+  page-global statistics — `ROOM_WALL_PEN_MIN_FRAC` (0.15 of paired-face
+  length makes a pen a wall pen), the `wall_stroke_reference` median, the
+  lattice/hatch demotion scans — lose their denominator when the path set
+  shrinks; s01's red furniture pen cleared 15% within one region alone and
+  its pairs gained barrier rights. Any split reintroduces this.
+
+  *Design sketch:* decouple statistics scope from detection scope, along
+  the same world/paper split as the constants. Paper-space statistics (pen
+  medians, wall-pen color fractions) are poolable across scales — one CAD
+  export, one pen convention — so compute them ONCE over the union and
+  pass them FROZEN into per-group passes. Geometric scans (lattice/hatch
+  pitch demotion) are scale-dependent and belong inside each group's pass
+  with that group's factor. Pipeline side: partition floor-plan regions by
+  resolved factor, `filter_page_data` per group, run
+  `detect_wall_network`/`detect_rooms` per group with (frozen stats, group
+  factor), concatenate candidates; doors/windows/labels/schedules scope
+  decided by whatever state that branch finds them in. Verify on s03/s17
+  under the one-fix-one-sweep checkpoint rule, and re-verify the s01
+  union-identity property (single-scale pages must still take exactly one
+  pass with unchanged results).
 - **Misses audit on 1:100 sheets:** ground truth cannot see misses (§3);
   after the walls/rooms branch lands, spot-check s05/s07/s12 overlays for
   undetected doors/partitions to size the doors branch.
