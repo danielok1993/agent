@@ -117,3 +117,28 @@ class TestArcGatesThreading(unittest.TestCase):
         self.assertEqual(
             [c.bbox for c in detect_doors(paths, [])],
             [c.bbox for c in detect_doors(paths, [], None, scale_factor=1.0)])
+
+
+from detection.doors.leaves import _collect_door_leaves
+
+
+class TestLeafGatesThreading(unittest.TestCase):
+    def test_collect_leaves_requires_gates_keyword(self):
+        with self.assertRaises(TypeError):
+            _collect_door_leaves([])
+
+    def test_short_leaf_rect_rejected_at_f1_accepted_at_half(self):
+        # A 12 x 2.5 px leaf rectangle: length under the 20px DOOR_MIN_SIZE_PX
+        # floor at f=1.0, over the scaled 10px floor at f=0.5. Aspect 4.8
+        # clears DOOR_LEAF_ASPECT_MIN (4.0, dimensionless) at both factors.
+        leaf = prim(0, "qu", [(0, 0), (12, 0), (12, 2.5), (0, 2.5)])
+        self.assertEqual(_collect_door_leaves([leaf], gates=DoorGates.at(1.0)), [])
+        self.assertEqual(len(_collect_door_leaves([leaf], gates=DoorGates.at(0.5))), 1)
+
+    def test_leaf_companion_separation_is_paper_space(self):
+        # DOOR_LEAF_COMPANION_PERP_PX is P: it must NOT move with the factor.
+        # Measured: real leaf separations hold at ~2.6px on 1:100 sheets
+        # (spec §2), so a 4px separation must stay acceptable at f=0.5.
+        from detection.doors.constants import DOOR_LEAF_COMPANION_PERP_PX
+        self.assertFalse(hasattr(DoorGates.at(0.5), "DOOR_LEAF_COMPANION_PERP_PX"))
+        self.assertEqual(DOOR_LEAF_COMPANION_PERP_PX, 5.0)
