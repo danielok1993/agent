@@ -234,9 +234,11 @@ Add at the top of the file, after `import re`:
 from dataclasses import dataclass
 ```
 
-- [ ] **Step 2b: NOTE — no ordering assertion**
-
-Do **not** add an assertion or clamp comparing `DOOR_SLIDE_PANEL_MIN_THICKNESS_PX` to `DOOR_FOLD_LEAF_LINE_SEP_MAX_PX`. They invert at every f < 0.75 and that is correct — see the test in Step 1 and spec §5.
+**NOTE, part of Step 3 — no ordering assertion.** Do **not** add an assertion
+or clamp comparing `DOOR_SLIDE_PANEL_MIN_THICKNESS_PX` to
+`DOOR_FOLD_LEAF_LINE_SEP_MAX_PX`. They invert at every f < 0.75 and that is
+correct — see the test in Step 1 and spec §5. `assert factor > 0` is the only
+assertion in `DoorGates.at`.
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -406,9 +408,13 @@ def detect_doors(
 
 Run:
 ```bash
-grep -nE '(?<!gates\.)\bDOOR_(MIN|MAX)_SIZE_PX|\bDOOR_SWING_LINE_DIST_PX|\bDOOR_POLYLINE_MAX_SEG_PX' -P detection/doors/arcs.py | grep -v 'gates\.' | grep -v '^.*import'
+for c in DOOR_MIN_SIZE_PX DOOR_MAX_SIZE_PX DOOR_SWING_LINE_DIST_PX DOOR_POLYLINE_MAX_SEG_PX; do
+  bare=$(grep -n "\b$c\b" detection/doors/arcs.py | grep -v "gates\.$c" | grep -vc "import")
+  [ "$bare" != "0" ] && echo "BARE USE REMAINS: $c ($bare)"
+done; echo "audit done"
 ```
-Expected: no output (every use is `gates.`-qualified; only the import line mentions the bare names).
+Expected: `audit done` with no `BARE USE REMAINS` lines. (Every use is
+`gates.`-qualified; only the import line mentions the bare names.)
 
 - [ ] **Step 5: Run tests**
 
@@ -569,7 +575,22 @@ In `detection/doors/sliding.py`:
 3. Replace bare reads with `gates.`-qualified ones for: `DOOR_MIN_SIZE_PX`, `DOOR_MAX_SIZE_PX`, `DOOR_SLIDE_PANEL_MIN_THICKNESS_PX`, `DOOR_SLIDE_PANEL_MAX_THICKNESS_PX`, `DOOR_SLIDE_FLANK_GAP_MIN_PX`, `DOOR_SLIDE_FLANK_GAP_MAX_PX`, `DOOR_SLIDE_PARK_GAP_MAX_PX`, `DOOR_SLIDE_PARK_BAND_MIN_TH_PX`, `DOOR_SLIDE_PARK_BAND_MAX_TH_PX`, `DOOR_SLIDE_PARK_JAMB_TOL_PX`.
 4. **Leave alone** (P or D): `DOOR_SLIDE_STROKED_RING_SNAP_TOL_PX`, `DOOR_SLIDE_PANEL_MERGE_TOL_PX`, every `_DEG`, every `_FRAC`/`_RATIO`/`_FACTOR`, `DOOR_SLIDE_ZONE_MAX_CROSSERS`, `DOOR_LEAF_ASPECT_MIN`.
 
-In `detection/doors/assembly.py`, pass `gates=gates` to the `_detect_sliding_doors(...)` call. (`_pair_door_assemblies` receives `gates` in Task 6; until then, pass `gates=DOOR_GATES_UNSCALED` and add a `# TODO(Task 6)`-free explicit note — **no**: instead do Task 6's signature change to `_pair_door_assemblies` now if needed to keep the suite green. Prefer: add `*, gates: DoorGates` to `_pair_door_assemblies` in this task and have `detect.py` pass `gates=gates`, then Task 6 only converts assembly's own constants.)
+In `detection/doors/assembly.py`:
+
+1. Add `*, gates: DoorGates` (keyword-only, **no default**) to
+   `_pair_door_assemblies`. This signature change belongs to **this** task, not
+   Task 6: `assembly.py` is where `_detect_sliding_doors` is called from, and
+   the no-default rule forbids passing `DOOR_GATES_UNSCALED` there as a
+   stopgap — that is exactly the silent-unscaled-fallback bug this branch
+   exists to prevent.
+2. Pass `gates=gates` to the `_detect_sliding_doors(...)` call.
+3. Do **not** convert assembly's own constants yet — Task 6 does that.
+
+In `detection/doors/detect.py`, change the pairing call to:
+```python
+    candidates = _pair_door_assemblies(swings, leaves, text_spans, paths, collector,
+                                       gates=gates)
+```
 
 - [ ] **Step 4: Run tests**
 
