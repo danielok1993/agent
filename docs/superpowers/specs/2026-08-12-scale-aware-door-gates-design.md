@@ -56,14 +56,32 @@ this mandatory).
 
 ### 1. The win, isolated (shrunk-world on the references)
 
-Coordinates × 0.5, pen widths untouched — that is what a 1:100 export of the
-same drawing looks like. Region scope held identical between runs, so scale is
-the only variable.
+Coordinates × 0.5, pen widths untouched. Region scope held identical between
+runs, so scale is the only variable.
 
 | Sheet | doors at f=1.0 | recovered at f=0.5, nothing scaled | recovered, `W + panel` scaled |
 |---|---|---|---|
-| s01 | 11 | 6 | **7** |
+| s01 | 11 | 6 | **7** (+4 transform artifacts, see below) |
 | s02 | 15 | 12 | **15 (full identity)** |
+
+**The transform is faithful for extents and unfaithful for ink separations.** A
+plain × 0.5 coordinate shrink halves *everything*, including the drawn
+leaf-companion and fold-line separations that §2 measures as paper-space in real
+1:100 exports (they hold at ~2.6 px, or grow). So any door whose detection rests
+on a separation gate is tested under conditions a real 1:100 sheet never
+produces, and a miss there says nothing about the classification.
+
+s01's four unrecovered doors were diagnosed individually, and **all four are in
+exactly that class** — three `single_line_leaf` doors whose evidence rests on a
+leaf-companion separation, plus the `sliding`/`parked_leaf`. Every door on the
+sheet whose detection rests on extents alone is recovered. So s01's 7/11
+understates the classification's performance; it measures the synthetic
+transform's fidelity, not the gates. The honest reading of this table is s02's
+full-identity 15/15 plus "no extent-dependent door was lost on either sheet".
+
+The Testing section's per-topology fixtures therefore shrink extents while
+holding separations at their paper values, rather than scaling the whole
+coordinate space — the synthetic equivalent of a real 1:100 export.
 
 ### 2. The organising rule, measured
 
@@ -96,19 +114,40 @@ The sweep's own gate. Every variant run at each sheet's resolved factor:
 recovery on s02 and loses no confirmed door anywhere. Scaling the ink-separation
 constants zeroes s06 — decisive evidence for their **P** verdict.
 
-### 4. `DOOR_SLIDE_PANEL_MIN/MAX_THICKNESS_PX` — the one genuinely mixed row
+This table isolates the door gates and reports doors only. **Windows and rooms
+are checked too**, with `CROSS_*` included and against the baseline rather than
+in the absolute — see §6, which is the complete picture and the one to review.
 
-Shrunk-world evidence is clean and says **W**: scaling it is what takes s02 from
-12/15 to 15/15 (three sliding doors). Real-corpus evidence is not clean — the
-1:100 panel population is bimodal (s12 2.13 px vs s11 8.06, s16 8.25) and the
-1:50 baseline rests on a single sheet (s01 has no panels at all), so the 1.03
-ratio in §2 is a small-sample aggregate of the kind findings §4b warns about.
+### 4. `DOOR_SLIDE_PANEL_MIN/MAX_THICKNESS_PX` — the weakest row in the table
 
-Resolved **W**, because the two evidence sources answer different questions and
-only one is decisive here: the shrunk-world test proves that *if* a 1:100 export
-is a geometric halving, the gate must halve; and scaling it costs **zero**
-confirmed doors on all six real 1:100 sheets while gaining three on s02. The
-ambiguity is recorded, not hidden — revisit if a 1:100 sweep shows artifacts.
+This constant gates a drawn panel thickness, so §1's caveat applies to it
+directly: **the shrunk-world evidence is not independent** of the question. The
+transform halves panel thickness by construction, so "scaling the gate recovers
+the door" is close to restating the assumption. It cannot be cited as proof of
+the class, and §1's 15/15 is not evidence for this row specifically.
+
+Real-corpus evidence is also inconclusive: the 1:100 panel population is bimodal
+(s12 2.13 px vs s11 8.06, s16 8.25) against a 1:50 baseline resting on one sheet
+(s01 has no panels at all), so §2's 1.03 ratio is the small-sample aggregate
+findings §4b warns about.
+
+What does discriminate is converting to millimetres. Slide panels measure
+7.83 px at 1:50 ≈ **66 mm** — a real panel-plus-frame thickness. Swing-leaf
+companion separations measure 2.88 px ≈ 24 mm on s01 and 0.50 px ≈ 4 mm on s02 —
+not a buildable leaf, i.e. symbolic. And the 1:100 leaf separations (2.62–3.25 px
+≈ 44–55 mm) read as *larger* in mm than the 1:50 ones, which is the signature of
+a **minimum drawn separation**: the drafting system will not put two lines closer
+than ~2.5 px whatever the scale. That is why leaf-companion is P and a panel
+rectangle is not.
+
+Resolved **W**, with the ambiguity recorded rather than hidden, and two facts a
+reviewer should hold: (a) `MIN`-only, `MAX`-only and both produce **identical**
+deltas on every one of the seven 1:100 sheets, so this corpus cannot
+discriminate the two halves; (b) scaling `MIN` is the permissive direction, and
+its own tuning rationale ("thinner is a shower screen / glazing strip, measured
+2.0–2.5 px") is itself a *drawn* separation subject to the same paper floor — so
+the concrete revisit trigger is **shower screens or glazing strips appearing as
+sliding doors on a 1:100 sheet**, not a miss.
 
 ### 5. `CROSS_*` — re-derived by distribution
 
@@ -141,7 +180,47 @@ that derivation was void twice over — wrong numbers, and wrong method (finding
 §4 requires classifying by what a constant measures, then measuring the
 distribution, never by which setting keeps more doors alive on one sheet).
 
-### 6. Measurement harness — the failure mode to record
+### 6. Predicted sweep delta — what the user should expect to review
+
+Measured by running the **full** `W + panel + CROSS` set on the real path at each
+sheet's resolved factor, across **all three entity types** (not doors alone —
+`CROSS_DOOR_EXPAND_PX` reaches the door→window suppression veto, so windows had
+to be in scope of the check), and comparing against today's baseline on the same
+path.
+
+| Sheet | f | door kept / new / gone | window kept / new / gone | room kept / new / gone |
+|---|---|---|---|---|
+| s05 | 0.50 | 8/8 · 0 · 0 | — | — |
+| s06 | 0.50 | 2/2 · 0 · 0 | 8/8 · 0 · 0 | 0/1 · 2 · 2 |
+| s07 | 0.50 | 4/4 · 0 · 0 | 10/10 · 0 · 0 | 7/7 · 0 · 0 |
+| s11 | 0.50 | 13/13 · **2** · 0 | 23/23 · **4** · 0 | 17/17 · 0 · 0 |
+| s12 | 0.50 | 7/7 · 0 · **2** | 0/0 · **5** · 1 | 3/4 · 0 · 0 |
+| s16 | 0.50 | 14/14 · 0 · 0 | 23/23 · 0 · 0 | 13/13 · 0 · 0 |
+| s18 | 0.50 | 9/9 · **1** · 0 | 4/4 · **8** · 0 | 6/9 · 0 · 0 |
+| **total** | | 57/57 · **3** · 2 | 68/68 · **17** · 1 | 46/51 · 2 · 2 |
+
+**No confirmed entity is lost on any sheet or any type** — every retention count
+is identical to the baseline's, checked side by side. The room shortfalls (s06
+0/1, s12 3/4, s18 6/9) are **pre-existing baseline debt**, present before and
+after, and are not this branch's.
+
+Two things a reviewer must not be surprised by:
+
+- **The branch produces more window REVIEW lines than door ones (17 vs 3).**
+  Isolated, most of that comes from the *door* gates rather than `CROSS_*` (s18:
+  door gates +8, CROSS alone +1): changed door candidates change what
+  `_resolve_door_window_conflicts` and the door→window veto suppress, so
+  different windows survive. Expected, measured, and the sweep's window lines
+  are where it shows up.
+- **The real-corpus door win is small — 3 new REVIEW doors across seven 1:100
+  sheets.** This branch is correctness infrastructure plus the 21st-sheet
+  argument, not a large detection gain on today's corpus; s06's 80 % miss rate
+  is driven by the dimensionless aspect gate that this branch deliberately does
+  not touch, so the visible payoff largely waits on the deferred aspect-gate
+  branch. Judging this sweep against a large door delta would be judging it
+  against the wrong target.
+
+### 7. Measurement harness — the failure mode to record
 
 The first harness called `run_heuristics` on **raw whole-page `PageData`**
 instead of `resolve_page_regions(...).detection_page_data`. On s11 the page also
@@ -223,9 +302,14 @@ rationale goes in findings §4d (the deliverable successors inherit); the rules:
 **W — world-space, × f (19 + 2 panel + 6 CROSS):** extents and spans of built
 objects. `DOOR_MIN_SIZE_PX`, `DOOR_MAX_SIZE_PX`, `DOOR_SWING_LINE_DIST_PX`,
 `DOOR_POLYLINE_MAX_SEG_PX` (a tessellated arc's segment is `r·Δθ`; r is
-world-space by §1's 0.496 measurement and Δθ is a fixed exporter setting, so the
-segment scales with r — no direct cross-scale measurement is available because
-the 1:100 sheets draw their arcs as native Beziers, not polylines),
+world-space by the 0.496 measurement above and Δθ is a fixed exporter setting,
+so the segment scales with r. **Caveat:** that holds for fixed-Δθ tessellation;
+an exporter that tessellates to a fixed *chord error* instead gives segment
+length ~ √r, which still shrinks with scale but by ~0.71 at f=0.5, not 0.5. This
+is unmeasurable on the corpus — every 1:100 sheet draws its arcs as native
+Beziers, so there are no 1:100 polyline arcs to measure — so the row is W on the
+dimensional argument alone. **Revisit if a polyline-arc sheet at another scale
+appears.**),
 `DOOR_ASSEMBLY_CONNECT_TOL_PX`, `DOOR_LEAF_LINE_ENDPOINT_TOL_PX`,
 `DOOR_THRESHOLD_ENDPOINT_TOL_PX`, `DOOR_DOUBLE_LEAF_{GAP,OVERLAP,CENTER_TOL}_PX`,
 `DOOR_SLIDE_FLANK_GAP_{MIN,MAX}_PX`, `DOOR_SLIDE_PARK_{GAP_MAX,JAMB_TOL}_PX`,
@@ -273,22 +357,54 @@ dimensionless (angle bins, ratios, confidences, counts). The one derived use
 site, `folding.py:233` (`DOOR_MIN_SIZE_PX * 0.7`), scales automatically. No
 `COLLINEAR_OFFSET_TOL`-shaped blind spot exists in this package.
 
-### 5. Ordering invariants
+### 5. Ordering invariants — what is asserted, floored, and left alone
 
-Checked in `DoorGates.at`, so a pathological factor fails loudly:
+`WallGates.at` (`detection/walls.py:262`) set the precedent and this follows it
+exactly: **assertions are only for factor-independent programming errors;
+cross-class relationships get a floor or an explicit documented no-op.** An
+assertion on a relationship that legitimately inverts would crash
+`DoorGates.at(0.5)` on every 1:100 page — the failure mode this section exists to
+prevent, not to introduce.
 
-- `DOOR_MIN_SIZE_PX < DOOR_MAX_SIZE_PX` and
-  `DOOR_SLIDE_PANEL_MIN_THICKNESS_PX < DOOR_SLIDE_PANEL_MAX_THICKNESS_PX`
-  (preserved automatically by a common factor; asserted anyway).
-- `DOOR_FOLD_LEAF_LINE_SEP_MAX_PX` (P, 4.0) vs `DOOR_SLIDE_PANEL_MIN_THICKNESS_PX`
-  (W, 3.0 × f): these bound the same physical thing — a drawn leaf's two edges —
-  from opposite sides, and at f < 0.75 the W value drops below the P one. That
-  is not a contradiction (they gate different detectors, and the measured
-  populations differ), but it is exactly the kind of cross-class relationship
-  findings §4b flagged for `WALL_HATCH_MAX_LEN_PX`, so it is asserted and
-  documented rather than left to be rediscovered.
-- The scaled `DOOR_MIN_SIZE_PX` floors at 1 px, mirroring the
-  `WALL_MIN_THICKNESS_PX` treatment.
+**Asserted** (factor-independent — true at every factor, so a failure is a bug):
+
+- `assert factor > 0`, matching `WallGates.at` verbatim.
+
+**Floored** (a scaled value that would cross into a different physical regime):
+
+- `DOOR_MIN_SIZE_PX = max(1.0, DOOR_MIN_SIZE_PX * factor)`, mirroring
+  `WALL_MIN_THICKNESS_PX`'s `max(1.0, …)`. At the f = 0.25 clamp boundary the
+  raw product is 5.0 px, so the floor is inert on the calibrated domain and
+  exists only as a backstop.
+
+**Same-class pairs — no check needed** (both endpoints carry the identical
+factor, so the ordering is preserved arithmetically):
+`DOOR_MIN_SIZE_PX < DOOR_MAX_SIZE_PX`,
+`DOOR_SLIDE_PANEL_MIN_THICKNESS_PX < DOOR_SLIDE_PANEL_MAX_THICKNESS_PX`,
+`DOOR_SLIDE_FLANK_GAP_MIN_PX < DOOR_SLIDE_FLANK_GAP_MAX_PX`,
+`DOOR_SLIDE_PARK_BAND_MIN_TH_PX < DOOR_SLIDE_PARK_BAND_MAX_TH_PX`. This is the
+`WALL_LATTICE_MIN_RUNG_LEN_PX` / `WALL_HATCH_MAX_LEN_PX` situation from findings
+§4b — documented, not enforced.
+
+**Cross-class inversion — a documented no-op, deliberately unchecked:**
+
+`DOOR_FOLD_LEAF_LINE_SEP_MAX_PX` (P, 4.0) and
+`DOOR_SLIDE_PANEL_MIN_THICKNESS_PX` (W, 3.0 × f) both describe the separation of
+a drawn leaf's two edges, and at **f < 0.75 — i.e. every 1:100 sheet in the
+corpus — the W value drops below the P one.** Nothing is asserted, floored or
+clamped here, because there is no invariant to preserve: the two constants gate
+**different detectors** over **different candidate populations** (folding's
+`open_v` double-line leaves vs sliding's panel rectangles), they are never
+compared to each other anywhere in the code, and §4's mm analysis shows they are
+measuring genuinely different things (a symbolic line pair vs a built panel).
+The inversion is a coincidence of numeric proximity at f = 1.0, not a
+relationship.
+
+It is recorded here for one reason: a future reader who notices the crossing
+should find the reasoning already done, rather than "fixing" it with a clamp
+that would silently widen the folding detector's window on every 1:100 page. The
+plan carries a unit test pinning `DoorGates.at(0.5)` as constructing
+successfully with the inverted pair, so nobody later adds that assertion.
 
 ## Non-goals (recorded, not fixed)
 
@@ -306,13 +422,17 @@ this measurement attached.
 
 - **Identity:** `detect_doors(...)` with `scale_factor=1.0` equals the
   parameter-omitted call, candidate-for-candidate.
-- **Shrunk-world synthetics** (findings §7's pattern): each door topology that
-  owns a scaled constant — arc + anchored-line leaf (`DOOR_MIN_SIZE_PX`),
-  sliding `leaf_pair` (`DOOR_SLIDE_PANEL_*_THICKNESS_PX`), sliding `parked_leaf`
-  (`DOOR_SLIDE_PARK_BAND_*`), folding `open_v` (`DOOR_FOLD_JAMB_*`), double-leaf
-  pairing (`DOOR_DOUBLE_LEAF_*`) — built at 1:50 coordinates, then again at
-  × 0.5 with **stroke widths unchanged**, asserting `scale_factor=0.5`
-  reproduces the f=1.0 detection.
+- **Shrunk-world synthetics** (findings §7's pattern, corrected per §1): each
+  door topology that owns a scaled constant — arc + anchored-line leaf
+  (`DOOR_MIN_SIZE_PX`), sliding `leaf_pair` (`DOOR_SLIDE_PANEL_*_THICKNESS_PX`),
+  sliding `parked_leaf` (`DOOR_SLIDE_PARK_BAND_*`), folding `open_v`
+  (`DOOR_FOLD_JAMB_*`), double-leaf pairing (`DOOR_DOUBLE_LEAF_*`) — built at
+  1:50, then rebuilt as a **faithful 1:100 export**: extents × 0.5, stroke
+  widths unchanged, and **drawn ink separations held at their paper values**
+  (leaf-companion offsets, fold double-line separations), because §2 measures
+  those as paper-space on real 1:100 sheets. A blanket × 0.5 of every coordinate
+  is what produced s01's four spurious residual misses (§1) and must not be the
+  fixture transform. Assert `scale_factor=0.5` reproduces the f=1.0 detection.
 - **Negative controls** (fail if threading is removed): each shrunk-world case
   asserts the door is **missed** at `scale_factor=1.0`, so a helper that stops
   receiving gates breaks a test rather than silently reverting.
@@ -335,9 +455,13 @@ this measurement attached.
    1:50 and unresolved-scale sheets must be byte-identical — verified against a
    baseline worktree sweep if there is any doubt, as
    `docs/scale-baseline-comparison-2026-08-12.md` did.
-3. Changes on the 1:100 sheets arrive only as REVIEW lines. The user verdicts
-   them; this branch never runs `tools/review.py`, never edits
-   `tests/ground_truth/` or fixture bytes.
+3. Changes on the 1:100 sheets arrive only as REVIEW lines, and **the sweep's
+   actual deltas match §6's predicted table** (≈3 new doors, ≈17 new windows,
+   ≈2 new rooms across the seven 1:100 sheets; no confirmed loss anywhere). A
+   material divergence from that prediction is itself a finding to investigate
+   before the sweep goes to the user, not a result to hand over. The user
+   verdicts the REVIEW lines; this branch never runs `tools/review.py`, never
+   edits `tests/ground_truth/` or fixture bytes.
 4. Findings §4d carries the frozen per-constant table with every `DOOR_*` and
    door-side `CROSS_*` constant accounted for and each measured row citing its
    measurement; §4c carries the harness failure mode; §6 gains the aspect-gate
