@@ -1,5 +1,6 @@
 from __future__ import annotations
 import re
+from dataclasses import dataclass
 
 # ---------------------------------------------------------------------------
 # Door detection constants
@@ -229,3 +230,89 @@ DOOR_FOLD_JAMB_AXIS_TOL_DEG    = 15.0  # jamb faces run along the opening axis (
 DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX = 6.0  # lateral half-width of the opening corridor searched for
                                          # the far jamb endpoint and crossers (band half-thickness
                                          # scale; measured far-jamb lateral offsets 1.2-1.8)
+
+
+@dataclass(frozen=True)
+class DoorGates:
+    """World-space door gates, pre-multiplied by the detection factor.
+
+    Fields keep the exact names of the module constants they scale, so a use
+    site reads `gates.DOOR_MIN_SIZE_PX` where it read the module constant.
+    Paper-space constants (drawn ink separations, CAD-precision snap
+    tolerances, the label search radius) and dimensionless ones (ratios,
+    angles, counts, confidences) deliberately have NO field here — they never
+    scale. At factor 1.0 every field equals its constant exactly.
+
+    Classification and its measurements:
+    docs/scale-normalization-findings.md §4d.
+    """
+    factor: float
+    # --- arc / swing extents -------------------------------------------
+    DOOR_MIN_SIZE_PX: float
+    DOOR_MAX_SIZE_PX: float
+    DOOR_SWING_LINE_DIST_PX: float
+    DOOR_POLYLINE_MAX_SEG_PX: float
+    # --- leaf / assembly extents ---------------------------------------
+    DOOR_ASSEMBLY_CONNECT_TOL_PX: float
+    DOOR_LEAF_LINE_ENDPOINT_TOL_PX: float
+    DOOR_THRESHOLD_ENDPOINT_TOL_PX: float
+    DOOR_DOUBLE_LEAF_GAP_PX: float
+    DOOR_DOUBLE_LEAF_OVERLAP_PX: float
+    DOOR_DOUBLE_LEAF_CENTER_TOL_PX: float
+    # --- sliding ---------------------------------------------------------
+    DOOR_SLIDE_PANEL_MIN_THICKNESS_PX: float
+    DOOR_SLIDE_PANEL_MAX_THICKNESS_PX: float
+    DOOR_SLIDE_FLANK_GAP_MIN_PX: float
+    DOOR_SLIDE_FLANK_GAP_MAX_PX: float
+    DOOR_SLIDE_PARK_GAP_MAX_PX: float
+    DOOR_SLIDE_PARK_BAND_MIN_TH_PX: float
+    DOOR_SLIDE_PARK_BAND_MAX_TH_PX: float
+    DOOR_SLIDE_PARK_JAMB_TOL_PX: float
+    # --- folding ---------------------------------------------------------
+    DOOR_FOLD_JAMB_ANCHOR_TOL_PX: float
+    DOOR_FOLD_JAMB_LINE_MIN_LEN_PX: float
+    DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX: float
+
+    @classmethod
+    def at(cls, factor: float) -> "DoorGates":
+        assert factor > 0, "scale factor must be positive"
+        return cls(
+            factor=factor,
+            # Floor: a swing smaller than a pixel is not a door. Inert on the
+            # calibrated domain (5.0px at the f=0.25 clamp); a backstop only.
+            DOOR_MIN_SIZE_PX=max(1.0, DOOR_MIN_SIZE_PX * factor),
+            DOOR_MAX_SIZE_PX=DOOR_MAX_SIZE_PX * factor,
+            DOOR_SWING_LINE_DIST_PX=DOOR_SWING_LINE_DIST_PX * factor,
+            # A tessellated arc segment is r*dtheta; r is world-space
+            # (measured ratio 0.496) and dtheta is a fixed exporter setting.
+            # Caveat: fixed-CHORD-ERROR exporters give ~sqrt(r) instead —
+            # unmeasurable here (every 1:100 sheet draws native Beziers).
+            DOOR_POLYLINE_MAX_SEG_PX=DOOR_POLYLINE_MAX_SEG_PX * factor,
+            DOOR_ASSEMBLY_CONNECT_TOL_PX=DOOR_ASSEMBLY_CONNECT_TOL_PX * factor,
+            DOOR_LEAF_LINE_ENDPOINT_TOL_PX=DOOR_LEAF_LINE_ENDPOINT_TOL_PX * factor,
+            DOOR_THRESHOLD_ENDPOINT_TOL_PX=DOOR_THRESHOLD_ENDPOINT_TOL_PX * factor,
+            DOOR_DOUBLE_LEAF_GAP_PX=DOOR_DOUBLE_LEAF_GAP_PX * factor,
+            DOOR_DOUBLE_LEAF_OVERLAP_PX=DOOR_DOUBLE_LEAF_OVERLAP_PX * factor,
+            DOOR_DOUBLE_LEAF_CENTER_TOL_PX=DOOR_DOUBLE_LEAF_CENTER_TOL_PX * factor,
+            # Weakest row in the table: a drawn panel thickness. Scaled on the
+            # mm argument (7.83px at 1:50 ~ 66mm, a real panel), NOT on the
+            # shrunk-world test, which assumes the class under test. Revisit
+            # trigger: shower screens / glazing strips appearing as sliding
+            # doors on a 1:100 sheet. See spec §4.
+            DOOR_SLIDE_PANEL_MIN_THICKNESS_PX=DOOR_SLIDE_PANEL_MIN_THICKNESS_PX * factor,
+            DOOR_SLIDE_PANEL_MAX_THICKNESS_PX=DOOR_SLIDE_PANEL_MAX_THICKNESS_PX * factor,
+            DOOR_SLIDE_FLANK_GAP_MIN_PX=DOOR_SLIDE_FLANK_GAP_MIN_PX * factor,
+            DOOR_SLIDE_FLANK_GAP_MAX_PX=DOOR_SLIDE_FLANK_GAP_MAX_PX * factor,
+            DOOR_SLIDE_PARK_GAP_MAX_PX=DOOR_SLIDE_PARK_GAP_MAX_PX * factor,
+            # Wall-band thickness — the same quantity WALL_MIN/MAX_THICKNESS_PX
+            # already carries as W in WallGates.
+            DOOR_SLIDE_PARK_BAND_MIN_TH_PX=DOOR_SLIDE_PARK_BAND_MIN_TH_PX * factor,
+            DOOR_SLIDE_PARK_BAND_MAX_TH_PX=DOOR_SLIDE_PARK_BAND_MAX_TH_PX * factor,
+            DOOR_SLIDE_PARK_JAMB_TOL_PX=DOOR_SLIDE_PARK_JAMB_TOL_PX * factor,
+            DOOR_FOLD_JAMB_ANCHOR_TOL_PX=DOOR_FOLD_JAMB_ANCHOR_TOL_PX * factor,
+            DOOR_FOLD_JAMB_LINE_MIN_LEN_PX=DOOR_FOLD_JAMB_LINE_MIN_LEN_PX * factor,
+            DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX=DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX * factor,
+        )
+
+
+DOOR_GATES_UNSCALED = DoorGates.at(1.0)
