@@ -29,6 +29,7 @@ evidence.
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass
 
 from shapely.geometry import LineString, Point, Polygon, box
 from shapely.ops import unary_union
@@ -244,6 +245,43 @@ ROOM_OPENING_TEXT_COVER_MAX = 0.60    # a door bbox covered this much by the tex
                                       # WALL_WHITE_TEXT_COVER_FRAC)
 
 
+@dataclass(frozen=True)
+class RoomGates:
+    """World-space room gates pre-multiplied by the detection factor
+    (areas by factor²). Same field-naming rule as WallGates. The two
+    walls-owned constants rooms consumes are scaled here identically to
+    WallGates so the stages can never disagree about a wall's size."""
+    factor: float
+    ROOM_MIN_AREA_PX2: float                 # × f²
+    ROOM_BLIND_WINDOW_MAX_AREA_PX2: float    # × f²
+    ROOM_OPENING_SEAL_PX: float
+    ROOM_PLUG_ANCHOR_WIN_PX: float
+    ROOM_PLUG_HALF_WIDTH_PX: float
+    ROOM_FOLD_STACK_NEAR_PX: float
+    ROOM_FOLD_JAMB_MIN_LEN_PX: float
+    WALL_MAX_THICKNESS_PX: float             # walls-owned, used by rooms
+    WALL_HATCH_MAX_LEN_PX: float             # walls-owned, used by rooms
+
+    @classmethod
+    def at(cls, factor: float) -> "RoomGates":
+        return cls(
+            factor=factor,
+            ROOM_MIN_AREA_PX2=ROOM_MIN_AREA_PX2 * factor * factor,
+            ROOM_BLIND_WINDOW_MAX_AREA_PX2=(
+                ROOM_BLIND_WINDOW_MAX_AREA_PX2 * factor * factor),
+            ROOM_OPENING_SEAL_PX=ROOM_OPENING_SEAL_PX * factor,
+            ROOM_PLUG_ANCHOR_WIN_PX=ROOM_PLUG_ANCHOR_WIN_PX * factor,
+            ROOM_PLUG_HALF_WIDTH_PX=ROOM_PLUG_HALF_WIDTH_PX * factor,
+            ROOM_FOLD_STACK_NEAR_PX=ROOM_FOLD_STACK_NEAR_PX * factor,
+            ROOM_FOLD_JAMB_MIN_LEN_PX=ROOM_FOLD_JAMB_MIN_LEN_PX * factor,
+            WALL_MAX_THICKNESS_PX=WALL_MAX_THICKNESS_PX * factor,
+            WALL_HATCH_MAX_LEN_PX=WALL_HATCH_MAX_LEN_PX * factor,
+        )
+
+
+ROOM_GATES_UNSCALED = RoomGates.at(1.0)
+
+
 def _text_cover_frac(bbox, text_spans) -> float:
     """Fraction of a bbox area covered by the text spans lying over it."""
     if not text_spans:
@@ -263,7 +301,7 @@ def _text_cover_frac(bbox, text_spans) -> float:
     return unary_union(covers).intersection(b).area / b.area
 
 
-def _window_seal(candidate) -> Polygon:
+def _window_seal(candidate, *, gates: RoomGates = ROOM_GATES_UNSCALED) -> Polygon:
     """Barrier polygon sealing a window opening.
 
     A horizontal/vertical window's bbox IS the wall-band segment it sits in
@@ -286,11 +324,13 @@ def _window_seal(candidate) -> Polygon:
     else:
         band = LineString([(x0, y1), (x1, y0)])
     opening = float(candidate.evidence.get("opening_width_px") or 0.0)
-    half_th = max(ROOM_PLUG_HALF_WIDTH_PX, (band.length - opening) / 2.0)
+    half_th = max(gates.ROOM_PLUG_HALF_WIDTH_PX, (band.length - opening) / 2.0)
     return band.buffer(half_th, cap_style=2)
 
 
-def _open_leaf_edges(candidate) -> frozenset[int]:
+def _open_leaf_edges(
+    candidate, *, gates: RoomGates = ROOM_GATES_UNSCALED
+) -> frozenset[int]:
     """Bbox edges of a garden-layout double door that are room floor, not wall.
 
     A garden pair is drawn OPEN by construction: the two leaves park at
@@ -322,7 +362,7 @@ def _open_leaf_edges(candidate) -> frozenset[int]:
     if candidate.evidence.get("swing_layout") != "garden":
         return frozenset()
     x0, y0, x1, y1 = candidate.bbox
-    tol = ROOM_PLUG_HALF_WIDTH_PX
+    tol = gates.ROOM_PLUG_HALF_WIDTH_PX
     edges: set[int] = set()
     for key in ("leaf_bbox_a", "leaf_bbox_b"):
         leaf = candidate.evidence.get(key)
@@ -462,7 +502,8 @@ def _restrict_swing_plugs(candidate, plugs):
 
 
 def _door_plugs(
-    bbox, wall_material, skip_edges=frozenset()
+    bbox, wall_material, skip_edges=frozenset(),
+    *, gates: RoomGates = ROOM_GATES_UNSCALED,
 ) -> list[tuple[Polygon, str, int]]:
     """Thin barrier bands along the wall planes through a detected door.
 
@@ -516,9 +557,11 @@ def _door_plugs(
             continue
         ux = (q[0] - p[0]) / length
         uy = (q[1] - p[1]) / length
-        a = (p[0] - ux * ROOM_OPENING_SEAL_PX, p[1] - uy * ROOM_OPENING_SEAL_PX)
-        b = (q[0] + ux * ROOM_OPENING_SEAL_PX, q[1] + uy * ROOM_OPENING_SEAL_PX)
-        ext_len = length + 2.0 * ROOM_OPENING_SEAL_PX
+        a = (p[0] - ux * gates.ROOM_OPENING_SEAL_PX,
+             p[1] - uy * gates.ROOM_OPENING_SEAL_PX)
+        b = (q[0] + ux * gates.ROOM_OPENING_SEAL_PX,
+             q[1] + uy * gates.ROOM_OPENING_SEAL_PX)
+        ext_len = length + 2.0 * gates.ROOM_OPENING_SEAL_PX
         edge_line = LineString([a, b])
         n = max(int(ext_len / ROOM_PLUG_SAMPLE_PX), 8) + 1
         dists = [
@@ -532,7 +575,8 @@ def _door_plugs(
         # doorways the quarter dilutes real jamb coverage below the gate.
         win = min(
             quarter,
-            int(math.ceil(ROOM_PLUG_ANCHOR_WIN_PX / ROOM_PLUG_SAMPLE_PX)) + 1,
+            int(math.ceil(
+                gates.ROOM_PLUG_ANCHOR_WIN_PX / ROOM_PLUG_SAMPLE_PX)) + 1,
         )
         start_cov = sum(covered[:win]) / win
         end_cov = sum(covered[-win:]) / win
@@ -559,7 +603,7 @@ def _door_plugs(
         # doorway (measured: a real jamb solid ends 3.5px off the bbox edge
         # on floor-plans door_0008; the white-fixture phantom's parallel
         # band sits 6px off its bbox edge).
-        touch = [d <= ROOM_PLUG_HALF_WIDTH_PX for d in dists]
+        touch = [d <= gates.ROOM_PLUG_HALF_WIDTH_PX for d in dists]
         interrupted = (
             mid_cov <= ROOM_PLUG_MID_COV_MAX
             and any(touch[:win])
@@ -579,22 +623,22 @@ def _door_plugs(
         # trimmed tail no longer bridges is far thinner than the GAP_CLOSE
         # pinch, so the rooms it separates still split.
         step = ext_len / (n - 1)
-        tail_n = max(int(ROOM_OPENING_SEAL_PX / step), 1)
-        pos_a = ROOM_OPENING_SEAL_PX
+        tail_n = max(int(gates.ROOM_OPENING_SEAL_PX / step), 1)
+        pos_a = gates.ROOM_OPENING_SEAL_PX
         for i in range(min(tail_n, n)):
             if touch[i]:
-                pos_a = min(i * step, ROOM_OPENING_SEAL_PX)
+                pos_a = min(i * step, gates.ROOM_OPENING_SEAL_PX)
                 break
-        pos_b = ext_len - ROOM_OPENING_SEAL_PX
+        pos_b = ext_len - gates.ROOM_OPENING_SEAL_PX
         for i in range(n - 1, max(n - 1 - tail_n, -1), -1):
             if touch[i]:
-                pos_b = max(i * step, ext_len - ROOM_OPENING_SEAL_PX)
+                pos_b = max(i * step, ext_len - gates.ROOM_OPENING_SEAL_PX)
                 break
         spine = LineString(
             [edge_line.interpolate(pos_a), edge_line.interpolate(pos_b)]
         )
         plugs.append(
-            (spine.buffer(ROOM_PLUG_HALF_WIDTH_PX, cap_style=2),
+            (spine.buffer(gates.ROOM_PLUG_HALF_WIDTH_PX, cap_style=2),
              kind, edge_idx)
         )
     return plugs
@@ -602,6 +646,7 @@ def _door_plugs(
 
 def _folding_chain_gap_plug(
     candidate: Candidate, network: WallNetwork, wall_material,
+    *, gates: RoomGates = ROOM_GATES_UNSCALED,
 ) -> Polygon | None:
     """Seal the doorway a PARKED folding chain leaves uncovered.
 
@@ -625,7 +670,7 @@ def _folding_chain_gap_plug(
     best: tuple[float, Polygon] | None = None
     for s in network.segments:
         seg_len = _line_length(s.p1, s.p2)
-        if seg_len < ROOM_FOLD_JAMB_MIN_LEN_PX:
+        if seg_len < gates.ROOM_FOLD_JAMB_MIN_LEN_PX:
             continue
         for end, other in ((s.p1, s.p2), (s.p2, s.p1)):
             ux = (end[0] - other[0]) / seg_len
@@ -636,7 +681,7 @@ def _folding_chain_gap_plug(
                  end[1] + uy * ROOM_FOLD_GAP_ESCAPE_PX),
                 (end[0] + ux * reach, end[1] + uy * reach),
             ])
-            if ray.distance(door_box) > ROOM_FOLD_STACK_NEAR_PX:
+            if ray.distance(door_box) > gates.ROOM_FOLD_STACK_NEAR_PX:
                 continue
             hit = ray.intersection(wall_material)
             if hit.is_empty:
@@ -715,7 +760,9 @@ def detect_rooms(
     page_width_px: float,
     page_height_px: float,
     text_spans: list[TextSpan] | None = None,
+    scale_factor: float = 1.0,
 ) -> list[Candidate]:
+    gates = RoomGates.at(scale_factor)
     if network is None or network.is_empty():
         return []
 
@@ -841,11 +888,11 @@ def detect_rooms(
         ])
         return line.intersection(bands).length / line.length
 
-    def _is_barrier_face(f):
+    def _is_barrier_face(f, gates):
         if _in_door_zone(f.p1, f.p2):
             return False
         if (
-            _line_length(f.p1, f.p2) <= WALL_HATCH_MAX_LEN_PX
+            _line_length(f.p1, f.p2) <= gates.WALL_HATCH_MAX_LEN_PX
             and _is_diagonal_hatch_angle(_line_angle_deg(f.p1, f.p2))
             and not f.wall_fill
         ):
@@ -885,7 +932,7 @@ def detect_rooms(
     line_parts = [
         LineString([f.p1, f.p2]).buffer(ROOM_LINE_BARRIER_PX, cap_style=3)
         for f in network.faces
-        if _is_barrier_face(f)
+        if _is_barrier_face(f, gates)
     ]
 
     # Hollow (white) walls and joinery runs: accept the candidate rings that
@@ -977,7 +1024,8 @@ def detect_rooms(
     for zone, c in zip(door_zone_bounds, doors):
         local = wall_material.intersection(
             box(*c.bbox).buffer(
-                ROOM_OPENING_SEAL_PX + ROOM_PLUG_NEAR_PX + 4.0, join_style=2
+                gates.ROOM_OPENING_SEAL_PX + ROOM_PLUG_NEAR_PX + 4.0,
+                join_style=2,
             )
         )
         # A garden pair's parked-open leaves pin down two edges as room/garden
@@ -987,9 +1035,9 @@ def detect_rooms(
         # doors are further held to their hinge edges — the wall plane runs
         # through the hinge, so far-edge plugs only ever fence the swing
         # square out of its room.
-        leaf_edges = _open_leaf_edges(c) | _sliding_end_edges(c)
+        leaf_edges = _open_leaf_edges(c, gates=gates) | _sliding_end_edges(c)
         plugs = _restrict_swing_plugs(
-            c, _door_plugs(c.bbox, local, skip_edges=leaf_edges)
+            c, _door_plugs(c.bbox, local, skip_edges=leaf_edges, gates=gates)
         )
         if c.confidence < ROOM_OPENING_MIN_CONFIDENCE:
             plugs = [
@@ -1011,7 +1059,7 @@ def detect_rooms(
             if leaves:
                 plugs = _restrict_swing_plugs(c, _door_plugs(
                     c.bbox, unary_union([local] + leaves),
-                    skip_edges=leaf_edges,
+                    skip_edges=leaf_edges, gates=gates,
                 ))
         # A folding chain parked at its jamb never spans its own doorway, so
         # bbox-edge plugs cannot seal the opening plane — recover it via the
@@ -1020,16 +1068,17 @@ def detect_rooms(
             c.evidence.get("fold_style") == "chain"
             and c.confidence >= ROOM_OPENING_MIN_CONFIDENCE
         ):
-            gap_plug = _folding_chain_gap_plug(c, network, wall_material)
+            gap_plug = _folding_chain_gap_plug(
+                c, network, wall_material, gates=gates)
             if gap_plug is not None:
                 plugs = plugs + [(gap_plug, "chain_gap", None)]
         if plugs:
             door_barriers.append(unary_union([p for p, _, _ in plugs]))
         elif c.confidence >= ROOM_BBOX_SEAL_MIN_CONFIDENCE:
             door_barriers.append(
-                box(*c.bbox).buffer(ROOM_OPENING_SEAL_PX, join_style=2)
+                box(*c.bbox).buffer(gates.ROOM_OPENING_SEAL_PX, join_style=2)
             )
-    window_barriers = [_window_seal(c) for c in windows]
+    window_barriers = [_window_seal(c, gates=gates) for c in windows]
     opening_parts = door_barriers + window_barriers
 
     # Drafting-gap sealing happens on the free-space side, inside
@@ -1064,9 +1113,9 @@ def detect_rooms(
     # doorway floor, never a room.
     swing_zones = [
         box(*c.bbox).buffer(
-            WALL_MAX_THICKNESS_PX
+            gates.WALL_MAX_THICKNESS_PX
             if c.evidence.get("assembly_type") == "folding"
-            else ROOM_OPENING_SEAL_PX,
+            else gates.ROOM_OPENING_SEAL_PX,
             join_style=2,
         )
         for c in doors
@@ -1075,7 +1124,7 @@ def detect_rooms(
 
     rooms: list[tuple[Polygon, dict]] = []
     for comp in components:
-        if comp.area < ROOM_MIN_AREA_PX2:
+        if comp.area < gates.ROOM_MIN_AREA_PX2:
             continue
         if comp.area > ROOM_MAX_PAGE_AREA_FRAC * page_area:
             continue
@@ -1123,7 +1172,7 @@ def detect_rooms(
         # exterior side of that window, not a room (see the constant).
         if (
             door_count == 0 and window_count > 0
-            and comp.area < ROOM_BLIND_WINDOW_MAX_AREA_PX2
+            and comp.area < gates.ROOM_BLIND_WINDOW_MAX_AREA_PX2
         ):
             continue
         rooms.append((exterior, {

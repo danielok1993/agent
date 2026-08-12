@@ -8,7 +8,8 @@ Walls half of the suite (Task 3). Task 4 adds the rooms half.
 """
 import unittest
 
-from detection import detect_wall_network
+from detection import detect_rooms, detect_wall_network
+from detection.rooms import ROOM_MIN_AREA_PX2, ROOM_GATES_UNSCALED, RoomGates
 from detection.walls import (
     COLLINEAR_OFFSET_TOL, WALL_HATCH_MAX_LEN_PX, WALL_HATCH_MAX_PITCH_PX,
     WALL_MAX_THICKNESS_PX, WALL_MIN_THICKNESS_PX, WALL_WEAK_MATERIAL_PER_100PX,
@@ -169,6 +170,65 @@ class TestWallNetworkScaled(unittest.TestCase):
         base = detect_wall_network(filler + wide)
         blind = detect_wall_network(shrink(filler + wide))  # no factor
         self.assertNotEqual(len(base.segments), len(blind.segments))
+
+
+def rooms_for(paths, scale_factor=1.0, page=(700.0, 600.0)):
+    network = detect_wall_network(paths, scale_factor=scale_factor)
+    return detect_rooms(network, [], [], page[0], page[1],
+                        scale_factor=scale_factor)
+
+
+class TestRoomGatesConstruction(unittest.TestCase):
+    def test_identity_at_one(self):
+        g = RoomGates.at(1.0)
+        self.assertEqual(g.ROOM_MIN_AREA_PX2, ROOM_MIN_AREA_PX2)
+
+    def test_areas_scale_by_factor_squared(self):
+        g = RoomGates.at(0.5)
+        self.assertEqual(g.ROOM_MIN_AREA_PX2, ROOM_MIN_AREA_PX2 * 0.25)
+
+    def test_wall_hatch_max_len_matches_wallgates_scaling(self):
+        # RoomGates duplicates the walls-owned constant identically to
+        # WallGates so the two stages can never disagree about a wall's
+        # size (rooms.py's _is_barrier_face reads it from here).
+        g = RoomGates.at(0.5)
+        self.assertEqual(g.WALL_HATCH_MAX_LEN_PX, WALL_HATCH_MAX_LEN_PX * 0.5)
+
+
+class TestRoomsScaled(unittest.TestCase):
+    def test_identity_factor_equals_omitted(self):
+        paths = room_box_walls()
+        a = rooms_for(paths)
+        b = rooms_for(paths, scale_factor=1.0)
+        self.assertEqual(len(a), len(b))
+        self.assertEqual([c.bbox for c in a], [c.bbox for c in b])
+
+    def test_shrunk_world_room_still_detected(self):
+        paths = room_box_walls()
+        base = rooms_for(paths)
+        shrunk = rooms_for(shrink(paths), scale_factor=0.5,
+                           page=(350.0, 300.0))
+        self.assertEqual(len(base), len(shrunk))
+        self.assertEqual(len(shrunk), 1)
+
+    def test_area_floor_applies_at_f_squared(self):
+        # A 58x58 interior (3364px² > 2500 floor) detects at 1:50. Its
+        # shrunk twin is 29x29 = 841px² — BELOW the unscaled floor, above
+        # the f² floor (625). Scale-aware detection keeps it; the blind
+        # run is the negative control.
+        t = 8.0
+        small = (wall_band_h(0, 100, 174 + t, 100, t)
+                 + wall_band_h(2, 100, 174 + t, 166, t)
+                 + wall_band_v(4, 100, 100, 166 + t, t)
+                 + wall_band_v(6, 166, 100, 166 + t, t))
+        base = rooms_for(small, page=(300.0, 300.0))
+        self.assertEqual(len(base), 1)
+        shrunk = rooms_for(shrink(small), scale_factor=0.5,
+                           page=(150.0, 150.0))
+        self.assertEqual(len(shrunk), 1)
+        blind = rooms_for(shrink(small), scale_factor=1.0,
+                          page=(150.0, 150.0))
+        self.assertEqual(len(blind), 0)   # eaten by the unscaled area floor
 
 
 if __name__ == "__main__":
