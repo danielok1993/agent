@@ -257,6 +257,7 @@ class WallGates:
     WALL_HATCH_MAX_LEN_PX: float
     WALL_HATCH_MAX_PITCH_PX: float
     WALL_WEAK_MATERIAL_PER_100PX: float
+    COLLINEAR_OFFSET_TOL: float
 
     @classmethod
     def at(cls, factor: float) -> "WallGates":
@@ -285,6 +286,14 @@ class WallGates:
             # the minimum must RISE to keep noise out — divide, not
             # multiply (see docs/scale-normalization-findings.md §4b).
             WALL_WEAK_MATERIAL_PER_100PX=WALL_WEAK_MATERIAL_PER_100PX / factor,
+            # Not WALL_-prefixed, so it was missed by the original corpus
+            # census and the frozen §4 table — found via TDD (see
+            # docs/scale-normalization-findings.md §4 row). It gates the
+            # same "is this the same drawn line" judgment as
+            # WALL_MIN_THICKNESS_PX: left unscaled, a shrunk-world wall's
+            # own face spacing can fall at/under it and the two faces fuse
+            # into one line, which then can never pair.
+            COLLINEAR_OFFSET_TOL=COLLINEAR_OFFSET_TOL * factor,
         )
 
     def __post_init__(self):
@@ -1474,18 +1483,16 @@ def _merge_collinear_segs(
     Bridges gaps up to gap_px; keeps the max thickness, unions path indices,
     and ORs layer hints across merged members.
 
-    COLLINEAR_OFFSET_TOL is scaled by gates.factor (not a WallGates field —
-    it is private to this function and not on the brief's frozen table, but
-    it gates the same "is this the same drawn line" world-space judgment as
-    WALL_MIN_THICKNESS_PX: at f=1.0 a 4.0px offset tolerance sits comfortably
-    above WALL_MIN_THICKNESS_PX (2.0), but left unscaled it would exceed a
-    shrunk-world wall's own thickness at smaller f and silently fuse a real
-    wall's two faces into one line, which then can never pair. Measured via
-    the shrunk-world synthetic test: an 8px-at-1:50 band shrinks to 4px at
-    f=0.5, exactly the unscaled tolerance, and the two faces merged into a
-    single line with zero centerlines recovered.
+    gates.COLLINEAR_OFFSET_TOL gates the same "is this the same drawn line"
+    world-space judgment as WALL_MIN_THICKNESS_PX: at f=1.0 the 4.0px offset
+    tolerance sits comfortably above WALL_MIN_THICKNESS_PX (2.0), but left
+    unscaled it would exceed a shrunk-world wall's own face spacing at
+    smaller f and silently fuse a real wall's two faces into one line, which
+    then can never pair. Measured via the shrunk-world synthetic test: an
+    8px-at-1:50 band shrinks to 4px at f=0.5, exactly the unscaled
+    tolerance, and the two faces merged into a single line with zero
+    centerlines recovered.
     """
-    offset_tol = COLLINEAR_OFFSET_TOL * gates.factor
     if not segs:
         return []
 
@@ -1532,7 +1539,7 @@ def _merge_collinear_segs(
 
                 # Perpendicular offset from a's line to b
                 offset = abs((b.p1[0] - a.p1[0]) * (-uy) + (b.p1[1] - a.p1[1]) * ux)
-                if offset > offset_tol:
+                if offset > gates.COLLINEAR_OFFSET_TOL:
                     continue
 
                 t_b1 = _project_onto_axis(b.p1, a.p1, ux, uy)

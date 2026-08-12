@@ -10,11 +10,16 @@ import unittest
 
 from detection import detect_wall_network
 from detection.walls import (
-    WALL_HATCH_MAX_LEN_PX, WALL_HATCH_MAX_PITCH_PX, WALL_MAX_THICKNESS_PX,
-    WALL_MIN_THICKNESS_PX, WALL_WEAK_MATERIAL_PER_100PX, WallGates,
-    WALL_GATES_UNSCALED,
+    COLLINEAR_OFFSET_TOL, WALL_HATCH_MAX_LEN_PX, WALL_HATCH_MAX_PITCH_PX,
+    WALL_MAX_THICKNESS_PX, WALL_MIN_THICKNESS_PX, WALL_WEAK_MATERIAL_PER_100PX,
+    WallGates, WALL_GATES_UNSCALED, _Seg, _merge_collinear_segs,
 )
 from tests.test_wall_network import hline, path, vline, wall_band_h, wall_band_v
+
+
+def _hface(y, x0=0.0, x1=100.0):
+    """A bare horizontal wall-face _Seg for isolated merge-tolerance tests."""
+    return _Seg(p1=(x0, y), p2=(x1, y), stroked=True, stroke_width=1.5)
 
 
 def shrink(paths, s=0.5):
@@ -87,6 +92,45 @@ class TestWallGatesConstruction(unittest.TestCase):
             g = WallGates.at(f)
             self.assertEqual(
                 g.WALL_HATCH_MAX_LEN_PX, g.WALL_LATTICE_MIN_RUNG_LEN_PX)
+
+
+class TestMergeCollinearOffsetScaling(unittest.TestCase):
+    """Isolates _merge_collinear_segs's offset-tolerance scaling directly —
+    the exact mechanism behind the shrunk-world wall-fusion bug fixed in
+    this branch (see docs/scale-normalization-findings.md's COLLINEAR_OFFSET_TOL
+    row). Two parallel faces closer than gates.COLLINEAR_OFFSET_TOL apart
+    are treated as pieces of the SAME drawn line and fused into one; the
+    gate must scale with the detection factor or a shrunk-world wall's own
+    face spacing can fall under it and the wall silently disappears.
+    """
+
+    def test_offset_at_tolerance_merges_at_f1(self):
+        # Today's (pre-branch) boundary behavior, preserved exactly:
+        # offset == COLLINEAR_OFFSET_TOL (4.0) does not exceed the gate, so
+        # the two faces merge into one run at f=1.0.
+        faces = [_hface(0.0), _hface(COLLINEAR_OFFSET_TOL)]
+        merged = _merge_collinear_segs(faces, gap_px=0.0, gates=WALL_GATES_UNSCALED)
+        self.assertEqual(len(merged), 1)
+
+    def test_same_offset_does_not_merge_once_scaled_down(self):
+        # The fixed mechanism: the SAME 4.0px paper offset as above, but at
+        # f=0.5 gates.COLLINEAR_OFFSET_TOL scales to 2.0 — 4.0 > 2.0, so the
+        # two faces of a shrunk-world wall correctly stay distinct instead
+        # of fusing into a single (unpairable) line.
+        faces = [_hface(0.0), _hface(COLLINEAR_OFFSET_TOL)]
+        gates = WallGates.at(0.5)
+        self.assertEqual(gates.COLLINEAR_OFFSET_TOL, 2.0)
+        merged = _merge_collinear_segs(faces, gap_px=0.0, gates=gates)
+        self.assertEqual(len(merged), 2)
+
+    def test_offset_within_scaled_tolerance_still_merges(self):
+        # Not every close pair at f=0.5 is a real wall: an offset genuinely
+        # inside the scaled tolerance (1.0 < 2.0) is still drafting jitter
+        # of the same line and merges, same as it would at any factor.
+        faces = [_hface(0.0), _hface(1.0)]
+        gates = WallGates.at(0.5)
+        merged = _merge_collinear_segs(faces, gap_px=0.0, gates=gates)
+        self.assertEqual(len(merged), 1)
 
 
 class TestWallNetworkScaled(unittest.TestCase):
