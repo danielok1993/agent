@@ -28,6 +28,7 @@ from layout import (
 from gemini import client as gc
 from gemini.classifier import classify_regions, render_region_crop
 from gemini.region_cache import cache_key, load_regions, save_regions
+from scale.factor import detection_scale
 from scale.resolver import PageScales, resolve_page_scales
 from scale.store import load_stored
 from scale.units import format_scale
@@ -258,7 +259,7 @@ def scale_table(page_scales: PageScales, regions: list[Region]) -> Table:
     return table
 
 
-def scale_summary_dict(page_scales: PageScales) -> dict:
+def scale_summary_dict(page_scales: PageScales, det_scale=None) -> dict:
     """The scales block written into each page's summary.json entry."""
     def one(info):
         return {"denominator": info.denominator, "source": info.source,
@@ -266,10 +267,17 @@ def scale_summary_dict(page_scales: PageScales) -> dict:
                 "conflict": info.conflict,
                 "bbox": list(info.bbox) if info.bbox else None}
 
-    return {
+    out = {
         "by_region": {rid: one(info) for rid, info in page_scales.by_region.items()},
         "page_scale": one(page_scales.page_scale) if page_scales.page_scale else None,
     }
+    if det_scale is not None:
+        out["detection"] = {
+            "factor": round(det_scale.factor, 4),
+            "denominator": det_scale.denominator,
+            "source": det_scale.source,
+        }
+    return out
 
 
 def _page_summary_dict(
@@ -279,6 +287,7 @@ def _page_summary_dict(
     page_warnings: list[dict],
     regions: list[Region],
     page_scales: PageScales,
+    det_scale=None,
 ) -> dict:
     return {
         "page_number": page_data.page_number,
@@ -293,7 +302,7 @@ def _page_summary_dict(
         "warning_count": len(page_warnings),
         "region_count": len(regions),
         "floor_plan_region_count": sum(1 for r in regions if r.region_type == "floor_plan"),
-        "scales": scale_summary_dict(page_scales),
+        "scales": scale_summary_dict(page_scales, det_scale),
     }
 
 
@@ -593,6 +602,13 @@ def run_extract(
                 suspend_display=suspend_progress,
             )
 
+            # 2e. Detection scale factor — which scale governs the ink
+            # detection sees, from the same regions/page_scales resolved
+            # above. Computed unconditionally (even when detection itself
+            # is skipped) so the summary always records the factor.
+            det_scale = detection_scale(
+                page_scales, region_result.regions, page_num)
+
             # 3. pdfplumber
             step("plumber")
             plumber_page = extract_plumber_page(str(path), idx)
@@ -617,6 +633,7 @@ def run_extract(
                     disable_rooms=disable_rooms, disable_windows=disable_windows,
                     collector=collector,
                     schedule_text_spans=region_result.schedule_spans,
+                    scale_factor=det_scale.factor,
                 )
             total_candidates += len(candidates)
             write_json(
@@ -700,6 +717,7 @@ def run_extract(
                 page_data, candidates, comparison, region_result.warnings,
             )
             page_warnings.extend(page_scales.warnings)
+            page_warnings.extend(det_scale.warnings)
             for w in page_warnings:
                 w.setdefault("page_number", page_num)
             all_warnings.extend(page_warnings)
@@ -709,7 +727,7 @@ def run_extract(
 
             all_page_summaries.append(
                 _page_summary_dict(page_data, candidates, entities, page_warnings,
-                                   region_result.regions, page_scales)
+                                   region_result.regions, page_scales, det_scale)
             )
 
     doc.close()

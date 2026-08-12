@@ -37,6 +37,7 @@ def run_heuristics(
     collector: DebugTraceCollector | None = None,
     disable_rooms: bool = False,
     schedule_text_spans: list[TextSpan] | None = None,
+    scale_factor: float = 1.0,
 ) -> list[Candidate]:
     disable_rooms = disable_rooms or disable_walls
 
@@ -62,6 +63,7 @@ def run_heuristics(
             exclude_path_indices=door_open_leaf_path_indices(
                 doors, page_data.paths
             ),
+            scale_factor=scale_factor,
         )
 
     with _stage("cross_validate"):
@@ -84,6 +86,7 @@ def run_heuristics(
             page_data.width_px,
             page_data.height_px,
             page_data.text_spans,
+            scale_factor=scale_factor,
         )
 
     # Rooms are deliberately excluded from label attachment (room-sized bboxes
