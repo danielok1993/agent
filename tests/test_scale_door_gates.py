@@ -142,3 +142,111 @@ class TestLeafGatesThreading(unittest.TestCase):
         from detection.doors.constants import DOOR_LEAF_COMPANION_PERP_PX
         self.assertFalse(hasattr(DoorGates.at(0.5), "DOOR_LEAF_COMPANION_PERP_PX"))
         self.assertEqual(DOOR_LEAF_COMPANION_PERP_PX, 5.0)
+
+
+import ast
+from pathlib import Path
+
+_DETECTION_DIR = Path(__file__).resolve().parent.parent / "detection"
+
+
+def _production_door_gates_unscaled_usages() -> list[tuple[str, str]]:
+    """Scan detection/**/*.py for PRODUCTION (non-import, non-comment) uses
+    of the DOOR_GATES_UNSCALED name, excluding its own definition line in
+    constants.py.
+
+    Returns a list of (repo-relative-path, stripped-line-text) — one entry
+    per source line outside an import statement that still mentions the
+    name after constants.py's own `DOOR_GATES_UNSCALED = DoorGates.at(1.0)`
+    definition and pure-comment lines are excluded.
+    """
+    findings: list[tuple[str, str]] = []
+    for path in sorted(_DETECTION_DIR.rglob("*.py")):
+        source = path.read_text()
+        if "DOOR_GATES_UNSCALED" not in source:
+            continue
+        rel = path.relative_to(_DETECTION_DIR.parent).as_posix()
+        lines = source.splitlines()
+        tree = ast.parse(source, filename=str(path))
+        import_lines: set[int] = set()
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.Import, ast.ImportFrom)):
+                start = node.lineno
+                end = getattr(node, "end_lineno", node.lineno)
+                import_lines.update(range(start, end + 1))
+        for lineno, raw_line in enumerate(lines, start=1):
+            if "DOOR_GATES_UNSCALED" not in raw_line:
+                continue
+            if lineno in import_lines:
+                continue
+            stripped = raw_line.strip()
+            if stripped.startswith("#"):
+                continue
+            if rel == "detection/doors/constants.py" and stripped.startswith("DOOR_GATES_UNSCALED ="):
+                continue
+            findings.append((rel, stripped))
+    return findings
+
+
+class TestDoorGatesUnscaledStopgapRatchet(unittest.TestCase):
+    """Ratchet on detection/'s production uses of DOOR_GATES_UNSCALED.
+
+    DOOR_GATES_UNSCALED is a TRANSITIONAL STOPGAP, not a sanctioned pattern.
+    detection/doors/assembly.py is not yet threaded with the real scaled
+    `gates` (that is a later task's job — `_pair_door_assemblies` still
+    reads bare DOOR_ASSEMBLY_CONNECT_TOL_PX / DOOR_THRESHOLD_ENDPOINT_TOL_PX
+    directly). Its one call into `_find_anchored_leaf_line` — which now
+    requires `gates` as a keyword-only, no-default parameter — is hardcoded
+    to `gates=DOOR_GATES_UNSCALED` purely to preserve exact factor-1.0
+    behavior until assembly.py gets threaded properly.
+
+    This is a RATCHET, not a plain "must never appear" guard: the stopgap
+    legitimately exists right now, so a plain assertNotIn would fail
+    immediately and for the wrong reason. Instead this pins the CURRENT set
+    of production usages exactly via EXPECTED_USAGES, and fails if that set
+    changes in EITHER direction:
+      - a SECOND stopgap appearing anywhere in detection/ (regression:
+        someone reaches for DOOR_GATES_UNSCALED instead of threading gates
+        properly) changes the found count/location and fails;
+      - the known stopgap being removed (the count drops to zero) without
+        this test being updated also fails — that is the deliberate
+        trip-wire.
+
+    THE TASK THAT THREADS GATES INTO assembly.py MUST replace the
+    assembly.py call site's `gates=DOOR_GATES_UNSCALED` with the real
+    threaded `gates`, and when it does, update EXPECTED_USAGES below to the
+    empty tuple `()` — that edit is the mechanical proof the stopgap was
+    actually retired, not just a ledger note.
+
+    Matching is by a stable substring (the calling function's name, e.g.
+    "_find_anchored_leaf_line") plus the DOOR_GATES_UNSCALED name itself —
+    never by line number, which shifts as the file is edited around it.
+    """
+
+    # (repo-relative path, stable substring expected on that usage's line)
+    EXPECTED_USAGES: tuple[tuple[str, str], ...] = (
+        ("detection/doors/assembly.py", "_find_anchored_leaf_line"),
+    )
+
+    def test_door_gates_unscaled_stopgap_set_is_exactly_known(self):
+        findings = _production_door_gates_unscaled_usages()
+        self.assertEqual(
+            len(findings), len(self.EXPECTED_USAGES),
+            "The set of production DOOR_GATES_UNSCALED usages in detection/ "
+            "changed size. If a stopgap was just retired by threading real "
+            "gates through its call site, update EXPECTED_USAGES to match "
+            "(empty once assembly.py is threaded). If this is unexpected, a "
+            "new stopgap has crept in — thread gates properly instead.\n"
+            f"Found: {findings}\nExpected: {list(self.EXPECTED_USAGES)}",
+        )
+        for rel_expected, substr in self.EXPECTED_USAGES:
+            matches = [
+                (rel, line) for rel, line in findings
+                if rel == rel_expected and substr in line
+            ]
+            self.assertEqual(
+                len(matches), 1,
+                f"Expected exactly one DOOR_GATES_UNSCALED usage in "
+                f"{rel_expected} matching {substr!r}; found {matches}.\n"
+                f"All findings: {findings}",
+            )
