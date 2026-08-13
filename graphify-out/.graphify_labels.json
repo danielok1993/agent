@@ -179,5 +179,20 @@
   "177": "_dedupe_openings",
   "178": "TestBlindWindowPocket",
   "179": "TestWindowTightPairInterior",
-  "180": "TestFloorPlansRegression"
+  "180": "TestFloorPlansRegression",
+  "181": "Step 5 — Per-scale-group detection for mixed-scale pages",
+  "182": "EntranceDoorTests",
+  "183": "Step 1 — Widen the door Bezier aspect gate",
+  "184": "Step 2 — Retune the window span-overshoot gate (paper-space FP kill)",
+  "185": "Step 3 — Diagnose s15's 82 false positives (read-only)",
+  "186": "Step 4 — Recall audit on the 1:100 sheets (misses are invisible to ground truth)",
+  "187": "MainExceptionIsolationTests",
+  "188": "TestCrossGatesUnscaledStopgapRatchet",
+  "189": "TestDoorGatesUnscaledStopgapRatchet",
+  "190": "TestSlugForPath",
+  "191": "client.py",
+  "192": "_dedupe_openings",
+  "193": "TestCrossWindowToleranceUnscaled",
+  "194": "TestFloorPlansRegression",
+  "195": "README.md"
 }

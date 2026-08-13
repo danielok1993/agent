@@ -5,8 +5,23 @@ from dataclasses import dataclass
 # ---------------------------------------------------------------------------
 # Door detection constants
 # ---------------------------------------------------------------------------
-DOOR_BBOX_ASPECT_MIN        = 0.85   # width/height ratio (roughly square arc)
-DOOR_BBOX_ASPECT_MAX        = 1.15
+# Bezier swing-arc bbox aspect (width/height). An axis-anchored quarter arc is
+# square (1.0), but a real swing is often swept <90° or anchored off-axis,
+# skewing the bbox: a ~77.5°-sweep arc measures 0.804 (mirror 1.244) on
+# s06/s13's door arcs — the corpus' largest door-recall gap (s06: 2/10 swings)
+# under the original [0.85, 1.15] gate, which dated to the first commit with
+# no recorded FP motivation. Bounds now equal the polyline-arc path's aspect
+# gate (arcs.py uses these constants at both sites — one shared judgment).
+# Measured across all 20 corpus sheets (2026-08-13): every door-scale Bezier
+# arc the widening admits is a genuine swing on a joinery layer (aspects
+# 0.79-0.83 / 1.24, corner-method sweep estimates 87.5-90°); the nearest
+# repeated non-door
+# family at door scale — fixture/appliance quarter arcs — sits at aspect
+# 1.494 (s12) and 1.50-1.76 (s02, ~120 arcs), just past the upper bound, so
+# don't widen further. Sub-0.65 door arcs observed so far are two-Bezier
+# halves the curve_arc_chain path already recovers (0.45 on s06/s13).
+DOOR_BBOX_ASPECT_MIN        = 0.65
+DOOR_BBOX_ASPECT_MAX        = 1.45
 DOOR_MIN_SIZE_PX            = 20.0
 DOOR_MAX_SIZE_PX            = 200.0
 DOOR_SWING_LINE_DIST_PX     = 15.0  # max px from arc corner to nearby line endpoint

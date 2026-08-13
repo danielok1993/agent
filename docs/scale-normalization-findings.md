@@ -625,7 +625,7 @@ spec):
 
 | Constant | Class | Rationale |
 |---|---|---|
-| DOOR_BBOX_ASPECT_MIN | D | aspect ratio (Bezier bbox roughly-square gate); see §6's Bezier-aspect-gate deferred entry |
+| DOOR_BBOX_ASPECT_MIN | D | aspect ratio (Bezier swing-arc bbox gate); widened to the polyline bounds 2026-08-13 — see §6's Bezier-aspect-gate entry (DONE) |
 | DOOR_BBOX_ASPECT_MAX | D | aspect ratio; see §6 |
 | DOOR_MIN_SIZE_PX | W | smallest door symbol extent — the load-bearing gate (0.496 ratio, above); floored at `max(1.0, ·×f)`, inert on the calibrated domain |
 | DOOR_MAX_SIZE_PX | W | largest door symbol extent, same measurement |
@@ -983,19 +983,31 @@ implementation commit; they never ship.
   1:50/unresolved sheets byte-identical). See
   `.superpowers/sdd/2026-08-12-scale-aware-door-gates/task-9-report.md` for
   the full sweep-vs-prediction table.
-- **Doors — Bezier aspect gate (deferred, not this branch's scope):**
-  `DOOR_BBOX_ASPECT_MIN`/`MAX` ([0.85, 1.15]) rejects genuine 85°-sweep arcs
-  at measured bbox aspect **0.804** — below the gate. This is the single
-  largest measured miss driver on the 1:100 sheets: s06 detects only 2 of 10
-  visible swings because of it. The polyline detection path already uses a
-  wider [0.65, 1.45] gate for the same judgment (`detection/doors/arcs.py:643`)
-  — the Bezier path's gate is tighter than its own sibling for no measured
-  reason. **Dimensionless** (an aspect ratio), so scale-awareness cannot fix
-  it; the fix is widening the gate and re-verifying against the false-positive
-  risk that motivated the tight bound originally. Recorded here (design
-  §Scope/Out, 2026-08-12) rather than fixed on the scale-aware-gates branch —
-  a large chunk of this branch's real-corpus payoff is gated behind this
-  follow-up, not behind scale.
+- **Doors — Bezier aspect gate** — **DONE** (`fix/door-bezier-aspect-gate`,
+  2026-08-13). `DOOR_BBOX_ASPECT_MIN`/`MAX` widened [0.85, 1.15] → **[0.65,
+  1.45]**, the polyline path's values; both sites in `detection/doors/arcs.py`
+  now read the shared constants — one judgment. Git history records **no FP
+  motivation** for the original tight bound (unchanged since the first
+  commit, `01135e7`; the tuning guide's old "admits wall hatches" note was
+  unverifiable — hatches are `l` paths and never reach the `c`-only gate).
+  Measured through the real pipeline on all 20 sheets (§4c discipline: the
+  harness's runs reproduced the sweep's final entities byte-for-byte on every
+  page before its numbers were used): the widening admits exactly **20
+  door-scale `c` arcs corpus-wide, all genuine swings on joinery layers** —
+  s06 ×9 and s13 ×9 at aspect 0.804 / mirror 1.244 (77.5°-sweep swings, layer
+  `WINDOWS`; the corner-method sweep estimate reads them as 87.5° and the
+  earlier note as "85°"), s17 ×1 at 0.828 (layer `A325G_INT_DOORS`), s02 ×1
+  at 0.793. The nearest repeated NON-door family at door scale is elliptical
+  fixture/appliance quarter arcs at aspect **1.494** (s12) / 1.50–1.76 (s02,
+  ~120 arcs) / 1.62–1.82 (s05/s12) — 0.044 past the upper bound: do **not**
+  widen beyond 1.45. Sub-0.65 door arcs observed are two-Bezier halves
+  `curve_arc_chain` already recovers (0.45 on s06/s13). Local verification
+  (not the verdict sweep): **s06 2→11 doors, s13 3→11 (incl. one garden
+  double_swing merge), s17 27→28, s02 15→15 identity; s05/s12/s15
+  byte-identical**; rooms +6/+7/+1 on s06/s13/s17 — new door seals splitting
+  previously-merged free space, arriving as REVIEW room lines. Pinned in
+  `tests/test_bezier_arc_aspect.py` (both admitted mirror bands, the shallow
+  60° decorative arc below 0.65, and the ≥1.49 elliptical fixture family).
 - **Doors — s11 double-door assembly merge (deferred, confirmed NOT a scale
   bug):** `door_0005`/`door_0007` (conf 0.60, at (765,1224) and (766,1640))
   detect as two half-width singles instead of merging into one full-width
