@@ -486,12 +486,15 @@ def _spanning_glazing(glaze_index: tuple[dict[int, tuple[list[float], list[int]]
 _CAP_V_BIN_PX = WINDOW_CAP_MAX_LEN_PX + 4.0
 
 
-def _facing_cap_pairs(caps: list[dict]) -> Iterator[tuple[int, int, float]]:
+def _facing_cap_pairs(caps: list[dict], *, gates: WindowGates) -> Iterator[tuple[int, int, float]]:
     """Index pairs ``(i, j, width)`` of caps that face each other across an opening.
 
     ``caps`` must be sorted by ``perp`` (position along the run axis). Yields in
     the exact order of the brute-force double loop — candidate numbering and NMS
     input order depend on it.
+
+    ``gates`` carries the scaled opening-width floor; keyword-only and required
+    (findings §4b).
 
     The gates below are unchanged; what changes is which pairs get to see them.
     The perp sort alone bounds the pair set along u only (the inner loop breaks
@@ -503,6 +506,7 @@ def _facing_cap_pairs(caps: list[dict]) -> Iterator[tuple[int, int, float]]:
     within that of each other and land in the same or adjacent _CAP_V_BIN_PX bin.
     Bucketing by span start therefore drops only pairs the align gate rejects.
     """
+    min_width = gates.WINDOW_MIN_WIDTH_PX
     bins: dict[int, list[int]] = {}
     for i, c in enumerate(caps):
         bins.setdefault(int(c["span"][0] // _CAP_V_BIN_PX), []).append(i)
@@ -528,7 +532,7 @@ def _facing_cap_pairs(caps: list[dict]) -> Iterator[tuple[int, int, float]]:
         for j in js:
             c2 = caps[j]
             width = c2["perp"] - c1["perp"]
-            if width < WINDOW_MIN_WIDTH_PX:
+            if width < min_width:
                 continue
             if width > WINDOW_MAX_WIDTH_PX:
                 break  # sorted by perp: no farther cap can be closer
@@ -542,7 +546,8 @@ def _facing_cap_pairs(caps: list[dict]) -> Iterator[tuple[int, int, float]]:
 
 
 def _find_openings(cap_pool: list[dict],
-                   glaze_index: tuple[dict[int, tuple[list[float], list[int]]], list[dict]]) -> list[dict]:
+                   glaze_index: tuple[dict[int, tuple[list[float], list[int]]], list[dict]],
+                   *, gates: WindowGates) -> list[dict]:
     """Pair facing caps and confirm a glazing band bridges each opening.
 
     ``cap_pool`` runs perpendicular to the opening (the jambs); the glazing pool
@@ -554,7 +559,7 @@ def _find_openings(cap_pool: list[dict],
         key=lambda c: c["perp"],
     )
     openings: list[dict] = []
-    for i, j, width in _facing_cap_pairs(caps):
+    for i, j, width in _facing_cap_pairs(caps, gates=gates):
         c1, c2 = caps[i], caps[j]
         band = _spanning_glazing(glaze_index, c1, c2)
         if len(band) < WINDOW_MIN_GLAZING_LINES:
@@ -676,7 +681,8 @@ def _band_interior_clutter(u_lo: float, u_hi: float, v_lo: float, v_hi: float,
     return shapes, oblique
 
 
-def detect_windows(paths: list[PathPrimitive]) -> list[Candidate]:
+def detect_windows(paths: list[PathPrimitive], *,
+                   scale_factor: float = 1.0) -> list[Candidate]:
     """Detect windows as capped openings bridged by a parallel glazing band.
 
     For each orientation, find pairs of short perpendicular caps that face each
@@ -684,7 +690,12 @@ def detect_windows(paths: list[PathPrimitive]) -> list[Candidate]:
     lines spanning that gap. Door-overlap suppression happens later in
     postprocess (_resolve_door_window_conflicts) using the reliable door
     detector.
+
+    ``scale_factor`` scales the world-space gates (`WindowGates`); 1.0 is exact
+    identity. Only the opening-width floor scales — the symbol's internal ink
+    gates are paper-space (findings §4e).
     """
+    gates = WindowGates.at(scale_factor)
     win_keywords = ["window", "wind", "glaz", "glazing"]
     recs = _line_records(paths)
     cap_recs = [r for r in recs
@@ -704,7 +715,7 @@ def detect_windows(paths: list[PathPrimitive]) -> list[Candidate]:
         glaze_pool = [_glaze_record(r, ux, uy, vx, vy) for r in recs
                       if _angle_diff_mod180(r["angle"], glaze_angle) <= WINDOW_ANGLE_TOL_DEG]
         glaze_pool = _merge_mullion_chains(glaze_pool, caps)
-        for opening in _find_openings(caps, _glaze_index(glaze_pool)):
+        for opening in _find_openings(caps, _glaze_index(glaze_pool), gates=gates):
             c1, c2, band = opening["c1"], opening["c2"], opening["glaze"]
 
             cap_len = (c1["len"] + c2["len"]) / 2
