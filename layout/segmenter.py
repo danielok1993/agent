@@ -305,6 +305,24 @@ def segment_page(page_data: PageData, clip_rects: list[BBox] | None = None) -> l
     boxes = _boxes_from_cut(page_data, ink, min_bins, cut_rows, cut_cols)
     source = "whitespace+clip" if clip_rects else "whitespace"
 
+    # Tier 2: a page the cut could not split at all gets one retry with text
+    # excluded from the ink map. Text spans are stamped as FULL bboxes, so a
+    # sheet whose drawings have generous gutters can still read as one blob —
+    # measured on s15 (56,765 paths, 214 spans): 1 leaf at every gutter width
+    # with text, 8 clean regions at the standard 20px gutter without it, and
+    # whole-page fallback fed six elevations to the room detector (63 of 72
+    # phantom rooms). Healthy sheets never reach this branch, so their region
+    # geometry and cache keys are untouched; a textless page skips it (the
+    # retry ink map would be identical); and a page that still will not split
+    # keeps the tier-1 result so the pipeline falls back exactly as before.
+    if len(boxes) <= 1 and page_data.text_spans:
+        retry_ink = build_ink_map(page_data, bin_px=SEGMENT_BIN_PX,
+                                  include_text=False)
+        retry = _boxes_from_cut(page_data, retry_ink, min_bins, cut_rows, cut_cols)
+        if len(retry) >= 2:
+            boxes = _attach_text_spans(page_data, retry)
+            source = "paths-only+clip" if clip_rects else "paths-only"
+
     return [
         Region(
             region_id=f"region_{i:04d}",

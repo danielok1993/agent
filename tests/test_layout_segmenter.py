@@ -323,5 +323,74 @@ class TestAttachTextSpans(unittest.TestCase):
         self.assertEqual(len(grew), 1)
 
 
+class TestPathsOnlyRetry(unittest.TestCase):
+    def _bridged_page(self, extra_spans=()):
+        # Two drawings with a 100px gutter; one span's bbox stamps the ink map
+        # across x=160..240, leaving <20px of empty run on each side — tier 1
+        # cannot split this page, exactly the measured s15 mechanism.
+        paths = block(0, 40, 40, 150, 200) + block(500, 250, 40, 360, 200)
+        spans = [span("BRIDGING LABEL", 160, 100, 240, 120), *extra_spans]
+        return PageData(page_number=1, width_px=PAGE_W, height_px=PAGE_H,
+                        paths=paths, text_spans=spans)
+
+    def test_text_bridged_gutter_splits_via_retry(self):
+        regions = segment_page(self._bridged_page())
+        self.assertEqual(len(regions), 2)
+        self.assertTrue(all(r.source == "paths-only" for r in regions))
+
+    def test_retry_reattaches_the_bridging_span_to_one_region(self):
+        regions = segment_page(self._bridged_page())
+        cx, cy = 200.0, 110.0  # bridging span centre
+        holders = [r for r in regions
+                   if r.bbox[0] <= cx <= r.bbox[2] and r.bbox[1] <= cy <= r.bbox[3]]
+        self.assertEqual(len(holders), 1)
+
+    def test_retry_reattaches_captions_for_classification_crops(self):
+        caption = span("GROUND FLOOR PLAN", 50, 240, 140, 260)  # 40px below left blob
+        regions = segment_page(self._bridged_page(extra_spans=(caption,)))
+        self.assertEqual(len(regions), 2)
+        left = min(regions, key=lambda r: r.bbox[0])
+        self.assertGreaterEqual(left.bbox[3], 260.0)
+
+    def test_healthy_page_never_retries(self):
+        # Splits fine with text included: source must stay "whitespace".
+        paths = block(0, 40, 40, 150, 200) + block(500, 250, 40, 360, 200)
+        pd = PageData(page_number=1, width_px=PAGE_W, height_px=PAGE_H,
+                      paths=paths,
+                      text_spans=[span("KITCHEN", 60, 100, 100, 112)])
+        regions = segment_page(pd)
+        self.assertEqual(len(regions), 2)
+        self.assertTrue(all(r.source == "whitespace" for r in regions))
+
+    def test_dense_blob_still_yields_one_region(self):
+        # No gutter even without text: tier 2 also finds 1 box, so the result
+        # stays a single tier-1 region and the pipeline falls back as today.
+        pd = PageData(page_number=1, width_px=PAGE_W, height_px=PAGE_H,
+                      paths=block(0, 40, 40, 360, 200),
+                      text_spans=[span("ELEVATION", 100, 100, 180, 112)])
+        regions = segment_page(pd)
+        self.assertEqual(len(regions), 1)
+        self.assertEqual(regions[0].source, "whitespace")
+
+    def test_textless_page_skips_the_retry(self):
+        pd = PageData(page_number=1, width_px=PAGE_W, height_px=PAGE_H,
+                      paths=block(0, 40, 40, 360, 200))
+        regions = segment_page(pd)
+        self.assertEqual(len(regions), 1)
+        self.assertEqual(regions[0].source, "whitespace")
+
+    def test_retry_source_records_clip_involvement(self):
+        # The clip's edges sit at the ink's outer bounds, so its cut positions
+        # land where _clip_cut skips them (no ink on both sides) — tier 1
+        # still cannot split and the retry runs; source records the clips.
+        # (A clip edge BETWEEN the blobs would rescue tier 1 by itself and
+        # the retry would never fire — that path is the existing
+        # test_clip_edge_splits_when_no_gutter_exists.)
+        regions = segment_page(self._bridged_page(),
+                               clip_rects=[(40.0, 40.0, 360.0, 200.0)])
+        self.assertEqual(len(regions), 2)
+        self.assertTrue(all(r.source == "paths-only+clip" for r in regions))
+
+
 if __name__ == "__main__":
     unittest.main()

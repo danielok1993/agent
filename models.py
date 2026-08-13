@@ -85,7 +85,8 @@ class Region:
     confidence: float = 0.0
     contains_multiple: bool = False
     path_count: int = 0
-    source: Literal["whitespace", "whitespace+clip", "page-fallback"] = "whitespace"
+    source: Literal["whitespace", "whitespace+clip", "paths-only",
+                    "paths-only+clip", "page-fallback"] = "whitespace"
 
 
 @dataclass
