@@ -140,12 +140,26 @@ class TestFaithfulExportDetection(unittest.TestCase):
         self.assertFalse(any(c.confidence >= 0.55 for c in doors))
 
     def test_paper_space_invariance_separation_must_not_scale(self):
-        # leaf_sep 4.0px is under the unscaled 5.0px companion gate but OVER
-        # a wrongly-scaled 2.5px one. Scaling DOOR_LEAF_COMPANION_PERP_PX
-        # would break this — it is the s06 wipeout as a unit test.
+        # Pins that DOOR_LEAF_COMPANION_PERP_PX (detection/doors/leaves.py's
+        # _find_leaf_companion_lines) stays in PAPER space and is never
+        # multiplied by scale_factor. leaf_sep 4.0px is under the bare
+        # (unscaled) 5.0px companion gate but OVER a wrongly-*scaled* 2.5px
+        # one (5.0 * 0.5). The door detects at any leaf_sep <= DOOR_MAX_SIZE_PX
+        # via the anchored-line leaf alone, so confidence alone can't tell
+        # a correctly-bare gate from a wrongly-scaled one — the discriminating
+        # signal is whether the companion (parallel edge) line got FOUND, which
+        # only shows up in evidence["leaf_companion_path_indices"] (populated
+        # by _find_leaf_companion_lines, assembly.py:441; confirmed by
+        # monkey-patching the constant to 2.5 — see task-7-report.md's fix
+        # log for the experiment). It is the s06 wipeout as a unit test.
         paths = swing_door(0, 100, 100, 15, leaf_sep=4.0)
+        companion_idx = paths[2].path_index  # leaf_b — the companion edge
         doors = detect_doors(paths, [], None, scale_factor=0.5)
-        self.assertTrue(any(c.confidence >= 0.55 for c in doors))
+        hits = [c for c in doors if c.confidence >= 0.55]
+        self.assertTrue(hits)
+        self.assertIn(
+            companion_idx, hits[0].evidence.get("leaf_companion_path_indices", []),
+        )
 
 
 class TestOrchestratorWiring(unittest.TestCase):
@@ -164,15 +178,24 @@ class TestOrchestratorWiring(unittest.TestCase):
         a = run_heuristics(page(paths), [], disable_windows=True, disable_rooms=True)
         b = run_heuristics(page(paths), [], disable_windows=True,
                            disable_rooms=True, scale_factor=1.0)
-        self.assertEqual([c.bbox for c in a], [c.bbox for c in b])
+        self.assertEqual(
+            [(c.bbox, c.confidence) for c in a], [(c.bbox, c.confidence) for c in b],
+        )
 
 
 class TestFoldingScaleBehavior(unittest.TestCase):
-    """open_v (detection/doors/folding.py) reads gates.DOOR_FOLD_JAMB_ANCHOR_TOL_PX,
-    gates.DOOR_FOLD_JAMB_LINE_MIN_LEN_PX, and gates.DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX
-    at their _open_v_match read sites. The fixture is a shrunk (1:100-faithful)
-    door: leaf_len=20 and jamb_len=10 are WORLD extents (half of a 40/20
-    1:50 reference), leaf_sep=2.0 is a PAPER separation held fixed."""
+    """open_v (detection/doors/folding.py::_open_v_match) reads three gates:
+    gates.DOOR_FOLD_JAMB_ANCHOR_TOL_PX, gates.DOOR_FOLD_JAMB_LINE_MIN_LEN_PX,
+    and gates.DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX. Only DOOR_FOLD_JAMB_LINE_MIN_LEN_PX
+    is DECISIVE in this fixture: jamb_len=10 clears its factor=0.5 floor (7.5)
+    but not the unscaled floor (15), which is what flips detected/missed below.
+    The other two are exercised (read on every call) but never discriminating
+    here — the anchor jamb line starts exactly AT the tip (0 offset, always
+    inside DOOR_FOLD_JAMB_ANCHOR_TOL_PX at any factor) and the far-jamb stub
+    sits exactly on-axis (0 lateral offset, always inside
+    DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX at any factor). The fixture is a shrunk
+    (1:100-faithful) door: leaf_len=20 and jamb_len=10 are WORLD extents (half
+    of a 40/20 1:50 reference), leaf_sep=2.0 is a PAPER separation held fixed."""
 
     def _shrunk_open_v(self):
         return open_v_door(
