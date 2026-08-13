@@ -777,8 +777,9 @@ regression). Verify against the spec's predicted table, line by line:
 - Every f=1.0 sheet (s01 s02 s03 s04 s08 s10 s14 s15 s17 s20 + unlabeled
   s09/s19) identical to the 2026-08-13 baseline: same counts, same
   lost/returned/REVIEW lines at the same bboxes.
-- s05 s06 s07 s11 s12 s18 s13: identical to baseline (windows 8/8, 10/10,
-  27/27, FP 21→21, 11/11 + FP 12→12, 11/11 + FP 3→3 respectively).
+- s05 s06 s07 s11 s12 s18 s13: identical to baseline (windows: s05 none,
+  s06 8/8, s07 10/10, s11 27/27, s12 0 confirmed with FP 21→21,
+  s18 11/11 with FP 12→12, s13 11/11 with FP 3→3).
 - s16: 23/23 windows kept PLUS exactly one new REVIEW line — a window at
   (1337, 1795, 1354, 1801), conf 0.67. No other REVIEW line anywhere. No
   door or room change on any sheet.
