@@ -73,5 +73,49 @@ class TestThreading(unittest.TestCase):
             _find_openings(caps, _glaze_index([]))
 
 
+from tests.test_window_detection import _rot, hline, path, quad, vline
+
+
+def rot_paths(prims, cx, cy, deg):
+    """Rotate every primitive's points about (cx, cy) by deg (bbox rebuilt)."""
+    return [path(p.path_index,
+                 [_rot(x, y, cx, cy, deg) for x, y in p.points],
+                 item_type=p.item_type)
+            for p in prims]
+
+
+class TestMinWidthNegativeControl(unittest.TestCase):
+    """The one world-space gate, exercised at a non-grid angle.
+
+    A faithful 1:100 export of a small window: opening width 10px (a 20px
+    1:50 window shrunk), ink held at paper values — 3 panes at 2.5px gaps
+    (depth 5), 5px caps. Missed at f=1.0 (10 < 14), detected at f=0.5
+    (10 >= 7). Fails if the gates threading is removed.
+    """
+
+    def _fixture(self, deg=50):
+        prims = [
+            hline(0, 395.0, 405.0, 397.5),
+            hline(1, 395.0, 405.0, 400.0),
+            hline(2, 395.0, 405.0, 402.5),
+            vline(3, 397.5, 402.5, 395.0),   # cap, 5px
+            vline(4, 397.5, 402.5, 405.0),   # cap, 5px
+        ]
+        return rot_paths(prims, 400.0, 400.0, deg)
+
+    def test_missed_at_identity(self):
+        self.assertEqual(detect_windows(self._fixture()), [])
+
+    def test_detected_at_half_scale(self):
+        wins = detect_windows(self._fixture(), scale_factor=0.5)
+        self.assertEqual(len(wins), 1, f"got {[c.bbox for c in wins]}")
+        # Evidence continuity: rooms' _window_seal consumes these (s13 W11).
+        from detection.geometry import _angle_diff_mod180
+        self.assertEqual(wins[0].evidence["orientation"], "diagonal")
+        self.assertLessEqual(
+            _angle_diff_mod180(wins[0].evidence["glazing_angle_deg"], 50.0), 4.0)
+        self.assertEqual(wins[0].evidence["glazing_lines"], 3)
+
+
 if __name__ == "__main__":
     unittest.main()
