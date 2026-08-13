@@ -23,8 +23,8 @@ from detection.postprocess import _resolve_door_window_conflicts
 from detection.windows import (
     WINDOW_CAP_ALIGN_OVERLAP, WINDOW_CAP_LEN_RATIO, WINDOW_MAX_WIDTH_PX,
     WINDOW_MIN_WIDTH_PX, WINDOW_SPAN_COVER_TOL_PX, WINDOW_SPAN_OVERSHOOT_PX,
-    WINDOW_SPAN_PERP_TOL_PX, _dedupe_by_perp, _facing_cap_pairs,
-    _glaze_index, _spanning_glazing, _tight_band,
+    WINDOW_SPAN_PERP_TOL_PX, WINDOW_GATES_UNSCALED, _dedupe_by_perp,
+    _facing_cap_pairs, _glaze_index, _spanning_glazing, _tight_band,
 )
 from models import BBox, Candidate, PathPrimitive
 
@@ -655,7 +655,7 @@ class TestWindowPruningEquivalence(unittest.TestCase):
         caps = self._dense_caps()
         expected = self._brute_pairs(caps)
         self.assertGreater(len(expected), 500, "test data must exercise the pruning")
-        self.assertEqual(list(_facing_cap_pairs(caps)), expected)
+        self.assertEqual(list(_facing_cap_pairs(caps, gates=WINDOW_GATES_UNSCALED)), expected)
 
     def test_facing_cap_pairs_survive_negative_and_binned_coordinates(self):
         """Caps straddling 0 and a bin edge — floor() on negatives, adjacency."""
@@ -666,7 +666,7 @@ class TestWindowPruningEquivalence(unittest.TestCase):
              {"idx": 3, "perp": 90.0, "span": (39.5, 59.5), "len": 20.0},
              {"idx": 4, "perp": 120.0, "span": (38.0, 58.0), "len": 20.0}],
             key=lambda c: c["perp"])
-        self.assertEqual(list(_facing_cap_pairs(caps)), self._brute_pairs(caps))
+        self.assertEqual(list(_facing_cap_pairs(caps, gates=WINDOW_GATES_UNSCALED)), self._brute_pairs(caps))
 
     @staticmethod
     def _dense_glaze(caps: list[dict], n: int = 500) -> list[dict]:
@@ -687,7 +687,7 @@ class TestWindowPruningEquivalence(unittest.TestCase):
             length = 10.0 + (seed % 20000) / 100.0
             pool.append({"idx": i, "path": None, "len": length,
                          "perp": perp, "span": (lo, lo + length)})
-        for i, j, width in _facing_cap_pairs(caps):
+        for i, j, width in _facing_cap_pairs(caps, gates=WINDOW_GATES_UNSCALED):
             if i % 5:
                 continue
             v_lo = max(caps[i]["span"][0], caps[j]["span"][0])
@@ -716,7 +716,7 @@ class TestWindowPruningEquivalence(unittest.TestCase):
         pool = self._dense_glaze(caps)
         index = _glaze_index(pool)
         hits = 0
-        for i, j, _width in _facing_cap_pairs(caps):
+        for i, j, _width in _facing_cap_pairs(caps, gates=WINDOW_GATES_UNSCALED):
             expected = self._brute_spanning(pool, caps[i], caps[j])
             got = _spanning_glazing(index, caps[i], caps[j])
             self.assertEqual([id(r) for r in got], [id(r) for r in expected],

@@ -180,6 +180,5 @@
   "178": "TestBlindWindowPocket",
   "179": "TestWindowTightPairInterior",
   "180": "TestFloorPlansRegression",
-  "181": "_frame_axes",
-  "182": "_merge_mullion_chains"
+  "181": "_frame_axes"
 }

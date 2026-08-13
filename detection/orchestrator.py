@@ -45,7 +45,8 @@ def run_heuristics(
         doors = detect_doors(page_data.paths, page_data.text_spans, collector,
                              scale_factor=scale_factor)
     with _stage("windows"):
-        windows = [] if disable_windows else detect_windows(page_data.paths)
+        windows = [] if disable_windows else detect_windows(
+            page_data.paths, scale_factor=scale_factor)
 
         # Door symbols share the glazing-pane signature; the reliable door
         # detector suppresses any window candidate sitting on a door (no wall
