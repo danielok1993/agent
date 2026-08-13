@@ -1,6 +1,7 @@
 from __future__ import annotations
 import math
 from bisect import bisect_left, bisect_right
+from dataclasses import dataclass
 from typing import Iterator
 from models import BBox, Candidate, PathPrimitive
 from detection.geometry import (
@@ -134,6 +135,34 @@ WINDOW_BLOCK_CAP_CROSS_RATIO  = 0.75  # a line >= this fraction of the block's d
                                       # stroke: the block is a crossed post/column
                                       # symbol (the 5-1133 shower-screen end post),
                                       # never a window jamb
+
+
+@dataclass(frozen=True)
+class WindowGates:
+    """World-space window gates, pre-multiplied by the detection factor.
+
+    Exactly ONE field: the frozen classification
+    (docs/scale-normalization-findings.md §4e, measured 2026-08-13) found the
+    window symbol's internal ink geometry — band depth, pane spacing, cap
+    stroke lengths, span overshoots — to be paper-space (the INVERSE of
+    doors), leaving the opening's empty-space extent floor as the only
+    constant that scales. Paper-space and dimensionless constants
+    deliberately have NO field here; absence is the audit trail. At factor
+    1.0 the field equals its module constant exactly.
+    """
+    factor: float
+    WINDOW_MIN_WIDTH_PX: float
+
+    @classmethod
+    def at(cls, factor: float) -> "WindowGates":
+        assert factor > 0, "scale factor must be positive"
+        # Floor mirrors DOOR_MIN_SIZE_PX's: raw product 3.5px at the f=0.25
+        # clamp bound, so the floor is inert on the calibrated domain.
+        return cls(factor=factor,
+                   WINDOW_MIN_WIDTH_PX=max(1.0, WINDOW_MIN_WIDTH_PX * factor))
+
+
+WINDOW_GATES_UNSCALED = WindowGates.at(1.0)
 
 
 # Cell size for the two page-wide lookup grids below (the block-cap cross test
