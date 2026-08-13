@@ -258,5 +258,34 @@ class TestPaperInvariance(unittest.TestCase):
         self.assertEqual(self._detect(prims), [])
 
 
+from models import Candidate
+from detection.postprocess import CROSS_WINDOW_ON_WALL_BOOST, _cross_validate
+from tests.test_cross_validate import h_wall_with_gap
+
+
+class TestCrossWindowToleranceUnscaled(unittest.TestCase):
+    """CROSS_WINDOW_THICKNESS_TOL_PX froze P (spec Evidence 5): the mismatch
+    it tolerates is cap-ink overshoot, which is paper-space. The boost must
+    fire identically at f=1.0 and f=0.5 for a 5px mismatch (inside 6.0,
+    outside a wrongly-scaled 3.0). CrossGates must NOT gain this field."""
+
+    def _window_over_gap(self):
+        # h_wall_with_gap: horizontal run at y=104, thickness 16, gap x
+        # 200-260. Window bbox short side 21 -> mismatch |21 - 16| = 5.
+        return Candidate("window_0000", "window",
+                         (205.0, 93.5, 255.0, 114.5), 0.70, {})
+
+    def test_boost_fires_at_both_factors(self):
+        network = h_wall_with_gap(thickness=16.0)
+        for factor in (1.0, 0.5):
+            out = _cross_validate([self._window_over_gap()], network,
+                                  scale_factor=factor)
+            self.assertEqual(out[0].evidence["wall_context"],
+                             "spans_wall_thickness", f"factor {factor}")
+            self.assertEqual(out[0].confidence,
+                             round(0.70 + CROSS_WINDOW_ON_WALL_BOOST, 3),
+                             f"factor {factor}")
+
+
 if __name__ == "__main__":
     unittest.main()

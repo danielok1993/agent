@@ -31,7 +31,12 @@ CROSS_OPENING_ENDPOINT_TOL_PX = 12.0  # opening_line endpoints on a centerline �
 # wall network is derived from face pairs — independent of the glazing linework
 # the window detector anchors on.
 CROSS_WINDOW_ON_WALL_BOOST = 0.08
-CROSS_WINDOW_THICKNESS_TOL_PX = 6.0
+CROSS_WINDOW_THICKNESS_TOL_PX = 6.0  # frozen P (findings §4e): the mismatch it
+                                     # tolerates is cap-ink overshoot beyond the
+                                     # wall band — paper-space, measured bimodal
+                                     # (~0 or >>6) at every scale tier. NOT a
+                                     # CrossGates field; scaling it is pinned
+                                     # off by TestCrossWindowToleranceUnscaled.
 CROSS_WALL_RUNS_THROUGH_MARGIN_PX = 12.0  # centerline extends past both bbox ends by this
 
 
