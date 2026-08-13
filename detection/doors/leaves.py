@@ -114,7 +114,7 @@ def _try_linework_leaf_clean_loop(
 
 
 def _find_thin_rectangle_cycle(
-    component_segs: list[_LinkSeg], *, gates: DoorGates,
+    component_segs: list[_LinkSeg], *, gates: DoorGates
 ) -> tuple[BBox, list[int]] | None:
     """Find the best thin-rectangle 4-cycle inside a (possibly messy) component.
 

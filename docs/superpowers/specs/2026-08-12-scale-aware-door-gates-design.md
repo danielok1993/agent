@@ -391,7 +391,9 @@ factor, so the ordering is preserved arithmetically):
 `DOOR_FOLD_LEAF_LINE_SEP_MAX_PX` (P, 4.0) and
 `DOOR_SLIDE_PANEL_MIN_THICKNESS_PX` (W, 3.0 × f) both describe the separation of
 a drawn leaf's two edges, and at **f < 0.75 — i.e. every 1:100 sheet in the
-corpus — the W value drops below the P one.** Nothing is asserted, floored or
+corpus — the W value drops below the P one.** (corrected 2026-08-13: crossing
+is at f≈1.33, above the operating range — the relation is monotone in range;
+conclusion unchanged and strengthened) Nothing is asserted, floored or
 clamped here, because there is no invariant to preserve: the two constants gate
 **different detectors** over **different candidate populations** (folding's
 `open_v` double-line leaves vs sliding's panel rectangles), they are never

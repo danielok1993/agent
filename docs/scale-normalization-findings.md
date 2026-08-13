@@ -2,8 +2,11 @@
 
 **Started:** 2026-08-12 (brainstorm for the walls/rooms branch).
 **Read this first** if you are working on scale-awareness for ANY detector
-(doors, windows, labels, schedules are still scale-blind — see §6). The
-design that consumes these findings: `docs/superpowers/specs/2026-08-12-scale-aware-wall-room-gates-design.md`.
+(windows, labels, schedules are still scale-blind — see §6; doors are DONE,
+`feat/scale-aware-door-gates`, §4c/§4d). The design that consumes these
+findings: `docs/superpowers/specs/2026-08-12-scale-aware-wall-room-gates-design.md`
+(walls/rooms) and `docs/superpowers/specs/2026-08-12-scale-aware-door-gates-design.md`
+(doors).
 
 ## 1. The premise, verified
 
@@ -503,6 +506,259 @@ tolerance/slack constants, not geometry with a paper-vs-world reading — and
 are frozen **P** by the brief's Step 3 rule: conservative default, unchanged
 behavior at every factor, revisit if the 1:100 sweep shows artifacts.
 
+## 4c. Measurement-harness traps (2026-08-13)
+
+**The whole-page-vs-region-filtered failure.** The doors branch's first
+measurement pass used a side harness that called `run_heuristics` directly on
+raw whole-page `PageData`, instead of `resolve_page_regions(...).detection_page_data`
+— the region-filtered path the real pipeline (`pipeline.run_extract`) actually
+runs. On s11 the page also carries a location plan, a block plan and
+elevations; a wall network built over that extra ink is not the network the
+real pipeline produces. The unfiltered network flipped `wall_context` to
+`no_wall` for three `single_line_leaf` doors, `CROSS_NO_WALL_SINGLE_LINE_LEAF_PENALTY`
+(0.15) then dropped their confidence 0.67 → 0.52 — under the 0.55 offline
+floor — and the harness reported a non-existent **"3 lost confirmed doors on
+main."** `tools/regress.py --sheet s11` says **13/13**: no door was lost at all.
+
+**Rule adopted: any side harness must reproduce `tools/regress.py --sheet
+<slug>`'s counts before its numbers are trusted — the sweep is the arbiter,**
+never a bespoke script's own detection pass, however faithful that script
+believes itself to be to "the pipeline." `harness.py` (the doors branch's
+measurement tool) carries a self-check against five sheets' known sweep
+counts for exactly this reason. This is the doors-branch instance of the same
+discipline §4c's sibling findings already establish for walls/rooms
+(per-region detection degrading room statistics, §6 "Per-scale-group
+detection") and for Gemini classification caching (§3's `REGION_CACHE_MISS`
+surprises) — a measurement that skips a pipeline stage is not measuring the
+pipeline, and the failure mode is silent: the harness's output still looks
+like a normal, plausible regression report.
+
+## 4d. Door constant classification table (frozen 2026-08-13)
+
+Companion to §4's wall/room table, same method: classes **W** (world-space,
+× f; areas × f²), **P** (paper-space, unchanged), **D** (dimensionless,
+unchanged). `f = 50 / nominal_denominator`. Status: **frozen** — set during
+the 2026-08-12 door-gates design from each constant's rationale and measured
+where cited; a future branch may still revisit a P verdict flagged "revisit
+if ..." — that is a new decision, not a reopening of this table. Full
+citations and derivations: `docs/superpowers/specs/2026-08-12-scale-aware-door-gates-design.md`
+§§Evidence base, Design/4.
+
+**Arithmetic check, so the table is provably exhaustive:** 103 `DOOR_*`
+constants (including `_DOOR_HU_TEMPLATE_VALUES`, non-numeric, and excluding
+the derived `DOOR_GATES_UNSCALED` singleton) = 33 px-valued (21 W + 12 P) +
+70 D. The 21 W constants are 19 extents/reaches + 2 panel-thickness (the
+`DoorGates` dataclass's 21 fields, one-to-one). Plus 6 door-side `CROSS_*`
+constants in `detection/postprocess.py` (all W, additional to the 103,
+mirroring `CrossGates`'s 6 fields).
+
+**Key measurements this table rests on** (full derivation in the design
+spec):
+
+- **Door symbol extent is world-space**: median-of-medians bbox max-side
+  89.4px at 1:50 vs 44.3px at 1:100, ratio **0.496 ≈ f**. This is the premise
+  the whole branch is built on (design §Evidence base/1) and is what
+  `DOOR_MIN_SIZE_PX`/`DOOR_MAX_SIZE_PX` scale on.
+- **Drawn leaf-panel thickness (leaf ↔ companion perpendicular separation) is
+  paper-space**: 1.69px at 1:50 vs 2.63px at 1:100, ratio **1.56** — ink
+  separations do NOT shrink with scale; draftsmen keep line pairs legible on
+  paper regardless of drawing scale. This is `DOOR_LEAF_COMPANION_PERP_PX`'s
+  and `DOOR_FOLD_LEAF_LINE_SEP_{MIN,MAX}_PX`'s P verdict, and scaling them
+  zeroes s06 (0/2 confirmed doors) on the real corpus — decisive negative
+  evidence for the P class, not just an absence of positive W evidence.
+- **Drawn slide-panel thickness is the weakest row**: ratio 1.03 (7.83px at
+  1:50 vs a **bimodal** 1:100 population — s12 2.13px, s11 8.06px, s16
+  8.25px), and the shrunk-world evidence is circular for a drawn-thickness
+  gate (the transform halves panel thickness by construction, so "scaling
+  recovers the door" restates the assumption rather than testing it).
+  Resolved **W** on an independent argument: converted to millimetres, slide
+  panels measure 7.83px at 1:50 ≈ **66mm** — a real panel-plus-frame
+  thickness — while leaf-companion separations measure 2.88px ≈ 24mm (s01)
+  and 0.50px ≈ 4mm (s02), not a buildable leaf, i.e. symbolic; and the 1:100
+  leaf separations (2.62–3.25px ≈ 44–55mm) read *larger* in mm than the 1:50
+  ones, the signature of a **minimum drawn separation** (a paper floor), not
+  a built dimension. `DOOR_SLIDE_PANEL_{MIN,MAX}_THICKNESS_PX` → **W**, with
+  the ambiguity recorded: `MIN`-only, `MAX`-only and both scaled produce
+  *identical* deltas on every one of the seven 1:100 sheets (this corpus
+  cannot discriminate the two halves), and the concrete revisit trigger is
+  **shower screens or glazing strips appearing as sliding doors on a 1:100
+  sheet** (the constant's own tuning rationale, "thinner is a shower screen,"
+  is itself a drawn separation subject to the same paper-floor risk as the P
+  constants above) — not a miss.
+- **`CROSS_*` needed-reach, re-derived by distribution, not survival count.**
+  For every confirmed door, the smallest `expand_px` at which
+  `WallNetwork.near_bbox` turns True, on each sheet's real network: p90
+  reach 9.64px at 1:50 vs 0.78px at 1:100 (ratio 0.081 — scales), max 8.12px
+  on any 1:100 sheet. The scaled `CROSS_WALL_EXPAND_PX` gate at f=0.5 is
+  10.0px — 1.88px of headroom over the worst 1:100 sheet's actual need. This
+  reversed an earlier conclusion that classified `CROSS_*` as conservative-P
+  from door-survival counts on the broken §4c harness — void twice over
+  (wrong numbers, and the wrong method: classify by what a constant
+  *measures*, then measure its distribution, never by which setting
+  happened to keep more doors alive on one sheet).
+- **The shrunk-world transform is faithful for extents and unfaithful for
+  ink separations.** A plain × 0.5 coordinate shrink halves *everything*,
+  including drawn separations that real 1:100 exports hold at their paper
+  value. s01's four residual shrunk-world misses (after `W + panel`
+  scaling) were diagnosed individually and **all four rest on a separation
+  gate** — three `single_line_leaf` doors on the leaf-companion separation
+  plus the `sliding`/`parked_leaf` door — so they measure the synthetic
+  transform's fidelity, not the classification; s02's full-identity 15/15
+  plus "no extent-dependent door was lost on either sheet" is the honest
+  read of that table. This is why the Testing section's fixtures shrink
+  extents while holding separations at their paper values, rather than
+  scaling the whole coordinate space.
+
+### detection/doors/constants.py
+
+| Constant | Class | Rationale |
+|---|---|---|
+| DOOR_BBOX_ASPECT_MIN | D | aspect ratio (Bezier bbox roughly-square gate); see §6's Bezier-aspect-gate deferred entry |
+| DOOR_BBOX_ASPECT_MAX | D | aspect ratio; see §6 |
+| DOOR_MIN_SIZE_PX | W | smallest door symbol extent — the load-bearing gate (0.496 ratio, above); floored at `max(1.0, ·×f)`, inert on the calibrated domain |
+| DOOR_MAX_SIZE_PX | W | largest door symbol extent, same measurement |
+| DOOR_SWING_LINE_DIST_PX | W | max px from arc corner to a nearby line endpoint — built distance between door parts |
+| DOOR_LABEL_PATTERN | D | regex, not a numeric gate |
+| DOOR_LABEL_SEARCH_RADIUS_PX | P | no corpus signal — only s02 carries door labels at all and every 1:100 sheet has zero; frozen P under the conservative-default rule (§4b) |
+| DOOR_MIN_CONFIDENCE | D | confidence floor |
+| DOOR_POLYLINE_MIN_SEGMENTS | D | count |
+| DOOR_POLYLINE_MAX_SEGMENTS | D | count |
+| DOOR_POLYLINE_MAX_SEG_PX | W | a tessellated arc segment is r·Δθ; r is world-space (0.496 ratio) and Δθ is a fixed exporter setting, so the segment scales with r. Caveat: holds for fixed-Δθ tessellation only — a fixed-chord-error exporter gives segment length ~√r instead (≈0.71 at f=0.5, not 0.5); unmeasurable on this corpus (every 1:100 sheet draws native Beziers, no polyline arcs to check against). Revisit if a polyline-arc sheet at another scale appears |
+| DOOR_POLYLINE_ENDPOINT_TOL | P | the snap-key divisor bucketing polyline endpoints; scaling it costs a confirmed door |
+| DOOR_POLYLINE_SPUR_MAX_SEGMENTS | D | count |
+| DOOR_POLYLINE_CHAIN_DELTA_DEG | D | angle |
+| DOOR_POLYLINE_CYCLE_MAX_SEGMENTS | D | count |
+| DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS | D | count |
+| DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS | D | count |
+| DOOR_CURVE_ARC_SHARED_HINGE_TOL_PX | P | "CAD-precise curve endpoints" — own comment states the rationale; CAD-precision snap tolerance |
+| DOOR_CURVE_CHAIN_ENDPOINT_TOL_PX | P | "machine-precise endpoints" — own comment states the rationale |
+| DOOR_CURVE_CHAIN_MIN_CURVES | D | count |
+| DOOR_LAYER_KEYWORDS | D | string list, not a numeric gate |
+| DOOR_ASSEMBLY_CONNECT_TOL_PX | W | leaf-to-arc connection reach — built distance between assembly parts |
+| DOOR_LEAF_RADIUS_RATIO_TOL | D | ratio tolerance |
+| DOOR_FALLBACK_CONFIDENCE | D | confidence |
+| DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX | P | CAD-precision snap tolerance |
+| DOOR_LINEWORK_LEAF_MIN_SEGMENTS | D | count |
+| DOOR_LINEWORK_LEAF_MAX_SEGMENTS | D | count |
+| DOOR_LINEWORK_LEAF_COMPONENT_MAX_SEGMENTS | D | count |
+| DOOR_LEAF_CYCLE_PARALLEL_TOL_DEG | D | angle |
+| DOOR_LEAF_CYCLE_PERPENDICULAR_TOL_DEG | D | angle |
+| DOOR_THRESHOLD_ENDPOINT_TOL_PX | W | threshold endpoint ↔ leaf long-edge corner snap — built joinery reach, jamb-scale |
+| DOOR_THRESHOLD_PARALLEL_TOL_DEG | D | angle |
+| DOOR_THRESHOLD_CONFIDENCE_BOOST | D | confidence |
+| DOOR_POLYLINE_MAX_ANGLE_BINS | D | count (angle bins) |
+| DOOR_DOUBLE_LEAF_GAP_PX | W | max gap between leaf long-axis intervals — built double-door spacing |
+| DOOR_DOUBLE_LEAF_OVERLAP_PX | W | max overlap on leaf long-axis intervals — same built quantity |
+| DOOR_DOUBLE_LEAF_CENTER_TOL_PX | W | max offset between leaf long-axis centerlines — same |
+| DOOR_V2_BRIDGE_BUFFER_PX | P | max dist from bridge line for an obstructing segment — a fit-tolerance construction offset |
+| DOOR_V2_OPENING_CLEAR_BOOST | D | confidence |
+| DOOR_V2_OPENING_OBSTRUCTED_PENALTY | D | confidence |
+| DOOR_LEAF_LINE_ENDPOINT_TOL_PX | W | leaf-line-to-arc-endpoint snap (single-line-leaf topology) — built assembly reach |
+| DOOR_LEAF_LINE_LENGTH_TOL | D | fraction tolerance (leaf length vs. arc radius match) |
+| DOOR_LEAF_LINE_AXIS_TOL_DEG | D | angle |
+| DOOR_LEAF_COMPANION_PERP_PX | P | measured (§2/§3 above): drawn leaf-companion separation, ratio 1.56 — decisive P; scaling zeroes s06 (0/2 confirmed doors) |
+| DOOR_LEAF_COMPANION_OVERLAP | D | fraction |
+| DOOR_ASSEMBLY_LINE_LEAF_BASE | D | confidence base |
+| DOOR_ARC_FALLBACK_MAX | D | confidence cap |
+| DOOR_HU_CANVAS_SIZE | D | raster canvas size — normalised shape-distance machinery, not a geometric gate |
+| DOOR_HU_THRESHOLD_VERIFIED | D | normalised distance threshold |
+| DOOR_HU_THRESHOLD_FAR | D | normalised distance threshold |
+| DOOR_HU_VERIFIED_BOOST | D | confidence |
+| DOOR_HU_PLAUSIBLE_BOOST | D | confidence |
+| DOOR_HU_FAR_PENALTY | D | confidence |
+| _DOOR_HU_TEMPLATE_VALUES | D | fixed Hu-moment template values, not a numeric gate |
+| DOOR_LEAF_ASPECT_MIN | D | aspect |
+| DOOR_SLIDE_PANEL_MIN_THICKNESS_PX | W | the weakest row in the table (measured above) — resolved W on the mm argument, not the (circular) shrunk-world test; revisit trigger: shower screens/glazing strips reading as sliding doors on a 1:100 sheet |
+| DOOR_SLIDE_PANEL_MAX_THICKNESS_PX | W | same panel-thickness call as MIN; `MIN`-only/`MAX`-only/both scaled are indistinguishable on this corpus |
+| DOOR_SLIDE_RECT_PARALLEL_TOL_DEG | D | angle |
+| DOOR_SLIDE_RECT_PERP_TOL_DEG | D | angle |
+| DOOR_SLIDE_PANEL_MERGE_TOL_PX | P | white ring + stroked qu of the SAME panel merge into one — CAD-precision merge tolerance |
+| DOOR_SLIDE_AXIS_TOL_DEG | D | angle |
+| DOOR_SLIDE_LENGTH_RATIO_TOL | D | ratio |
+| DOOR_SLIDE_LATERAL_FACTOR | D | dimensionless multiplier of a panel dimension that itself scales |
+| DOOR_SLIDE_OVERLAP_MIN_FRAC | D | fraction |
+| DOOR_SLIDE_OVERLAP_MAX_FRAC | D | fraction |
+| DOOR_SLIDE_FLANK_GAP_MIN_PX | W | flank-face-to-panel-edge gap — built pocket-cavity clearance |
+| DOOR_SLIDE_FLANK_GAP_MAX_PX | W | same, upper bound |
+| DOOR_SLIDE_FLANK_LINE_MIN_LEN_FRAC | D | fraction (× panel length) |
+| DOOR_SLIDE_FLANK_SIDE_MIN_FRAC | D | fraction |
+| DOOR_SLIDE_FLANK_MIN_FRAC | D | fraction |
+| DOOR_SLIDE_FLANK_MAX_FRAC | D | fraction |
+| DOOR_SLIDE_PROTRUSION_MIN_FRAC | D | fraction |
+| DOOR_SLIDE_PROTRUSION_MAX_FRAC | D | fraction |
+| DOOR_SLIDE_ZONE_WIDTH_FACTOR | D | dimensionless multiplier of panel half-thickness |
+| DOOR_SLIDE_ZONE_MAX_CROSSERS | D | count |
+| DOOR_SLIDE_ASSEMBLY_BASE | D | confidence base |
+| DOOR_SLIDE_STROKED_RING_SNAP_TOL_PX | P | "stroked rings snap at CAD precision" — own comment states the rationale |
+| DOOR_SLIDE_PARK_GAP_MAX_PX | W | panel-to-band-face gap — built parked-leaf clearance |
+| DOOR_SLIDE_PARK_FACE_COVER_MIN | D | fraction |
+| DOOR_SLIDE_PARK_BAND_MIN_TH_PX | W | wall-band thickness — the same quantity `WALL_MIN_THICKNESS_PX` already carries as W in `WallGates` |
+| DOOR_SLIDE_PARK_BAND_MAX_TH_PX | W | wall-band thickness, same quantity as `WALL_MAX_THICKNESS_PX` |
+| DOOR_SLIDE_PARK_JAMB_TOL_PX | W | band-end vs panel-end alignment — built jamb-fit reach |
+| DOOR_SLIDE_PARK_SPAN_RATIO_TOL | D | ratio tolerance (slide law: opening span ≈ panel length) |
+| DOOR_FOLD_ANGLE_MIN_DEG | D | angle |
+| DOOR_FOLD_ANGLE_MAX_DEG | D | angle |
+| DOOR_FOLD_LENGTH_RATIO_TOL | D | ratio |
+| DOOR_FOLD_HINGE_TOL_PX | P | corner-to-corner fit slack at a hinge where leaves share the ring vertex exactly — measured offsets ≤0.3px, a fit tolerance, not a built dimension |
+| DOOR_FOLD_MIN_CHAIN_LEAVES | D | count |
+| DOOR_FOLD_STACK_SPAN_RATIO_TOL | D | ratio tolerance |
+| DOOR_FOLD_STACK_MIRROR_TOL_DEG | D | angle |
+| DOOR_FOLD_STACK_PERP_EXTENT_MAX | D | dimensionless ratio (≤ ~one leaf length, expressed as a multiplier) |
+| DOOR_FOLD_ASSEMBLY_BASE | D | confidence base |
+| DOOR_FOLD_OPEN_ANGLE_MIN_DEG | D | angle |
+| DOOR_FOLD_OPEN_ANGLE_MAX_DEG | D | angle |
+| DOOR_FOLD_OPEN_OBLIQUE_MIN_DEG | D | angle |
+| DOOR_FOLD_LEAF_LINE_SEP_MIN_PX | P | measured (§2/§3 above): drawn double-line leaf separation is paper-space; scaling zeroes s06 (0/2). See the arithmetic correction below re: its relationship to `DOOR_SLIDE_PANEL_MIN_THICKNESS_PX` |
+| DOOR_FOLD_LEAF_LINE_SEP_MAX_PX | P | same measurement, upper bound; see the arithmetic correction below |
+| DOOR_FOLD_LEAF_LINE_LEN_RATIO_MIN | D | ratio |
+| DOOR_FOLD_LEAF_LINE_OVERLAP_MIN | D | fraction |
+| DOOR_FOLD_JAMB_ANCHOR_TOL_PX | W | jamb line endpoint to leaf tip — built anchor reach |
+| DOOR_FOLD_JAMB_LINE_MIN_LEN_PX | W | jamb-scale minimum length, matching `ROOM_FOLD_JAMB_MIN_LEN_PX`'s W verdict |
+| DOOR_FOLD_JAMB_AXIS_TOL_DEG | D | angle |
+| DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX | W | lateral half-width of the opening corridor searched for the far jamb — band-half-thickness scale |
+
+### detection/postprocess.py (door-side CROSS_*)
+
+| Constant | Class | Rationale |
+|---|---|---|
+| CROSS_WALL_EXPAND_PX | W | corridor reach beyond thickness/2 for `in_wall` containment — a door-to-wall-band distance; measured needed-reach p90 1:50 9.64px vs 1:100 0.78px (ratio 0.081, scales), max 8.12px on any 1:100 sheet; scaled gate at f=0.5 is 10.0px — 1.88px of headroom |
+| CROSS_OPENING_ENDPOINT_TOL_PX | W | `opening_line` endpoint ↔ centerline snap — built reach |
+| CROSS_WALL_RUNS_THROUGH_MARGIN_PX | W | centerline extends past both bbox ends by this — built reach |
+| CROSS_WALL_RUNS_THROUGH_BAND_PX | W | face must lie within the bbox short extent + this — built reach |
+| CROSS_DOOR_EXPAND_PX | W | dilate real door bboxes before testing window overlap — built veto reach; reaches the door→window suppression, measured behavior-neutral across all seven 1:100 sheets (s11 13/13, s16 14/14, s12 7/7, s05 8/8, s07 4/4, s06 2/2, s18 9/9 — unchanged, including candidate counts) |
+| CROSS_DOOR_FALLBACK_EXPAND_PX | W | veto reach of a fallback-tier door — same built quantity, smaller radius |
+
+`CROSS_WINDOW_THICKNESS_TOL_PX` is deliberately **left bare** (not a `CrossGates`
+field, not scaled) — it gates WINDOW cross-validation (a glazing-thickness
+check), not doors, and its classification is deferred to the windows branch.
+The window-side confidence constants (`CROSS_WINDOW_ON_WALL_BOOST`) and the
+door-side confidence penalties/thresholds (`CROSS_NO_WALL_PENALTY`,
+`CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY`, `CROSS_NO_WALL_SINGLE_LINE_LEAF_PENALTY`,
+`CROSS_DOOR_MIN_WINDOW_COVER`, `CROSS_DOOR_MIN_CONFIDENCE`) are **D** —
+dimensionless, never scale.
+
+**Arithmetic-relationship correction (2026-08-13).** The design spec's §5
+("Ordering invariants") originally claimed `DOOR_SLIDE_PANEL_MIN_THICKNESS_PX`
+(W, 3.0 × f) and `DOOR_FOLD_LEAF_LINE_SEP_MAX_PX` (P, 4.0) "invert below
+f = 0.75." That threshold is arithmetically wrong. Solving `3.0 × f = 4.0`
+gives a crossing at **f ≈ 1.333**, not 0.75 — and 1.333 is *above* 1.0 (finer
+than the 1:50 reference scale), well outside this branch's actual operating
+range (every resolved sheet in the corpus has f ≤ 1.0: 1:50 sheets at f=1.0,
+1:100 sheets at f=0.5, s13 at f≈0.366). At f=1.0 the W value (3.0) is
+*already* below the P value (4.0), and stays below it for every smaller f —
+so across the whole domain this branch actually exercises, the relationship
+between these two constants is **monotone, never inverting**. 0.75 appears to
+be the ratio 3/4 mislabeled as a crossing factor, rather than a solution to
+`3f = 4`. This **strengthens** the original no-assertion conclusion rather
+than weakening it: there was never a real in-range crossing to guard against
+in the first place, so the "documented no-op, deliberately unchecked"
+decision (design §5) needed no revision — only its stated arithmetic did. The
+corrected note lives in the design spec itself (§5, bracketed
+2026-08-13 addendum) rather than as a silent rewrite of the original
+(wrong) claim; the same correction was applied to the comment prose in
+`tests/test_scale_door_gates.py`'s `test_cross_class_inversion_is_a_no_op_not_a_crash`
+(assertions unchanged — only the explanatory comment was wrong).
+
 ## 5. Decisions (2026-08-12 brainstorm, user-approved)
 
 1. **Approach: thread a scale factor** into walls/rooms and scale classified
@@ -535,25 +791,56 @@ behavior at every factor, revisit if the 1:100 sweep shows artifacts.
 
 ## 6. Deferred work (for successor branches)
 
-- **Doors:** s11 carries a concrete assembly-merge test case (reported by
-  the user 2026-08-12): a double door detected as TWO half-width singles —
-  the french/garden pair merge does not fire on that drawing. The halves sit
-  at ~IoU 0.5 against the true full-width door, exactly the matcher's
-  boundary, so they are deliberately left UNREVIEWED (either verdict could
-  misfire against the future fixed detection); record the full door as a
-  hand-written `deferred` miss when its extent is confirmed. Pre-dates the
-  scale branch (baseline-verified byte-identical).
-- **Doors:** `DOOR_*` constants in `detection/doors/constants.py` — arc
-  radii, leaf lengths, panel sizes are world-space (an 838mm leaf is 24.8px
-  at 1:100, likely under current radius floors → predicts *misses* on
-  s05/s06/s07/s12). Same classification discipline; reuse the shrunk-world
-  synthetic test pattern (coordinates × 0.5, pen widths unchanged).
+- **Doors:** `DOOR_*` constants in `detection/doors/constants.py` — **DONE**
+  (`feat/scale-aware-door-gates`, 2026-08-13). All 103 `DOOR_*` constants plus
+  6 door-side `CROSS_*` classified and threaded via `DoorGates`/`CrossGates`;
+  frozen table at §4d, harness trap at §4c. Sweep matched the design's
+  predicted delta exactly across all seven 1:100 sheets (door 57/57 kept ·
+  +3 new · −2 gone-FP; window 68/68 kept · +17 new · −1 gone-FP; room 46/51
+  kept · +2 new · −2 gone-FP; zero confirmed entities lost anywhere; all
+  1:50/unresolved sheets byte-identical). See
+  `.superpowers/sdd/2026-08-12-scale-aware-door-gates/task-9-report.md` for
+  the full sweep-vs-prediction table.
+- **Doors — Bezier aspect gate (deferred, not this branch's scope):**
+  `DOOR_BBOX_ASPECT_MIN`/`MAX` ([0.85, 1.15]) rejects genuine 85°-sweep arcs
+  at measured bbox aspect **0.804** — below the gate. This is the single
+  largest measured miss driver on the 1:100 sheets: s06 detects only 2 of 10
+  visible swings because of it. The polyline detection path already uses a
+  wider [0.65, 1.45] gate for the same judgment (`detection/doors/arcs.py:643`)
+  — the Bezier path's gate is tighter than its own sibling for no measured
+  reason. **Dimensionless** (an aspect ratio), so scale-awareness cannot fix
+  it; the fix is widening the gate and re-verifying against the false-positive
+  risk that motivated the tight bound originally. Recorded here (design
+  §Scope/Out, 2026-08-12) rather than fixed on the scale-aware-gates branch —
+  a large chunk of this branch's real-corpus payoff is gated behind this
+  follow-up, not behind scale.
+- **Doors — s11 double-door assembly merge (deferred, confirmed NOT a scale
+  bug):** `door_0005`/`door_0007` (conf 0.60, at (765,1224) and (766,1640))
+  detect as two half-width singles instead of merging into one full-width
+  french/garden door; the halves sit at ~IoU 0.5 against the true full-width
+  door, exactly the matcher's boundary, so they are deliberately left
+  UNREVIEWED (either verdict could misfire against the future fixed
+  detection) — record the full door as a hand-written `deferred` miss once
+  its extent is confirmed. Pre-dates the scale branch (baseline-verified
+  byte-identical, original report 2026-08-12). Tested directly on the doors
+  branch (design "Non-goals"): the merge only fires when the **paper-space**
+  `DOOR_LEAF_COMPANION_PERP_PX` is scaled — i.e. only under the classification
+  this branch measured and rejected — and doing so costs **3 confirmed doors
+  on s11, 5 on s16, and both of s06's** (the same negative result documented
+  in §4d's leaf-companion-separation evidence, §2/§3 of the design). So the
+  merge defect is real but belongs to the assembly-merge logic itself, not to
+  scale-awareness; fixing it needs its own branch, not a constant reclassification.
 - **Windows:** `WINDOW_*` in `detection/windows.py` — sill/glazing gaps are
-  world-space; angle gates dimensionless.
+  world-space; angle gates dimensionless. `CROSS_WINDOW_THICKNESS_TOL_PX`
+  (`detection/postprocess.py`) is the one `CROSS_*` constant this branch left
+  unclassified on purpose — it gates window, not door, cross-validation — and
+  its W/P/D call belongs to whichever branch does this windows work.
 - **Labels/schedules:** mostly text-driven; font sizes are paper-space —
   expect few W constants. Audit anyway.
-- **Cross-validation:** `CROSS_*` in `detection/postprocess.py` (door/window
-  vs wall distances — world-space).
+- **Cross-validation:** the door-side `CROSS_*` constants in
+  `detection/postprocess.py` are DONE (§4d, `CrossGates`); the window-side
+  ones (`CROSS_WINDOW_*`) remain for the windows branch, per the bullet
+  above.
 - **Layout segmentation:** `SEGMENT_MIN_REGION_SIDE_PX` etc. measure
   *drawing extents*, which scale — but region filtering has its own
   coverage guard; audit before touching.

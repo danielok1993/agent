@@ -4,14 +4,22 @@ A "faithful 1:100 export" scales EXTENTS and keeps PAPER quantities — pen
 widths and drawn ink separations — unchanged. See
 docs/superpowers/specs/2026-08-12-scale-aware-door-gates-design.md §1/§2.
 """
+import ast
 import unittest
+from pathlib import Path
 
+from detection import detect_doors
+from detection.doors.arcs import _collect_door_swings, _is_arc_like
 from detection.doors.constants import (
     DOOR_ASSEMBLY_CONNECT_TOL_PX, DOOR_FOLD_LEAF_LINE_SEP_MAX_PX,
     DOOR_LEAF_COMPANION_PERP_PX, DOOR_MAX_SIZE_PX, DOOR_MIN_SIZE_PX,
     DOOR_SLIDE_PANEL_MIN_THICKNESS_PX, DOOR_SLIDE_PANEL_MAX_THICKNESS_PX,
     DOOR_GATES_UNSCALED, DoorGates,
 )
+from detection.doors.folding import _double_line_leaves
+from detection.doors.leaves import _collect_door_leaves
+from detection.doors.sliding import _collect_slide_panels
+from models import PathPrimitive
 
 
 class TestDoorGatesConstruction(unittest.TestCase):
@@ -60,20 +68,18 @@ class TestDoorGatesConstruction(unittest.TestCase):
 
     def test_cross_class_inversion_is_a_no_op_not_a_crash(self):
         # DOOR_FOLD_LEAF_LINE_SEP_MAX_PX (P, 4.0) vs
-        # DOOR_SLIDE_PANEL_MIN_THICKNESS_PX (W, 3.0*f) invert below f=0.75 —
-        # every 1:100 sheet. They gate DIFFERENT detectors and are never
+        # DOOR_SLIDE_PANEL_MIN_THICKNESS_PX (W, 3.0*f): 3.0*f < 4.0 already at
+        # f=1.0 and stays that way for every f below it (every sheet in the
+        # corpus); the two would only cross at f=4/3≈1.33, above the operating
+        # range, so this is a monotone relationship, not an inversion that
+        # sometimes flips. They gate DIFFERENT detectors and are never
         # compared, so nothing may assert or clamp the ordering. This test
-        # exists so nobody "fixes" the crossing later.
+        # exists so nobody "fixes" the (non-existent, in-range) crossing later.
         g = DoorGates.at(0.5)
         self.assertLess(g.DOOR_SLIDE_PANEL_MIN_THICKNESS_PX,
                         DOOR_FOLD_LEAF_LINE_SEP_MAX_PX)
         self.assertEqual(g.DOOR_SLIDE_PANEL_MIN_THICKNESS_PX,
                          DOOR_SLIDE_PANEL_MIN_THICKNESS_PX * 0.5)
-
-
-from detection import detect_doors
-from detection.doors.arcs import _collect_door_swings, _is_arc_like
-from models import PathPrimitive
 
 
 def prim(idx, item_type, points, stroke_width=1.0, fill=None):
@@ -119,9 +125,6 @@ class TestArcGatesThreading(unittest.TestCase):
             [c.bbox for c in detect_doors(paths, [], None, scale_factor=1.0)])
 
 
-from detection.doors.leaves import _collect_door_leaves
-
-
 class TestLeafGatesThreading(unittest.TestCase):
     def test_collect_leaves_requires_gates_keyword(self):
         with self.assertRaises(TypeError):
@@ -143,9 +146,6 @@ class TestLeafGatesThreading(unittest.TestCase):
         self.assertFalse(hasattr(DoorGates.at(0.5), "DOOR_LEAF_COMPANION_PERP_PX"))
         self.assertEqual(DOOR_LEAF_COMPANION_PERP_PX, 5.0)
 
-
-import ast
-from pathlib import Path
 
 _DETECTION_DIR = Path(__file__).resolve().parent.parent / "detection"
 
@@ -237,9 +237,6 @@ class TestDoorGatesUnscaledStopgapRatchet(unittest.TestCase):
             )
 
 
-from detection.doors.sliding import _collect_slide_panels
-
-
 class TestSlidingGatesThreading(unittest.TestCase):
     def test_collect_panels_requires_gates_keyword(self):
         with self.assertRaises(TypeError):
@@ -259,9 +256,6 @@ class TestSlidingGatesThreading(unittest.TestCase):
         panel = prim(0, "qu", [(0, 0), (60, 0), (60, 15), (0, 15)])
         self.assertEqual(len(_collect_slide_panels([panel], gates=DoorGates.at(1.0))), 1)
         self.assertEqual(_collect_slide_panels([panel], gates=DoorGates.at(0.5)), [])
-
-
-from detection.doors.folding import _double_line_leaves
 
 
 class TestFoldingGatesThreading(unittest.TestCase):
