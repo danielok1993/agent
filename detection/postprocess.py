@@ -39,7 +39,7 @@ CROSS_WALL_RUNS_THROUGH_BAND_PX = 8.0  # face must lie within the bbox short ext
 
 
 def _wall_runs_through(
-    network: WallNetwork, bbox: BBox, *, gates: CrossGates | None = None,
+    network: WallNetwork, bbox: BBox, *, gates: CrossGates,
 ) -> bool:
     """True when a wall FACE line runs unbroken through the bbox span.
 
@@ -49,13 +49,6 @@ def _wall_runs_through(
     bbox ends. Centerlines cannot be used here: a window's glazing-derived
     centerline merges collinearly with the wall run on both sides and would
     make every real window look continuous.
-
-    `gates` defaults to CROSS_GATES_UNSCALED (identity, factor 1.0) rather
-    than a required keyword: this helper — like `_cross_validate` itself — is
-    exercised directly by tests that call it unscaled. `_cross_validate`
-    always threads its own computed `gates` explicitly; the default only
-    covers the direct-call case, never a silently-missing hand-off in
-    production.
     """
     x0, y0, x1, y1 = bbox
     w, h = x1 - x0, y1 - y0
@@ -64,9 +57,8 @@ def _wall_runs_through(
     horiz = w >= h
     axis_angle = 0.0 if horiz else 90.0
     lo, hi = (x0, x1) if horiz else (y0, y1)
-    g = gates if gates is not None else CROSS_GATES_UNSCALED
-    margin = g.CROSS_WALL_RUNS_THROUGH_MARGIN_PX
-    band = g.CROSS_WALL_RUNS_THROUGH_BAND_PX
+    margin = gates.CROSS_WALL_RUNS_THROUGH_MARGIN_PX
+    band = gates.CROSS_WALL_RUNS_THROUGH_BAND_PX
     for face in network.faces:
         p1, p2 = face.p1, face.p2
         ang = _line_angle_deg(p1, p2)
@@ -362,7 +354,9 @@ class CrossGates:
 CROSS_GATES_UNSCALED = CrossGates.at(1.0)
 
 
-def _resolve_door_window_conflicts(candidates: list[Candidate]) -> list[Candidate]:
+def _resolve_door_window_conflicts(
+    candidates: list[Candidate], *, scale_factor: float = 1.0,
+) -> list[Candidate]:
     """Drop window candidates that materially sit on a detected door.
 
     Door symbols (leaves, single/double swings, garden doors) contain parallel
@@ -380,12 +374,18 @@ def _resolve_door_window_conflicts(candidates: list[Candidate]) -> list[Candidat
     (CROSS_DOOR_FALLBACK_EXPAND_PX) — they are frequently glazing-mullion or
     sliding-panel linework, so a window built from the same ink yields to them,
     but their speculative bbox must not project onto separate glazing.
+
+    `scale_factor` defaults to 1.0 (identity), matching `_cross_validate`'s
+    own defaulted-scalar entry point: this function builds its own
+    `CrossGates` from a scalar whose default is genuine identity, and it is
+    called directly by tests.
     """
+    gates = CrossGates.at(scale_factor)
     door_bboxes = [
         _bbox_expanded(
             c.bbox,
-            CROSS_DOOR_EXPAND_PX if c.confidence >= CROSS_DOOR_MIN_CONFIDENCE
-            else CROSS_DOOR_FALLBACK_EXPAND_PX,
+            gates.CROSS_DOOR_EXPAND_PX if c.confidence >= CROSS_DOOR_MIN_CONFIDENCE
+            else gates.CROSS_DOOR_FALLBACK_EXPAND_PX,
         )
         for c in candidates if c.entity_type == "door"
     ]

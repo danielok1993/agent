@@ -50,7 +50,7 @@ def run_heuristics(
         # Door symbols share the glazing-pane signature; the reliable door
         # detector suppresses any window candidate sitting on a door (no wall
         # dependency).
-        windows = _resolve_door_window_conflicts(doors + windows)
+        windows = _resolve_door_window_conflicts(doors + windows, scale_factor=scale_factor)
         windows = [c for c in windows if c.entity_type == "window"]
 
     # Internal wall-centerline network: never emitted as candidates; feeds

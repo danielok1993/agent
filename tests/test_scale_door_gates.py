@@ -335,3 +335,121 @@ class TestCrossGates(unittest.TestCase):
         # confirmed doors actually need is <= 8.12px on every 1:100 sheet.
         from detection.postprocess import CrossGates
         self.assertGreater(CrossGates.at(0.5).CROSS_WALL_EXPAND_PX, 8.12)
+
+    def test_door_window_veto_reach_scales(self):
+        # A real door (>= CROSS_DOOR_MIN_CONFIDENCE) vetoes a window sitting
+        # 12px past its own bbox edge. At f=1.0 the 20px dilation reaches the
+        # window (suppressed); at f=0.5 the scaled 10px dilation falls 2px
+        # short (kept). This exercises the actual _resolve_door_window_conflicts
+        # matching logic, not just the CrossGates field math.
+        from detection.postprocess import _resolve_door_window_conflicts
+        from models import Candidate
+
+        door = Candidate("door_0000", "door", (0.0, 0.0, 20.0, 20.0), 0.55, {})
+        win = Candidate("window_0000", "window", (32.0, 0.0, 52.0, 20.0), 0.7, {})
+
+        out_f1 = _resolve_door_window_conflicts([win, door], scale_factor=1.0)
+        self.assertNotIn(win, out_f1, "20px veto reach must cover the 12px gap at f=1.0")
+
+        out_f05 = _resolve_door_window_conflicts([win, door], scale_factor=0.5)
+        self.assertIn(win, out_f05, "10px veto reach must fall short of the 12px gap at f=0.5")
+
+    def test_door_window_conflicts_default_factor_equals_omitted(self):
+        # The defaulted scalar preserves existing (pre-Task-8) call sites.
+        from detection.postprocess import _resolve_door_window_conflicts
+        from models import Candidate
+
+        door = Candidate("door_0000", "door", (0.0, 0.0, 20.0, 20.0), 0.55, {})
+        win = Candidate("window_0000", "window", (32.0, 0.0, 52.0, 20.0), 0.7, {})
+        self.assertEqual(
+            _resolve_door_window_conflicts([win, door]),
+            _resolve_door_window_conflicts([win, door], scale_factor=1.0),
+        )
+
+
+class TestCrossGatesUnscaledStopgapRatchet(unittest.TestCase):
+    """Ratchet on detection/'s production uses of CROSS_GATES_UNSCALED.
+
+    CROSS_GATES_UNSCALED is a fallback constant for tests and direct callers
+    that omit `scale_factor`/`gates` — never a sanctioned way for production
+    code inside detection/ to sidestep threading. Every geometric read inside
+    detection/ must go through a `gates`/`scale_factor`-threaded entry point
+    (`_cross_validate`, `_resolve_door_window_conflicts`, or a keyword-only
+    `gates` parameter), never a hardcoded reference to the unscaled singleton.
+
+    This is a RATCHET, not a plain "must never appear" guard, so it keeps
+    scanning rather than being deleted: EXPECTED_USAGES must stay the empty
+    tuple `()` forever. If it ever finds a usage, that is a regression —
+    someone reached for CROSS_GATES_UNSCALED as a shortcut instead of
+    threading gates/scale_factor properly — and the test must fail, not be
+    "fixed" by re-populating EXPECTED_USAGES. (This guard is also what keeps
+    the `_wall_runs_through` None-sentinel-default pattern from coming back:
+    that pattern read CROSS_GATES_UNSCALED as a fallback inside production
+    code, which this ratchet would have caught.)
+
+    Matching is by a stable substring (the calling function's name) plus the
+    CROSS_GATES_UNSCALED name itself — never by line number, which shifts as
+    the file is edited around it.
+    """
+
+    EXPECTED_USAGES: tuple[tuple[str, str], ...] = ()
+
+    def test_cross_gates_unscaled_stopgap_set_is_exactly_known(self):
+        findings = _production_cross_gates_unscaled_usages()
+        self.assertEqual(
+            len(findings), len(self.EXPECTED_USAGES),
+            "The set of production CROSS_GATES_UNSCALED usages in detection/ "
+            "changed size. If this is unexpected, a new stopgap has crept in "
+            "— thread gates/scale_factor properly instead.\n"
+            f"Found: {findings}\nExpected: {list(self.EXPECTED_USAGES)}",
+        )
+        for rel_expected, substr in self.EXPECTED_USAGES:
+            matches = [
+                (rel, line) for rel, line in findings
+                if rel == rel_expected and substr in line
+            ]
+            self.assertEqual(
+                len(matches), 1,
+                f"Expected exactly one CROSS_GATES_UNSCALED usage in "
+                f"{rel_expected} matching {substr!r}; found {matches}.\n"
+                f"All findings: {findings}",
+            )
+
+
+def _production_cross_gates_unscaled_usages() -> list[tuple[str, str]]:
+    """Scan detection/**/*.py for PRODUCTION (non-import, non-comment) uses
+    of the CROSS_GATES_UNSCALED name, excluding its own definition line in
+    postprocess.py.
+
+    Returns a list of (repo-relative-path, stripped-line-text) — one entry
+    per source line outside an import statement that still mentions the
+    name after postprocess.py's own
+    `CROSS_GATES_UNSCALED = CrossGates.at(1.0)` definition and pure-comment
+    lines are excluded.
+    """
+    findings: list[tuple[str, str]] = []
+    for path in sorted(_DETECTION_DIR.rglob("*.py")):
+        source = path.read_text()
+        if "CROSS_GATES_UNSCALED" not in source:
+            continue
+        rel = path.relative_to(_DETECTION_DIR.parent).as_posix()
+        lines = source.splitlines()
+        tree = ast.parse(source, filename=str(path))
+        import_lines: set[int] = set()
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.Import, ast.ImportFrom)):
+                start = node.lineno
+                end = getattr(node, "end_lineno", node.lineno)
+                import_lines.update(range(start, end + 1))
+        for lineno, raw_line in enumerate(lines, start=1):
+            if "CROSS_GATES_UNSCALED" not in raw_line:
+                continue
+            if lineno in import_lines:
+                continue
+            stripped = raw_line.strip()
+            if stripped.startswith("#"):
+                continue
+            if rel == "detection/postprocess.py" and stripped.startswith("CROSS_GATES_UNSCALED ="):
+                continue
+            findings.append((rel, stripped))
+    return findings
