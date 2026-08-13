@@ -179,6 +179,5 @@
   "177": "_dedupe_openings",
   "178": "TestBlindWindowPocket",
   "179": "TestWindowTightPairInterior",
-  "180": "TestFloorPlansRegression",
-  "181": "_frame_axes"
+  "180": "TestFloorPlansRegression"
 }
