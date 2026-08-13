@@ -31,7 +31,11 @@ def is_page_spanning(
     )
 
 
-def build_ink_map(page_data: PageData, bin_px: int = SEGMENT_BIN_PX) -> InkMap:
+def build_ink_map(
+    page_data: PageData,
+    bin_px: int = SEGMENT_BIN_PX,
+    include_text: bool = True,
+) -> InkMap:
     cols = int(page_data.width_px / bin_px) + 1
     rows = int(page_data.height_px / bin_px) + 1
     bins = [bytearray(cols) for _ in range(rows)]
@@ -61,11 +65,12 @@ def build_ink_map(page_data: PageData, bin_px: int = SEGMENT_BIN_PX) -> InkMap:
         elif pts:
             plot(*pts[0])
 
-    for t in page_data.text_spans:
-        x0, y0, x1, y1 = t.bbox
-        for r in range(int(y0 / bin_px), int(y1 / bin_px) + 1):
-            for c in range(int(x0 / bin_px), int(x1 / bin_px) + 1):
-                if 0 <= r < rows and 0 <= c < cols:
-                    bins[r][c] = 1
+    if include_text:
+        for t in page_data.text_spans:
+            x0, y0, x1, y1 = t.bbox
+            for r in range(int(y0 / bin_px), int(y1 / bin_px) + 1):
+                for c in range(int(x0 / bin_px), int(x1 / bin_px) + 1):
+                    if 0 <= r < rows and 0 <= c < cols:
+                        bins[r][c] = 1
 
     return InkMap(bins=bins, rows=rows, cols=cols, bin_px=bin_px)
