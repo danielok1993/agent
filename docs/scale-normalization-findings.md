@@ -771,6 +771,176 @@ corrected note lives in the design spec itself (§5, bracketed
 `tests/test_scale_door_gates.py`'s `test_cross_class_inversion_is_a_no_op_not_a_crash`
 (assertions unchanged — only the explanatory comment was wrong).
 
+## 4e. Window constant classification table (frozen 2026-08-13)
+
+Companion to §4's wall/room table and §4d's door table, same method: classes
+**W** (world-space, × f; areas × f²), **P** (paper-space, unchanged), **D**
+(dimensionless, unchanged). `f = 50 / nominal_denominator`. Status:
+**frozen** — set during the 2026-08-13 window-gates design from each
+constant's rationale and measured where cited; a future branch may still
+revisit a P verdict flagged "revisit if ..." — that is a new decision, not a
+reopening of this table. Full citations and derivations:
+`docs/superpowers/specs/2026-08-13-scale-aware-window-gates-design.md`
+§§Evidence base, Design/3.
+
+Windows are **the INVERSE of doors: the window symbol's internal ink
+geometry is paper-space; only the opening's own empty-space extent scales.**
+
+**Arithmetic check, so the table is provably exhaustive:** 27 `WINDOW_*`
+constants = 16 px-valued (**1 W + 15 P**) + 11 D. Window-side `CROSS_*`
+(additional): `CROSS_WINDOW_THICKNESS_TOL_PX` P, `CROSS_WINDOW_ON_WALL_BOOST`
+D.
+
+**Key measurements this table rests on** (full derivation in the design
+spec):
+
+- **The organising ratio table** — median-of-per-sheet-medians, f05 /
+  f10_50:
+
+  | Quantity | 1:50 | 1:100 | ratio | reading |
+  |---|---|---|---|---|
+  | adjacent pane gap | 5.11 px | 3.00 px | 0.587 | paper **floor**, not scaling — see below |
+  | band depth (≥3-pane) | 10.00 px | 10.63 px | **1.06** | paper |
+  | cap stroke length (line caps) | 16.06 px | 17.62 px | **1.10** | paper |
+  | span overshoot (median) | 3.22 px | 3.00 px | 0.93 | paper |
+  | opening width | 79.28 px | 75.62 px | 0.95 | see below |
+
+  The pane-gap 0.587 is the doors leaf-companion signature in disguise:
+  converted to millimetres the 1:100 gaps are *larger* (3.00 px ≈ 51 mm)
+  than the 1:50 ones (5.11 px ≈ 43 mm), i.e. a minimum drawn separation, and
+  no confirmed window anywhere in the corpus draws a pane gap below 1.75 px.
+  Band depth ≈ Σ gaps, so depth and spacing land in the same class
+  *together* — no ordering clamp needed. Cap length is the subtle row: a
+  300 mm wall at 1:100 is 17.7 px, and the f05 sheets draw their jamb caps
+  at exactly that (17.62 median) — cap ink spans the frame-to-blockwork
+  convention range at *full drawn size* on every tier, so the px union of
+  conventions does not shrink with scale. Opening width's flat 0.95 ratio is
+  a building-stock confound, not a paper verdict: unlike door leaves
+  (standard ~838 mm), real window widths vary 10×, and 1:100 sheets depict
+  larger buildings — width is the one quantity in the gate set that is
+  empty space between ink (jamb to jamb), not ink, i.e. geometrically
+  world-space by construction. What the distribution does show is the
+  unscaled floor already grazing real windows: the tightest confirmed f05
+  window is **16.49 px vs the 14.0 gate** (s18), 2.5 px of headroom.
+
+- **Retention vetoes** — the confirmed extremes kill every W-candidacy but
+  one (censoring caveat: every harvested quantity is a survivor of its own
+  gate, so maxima locate the gate, and the *extremes vs the scaled gate* are
+  the decisive statistic, not the ratios):
+
+  | Gate | scaled @f=0.5 | confirmed evidence against scaling |
+  |---|---|---|
+  | `WINDOW_CAP_MAX_LEN_PX` 36 | 18 | caps **24.75 px** (s16 w0001, s11 w0002); at f037 caps 12.75–13.0 vs 13.2 — 0.2 px from loss |
+  | `WINDOW_MAX_WIDTH_PX` 280 | 140 | width **210.76 px** (s18 w0021); at f037 103.94 vs 102.65 — loses s13 w0009/0010 |
+  | `WINDOW_GLAZING_THICKNESS_PX` 16 | 8 | depth to **14.25 px** (s16/s11); s13 12.74–13.0 vs 5.87 — all 11 die |
+  | `WINDOW_GLAZING_ADJ_SPACING_PX` 8.5 | 4.25 | confirmed gaps at **8.25 px** (s16); s06 median 4.50 |
+  | `WINDOW_SPAN_OVERSHOOT_PX` 12 / `_COVER_TOL_PX` 4 | 6 / 2 | tails saturated at BOTH tiers (9.38 & 10.5 vs 12; 3.38 & 3.55 vs 4) |
+
+- **Variant matrix summary** — 90 = 79 + 11 confirmed windows at stake, each
+  variant run through the real sweep at each sheet's true factor:
+  `MIN_WIDTH`-only (the accepted set) kept **90/90** with exactly **+1 s16
+  REVIEW window, (1337,1795,1354,1801) conf 0.67, width 11.6 px**, zero FP
+  delta, and no door/room damage — a real 1:100 window sitting below the
+  unscaled 14 px floor, the 21st-sheet argument in measured form. Max gates
+  (cap/width/glazing/mullion/block) lost **50** confirmed windows (40/90,
+  −24 FP, 2 confirmed rooms lost); separations (eps/tight/pad/span) lost
+  **54** (36/90, −16 FP, room FP shape-swap only); blanket (all 16 px +
+  CROSS) lost **61** (29/90, −31 FP, 2 rooms lost, gates interact — s07
+  loses 7 vs 1/0 in isolation) — this is the design's central negative
+  result. `CROSS_WINDOW_THICKNESS_TOL_PX` scaled alone produced **exact
+  zero delta** (0 kept/new/FP change) on all eight sheets. The min-floor
+  variant also exposed a perf trap: scaling `WINDOW_CAP_MIN_LEN_PX`
+  (3.0 → 1.5) doubled the windows stage on s16 (**4.46 s → 9.11 s**) by
+  flooding the cap pool with tiny strokes, for **zero** detection change
+  anywhere; the `MIN_WIDTH`-only variant reproduced the identical result at
+  ≤1.13× baseline cost (s16 5.04 s, s18 6.32 s, s11 3.87 s) —
+  `CAP_MIN_LEN` scaling costs 2× stage time for zero detection change, which
+  together with cap ink's paper measurement (1.10) settles it as P.
+
+### detection/windows.py
+
+| Constant | Class | Rationale |
+|---|---|---|
+| WINDOW_ANGLE_TOL_DEG | D | angle tolerance — "two lines within this are the same direction" |
+| WINDOW_ANGLE_GRID_DEG | D | angle — spacing of the overlapping cap-orientation frames |
+| WINDOW_CAP_MIN_LEN_PX | P | cap ink measures flat (1.10 ratio, above); scaling doubles the s16 windows stage (4.46 s → 9.11 s) for zero detection change anywhere — settled P on cost, not retention |
+| WINDOW_CAP_MAX_LEN_PX | P | measured decisive: confirmed caps to **24.75 px** (s16 w0001, s11 w0002) vs the scaled gate 18; at f037 caps sit 0.2 px from loss (12.75–13.0 vs 13.2) |
+| WINDOW_CAP_LEN_RATIO | D | ratio — facing caps must be similar length |
+| WINDOW_CAP_ALIGN_OVERLAP | D | ratio — facing caps' perp-extents must overlap |
+| WINDOW_MIN_WIDTH_PX | W | the opening's empty-space extent (jamb to jamb) — the only non-ink quantity in the gate set; 2.5 px headroom at f05 today, and the measured +1 REVIEW window at 11.6 px is the recovery it buys. Floored `max(1.0, ·f)` |
+| WINDOW_MAX_WIDTH_PX | P | measured decisive: confirmed width **210.76 px** (s18 w0021) vs the scaled gate 140; at f037, 103.94 vs 102.65 loses s13 w0009/0010 |
+| WINDOW_GLAZING_THICKNESS_PX | P | measured decisive: confirmed depth to **14.25 px** (s16/s11) vs the scaled gate 8; s13's 12.74–13.0 vs 5.87 wipes all 11 confirmed windows |
+| WINDOW_GLAZING_ADJ_SPACING_PX | P | measured decisive: confirmed gaps at **8.25 px** (s16) against the scaled gate 4.25; s06 median 4.50 also clears only the unscaled 8.5 |
+| WINDOW_GLAZING_DISTINCT_EPS | P | semantic (CAD-precision), variant-corroborated: stroke-doubling collapse tolerance; px-valued despite carrying no `_PX` suffix — flagged below as a census-methodology blind spot |
+| WINDOW_MIN_GLAZING_LINES | D | count — ≥2 distinct parallel panes must span the gap |
+| WINDOW_MIN_WIDTH_CAP_RATIO | D | ratio — opening width vs jamb-cap length |
+| WINDOW_TWO_LINE_MIN_CAP_PX | P | measured decisive: cap ink flat — a 300 mm wall at 1:100 draws 17.7 px caps, so the unscaled 12 keeps discriminating; the only f05 2-pane confirmed window has 17.77 px caps |
+| WINDOW_TIGHT_PAIR_GAP_PX | P | semantic, variant-corroborated: drawn legibility band, FP range 1.6–2.5 vs true range 1.75–3.5 |
+| WINDOW_TIGHT_PAIR_JAMB_MARGIN_PX | P | semantic, variant-corroborated: sign test + noise floor — the true gate population is 3 windows, all 1:50 |
+| WINDOW_SPAN_COVER_TOL_PX | P | measured decisive: confirmed shortfall tails saturated at both tiers (3.38 px f05, 3.55 px f10_50, vs the 4 gate) |
+| WINDOW_SPAN_OVERSHOOT_PX | P | measured decisive: confirmed overshoot tails saturated at both tiers (9.38 px f05, 10.5 px f10_50, vs the 12 gate) |
+| WINDOW_SPAN_PERP_TOL_PX | P | semantic, variant-corroborated: fit tolerance |
+| WINDOW_MIN_CONFIDENCE | D | confidence floor |
+| WINDOW_INTERIOR_BAND_PAD_PX | P | semantic (pen-adjacent pad), variant-corroborated; shrunk-world revisit trigger recorded: at f=0.5 on the synthetic shrunk s01/s02 world it swept world-compressed neighbour ink into the clutter scan and killed one s02 window, but no confirmed 1:100 window is clutter-rejected on the real corpus |
+| WINDOW_INTERIOR_SHAPE_MAX | D | count — non-line primitives between the panes |
+| WINDOW_INTERIOR_OBLIQUE_MAX | D | count — oblique lines between the panes |
+| WINDOW_BLOCK_CAP_MAX_THICK_PX | P | conservative default, no corpus signal at any other scale: block-cap framed windows exist only on s02/s10/s03, a drawing-house convention split, not a scale tier — no cross-tier ratio exists even in principle on this corpus. Retention-safe under both the world convention (~3 px bars at 1:100 — pass) and the paper convention (~6 px — pass), while W-scaling rejects the paper convention. Revisit trigger: a 1:100 sheet drawing framed multi-light windows |
+| WINDOW_BLOCK_CAP_MIN_ASPECT | D | aspect ratio |
+| WINDOW_MULLION_GAP_MAX_PX | P | conservative default, same call and same revisit trigger as `BLOCK_CAP_MAX_THICK`: retention-safe under both the world convention (~5.75 px gaps at 1:100 — pass) and the paper convention (~11.5 px — pass) |
+| WINDOW_BLOCK_CAP_CROSS_RATIO | D | ratio — a line ≥ this fraction of the block's diagonal |
+
+### detection/postprocess.py (window-side CROSS_*)
+
+| Constant | Class | Rationale |
+|---|---|---|
+| CROSS_WINDOW_THICKNESS_TOL_PX | P | mechanism + zero-delta measured (design spec Evidence 5): compares bbox short side to measured wall thickness — both world quantities, but the *mismatch* between them is cap-ink overshoot beyond the wall band, the same drawn-overshoot quantity measured paper above (saturated span tails at both tiers); the mismatch is bimodal at every tier (≈0 where the boost fires, or ≫6 — medians 23.75 at f10_50, 9.38 at f05), nothing in (3, 6] for scaling to flip, and the variant run confirmed exact zero delta on all eight sheets. `CrossGates` gains no new field; the constant stays bare in `postprocess.py` with a comment pointing at this row |
+| CROSS_WINDOW_ON_WALL_BOOST | D | confidence boost |
+
+**Hidden-constant audits (both §4b blind-spot classes).**
+
+*Unprefixed module constants:*
+- `_GRID_PX` (64.0) — spatial-hash cell size, self-documented "not a
+  tunable"; trades cells visited vs records per cell, never which records
+  pass. Layout; untouched.
+- `_GLAZE_U_BIN_PX` = `SPAN_OVERSHOOT + SPAN_COVER` (16.0) — glazing-index
+  bin. Correct at ANY width (the query iterates the full bin range); "at
+  most two bins" is perf-only. Both parents froze P, so it stays a true
+  module constant.
+- `_CAP_V_BIN_PX` = `CAP_MAX_LEN + 4.0` (40.0) — **correctness-coupled**:
+  the same-or-adjacent-bin pruning in `_facing_cap_pairs` is exact only
+  while bin width exceeds the in-effect cap max. Had `CAP_MAX_LEN` been W,
+  this bin would silently drop facing pairs at f>1 (caps to 144 px vs a
+  40 px bin inside the clamp domain) and would have had to be derived per
+  call from gates. With `CAP_MAX_LEN` frozen P the hazard is vacuous at
+  every factor — recorded here as an audit note precisely because **a
+  future W-reclassification of `WINDOW_CAP_MAX_LEN_PX` must move this bin
+  into the gates path in the same change.**
+
+*Numeric literals outside the constants block:* `crossed()`'s ±1.0 px bbox
+slack, `_merge_mullion_chains`' ±2.0 px block-perp-in-gap slack — px-valued
+fit slacks ≤4 px, implicitly P (the same class findings §4d froze for
+doors); `_facing_cap_pairs`' `+1.0` float-rounding slack (rides beside
+`MAX_WIDTH`, numeric); `1e-6` epsilons; confidence literals
+0.62/0.05/0.10/0.90 and the 0→180° frame sweep (D). `_merge_mullion_chains`
+additionally reuses `SPAN_PERP_TOL` and `GLAZING_DISTINCT_EPS` at its own
+call sites — those sites inherit the constants' P verdicts.
+`WINDOW_GLAZING_DISTINCT_EPS` is itself worth flagging: it is px-valued
+despite carrying no `_PX` suffix — a census-methodology blind spot of the
+same shape as `COLLINEAR_OFFSET_TOL` (§4b): naming convention alone cannot
+be trusted to enumerate every px-valued constant, so the constants block
+must be read in full, not grepped by suffix.
+
+**Harness note.** Both measurement mechanisms are §4c-compliant by
+construction rather than by after-the-fact reconciliation: distributions
+came from inert measurement taps (`_meas`/`_meas_cross` evidence keys)
+harvested from a full `tools/regress.py`-equivalent sweep, and variants
+monkeypatched module constants ×f and invoked `regression.sweep.sweep()`
+in-process — the harness IS the sweep, so §4c's traps are satisfied by
+construction rather than needing after-the-fact reconciliation. Taps were
+verified byte-inert (the tapped sweep reproduced the baseline sweep on
+every comparison key of every sheet) and fully reverted before the
+implementation commit; they never ship.
+
 ## 5. Decisions (2026-08-12 brainstorm, user-approved)
 
 1. **Approach: thread a scale factor** into walls/rooms and scale classified
@@ -842,11 +1012,27 @@ corrected note lives in the design spec itself (§5, bracketed
   in §4d's leaf-companion-separation evidence, §2/§3 of the design). So the
   merge defect is real but belongs to the assembly-merge logic itself, not to
   scale-awareness; fixing it needs its own branch, not a constant reclassification.
-- **Windows:** `WINDOW_*` in `detection/windows.py` — sill/glazing gaps are
-  world-space; angle gates dimensionless. `CROSS_WINDOW_THICKNESS_TOL_PX`
-  (`detection/postprocess.py`) is the one `CROSS_*` constant this branch left
-  unclassified on purpose — it gates window, not door, cross-validation — and
-  its W/P/D call belongs to whichever branch does this windows work.
+- **Windows:** `WINDOW_*` constants in `detection/windows.py` — **DONE**
+  (`feat/scale-aware-window-gates`, 2026-08-13). 1 W + 15 P + 11 D via
+  `WindowGates`; frozen table at §4e; predicted delta: s16 +1 REVIEW window
+  only.
+- **Windows — span-overshoot retune (paper-space, NOT scale):** confirmed
+  windows overshoot ≤ 9.38px (f05) / 10.5px (f10_50); the s12/s18 phantom
+  windows sit at 11.75–11.98px against the 12.0 gate — a retune to ~10.5–11px
+  could kill those FP families at zero measured confirmed cost. Changes 1:50
+  sheets too → own branch with its own sweep.
+- **Windows — NMS constants:** `NMS_CENTER_DIST_PX` / `NMS_PROJ_PERP_MAX_PX`
+  (postprocess) deliberately unclassified — shared cross-type suppression
+  machinery; scaling them moves every entity type at once.
+- **Windows — revisit triggers for frozen-P rows:** `WINDOW_BLOCK_CAP_MAX_THICK_PX`
+  / `WINDOW_MULLION_GAP_MAX_PX` (a 1:100 sheet drawing framed multi-light
+  windows — no such sheet exists in the corpus, the convention split is by
+  drawing house, not scale); `WINDOW_INTERIOR_BAND_PAD_PX` (a real 1:100
+  window rejected by the interior-clutter gate — observed only on the
+  synthetic shrunk world).
+- **Window tuning guide staleness:** guide §4 lists `WINDOW_CAP_MAX_LEN_PX`
+  34 vs the code's 36 and pre-dates the rotation-general rewrite (§6 still
+  says "diagonal not handled"); a `docs/window-guide-refresh` branch exists.
 - **Labels/schedules:** mostly text-driven; font sizes are paper-space —
   expect few W constants. Audit anyway.
 - **Cross-validation:** the door-side `CROSS_*` constants in
