@@ -194,5 +194,9 @@
   "192": "_dedupe_openings",
   "193": "TestCrossWindowToleranceUnscaled",
   "194": "TestFloorPlansRegression",
-  "195": "README.md"
+  "195": "README.md",
+  "196": "TestMarkerRings",
+  "197": "TestSpanFilterIsLoadBearing",
+  "198": "TestBlindWindowPocket",
+  "199": "TestBatchNeverPrompts"
 }
