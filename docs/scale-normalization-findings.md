@@ -1037,8 +1037,9 @@ implementation commit; they never ship.
   expect few W constants. Audit anyway.
 - **Cross-validation:** the door-side `CROSS_*` constants in
   `detection/postprocess.py` are DONE (§4d, `CrossGates`); the window-side
-  ones (`CROSS_WINDOW_*`) remain for the windows branch, per the bullet
-  above.
+  ones are also DONE, classified by the windows branch at §4e
+  (`CROSS_WINDOW_THICKNESS_TOL_PX` frozen P — deliberately NOT a `CrossGates`
+  field; `CROSS_WINDOW_ON_WALL_BOOST` D).
 - **Layout segmentation:** `SEGMENT_MIN_REGION_SIDE_PX` etc. measure
   *drawing extents*, which scale — but region filtering has its own
   coverage guard; audit before touching.
