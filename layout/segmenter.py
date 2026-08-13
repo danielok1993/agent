@@ -224,6 +224,40 @@ def _fold_small_leaves(
     return [tuple(b) for b in kept]
 
 
+def _attach_text_spans(page_data: PageData, boxes: list[BBox]) -> list[BBox]:
+    """Grow paths-only boxes to absorb the text spans beside them.
+
+    The tier-2 cut (see segment_page) finds boxes with text excluded from the
+    ink map, so captions and labels land OUTSIDE every box — and classification
+    crops without their titles lose the classifier's best signal. Each span
+    folds into its nearest box under the same two rules _fold_small_leaves
+    uses: never farther than CAPTION_MAX_GAP_PX (real captions measure
+    44-48px), and never when the union would increase overlap with another
+    box — a span in a shared gutter grows exactly one box, and one that leaks
+    everywhere stays outside (coverage is path-based, so it costs nothing).
+    """
+    kept = [list(b) for b in boxes]
+    eps = 1e-6
+    max_gap_sq = float(CAPTION_MAX_GAP_PX) ** 2
+    for t in sorted(page_data.text_spans, key=lambda t: (t.bbox[1], t.bbox[0])):
+        s = t.bbox
+        cx, cy = (s[0] + s[2]) / 2, (s[1] + s[3]) / 2
+        if any(k[0] <= cx <= k[2] and k[1] <= cy <= k[3] for k in kept):
+            continue
+        for k in sorted(kept, key=lambda k: _edge_gap_sq(s, tuple(k))):
+            if _edge_gap_sq(s, tuple(k)) > max_gap_sq:
+                break
+            union = (min(k[0], s[0]), min(k[1], s[1]),
+                     max(k[2], s[2]), max(k[3], s[3]))
+            if any(_overlap_area(union, tuple(o)) >
+                   _overlap_area(tuple(k), tuple(o)) + eps
+                   for o in kept if o is not k):
+                continue
+            k[0], k[1], k[2], k[3] = union
+            break
+    return [tuple(b) for b in kept]
+
+
 def _boxes_from_cut(
     page_data: PageData,
     ink: InkMap,

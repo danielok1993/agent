@@ -5,7 +5,7 @@ from models import PageData, PathPrimitive, TextSpan, Region
 from layout.occupancy import build_ink_map
 from layout.segmenter import (
     _trim, _widest_gap, _clip_cut, _xy_cut,
-    segment_page, page_fallback_region,
+    segment_page, page_fallback_region, _attach_text_spans,
 )
 
 PAGE_W, PAGE_H = 400.0, 400.0
@@ -273,6 +273,54 @@ class TestSegmentPage(unittest.TestCase):
         self.assertEqual(r.bbox, (0.0, 0.0, PAGE_W, PAGE_H))
         self.assertEqual(r.source, "page-fallback")
         self.assertEqual(r.path_count, len(pd.paths))
+
+
+def span(text, x0, y0, x1, y1):
+    return TextSpan(text=text, bbox=(float(x0), float(y0), float(x1), float(y1)),
+                    font="Helvetica", size=10.0, color=0, block_no=0, line_no=0)
+
+
+class TestAttachTextSpans(unittest.TestCase):
+    def test_nearby_span_grows_its_nearest_box(self):
+        # Caption 40px below box A: within CAPTION_MAX_GAP_PX, attaches.
+        pd = PageData(page_number=1, width_px=PAGE_W, height_px=PAGE_H,
+                      text_spans=[span("GROUND FLOOR PLAN", 60, 240, 180, 260)])
+        out = _attach_text_spans(pd, [(40.0, 40.0, 200.0, 200.0)])
+        self.assertEqual(out, [(40.0, 40.0, 200.0, 260.0)])
+
+    def test_span_already_inside_a_box_changes_nothing(self):
+        pd = PageData(page_number=1, width_px=PAGE_W, height_px=PAGE_H,
+                      text_spans=[span("KITCHEN", 100, 100, 140, 112)])
+        out = _attach_text_spans(pd, [(40.0, 40.0, 200.0, 200.0)])
+        self.assertEqual(out, [(40.0, 40.0, 200.0, 200.0)])
+
+    def test_distant_span_stays_unattached(self):
+        # 160px below the box: past CAPTION_MAX_GAP_PX, box must not stretch.
+        pd = PageData(page_number=1, width_px=PAGE_W, height_px=PAGE_H,
+                      text_spans=[span("NOTES", 60, 360, 180, 380)])
+        out = _attach_text_spans(pd, [(40.0, 40.0, 200.0, 200.0)])
+        self.assertEqual(out, [(40.0, 40.0, 200.0, 200.0)])
+
+    def test_union_never_leaks_another_box(self):
+        # Span 50px right of tall box A; union(A, span) would sweep over B's
+        # column. B itself is 90px below the span — past the gap cap. The span
+        # must attach nowhere and both boxes stay untouched.
+        a = (40.0, 40.0, 100.0, 340.0)
+        b = (150.0, 150.0, 250.0, 230.0)
+        pd = PageData(page_number=1, width_px=PAGE_W, height_px=PAGE_H,
+                      text_spans=[span("LABEL", 150, 40, 200, 60)])
+        out = _attach_text_spans(pd, [a, b])
+        self.assertEqual(out, [a, b])
+
+    def test_tie_breaks_to_first_box_and_does_not_double_attach(self):
+        # Span dead-centre in a 100px gutter between two boxes: attaches to
+        # exactly one (the first in kept order); the other must not grow.
+        boxes = [(40.0, 40.0, 150.0, 200.0), (250.0, 40.0, 360.0, 200.0)]
+        pd = PageData(page_number=1, width_px=PAGE_W, height_px=PAGE_H,
+                      text_spans=[span("BRIDGE", 160, 100, 240, 120)])
+        out = _attach_text_spans(pd, boxes)
+        grew = [o for o, b in zip(out, boxes) if o != b]
+        self.assertEqual(len(grew), 1)
 
 
 if __name__ == "__main__":
