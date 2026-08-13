@@ -353,8 +353,16 @@ a future auditor does not go looking.
 
 **Hidden-constant audit — clean.** Every numeric literal in
 `detection/doors/*.py` outside `constants.py` was enumerated and is
-dimensionless (angle bins, ratios, confidences, counts). The one derived use
-site, `folding.py:233` (`DOOR_MIN_SIZE_PX * 0.7`), scales automatically. No
+dimensionless (angle bins, ratios, confidences, counts). (corrected
+2026-08-13: this overstates it — five px-valued fit/snap slacks exist, all
+≤4px: `folding.py:381,384,391,412,419` (4.0/3.0/2.0px slacks in the `open_v`
+corridor span/crosser scan), `sliding.py:369,460` (3.0px flank-straightness
+slack), `arcs.py:544` (2.0px polyline min-segment floor). None are
+world-space — they behave as implicitly paper-space, the same class as the
+P constants above, and are left unscaled — but "clean" and "every ... is
+dimensionless" were wrong; a future re-audit should check these sites rather
+than skip them on that word.) The one derived use site, `folding.py:233`
+(`DOOR_MIN_SIZE_PX * 0.7`), scales automatically. No
 `COLLINEAR_OFFSET_TOL`-shaped blind spot exists in this package.
 
 ### 5. Ordering invariants — what is asserted, floored, and left alone

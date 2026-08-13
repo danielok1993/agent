@@ -608,6 +608,18 @@ spec):
   read of that table. This is why the Testing section's fixtures shrink
   extents while holding separations at their paper values, rather than
   scaling the whole coordinate space.
+- **Hidden-constant audit — no world-space literals found.** Every numeric
+  literal in `detection/doors/*.py` outside `constants.py` was enumerated;
+  most are dimensionless (angle bins, ratios, confidences, counts). Five are
+  px-valued fit/snap slacks, all ≤4px, and behave as implicitly paper-space —
+  the same class as the P-frozen snap tolerances in the table below, left
+  unscaled: `folding.py:381,384,391,412,419` (4.0/3.0/2.0px slacks in the
+  `open_v` corridor span/crosser scan), `sliding.py:369,460` (3.0px
+  flank-straightness slack), `arcs.py:544` (2.0px polyline min-segment
+  floor). Full derivation: design spec Design/4 (corrected 2026-08-13 — the
+  original wording there overstated this as "clean … every numeric literal
+  is dimensionless"; a future re-audit should check these sites, not skip
+  them on that word).
 
 ### detection/doors/constants.py
 
