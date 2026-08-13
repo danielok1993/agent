@@ -68,10 +68,13 @@ class DebugTraceCollector:
             "item_type": {"required": "c", "actual": path.item_type, "passed": is_curve},
         }
         if is_curve:
+            # Mirrors DOOR_BBOX_ASPECT_MIN/MAX (detection/doors/constants.py);
+            # kept literal here because importing detection from debug.trace
+            # would close an import cycle (arcs.py imports this module).
             checks["aspect_ratio"] = {
                 "value": round(aspect_ratio, 4) if aspect_ratio is not None else None,
-                "range": [0.85, 1.15],
-                "passed": aspect_ratio is not None and 0.85 <= aspect_ratio <= 1.15,
+                "range": [0.65, 1.45],
+                "passed": aspect_ratio is not None and 0.65 <= aspect_ratio <= 1.45,
             }
             checks["size_px"] = {
                 "value": round(size_px, 2) if size_px is not None else None,

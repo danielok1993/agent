@@ -641,10 +641,10 @@ def _detect_polyline_arc_bboxes(
             return
         aspect = w / h
         size = max(w, h)
-        checks["bbox_aspect"] = {"value": round(aspect, 4), "range": [0.65, 1.45], "passed": 0.65 <= aspect <= 1.45}
+        checks["bbox_aspect"] = {"value": round(aspect, 4), "range": [DOOR_BBOX_ASPECT_MIN, DOOR_BBOX_ASPECT_MAX], "passed": DOOR_BBOX_ASPECT_MIN <= aspect <= DOOR_BBOX_ASPECT_MAX}
         checks["size_px"] = {"value": round(size, 2), "range": [gates.DOOR_MIN_SIZE_PX, gates.DOOR_MAX_SIZE_PX], "passed": gates.DOOR_MIN_SIZE_PX <= size <= gates.DOOR_MAX_SIZE_PX}
-        if not (0.65 <= aspect <= 1.45 and gates.DOOR_MIN_SIZE_PX <= size <= gates.DOOR_MAX_SIZE_PX):
-            fail = "bbox_aspect" if not (0.65 <= aspect <= 1.45) else "size_out_of_range"
+        if not (DOOR_BBOX_ASPECT_MIN <= aspect <= DOOR_BBOX_ASPECT_MAX and gates.DOOR_MIN_SIZE_PX <= size <= gates.DOOR_MAX_SIZE_PX):
+            fail = "bbox_aspect" if not (DOOR_BBOX_ASPECT_MIN <= aspect <= DOOR_BBOX_ASPECT_MAX) else "size_out_of_range"
             if collector:
                 collector.record_polyline_component(
                     comp_path_indices, "rejected", fail, checks,

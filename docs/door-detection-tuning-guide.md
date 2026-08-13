@@ -67,7 +67,7 @@ Door swings appear in CAD-extracted PDFs in **six distinct topologies**. Knowing
     ╲___
        hinge
 ```
-One `c` path. Bbox square-ish, radius = max(w,h). Passes `_is_arc_like` directly.
+One `c` path. Bbox aspect within [0.65, 1.45] (a full axis-anchored quarter arc is square; partial sweeps down to ~77.5° skew it to 0.80/1.24), radius = max(w,h). Passes `_is_arc_like` directly.
 
 ### 3.2 Chained Beziers — full or partial swing (`curve_arc_chain`)
 ```
@@ -253,8 +253,8 @@ All in `heuristics.py`. Grouped by stage. Defaults are the *current* values afte
 
 | Constant | Value | Rationale |
 |---|---|---|
-| `DOOR_BBOX_ASPECT_MIN` | 0.85 | A full quarter arc's bbox is square. Don't raise — admits wall hatches. |
-| `DOOR_BBOX_ASPECT_MAX` | 1.15 | Symmetric with MIN. |
+| `DOOR_BBOX_ASPECT_MIN` | 0.65 | Widened from 0.85 (2026-08-13): a real swing is often swept <90° or anchored off-axis — a 77.5°-sweep arc measures bbox aspect 0.804 (mirror 1.244), and the old square-only gate cost s06 8 of its 10 swings. Bounds now equal the polyline path's aspect gate; both sites share the constants. |
+| `DOOR_BBOX_ASPECT_MAX` | 1.45 | Don't raise: the nearest repeated non-door family at door scale — elliptical fixture/appliance quarter arcs — measures aspect 1.494 (s12) and 1.50–1.76 (s02, ~120 arcs), just past the bound. Pinned in `tests/test_bezier_arc_aspect.py`. |
 | `DOOR_MIN_SIZE_PX` | 20.0 | Smallest door radius observed across both PDFs is 40 px; 20 gives headroom for tiny utility doors. |
 | `DOOR_MAX_SIZE_PX` | 200.0 | Largest detected door is ~125 px; 200 caps decorative arcs / circle floor patterns. |
 
