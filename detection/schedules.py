@@ -20,26 +20,27 @@ SCHEDULE_KEYWORDS_RE = re.compile(
 
 def detect_schedules(
     text_spans: list[TextSpan],
-    plumber_tables: list[list[list[str | None]]],
+    plumber_tables: list[dict],
 ) -> list[Candidate]:
     candidates = []
     cand_idx = 0
 
     for table in plumber_tables:
-        if len(table) < SCHEDULE_TABLE_MIN_ROWS:
+        rows = table["rows"]
+        if len(rows) < SCHEDULE_TABLE_MIN_ROWS:
             continue
-        max_cols = max((len(row) for row in table), default=0)
+        max_cols = max((len(row) for row in rows), default=0)
         if max_cols < SCHEDULE_TABLE_MIN_COLS:
             continue
 
-        total_cells = sum(len(row) for row in table)
-        non_empty = sum(1 for row in table for cell in row if cell and str(cell).strip())
+        total_cells = sum(len(row) for row in rows)
+        non_empty = sum(1 for row in rows for cell in row if cell and str(cell).strip())
         density = non_empty / total_cells if total_cells > 0 else 0
         if density < SCHEDULE_MIN_CELL_DENSITY:
             continue
 
         all_text = " ".join(
-            str(cell) for row in table for cell in row if cell
+            str(cell) for row in rows for cell in row if cell
         )
         is_schedule = bool(SCHEDULE_KEYWORDS_RE.search(all_text))
         confidence = 0.60 if is_schedule else 0.35
@@ -47,7 +48,7 @@ def detect_schedules(
         candidates.append(Candidate(
             candidate_id=f"schedule_{cand_idx:04d}",
             entity_type="schedule",
-            bbox=(0, 0, 0, 0),  # pdfplumber tables don't always have bbox
+            bbox=tuple(table["bbox"]),
             confidence=round(confidence, 3),
             evidence={
                 "rows": len(table),

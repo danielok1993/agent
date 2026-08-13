@@ -50,9 +50,22 @@ def extract_plumber_page(pdf_path: str, page_index: int, scale: float = SCALE) -
             for img in (page.images or [])
         ]
 
+        # find_tables (not extract_tables) so each table keeps its bbox —
+        # Table.bbox is (x0, top, x1, bottom) in points, same top-origin
+        # frame as every other pdfplumber object here.
         try:
-            raw_tables = page.extract_tables()
-            tables = raw_tables if raw_tables else []
+            tables = [
+                {
+                    "bbox": (
+                        float(t.bbox[0]) * scale,
+                        float(t.bbox[1]) * scale,
+                        float(t.bbox[2]) * scale,
+                        float(t.bbox[3]) * scale,
+                    ),
+                    "rows": t.extract(),
+                }
+                for t in page.find_tables()
+            ]
         except Exception:
             tables = []
 
