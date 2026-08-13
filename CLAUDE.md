@@ -186,9 +186,14 @@ The call is schema-constrained (`classifier.RESPONSE_SCHEMA` passed as `response
 3. `layout.segment_page` + `gemini.classifier.classify_regions` — the page is
    split into drawing regions at its whitespace gutters (deterministic, from the
    vector ink's own coordinates), and one Gemini call classifies every region
-   from a per-region crop. Detection then runs ONCE over the union of the
-   `floor_plan` regions, so elevations, location plans and title blocks never
-   reach the detectors. Per-candidate Gemini validation was removed on
+   from a per-region crop. A page the cut cannot split at all is retried once
+   with text spans excluded from the ink map (text bboxes bridge otherwise-
+   generous gutters — measured on s15: 1 leaf with text, 8 regions without),
+   and the resulting regions are grown to re-absorb nearby text so
+   classification crops keep their captions (source: "paths-only"). Detection
+   then runs ONCE over the union of the `floor_plan` regions, so elevations,
+   location plans and title blocks never reach the detectors. Per-candidate
+   Gemini validation was removed on
    2026-07-28 — see docs/superpowers/specs/2026-07-28-floor-plan-region-filtering-design.md.
    Orchestrated by `pipeline.resolve_page_regions`, which caches the classification
    (`gemini/region_cache.py`, keyed by page content AND the region geometry it was

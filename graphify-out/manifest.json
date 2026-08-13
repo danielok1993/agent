@@ -105,7 +105,7 @@
     "semantic_hash": ""
   },
   "detection/windows.py": {
-    "mtime": 1786641165.7232032,
+    "mtime": 1786642533.617693,
     "ast_hash": "30a82b5dfb7c7f7ceeda1067ae146d66",
     "semantic_hash": ""
   },
@@ -145,12 +145,12 @@
     "semantic_hash": ""
   },
   "models.py": {
-    "mtime": 1786525220.6412446,
-    "ast_hash": "bb40fb599ce4649b5234918bbbbd91fe",
+    "mtime": 1786645727.54353,
+    "ast_hash": "6fe60279b2e4425b4d0c8dde8ed6a725",
     "semantic_hash": ""
   },
   "pipeline.py": {
-    "mtime": 1786641152.935802,
+    "mtime": 1786642112.285696,
     "ast_hash": "8c0d34a81280cdc2a18970fdc465319e",
     "semantic_hash": ""
   },
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1786544970.8192704,
-    "ast_hash": "19224450af1c2fbc320576818daca010",
+    "mtime": 1786646862.9275992,
+    "ast_hash": "9c25827a8ed1b3216bb2901941faf0e3",
     "semantic_hash": ""
   },
   "README.md": {
@@ -235,12 +235,12 @@
     "semantic_hash": ""
   },
   "tests/test_window_detection.py": {
-    "mtime": 1786641202.2619245,
+    "mtime": 1786642533.6350179,
     "ast_hash": "810c309e27666508533dd1cea2921b32",
     "semantic_hash": ""
   },
   "docs/window-detection-tuning-guide.md": {
-    "mtime": 1786641485.549985,
+    "mtime": 1786642533.6187396,
     "ast_hash": "1c96c1eac7c9b3598791fb0aeda8d42d",
     "semantic_hash": ""
   },
@@ -320,13 +320,13 @@
     "semantic_hash": ""
   },
   "layout/occupancy.py": {
-    "mtime": 1785926378.2680342,
-    "ast_hash": "ac05d9834f975df636918a99c354fc49",
+    "mtime": 1786644622.8696463,
+    "ast_hash": "c1ae389b12c5f369d93ce065a58665d5",
     "semantic_hash": ""
   },
   "layout/segmenter.py": {
-    "mtime": 1786026207.4376972,
-    "ast_hash": "a72f0086966ee4cf06a46fb9436d5ec4",
+    "mtime": 1786645733.726545,
+    "ast_hash": "75cc37a36d2b99da4a83c67288a3dddc",
     "semantic_hash": ""
   },
   "tests/test_layout_clips.py": {
@@ -340,18 +340,18 @@
     "semantic_hash": ""
   },
   "tests/test_layout_golden.py": {
-    "mtime": 1786026207.439276,
-    "ast_hash": "15063f4ea679183567142ac48c22d336",
+    "mtime": 1786646122.1110852,
+    "ast_hash": "07428f13435f899b57743b8403f9d2ee",
     "semantic_hash": ""
   },
   "tests/test_layout_occupancy.py": {
-    "mtime": 1785926378.2694266,
-    "ast_hash": "968984a820bc79d9df81af9c444f2af5",
+    "mtime": 1786644918.6510305,
+    "ast_hash": "2f8a9976ee7274d9b30fffce0174ad53",
     "semantic_hash": ""
   },
   "tests/test_layout_segmenter.py": {
-    "mtime": 1786026207.439538,
-    "ast_hash": "7803a8d79ea52a4135488e046fa1e010",
+    "mtime": 1786645719.5727272,
+    "ast_hash": "0c06e01e67e033465586b4713c6f655a",
     "semantic_hash": ""
   },
   "tests/test_merge_offline.py": {
@@ -815,7 +815,7 @@
     "semantic_hash": ""
   },
   "docs/scale-normalization-findings.md": {
-    "mtime": 1786641474.898114,
+    "mtime": 1786642533.6184227,
     "ast_hash": "b89ed0963b0bf6103fe63393cb6fe34e",
     "semantic_hash": ""
   },
@@ -907,6 +907,11 @@
   "docs/backlog/step-5-per-scale-group-detection.md": {
     "mtime": 1786634880.7925432,
     "ast_hash": "5f16aaa3b6d1cd16cf889646635bd421",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/plans/2026-08-13-segmenter-text-bridged-gutters.md": {
+    "mtime": 1786644480.3832052,
+    "ast_hash": "c218942e6a6cfa44e279d186496192fa",
     "semantic_hash": ""
   }
 }
