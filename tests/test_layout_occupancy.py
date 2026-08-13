@@ -51,23 +51,6 @@ class TestBuildInkMap(unittest.TestCase):
         self.assertEqual(len(ink.bins), ink.rows)
         self.assertEqual(len(ink.bins[0]), ink.cols)
 
-
-class TestIncludeTextFlag(unittest.TestCase):
-    def _page(self):
-        span = TextSpan(text="BRIDGE", bbox=(100.0, 100.0, 180.0, 120.0),
-                        font="Helvetica", size=10.0, color=0,
-                        block_no=0, line_no=0)
-        return PageData(page_number=1, width_px=400.0, height_px=400.0,
-                        paths=[], text_spans=[span])
-
-    def test_text_spans_ink_by_default(self):
-        ink = build_ink_map(self._page(), bin_px=4)
-        self.assertEqual(ink.bins[int(110 / 4)][int(140 / 4)], 1)
-
-    def test_include_text_false_leaves_text_bins_empty(self):
-        ink = build_ink_map(self._page(), bin_px=4, include_text=False)
-        self.assertEqual(sum(sum(row) for row in ink.bins), 0)
-
     def test_line_marks_bins_along_its_length(self):
         ink = build_ink_map(page([path(0, [(40.0, 100.0), (80.0, 100.0)])]), bin_px=4)
         row = 100 // 4
@@ -97,6 +80,23 @@ class TestIncludeTextFlag(unittest.TestCase):
         ink = build_ink_map(page([path(0, [(40.0, 40.0), (80.0, 80.0)])]), bin_px=4)
         self.assertEqual(ink.bins[60 // 4][60 // 4], 1)   # on the diagonal
         self.assertEqual(ink.bins[44 // 4][76 // 4], 0)   # bbox corner, off the line
+
+
+class TestIncludeTextFlag(unittest.TestCase):
+    def _page(self):
+        span = TextSpan(text="BRIDGE", bbox=(100.0, 100.0, 180.0, 120.0),
+                        font="Helvetica", size=10.0, color=0,
+                        block_no=0, line_no=0)
+        return PageData(page_number=1, width_px=400.0, height_px=400.0,
+                        paths=[], text_spans=[span])
+
+    def test_text_spans_ink_by_default(self):
+        ink = build_ink_map(self._page(), bin_px=4)
+        self.assertEqual(ink.bins[int(110 / 4)][int(140 / 4)], 1)
+
+    def test_include_text_false_leaves_text_bins_empty(self):
+        ink = build_ink_map(self._page(), bin_px=4, include_text=False)
+        self.assertEqual(sum(sum(row) for row in ink.bins), 0)
 
 
 if __name__ == "__main__":
