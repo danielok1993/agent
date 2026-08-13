@@ -299,3 +299,39 @@ class TestAssemblyGatesThreading(unittest.TestCase):
         self.assertAlmostEqual(g.DOOR_DOUBLE_LEAF_OVERLAP_PX, 2.5)
         self.assertAlmostEqual(g.DOOR_DOUBLE_LEAF_CENTER_TOL_PX, 4.0)
         self.assertAlmostEqual(g.DOOR_THRESHOLD_ENDPOINT_TOL_PX, 3.0)
+
+
+class TestCrossGates(unittest.TestCase):
+    def test_identity_at_one(self):
+        from detection.postprocess import (
+            CROSS_GATES_UNSCALED, CROSS_WALL_EXPAND_PX, CrossGates)
+        g = CrossGates.at(1.0)
+        self.assertEqual(g.CROSS_WALL_EXPAND_PX, CROSS_WALL_EXPAND_PX)
+        self.assertEqual(g, CROSS_GATES_UNSCALED)
+
+    def test_geometric_gates_scale(self):
+        from detection.postprocess import CrossGates
+        g = CrossGates.at(0.5)
+        self.assertAlmostEqual(g.CROSS_WALL_EXPAND_PX, 10.0)
+        self.assertAlmostEqual(g.CROSS_OPENING_ENDPOINT_TOL_PX, 6.0)
+        self.assertAlmostEqual(g.CROSS_WALL_RUNS_THROUGH_MARGIN_PX, 6.0)
+        self.assertAlmostEqual(g.CROSS_WALL_RUNS_THROUGH_BAND_PX, 4.0)
+        self.assertAlmostEqual(g.CROSS_DOOR_EXPAND_PX, 10.0)
+        self.assertAlmostEqual(g.CROSS_DOOR_FALLBACK_EXPAND_PX, 4.0)
+
+    def test_confidence_penalties_have_no_field(self):
+        from detection.postprocess import CrossGates
+        g = CrossGates.at(0.5)
+        for name in ("CROSS_NO_WALL_PENALTY",
+                     "CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY",
+                     "CROSS_NO_WALL_SINGLE_LINE_LEAF_PENALTY",
+                     "CROSS_WINDOW_ON_WALL_BOOST",
+                     "CROSS_DOOR_MIN_CONFIDENCE",
+                     "CROSS_DOOR_MIN_WINDOW_COVER"):
+            self.assertFalse(hasattr(g, name), f"{name} is dimensionless")
+
+    def test_scaled_gate_retains_measured_headroom(self):
+        # Distribution measurement (spec §5): the p90 corridor reach that
+        # confirmed doors actually need is <= 8.12px on every 1:100 sheet.
+        from detection.postprocess import CrossGates
+        self.assertGreater(CrossGates.at(0.5).CROSS_WALL_EXPAND_PX, 8.12)

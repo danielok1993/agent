@@ -68,7 +68,7 @@ def run_heuristics(
         )
 
     with _stage("cross_validate"):
-        all_geo = _cross_validate(doors + windows, network)
+        all_geo = _cross_validate(doors + windows, network, scale_factor=scale_factor)
         all_geo = _suppress(all_geo)
 
     # Rooms are built from the post-suppression doors/windows so opening
