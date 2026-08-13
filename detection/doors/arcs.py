@@ -11,14 +11,16 @@ from detection.doors.constants import (
     DOOR_BBOX_ASPECT_MAX, DOOR_BBOX_ASPECT_MIN, DOOR_CURVE_ARC_SHARED_HINGE_TOL_PX,
     DOOR_CURVE_CHAIN_ENDPOINT_TOL_PX, DOOR_CURVE_CHAIN_MIN_CURVES,
     DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS, DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS,
-    DOOR_LAYER_KEYWORDS, DOOR_LEAF_RADIUS_RATIO_TOL, DOOR_MAX_SIZE_PX, DOOR_MIN_SIZE_PX,
+    DOOR_LAYER_KEYWORDS, DOOR_LEAF_RADIUS_RATIO_TOL,
     DOOR_POLYLINE_CHAIN_DELTA_DEG, DOOR_POLYLINE_CYCLE_MAX_SEGMENTS, DOOR_POLYLINE_ENDPOINT_TOL,
-    DOOR_POLYLINE_MAX_ANGLE_BINS, DOOR_POLYLINE_MAX_SEGMENTS, DOOR_POLYLINE_MAX_SEG_PX,
-    DOOR_POLYLINE_MIN_SEGMENTS, DOOR_POLYLINE_SPUR_MAX_SEGMENTS, DOOR_SWING_LINE_DIST_PX,
+    DOOR_POLYLINE_MAX_ANGLE_BINS, DOOR_POLYLINE_MAX_SEGMENTS,
+    DOOR_POLYLINE_MIN_SEGMENTS, DOOR_POLYLINE_SPUR_MAX_SEGMENTS,
+    DoorGates,
 )
 
 
-def _is_arc_like(path: PathPrimitive, collector: DebugTraceCollector | None = None) -> bool:
+def _is_arc_like(path: PathPrimitive, collector: DebugTraceCollector | None = None,
+                 *, gates: DoorGates) -> bool:
     # "mixed" never appears after path explosion — each item gets its own kind.
     if path.item_type != "c":
         if collector:
@@ -36,7 +38,7 @@ def _is_arc_like(path: PathPrimitive, collector: DebugTraceCollector | None = No
         if collector:
             collector.record_arc_filter(path, False, "aspect_ratio", aspect_ratio=aspect, size_px=size)
         return False
-    if not (DOOR_MIN_SIZE_PX <= size <= DOOR_MAX_SIZE_PX):
+    if not (gates.DOOR_MIN_SIZE_PX <= size <= gates.DOOR_MAX_SIZE_PX):
         if collector:
             collector.record_arc_filter(path, False, "size_out_of_range", aspect_ratio=aspect, size_px=size)
         return False
@@ -520,6 +522,7 @@ def _trim_chain_extension_caps(
 def _detect_polyline_arc_bboxes(
     line_paths: list[PathPrimitive],
     collector: DebugTraceCollector | None = None,
+    *, gates: DoorGates,
 ) -> list[dict]:
     """Detect door-swing arcs approximated by connected short line segments.
 
@@ -538,7 +541,7 @@ def _detect_polyline_arc_bboxes(
         # This length cap also makes this detector immune to threshold/sill lines
         # bridging a door opening — those are longer than a single flattened arc segment
         # and never enter the polyline-arc adjacency graph.
-        if 2.0 <= length <= DOOR_POLYLINE_MAX_SEG_PX:
+        if 2.0 <= length <= gates.DOOR_POLYLINE_MAX_SEG_PX:
             segs.append((path, p1, p2, length, _line_angle_deg(p1, p2)))
             if collector:
                 collector.record_polyline_length(path, length, True)
@@ -639,8 +642,8 @@ def _detect_polyline_arc_bboxes(
         aspect = w / h
         size = max(w, h)
         checks["bbox_aspect"] = {"value": round(aspect, 4), "range": [0.65, 1.45], "passed": 0.65 <= aspect <= 1.45}
-        checks["size_px"] = {"value": round(size, 2), "range": [DOOR_MIN_SIZE_PX, DOOR_MAX_SIZE_PX], "passed": DOOR_MIN_SIZE_PX <= size <= DOOR_MAX_SIZE_PX}
-        if not (0.65 <= aspect <= 1.45 and DOOR_MIN_SIZE_PX <= size <= DOOR_MAX_SIZE_PX):
+        checks["size_px"] = {"value": round(size, 2), "range": [gates.DOOR_MIN_SIZE_PX, gates.DOOR_MAX_SIZE_PX], "passed": gates.DOOR_MIN_SIZE_PX <= size <= gates.DOOR_MAX_SIZE_PX}
+        if not (0.65 <= aspect <= 1.45 and gates.DOOR_MIN_SIZE_PX <= size <= gates.DOOR_MAX_SIZE_PX):
             fail = "bbox_aspect" if not (0.65 <= aspect <= 1.45) else "size_out_of_range"
             if collector:
                 collector.record_polyline_component(
@@ -975,9 +978,10 @@ def _detect_curve_arc_double_partners(
 def _collect_door_swings(
     paths: list[PathPrimitive],
     collector: DebugTraceCollector | None = None,
+    *, gates: DoorGates,
 ) -> list[_DoorSwing]:
     # _is_arc_like records arc_filter for every path (pass/fail) when collector is active
-    arc_paths = [p for p in paths if _is_arc_like(p, collector)]
+    arc_paths = [p for p in paths if _is_arc_like(p, collector, gates=gates)]
     line_paths = [p for p in paths if p.item_type == "l"]
     swings: list[_DoorSwing] = []
 
@@ -1063,7 +1067,7 @@ def _collect_door_swings(
         if fit is None:
             continue
         cx, cy, radius = fit
-        if not (DOOR_MIN_SIZE_PX <= radius <= DOOR_MAX_SIZE_PX):
+        if not (gates.DOOR_MIN_SIZE_PX <= radius <= gates.DOOR_MAX_SIZE_PX):
             continue
 
         xs = [b for p in chain for b in (p.bbox[0], p.bbox[2])]
@@ -1106,9 +1110,9 @@ def _collect_door_swings(
         swings.append(swing)
 
     arc_bboxes = [a.bbox for a in arc_paths]
-    for arc_info in _detect_polyline_arc_bboxes(line_paths, collector):
+    for arc_info in _detect_polyline_arc_bboxes(line_paths, collector, gates=gates):
         bbox = arc_info["bbox"]
-        if any(_bboxes_overlap(bbox, _bbox_expanded(ab, DOOR_SWING_LINE_DIST_PX)) for ab in arc_bboxes):
+        if any(_bboxes_overlap(bbox, _bbox_expanded(ab, gates.DOOR_SWING_LINE_DIST_PX)) for ab in arc_bboxes):
             if collector and "component_id" in arc_info:
                 collector.reject_polyline_component(arc_info["component_id"], "overlaps_native_arc")
             continue

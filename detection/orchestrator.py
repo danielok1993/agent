@@ -42,14 +42,15 @@ def run_heuristics(
     disable_rooms = disable_rooms or disable_walls
 
     with _stage("doors"):
-        doors = detect_doors(page_data.paths, page_data.text_spans, collector)
+        doors = detect_doors(page_data.paths, page_data.text_spans, collector,
+                             scale_factor=scale_factor)
     with _stage("windows"):
         windows = [] if disable_windows else detect_windows(page_data.paths)
 
         # Door symbols share the glazing-pane signature; the reliable door
         # detector suppresses any window candidate sitting on a door (no wall
         # dependency).
-        windows = _resolve_door_window_conflicts(doors + windows)
+        windows = _resolve_door_window_conflicts(doors + windows, scale_factor=scale_factor)
         windows = [c for c in windows if c.entity_type == "window"]
 
     # Internal wall-centerline network: never emitted as candidates; feeds
@@ -67,7 +68,7 @@ def run_heuristics(
         )
 
     with _stage("cross_validate"):
-        all_geo = _cross_validate(doors + windows, network)
+        all_geo = _cross_validate(doors + windows, network, scale_factor=scale_factor)
         all_geo = _suppress(all_geo)
 
     # Rooms are built from the post-suppression doors/windows so opening

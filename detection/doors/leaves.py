@@ -9,13 +9,13 @@ from detection.doors.arcs import _arc_corners
 from detection.doors.constants import (
     DOOR_LAYER_KEYWORDS, DOOR_LEAF_ASPECT_MIN, DOOR_LEAF_COMPANION_OVERLAP,
     DOOR_LEAF_COMPANION_PERP_PX, DOOR_LEAF_CYCLE_PARALLEL_TOL_DEG, DOOR_LEAF_CYCLE_PERPENDICULAR_TOL_DEG,
-    DOOR_LEAF_LINE_AXIS_TOL_DEG, DOOR_LEAF_LINE_ENDPOINT_TOL_PX, DOOR_LEAF_LINE_LENGTH_TOL,
+    DOOR_LEAF_LINE_AXIS_TOL_DEG, DOOR_LEAF_LINE_LENGTH_TOL,
     DOOR_LINEWORK_LEAF_COMPONENT_MAX_SEGMENTS, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX,
-    DOOR_LINEWORK_LEAF_MAX_SEGMENTS, DOOR_LINEWORK_LEAF_MIN_SEGMENTS, DOOR_MAX_SIZE_PX, DOOR_MIN_SIZE_PX,
+    DOOR_LINEWORK_LEAF_MAX_SEGMENTS, DOOR_LINEWORK_LEAF_MIN_SEGMENTS, DoorGates,
 )
 
 
-def _is_door_leaf(path: PathPrimitive, collector: DebugTraceCollector | None = None) -> bool:
+def _is_door_leaf(path: PathPrimitive, collector: DebugTraceCollector | None = None, *, gates: DoorGates) -> bool:
     """Return True for re/qu primitives shaped like a door leaf (long and thin)."""
     if path.item_type not in ("re", "qu"):
         if collector:
@@ -34,7 +34,7 @@ def _is_door_leaf(path: PathPrimitive, collector: DebugTraceCollector | None = N
         if collector:
             collector.record_leaf_filter(path, False, "aspect_ratio", aspect_ratio=aspect, size_px=long_side)
         return False
-    if not (DOOR_MIN_SIZE_PX <= long_side <= DOOR_MAX_SIZE_PX):
+    if not (gates.DOOR_MIN_SIZE_PX <= long_side <= gates.DOOR_MAX_SIZE_PX):
         if collector:
             collector.record_leaf_filter(path, False, "size_out_of_range", aspect_ratio=aspect, size_px=long_side)
         return False
@@ -51,7 +51,7 @@ _LinkSeg = tuple[PathPrimitive, tuple[float, float], tuple[float, float]]
 
 
 def _try_linework_leaf_clean_loop(
-    component: list[int], segs: list[_LinkSeg]
+    component: list[int], segs: list[_LinkSeg], *, gates: DoorGates
 ) -> _DoorLeaf | None:
     """Existing clean-closed-loop linework leaf validation, extracted as a helper.
 
@@ -87,7 +87,7 @@ def _try_linework_leaf_clean_loop(
         return None
     if not (
         long_side / short_side >= DOOR_LEAF_ASPECT_MIN
-        and DOOR_MIN_SIZE_PX <= long_side <= DOOR_MAX_SIZE_PX
+        and gates.DOOR_MIN_SIZE_PX <= long_side <= gates.DOOR_MAX_SIZE_PX
     ):
         return None
 
@@ -114,7 +114,7 @@ def _try_linework_leaf_clean_loop(
 
 
 def _find_thin_rectangle_cycle(
-    component_segs: list[_LinkSeg],
+    component_segs: list[_LinkSeg], *, gates: DoorGates
 ) -> tuple[BBox, list[int]] | None:
     """Find the best thin-rectangle 4-cycle inside a (possibly messy) component.
 
@@ -196,7 +196,7 @@ def _find_thin_rectangle_cycle(
         # Bbox-shape gate.
         if not (
             long_side_bbox / short_side_bbox >= DOOR_LEAF_ASPECT_MIN
-            and DOOR_MIN_SIZE_PX <= long_side_bbox <= DOOR_MAX_SIZE_PX
+            and gates.DOOR_MIN_SIZE_PX <= long_side_bbox <= gates.DOOR_MAX_SIZE_PX
         ):
             continue
 
@@ -232,6 +232,7 @@ def _find_thin_rectangle_cycle(
 def _collect_linework_door_leaves(
     line_paths: list[PathPrimitive],
     collector: DebugTraceCollector | None = None,
+    *, gates: DoorGates,
 ) -> list[_DoorLeaf]:
     segs: list[_LinkSeg] = []
     for path in line_paths:
@@ -271,7 +272,7 @@ def _collect_linework_door_leaves(
 
         # Path A: clean closed loop (4–8 segments, every junction degree exactly 2).
         # Preserves the original behaviour, including split-side rectangles.
-        leaf = _try_linework_leaf_clean_loop(component, segs)
+        leaf = _try_linework_leaf_clean_loop(component, segs, gates=gates)
         if leaf is not None:
             if collector:
                 seg_count = len(component)
@@ -324,7 +325,7 @@ def _collect_linework_door_leaves(
                 )
             continue
         component_segs = [segs[i] for i in component]
-        result = _find_thin_rectangle_cycle(component_segs)
+        result = _find_thin_rectangle_cycle(component_segs, gates=gates)
         if result is None:
             if collector:
                 collector.record_linework_component(
@@ -380,10 +381,11 @@ def _collect_linework_door_leaves(
 def _collect_door_leaves(
     paths: list[PathPrimitive],
     collector: DebugTraceCollector | None = None,
+    *, gates: DoorGates,
 ) -> list[_DoorLeaf]:
     leaves: list[_DoorLeaf] = []
     for path in paths:
-        if not _is_door_leaf(path, collector):
+        if not _is_door_leaf(path, collector, gates=gates):
             continue
         w = _bbox_width(path.bbox)
         h = _bbox_height(path.bbox)
@@ -414,7 +416,7 @@ def _collect_door_leaves(
         leaves.append(door_leaf)
 
     line_paths = [p for p in paths if p.item_type == "l"]
-    leaves.extend(_collect_linework_door_leaves(line_paths, collector))
+    leaves.extend(_collect_linework_door_leaves(line_paths, collector, gates=gates))
     return leaves
 
 
@@ -422,6 +424,7 @@ def _find_anchored_leaf_line(
     swing: _DoorSwing,
     line_paths: list[PathPrimitive],
     exclude_indices: set[int],
+    *, gates: DoorGates,
 ) -> dict | None:
     """Search for a single line that could be the door leaf for this arc swing.
 
@@ -435,7 +438,7 @@ def _find_anchored_leaf_line(
       - length within DOOR_LEAF_LINE_LENGTH_TOL of swing.radius
       - direction within DOOR_LEAF_LINE_AXIS_TOL_DEG of either bbox axis
         (0° or 90° — closed-door orientation along the wall)
-      - one endpoint within DOOR_LEAF_LINE_ENDPOINT_TOL_PX of an arc endpoint
+      - one endpoint within gates.DOOR_LEAF_LINE_ENDPOINT_TOL_PX of an arc endpoint
 
     Returns the best match (minimizing length error + endpoint snap distance)
     or ``None`` when nothing matches.
@@ -469,7 +472,7 @@ def _find_anchored_leaf_line(
         for arc_end in swing.arc_endpoints:
             for line_end in (p1, p2):
                 d = _distance(arc_end, line_end)
-                if d > DOOR_LEAF_LINE_ENDPOINT_TOL_PX:
+                if d > gates.DOOR_LEAF_LINE_ENDPOINT_TOL_PX:
                     continue
                 score = length_ratio + d / radius
                 if score < best_score:

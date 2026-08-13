@@ -24,7 +24,7 @@ def _far_wall_network() -> WallNetwork:
 
 from detection.doors.constants import (
     DOOR_ARC_FALLBACK_MAX, DOOR_ASSEMBLY_LINE_LEAF_BASE, DOOR_FALLBACK_CONFIDENCE,
-    DOOR_POLYLINE_MAX_ANGLE_BINS, DOOR_THRESHOLD_CONFIDENCE_BOOST,
+    DOOR_GATES_UNSCALED, DOOR_POLYLINE_MAX_ANGLE_BINS, DOOR_THRESHOLD_CONFIDENCE_BOOST,
     DOOR_V2_OPENING_CLEAR_BOOST, DOOR_V2_OPENING_OBSTRUCTED_PENALTY,
 )
 from models import Candidate, PathPrimitive, TextSpan
@@ -637,7 +637,7 @@ class DoubleDoorTests(unittest.TestCase):
     def test_double_door_toward_each_other(self) -> None:
         """Arcs on the same side (both above leaf line) → merges into double_swing."""
         candidates = [self._left_door(arc_above=True), self._right_door(arc_above=True)]
-        result = _merge_double_door_assemblies(candidates)
+        result = _merge_double_door_assemblies(candidates, gates=DOOR_GATES_UNSCALED)
         doubles = [c for c in result if c.evidence.get("assembly_type") == "double_swing"]
         self.assertEqual(1, len(doubles), "two adjacent single doors must merge into one double")
         expected_bbox = (0.0, -4.0, 160.0, 80.0)
@@ -646,7 +646,7 @@ class DoubleDoorTests(unittest.TestCase):
     def test_double_door_away_from_each_other(self) -> None:
         """Arcs on opposite sides → still merges since leaf-interval check is orientation-agnostic."""
         candidates = [self._left_door(arc_above=True), self._right_door(arc_above=False)]
-        result = _merge_double_door_assemblies(candidates)
+        result = _merge_double_door_assemblies(candidates, gates=DOOR_GATES_UNSCALED)
         doubles = [c for c in result if c.evidence.get("assembly_type") == "double_swing"]
         self.assertEqual(1, len(doubles))
         expected_bbox = (0.0, -80.0, 160.0, 80.0)
@@ -664,7 +664,7 @@ class DoubleDoorTests(unittest.TestCase):
             path_indices=list(range(20, 30)),
         )
         candidates = [self._left_door(), right]
-        result = _merge_double_door_assemblies(candidates)
+        result = _merge_double_door_assemblies(candidates, gates=DOOR_GATES_UNSCALED)
         doubles = [c for c in result if c.evidence.get("assembly_type") == "double_swing"]
         self.assertEqual(0, len(doubles), "30 px leaf gap must not trigger double-door merge")
         self.assertEqual(2, len(result))
@@ -679,7 +679,7 @@ class DoubleDoorTests(unittest.TestCase):
             path_indices=list(range(20, 30)),
         )
         candidates = [self._left_door(), right]
-        result = _merge_double_door_assemblies(candidates)
+        result = _merge_double_door_assemblies(candidates, gates=DOOR_GATES_UNSCALED)
         doubles = [c for c in result if c.evidence.get("assembly_type") == "double_swing"]
         self.assertEqual(0, len(doubles), "10 px leaf overlap must not trigger double-door merge")
         self.assertEqual(2, len(result))
@@ -694,7 +694,7 @@ class DoubleDoorTests(unittest.TestCase):
             "threshold_path_index": 42,
         })
         right = self._right_door()  # no threshold evidence
-        result = _merge_double_door_assemblies([left, right])
+        result = _merge_double_door_assemblies([left, right], gates=DOOR_GATES_UNSCALED)
         doubles = [c for c in result if c.evidence.get("assembly_type") == "double_swing"]
         self.assertEqual(1, len(doubles))
         d = doubles[0]
@@ -710,7 +710,7 @@ class DoubleDoorTests(unittest.TestCase):
             "threshold_path_index": 0,
         })
         right = self._right_door()
-        result = _merge_double_door_assemblies([left, right])
+        result = _merge_double_door_assemblies([left, right], gates=DOOR_GATES_UNSCALED)
         doubles = [c for c in result if c.evidence.get("assembly_type") == "double_swing"]
         self.assertEqual(1, len(doubles))
         self.assertEqual(0, doubles[0].evidence["threshold_path_index"])
@@ -781,7 +781,7 @@ class OpenLeafExclusionTests(unittest.TestCase):
 
     def test_garden_pair_leaves_excluded_jambs_kept(self) -> None:
         halves, paths = self._garden_halves()
-        result = _merge_double_door_assemblies(halves)
+        result = _merge_double_door_assemblies(halves, gates=DOOR_GATES_UNSCALED)
         doubles = [c for c in result if c.evidence.get("assembly_type") == "double_swing"]
         self.assertEqual(1, len(doubles))
         self.assertEqual("garden", doubles[0].evidence.get("swing_layout"))
@@ -820,7 +820,7 @@ class OpenLeafExclusionTests(unittest.TestCase):
             line(100, (0.0, 0.0), (80.0, 0.0)),
             line(102, (80.0, 0.0), (160.0, 0.0)),
         ]
-        result = _merge_double_door_assemblies([left, right])
+        result = _merge_double_door_assemblies([left, right], gates=DOOR_GATES_UNSCALED)
         doubles = [c for c in result if c.evidence.get("assembly_type") == "double_swing"]
         self.assertEqual(1, len(doubles))
         self.assertEqual("french", doubles[0].evidence.get("swing_layout"))

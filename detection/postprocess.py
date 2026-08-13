@@ -1,4 +1,6 @@
 from __future__ import annotations
+from dataclasses import dataclass
+
 from models import BBox, Candidate
 from detection.geometry import (
     _angle_diff_mod180, _bbox_area, _bbox_center, _bbox_expanded, _bbox_height,
@@ -36,7 +38,9 @@ CROSS_WALL_RUNS_THROUGH_MARGIN_PX = 12.0  # centerline extends past both bbox en
 CROSS_WALL_RUNS_THROUGH_BAND_PX = 8.0  # face must lie within the bbox short extent + this
 
 
-def _wall_runs_through(network: WallNetwork, bbox: BBox) -> bool:
+def _wall_runs_through(
+    network: WallNetwork, bbox: BBox, *, gates: CrossGates,
+) -> bool:
     """True when a wall FACE line runs unbroken through the bbox span.
 
     A real window interrupts its wall faces at the jambs (and face merging
@@ -53,8 +57,8 @@ def _wall_runs_through(network: WallNetwork, bbox: BBox) -> bool:
     horiz = w >= h
     axis_angle = 0.0 if horiz else 90.0
     lo, hi = (x0, x1) if horiz else (y0, y1)
-    margin = CROSS_WALL_RUNS_THROUGH_MARGIN_PX
-    band = CROSS_WALL_RUNS_THROUGH_BAND_PX
+    margin = gates.CROSS_WALL_RUNS_THROUGH_MARGIN_PX
+    band = gates.CROSS_WALL_RUNS_THROUGH_BAND_PX
     for face in network.faces:
         p1, p2 = face.p1, face.p2
         ang = _line_angle_deg(p1, p2)
@@ -77,6 +81,8 @@ def _wall_runs_through(network: WallNetwork, bbox: BBox) -> bool:
 def _cross_validate(
     candidates: list[Candidate],
     network: WallNetwork | None,
+    *,
+    scale_factor: float = 1.0,
 ) -> list[Candidate]:
     """Validate doors/windows against the wall-centerline network.
 
@@ -86,17 +92,24 @@ def _cross_validate(
     a door in a wall is left untouched. Windows additionally earn a positive
     boost when their cap pair spans the thickness of the interrupted wall run
     at their location — evidence independent of the glazing linework.
+
+    `scale_factor` defaults to 1.0 (identity): unlike the gates OBJECTS
+    threaded between modules elsewhere (never defaulted, so a missing
+    hand-off can't silently go unscaled), this entry point builds its own
+    `CrossGates` from a scalar whose default is genuinely identity, and it is
+    exercised directly by tests that call it unscaled.
     """
     if network is None or network.is_empty():
         return candidates
 
+    gates = CrossGates.at(scale_factor)
     adjusted = []
     for c in candidates:
         if c.entity_type not in ("door", "window"):
             adjusted.append(c)
             continue
 
-        in_wall = network.near_bbox(c.bbox, CROSS_WALL_EXPAND_PX)
+        in_wall = network.near_bbox(c.bbox, gates.CROSS_WALL_EXPAND_PX)
         new_evidence = dict(c.evidence)
         delta = 0.0
 
@@ -114,7 +127,7 @@ def _cross_validate(
                 # counters) this tier statistically confuses with doors, and a
                 # fixture always stands against some wall.
                 if in_wall and not network.near_bbox(
-                    c.bbox, CROSS_WALL_EXPAND_PX, stroked_only=True
+                    c.bbox, gates.CROSS_WALL_EXPAND_PX, stroked_only=True
                 ):
                     in_wall = False
                     new_evidence["wall_context_note"] = "filled_wall_only"
@@ -130,7 +143,7 @@ def _cross_validate(
                     hits = 0
                     for pt in opening:
                         near = network.nearest_segment((pt[0], pt[1]))
-                        if near is not None and near[1] <= CROSS_OPENING_ENDPOINT_TOL_PX:
+                        if near is not None and near[1] <= gates.CROSS_OPENING_ENDPOINT_TOL_PX:
                             hits += 1
                     if hits == 2:
                         wall_context = "on_wall_centerline"
@@ -141,7 +154,7 @@ def _cross_validate(
         else:  # window
             if in_wall:
                 new_evidence["wall_context"] = "in_wall"
-                if not _wall_runs_through(network, c.bbox):
+                if not _wall_runs_through(network, c.bbox, gates=gates):
                     center = _bbox_center(c.bbox)
                     near = network.nearest_segment(center)
                     short_side = min(_bbox_width(c.bbox), _bbox_height(c.bbox))
@@ -304,7 +317,46 @@ CROSS_DOOR_FALLBACK_EXPAND_PX = 8.0 # veto reach of a fallback-tier door. Measur
                                     # clear up to ~17px. 8px sits between with margin.
 
 
-def _resolve_door_window_conflicts(candidates: list[Candidate]) -> list[Candidate]:
+@dataclass(frozen=True)
+class CrossGates:
+    """World-space cross-validation gates, pre-multiplied by the factor.
+
+    Only the GEOMETRIC constants get fields; the confidence penalties and
+    boosts are dimensionless and never scale.
+
+    CROSS_WALL_EXPAND_PX is a door-bbox-to-wall corridor. Measured (findings
+    §4d): the reach confirmed doors actually need has p90 9.64px at 1:50 vs
+    0.78px at 1:100, and the scaled 10px gate still clears every 1:100
+    sheet's p90 need (max 8.12px) with headroom.
+    """
+    factor: float
+    CROSS_WALL_EXPAND_PX: float
+    CROSS_OPENING_ENDPOINT_TOL_PX: float
+    CROSS_WALL_RUNS_THROUGH_MARGIN_PX: float
+    CROSS_WALL_RUNS_THROUGH_BAND_PX: float
+    CROSS_DOOR_EXPAND_PX: float
+    CROSS_DOOR_FALLBACK_EXPAND_PX: float
+
+    @classmethod
+    def at(cls, factor: float) -> "CrossGates":
+        assert factor > 0, "scale factor must be positive"
+        return cls(
+            factor=factor,
+            CROSS_WALL_EXPAND_PX=CROSS_WALL_EXPAND_PX * factor,
+            CROSS_OPENING_ENDPOINT_TOL_PX=CROSS_OPENING_ENDPOINT_TOL_PX * factor,
+            CROSS_WALL_RUNS_THROUGH_MARGIN_PX=CROSS_WALL_RUNS_THROUGH_MARGIN_PX * factor,
+            CROSS_WALL_RUNS_THROUGH_BAND_PX=CROSS_WALL_RUNS_THROUGH_BAND_PX * factor,
+            CROSS_DOOR_EXPAND_PX=CROSS_DOOR_EXPAND_PX * factor,
+            CROSS_DOOR_FALLBACK_EXPAND_PX=CROSS_DOOR_FALLBACK_EXPAND_PX * factor,
+        )
+
+
+CROSS_GATES_UNSCALED = CrossGates.at(1.0)
+
+
+def _resolve_door_window_conflicts(
+    candidates: list[Candidate], *, scale_factor: float = 1.0,
+) -> list[Candidate]:
     """Drop window candidates that materially sit on a detected door.
 
     Door symbols (leaves, single/double swings, garden doors) contain parallel
@@ -322,12 +374,18 @@ def _resolve_door_window_conflicts(candidates: list[Candidate]) -> list[Candidat
     (CROSS_DOOR_FALLBACK_EXPAND_PX) — they are frequently glazing-mullion or
     sliding-panel linework, so a window built from the same ink yields to them,
     but their speculative bbox must not project onto separate glazing.
+
+    `scale_factor` defaults to 1.0 (identity), matching `_cross_validate`'s
+    own defaulted-scalar entry point: this function builds its own
+    `CrossGates` from a scalar whose default is genuine identity, and it is
+    called directly by tests.
     """
+    gates = CrossGates.at(scale_factor)
     door_bboxes = [
         _bbox_expanded(
             c.bbox,
-            CROSS_DOOR_EXPAND_PX if c.confidence >= CROSS_DOOR_MIN_CONFIDENCE
-            else CROSS_DOOR_FALLBACK_EXPAND_PX,
+            gates.CROSS_DOOR_EXPAND_PX if c.confidence >= CROSS_DOOR_MIN_CONFIDENCE
+            else gates.CROSS_DOOR_FALLBACK_EXPAND_PX,
         )
         for c in candidates if c.entity_type == "door"
     ]

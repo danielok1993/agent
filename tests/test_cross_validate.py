@@ -9,6 +9,7 @@ from models import Candidate
 from detection import WallNetwork, WallSegment
 from detection.walls import WallFace
 from detection.postprocess import (
+    CROSS_GATES_UNSCALED,
     CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY,
     CROSS_NO_WALL_PENALTY,
     CROSS_NO_WALL_SINGLE_LINE_LEAF_PENALTY,
@@ -187,9 +188,11 @@ class TestWindowValidation(unittest.TestCase):
 class TestWallRunsThrough(unittest.TestCase):
     def test_wall_runs_through_helper(self):
         network = continuous_h_wall()
-        self.assertTrue(_wall_runs_through(network, (200.0, 98.0, 260.0, 110.0)))
+        self.assertTrue(_wall_runs_through(
+            network, (200.0, 98.0, 260.0, 110.0), gates=CROSS_GATES_UNSCALED))
         gapped = h_wall_with_gap()
-        self.assertFalse(_wall_runs_through(gapped, (200.0, 96.0, 260.0, 112.0)))
+        self.assertFalse(_wall_runs_through(
+            gapped, (200.0, 96.0, 260.0, 112.0), gates=CROSS_GATES_UNSCALED))
 
 
 class TestEmptyNetwork(unittest.TestCase):
