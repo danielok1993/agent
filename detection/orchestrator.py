@@ -42,7 +42,8 @@ def run_heuristics(
     disable_rooms = disable_rooms or disable_walls
 
     with _stage("doors"):
-        doors = detect_doors(page_data.paths, page_data.text_spans, collector)
+        doors = detect_doors(page_data.paths, page_data.text_spans, collector,
+                             scale_factor=scale_factor)
     with _stage("windows"):
         windows = [] if disable_windows else detect_windows(page_data.paths)
 
