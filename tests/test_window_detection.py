@@ -737,5 +737,36 @@ class TestWindowPruningEquivalence(unittest.TestCase):
                              [r["idx"] for r in self._brute_spanning(pool, c1, c2)])
 
 
+class TestWindowSpanOvershootRetune(unittest.TestCase):
+    """Pins the WINDOW_SPAN_OVERSHOOT_PX = 11.0 retune (measured 2026-08-13).
+
+    Confirmed windows' overshoot tails reach 10.50px (s02's diagonal window;
+    p90 8.77 across the corpus), while the s12/s18/s20 phantom-window families
+    — wall/paving linework read as a 2-pane band — overshoot at 11.75-11.98px.
+    A fixture at each tail pins the gate between them.
+    """
+
+    @staticmethod
+    def _opening(overshoot: float) -> list[PathPrimitive]:
+        # Two 22px caps 40px apart, two panes 7px apart (clear of the
+        # tight-pair gate), each pane running `overshoot` past BOTH caps.
+        return [
+            hline(0, 380.0 - overshoot, 420.0 + overshoot, 396.5),
+            hline(1, 380.0 - overshoot, 420.0 + overshoot, 403.5),
+            vline(2, 389.0, 411.0, 380.0),
+            vline(3, 389.0, 411.0, 420.0),
+        ]
+
+    def test_confirmed_tail_overshoot_detects(self):
+        # 10.5px = the corpus's confirmed maximum (s02 window_0007) — must
+        # stay inside the gate.
+        self.assertEqual(len(detect_windows(self._opening(10.5))), 1)
+
+    def test_fp_tail_overshoot_rejected(self):
+        # 11.8px = the s12/s18/s20 phantom families (11.75-11.98) — both
+        # panes overshoot past the gate, so no band survives.
+        self.assertEqual(detect_windows(self._opening(11.8)), [])
+
+
 if __name__ == "__main__":
     unittest.main()
