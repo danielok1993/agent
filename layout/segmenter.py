@@ -224,19 +224,15 @@ def _fold_small_leaves(
     return [tuple(b) for b in kept]
 
 
-def segment_page(page_data: PageData, clip_rects: list[BBox] | None = None) -> list[Region]:
-    """Split a page into drawing regions. Returns [] for a page with no vector
-    ink (a scanned raster page) — callers must handle that before classifying."""
-    if not page_data.paths:
-        return []
-
-    ink = build_ink_map(page_data, bin_px=SEGMENT_BIN_PX)
-    min_bins = max(1, SEGMENT_MIN_GUTTER_PX // ink.bin_px)
-    cut_rows, cut_cols = clip_cut_positions(clip_rects or [], ink.bin_px)
-
+def _boxes_from_cut(
+    page_data: PageData,
+    ink: InkMap,
+    min_bins: int,
+    cut_rows: set[tuple[int, int, int]],
+    cut_cols: set[tuple[int, int, int]],
+) -> list[BBox]:
     leaves: list[tuple[int, int, int, int]] = []
     _xy_cut(ink, 0, ink.rows, 0, ink.cols, min_bins, cut_rows, cut_cols, 0, leaves)
-
     boxes = [
         (float(c0 * ink.bin_px), float(r0 * ink.bin_px),
          float(c1 * ink.bin_px), float(r1 * ink.bin_px))
@@ -259,8 +255,22 @@ def segment_page(page_data: PageData, clip_rects: list[BBox] | None = None) -> l
     # falls back to whole-page detection anyway, so nothing needs folding.
     boxes = _fold_small_leaves(page_data, kept, small) if kept else []
     boxes.sort(key=lambda b: (b[1], b[0]))
+    return boxes
 
+
+def segment_page(page_data: PageData, clip_rects: list[BBox] | None = None) -> list[Region]:
+    """Split a page into drawing regions. Returns [] for a page with no vector
+    ink (a scanned raster page) — callers must handle that before classifying."""
+    if not page_data.paths:
+        return []
+
+    ink = build_ink_map(page_data, bin_px=SEGMENT_BIN_PX)
+    min_bins = max(1, SEGMENT_MIN_GUTTER_PX // ink.bin_px)
+    cut_rows, cut_cols = clip_cut_positions(clip_rects or [], ink.bin_px)
+
+    boxes = _boxes_from_cut(page_data, ink, min_bins, cut_rows, cut_cols)
     source = "whitespace+clip" if clip_rects else "whitespace"
+
     return [
         Region(
             region_id=f"region_{i:04d}",
