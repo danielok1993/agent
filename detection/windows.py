@@ -77,8 +77,13 @@ WINDOW_TIGHT_PAIR_JAMB_MARGIN_PX = 1.5  # a tight pane pair must run INTERIOR to
                                      # separate the two (a corner-exact cap overlaps the
                                      # band fully); the beyond-band margin can.
 WINDOW_SPAN_COVER_TOL_PX    = 4.0    # a glazing line may fall short of each cap by this
-WINDOW_SPAN_OVERSHOOT_PX    = 12.0   # ...and run at most this far PAST each cap (real
-                                     # glazing overshoots ~7.5px; walls run hundreds past)
+WINDOW_SPAN_OVERSHOOT_PX    = 11.0   # ...and run at most this far PAST each cap (walls run
+                                     # hundreds past). Measured 2026-08-13 through the inert
+                                     # sweep tap (findings §4e): confirmed windows' overshoot
+                                     # tails reach 10.50px (s02 diagonal w) with p90 8.77,
+                                     # while the s12/s18/s20 phantom-window families sit at
+                                     # 11.75-11.98px — 11.0 splits the gap with margin both
+                                     # ways (any value in (10.50, 11.75) behaves identically).
 WINDOW_SPAN_PERP_TOL_PX     = 2.0    # glazing perp may sit this far outside the cap extent
 WINDOW_MIN_CONFIDENCE       = 0.50
 

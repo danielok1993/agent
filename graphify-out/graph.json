@@ -251,7 +251,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "debug_renderer",
-      "community": 114,
+      "community": 118,
       "norm_label": "renderer.py"
     },
     {
@@ -261,7 +261,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "debug_renderer_generate_debug_viewer",
-      "community": 114,
+      "community": 118,
       "norm_label": "generate_debug_viewer()"
     },
     {
@@ -271,7 +271,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "debug_renderer_rationale_1",
-      "community": 114,
+      "community": 118,
       "norm_label": "generate a self-contained html debug viewer for door detection traces."
     },
     {
@@ -281,7 +281,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "debug_renderer_rationale_14",
-      "community": 114,
+      "community": 118,
       "norm_label": "write a single-file html viewer embedding the render image and trace json."
     },
     {
@@ -651,7 +651,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "detection_doors_arcs_is_arc_like",
-      "community": 22,
+      "community": 172,
       "norm_label": "_is_arc_like()"
     },
     {
@@ -691,7 +691,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "detection_doors_arcs_prune_arc_spurs",
-      "community": 163,
+      "community": 180,
       "norm_label": "_prune_arc_spurs()"
     },
     {
@@ -701,7 +701,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "detection_doors_arcs_prune_arc_cycle_caps",
-      "community": 163,
+      "community": 119,
       "norm_label": "_prune_arc_cycle_caps()"
     },
     {
@@ -721,7 +721,7 @@
       "source_location": "L407",
       "_origin": "ast",
       "id": "detection_doors_arcs_trim_chain_extension_caps",
-      "community": 163,
+      "community": 150,
       "norm_label": "_trim_chain_extension_caps()"
     },
     {
@@ -741,7 +741,7 @@
       "source_location": "L792",
       "_origin": "ast",
       "id": "detection_doors_arcs_fit_circle_3pt",
-      "community": 178,
+      "community": 17,
       "norm_label": "_fit_circle_3pt()"
     },
     {
@@ -791,7 +791,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "detection_doors_arcs_rationale_94",
-      "community": 163,
+      "community": 180,
       "norm_label": "remove short leaf-spurs (door stops, cap lines) from an arc component.      a cl"
     },
     {
@@ -801,7 +801,7 @@
       "source_location": "L196",
       "_origin": "ast",
       "id": "detection_doors_arcs_rationale_196",
-      "community": 163,
+      "community": 119,
       "norm_label": "remove a small closed-cycle cap attached at a single articulation point.      so"
     },
     {
@@ -821,7 +821,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "detection_doors_arcs_rationale_411",
-      "community": 163,
+      "community": 150,
       "norm_label": "trim non-arc cap segments off a 2-leaf simple chain.      some cad draftsmen dra"
     },
     {
@@ -841,7 +841,7 @@
       "source_location": "L797",
       "_origin": "ast",
       "id": "detection_doors_arcs_rationale_797",
-      "community": 178,
+      "community": 17,
       "norm_label": "fit a circle through 3 points. returns (cx, cy, radius) or none if     the point"
     },
     {
@@ -921,7 +921,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "detection_doors_assembly_component_indices",
-      "community": 8,
+      "community": 22,
       "norm_label": "_component_indices()"
     },
     {
@@ -931,7 +931,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "detection_doors_assembly_dedupe_door_components",
-      "community": 8,
+      "community": 22,
       "norm_label": "_dedupe_door_components()"
     },
     {
@@ -1011,7 +1011,7 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "detection_doors_assembly_rationale_114",
-      "community": 8,
+      "community": 22,
       "norm_label": "prefer the strongest door when two candidates use the same primitives."
     },
     {
@@ -1078,17 +1078,17 @@
       "label": "DoorGates",
       "file_type": "code",
       "source_file": "detection/doors/constants.py",
-      "source_location": "L250",
+      "source_location": "L251",
       "_origin": "ast",
       "id": "detection_doors_constants_doorgates",
-      "community": 22,
+      "community": 7,
       "norm_label": "doorgates"
     },
     {
       "label": ".at()",
       "file_type": "code",
       "source_file": "detection/doors/constants.py",
-      "source_location": "L291",
+      "source_location": "L292",
       "_origin": "ast",
       "id": "detection_doors_constants_doorgates_at",
       "community": 8,
@@ -1098,10 +1098,10 @@
       "label": "World-space door gates, pre-multiplied by the detection factor.      Fields keep",
       "file_type": "rationale",
       "source_file": "detection/doors/constants.py",
-      "source_location": "L251",
+      "source_location": "L252",
       "_origin": "ast",
-      "id": "detection_doors_constants_rationale_251",
-      "community": 22,
+      "id": "detection_doors_constants_rationale_252",
+      "community": 7,
       "norm_label": "world-space door gates, pre-multiplied by the detection factor.      fields keep"
     },
     {
@@ -1121,7 +1121,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "detection_doors_detect_detect_doors",
-      "community": 167,
+      "community": 3,
       "norm_label": "detect_doors()"
     },
     {
@@ -1131,7 +1131,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "detection_doors_detect_rationale_16",
-      "community": 167,
+      "community": 3,
       "norm_label": "detect doors. scale_factor scales the world-space gates (1.0 = 1:50).      built"
     },
     {
@@ -1431,7 +1431,7 @@
       "source_location": "L494",
       "_origin": "ast",
       "id": "detection_doors_leaves_find_leaf_companion_lines",
-      "community": 111,
+      "community": 22,
       "norm_label": "_find_leaf_companion_lines()"
     },
     {
@@ -1481,7 +1481,7 @@
       "source_location": "L499",
       "_origin": "ast",
       "id": "detection_doors_leaves_rationale_499",
-      "community": 111,
+      "community": 22,
       "norm_label": "find lines forming the same thin-rect leaf as the anchored leaf line.      door"
     },
     {
@@ -1521,7 +1521,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "detection_doors_shape",
-      "community": 0,
+      "community": 22,
       "norm_label": "shape.py"
     },
     {
@@ -1531,7 +1531,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "detection_doors_shape_rasterize_paths_to_canvas",
-      "community": 0,
+      "community": 22,
       "norm_label": "_rasterize_paths_to_canvas()"
     },
     {
@@ -1541,7 +1541,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "detection_doors_shape_compute_hu_distance",
-      "community": 0,
+      "community": 22,
       "norm_label": "_compute_hu_distance()"
     },
     {
@@ -1551,7 +1551,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "detection_doors_shape_rationale_16",
-      "community": 0,
+      "community": 22,
       "norm_label": "rasterize line/curve primitives onto a normalized binary canvas.      segments a"
     },
     {
@@ -1561,7 +1561,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "detection_doors_shape_rationale_50",
-      "community": 0,
+      "community": 22,
       "norm_label": "distance between candidate arc paths and the door hu moment template.      lower"
     },
     {
@@ -1851,7 +1851,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "detection_geometry",
-      "community": 111,
+      "community": 22,
       "norm_label": "geometry.py"
     },
     {
@@ -1861,7 +1861,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "detection_geometry_bbox_center",
-      "community": 8,
+      "community": 7,
       "norm_label": "_bbox_center()"
     },
     {
@@ -1911,7 +1911,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "detection_geometry_angle_diff_mod180",
-      "community": 7,
+      "community": 111,
       "norm_label": "_angle_diff_mod180()"
     },
     {
@@ -1941,7 +1941,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "detection_geometry_point_in_bbox",
-      "community": 111,
+      "community": 22,
       "norm_label": "_point_in_bbox()"
     },
     {
@@ -1971,7 +1971,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "detection_geometry_segments_min_distance",
-      "community": 111,
+      "community": 135,
       "norm_label": "_segments_min_distance()"
     },
     {
@@ -2011,7 +2011,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "detection_geometry_bbox_area",
-      "community": 8,
+      "community": 22,
       "norm_label": "_bbox_area()"
     },
     {
@@ -2031,7 +2031,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "detection_geometry_interval_overlap",
-      "community": 111,
+      "community": 22,
       "norm_label": "_interval_overlap()"
     },
     {
@@ -2061,7 +2061,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "detection_geometry_rationale_24",
-      "community": 7,
+      "community": 111,
       "norm_label": "smaller angular distance between two directions, both already mod 180\u00b0."
     },
     {
@@ -2081,7 +2081,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "detection_geometry_rationale_68",
-      "community": 111,
+      "community": 135,
       "norm_label": "minimum distance between two line segments."
     },
     {
@@ -2281,7 +2281,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "detection_postprocess",
-      "community": 8,
+      "community": 22,
       "norm_label": "postprocess.py"
     },
     {
@@ -2291,7 +2291,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "detection_postprocess_wall_runs_through",
-      "community": 8,
+      "community": 5,
       "norm_label": "_wall_runs_through()"
     },
     {
@@ -2301,7 +2301,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "detection_postprocess_py_bbox",
-      "community": 8,
+      "community": 22,
       "norm_label": "bbox"
     },
     {
@@ -2321,7 +2321,7 @@
       "source_location": "L198",
       "_origin": "ast",
       "id": "detection_postprocess_bbox_iou",
-      "community": 8,
+      "community": 22,
       "norm_label": "_bbox_iou()"
     },
     {
@@ -2331,7 +2331,7 @@
       "source_location": "L210",
       "_origin": "ast",
       "id": "detection_postprocess_projected_overlap_1d",
-      "community": 8,
+      "community": 22,
       "norm_label": "_projected_overlap_1d()"
     },
     {
@@ -2341,7 +2341,7 @@
       "source_location": "L243",
       "_origin": "ast",
       "id": "detection_postprocess_suppress",
-      "community": 8,
+      "community": 22,
       "norm_label": "_suppress()"
     },
     {
@@ -2361,7 +2361,7 @@
       "source_location": "L346",
       "_origin": "ast",
       "id": "detection_postprocess_crossgates_at",
-      "community": 180,
+      "community": 99,
       "norm_label": ".at()"
     },
     {
@@ -2381,7 +2381,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "detection_postprocess_rationale_49",
-      "community": 8,
+      "community": 5,
       "norm_label": "true when a wall face line runs unbroken through the bbox span.      a real wind"
     },
     {
@@ -2401,7 +2401,7 @@
       "source_location": "L211",
       "_origin": "ast",
       "id": "detection_postprocess_rationale_211",
-      "community": 8,
+      "community": 22,
       "norm_label": "projected overlap fraction and perpendicular gap on bbox a's dominant axis."
     },
     {
@@ -2411,7 +2411,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "detection_postprocess_rationale_244",
-      "community": 8,
+      "community": 22,
       "norm_label": "type-specific nms: higher confidence wins when two candidates overlap.      for"
     },
     {
@@ -2441,7 +2441,7 @@
       "source_location": "L417",
       "_origin": "ast",
       "id": "detection_postprocess_rationale_417",
-      "community": 8,
+      "community": 22,
       "norm_label": "# note: there is deliberately no \"drop windows that look like wall linework\""
     },
     {
@@ -2511,7 +2511,7 @@
       "source_location": "L331",
       "_origin": "ast",
       "id": "detection_rooms_open_leaf_edges",
-      "community": 175,
+      "community": 178,
       "norm_label": "_open_leaf_edges()"
     },
     {
@@ -2551,7 +2551,7 @@
       "source_location": "L504",
       "_origin": "ast",
       "id": "detection_rooms_door_plugs",
-      "community": 175,
+      "community": 178,
       "norm_label": "_door_plugs()"
     },
     {
@@ -2641,7 +2641,7 @@
       "source_location": "L334",
       "_origin": "ast",
       "id": "detection_rooms_rationale_334",
-      "community": 175,
+      "community": 178,
       "norm_label": "bbox edges of a garden-layout double door that are room floor, not wall.      a"
     },
     {
@@ -2681,7 +2681,7 @@
       "source_location": "L508",
       "_origin": "ast",
       "id": "detection_rooms_rationale_508",
-      "community": 175,
+      "community": 178,
       "norm_label": "thin barrier bands along the wall planes through a detected door.      the door"
     },
     {
@@ -2981,7 +2981,7 @@
       "source_location": "L725",
       "_origin": "ast",
       "id": "detection_walls_wallnetwork",
-      "community": 135,
+      "community": 5,
       "norm_label": "wallnetwork"
     },
     {
@@ -3001,7 +3001,7 @@
       "source_location": "L744",
       "_origin": "ast",
       "id": "detection_walls_wallnetwork_paired_face_indices",
-      "community": 135,
+      "community": 203,
       "norm_label": ".paired_face_indices()"
     },
     {
@@ -3011,7 +3011,7 @@
       "source_location": "L751",
       "_origin": "ast",
       "id": "detection_walls_wallnetwork_wall_stroke_reference",
-      "community": 135,
+      "community": 203,
       "norm_label": ".wall_stroke_reference()"
     },
     {
@@ -3451,7 +3451,7 @@
       "source_location": "L726",
       "_origin": "ast",
       "id": "detection_walls_rationale_726",
-      "community": 135,
+      "community": 5,
       "norm_label": "connected wall-centerline network (internal-only, never serialized)."
     },
     {
@@ -3461,7 +3461,7 @@
       "source_location": "L745",
       "_origin": "ast",
       "id": "detection_walls_rationale_745",
-      "community": 135,
+      "community": 203,
       "norm_label": "path indices of every face that contributed to a centerline."
     },
     {
@@ -3471,7 +3471,7 @@
       "source_location": "L752",
       "_origin": "ast",
       "id": "detection_walls_rationale_752",
-      "community": 135,
+      "community": 203,
       "norm_label": "length-weighted median stroke width of the paired stroked faces.          anchor"
     },
     {
@@ -3718,7 +3718,7 @@
       "label": "WindowGates",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L141",
+      "source_location": "L146",
       "_origin": "ast",
       "id": "detection_windows_windowgates",
       "community": 126,
@@ -3728,7 +3728,7 @@
       "label": ".at()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L157",
+      "source_location": "L162",
       "_origin": "ast",
       "id": "detection_windows_windowgates_at",
       "community": 126,
@@ -3738,7 +3738,7 @@
       "label": "_line_records()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L174",
+      "source_location": "L179",
       "_origin": "ast",
       "id": "detection_windows_line_records",
       "community": 111,
@@ -3748,7 +3748,7 @@
       "label": "_block_cap_records()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L194",
+      "source_location": "L199",
       "_origin": "ast",
       "id": "detection_windows_block_cap_records",
       "community": 111,
@@ -3758,27 +3758,27 @@
       "label": "_cap_orientation_frames()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L259",
+      "source_location": "L264",
       "_origin": "ast",
       "id": "detection_windows_cap_orientation_frames",
-      "community": 7,
+      "community": 111,
       "norm_label": "_cap_orientation_frames()"
     },
     {
       "label": "_frame_axes()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L285",
+      "source_location": "L290",
       "_origin": "ast",
       "id": "detection_windows_frame_axes",
-      "community": 101,
+      "community": 100,
       "norm_label": "_frame_axes()"
     },
     {
       "label": "_glaze_record()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L296",
+      "source_location": "L301",
       "_origin": "ast",
       "id": "detection_windows_glaze_record",
       "community": 111,
@@ -3788,7 +3788,7 @@
       "label": "_cap_record()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L305",
+      "source_location": "L310",
       "_origin": "ast",
       "id": "detection_windows_cap_record",
       "community": 111,
@@ -3798,17 +3798,17 @@
       "label": "_merge_mullion_chains()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L315",
+      "source_location": "L320",
       "_origin": "ast",
       "id": "detection_windows_merge_mullion_chains",
-      "community": 101,
+      "community": 100,
       "norm_label": "_merge_mullion_chains()"
     },
     {
       "label": "_dedupe_by_perp()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L373",
+      "source_location": "L378",
       "_origin": "ast",
       "id": "detection_windows_dedupe_by_perp",
       "community": 109,
@@ -3818,7 +3818,7 @@
       "label": "_tight_band()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L389",
+      "source_location": "L394",
       "_origin": "ast",
       "id": "detection_windows_tight_band",
       "community": 109,
@@ -3828,17 +3828,17 @@
       "label": "_glaze_index()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L419",
+      "source_location": "L424",
       "_origin": "ast",
       "id": "detection_windows_glaze_index",
-      "community": 40,
+      "community": 109,
       "norm_label": "_glaze_index()"
     },
     {
       "label": "_spanning_glazing()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L449",
+      "source_location": "L454",
       "_origin": "ast",
       "id": "detection_windows_spanning_glazing",
       "community": 109,
@@ -3848,7 +3848,7 @@
       "label": "_facing_cap_pairs()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L489",
+      "source_location": "L494",
       "_origin": "ast",
       "id": "detection_windows_facing_cap_pairs",
       "community": 109,
@@ -3858,7 +3858,7 @@
       "label": "_find_openings()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L548",
+      "source_location": "L553",
       "_origin": "ast",
       "id": "detection_windows_find_openings",
       "community": 109,
@@ -3868,7 +3868,7 @@
       "label": "_area()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L571",
+      "source_location": "L576",
       "_origin": "ast",
       "id": "detection_windows_area",
       "community": 192,
@@ -3888,7 +3888,7 @@
       "label": "_dedupe_openings()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L575",
+      "source_location": "L580",
       "_origin": "ast",
       "id": "detection_windows_dedupe_openings",
       "community": 192,
@@ -3898,39 +3898,39 @@
       "label": "_clutter_grid()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L592",
+      "source_location": "L597",
       "_origin": "ast",
       "id": "detection_windows_clutter_grid",
-      "community": 0,
+      "community": 17,
       "norm_label": "_clutter_grid()"
     },
     {
       "label": "_band_interior_clutter()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L620",
+      "source_location": "L625",
       "_origin": "ast",
       "id": "detection_windows_band_interior_clutter",
-      "community": 7,
+      "community": 111,
       "norm_label": "_band_interior_clutter()"
     },
     {
       "label": "detect_windows()",
       "file_type": "code",
       "source_file": "detection/windows.py",
-      "source_location": "L684",
+      "source_location": "L689",
       "_origin": "ast",
       "id": "detection_windows_detect_windows",
-      "community": 101,
+      "community": 100,
       "norm_label": "detect_windows()"
     },
     {
       "label": "World-space window gates, pre-multiplied by the detection factor.      Exactly O",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L142",
+      "source_location": "L147",
       "_origin": "ast",
-      "id": "detection_windows_rationale_142",
+      "id": "detection_windows_rationale_147",
       "community": 126,
       "norm_label": "world-space window gates, pre-multiplied by the detection factor.      exactly o"
     },
@@ -3938,9 +3938,9 @@
       "label": "All straight line primitives with endpoints, length and direction.      Directio",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L175",
+      "source_location": "L180",
       "_origin": "ast",
-      "id": "detection_windows_rationale_175",
+      "id": "detection_windows_rationale_180",
       "community": 111,
       "norm_label": "all straight line primitives with endpoints, length and direction.      directio"
     },
@@ -3948,9 +3948,9 @@
       "label": "Cap records from small bar-shaped ``re``/``qu`` primitives.      Framed windows",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L195",
+      "source_location": "L200",
       "_origin": "ast",
-      "id": "detection_windows_rationale_195",
+      "id": "detection_windows_rationale_200",
       "community": 111,
       "norm_label": "cap records from small bar-shaped ``re``/``qu`` primitives.      framed windows"
     },
@@ -3958,29 +3958,29 @@
       "label": "Caps grouped by direction into overlapping frames, each ``(center, caps)``.",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L260",
+      "source_location": "L265",
       "_origin": "ast",
-      "id": "detection_windows_rationale_260",
-      "community": 7,
+      "id": "detection_windows_rationale_265",
+      "community": 111,
       "norm_label": "caps grouped by direction into overlapping frames, each ``(center, caps)``."
     },
     {
       "label": "Unit run-axis u (perpendicular to the caps) and perp-axis v (along caps).      C",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L286",
+      "source_location": "L291",
       "_origin": "ast",
-      "id": "detection_windows_rationale_286",
-      "community": 101,
+      "id": "detection_windows_rationale_291",
+      "community": 100,
       "norm_label": "unit run-axis u (perpendicular to the caps) and perp-axis v (along caps).      c"
     },
     {
       "label": "Record for a glazing line: ``perp`` = depth offset (along v), ``span`` =     ext",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L297",
+      "source_location": "L302",
       "_origin": "ast",
-      "id": "detection_windows_rationale_297",
+      "id": "detection_windows_rationale_302",
       "community": 111,
       "norm_label": "record for a glazing line: ``perp`` = depth offset (along v), ``span`` =     ext"
     },
@@ -3988,9 +3988,9 @@
       "label": "Record for a cap line: ``perp`` = position along the opening (u), ``span``     =",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L306",
+      "source_location": "L311",
       "_origin": "ast",
-      "id": "detection_windows_rationale_306",
+      "id": "detection_windows_rationale_311",
       "community": 111,
       "norm_label": "record for a cap line: ``perp`` = position along the opening (u), ``span``     ="
     },
@@ -3998,19 +3998,19 @@
       "label": "Join collinear glazing segments across mullion blocks into logical panes.      A",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L316",
+      "source_location": "L321",
       "_origin": "ast",
-      "id": "detection_windows_rationale_316",
-      "community": 101,
+      "id": "detection_windows_rationale_321",
+      "community": 100,
       "norm_label": "join collinear glazing segments across mullion blocks into logical panes.      a"
     },
     {
       "label": "Collapse near-collinear duplicates (same perp offset) to one record.      A toil",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L374",
+      "source_location": "L379",
       "_origin": "ast",
-      "id": "detection_windows_rationale_374",
+      "id": "detection_windows_rationale_379",
       "community": 109,
       "norm_label": "collapse near-collinear duplicates (same perp offset) to one record.      a toil"
     },
@@ -4018,9 +4018,9 @@
       "label": "Largest run of panes spaced like glazing, not like stair treads.      Walks the",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L390",
+      "source_location": "L395",
       "_origin": "ast",
-      "id": "detection_windows_rationale_390",
+      "id": "detection_windows_rationale_395",
       "community": 109,
       "norm_label": "largest run of panes spaced like glazing, not like stair treads.      walks the"
     },
@@ -4028,19 +4028,19 @@
       "label": "Two-axis lookup structure over a frame's glazing pool.      Every cap pair asks",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L420",
+      "source_location": "L425",
       "_origin": "ast",
-      "id": "detection_windows_rationale_420",
-      "community": 40,
+      "id": "detection_windows_rationale_425",
+      "community": 109,
       "norm_label": "two-axis lookup structure over a frame's glazing pool.      every cap pair asks"
     },
     {
       "label": "Distinct parallel glazing lines that connect cap ``c1`` to cap ``c2``.      A gl",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L451",
+      "source_location": "L456",
       "_origin": "ast",
-      "id": "detection_windows_rationale_451",
+      "id": "detection_windows_rationale_456",
       "community": 109,
       "norm_label": "distinct parallel glazing lines that connect cap ``c1`` to cap ``c2``.      a gl"
     },
@@ -4048,9 +4048,9 @@
       "label": "Index pairs ``(i, j, width)`` of caps that face each other across an opening.",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L490",
+      "source_location": "L495",
       "_origin": "ast",
-      "id": "detection_windows_rationale_490",
+      "id": "detection_windows_rationale_495",
       "community": 109,
       "norm_label": "index pairs ``(i, j, width)`` of caps that face each other across an opening."
     },
@@ -4058,9 +4058,9 @@
       "label": "Pair facing caps and confirm a glazing band bridges each opening.      ``cap_poo",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L551",
+      "source_location": "L556",
       "_origin": "ast",
-      "id": "detection_windows_rationale_551",
+      "id": "detection_windows_rationale_556",
       "community": 109,
       "norm_label": "pair facing caps and confirm a glazing band bridges each opening.      ``cap_poo"
     },
@@ -4068,9 +4068,9 @@
       "label": "Suppress overlapping detections from duplicate cap pairs (greedy NMS).      Dupl",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L576",
+      "source_location": "L581",
       "_origin": "ast",
-      "id": "detection_windows_rationale_576",
+      "id": "detection_windows_rationale_581",
       "community": 192,
       "norm_label": "suppress overlapping detections from duplicate cap pairs (greedy nms).      dupl"
     },
@@ -4078,30 +4078,30 @@
       "label": "Page-wide point buckets for _band_interior_clutter.      The clutter scan asks w",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L594",
+      "source_location": "L599",
       "_origin": "ast",
-      "id": "detection_windows_rationale_594",
-      "community": 0,
+      "id": "detection_windows_rationale_599",
+      "community": 17,
       "norm_label": "page-wide point buckets for _band_interior_clutter.      the clutter scan asks w"
     },
     {
       "label": "Clutter strictly between the glazing panes \u2014 empty for a real window.      The s",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L624",
+      "source_location": "L629",
       "_origin": "ast",
-      "id": "detection_windows_rationale_624",
-      "community": 7,
+      "id": "detection_windows_rationale_629",
+      "community": 111,
       "norm_label": "clutter strictly between the glazing panes \u2014 empty for a real window.      the s"
     },
     {
       "label": "Detect windows as capped openings bridged by a parallel glazing band.      For e",
       "file_type": "rationale",
       "source_file": "detection/windows.py",
-      "source_location": "L686",
+      "source_location": "L691",
       "_origin": "ast",
-      "id": "detection_windows_rationale_686",
-      "community": 101,
+      "id": "detection_windows_rationale_691",
+      "community": 100,
       "norm_label": "detect windows as capped openings bridged by a parallel glazing band.      for e"
     },
     {
@@ -4461,7 +4461,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "extraction_renderer_render_page_png",
-      "community": 114,
+      "community": 118,
       "norm_label": "render_page_png()"
     },
     {
@@ -4471,7 +4471,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "extraction_renderer_py_document",
-      "community": 114,
+      "community": 118,
       "norm_label": "document"
     },
     {
@@ -4651,7 +4651,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "gemini_classifier",
-      "community": 2,
+      "community": 36,
       "norm_label": "classifier.py"
     },
     {
@@ -4661,7 +4661,7 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "gemini_classifier_render_region_crop",
-      "community": 2,
+      "community": 36,
       "norm_label": "render_region_crop()"
     },
     {
@@ -4671,7 +4671,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "gemini_classifier_py_page",
-      "community": 2,
+      "community": 36,
       "norm_label": "page"
     },
     {
@@ -4681,7 +4681,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "gemini_classifier_py_bbox",
-      "community": 2,
+      "community": 36,
       "norm_label": "bbox"
     },
     {
@@ -4691,7 +4691,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "gemini_classifier_region_title_text",
-      "community": 2,
+      "community": 36,
       "norm_label": "region_title_text()"
     },
     {
@@ -4701,7 +4701,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "gemini_classifier_build_request_parts",
-      "community": 2,
+      "community": 36,
       "norm_label": "build_request_parts()"
     },
     {
@@ -4721,7 +4721,7 @@
       "source_location": "L236",
       "_origin": "ast",
       "id": "gemini_classifier_classify_regions",
-      "community": 2,
+      "community": 36,
       "norm_label": "classify_regions()"
     },
     {
@@ -4731,7 +4731,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "gemini_classifier_rationale_1",
-      "community": 2,
+      "community": 36,
       "norm_label": "ask gemini what each segmented region is.  one call per page. each region goes a"
     },
     {
@@ -4741,7 +4741,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "gemini_classifier_rationale_115",
-      "community": 2,
+      "community": 36,
       "norm_label": "render one region as its own png, scaled so its long edge is about     crop_targ"
     },
     {
@@ -4751,7 +4751,7 @@
       "source_location": "L126",
       "_origin": "ast",
       "id": "gemini_classifier_rationale_126",
-      "community": 2,
+      "community": 36,
       "norm_label": "distinct text inside a region, largest font first. many cad exports     outline"
     },
     {
@@ -4771,7 +4771,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "gemini_classifier_rationale_244",
-      "community": 2,
+      "community": 36,
       "norm_label": "one api call for the whole page. returns classified regions + warnings."
     },
     {
@@ -4781,7 +4781,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "gemini_client",
-      "community": 191,
+      "community": 35,
       "norm_label": "client.py"
     },
     {
@@ -4791,7 +4791,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "gemini_client_init_client",
-      "community": 191,
+      "community": 35,
       "norm_label": "init_client()"
     },
     {
@@ -4801,7 +4801,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "client",
-      "community": 191,
+      "community": 35,
       "norm_label": "client"
     },
     {
@@ -4811,7 +4811,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "gemini_client_rationale_1",
-      "community": 191,
+      "community": 35,
       "norm_label": "vertex ai client construction.  per-candidate validation was removed on 2026-07-"
     },
     {
@@ -5051,7 +5051,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "layout_init",
-      "community": 150,
+      "community": 36,
       "norm_label": "__init__.py"
     },
     {
@@ -5061,7 +5061,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "layout_init_rationale_1",
-      "community": 150,
+      "community": 36,
       "norm_label": "page segmentation: split a sheet into its constituent drawings."
     },
     {
@@ -5071,7 +5071,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "layout_clips",
-      "community": 150,
+      "community": 41,
       "norm_label": "clips.py"
     },
     {
@@ -5111,7 +5111,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "layout_clips_clip_cut_positions",
-      "community": 150,
+      "community": 41,
       "norm_label": "clip_cut_positions()"
     },
     {
@@ -5121,7 +5121,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "layout_clips_rationale_1",
-      "community": 150,
+      "community": 41,
       "norm_label": "native pdf clip rects, used as extra cut hints for the segmenter.  clip rects ar"
     },
     {
@@ -5151,7 +5151,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "layout_clips_rationale_81",
-      "community": 150,
+      "community": 41,
       "norm_label": "convert clip edges to (row, col) cut candidates, in bin indices.      each candi"
     },
     {
@@ -5161,7 +5161,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "layout_constants",
-      "community": 150,
+      "community": 41,
       "norm_label": "constants.py"
     },
     {
@@ -5171,7 +5171,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "layout_constants_rationale_1",
-      "community": 150,
+      "community": 41,
       "norm_label": "tunable constants for page segmentation.  values are measured, not guessed \u2014 see"
     },
     {
@@ -5291,7 +5291,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "layout_occupancy_inkmap",
-      "community": 143,
+      "community": 38,
       "norm_label": "inkmap"
     },
     {
@@ -5331,7 +5331,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "layout_occupancy_rationale_12",
-      "community": 143,
+      "community": 38,
       "norm_label": "bins[row][col] is 1 where drawn ink falls, 0 elsewhere."
     },
     {
@@ -5351,7 +5351,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "layout_segmenter",
-      "community": 150,
+      "community": 143,
       "norm_label": "segmenter.py"
     },
     {
@@ -5421,7 +5421,7 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "layout_segmenter_count_paths_in",
-      "community": 150,
+      "community": 143,
       "norm_label": "count_paths_in()"
     },
     {
@@ -5431,7 +5431,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "layout_segmenter_py_bbox",
-      "community": 150,
+      "community": 143,
       "norm_label": "bbox"
     },
     {
@@ -5441,7 +5441,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "layout_segmenter_centre_in",
-      "community": 150,
+      "community": 143,
       "norm_label": "_centre_in()"
     },
     {
@@ -5451,7 +5451,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "layout_segmenter_merge_captions",
-      "community": 150,
+      "community": 143,
       "norm_label": "_merge_captions()"
     },
     {
@@ -5461,7 +5461,7 @@
       "source_location": "L176",
       "_origin": "ast",
       "id": "layout_segmenter_edge_gap_sq",
-      "community": 150,
+      "community": 143,
       "norm_label": "_edge_gap_sq()"
     },
     {
@@ -5471,7 +5471,7 @@
       "source_location": "L183",
       "_origin": "ast",
       "id": "layout_segmenter_overlap_area",
-      "community": 150,
+      "community": 143,
       "norm_label": "_overlap_area()"
     },
     {
@@ -5481,7 +5481,7 @@
       "source_location": "L189",
       "_origin": "ast",
       "id": "layout_segmenter_fold_small_leaves",
-      "community": 150,
+      "community": 143,
       "norm_label": "_fold_small_leaves()"
     },
     {
@@ -5501,7 +5501,7 @@
       "source_location": "L276",
       "_origin": "ast",
       "id": "layout_segmenter_page_fallback_region",
-      "community": 150,
+      "community": 131,
       "norm_label": "page_fallback_region()"
     },
     {
@@ -5511,7 +5511,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "layout_segmenter_rationale_1",
-      "community": 150,
+      "community": 143,
       "norm_label": "recursive xy-cut: split a page into drawing regions at whitespace gutters."
     },
     {
@@ -5551,7 +5551,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "layout_segmenter_rationale_139",
-      "community": 150,
+      "community": 143,
       "norm_label": "fold zero-path title strips into the drawing they belong to.      a caption is a"
     },
     {
@@ -5561,7 +5561,7 @@
       "source_location": "L177",
       "_origin": "ast",
       "id": "layout_segmenter_rationale_177",
-      "community": 150,
+      "community": 143,
       "norm_label": "squared gap between two boxes' nearest edges (0 when they touch)."
     },
     {
@@ -5571,7 +5571,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "layout_segmenter_rationale_192",
-      "community": 150,
+      "community": 143,
       "norm_label": "union each path-bearing sub-min-side leaf into its nearest kept box.      droppi"
     },
     {
@@ -5591,7 +5591,7 @@
       "source_location": "L277",
       "_origin": "ast",
       "id": "layout_segmenter_rationale_277",
-      "community": 150,
+      "community": 131,
       "norm_label": "the whole page as a single region, for sheets too dense to split."
     },
     {
@@ -5601,7 +5601,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "models",
-      "community": 165,
+      "community": 22,
       "norm_label": "models.py"
     },
     {
@@ -5611,7 +5611,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "models_pathprimitive",
-      "community": 0,
+      "community": 17,
       "norm_label": "pathprimitive"
     },
     {
@@ -5621,7 +5621,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "models_textspan",
-      "community": 100,
+      "community": 36,
       "norm_label": "textspan"
     },
     {
@@ -5651,7 +5651,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "models_candidate",
-      "community": 15,
+      "community": 99,
       "norm_label": "candidate"
     },
     {
@@ -5741,7 +5741,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pipeline",
-      "community": 114,
+      "community": 118,
       "norm_label": "pipeline.py"
     },
     {
@@ -5751,7 +5751,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "pipeline_make_output_dir",
-      "community": 114,
+      "community": 118,
       "norm_label": "make_output_dir()"
     },
     {
@@ -5761,7 +5761,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "pipeline_make_page_dir",
-      "community": 114,
+      "community": 118,
       "norm_label": "make_page_dir()"
     },
     {
@@ -5771,7 +5771,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "pipeline_write_json",
-      "community": 114,
+      "community": 118,
       "norm_label": "write_json()"
     },
     {
@@ -5781,7 +5781,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "pipeline_candidate_to_dict",
-      "community": 114,
+      "community": 118,
       "norm_label": "_candidate_to_dict()"
     },
     {
@@ -5791,7 +5791,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "pipeline_entity_to_dict",
-      "community": 114,
+      "community": 118,
       "norm_label": "_entity_to_dict()"
     },
     {
@@ -5811,7 +5811,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "pipeline_room_entity",
-      "community": 114,
+      "community": 35,
       "norm_label": "_room_entity()"
     },
     {
@@ -5831,7 +5831,7 @@
       "source_location": "L181",
       "_origin": "ast",
       "id": "pipeline_collect_warnings",
-      "community": 114,
+      "community": 118,
       "norm_label": "collect_warnings()"
     },
     {
@@ -5841,7 +5841,7 @@
       "source_location": "L222",
       "_origin": "ast",
       "id": "pipeline_scale_table",
-      "community": 114,
+      "community": 189,
       "norm_label": "scale_table()"
     },
     {
@@ -5851,7 +5851,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "table",
-      "community": 114,
+      "community": 189,
       "norm_label": "table"
     },
     {
@@ -5891,7 +5891,7 @@
       "source_location": "L318",
       "_origin": "ast",
       "id": "pipeline_resolve_page_regions",
-      "community": 36,
+      "community": 10,
       "norm_label": "resolve_page_regions()"
     },
     {
@@ -5901,7 +5901,7 @@
       "source_location": "L450",
       "_origin": "ast",
       "id": "pipeline_run_extract",
-      "community": 114,
+      "community": 118,
       "norm_label": "run_extract()"
     },
     {
@@ -5931,7 +5931,7 @@
       "source_location": "L223",
       "_origin": "ast",
       "id": "pipeline_rationale_223",
-      "community": 114,
+      "community": 189,
       "norm_label": "the per-region scale table printed after each page."
     },
     {
@@ -5951,7 +5951,7 @@
       "source_location": "L329",
       "_origin": "ast",
       "id": "pipeline_rationale_329",
-      "community": 36,
+      "community": 10,
       "norm_label": "segment the page, classify its regions, and decide what detection sees.      cla"
     },
     {
@@ -5961,7 +5961,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "regression_init",
-      "community": 136,
+      "community": 122,
       "norm_label": "__init__.py"
     },
     {
@@ -5971,7 +5971,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "regression_init_rationale_1",
-      "community": 136,
+      "community": 122,
       "norm_label": "regression corpus: fixture resolution, ground truth, matching, and the sweep."
     },
     {
@@ -5991,7 +5991,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "regression_corpus_load_manifest",
-      "community": 108,
+      "community": 120,
       "norm_label": "load_manifest()"
     },
     {
@@ -6061,7 +6061,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "regression_corpus_set_labeled",
-      "community": 108,
+      "community": 136,
       "norm_label": "set_labeled()"
     },
     {
@@ -6081,7 +6081,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "regression_corpus_rationale_20",
-      "community": 108,
+      "community": 120,
       "norm_label": "the committed manifest, or an empty corpus when it is absent."
     },
     {
@@ -6111,7 +6111,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "regression_corpus_rationale_69",
-      "community": 108,
+      "community": 136,
       "norm_label": "flip a manifest entry's `labeled` flag and write the manifest back.      `labele"
     },
     {
@@ -6521,7 +6521,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "regression_review_render",
-      "community": 21,
+      "community": 102,
       "norm_label": "review_render.py"
     },
     {
@@ -6561,7 +6561,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "regression_review_render_rationale_1",
-      "community": 21,
+      "community": 102,
       "norm_label": "the images a human looks at while giving verdicts.  one png per page per entity"
     },
     {
@@ -6971,7 +6971,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "regression_verdicts",
-      "community": 108,
+      "community": 136,
       "norm_label": "verdicts.py"
     },
     {
@@ -7021,7 +7021,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "regression_verdicts_rationale_1",
-      "community": 108,
+      "community": 136,
       "norm_label": "turning a human's selections into committed ground truth.  pure and terminal-fre"
     },
     {
@@ -7051,7 +7051,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scale_init",
-      "community": 165,
+      "community": 110,
       "norm_label": "__init__.py"
     },
     {
@@ -7061,7 +7061,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scale_init_rationale_1",
-      "community": 165,
+      "community": 110,
       "norm_label": "drawing-scale resolution: read a 1:n scale from the pdf and bind it to a plan."
     },
     {
@@ -7131,7 +7131,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scale_prompt",
-      "community": 110,
+      "community": 148,
       "norm_label": "prompt.py"
     },
     {
@@ -7171,7 +7171,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scale_prompt_rationale_1",
-      "community": 110,
+      "community": 148,
       "norm_label": "tier 4 input \u2014 ask the user, but only when someone is there to answer.  batch_ex"
     },
     {
@@ -7211,7 +7211,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scale_resolver",
-      "community": 165,
+      "community": 188,
       "norm_label": "resolver.py"
     },
     {
@@ -7231,7 +7231,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "scale_resolver_centroid",
-      "community": 130,
+      "community": 188,
       "norm_label": "_centroid()"
     },
     {
@@ -7241,7 +7241,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "scale_resolver_contains",
-      "community": 130,
+      "community": 188,
       "norm_label": "_contains()"
     },
     {
@@ -7251,7 +7251,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "scale_resolver_caption_distance",
-      "community": 130,
+      "community": 188,
       "norm_label": "_caption_distance()"
     },
     {
@@ -7281,7 +7281,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "scale_resolver_stored_info",
-      "community": 165,
+      "community": 188,
       "norm_label": "_stored_info()"
     },
     {
@@ -7301,7 +7301,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scale_resolver_rationale_1",
-      "community": 165,
+      "community": 188,
       "norm_label": "the resolution ladder, and how a scale binds to a floor plan.  binding is what m"
     },
     {
@@ -7311,7 +7311,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "scale_resolver_rationale_53",
-      "community": 130,
+      "community": 188,
       "norm_label": "how far a text span sits from a region, or none if it is not near it.      horiz"
     },
     {
@@ -7511,7 +7511,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scale_text",
-      "community": 165,
+      "community": 168,
       "norm_label": "text.py"
     },
     {
@@ -7531,7 +7531,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "scale_text_text_scales",
-      "community": 100,
+      "community": 168,
       "norm_label": "text_scales()"
     },
     {
@@ -7541,7 +7541,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scale_text_rationale_1",
-      "community": 165,
+      "community": 168,
       "norm_label": "tier 2 \u2014 the scale a sheet prints as text.  three corpus sheets carry no viewpor"
     },
     {
@@ -7561,7 +7561,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "scale_text_rationale_41",
-      "community": 100,
+      "community": 168,
       "norm_label": "every scale printed on the page, each carrying its span's bbox."
     },
     {
@@ -7601,7 +7601,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "scale_units_denominator_from_c",
-      "community": 119,
+      "community": 110,
       "norm_label": "denominator_from_c()"
     },
     {
@@ -7611,7 +7611,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "scale_units_snap_to_standard",
-      "community": 110,
+      "community": 188,
       "norm_label": "snap_to_standard()"
     },
     {
@@ -7661,7 +7661,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "scale_units_rationale_59",
-      "community": 119,
+      "community": 110,
       "norm_label": "the 1:n denominator for a /measure /x conversion factor."
     },
     {
@@ -7671,7 +7671,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "scale_units_rationale_66",
-      "community": 110,
+      "community": 188,
       "norm_label": "the nearest standard scale within tolerance, or none.      none is a real answer"
     },
     {
@@ -7691,7 +7691,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scale_viewport",
-      "community": 114,
+      "community": 190,
       "norm_label": "viewport.py"
     },
     {
@@ -7701,7 +7701,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "scale_viewport_split_pdf_dicts",
-      "community": 115,
+      "community": 198,
       "norm_label": "split_pdf_dicts()"
     },
     {
@@ -7721,7 +7721,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "scale_viewport_viewport_bbox_to_px",
-      "community": 115,
+      "community": 194,
       "norm_label": "viewport_bbox_to_px()"
     },
     {
@@ -7731,7 +7731,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "scale_viewport_py_bbox",
-      "community": 115,
+      "community": 194,
       "norm_label": "bbox"
     },
     {
@@ -7741,7 +7741,7 @@
       "source_location": "L141",
       "_origin": "ast",
       "id": "scale_viewport_viewport_scales",
-      "community": 114,
+      "community": 190,
       "norm_label": "viewport_scales()"
     },
     {
@@ -7751,7 +7751,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scale_viewport_rationale_1",
-      "community": 114,
+      "community": 190,
       "norm_label": "tier 1 \u2014 the scale the pdf states in its own viewport measure dictionaries.  a c"
     },
     {
@@ -7761,7 +7761,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "scale_viewport_rationale_42",
-      "community": 115,
+      "community": 198,
       "norm_label": "split a pdf array string into its top-level ``<< >>`` dictionaries.      depth-c"
     },
     {
@@ -7781,7 +7781,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "scale_viewport_rationale_108",
-      "community": 115,
+      "community": 194,
       "norm_label": "convert a raw /vp bbox into 150-dpi pixel space.      two steps, in this order."
     },
     {
@@ -7791,7 +7791,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "scale_viewport_rationale_142",
-      "community": 114,
+      "community": 190,
       "norm_label": "every drawing scale this page's viewports state, smallest bbox first.      small"
     },
     {
@@ -8341,7 +8341,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_fitcircle3pttests",
-      "community": 178,
+      "community": 17,
       "norm_label": "fitcircle3pttests"
     },
     {
@@ -8351,7 +8351,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_fitcircle3pttests_test_three_axis_aligned_points_on_unit_circle",
-      "community": 178,
+      "community": 17,
       "norm_label": ".test_three_axis_aligned_points_on_unit_circle()"
     },
     {
@@ -8361,7 +8361,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_fitcircle3pttests_test_three_points_on_offset_circle",
-      "community": 178,
+      "community": 17,
       "norm_label": ".test_three_points_on_offset_circle()"
     },
     {
@@ -8371,7 +8371,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_fitcircle3pttests_test_collinear_points_return_none",
-      "community": 178,
+      "community": 17,
       "norm_label": ".test_collinear_points_return_none()"
     },
     {
@@ -8491,7 +8491,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_rationale_80",
-      "community": 178,
+      "community": 17,
       "norm_label": "trivial sanity check on the formula: 3 points on a circle of         radius 5 ce"
     },
     {
@@ -8501,7 +8501,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_rationale_90",
-      "community": 178,
+      "community": 17,
       "norm_label": "recover an offset center and radius from a different angular spread."
     },
     {
@@ -8511,7 +8511,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_rationale_107",
-      "community": 178,
+      "community": 17,
       "norm_label": "three collinear points have no unique circumscribed circle."
     },
     {
@@ -8921,7 +8921,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_door_assembly",
-      "community": 3,
+      "community": 197,
       "norm_label": "test_door_assembly.py"
     },
     {
@@ -8991,7 +8991,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "tests_test_door_assembly_doorassemblytests_test_polyline_arc_connected_linework_leaf_base_confidence",
-      "community": 167,
+      "community": 3,
       "norm_label": ".test_polyline_arc_connected_linework_leaf_base_confidence()"
     },
     {
@@ -9251,7 +9251,7 @@
       "source_location": "L484",
       "_origin": "ast",
       "id": "tests_test_door_assembly_doorevidencepropagationtests",
-      "community": 15,
+      "community": 99,
       "norm_label": "doorevidencepropagationtests"
     },
     {
@@ -9261,7 +9261,7 @@
       "source_location": "L487",
       "_origin": "ast",
       "id": "tests_test_door_assembly_doorevidencepropagationtests_test_entity_attributes_propagate_door_subtype",
-      "community": 15,
+      "community": 99,
       "norm_label": ".test_entity_attributes_propagate_door_subtype()"
     },
     {
@@ -9271,7 +9271,7 @@
       "source_location": "L522",
       "_origin": "ast",
       "id": "tests_test_door_assembly_wide_arc_lines",
-      "community": 3,
+      "community": 197,
       "norm_label": "wide_arc_lines()"
     },
     {
@@ -9281,7 +9281,7 @@
       "source_location": "L534",
       "_origin": "ast",
       "id": "tests_test_door_assembly_seg_angle_bins",
-      "community": 3,
+      "community": 197,
       "norm_label": "_seg_angle_bins()"
     },
     {
@@ -9301,7 +9301,7 @@
       "source_location": "L577",
       "_origin": "ast",
       "id": "tests_test_door_assembly_polylinearcbincaptests",
-      "community": 3,
+      "community": 197,
       "norm_label": "polylinearcbincaptests"
     },
     {
@@ -9311,7 +9311,7 @@
       "source_location": "L580",
       "_origin": "ast",
       "id": "tests_test_door_assembly_polylinearcbincaptests_test_arc_too_wide_rejected",
-      "community": 3,
+      "community": 197,
       "norm_label": ".test_arc_too_wide_rejected()"
     },
     {
@@ -9431,7 +9431,7 @@
       "source_location": "L733",
       "_origin": "ast",
       "id": "tests_test_door_assembly_openleafexclusiontests",
-      "community": 24,
+      "community": 199,
       "norm_label": "openleafexclusiontests"
     },
     {
@@ -9441,7 +9441,7 @@
       "source_location": "L743",
       "_origin": "ast",
       "id": "tests_test_door_assembly_openleafexclusiontests_garden_halves",
-      "community": 24,
+      "community": 199,
       "norm_label": "._garden_halves()"
     },
     {
@@ -9451,7 +9451,7 @@
       "source_location": "L782",
       "_origin": "ast",
       "id": "tests_test_door_assembly_openleafexclusiontests_test_garden_pair_leaves_excluded_jambs_kept",
-      "community": 24,
+      "community": 199,
       "norm_label": ".test_garden_pair_leaves_excluded_jambs_kept()"
     },
     {
@@ -9461,7 +9461,7 @@
       "source_location": "L794",
       "_origin": "ast",
       "id": "tests_test_door_assembly_openleafexclusiontests_test_french_pair_contributes_no_exclusions",
-      "community": 24,
+      "community": 199,
       "norm_label": ".test_french_pair_contributes_no_exclusions()"
     },
     {
@@ -9631,7 +9631,7 @@
       "source_location": "L485",
       "_origin": "ast",
       "id": "tests_test_door_assembly_rationale_485",
-      "community": 15,
+      "community": 99,
       "norm_label": "verify step 4 \u2014 door evidence keys land in entity.attributes in offline mode."
     },
     {
@@ -9641,7 +9641,7 @@
       "source_location": "L523",
       "_origin": "ast",
       "id": "tests_test_door_assembly_rationale_523",
-      "community": 3,
+      "community": 197,
       "norm_label": "270-degree polyline arc with 16 segments \u2014 far wider than a quarter-circle door"
     },
     {
@@ -9651,7 +9651,7 @@
       "source_location": "L535",
       "_origin": "ast",
       "id": "tests_test_door_assembly_rationale_535",
-      "community": 3,
+      "community": 197,
       "norm_label": "compute 15-degree angle bins for line segments \u2014 fixture sanity helper."
     },
     {
@@ -9661,7 +9661,7 @@
       "source_location": "L578",
       "_origin": "ast",
       "id": "tests_test_door_assembly_rationale_578",
-      "community": 3,
+      "community": 197,
       "norm_label": "tests for the door_polyline_max_angle_bins cap that rejects furniture/appliance"
     },
     {
@@ -9751,7 +9751,7 @@
       "source_location": "L734",
       "_origin": "ast",
       "id": "tests_test_door_assembly_rationale_734",
-      "community": 24,
+      "community": 199,
       "norm_label": "tests for door_open_leaf_path_indices on merged double-swing pairs.      geometr"
     },
     {
@@ -9761,7 +9761,7 @@
       "source_location": "L795",
       "_origin": "ast",
       "id": "tests_test_door_assembly_rationale_795",
-      "community": 24,
+      "community": 199,
       "norm_label": "french leaves are drawn closed in the wall plane \u2014 legitimate wall         evide"
     },
     {
@@ -9781,7 +9781,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_extract_images",
-      "community": 152,
+      "community": 104,
       "norm_label": "test_extract_images.py"
     },
     {
@@ -9861,7 +9861,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_extract_images_rationale_1",
-      "community": 152,
+      "community": 104,
       "norm_label": "extract_images characterization: multi-image and multi-display pages.  get_image"
     },
     {
@@ -10111,7 +10111,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_fetch_fixtures",
-      "community": 108,
+      "community": 120,
       "norm_label": "test_fetch_fixtures.py"
     },
     {
@@ -10221,7 +10221,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_fetch_fixtures_rationale_1",
-      "community": 108,
+      "community": 120,
       "norm_label": "the corpus verifier classifies each manifest sheet against the disk."
     },
     {
@@ -11551,7 +11551,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "tests_test_layout_golden_testspanfilterisloadbearing",
-      "community": 162,
+      "community": 200,
       "norm_label": "testspanfilterisloadbearing"
     },
     {
@@ -11561,7 +11561,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "tests_test_layout_golden_testspanfilterisloadbearing_page_data",
-      "community": 162,
+      "community": 200,
       "norm_label": "._page_data()"
     },
     {
@@ -11571,7 +11571,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "tests_test_layout_golden_testspanfilterisloadbearing_test_sheet_has_page_spanning_primitives",
-      "community": 162,
+      "community": 200,
       "norm_label": ".test_sheet_has_page_spanning_primitives()"
     },
     {
@@ -11581,7 +11581,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "tests_test_layout_golden_testspanfilterisloadbearing_test_sheet_splits_into_many_regions_with_the_filter",
-      "community": 162,
+      "community": 200,
       "norm_label": ".test_sheet_splits_into_many_regions_with_the_filter()"
     },
     {
@@ -11591,7 +11591,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "tests_test_layout_golden_testspanfilterisloadbearing_test_ink_map_has_no_page_spanning_rows",
-      "community": 162,
+      "community": 200,
       "norm_label": ".test_ink_map_has_no_page_spanning_rows()"
     },
     {
@@ -11611,7 +11611,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "tests_test_layout_golden_rationale_58",
-      "community": 162,
+      "community": 200,
       "norm_label": "this sheet carries full-page border rules. with the span filter applied     the"
     },
     {
@@ -11641,7 +11641,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "tests_test_layout_occupancy_span",
-      "community": 100,
+      "community": 38,
       "norm_label": "span()"
     },
     {
@@ -11781,7 +11781,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter",
-      "community": 118,
+      "community": 131,
       "norm_label": "test_layout_segmenter.py"
     },
     {
@@ -11791,7 +11791,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_block",
-      "community": 118,
+      "community": 131,
       "norm_label": "block()"
     },
     {
@@ -11801,7 +11801,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_page",
-      "community": 118,
+      "community": 131,
       "norm_label": "page()"
     },
     {
@@ -11811,7 +11811,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_cut",
-      "community": 118,
+      "community": 131,
       "norm_label": "cut()"
     },
     {
@@ -11901,7 +11901,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut",
-      "community": 118,
+      "community": 131,
       "norm_label": "testxycut"
     },
     {
@@ -11911,7 +11911,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut_test_single_blob_yields_one_region",
-      "community": 118,
+      "community": 131,
       "norm_label": ".test_single_blob_yields_one_region()"
     },
     {
@@ -11921,7 +11921,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut_test_two_blobs_split_by_a_wide_vertical_gutter",
-      "community": 118,
+      "community": 131,
       "norm_label": ".test_two_blobs_split_by_a_wide_vertical_gutter()"
     },
     {
@@ -11931,7 +11931,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut_test_two_blobs_split_by_a_wide_horizontal_gutter",
-      "community": 118,
+      "community": 131,
       "norm_label": ".test_two_blobs_split_by_a_wide_horizontal_gutter()"
     },
     {
@@ -11941,7 +11941,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut_test_gap_narrower_than_the_threshold_does_not_split",
-      "community": 118,
+      "community": 131,
       "norm_label": ".test_gap_narrower_than_the_threshold_does_not_split()"
     },
     {
@@ -11951,7 +11951,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut_test_regions_are_trimmed_to_their_ink",
-      "community": 118,
+      "community": 131,
       "norm_label": ".test_regions_are_trimmed_to_their_ink()"
     },
     {
@@ -11961,7 +11961,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut_test_clip_edge_splits_when_no_gutter_exists",
-      "community": 118,
+      "community": 131,
       "norm_label": ".test_clip_edge_splits_when_no_gutter_exists()"
     },
     {
@@ -11971,7 +11971,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut_test_gutter_is_preferred_over_a_clip_edge",
-      "community": 118,
+      "community": 131,
       "norm_label": ".test_gutter_is_preferred_over_a_clip_edge()"
     },
     {
@@ -11981,7 +11981,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut_test_clip_edges_cannot_preempt_the_gutter",
-      "community": 118,
+      "community": 131,
       "norm_label": ".test_clip_edges_cannot_preempt_the_gutter()"
     },
     {
@@ -12141,7 +12141,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_rationale_1",
-      "community": 118,
+      "community": 131,
       "norm_label": "recursive xy-cut tests (layout/segmenter.py)."
     },
     {
@@ -12151,7 +12151,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_rationale_17",
-      "community": 118,
+      "community": 131,
       "norm_label": "a solid-ish blob: a horizontal line every 4px so every bin row is inked."
     },
     {
@@ -12561,7 +12561,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_arc",
-      "community": 163,
+      "community": 150,
       "norm_label": "_arc()"
     },
     {
@@ -12571,7 +12571,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_chain",
-      "community": 163,
+      "community": 119,
       "norm_label": "_chain()"
     },
     {
@@ -12591,7 +12591,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_prunearcspurstests",
-      "community": 163,
+      "community": 180,
       "norm_label": "prunearcspurstests"
     },
     {
@@ -12601,7 +12601,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_prunearcspurstests_test_clean_arc_unchanged",
-      "community": 163,
+      "community": 180,
       "norm_label": ".test_clean_arc_unchanged()"
     },
     {
@@ -12611,7 +12611,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_prunearcspurstests_test_pure_cycle_unchanged",
-      "community": 163,
+      "community": 180,
       "norm_label": ".test_pure_cycle_unchanged()"
     },
     {
@@ -12621,7 +12621,7 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_prunearcspurstests_test_short_branches_at_y_junction_removed",
-      "community": 163,
+      "community": 180,
       "norm_label": ".test_short_branches_at_y_junction_removed()"
     },
     {
@@ -12631,7 +12631,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_prunearcspurstests_test_dual_spurs_at_one_junction",
-      "community": 163,
+      "community": 180,
       "norm_label": ".test_dual_spurs_at_one_junction()"
     },
     {
@@ -12641,7 +12641,7 @@
       "source_location": "L152",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_prunearcspurstests_test_oversized_branch_kept_at_y_junction",
-      "community": 163,
+      "community": 180,
       "norm_label": ".test_oversized_branch_kept_at_y_junction()"
     },
     {
@@ -12651,7 +12651,7 @@
       "source_location": "L175",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_prunearcspurstests_test_pruning_floor_protects_minimum",
-      "community": 163,
+      "community": 180,
       "norm_label": ".test_pruning_floor_protects_minimum()"
     },
     {
@@ -12661,7 +12661,7 @@
       "source_location": "L198",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_trimchainextensioncapstests",
-      "community": 163,
+      "community": 150,
       "norm_label": "trimchainextensioncapstests"
     },
     {
@@ -12671,7 +12671,7 @@
       "source_location": "L207",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_trimchainextensioncapstests_test_clean_arc_chain_unchanged",
-      "community": 163,
+      "community": 150,
       "norm_label": ".test_clean_arc_chain_unchanged()"
     },
     {
@@ -12681,7 +12681,7 @@
       "source_location": "L218",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_trimchainextensioncapstests_test_arc_with_perpendicular_cap_at_end_trimmed",
-      "community": 163,
+      "community": 150,
       "norm_label": ".test_arc_with_perpendicular_cap_at_end_trimmed()"
     },
     {
@@ -12691,7 +12691,7 @@
       "source_location": "L241",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_trimchainextensioncapstests_test_caps_at_both_ends_trimmed",
-      "community": 163,
+      "community": 150,
       "norm_label": ".test_caps_at_both_ends_trimmed()"
     },
     {
@@ -12701,7 +12701,7 @@
       "source_location": "L268",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_trimchainextensioncapstests_test_component_with_junction_unchanged",
-      "community": 163,
+      "community": 150,
       "norm_label": ".test_component_with_junction_unchanged()"
     },
     {
@@ -12711,7 +12711,7 @@
       "source_location": "L285",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_trimchainextensioncapstests_test_pure_cycle_unchanged",
-      "community": 163,
+      "community": 150,
       "norm_label": ".test_pure_cycle_unchanged()"
     },
     {
@@ -12721,7 +12721,7 @@
       "source_location": "L298",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_trimchainextensioncapstests_test_irregular_arc_under_threshold_not_over_trimmed",
-      "community": 163,
+      "community": 150,
       "norm_label": ".test_irregular_arc_under_threshold_not_over_trimmed()"
     },
     {
@@ -12731,7 +12731,7 @@
       "source_location": "L313",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_trimchainextensioncapstests_test_trim_would_violate_floor_unchanged",
-      "community": 163,
+      "community": 150,
       "norm_label": ".test_trim_would_violate_floor_unchanged()"
     },
     {
@@ -12741,7 +12741,7 @@
       "source_location": "L332",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_prunearccyclecapstests",
-      "community": 163,
+      "community": 119,
       "norm_label": "prunearccyclecapstests"
     },
     {
@@ -12751,7 +12751,7 @@
       "source_location": "L342",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_prunearccyclecapstests_test_clean_arc_no_junctions_unchanged",
-      "community": 163,
+      "community": 119,
       "norm_label": ".test_clean_arc_no_junctions_unchanged()"
     },
     {
@@ -12761,7 +12761,7 @@
       "source_location": "L352",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_prunearccyclecapstests_test_arc_with_4_seg_rect_cycle_removed",
-      "community": 163,
+      "community": 119,
       "norm_label": ".test_arc_with_4_seg_rect_cycle_removed()"
     },
     {
@@ -12771,7 +12771,7 @@
       "source_location": "L374",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_prunearccyclecapstests_test_arc_with_7_seg_cycle_removed",
-      "community": 163,
+      "community": 119,
       "norm_label": ".test_arc_with_7_seg_cycle_removed()"
     },
     {
@@ -12781,7 +12781,7 @@
       "source_location": "L394",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_prunearccyclecapstests_test_oversized_cycle_kept",
-      "community": 163,
+      "community": 119,
       "norm_label": ".test_oversized_cycle_kept()"
     },
     {
@@ -12791,7 +12791,7 @@
       "source_location": "L417",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_prunearccyclecapstests_test_pure_cycle_unchanged",
-      "community": 163,
+      "community": 119,
       "norm_label": ".test_pure_cycle_unchanged()"
     },
     {
@@ -12801,7 +12801,7 @@
       "source_location": "L431",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_prunearccyclecapstests_test_spur_at_junction_not_treated_as_cycle",
-      "community": 163,
+      "community": 119,
       "norm_label": ".test_spur_at_junction_not_treated_as_cycle()"
     },
     {
@@ -12811,7 +12811,7 @@
       "source_location": "L447",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_prunearccyclecapstests_test_floor_guard_prevents_excess_pruning",
-      "community": 163,
+      "community": 119,
       "norm_label": ".test_floor_guard_prevents_excess_pruning()"
     },
     {
@@ -12911,7 +12911,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_35",
-      "community": 163,
+      "community": 150,
       "norm_label": "quarter-circle polyline as n_segs short straight lines."
     },
     {
@@ -12921,7 +12921,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_47",
-      "community": 163,
+      "community": 119,
       "norm_label": "polyline through the given points: segs from points[0]\u2192points[1] etc."
     },
     {
@@ -12941,7 +12941,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_96",
-      "community": 163,
+      "community": 180,
       "norm_label": "an 11-segment polyline arc has two degree-1 endpoints and no         junction \u2014"
     },
     {
@@ -12951,7 +12951,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_107",
-      "community": 163,
+      "community": 180,
       "norm_label": "a closed 4-segment loop has every vertex at degree 2 \u2014 no leaf         exists to"
     },
     {
@@ -12961,7 +12961,7 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_119",
-      "community": 163,
+      "community": 180,
       "norm_label": "11-segment arc whose far endpoint is a degree-3 junction because         two 1-s"
     },
     {
@@ -12971,7 +12971,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_137",
-      "community": 163,
+      "community": 180,
       "norm_label": "linework_1318 shape: 11-segment arc whose far endpoint becomes a         degree-"
     },
     {
@@ -12981,7 +12981,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_153",
-      "community": 163,
+      "community": 180,
       "norm_label": "a y-junction with one short branch (2 segs) and one long branch         (5 segs,"
     },
     {
@@ -12991,7 +12991,7 @@
       "source_location": "L176",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_176",
-      "community": 163,
+      "community": 180,
       "norm_label": "a small y-junction component where every walk fits in the spur         cap. prun"
     },
     {
@@ -13001,7 +13001,7 @@
       "source_location": "L199",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_199",
-      "community": 163,
+      "community": 150,
       "norm_label": "tests for _trim_chain_extension_caps.      walks a 2-leaf simple chain (no junct"
     },
     {
@@ -13011,7 +13011,7 @@
       "source_location": "L208",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_208",
-      "community": 163,
+      "community": 150,
       "norm_label": "an 11-segment quarter arc has only small inter-seg angle deltas         (~8.2\u00b0 e"
     },
     {
@@ -13021,7 +13021,7 @@
       "source_location": "L219",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_219",
-      "community": 163,
+      "community": 150,
       "norm_label": "the polyline_393 / linework_226 shape: an 11-seg quarter arc         followed by"
     },
     {
@@ -13031,7 +13031,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_242",
-      "community": 163,
+      "community": 150,
       "norm_label": "a symmetric case: 11-seg arc with a 1-seg perpendicular cap at         each end."
     },
     {
@@ -13041,7 +13041,7 @@
       "source_location": "L269",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_269",
-      "community": 163,
+      "community": 150,
       "norm_label": "a component that still has a degree-3+ junction after spur         pruning is no"
     },
     {
@@ -13051,7 +13051,7 @@
       "source_location": "L286",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_286",
-      "community": 163,
+      "community": 150,
       "norm_label": "a pure cycle has no leaves to walk from. skipped."
     },
     {
@@ -13061,7 +13061,7 @@
       "source_location": "L299",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_299",
-      "community": 163,
+      "community": 150,
       "norm_label": "an 8-seg quarter arc has ~11.25\u00b0/seg, well below the 45\u00b0         threshold. even"
     },
     {
@@ -13071,7 +13071,7 @@
       "source_location": "L314",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_314",
-      "community": 163,
+      "community": 150,
       "norm_label": "a chain whose arc-like prefix is smaller than door_polyline_min_segments"
     },
     {
@@ -13081,7 +13081,7 @@
       "source_location": "L333",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_333",
-      "community": 163,
+      "community": 119,
       "norm_label": "tests for _prune_arc_cycle_caps.      a 'closed-cycle cap' is a closed loop of s"
     },
     {
@@ -13091,7 +13091,7 @@
       "source_location": "L343",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_343",
-      "community": 163,
+      "community": 119,
       "norm_label": "an arc with no degree-3+ vertices has nothing to prune."
     },
     {
@@ -13101,7 +13101,7 @@
       "source_location": "L353",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_353",
-      "community": 163,
+      "community": 119,
       "norm_label": "11-seg arc + closed 4-seg rectangle attached at arc end.         the junction is"
     },
     {
@@ -13111,7 +13111,7 @@
       "source_location": "L375",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_375",
-      "community": 163,
+      "community": 119,
       "norm_label": "the polyline_856 shape: 11-seg arc + 7-seg closed cap loop         attached at t"
     },
     {
@@ -13121,7 +13121,7 @@
       "source_location": "L395",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_395",
-      "community": 163,
+      "community": 119,
       "norm_label": "a cycle of more than door_polyline_cycle_max_segments segments         exceeds t"
     },
     {
@@ -13131,7 +13131,7 @@
       "source_location": "L418",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_418",
-      "community": 163,
+      "community": 119,
       "norm_label": "a pure cycle (no junction) has nothing to attach to. the helper         only fir"
     },
     {
@@ -13141,7 +13141,7 @@
       "source_location": "L432",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_432",
-      "community": 163,
+      "community": 119,
       "norm_label": "a y-junction with leaf-ending branches is a spur configuration,         not a cy"
     },
     {
@@ -13151,7 +13151,7 @@
       "source_location": "L448",
       "_origin": "ast",
       "id": "tests_test_polyline_arc_pruning_rationale_448",
-      "community": 163,
+      "community": 119,
       "norm_label": "when pruning the cycle would drop the component below         door_polyline_min_"
     },
     {
@@ -13531,7 +13531,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_region_classifier",
-      "community": 2,
+      "community": 36,
       "norm_label": "test_region_classifier.py"
     },
     {
@@ -13741,7 +13741,7 @@
       "source_location": "L161",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testregiontitletext",
-      "community": 100,
+      "community": 36,
       "norm_label": "testregiontitletext"
     },
     {
@@ -13751,7 +13751,7 @@
       "source_location": "L162",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testregiontitletext_test_returns_largest_text_inside_the_box_first",
-      "community": 100,
+      "community": 36,
       "norm_label": ".test_returns_largest_text_inside_the_box_first()"
     },
     {
@@ -13761,7 +13761,7 @@
       "source_location": "L175",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testregiontitletext_test_text_outside_the_box_is_excluded",
-      "community": 100,
+      "community": 36,
       "norm_label": ".test_text_outside_the_box_is_excluded()"
     },
     {
@@ -13771,7 +13771,7 @@
       "source_location": "L183",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testregiontitletext_test_duplicate_strings_appear_once",
-      "community": 100,
+      "community": 36,
       "norm_label": ".test_duplicate_strings_appear_once()"
     },
     {
@@ -13781,7 +13781,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_region_classifier_rationale_1",
-      "community": 2,
+      "community": 36,
       "norm_label": "region classification parsing tests (gemini/classifier.py).  no api calls: apply"
     },
     {
@@ -14421,7 +14421,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_regress_report",
-      "community": 159,
+      "community": 117,
       "norm_label": "test_regress_report.py"
     },
     {
@@ -14741,7 +14741,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_regress_report_rationale_1",
-      "community": 159,
+      "community": 117,
       "norm_label": "report shaping and exit codes.  the sweep itself (which runs the pipeline over r"
     },
     {
@@ -15971,7 +15971,7 @@
       "source_location": "L614",
       "_origin": "ast",
       "id": "tests_test_room_detection_testgardendoorseals",
-      "community": 175,
+      "community": 178,
       "norm_label": "testgardendoorseals"
     },
     {
@@ -15981,7 +15981,7 @@
       "source_location": "L619",
       "_origin": "ast",
       "id": "tests_test_room_detection_testgardendoorseals_test_anchor_window_caps_at_jamb_scale",
-      "community": 175,
+      "community": 178,
       "norm_label": ".test_anchor_window_caps_at_jamb_scale()"
     },
     {
@@ -15991,7 +15991,7 @@
       "source_location": "L638",
       "_origin": "ast",
       "id": "tests_test_room_detection_testgardendoorseals_test_open_leaf_edges_garden_vs_french",
-      "community": 175,
+      "community": 178,
       "norm_label": ".test_open_leaf_edges_garden_vs_french()"
     },
     {
@@ -16001,7 +16001,7 @@
       "source_location": "L659",
       "_origin": "ast",
       "id": "tests_test_room_detection_testgardendoorseals_test_open_leaf_edges_veto_tip_chord_edge",
-      "community": 175,
+      "community": 178,
       "norm_label": ".test_open_leaf_edges_veto_tip_chord_edge()"
     },
     {
@@ -16011,7 +16011,7 @@
       "source_location": "L684",
       "_origin": "ast",
       "id": "tests_test_room_detection_testgardendoorseals_test_skip_edges_suppresses_qualified_plug",
-      "community": 175,
+      "community": 178,
       "norm_label": ".test_skip_edges_suppresses_qualified_plug()"
     },
     {
@@ -16021,7 +16021,7 @@
       "source_location": "L694",
       "_origin": "ast",
       "id": "tests_test_room_detection_testplugtailtrim",
-      "community": 175,
+      "community": 178,
       "norm_label": "testplugtailtrim"
     },
     {
@@ -16041,7 +16041,7 @@
       "source_location": "L732",
       "_origin": "ast",
       "id": "tests_test_room_detection_testplugtailtrim_test_tail_trimmed_to_jamb_material",
-      "community": 175,
+      "community": 178,
       "norm_label": ".test_tail_trimmed_to_jamb_material()"
     },
     {
@@ -16051,7 +16051,7 @@
       "source_location": "L748",
       "_origin": "ast",
       "id": "tests_test_room_detection_testplugtailtrim_test_tail_kept_on_through_material",
-      "community": 175,
+      "community": 178,
       "norm_label": ".test_tail_kept_on_through_material()"
     },
     {
@@ -16141,7 +16141,7 @@
       "source_location": "L844",
       "_origin": "ast",
       "id": "tests_test_room_detection_testdiagonalwindowseal",
-      "community": 15,
+      "community": 175,
       "norm_label": "testdiagonalwindowseal"
     },
     {
@@ -16151,7 +16151,7 @@
       "source_location": "L845",
       "_origin": "ast",
       "id": "tests_test_room_detection_testdiagonalwindowseal_test_straight_window_seals_full_bbox",
-      "community": 15,
+      "community": 175,
       "norm_label": ".test_straight_window_seals_full_bbox()"
     },
     {
@@ -16161,7 +16161,7 @@
       "source_location": "L850",
       "_origin": "ast",
       "id": "tests_test_room_detection_testdiagonalwindowseal_test_diagonal_window_seals_band_not_square",
-      "community": 15,
+      "community": 175,
       "norm_label": ".test_diagonal_window_seals_band_not_square()"
     },
     {
@@ -16311,7 +16311,7 @@
       "source_location": "L970",
       "_origin": "ast",
       "id": "tests_test_room_detection_testplugplaneevidence",
-      "community": 175,
+      "community": 178,
       "norm_label": "testplugplaneevidence"
     },
     {
@@ -16321,7 +16321,7 @@
       "source_location": "L974",
       "_origin": "ast",
       "id": "tests_test_room_detection_testplugplaneevidence_test_perpendicular_cap_off_plane_keeps_doorway_interrupted",
-      "community": 175,
+      "community": 178,
       "norm_label": ".test_perpendicular_cap_off_plane_keeps_doorway_interrupted()"
     },
     {
@@ -16331,7 +16331,7 @@
       "source_location": "L987",
       "_origin": "ast",
       "id": "tests_test_room_detection_testplugplaneevidence_test_parallel_band_beyond_reach_is_full_not_interrupted",
-      "community": 175,
+      "community": 178,
       "norm_label": ".test_parallel_band_beyond_reach_is_full_not_interrupted()"
     },
     {
@@ -16401,7 +16401,7 @@
       "source_location": "L615",
       "_origin": "ast",
       "id": "tests_test_room_detection_rationale_615",
-      "community": 175,
+      "community": 178,
       "norm_label": "wide garden pairs: jamb-scale anchor window + parked-leaf edge veto."
     },
     {
@@ -16411,7 +16411,7 @@
       "source_location": "L695",
       "_origin": "ast",
       "id": "tests_test_room_detection_rationale_695",
-      "community": 175,
+      "community": 178,
       "norm_label": "plug extensions end at their supporting material; slide ends veto.      geometry"
     },
     {
@@ -16441,7 +16441,7 @@
       "source_location": "L971",
       "_origin": "ast",
       "id": "tests_test_room_detection_rationale_971",
-      "community": 175,
+      "community": 178,
       "norm_label": "interrupted-run plugs need jambs that reach the plug band and a mid     that is"
     },
     {
@@ -16761,7 +16761,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "tests_test_scale_door_endtoend_prim",
-      "community": 167,
+      "community": 191,
       "norm_label": "prim()"
     },
     {
@@ -16771,7 +16771,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "tests_test_scale_door_endtoend_swing_door",
-      "community": 167,
+      "community": 191,
       "norm_label": "swing_door()"
     },
     {
@@ -16801,7 +16801,7 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "tests_test_scale_door_endtoend_page",
-      "community": 14,
+      "community": 191,
       "norm_label": "page()"
     },
     {
@@ -16811,7 +16811,7 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "tests_test_scale_door_endtoend_testfaithfulexportdetection",
-      "community": 167,
+      "community": 191,
       "norm_label": "testfaithfulexportdetection"
     },
     {
@@ -16821,7 +16821,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "tests_test_scale_door_endtoend_testfaithfulexportdetection_test_1to50_door_detected_at_factor_one",
-      "community": 167,
+      "community": 191,
       "norm_label": ".test_1to50_door_detected_at_factor_one()"
     },
     {
@@ -16831,7 +16831,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "tests_test_scale_door_endtoend_testfaithfulexportdetection_test_faithful_1to100_door_detected_at_factor_half",
-      "community": 167,
+      "community": 191,
       "norm_label": ".test_faithful_1to100_door_detected_at_factor_half()"
     },
     {
@@ -16841,7 +16841,7 @@
       "source_location": "L135",
       "_origin": "ast",
       "id": "tests_test_scale_door_endtoend_testfaithfulexportdetection_test_negative_control_same_door_missed_when_unscaled",
-      "community": 167,
+      "community": 191,
       "norm_label": ".test_negative_control_same_door_missed_when_unscaled()"
     },
     {
@@ -16851,7 +16851,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "tests_test_scale_door_endtoend_testfaithfulexportdetection_test_paper_space_invariance_separation_must_not_scale",
-      "community": 167,
+      "community": 191,
       "norm_label": ".test_paper_space_invariance_separation_must_not_scale()"
     },
     {
@@ -16861,7 +16861,7 @@
       "source_location": "L165",
       "_origin": "ast",
       "id": "tests_test_scale_door_endtoend_testorchestratorwiring",
-      "community": 14,
+      "community": 191,
       "norm_label": "testorchestratorwiring"
     },
     {
@@ -16871,7 +16871,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "tests_test_scale_door_endtoend_testorchestratorwiring_test_run_heuristics_forwards_scale_factor_to_doors",
-      "community": 14,
+      "community": 191,
       "norm_label": ".test_run_heuristics_forwards_scale_factor_to_doors()"
     },
     {
@@ -16881,7 +16881,7 @@
       "source_location": "L176",
       "_origin": "ast",
       "id": "tests_test_scale_door_endtoend_testorchestratorwiring_test_run_heuristics_identity_at_one",
-      "community": 14,
+      "community": 191,
       "norm_label": ".test_run_heuristics_identity_at_one()"
     },
     {
@@ -16981,7 +16981,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "tests_test_scale_door_endtoend_rationale_29",
-      "community": 167,
+      "community": 191,
       "norm_label": "quarter-arc + a double-line leaf, as a faithful export at any scale.      radius"
     },
     {
@@ -17031,7 +17031,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates",
-      "community": 22,
+      "community": 7,
       "norm_label": "test_scale_door_gates.py"
     },
     {
@@ -17221,7 +17221,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_production_door_gates_unscaled_usages",
-      "community": 189,
+      "community": 7,
       "norm_label": "_production_door_gates_unscaled_usages()"
     },
     {
@@ -17231,7 +17231,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_testdoorgatesunscaledstopgapratchet",
-      "community": 189,
+      "community": 7,
       "norm_label": "testdoorgatesunscaledstopgapratchet"
     },
     {
@@ -17241,7 +17241,7 @@
       "source_location": "L216",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_testdoorgatesunscaledstopgapratchet_test_door_gates_unscaled_stopgap_set_is_exactly_known",
-      "community": 189,
+      "community": 7,
       "norm_label": ".test_door_gates_unscaled_stopgap_set_is_exactly_known()"
     },
     {
@@ -17361,7 +17361,7 @@
       "source_location": "L298",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_testcrossgates",
-      "community": 180,
+      "community": 99,
       "norm_label": "testcrossgates"
     },
     {
@@ -17371,7 +17371,7 @@
       "source_location": "L299",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_testcrossgates_test_identity_at_one",
-      "community": 180,
+      "community": 99,
       "norm_label": ".test_identity_at_one()"
     },
     {
@@ -17381,7 +17381,7 @@
       "source_location": "L306",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_testcrossgates_test_geometric_gates_scale",
-      "community": 180,
+      "community": 99,
       "norm_label": ".test_geometric_gates_scale()"
     },
     {
@@ -17391,7 +17391,7 @@
       "source_location": "L316",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_testcrossgates_test_confidence_penalties_have_no_field",
-      "community": 180,
+      "community": 99,
       "norm_label": ".test_confidence_penalties_have_no_field()"
     },
     {
@@ -17401,7 +17401,7 @@
       "source_location": "L327",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_testcrossgates_test_scaled_gate_retains_measured_headroom",
-      "community": 180,
+      "community": 99,
       "norm_label": ".test_scaled_gate_retains_measured_headroom()"
     },
     {
@@ -17411,7 +17411,7 @@
       "source_location": "L333",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_testcrossgates_test_door_window_veto_reach_scales",
-      "community": 180,
+      "community": 99,
       "norm_label": ".test_door_window_veto_reach_scales()"
     },
     {
@@ -17421,7 +17421,7 @@
       "source_location": "L351",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_testcrossgates_test_door_window_conflicts_default_factor_equals_omitted",
-      "community": 180,
+      "community": 99,
       "norm_label": ".test_door_window_conflicts_default_factor_equals_omitted()"
     },
     {
@@ -17431,7 +17431,7 @@
       "source_location": "L364",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_testcrossgatesunscaledstopgapratchet",
-      "community": 188,
+      "community": 7,
       "norm_label": "testcrossgatesunscaledstopgapratchet"
     },
     {
@@ -17441,7 +17441,7 @@
       "source_location": "L391",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_testcrossgatesunscaledstopgapratchet_test_cross_gates_unscaled_stopgap_set_is_exactly_known",
-      "community": 188,
+      "community": 7,
       "norm_label": ".test_cross_gates_unscaled_stopgap_set_is_exactly_known()"
     },
     {
@@ -17451,7 +17451,7 @@
       "source_location": "L413",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_production_cross_gates_unscaled_usages",
-      "community": 188,
+      "community": 7,
       "norm_label": "_production_cross_gates_unscaled_usages()"
     },
     {
@@ -17461,7 +17461,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_rationale_1",
-      "community": 22,
+      "community": 7,
       "norm_label": "scale-factor behavior of the door gates: identity at 1.0, linear at 0.5.  a \"fai"
     },
     {
@@ -17481,7 +17481,7 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_rationale_154",
-      "community": 189,
+      "community": 7,
       "norm_label": "scan detection/**/*.py for production (non-import, non-comment) uses     of the"
     },
     {
@@ -17491,7 +17491,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_rationale_192",
-      "community": 189,
+      "community": 7,
       "norm_label": "ratchet on detection/'s production uses of door_gates_unscaled.      door_gates_"
     },
     {
@@ -17501,7 +17501,7 @@
       "source_location": "L365",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_rationale_365",
-      "community": 188,
+      "community": 7,
       "norm_label": "ratchet on detection/'s production uses of cross_gates_unscaled.      cross_gate"
     },
     {
@@ -17511,7 +17511,7 @@
       "source_location": "L414",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_rationale_414",
-      "community": 188,
+      "community": 7,
       "norm_label": "scan detection/**/*.py for production (non-import, non-comment) uses     of the"
     },
     {
@@ -18251,7 +18251,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_scale_no_prompt",
-      "community": 123,
+      "community": 118,
       "norm_label": "test_scale_no_prompt.py"
     },
     {
@@ -18261,7 +18261,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "tests_test_scale_no_prompt_testrunextractdefault",
-      "community": 123,
+      "community": 118,
       "norm_label": "testrunextractdefault"
     },
     {
@@ -18271,7 +18271,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "tests_test_scale_no_prompt_testrunextractdefault_test_prompting_is_on_by_default",
-      "community": 123,
+      "community": 118,
       "norm_label": ".test_prompting_is_on_by_default()"
     },
     {
@@ -18321,7 +18321,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "tests_test_scale_no_prompt_testbatchneverprompts",
-      "community": 123,
+      "community": 118,
       "norm_label": "testbatchneverprompts"
     },
     {
@@ -18331,7 +18331,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "tests_test_scale_no_prompt_testbatchneverprompts_test_the_argv_disables_scale_prompting",
-      "community": 123,
+      "community": 118,
       "norm_label": ".test_the_argv_disables_scale_prompting()"
     },
     {
@@ -18341,7 +18341,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "tests_test_scale_no_prompt_testbatchneverprompts_test_the_flag_is_present_regardless_of_other_options",
-      "community": 123,
+      "community": 118,
       "norm_label": ".test_the_flag_is_present_regardless_of_other_options()"
     },
     {
@@ -18351,7 +18351,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "tests_test_scale_no_prompt_testbatchneverprompts_test_the_child_gets_no_stdin",
-      "community": 123,
+      "community": 118,
       "norm_label": ".test_the_child_gets_no_stdin()"
     },
     {
@@ -18361,7 +18361,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_scale_no_prompt_rationale_1",
-      "community": 123,
+      "community": 118,
       "norm_label": "unattended runs must never stop to ask for a scale.  sys.stdin.isatty() cannot c"
     },
     {
@@ -18381,7 +18381,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tests_test_scale_pipeline_region",
-      "community": 165,
+      "community": 189,
       "norm_label": "region()"
     },
     {
@@ -18391,7 +18391,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "tests_test_scale_pipeline_testscaletable",
-      "community": 165,
+      "community": 189,
       "norm_label": "testscaletable"
     },
     {
@@ -18401,7 +18401,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "tests_test_scale_pipeline_testscaletable_render",
-      "community": 165,
+      "community": 189,
       "norm_label": ".render()"
     },
     {
@@ -18411,7 +18411,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "tests_test_scale_pipeline_testscaletable_test_resolved_scale_is_shown_with_its_source",
-      "community": 165,
+      "community": 189,
       "norm_label": ".test_resolved_scale_is_shown_with_its_source()"
     },
     {
@@ -18421,7 +18421,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "tests_test_scale_pipeline_testscaletable_test_unresolved_region_is_shown_as_unknown",
-      "community": 165,
+      "community": 189,
       "norm_label": ".test_unresolved_region_is_shown_as_unknown()"
     },
     {
@@ -18431,7 +18431,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "tests_test_scale_pipeline_testscaletable_test_conflict_is_surfaced_in_the_table",
-      "community": 165,
+      "community": 189,
       "norm_label": ".test_conflict_is_surfaced_in_the_table()"
     },
     {
@@ -18441,7 +18441,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "tests_test_scale_pipeline_testscaletable_test_non_standard_measurement_shows_its_nearest_standard",
-      "community": 165,
+      "community": 189,
       "norm_label": ".test_non_standard_measurement_shows_its_nearest_standard()"
     },
     {
@@ -18451,7 +18451,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "tests_test_scale_pipeline_testscaletable_test_unmatched_bracket_in_raw_text_does_not_raise",
-      "community": 165,
+      "community": 189,
       "norm_label": ".test_unmatched_bracket_in_raw_text_does_not_raise()"
     },
     {
@@ -18551,7 +18551,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "tests_test_scale_pipeline_rationale_49",
-      "community": 165,
+      "community": 189,
       "norm_label": "raw is lifted verbatim from pdf text and can contain a bracket         sequence"
     },
     {
@@ -19451,7 +19451,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "tests_test_scale_store_testslugforpath",
-      "community": 190,
+      "community": 6,
       "norm_label": "testslugforpath"
     },
     {
@@ -19461,7 +19461,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "tests_test_scale_store_testslugforpath_setup",
-      "community": 190,
+      "community": 6,
       "norm_label": ".setup()"
     },
     {
@@ -19471,7 +19471,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "tests_test_scale_store_testslugforpath_teardown",
-      "community": 190,
+      "community": 6,
       "norm_label": ".teardown()"
     },
     {
@@ -19481,7 +19481,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "tests_test_scale_store_testslugforpath_test_corpus_sheet_resolves_to_its_slug",
-      "community": 190,
+      "community": 6,
       "norm_label": ".test_corpus_sheet_resolves_to_its_slug()"
     },
     {
@@ -19491,7 +19491,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "tests_test_scale_store_testslugforpath_test_outside_pdf_has_no_slug",
-      "community": 190,
+      "community": 6,
       "norm_label": ".test_outside_pdf_has_no_slug()"
     },
     {
@@ -19691,7 +19691,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_scale_text",
-      "community": 100,
+      "community": 168,
       "norm_label": "test_scale_text.py"
     },
     {
@@ -19701,7 +19701,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "tests_test_scale_text_span",
-      "community": 100,
+      "community": 168,
       "norm_label": "span()"
     },
     {
@@ -19861,7 +19861,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "tests_test_scale_text_testtextscales",
-      "community": 100,
+      "community": 168,
       "norm_label": "testtextscales"
     },
     {
@@ -19871,7 +19871,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "tests_test_scale_text_testtextscales_test_span_bbox_is_carried_through",
-      "community": 100,
+      "community": 168,
       "norm_label": ".test_span_bbox_is_carried_through()"
     },
     {
@@ -19881,7 +19881,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "tests_test_scale_text_testtextscales_test_source_is_text_and_raw_is_the_span",
-      "community": 100,
+      "community": 168,
       "norm_label": ".test_source_is_text_and_raw_is_the_span()"
     },
     {
@@ -19891,7 +19891,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "tests_test_scale_text_testtextscales_test_nominal_is_snapped",
-      "community": 100,
+      "community": 168,
       "norm_label": ".test_nominal_is_snapped()"
     },
     {
@@ -19901,7 +19901,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "tests_test_scale_text_testtextscales_test_two_scales_in_one_span_yield_two_results_sharing_a_bbox",
-      "community": 100,
+      "community": 168,
       "norm_label": ".test_two_scales_in_one_span_yield_two_results_sharing_a_bbox()"
     },
     {
@@ -19911,7 +19911,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "tests_test_scale_text_testtextscales_test_page_with_no_text_yields_nothing",
-      "community": 100,
+      "community": 168,
       "norm_label": ".test_page_with_no_text_yields_nothing()"
     },
     {
@@ -19921,7 +19921,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_scale_text_rationale_1",
-      "community": 100,
+      "community": 168,
       "norm_label": "reading a 1:n scale out of text spans.  every string below is copied verbatim fr"
     },
     {
@@ -19941,7 +19941,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "tests_test_scale_units_testdenominatorfromc",
-      "community": 119,
+      "community": 110,
       "norm_label": "testdenominatorfromc"
     },
     {
@@ -19951,7 +19951,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "tests_test_scale_units_testdenominatorfromc_test_mm_per_pt_is_exact",
-      "community": 119,
+      "community": 110,
       "norm_label": ".test_mm_per_pt_is_exact()"
     },
     {
@@ -19961,7 +19961,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "tests_test_scale_units_testdenominatorfromc_test_s17_plan_viewport_is_1_to_100",
-      "community": 119,
+      "community": 110,
       "norm_label": ".test_s17_plan_viewport_is_1_to_100()"
     },
     {
@@ -19971,7 +19971,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "tests_test_scale_units_testdenominatorfromc_test_s17_plan_viewport_is_1_to_50",
-      "community": 119,
+      "community": 110,
       "norm_label": ".test_s17_plan_viewport_is_1_to_50()"
     },
     {
@@ -19981,7 +19981,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "tests_test_scale_units_testdenominatorfromc_test_s03_location_inset_is_1_to_500",
-      "community": 119,
+      "community": 110,
       "norm_label": ".test_s03_location_inset_is_1_to_500()"
     },
     {
@@ -19991,7 +19991,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "tests_test_scale_units_testdenominatorfromc_test_s17_location_inset_is_1_to_1250",
-      "community": 119,
+      "community": 110,
       "norm_label": ".test_s17_location_inset_is_1_to_1250()"
     },
     {
@@ -20001,7 +20001,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "tests_test_scale_units_testdenominatorfromc_test_paper_space_viewport_is_1_to_1",
-      "community": 119,
+      "community": 110,
       "norm_label": ".test_paper_space_viewport_is_1_to_1()"
     },
     {
@@ -20011,7 +20011,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "tests_test_scale_units_testsnaptostandard",
-      "community": 110,
+      "community": 188,
       "norm_label": "testsnaptostandard"
     },
     {
@@ -20021,7 +20021,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "tests_test_scale_units_testsnaptostandard_test_s06_inner_viewport_snaps_to_100",
-      "community": 110,
+      "community": 188,
       "norm_label": ".test_s06_inner_viewport_snaps_to_100()"
     },
     {
@@ -20031,7 +20031,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "tests_test_scale_units_testsnaptostandard_test_s17_inset_snaps_to_1250",
-      "community": 110,
+      "community": 188,
       "norm_label": ".test_s17_inset_snaps_to_1250()"
     },
     {
@@ -20041,7 +20041,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "tests_test_scale_units_testsnaptostandard_test_s03_inset_snaps_to_500",
-      "community": 110,
+      "community": 188,
       "norm_label": ".test_s03_inset_snaps_to_500()"
     },
     {
@@ -20051,7 +20051,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "tests_test_scale_units_testsnaptostandard_test_s13_inner_viewport_snaps_to_nothing",
-      "community": 110,
+      "community": 188,
       "norm_label": ".test_s13_inner_viewport_snaps_to_nothing()"
     },
     {
@@ -20061,7 +20061,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "tests_test_scale_units_testsnaptostandard_test_s06_outer_viewport_snaps_to_nothing",
-      "community": 110,
+      "community": 188,
       "norm_label": ".test_s06_outer_viewport_snaps_to_nothing()"
     },
     {
@@ -20251,7 +20251,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_scale_viewport",
-      "community": 115,
+      "community": 190,
       "norm_label": "test_scale_viewport.py"
     },
     {
@@ -20261,7 +20261,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_testsplitpdfdicts",
-      "community": 115,
+      "community": 198,
       "norm_label": "testsplitpdfdicts"
     },
     {
@@ -20271,7 +20271,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_testsplitpdfdicts_test_splits_two_adjacent_viewports",
-      "community": 115,
+      "community": 198,
       "norm_label": ".test_splits_two_adjacent_viewports()"
     },
     {
@@ -20281,7 +20281,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_testsplitpdfdicts_test_nested_dicts_do_not_split",
-      "community": 115,
+      "community": 198,
       "norm_label": ".test_nested_dicts_do_not_split()"
     },
     {
@@ -20291,7 +20291,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_testsplitpdfdicts_test_empty_array_yields_nothing",
-      "community": 115,
+      "community": 198,
       "norm_label": ".test_empty_array_yields_nothing()"
     },
     {
@@ -20301,7 +20301,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_testsplitpdfdicts_test_unbalanced_array_does_not_hang_or_raise",
-      "community": 115,
+      "community": 198,
       "norm_label": ".test_unbalanced_array_does_not_hang_or_raise()"
     },
     {
@@ -20401,7 +20401,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_testviewportbboxtopx",
-      "community": 115,
+      "community": 194,
       "norm_label": "testviewportbboxtopx"
     },
     {
@@ -20411,7 +20411,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_testviewportbboxtopx_test_y_is_flipped_about_the_mediabox",
-      "community": 115,
+      "community": 194,
       "norm_label": ".test_y_is_flipped_about_the_mediabox()"
     },
     {
@@ -20421,7 +20421,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_testviewportbboxtopx_test_x_is_offset_by_the_mediabox_origin",
-      "community": 115,
+      "community": 194,
       "norm_label": ".test_x_is_offset_by_the_mediabox_origin()"
     },
     {
@@ -20431,7 +20431,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_testviewportbboxtopx_test_result_is_ordered_x0_y0_x1_y1",
-      "community": 115,
+      "community": 194,
       "norm_label": ".test_result_is_ordered_x0_y0_x1_y1()"
     },
     {
@@ -20441,7 +20441,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_testviewportbboxtopx_test_rotated_page_transform_is_applied",
-      "community": 115,
+      "community": 194,
       "norm_label": ".test_rotated_page_transform_is_applied()"
     },
     {
@@ -20451,7 +20451,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_rect",
-      "community": 115,
+      "community": 196,
       "norm_label": "_rect"
     },
     {
@@ -20461,7 +20461,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_rect_init",
-      "community": 115,
+      "community": 196,
       "norm_label": ".__init__()"
     },
     {
@@ -20471,7 +20471,7 @@
       "source_location": "L146",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_matrix",
-      "community": 115,
+      "community": 196,
       "norm_label": "_matrix"
     },
     {
@@ -20481,7 +20481,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_matrix_init",
-      "community": 115,
+      "community": 196,
       "norm_label": ".__init__()"
     },
     {
@@ -20491,7 +20491,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_fakepage",
-      "community": 115,
+      "community": 196,
       "norm_label": "_fakepage"
     },
     {
@@ -20501,7 +20501,7 @@
       "source_location": "L161",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_fakepage_init",
-      "community": 115,
+      "community": 196,
       "norm_label": ".__init__()"
     },
     {
@@ -20511,7 +20511,7 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_fakedoc",
-      "community": 115,
+      "community": 190,
       "norm_label": "_fakedoc"
     },
     {
@@ -20521,7 +20521,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_fakedoc_init",
-      "community": 115,
+      "community": 190,
       "norm_label": ".__init__()"
     },
     {
@@ -20531,7 +20531,7 @@
       "source_location": "L172",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_fakedoc_xref_get_key",
-      "community": 115,
+      "community": 190,
       "norm_label": ".xref_get_key()"
     },
     {
@@ -20541,7 +20541,7 @@
       "source_location": "L177",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_testviewportscalesusesthecropbox",
-      "community": 115,
+      "community": 190,
       "norm_label": "testviewportscalesusesthecropbox"
     },
     {
@@ -20551,7 +20551,7 @@
       "source_location": "L185",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_testviewportscalesusesthecropbox_test_bbox_lands_in_the_cropbox_relative_frame",
-      "community": 115,
+      "community": 190,
       "norm_label": ".test_bbox_lands_in_the_cropbox_relative_frame()"
     },
     {
@@ -20561,7 +20561,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_rationale_1",
-      "community": 115,
+      "community": 190,
       "norm_label": "parsing /vp -> /measure viewport dictionaries.  the array strings below are copi"
     },
     {
@@ -20571,7 +20571,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_rationale_89",
-      "community": 115,
+      "community": 194,
       "norm_label": "the /vp bbox is raw pdf: y-up, bottom-left origin. everything else in     the pi"
     },
     {
@@ -20581,7 +20581,7 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_rationale_140",
-      "community": 115,
+      "community": 196,
       "norm_label": "just enough of fitz.rect for viewport_scales: x0/y0/x1/y1 attributes."
     },
     {
@@ -20591,7 +20591,7 @@
       "source_location": "L147",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_rationale_147",
-      "community": 115,
+      "community": 196,
       "norm_label": "just enough of fitz.matrix for page_transform: a/b/c/d/e/f attributes."
     },
     {
@@ -20601,7 +20601,7 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_rationale_154",
-      "community": 115,
+      "community": 196,
       "norm_label": "a page double with no fitz dependency -- no pdf is ever opened.      only test_s"
     },
     {
@@ -20611,7 +20611,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "tests_test_scale_viewport_rationale_178",
-      "community": 115,
+      "community": 190,
       "norm_label": "the bug lived here, not in viewport_bbox_to_px's arithmetic: the flip     formul"
     },
     {
@@ -20711,7 +20711,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "tests_test_scale_window_gates_testthreading_test_gates_are_keyword_only_and_required",
-      "community": 40,
+      "community": 109,
       "norm_label": ".test_gates_are_keyword_only_and_required()"
     },
     {
@@ -20731,7 +20731,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "tests_test_scale_window_gates_testminwidthnegativecontrol",
-      "community": 126,
+      "community": 201,
       "norm_label": "testminwidthnegativecontrol"
     },
     {
@@ -20741,7 +20741,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "tests_test_scale_window_gates_testminwidthnegativecontrol_fixture",
-      "community": 126,
+      "community": 201,
       "norm_label": "._fixture()"
     },
     {
@@ -20751,7 +20751,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "tests_test_scale_window_gates_testminwidthnegativecontrol_test_missed_at_identity",
-      "community": 126,
+      "community": 201,
       "norm_label": ".test_missed_at_identity()"
     },
     {
@@ -20761,7 +20761,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "tests_test_scale_window_gates_testminwidthnegativecontrol_test_detected_at_half_scale",
-      "community": 126,
+      "community": 201,
       "norm_label": ".test_detected_at_half_scale()"
     },
     {
@@ -20971,7 +20971,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "tests_test_scale_window_gates_rationale_88",
-      "community": 126,
+      "community": 201,
       "norm_label": "the one world-space gate, exercised at a non-grid angle.      a faithful 1:100 e"
     },
     {
@@ -22201,7 +22201,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_wall_network",
-      "community": 171,
+      "community": 137,
       "norm_label": "test_wall_network.py"
     },
     {
@@ -22511,7 +22511,7 @@
       "source_location": "L337",
       "_origin": "ast",
       "id": "tests_test_wall_network_testthickmaterialpairs",
-      "community": 34,
+      "community": 202,
       "norm_label": "testthickmaterialpairs"
     },
     {
@@ -22521,7 +22521,7 @@
       "source_location": "L344",
       "_origin": "ast",
       "id": "tests_test_wall_network_testthickmaterialpairs_pier_paths",
-      "community": 34,
+      "community": 202,
       "norm_label": "._pier_paths()"
     },
     {
@@ -22531,7 +22531,7 @@
       "source_location": "L365",
       "_origin": "ast",
       "id": "tests_test_wall_network_testthickmaterialpairs_test_hatched_pier_pairs_past_normal_cap",
-      "community": 34,
+      "community": 202,
       "norm_label": ".test_hatched_pier_pairs_past_normal_cap()"
     },
     {
@@ -22541,7 +22541,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "tests_test_wall_network_testthickmaterialpairs_test_bare_pier_spacing_does_not_pair",
-      "community": 34,
+      "community": 202,
       "norm_label": ".test_bare_pier_spacing_does_not_pair()"
     },
     {
@@ -22991,7 +22991,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_wall_network_rationale_1",
-      "community": 171,
+      "community": 137,
       "norm_label": "wall-network builder tests (detection/walls.py).  synthetic pathprimitive fixtur"
     },
     {
@@ -23031,7 +23031,7 @@
       "source_location": "L338",
       "_origin": "ast",
       "id": "tests_test_wall_network_rationale_338",
-      "community": 34,
+      "community": 202,
       "norm_label": "pier tier: strong faces spaced past wall_max_thickness_px pair only     on drawn"
     },
     {
@@ -23131,7 +23131,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "tests_test_window_detection_path",
-      "community": 155,
+      "community": 40,
       "norm_label": "path()"
     },
     {
@@ -23201,7 +23201,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "tests_test_window_detection_testwindowtopology",
-      "community": 16,
+      "community": 100,
       "norm_label": "testwindowtopology"
     },
     {
@@ -23211,7 +23211,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "tests_test_window_detection_testwindowtopology_test_horizontal_window_detected",
-      "community": 101,
+      "community": 100,
       "norm_label": ".test_horizontal_window_detected()"
     },
     {
@@ -23221,7 +23221,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "tests_test_window_detection_testwindowtopology_test_vertical_window_detected",
-      "community": 101,
+      "community": 100,
       "norm_label": ".test_vertical_window_detected()"
     },
     {
@@ -23231,7 +23231,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "tests_test_window_detection_testwindowtopology_test_two_line_capped_rectangle_detected",
-      "community": 16,
+      "community": 100,
       "norm_label": ".test_two_line_capped_rectangle_detected()"
     },
     {
@@ -23251,7 +23251,7 @@
       "source_location": "L135",
       "_origin": "ast",
       "id": "tests_test_window_detection_testwindowtopology_test_glazing_without_caps_rejected",
-      "community": 16,
+      "community": 100,
       "norm_label": ".test_glazing_without_caps_rejected()"
     },
     {
@@ -23261,7 +23261,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "tests_test_window_detection_testwindowtopology_test_loose_cluster_rejected",
-      "community": 16,
+      "community": 100,
       "norm_label": ".test_loose_cluster_rejected()"
     },
     {
@@ -23361,7 +23361,7 @@
       "source_location": "L221",
       "_origin": "ast",
       "id": "tests_test_window_detection_testwindow51133topology_test_fixture_hatch_rejected",
-      "community": 101,
+      "community": 16,
       "norm_label": ".test_fixture_hatch_rejected()"
     },
     {
@@ -23431,7 +23431,7 @@
       "source_location": "L305",
       "_origin": "ast",
       "id": "tests_test_window_detection_testwindowinteriorclutter_test_diagonal_window_with_off_band_shapes_still_detected",
-      "community": 155,
+      "community": 40,
       "norm_label": ".test_diagonal_window_with_off_band_shapes_still_detected()"
     },
     {
@@ -23441,7 +23441,7 @@
       "source_location": "L319",
       "_origin": "ast",
       "id": "tests_test_window_detection_testwindowinteriorclutter_test_diagonal_hatched_wall_rejected",
-      "community": 155,
+      "community": 40,
       "norm_label": ".test_diagonal_hatched_wall_rejected()"
     },
     {
@@ -23471,7 +23471,7 @@
       "source_location": "L364",
       "_origin": "ast",
       "id": "tests_test_window_detection_testwindowarbitraryangle",
-      "community": 155,
+      "community": 100,
       "norm_label": "testwindowarbitraryangle"
     },
     {
@@ -23481,7 +23481,7 @@
       "source_location": "L370",
       "_origin": "ast",
       "id": "tests_test_window_detection_testwindowarbitraryangle_test_windows_detected_at_arbitrary_angles",
-      "community": 101,
+      "community": 100,
       "norm_label": ".test_windows_detected_at_arbitrary_angles()"
     },
     {
@@ -23491,7 +23491,7 @@
       "source_location": "L377",
       "_origin": "ast",
       "id": "tests_test_window_detection_testwindowarbitraryangle_test_real_diagonal_window_5_1133",
-      "community": 155,
+      "community": 100,
       "norm_label": ".test_real_diagonal_window_5_1133()"
     },
     {
@@ -23521,7 +23521,7 @@
       "source_location": "L418",
       "_origin": "ast",
       "id": "tests_test_window_detection_testframedmultilightwindow",
-      "community": 101,
+      "community": 40,
       "norm_label": "testframedmultilightwindow"
     },
     {
@@ -23531,7 +23531,7 @@
       "source_location": "L422",
       "_origin": "ast",
       "id": "tests_test_window_detection_testframedmultilightwindow_test_triple_window_detected_as_one",
-      "community": 101,
+      "community": 40,
       "norm_label": ".test_triple_window_detected_as_one()"
     },
     {
@@ -23541,7 +23541,7 @@
       "source_location": "L430",
       "_origin": "ast",
       "id": "tests_test_window_detection_testframedmultilightwindow_test_segments_without_mullion_blocks_do_not_chain",
-      "community": 101,
+      "community": 40,
       "norm_label": ".test_segments_without_mullion_blocks_do_not_chain()"
     },
     {
@@ -23551,7 +23551,7 @@
       "source_location": "L441",
       "_origin": "ast",
       "id": "tests_test_window_detection_testframedmultilightwindow_test_crossed_block_is_not_a_cap",
-      "community": 101,
+      "community": 40,
       "norm_label": ".test_crossed_block_is_not_a_cap()"
     },
     {
@@ -23591,7 +23591,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "tests_test_window_detection_testwindowtightpairinterior_test_tight_pair_interior_to_jambs_detected",
-      "community": 16,
+      "community": 179,
       "norm_label": ".test_tight_pair_interior_to_jambs_detected()"
     },
     {
@@ -23691,7 +23691,7 @@
       "source_location": "L573",
       "_origin": "ast",
       "id": "tests_test_window_detection_testfloorplansregression",
-      "community": 194,
+      "community": 101,
       "norm_label": "testfloorplansregression"
     },
     {
@@ -23701,7 +23701,7 @@
       "source_location": "L580",
       "_origin": "ast",
       "id": "tests_test_window_detection_testfloorplansregression_setup",
-      "community": 194,
+      "community": 101,
       "norm_label": ".setup()"
     },
     {
@@ -23711,7 +23711,7 @@
       "source_location": "L584",
       "_origin": "ast",
       "id": "tests_test_window_detection_testfloorplansregression_test_exactly_four_ground_truth_windows",
-      "community": 194,
+      "community": 101,
       "norm_label": ".test_exactly_four_ground_truth_windows()"
     },
     {
@@ -23805,6 +23805,46 @@
       "norm_label": ".test_spanning_glazing_index_keeps_pool_order_on_exact_ties()"
     },
     {
+      "label": "TestWindowSpanOvershootRetune",
+      "file_type": "code",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L740",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_testwindowspanovershootretune",
+      "community": 100,
+      "norm_label": "testwindowspanovershootretune"
+    },
+    {
+      "label": "._opening()",
+      "file_type": "code",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L750",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_testwindowspanovershootretune_opening",
+      "community": 100,
+      "norm_label": "._opening()"
+    },
+    {
+      "label": ".test_confirmed_tail_overshoot_detects()",
+      "file_type": "code",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L760",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_testwindowspanovershootretune_test_confirmed_tail_overshoot_detects",
+      "community": 100,
+      "norm_label": ".test_confirmed_tail_overshoot_detects()"
+    },
+    {
+      "label": ".test_fp_tail_overshoot_rejected()",
+      "file_type": "code",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L765",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_testwindowspanovershootretune_test_fp_tail_overshoot_rejected",
+      "community": 100,
+      "norm_label": ".test_fp_tail_overshoot_rejected()"
+    },
+    {
       "label": "Window detection tests.  Ground truth was established interactively on s01 (form",
       "file_type": "rationale",
       "source_file": "tests/test_window_detection.py",
@@ -23841,7 +23881,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "tests_test_window_detection_rationale_107",
-      "community": 16,
+      "community": 100,
       "norm_label": "a clean 2-line capped rectangle is a window on 5-1133 (see window b:         two"
     },
     {
@@ -23861,7 +23901,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "tests_test_window_detection_rationale_136",
-      "community": 16,
+      "community": 100,
       "norm_label": "three parallel lines with no perpendicular end-caps (e.g. a run of         dimen"
     },
     {
@@ -23871,7 +23911,7 @@
       "source_location": "L146",
       "_origin": "ast",
       "id": "tests_test_window_detection_rationale_146",
-      "community": 16,
+      "community": 100,
       "norm_label": "three parallel lines spaced far apart (e.g. stair treads) exceed the         gla"
     },
     {
@@ -23891,7 +23931,7 @@
       "source_location": "L222",
       "_origin": "ast",
       "id": "tests_test_window_detection_rationale_222",
-      "community": 101,
+      "community": 16,
       "norm_label": "a toilet/sink fixture is a hatch of stacked short segments plus         collinea"
     },
     {
@@ -23951,7 +23991,7 @@
       "source_location": "L306",
       "_origin": "ast",
       "id": "tests_test_window_detection_rationale_306",
-      "community": 155,
+      "community": 40,
       "norm_label": "regression (the bug this gate first introduced): a 45-deg window must         no"
     },
     {
@@ -23961,7 +24001,7 @@
       "source_location": "L320",
       "_origin": "ast",
       "id": "tests_test_window_detection_rationale_320",
-      "community": 155,
+      "community": 40,
       "norm_label": "the gate works in the rotated frame too: a 45-deg insulation-hatched         wal"
     },
     {
@@ -23981,7 +24021,7 @@
       "source_location": "L365",
       "_origin": "ast",
       "id": "tests_test_window_detection_rationale_365",
-      "community": 155,
+      "community": 100,
       "norm_label": "windows are drawn at any angle, not just axis-aligned. the cap-anchored     mode"
     },
     {
@@ -23991,7 +24031,7 @@
       "source_location": "L378",
       "_origin": "ast",
       "id": "tests_test_window_detection_rationale_378",
-      "community": 155,
+      "community": 100,
       "norm_label": "5-1133-wd03.pdf missed window at path idx 6475: three glazing panes         at 1"
     },
     {
@@ -24011,7 +24051,7 @@
       "source_location": "L419",
       "_origin": "ast",
       "id": "tests_test_window_detection_rationale_419",
-      "community": 101,
+      "community": 40,
       "norm_label": "5-1133 w8 topology: block caps (qu jambs/mullions) + mullion-bridged     center"
     },
     {
@@ -24021,7 +24061,7 @@
       "source_location": "L431",
       "_origin": "ast",
       "id": "tests_test_window_detection_rationale_431",
-      "community": 101,
+      "community": 40,
       "norm_label": "collinear segments merge only across a gap a mullion block occupies \u2014         th"
     },
     {
@@ -24031,7 +24071,7 @@
       "source_location": "L442",
       "_origin": "ast",
       "id": "tests_test_window_detection_rationale_442",
-      "community": 101,
+      "community": 40,
       "norm_label": "a block with an x drawn through it is a post/column symbol (the         5-1133 b"
     },
     {
@@ -24071,7 +24111,7 @@
       "source_location": "L494",
       "_origin": "ast",
       "id": "tests_test_window_detection_rationale_494",
-      "community": 16,
+      "community": 179,
       "norm_label": "floor-plans true windows draw a narrow double glazing line (panes         1.75px"
     },
     {
@@ -24121,7 +24161,7 @@
       "source_location": "L574",
       "_origin": "ast",
       "id": "tests_test_window_detection_rationale_574",
-      "community": 194,
+      "community": 101,
       "norm_label": "end-to-end regression: floor-plans.pdf must yield exactly the four     ground-tr"
     },
     {
@@ -24193,6 +24233,16 @@
       "id": "tests_test_window_detection_rationale_728",
       "community": 109,
       "norm_label": "two records at the same perp and len: pool order picks the survivor."
+    },
+    {
+      "label": "Pins the WINDOW_SPAN_OVERSHOOT_PX = 11.0 retune (measured 2026-08-13).      Conf",
+      "file_type": "rationale",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L741",
+      "_origin": "ast",
+      "id": "tests_test_window_detection_rationale_741",
+      "community": 100,
+      "norm_label": "pins the window_span_overshoot_px = 11.0 retune (measured 2026-08-13).      conf"
     },
     {
       "label": "__init__.py",
@@ -24391,7 +24441,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tools_fetch_fixtures",
-      "community": 108,
+      "community": 120,
       "norm_label": "fetch_fixtures.py"
     },
     {
@@ -24431,7 +24481,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "tools_fetch_fixtures_main",
-      "community": 108,
+      "community": 120,
       "norm_label": "main()"
     },
     {
@@ -24441,7 +24491,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tools_fetch_fixtures_rationale_1",
-      "community": 108,
+      "community": 120,
       "norm_label": "verify the downloaded corpus against the committed manifest.  download is manual"
     },
     {
@@ -24451,7 +24501,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tools_regress",
-      "community": 117,
+      "community": 108,
       "norm_label": "regress.py"
     },
     {
@@ -24461,7 +24511,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "tools_regress_main",
-      "community": 117,
+      "community": 108,
       "norm_label": "main()"
     },
     {
@@ -24511,7 +24561,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "tools_review_shape_and_note",
-      "community": 102,
+      "community": 139,
       "norm_label": "_shape_and_note()"
     },
     {
@@ -26428,7 +26478,7 @@
       "label": "7. Test patterns that worked (reuse them)",
       "file_type": "document",
       "source_file": "docs/scale-normalization-findings.md",
-      "source_location": "L1091",
+      "source_location": "L1102",
       "_origin": "ast",
       "id": "docs_scale_normalization_findings_7_test_patterns_that_worked_reuse_them",
       "community": 160,
@@ -35257,7 +35307,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/doors/constants.py",
-      "source_location": "L250",
+      "source_location": "L251",
       "weight": 1.0,
       "source": "detection_doors_constants",
       "target": "detection_doors_constants_doorgates",
@@ -35399,7 +35449,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "detection/doors/constants.py",
-      "source_location": "L291",
+      "source_location": "L292",
       "weight": 1.0,
       "source": "detection_doors_constants_doorgates",
       "target": "detection_doors_constants_doorgates_at",
@@ -35409,9 +35459,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/doors/constants.py",
-      "source_location": "L251",
+      "source_location": "L252",
       "weight": 1.0,
-      "source": "detection_doors_constants_rationale_251",
+      "source": "detection_doors_constants_rationale_252",
       "target": "detection_doors_constants_doorgates",
       "confidence_score": 1.0
     },
@@ -40592,7 +40642,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L218",
+      "source_location": "L223",
       "weight": 1.0,
       "source": "detection_windows_block_cap_records",
       "target": "detection_geometry_line_length",
@@ -40603,7 +40653,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L186",
+      "source_location": "L191",
       "weight": 1.0,
       "source": "detection_windows_line_records",
       "target": "detection_geometry_line_length",
@@ -40812,7 +40862,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L255",
+      "source_location": "L260",
       "weight": 1.0,
       "source": "detection_windows_block_cap_records",
       "target": "detection_geometry_line_angle_deg",
@@ -40823,7 +40873,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L190",
+      "source_location": "L195",
       "weight": 1.0,
       "source": "detection_windows_line_records",
       "target": "detection_geometry_line_angle_deg",
@@ -40987,7 +41037,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L678",
+      "source_location": "L683",
       "weight": 1.0,
       "source": "detection_windows_band_interior_clutter",
       "target": "detection_geometry_angle_diff_mod180",
@@ -40998,7 +41048,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L278",
+      "source_location": "L283",
       "weight": 1.0,
       "source": "detection_windows_cap_orientation_frames",
       "target": "detection_geometry_angle_diff_mod180",
@@ -41009,7 +41059,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L716",
+      "source_location": "L721",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
       "target": "detection_geometry_angle_diff_mod180",
@@ -41337,7 +41387,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L737",
+      "source_location": "L742",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
       "target": "detection_geometry_bbox_union",
@@ -41457,7 +41507,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L312",
+      "source_location": "L317",
       "weight": 1.0,
       "source": "detection_windows_cap_record",
       "target": "detection_geometry_projected_interval",
@@ -41468,7 +41518,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L302",
+      "source_location": "L307",
       "weight": 1.0,
       "source": "detection_windows_glaze_record",
       "target": "detection_geometry_projected_interval",
@@ -41490,7 +41540,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L543",
+      "source_location": "L548",
       "weight": 1.0,
       "source": "detection_windows_facing_cap_pairs",
       "target": "detection_geometry_interval_overlap",
@@ -41599,7 +41649,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L311",
+      "source_location": "L316",
       "weight": 1.0,
       "source": "detection_windows_cap_record",
       "target": "detection_geometry_project_onto_axis",
@@ -41610,7 +41660,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L301",
+      "source_location": "L306",
       "weight": 1.0,
       "source": "detection_windows_glaze_record",
       "target": "detection_geometry_project_onto_axis",
@@ -41943,7 +41993,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L757",
+      "source_location": "L762",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
       "target": "detection_layers_layer_hint",
@@ -41986,7 +42036,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L758",
+      "source_location": "L763",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
       "target": "detection_layers_layer_strong_prior",
@@ -47994,7 +48044,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L571",
+      "source_location": "L576",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_area",
@@ -48004,7 +48054,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L620",
+      "source_location": "L625",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_band_interior_clutter",
@@ -48014,7 +48064,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L194",
+      "source_location": "L199",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_block_cap_records",
@@ -48024,7 +48074,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L259",
+      "source_location": "L264",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_cap_orientation_frames",
@@ -48034,7 +48084,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L305",
+      "source_location": "L310",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_cap_record",
@@ -48044,7 +48094,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L592",
+      "source_location": "L597",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_clutter_grid",
@@ -48054,7 +48104,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L373",
+      "source_location": "L378",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_dedupe_by_perp",
@@ -48064,7 +48114,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L575",
+      "source_location": "L580",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_dedupe_openings",
@@ -48074,7 +48124,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L684",
+      "source_location": "L689",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_detect_windows",
@@ -48084,7 +48134,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L489",
+      "source_location": "L494",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_facing_cap_pairs",
@@ -48094,7 +48144,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L548",
+      "source_location": "L553",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_find_openings",
@@ -48104,7 +48154,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L285",
+      "source_location": "L290",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_frame_axes",
@@ -48114,7 +48164,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L419",
+      "source_location": "L424",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_glaze_index",
@@ -48124,7 +48174,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L296",
+      "source_location": "L301",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_glaze_record",
@@ -48134,7 +48184,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L174",
+      "source_location": "L179",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_line_records",
@@ -48144,7 +48194,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L315",
+      "source_location": "L320",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_merge_mullion_chains",
@@ -48154,7 +48204,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L449",
+      "source_location": "L454",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_spanning_glazing",
@@ -48164,7 +48214,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L389",
+      "source_location": "L394",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_tight_band",
@@ -48174,7 +48224,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L141",
+      "source_location": "L146",
       "weight": 1.0,
       "source": "detection_windows",
       "target": "detection_windows_windowgates",
@@ -48240,7 +48290,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L489",
+      "source_location": "L494",
       "weight": 1.0,
       "source": "detection_windows_facing_cap_pairs",
       "target": "detection_windows_windowgates",
@@ -48251,7 +48301,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L548",
+      "source_location": "L553",
       "weight": 1.0,
       "source": "detection_windows_find_openings",
       "target": "detection_windows_windowgates",
@@ -48261,9 +48311,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L142",
+      "source_location": "L147",
       "weight": 1.0,
-      "source": "detection_windows_rationale_142",
+      "source": "detection_windows_rationale_147",
       "target": "detection_windows_windowgates",
       "confidence_score": 1.0
     },
@@ -48271,7 +48321,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L157",
+      "source_location": "L162",
       "weight": 1.0,
       "source": "detection_windows_windowgates",
       "target": "detection_windows_windowgates_at",
@@ -48364,7 +48414,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "detection/windows.py",
-      "source_location": "L698",
+      "source_location": "L703",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
       "target": "detection_windows_windowgates_at"
@@ -48429,7 +48479,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L700",
+      "source_location": "L705",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
       "target": "detection_windows_line_records",
@@ -48440,7 +48490,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L174",
+      "source_location": "L179",
       "weight": 1.0,
       "source": "detection_windows_line_records",
       "target": "models_pathprimitive",
@@ -48450,9 +48500,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L175",
+      "source_location": "L180",
       "weight": 1.0,
-      "source": "detection_windows_rationale_175",
+      "source": "detection_windows_rationale_180",
       "target": "detection_windows_line_records",
       "confidence_score": 1.0
     },
@@ -48461,7 +48511,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L194",
+      "source_location": "L199",
       "weight": 1.0,
       "source": "detection_windows_block_cap_records",
       "target": "models_pathprimitive",
@@ -48472,7 +48522,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L703",
+      "source_location": "L708",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
       "target": "detection_windows_block_cap_records",
@@ -48482,9 +48532,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L195",
+      "source_location": "L200",
       "weight": 1.0,
-      "source": "detection_windows_rationale_195",
+      "source": "detection_windows_rationale_200",
       "target": "detection_windows_block_cap_records",
       "confidence_score": 1.0
     },
@@ -48493,7 +48543,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L711",
+      "source_location": "L716",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
       "target": "detection_windows_cap_orientation_frames",
@@ -48503,73 +48553,10 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L260",
+      "source_location": "L265",
       "weight": 1.0,
-      "source": "detection_windows_rationale_260",
+      "source": "detection_windows_rationale_265",
       "target": "detection_windows_cap_orientation_frames",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "detection/windows.py",
-      "source_location": "L712",
-      "weight": 1.0,
-      "source": "detection_windows_detect_windows",
-      "target": "detection_windows_frame_axes",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "detection/windows.py",
-      "source_location": "L286",
-      "weight": 1.0,
-      "source": "detection_windows_rationale_286",
-      "target": "detection_windows_frame_axes",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "detection/windows.py",
-      "source_location": "L715",
-      "weight": 1.0,
-      "source": "detection_windows_detect_windows",
-      "target": "detection_windows_glaze_record",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "detection/windows.py",
-      "source_location": "L297",
-      "weight": 1.0,
-      "source": "detection_windows_rationale_297",
-      "target": "detection_windows_glaze_record",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "detection/windows.py",
-      "source_location": "L714",
-      "weight": 1.0,
-      "source": "detection_windows_detect_windows",
-      "target": "detection_windows_cap_record",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "detection/windows.py",
-      "source_location": "L306",
-      "weight": 1.0,
-      "source": "detection_windows_rationale_306",
-      "target": "detection_windows_cap_record",
       "confidence_score": 1.0
     },
     {
@@ -48580,6 +48567,69 @@
       "source_location": "L717",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
+      "target": "detection_windows_frame_axes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/windows.py",
+      "source_location": "L291",
+      "weight": 1.0,
+      "source": "detection_windows_rationale_291",
+      "target": "detection_windows_frame_axes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/windows.py",
+      "source_location": "L720",
+      "weight": 1.0,
+      "source": "detection_windows_detect_windows",
+      "target": "detection_windows_glaze_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/windows.py",
+      "source_location": "L302",
+      "weight": 1.0,
+      "source": "detection_windows_rationale_302",
+      "target": "detection_windows_glaze_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/windows.py",
+      "source_location": "L719",
+      "weight": 1.0,
+      "source": "detection_windows_detect_windows",
+      "target": "detection_windows_cap_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/windows.py",
+      "source_location": "L311",
+      "weight": 1.0,
+      "source": "detection_windows_rationale_311",
+      "target": "detection_windows_cap_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "detection/windows.py",
+      "source_location": "L722",
+      "weight": 1.0,
+      "source": "detection_windows_detect_windows",
       "target": "detection_windows_merge_mullion_chains",
       "confidence_score": 1.0
     },
@@ -48587,9 +48637,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L316",
+      "source_location": "L321",
       "weight": 1.0,
-      "source": "detection_windows_rationale_316",
+      "source": "detection_windows_rationale_321",
       "target": "detection_windows_merge_mullion_chains",
       "confidence_score": 1.0
     },
@@ -48597,9 +48647,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L374",
+      "source_location": "L379",
       "weight": 1.0,
-      "source": "detection_windows_rationale_374",
+      "source": "detection_windows_rationale_379",
       "target": "detection_windows_dedupe_by_perp",
       "confidence_score": 1.0
     },
@@ -48608,7 +48658,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L481",
+      "source_location": "L486",
       "weight": 1.0,
       "source": "detection_windows_spanning_glazing",
       "target": "detection_windows_dedupe_by_perp",
@@ -48640,9 +48690,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L390",
+      "source_location": "L395",
       "weight": 1.0,
-      "source": "detection_windows_rationale_390",
+      "source": "detection_windows_rationale_395",
       "target": "detection_windows_tight_band",
       "confidence_score": 1.0
     },
@@ -48651,7 +48701,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L481",
+      "source_location": "L486",
       "weight": 1.0,
       "source": "detection_windows_spanning_glazing",
       "target": "detection_windows_tight_band",
@@ -48684,7 +48734,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L718",
+      "source_location": "L723",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
       "target": "detection_windows_glaze_index",
@@ -48694,9 +48744,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L420",
+      "source_location": "L425",
       "weight": 1.0,
-      "source": "detection_windows_rationale_420",
+      "source": "detection_windows_rationale_425",
       "target": "detection_windows_glaze_index",
       "confidence_score": 1.0
     },
@@ -48760,7 +48810,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L564",
+      "source_location": "L569",
       "weight": 1.0,
       "source": "detection_windows_find_openings",
       "target": "detection_windows_spanning_glazing",
@@ -48770,9 +48820,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L451",
+      "source_location": "L456",
       "weight": 1.0,
-      "source": "detection_windows_rationale_451",
+      "source": "detection_windows_rationale_456",
       "target": "detection_windows_spanning_glazing",
       "confidence_score": 1.0
     },
@@ -48814,7 +48864,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L562",
+      "source_location": "L567",
       "weight": 1.0,
       "source": "detection_windows_find_openings",
       "target": "detection_windows_facing_cap_pairs",
@@ -48824,9 +48874,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L490",
+      "source_location": "L495",
       "weight": 1.0,
-      "source": "detection_windows_rationale_490",
+      "source": "detection_windows_rationale_495",
       "target": "detection_windows_facing_cap_pairs",
       "confidence_score": 1.0
     },
@@ -48912,7 +48962,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L718",
+      "source_location": "L723",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
       "target": "detection_windows_find_openings",
@@ -48922,9 +48972,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L551",
+      "source_location": "L556",
       "weight": 1.0,
-      "source": "detection_windows_rationale_551",
+      "source": "detection_windows_rationale_556",
       "target": "detection_windows_find_openings",
       "confidence_score": 1.0
     },
@@ -48955,7 +49005,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L571",
+      "source_location": "L576",
       "weight": 1.0,
       "source": "detection_windows_area",
       "target": "detection_windows_py_bbox",
@@ -48966,7 +49016,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L582",
+      "source_location": "L587",
       "weight": 1.0,
       "source": "detection_windows_dedupe_openings",
       "target": "detection_windows_area",
@@ -48977,7 +49027,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L575",
+      "source_location": "L580",
       "weight": 1.0,
       "source": "detection_windows_dedupe_openings",
       "target": "models_candidate",
@@ -48988,7 +49038,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L789",
+      "source_location": "L794",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
       "target": "detection_windows_dedupe_openings",
@@ -48998,9 +49048,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L576",
+      "source_location": "L581",
       "weight": 1.0,
-      "source": "detection_windows_rationale_576",
+      "source": "detection_windows_rationale_581",
       "target": "detection_windows_dedupe_openings",
       "confidence_score": 1.0
     },
@@ -49009,7 +49059,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L592",
+      "source_location": "L597",
       "weight": 1.0,
       "source": "detection_windows_clutter_grid",
       "target": "models_pathprimitive",
@@ -49020,7 +49070,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L704",
+      "source_location": "L709",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
       "target": "detection_windows_clutter_grid",
@@ -49030,9 +49080,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L594",
+      "source_location": "L599",
       "weight": 1.0,
-      "source": "detection_windows_rationale_594",
+      "source": "detection_windows_rationale_599",
       "target": "detection_windows_clutter_grid",
       "confidence_score": 1.0
     },
@@ -49041,7 +49091,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L750",
+      "source_location": "L755",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
       "target": "detection_windows_band_interior_clutter",
@@ -49051,9 +49101,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L624",
+      "source_location": "L629",
       "weight": 1.0,
-      "source": "detection_windows_rationale_624",
+      "source": "detection_windows_rationale_629",
       "target": "detection_windows_band_interior_clutter",
       "confidence_score": 1.0
     },
@@ -49062,7 +49112,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L684",
+      "source_location": "L689",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
       "target": "models_candidate",
@@ -49073,7 +49123,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L684",
+      "source_location": "L689",
       "weight": 1.0,
       "source": "detection_windows_detect_windows",
       "target": "models_pathprimitive",
@@ -49083,9 +49133,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "detection/windows.py",
-      "source_location": "L686",
+      "source_location": "L691",
       "weight": 1.0,
-      "source": "detection_windows_rationale_686",
+      "source": "detection_windows_rationale_691",
       "target": "detection_windows_detect_windows",
       "confidence_score": 1.0
     },
@@ -49351,6 +49401,28 @@
       "source_location": "L303",
       "weight": 1.0,
       "source": "tests_test_window_detection_testwindowinteriorclutter_test_shapes_outside_the_pane_band_are_ignored",
+      "target": "detection_windows_detect_windows"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L763",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindowspanovershootretune_test_confirmed_tail_overshoot_detects",
+      "target": "detection_windows_detect_windows"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L768",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindowspanovershootretune_test_fp_tail_overshoot_rejected",
       "target": "detection_windows_detect_windows"
     },
     {
@@ -57777,6 +57849,27 @@
       "source_file": "tests/test_window_detection.py",
       "source_location": "L29",
       "weight": 0.8,
+      "source": "tests_test_window_detection_testwindowspanovershootretune",
+      "target": "models_pathprimitive",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "references",
+      "context": "generic_arg",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L750",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindowspanovershootretune_opening",
+      "target": "models_pathprimitive",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L29",
+      "weight": 0.8,
       "source": "tests_test_window_detection_testwindowtightpairinterior",
       "target": "models_pathprimitive",
       "confidence_score": 0.5
@@ -60672,6 +60765,16 @@
       "source_location": "L29",
       "weight": 0.8,
       "source": "tests_test_window_detection_testwindowpruningequivalence",
+      "target": "models_candidate",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L29",
+      "weight": 0.8,
+      "source": "tests_test_window_detection_testwindowspanovershootretune",
       "target": "models_candidate",
       "confidence_score": 0.5
     },
@@ -102674,6 +102777,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_window_detection.py",
+      "source_location": "L740",
+      "weight": 1.0,
+      "source": "tests_test_window_detection",
+      "target": "tests_test_window_detection_testwindowspanovershootretune",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
       "source_location": "L455",
       "weight": 1.0,
       "source": "tests_test_window_detection",
@@ -102934,6 +103047,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_window_detection.py",
+      "source_location": "L754",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindowspanovershootretune_opening",
+      "target": "tests_test_window_detection_hline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
       "source_location": "L476",
       "weight": 1.0,
       "source": "tests_test_window_detection_testwindowtightpairinterior_test_recess_niche_box_rejected",
@@ -103080,6 +103204,17 @@
       "source_location": "L263",
       "weight": 1.0,
       "source": "tests_test_window_detection_testwindowinteriorclutter_clean_opening",
+      "target": "tests_test_window_detection_vline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L756",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindowspanovershootretune_opening",
       "target": "tests_test_window_detection_vline",
       "confidence_score": 1.0
     },
@@ -104546,6 +104681,68 @@
       "weight": 1.0,
       "source": "tests_test_window_detection_rationale_728",
       "target": "tests_test_window_detection_testwindowpruningequivalence_test_spanning_glazing_index_keeps_pool_order_on_exact_ties",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L741",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_rationale_741",
+      "target": "tests_test_window_detection_testwindowspanovershootretune",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L750",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindowspanovershootretune",
+      "target": "tests_test_window_detection_testwindowspanovershootretune_opening",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L760",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindowspanovershootretune",
+      "target": "tests_test_window_detection_testwindowspanovershootretune_test_confirmed_tail_overshoot_detects",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L765",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindowspanovershootretune",
+      "target": "tests_test_window_detection_testwindowspanovershootretune_test_fp_tail_overshoot_rejected",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L763",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindowspanovershootretune_test_confirmed_tail_overshoot_detects",
+      "target": "tests_test_window_detection_testwindowspanovershootretune_opening",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_window_detection.py",
+      "source_location": "L768",
+      "weight": 1.0,
+      "source": "tests_test_window_detection_testwindowspanovershootretune_test_fp_tail_overshoot_rejected",
+      "target": "tests_test_window_detection_testwindowspanovershootretune_opening",
       "confidence_score": 1.0
     },
     {
@@ -106648,7 +106845,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/scale-normalization-findings.md",
-      "source_location": "L1091",
+      "source_location": "L1102",
       "weight": 1.0,
       "source": "docs_scale_normalization_findings_scale_normalization_findings_decision_log",
       "target": "docs_scale_normalization_findings_7_test_patterns_that_worked_reuse_them",
@@ -110055,5 +110252,5 @@
       "source_file": "floor-plans.pdf"
     }
   ],
-  "built_at_commit": "ff89fbd98068dabc35e09a6262a917021e6c2cf6"
+  "built_at_commit": "399d0e31857ae9a9c55df9fe7952083895d131e6"
 }

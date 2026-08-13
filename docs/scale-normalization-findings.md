@@ -1028,11 +1028,22 @@ implementation commit; they never ship.
   (`feat/scale-aware-window-gates`, 2026-08-13). 1 W + 15 P + 11 D via
   `WindowGates`; frozen table at §4e; predicted delta: s16 +1 REVIEW window
   only.
-- **Windows — span-overshoot retune (paper-space, NOT scale):** confirmed
-  windows overshoot ≤ 9.38px (f05) / 10.5px (f10_50); the s12/s18 phantom
-  windows sit at 11.75–11.98px against the 12.0 gate — a retune to ~10.5–11px
-  could kill those FP families at zero measured confirmed cost. Changes 1:50
-  sheets too → own branch with its own sweep.
+- **Windows — span-overshoot retune (paper-space, NOT scale): DONE**
+  (`fix/window-span-overshoot-retune`, 2026-08-13). Re-measured through the
+  inert-tap sweep (harness note above): confirmed windows n=145, median 2.75,
+  p90 8.77, **max 10.50px** (s02's diagonal window_0007); the ground-truth FP
+  window tail sits at **11.75–11.98px** (s12 ×3, s18 ×4, s20 ×2 — s20 was not
+  in the original prediction). `WINDOW_SPAN_OVERSHOOT_PX` 12.0 → **11.0**
+  (any value in (10.50, 11.75) is behaviorally identical). Actual sweep
+  outcome — smaller than the pane-count prediction because phantom bands
+  **replace** an excluded pane with neighbouring collinear linework just
+  under the gate: s20 −2 window FPs (killed outright); s12's two tall FPs
+  reshaped (band 3→2 panes, conf 0.75→0.67, bbox −11.75px per end) and s18's
+  three shifted 2.75–5.5px, all still matching their FP verdicts; zero lost
+  confirmed of any type, zero room deltas. Pinned by
+  `TestWindowSpanOvershootRetune` (10.5px detects / 11.8px rejected);
+  the §4e P classification is untouched — this is a value retune, not a
+  reclassification.
 - **Windows — NMS constants:** `NMS_CENTER_DIST_PX` / `NMS_PROJ_PERP_MAX_PX`
   (postprocess) deliberately unclassified — shared cross-type suppression
   machinery; scaling them moves every entity type at once.
