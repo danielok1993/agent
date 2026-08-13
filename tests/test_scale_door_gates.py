@@ -284,3 +284,18 @@ class TestFoldingGatesThreading(unittest.TestCase):
         g = DoorGates.at(0.5)
         self.assertAlmostEqual(g.DOOR_FOLD_JAMB_LINE_MIN_LEN_PX, 7.5)
         self.assertAlmostEqual(g.DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX, 3.0)
+
+
+class TestAssemblyGatesThreading(unittest.TestCase):
+    def test_merge_requires_gates_keyword(self):
+        from detection.doors.assembly import _merge_double_door_assemblies
+        with self.assertRaises(TypeError):
+            _merge_double_door_assemblies([])
+
+    def test_assembly_and_double_leaf_gates_scale(self):
+        g = DoorGates.at(0.5)
+        self.assertAlmostEqual(g.DOOR_ASSEMBLY_CONNECT_TOL_PX, 7.5)
+        self.assertAlmostEqual(g.DOOR_DOUBLE_LEAF_GAP_PX, 6.0)
+        self.assertAlmostEqual(g.DOOR_DOUBLE_LEAF_OVERLAP_PX, 2.5)
+        self.assertAlmostEqual(g.DOOR_DOUBLE_LEAF_CENTER_TOL_PX, 4.0)
+        self.assertAlmostEqual(g.DOOR_THRESHOLD_ENDPOINT_TOL_PX, 3.0)

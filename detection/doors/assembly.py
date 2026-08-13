@@ -11,12 +11,11 @@ from detection.doors.leaves import _find_anchored_leaf_line, _find_leaf_companio
 from detection.doors.folding import _detect_folding_doors
 from detection.doors.sliding import _detect_sliding_doors
 from detection.doors.constants import (
-    DOOR_ARC_FALLBACK_MAX, DOOR_ASSEMBLY_CONNECT_TOL_PX, DOOR_ASSEMBLY_LINE_LEAF_BASE,
-    DOOR_DOUBLE_LEAF_CENTER_TOL_PX, DOOR_DOUBLE_LEAF_GAP_PX, DOOR_DOUBLE_LEAF_OVERLAP_PX,
+    DOOR_ARC_FALLBACK_MAX, DOOR_ASSEMBLY_LINE_LEAF_BASE,
     DOOR_FALLBACK_CONFIDENCE, DOOR_HU_FAR_PENALTY, DOOR_HU_PLAUSIBLE_BOOST,
     DOOR_HU_THRESHOLD_FAR, DOOR_HU_THRESHOLD_VERIFIED, DOOR_HU_VERIFIED_BOOST, DOOR_LABEL_PATTERN,
     DOOR_LABEL_SEARCH_RADIUS_PX, DOOR_LAYER_KEYWORDS, DOOR_LEAF_RADIUS_RATIO_TOL,
-    DOOR_THRESHOLD_CONFIDENCE_BOOST, DOOR_THRESHOLD_ENDPOINT_TOL_PX, DOOR_THRESHOLD_PARALLEL_TOL_DEG,
+    DOOR_THRESHOLD_CONFIDENCE_BOOST, DOOR_THRESHOLD_PARALLEL_TOL_DEG,
     DOOR_V2_BRIDGE_BUFFER_PX, DOOR_V2_OPENING_CLEAR_BOOST, DOOR_V2_OPENING_OBSTRUCTED_PENALTY,
     DoorGates,
 )
@@ -144,6 +143,7 @@ def _find_threshold_line(
     leaf: _DoorLeaf,
     assembly_bbox: BBox,
     exclude_indices: set[int],
+    *, gates: DoorGates,
 ) -> dict | None:
     """Find an entrance-door threshold/sill line parallel to the leaf long axis.
 
@@ -170,8 +170,8 @@ def _find_threshold_line(
             ((x1, y0), (x1, y1)),
         ]
 
-    search_zone = _bbox_expanded(assembly_bbox, DOOR_THRESHOLD_ENDPOINT_TOL_PX)
-    tol = DOOR_THRESHOLD_ENDPOINT_TOL_PX
+    search_zone = _bbox_expanded(assembly_bbox, gates.DOOR_THRESHOLD_ENDPOINT_TOL_PX)
+    tol = gates.DOOR_THRESHOLD_ENDPOINT_TOL_PX
 
     best: tuple[float, dict] | None = None  # (summed_endpoint_dist, payload)
     for path in line_paths:
@@ -218,13 +218,13 @@ def _pair_door_assemblies(
     for swing_idx, swing in enumerate(swings):
         for leaf_idx, leaf in enumerate(leaves):
             connection_dist = _nearest_pair_distance(swing.pairing_points, leaf.corners)
-            if connection_dist > DOOR_ASSEMBLY_CONNECT_TOL_PX:
+            if connection_dist > gates.DOOR_ASSEMBLY_CONNECT_TOL_PX:
                 continue
             if swing.radius <= 1e-6:
                 if collector and swing.debug_id and leaf.debug_id:
                     collector.record_pairing_attempt(
                         swing.debug_id, leaf.debug_id,
-                        connection_dist, DOOR_ASSEMBLY_CONNECT_TOL_PX,
+                        connection_dist, gates.DOOR_ASSEMBLY_CONNECT_TOL_PX,
                         0.0, DOOR_LEAF_RADIUS_RATIO_TOL,
                         "rejected", "zero_radius",
                     )
@@ -234,7 +234,7 @@ def _pair_door_assemblies(
                 if collector and swing.debug_id and leaf.debug_id:
                     collector.record_pairing_attempt(
                         swing.debug_id, leaf.debug_id,
-                        connection_dist, DOOR_ASSEMBLY_CONNECT_TOL_PX,
+                        connection_dist, gates.DOOR_ASSEMBLY_CONNECT_TOL_PX,
                         radius_ratio, DOOR_LEAF_RADIUS_RATIO_TOL,
                         "rejected", "radius_ratio_mismatch",
                     )
@@ -248,7 +248,7 @@ def _pair_door_assemblies(
             if collector and swing.debug_id and leaf.debug_id:
                 collector.record_pairing_attempt(
                     swing.debug_id, leaf.debug_id,
-                    connection_dist, DOOR_ASSEMBLY_CONNECT_TOL_PX,
+                    connection_dist, gates.DOOR_ASSEMBLY_CONNECT_TOL_PX,
                     radius_ratio, DOOR_LEAF_RADIUS_RATIO_TOL,
                     "rejected", "already_paired",
                 )
@@ -263,7 +263,7 @@ def _pair_door_assemblies(
         component_path_indices = sorted(set(swing.component_path_indices + leaf.component_path_indices))
 
         threshold = _find_threshold_line(
-            line_paths, leaf, bbox, set(component_path_indices)
+            line_paths, leaf, bbox, set(component_path_indices), gates=gates,
         )
 
         confidence = 0.65
@@ -333,7 +333,7 @@ def _pair_door_assemblies(
         if collector and swing.debug_id and leaf.debug_id:
             collector.record_pairing_attempt(
                 swing.debug_id, leaf.debug_id,
-                connection_dist, DOOR_ASSEMBLY_CONNECT_TOL_PX,
+                connection_dist, gates.DOOR_ASSEMBLY_CONNECT_TOL_PX,
                 radius_ratio, DOOR_LEAF_RADIUS_RATIO_TOL,
                 "paired",
             )
@@ -633,7 +633,9 @@ def _safe_bbox(val: object) -> BBox | None:
         return None
 
 
-def _merge_double_door_assemblies(candidates: list[Candidate]) -> list[Candidate]:
+def _merge_double_door_assemblies(
+    candidates: list[Candidate], *, gates: DoorGates,
+) -> list[Candidate]:
     """Merge pairs of adjacent single-door assemblies into double-swing candidates.
 
     Only fully assembled doors (method=door_assembly) participate. Pairing is
@@ -698,7 +700,7 @@ def _merge_double_door_assemblies(candidates: list[Candidate]) -> list[Candidate
             # Collinear centerlines along y
             cy_i = (leaf_i[1] + leaf_i[3]) / 2
             cy_j = (leaf_j[1] + leaf_j[3]) / 2
-            if abs(cy_i - cy_j) > DOOR_DOUBLE_LEAF_CENTER_TOL_PX:
+            if abs(cy_i - cy_j) > gates.DOOR_DOUBLE_LEAF_CENTER_TOL_PX:
                 continue
             # Signed gap along x: positive = gap, negative = overlap
             signed_gap = max(leaf_i[0], leaf_j[0]) - min(leaf_i[2], leaf_j[2])
@@ -706,12 +708,12 @@ def _merge_double_door_assemblies(candidates: list[Candidate]) -> list[Candidate
             # Collinear centerlines along x
             cx_i = (leaf_i[0] + leaf_i[2]) / 2
             cx_j = (leaf_j[0] + leaf_j[2]) / 2
-            if abs(cx_i - cx_j) > DOOR_DOUBLE_LEAF_CENTER_TOL_PX:
+            if abs(cx_i - cx_j) > gates.DOOR_DOUBLE_LEAF_CENTER_TOL_PX:
                 continue
             # Signed gap along y
             signed_gap = max(leaf_i[1], leaf_j[1]) - min(leaf_i[3], leaf_j[3])
 
-        if not (-DOOR_DOUBLE_LEAF_OVERLAP_PX <= signed_gap <= DOOR_DOUBLE_LEAF_GAP_PX):
+        if not (-gates.DOOR_DOUBLE_LEAF_OVERLAP_PX <= signed_gap <= gates.DOOR_DOUBLE_LEAF_GAP_PX):
             continue
 
         # +1.0 offset so any french score sorts after every garden pair (sort_key=0.0).

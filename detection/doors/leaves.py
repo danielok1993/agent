@@ -438,7 +438,7 @@ def _find_anchored_leaf_line(
       - length within DOOR_LEAF_LINE_LENGTH_TOL of swing.radius
       - direction within DOOR_LEAF_LINE_AXIS_TOL_DEG of either bbox axis
         (0° or 90° — closed-door orientation along the wall)
-      - one endpoint within DOOR_LEAF_LINE_ENDPOINT_TOL_PX of an arc endpoint
+      - one endpoint within gates.DOOR_LEAF_LINE_ENDPOINT_TOL_PX of an arc endpoint
 
     Returns the best match (minimizing length error + endpoint snap distance)
     or ``None`` when nothing matches.

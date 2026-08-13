@@ -25,4 +25,4 @@ def detect_doors(
     leaves = _collect_door_leaves(paths, collector, gates=gates)
     candidates = _pair_door_assemblies(swings, leaves, text_spans, paths, collector,
                                        gates=gates)
-    return _merge_double_door_assemblies(candidates)
+    return _merge_double_door_assemblies(candidates, gates=gates)
