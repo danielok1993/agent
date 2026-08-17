@@ -77,6 +77,32 @@ carries `lights` (chain member count, 3 for W8).
 
 `detect_windows(paths)` (geometry only, no wall/door dependency):
 
+0. **Visible linework only** (`_line_records` via `geometry._stroke_is_visible`)
+   — an `l` item is a candidate cap/pane (or clutter line, or block-cap cross
+   stroke) only when it is a DRAWN line. A plain stroke (no fill) always is,
+   hairline or heavy. A filled path's `l` items are its polygon boundary, and
+   the reader only sees a line there when the stroke contrasts with the fill:
+   no stroke colour (fill-only — the Vectorworks polygon signature) or a stroke
+   in the fill's own colour (the seam-hiding outline AutoCAD-family exporters
+   give solid hatches, whatever its width) is invisible area, not linework.
+   Why it matters: exporters TRIANGULATE solid fills, so a wall band's gray
+   fill arrives as its two faces, its two end edges AND the triangles' shared
+   diagonal — which on a 6–8 px band lies 2–5° off the faces, inside
+   `WINDOW_ANGLE_TOL_DEG`. Read as lines, that is two panes + a mid-band third
+   pane between two caps: the exact 3-pane signature, once per wall segment
+   between crossing walls, all invisible on the page. Measured on s03: 21
+   phantom windows (0.67–0.82), every cap and pane an invisible fill edge;
+   the same edges also entered real windows' pane bands and cap pools (a
+   face edge joining the band drags foreign shapes into the interior scan; a
+   fill end-edge pairs as a jamb), so two real s03 glazing frames surfaced
+   only once they were gone — one had been read as its 35 px wall opening
+   instead (3863,2184–4039,2219 → the 12 px frame at y 2201–2213), one not
+   at all (1304,1339–1392,1345). Removing them also cleared 10 recorded FPs
+   on s12, 3 on s20 and 1 on s08 with no loss anywhere. The corpus holds NO filled path with a visibly different stroke
+   colour, so the visibility rule and a plain "filled ⇒ not linework" rule
+   are indistinguishable today; visibility is what the drawing actually shows,
+   so it is the rule. `re`/`qu` items are unaffected — a filled bar is a
+   visible block and still becomes a block cap.
 1. **`_axis_lines`** — split `l` primitives into horizontal / vertical pools
    (within `WINDOW_AXIS_TOL_PX` of an axis). Each record carries `perp` (the
    constant coordinate) and `span` (lo, hi along the run axis). For a horizontal
