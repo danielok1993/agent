@@ -91,5 +91,38 @@ class TestSpanFilterIsLoadBearing(unittest.TestCase):
                          "span filter should have removed full-width border rules")
 
 
+class TestS15PathsOnlyRetry(unittest.TestCase):
+    """s15 measured 2026-08-13: 214 text spans bridge every gutter, so the
+    text-inclusive cut yields 1 leaf and the sheet fell back to whole-page
+    detection (82 returned FPs, 63 of 72 phantom rooms fenced in elevation
+    regions). The paths-only retry splits it into 8 regions with full path
+    coverage."""
+
+    def test_s15_splits_into_eight_regions_via_retry(self):
+        _, regions = segment(self, "s15")
+        self.assertEqual(len(regions), 8)
+        self.assertTrue(all(r.source == "paths-only" for r in regions))
+
+    def test_s15_every_path_stays_assigned(self):
+        from layout.filter import assigned_path_fraction
+        page_data, regions = segment(self, "s15")
+        self.assertEqual(assigned_path_fraction(page_data, regions), 1.0)
+
+    def test_s15_floor_plans_and_elevations_split_apart(self):
+        # (900, 1400) sits inside the floor-plan column (R0 in the diagnosis
+        # mapping, which held all 28 in-plan confirmed entities); (3000, 1400)
+        # sits inside an elevation region (R3). The point of the retry is that
+        # these end up in DIFFERENT regions; exact grown bboxes are not pinned
+        # because _attach_text_spans legitimately widens them.
+        _, regions = segment(self, "s15")
+
+        def holder(x, y):
+            return next(r for r in regions
+                        if r.bbox[0] <= x <= r.bbox[2]
+                        and r.bbox[1] <= y <= r.bbox[3])
+
+        self.assertIsNot(holder(900.0, 1400.0), holder(3000.0, 1400.0))
+
+
 if __name__ == "__main__":
     unittest.main()

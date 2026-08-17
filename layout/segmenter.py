@@ -224,19 +224,49 @@ def _fold_small_leaves(
     return [tuple(b) for b in kept]
 
 
-def segment_page(page_data: PageData, clip_rects: list[BBox] | None = None) -> list[Region]:
-    """Split a page into drawing regions. Returns [] for a page with no vector
-    ink (a scanned raster page) — callers must handle that before classifying."""
-    if not page_data.paths:
-        return []
+def _attach_text_spans(page_data: PageData, boxes: list[BBox]) -> list[BBox]:
+    """Grow paths-only boxes to absorb the text spans beside them.
 
-    ink = build_ink_map(page_data, bin_px=SEGMENT_BIN_PX)
-    min_bins = max(1, SEGMENT_MIN_GUTTER_PX // ink.bin_px)
-    cut_rows, cut_cols = clip_cut_positions(clip_rects or [], ink.bin_px)
+    The tier-2 cut (see segment_page) finds boxes with text excluded from the
+    ink map, so captions and labels land OUTSIDE every box — and classification
+    crops without their titles lose the classifier's best signal. Each span
+    folds into its nearest box under the same two rules _fold_small_leaves
+    uses: never farther than CAPTION_MAX_GAP_PX (real captions measure
+    44-48px), and never when the union would increase overlap with another
+    box — a span in a shared gutter grows exactly one box, and one that leaks
+    everywhere stays outside (coverage is path-based, so it costs nothing).
+    """
+    kept = [list(b) for b in boxes]
+    eps = 1e-6
+    max_gap_sq = float(CAPTION_MAX_GAP_PX) ** 2
+    for t in sorted(page_data.text_spans, key=lambda t: (t.bbox[1], t.bbox[0])):
+        s = t.bbox
+        cx, cy = (s[0] + s[2]) / 2, (s[1] + s[3]) / 2
+        if any(k[0] <= cx <= k[2] and k[1] <= cy <= k[3] for k in kept):
+            continue
+        for k in sorted(kept, key=lambda k: _edge_gap_sq(s, tuple(k))):
+            if _edge_gap_sq(s, tuple(k)) > max_gap_sq:
+                break
+            union = (min(k[0], s[0]), min(k[1], s[1]),
+                     max(k[2], s[2]), max(k[3], s[3]))
+            if any(_overlap_area(union, tuple(o)) >
+                   _overlap_area(tuple(k), tuple(o)) + eps
+                   for o in kept if o is not k):
+                continue
+            k[0], k[1], k[2], k[3] = union
+            break
+    return [tuple(b) for b in kept]
 
+
+def _boxes_from_cut(
+    page_data: PageData,
+    ink: InkMap,
+    min_bins: int,
+    cut_rows: set[tuple[int, int, int]],
+    cut_cols: set[tuple[int, int, int]],
+) -> list[BBox]:
     leaves: list[tuple[int, int, int, int]] = []
     _xy_cut(ink, 0, ink.rows, 0, ink.cols, min_bins, cut_rows, cut_cols, 0, leaves)
-
     boxes = [
         (float(c0 * ink.bin_px), float(r0 * ink.bin_px),
          float(c1 * ink.bin_px), float(r1 * ink.bin_px))
@@ -259,8 +289,40 @@ def segment_page(page_data: PageData, clip_rects: list[BBox] | None = None) -> l
     # falls back to whole-page detection anyway, so nothing needs folding.
     boxes = _fold_small_leaves(page_data, kept, small) if kept else []
     boxes.sort(key=lambda b: (b[1], b[0]))
+    return boxes
 
+
+def segment_page(page_data: PageData, clip_rects: list[BBox] | None = None) -> list[Region]:
+    """Split a page into drawing regions. Returns [] for a page with no vector
+    ink (a scanned raster page) — callers must handle that before classifying."""
+    if not page_data.paths:
+        return []
+
+    ink = build_ink_map(page_data, bin_px=SEGMENT_BIN_PX)
+    min_bins = max(1, SEGMENT_MIN_GUTTER_PX // ink.bin_px)
+    cut_rows, cut_cols = clip_cut_positions(clip_rects or [], ink.bin_px)
+
+    boxes = _boxes_from_cut(page_data, ink, min_bins, cut_rows, cut_cols)
     source = "whitespace+clip" if clip_rects else "whitespace"
+
+    # Tier 2: a page the cut could not split at all gets one retry with text
+    # excluded from the ink map. Text spans are stamped as FULL bboxes, so a
+    # sheet whose drawings have generous gutters can still read as one blob —
+    # measured on s15 (56,765 paths, 214 spans): 1 leaf at every gutter width
+    # with text, 8 clean regions at the standard 20px gutter without it, and
+    # whole-page fallback fed six elevations to the room detector (63 of 72
+    # phantom rooms). Healthy sheets never reach this branch, so their region
+    # geometry and cache keys are untouched; a textless page skips it (the
+    # retry ink map would be identical); and a page that still will not split
+    # keeps the tier-1 result so the pipeline falls back exactly as before.
+    if len(boxes) <= 1 and page_data.text_spans:
+        retry_ink = build_ink_map(page_data, bin_px=SEGMENT_BIN_PX,
+                                  include_text=False)
+        retry = _boxes_from_cut(page_data, retry_ink, min_bins, cut_rows, cut_cols)
+        if len(retry) >= 2:
+            boxes = _attach_text_spans(page_data, retry)
+            source = "paths-only+clip" if clip_rects else "paths-only"
+
     return [
         Region(
             region_id=f"region_{i:04d}",
