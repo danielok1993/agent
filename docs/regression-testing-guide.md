@@ -42,6 +42,11 @@ python tools/regress.py --debug      # also write debug_trace.json + debug_viewe
 python tools/review.py               # record verdicts, every sheet with unreviewed detections
 python tools/review.py s07           # one sheet (repeatable)
 
+python tools/compare_sweeps.py s07 --snapshot   # keep s07's latest run as its baseline
+python tools/compare_sweeps.py s07              # baseline vs latest run: side-by-side
+                                                # + per-change zoom crops, see §4b
+python tools/compare_sweeps.py s07 --before DIR --after DIR --type window
+
 python tools/fetch_fixtures.py       # verify the downloaded bundle
 python tools/add_sheet.py new.pdf --desc existing-floor-plans
 ```
@@ -54,7 +59,7 @@ human could open. Output now persists to `outputs/regress/<slug>/<timestamp>/`
 (gitignored, same per-page contract as `python app.py extract`) — but each
 slug's directory is **wiped at the start of that slug's next sweep**, so
 `latest_run()` is unambiguous. Copy out anything you want to survive the next
-`--sheet <slug>` run.
+`--sheet <slug>` run — or let `tools/compare_sweeps.py --snapshot` do it (§4b).
 
 Two things are pruned or absent by default, both sized by measuring the actual
 corpus rather than guessing:
@@ -79,6 +84,37 @@ What survives every sweep: `render.png`, `overlay.png`, `final_entities.json`,
 `review_<type>.png` (§8), `sweep_meta.json` (the sha the run was produced
 from — `tools/review.py`'s provenance check reads it, §8), and the
 run-root `summary.json` / `warnings.json`.
+
+### 4b. Comparing two sweeps — `tools/compare_sweeps.py`
+
+The report speaks in verdict deltas (`LOST window @ (3951,2202)`, `REVIEW new
+window_0012`), which is the right signal for a gate but says nothing about
+WHAT changed on the drawing — and because a re-sweep wipes the slug's previous
+run, there is normally no "before" left to look at. `compare_sweeps.py` keeps
+one and renders the two runs against each other:
+
+```bash
+python tools/regress.py --sheet s03                 # baseline sweep
+python tools/compare_sweeps.py s03 --snapshot       # copy it to outputs/regress_baseline/s03/
+... change detection ...
+python tools/regress.py --sheet s03                 # re-sweep
+python tools/compare_sweeps.py s03                  # -> outputs/compare/s03/
+```
+
+Per page it writes `page_NN_side_by_side.png` — both runs' renders with every
+entity drawn and coloured by its ground-truth verdict (green confirmed, red
+false positive, orange deferred, blue unreviewed), so a glance shows which
+reds vanished and which greens survived — and `page_NN_changes.png`, a strip
+of zoomed before|after crops, one row per entity present in only ONE of the
+runs, captioned with id, confidence and verdict. The same changes are printed
+as text. Entities are paired across runs exactly as the sweep pairs ground
+truth (same type, IoU ≥ 0.5, never by id — ids are ordinal), so a confirmed
+window that is re-detected with a tighter bbox shows up as a `removed
+[confirmed]` + `added [unreviewed]` pair, which is precisely how the report
+shows it too. `--type window` restricts to one type; `--before/--after` take
+explicit run dirs (any `pages/page_NN/{render.png,final_entities.json}`
+tree, so an `app.py extract` output works). One baseline is kept per slug —
+`--snapshot` replaces the previous one.
 
 ## 5. Reading the report
 
@@ -273,8 +309,11 @@ happens:
    `"labeled": true` in `fixtures/MANIFEST.json` (§8) — commit both as a data
    commit, no code.
 4. Fix the algorithm. Pin the topology with a synthetic test in the fast tier.
+   (`python tools/compare_sweeps.py sNN --snapshot` first, if you want step 5's
+   diff as pictures.)
 5. `python tools/regress.py` again — no lost `confirmed`, no returned false
-   positives. A `deferred` entry that flips to `REVIEW gap closed` is
+   positives. `python tools/compare_sweeps.py sNN` shows every entity that
+   appeared or vanished, before|after, coloured by verdict (§4b). A `deferred` entry that flips to `REVIEW gap closed` is
    confirmed by the user, then promoted to `confirmed` by hand (§9) —
    `tools/review.py` only records verdicts on a sweep's unreviewed
    detections, not this promotion.
@@ -363,9 +402,12 @@ regression/review_session.py # pending() — what still needs a verdict, plus
 regression/verdicts.py       # Verdict, record_verdicts — the one ground-truth
                               # writer; entity ids never reach disk
 regression/report.py         # SheetResult, render, exit_code
+regression/compare.py        # snapshot, compare_runs — before/after images of
+                              # two runs, entities coloured by verdict (§4b)
 regression/hygiene.py        # address/postcode patterns, shared by the guards
 tools/regress.py             # the sweep CLI
 tools/review.py              # the verdict-recording CLI
+tools/compare_sweeps.py      # baseline vs latest run, side by side (§4b)
 tools/fetch_fixtures.py      # bundle verifier (download is manual)
 tools/add_sheet.py           # adoption
 ```
