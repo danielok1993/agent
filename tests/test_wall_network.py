@@ -16,9 +16,11 @@ from detection.walls import (
     WALL_NETWORK_MIN_SEGMENTS,
     _FillRing,
     _bridge_white_runs,
+    _Seg,
     _collect_wall_faces,
     _equivalent_sides,
     _is_dashed,
+    _merge_collinear_segs,
 )
 
 
@@ -758,6 +760,27 @@ class TestLatticeDemotion(unittest.TestCase):
         network = detect_wall_network(paths)
         bay = self._segments_inside(network, 495, 195, 615, 315)
         self.assertGreater(len(bay), 0)
+
+
+    def test_fill_stub_does_not_launder_wall_fill_onto_a_long_stroke(self):
+        # A wall-rated fill ring's short outline edge (a jamb stub) is
+        # collinear with a 350px stroked line above it (a roof-tile stripe
+        # on s03). Merging them must not stamp wall_fill — fill evidence —
+        # over the whole stroke: the run's fill members cover 5% of it.
+        stub = _Seg(p1=(100.0, 500.0), p2=(100.0, 517.0), indices={1},
+                    wall_fill=True, pen=None)
+        stroke = _Seg(p1=(100.0, 150.0), p2=(100.0, 500.0), indices={2},
+                      stroked=True, stroke_width=1.5, pen=(0.6, 0.6, 0.6))
+        merged = _merge_collinear_segs([stub, stroke], gap_px=6.0)
+        self.assertEqual(len(merged), 1)
+        self.assertFalse(merged[0].wall_fill)
+        # Control: a fill outline coincident with its own drawn-over stroke
+        # keeps the flag.
+        outline = _Seg(p1=(100.0, 150.0), p2=(100.0, 500.0), indices={3},
+                       wall_fill=True, pen=None)
+        merged = _merge_collinear_segs([outline, stroke], gap_px=6.0)
+        self.assertEqual(len(merged), 1)
+        self.assertTrue(merged[0].wall_fill)
 
 
 RED = (1.0, 0.0, 0.0)

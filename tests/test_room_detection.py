@@ -891,6 +891,64 @@ class TestBlindWindowPocket(unittest.TestCase):
         self.assertEqual(rooms[0].evidence["window_openings"], 1)
 
 
+class TestWindowExteriorSide(unittest.TestCase):
+    """A window is a wall opening between inside and outside. When the space
+    on one side of it is a door-bearing room and the space on the other side
+    has no door at all, the door-less side is the exterior — a lower roof,
+    terrace or lightwell the room looks out over (measured on s03: the
+    ground-floor roof drawn as a striped field above the PROPOSED BEDROOM,
+    fenced by the roof outline, came out as a 133k px2 door-less "room" on
+    the far side of the bedroom's window)."""
+
+    def stacked(self):
+        # Two rooms sharing the y=292..300 band: A above (100..292), B below
+        # (300..500). B has a doorway in its bottom wall.
+        return (
+            rect_room(0, 100, 100, 400, 500)
+            + wall_band_h(8, 100, 400, 292)
+        )
+
+    def door_b(self):
+        # Doorway gap in B's bottom band (492..500) sealed by a door.
+        return door_candidate((238, 445, 290, 504))
+
+    def window_shared(self):
+        return Candidate("window_0000", "window", (200, 293, 300, 299), 0.62,
+                         evidence={})
+
+    @staticmethod
+    def _drop_h(paths, ys):
+        return [
+            p for p in paths
+            if not (p.points[0][1] == p.points[1][1] and p.points[0][1] in ys)
+        ]
+
+    def paths_with_gap(self):
+        # B's bottom band (492..500) rebuilt with a 45px doorway at 240..285.
+        paths = self._drop_h(self.stacked(), (492.0, 500.0))
+        return paths + wall_band_h(20, 100, 240, 492) + wall_band_h(22, 285, 400, 492)
+
+    def test_doorless_side_of_window_is_dropped(self):
+        rooms = rooms_for(self.paths_with_gap(), doors=[self.door_b()],
+                          windows=[self.window_shared()])
+        self.assertEqual(len(rooms), 1)
+        self.assertGreater(rooms[0].bbox[1], 295.0)  # B survives, A dropped
+
+    def test_without_window_both_rooms_stay(self):
+        rooms = rooms_for(self.paths_with_gap(), doors=[self.door_b()])
+        self.assertEqual(len(rooms), 2)
+
+    def test_doors_on_both_sides_keep_both(self):
+        # An internal window (borrowed light) between two entered rooms.
+        paths = self._drop_h(self.paths_with_gap(), (100.0, 108.0)) + \
+            wall_band_h(24, 100, 240, 100) + wall_band_h(26, 285, 400, 100)
+        door_a = door_candidate((238, 96, 290, 155))
+        door_a.candidate_id = "door_0001"
+        rooms = rooms_for(paths, doors=[self.door_b(), door_a],
+                          windows=[self.window_shared()])
+        self.assertEqual(len(rooms), 2)
+
+
 class TestSwingRecessDissolution(unittest.TestCase):
     def test_recess_between_plug_and_threshold_not_a_room(self):
         # Garden pair in a wall: the outer wall plane plugs (interrupted
