@@ -105,6 +105,12 @@ The loop when tuning detection:
    `deferred` entry that flips to CLOSED is confirmed by the user, then promoted
    to `confirmed` by hand — `tools/review.py` only records verdicts on a
    sweep's unreviewed detections, not this promotion.
+   To SEE what a change did rather than read verdict deltas:
+   `python tools/compare_sweeps.py <slug> --snapshot` after the baseline sweep
+   (a re-sweep wipes the slug's previous run), then `python tools/compare_sweeps.py <slug>`
+   after the re-sweep — writes `outputs/compare/<slug>/page_NN_side_by_side.png`
+   (both runs, entities coloured by verdict) and `page_NN_changes.png` (a
+   before|after zoom row per entity present in only one run). Guide §4b.
 
 See `docs/regression-testing-guide.md` §4/§8 for the sweep-output and
 review-tooling details, and §6 for the full exit-code table.

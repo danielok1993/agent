@@ -70,9 +70,9 @@
     "semantic_hash": "ab6bf2d81a7aac70de406aacd744d0fa"
   },
   "detection/geometry.py": {
-    "mtime": 1781823333.6251009,
-    "ast_hash": "67d14a26ac6c64f4f66561433e5e3276",
-    "semantic_hash": "67d14a26ac6c64f4f66561433e5e3276"
+    "mtime": 1787000680.0014613,
+    "ast_hash": "2c69814ce3132c14885e5ceb576948e4",
+    "semantic_hash": ""
   },
   "detection/labels.py": {
     "mtime": 1781823333.625294,
@@ -105,8 +105,8 @@
     "semantic_hash": ""
   },
   "detection/windows.py": {
-    "mtime": 1786642533.617693,
-    "ast_hash": "30a82b5dfb7c7f7ceeda1067ae146d66",
+    "mtime": 1787000680.0018194,
+    "ast_hash": "da9f9fb17507b1a08f6f88771d9ddc1e",
     "semantic_hash": ""
   },
   "extraction/__init__.py": {
@@ -235,13 +235,13 @@
     "semantic_hash": ""
   },
   "tests/test_window_detection.py": {
-    "mtime": 1786642533.6350179,
-    "ast_hash": "810c309e27666508533dd1cea2921b32",
+    "mtime": 1787000111.143904,
+    "ast_hash": "b928bb35e50ab516e4e6f593a9b3119f",
     "semantic_hash": ""
   },
   "docs/window-detection-tuning-guide.md": {
-    "mtime": 1786642533.6187396,
-    "ast_hash": "1c96c1eac7c9b3598791fb0aeda8d42d",
+    "mtime": 1787000837.125227,
+    "ast_hash": "6c4e3465abcf8c3ac39be2d954c917d5",
     "semantic_hash": ""
   },
   "batch_extract.py": {
@@ -440,7 +440,7 @@
     "semantic_hash": ""
   },
   "fixtures/MANIFEST.json": {
-    "mtime": 1786640170.4277716,
+    "mtime": 1786649329.0310457,
     "ast_hash": "484b355717add2612768232df1a42192",
     "semantic_hash": ""
   },
@@ -720,8 +720,8 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s15.json": {
-    "mtime": 1786463851.9987135,
-    "ast_hash": "c630d7057e59f212b28853e542bcf56d",
+    "mtime": 1786649329.043264,
+    "ast_hash": "944ffadd74c1ca1c3e3dbe07a909f677",
     "semantic_hash": ""
   },
   "tests/ground_truth/s16.json": {
