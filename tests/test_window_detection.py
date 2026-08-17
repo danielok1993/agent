@@ -768,5 +768,98 @@ class TestWindowSpanOvershootRetune(unittest.TestCase):
         self.assertEqual(detect_windows(self._opening(11.8)), [])
 
 
+class TestWindowInvisibleFillEdges(unittest.TestCase):
+    """Wall fills exploded into polygon edges are not linework (s03).
+
+    s03 draws each wall as a solid-filled polygon (``EXISTING_BRICKWORK``, gray
+    fill) whose PDF stroke is width 0 in the SAME gray — invisible against its
+    own fill. The exporter triangulates the fill, so PyMuPDF hands us its two
+    long faces, its two end edges AND the shared triangulation diagonal as
+    ``l`` items with a fill colour. On a thin band the diagonal runs 2-5 deg
+    off the faces — inside WINDOW_ANGLE_TOL_DEG — so it read as a third
+    "pane" between the two faces, and every wall segment between two crossing
+    walls (end edges = caps, faces = panes) matched the 3-pane window
+    signature: 21 phantom windows on s03, all built ENTIRELY from these edges.
+
+    A filled path's boundary is only linework where its stroke is visible
+    against its own fill (fill=None ⇒ plain stroke ⇒ linework; a filled path
+    with no stroke colour, or a stroke the same colour as its fill, is area).
+    """
+
+    GRAY = (0.73, 0.73, 0.73)
+
+    @classmethod
+    def _fill_edge(cls, idx: int, a: tuple[float, float], b: tuple[float, float],
+                   *, color=GRAY, fill=GRAY, stroke_width: float = 0.0) -> PathPrimitive:
+        xs, ys = (a[0], b[0]), (a[1], b[1])
+        return PathPrimitive(
+            path_index=idx, item_type="l",
+            bbox=(min(xs), min(ys), max(xs), max(ys)),
+            color=color, fill=fill, stroke_width=stroke_width, dashes="",
+            layer="EXISTING_BRICKWORK", points=[a, b],
+        )
+
+    @classmethod
+    def _filled_band(cls, base: int, x0: float, x1: float, y0: float, y1: float, **kw) -> list[PathPrimitive]:
+        """A wall band as PyMuPDF explodes s03's triangulated fill: two triangles
+        sharing the (x0,y0)-(x1,y1) diagonal, all edges self-coloured."""
+        return [
+            cls._fill_edge(base + 0, (x1, y0), (x0, y0), **kw),   # top face
+            cls._fill_edge(base + 1, (x0, y0), (x1, y1), **kw),   # diagonal (triangle 1)
+            cls._fill_edge(base + 2, (x1, y1), (x1, y0), **kw),   # right end edge
+            cls._fill_edge(base + 3, (x0, y0), (x1, y1), **kw),   # diagonal (triangle 2)
+            cls._fill_edge(base + 4, (x1, y1), (x0, y1), **kw),   # bottom face
+            cls._fill_edge(base + 5, (x0, y1), (x0, y0), **kw),   # left end edge
+        ]
+
+    def test_thin_filled_wall_band_is_not_a_window(self):
+        # s03 window_0029: 159.5 x 6.0px band, diagonal 2.2 deg off the faces.
+        self.assertEqual(detect_windows(self._filled_band(0, 486.9, 646.4, 663.2, 669.2)), [])
+
+    def test_wall_thick_filled_band_is_not_a_window(self):
+        # s03 window_0040: 156 x 14.8px band — without the diagonal its two
+        # faces would still pair as a 2-pane band over 14.7px caps, so the
+        # faces themselves must not be panes either.
+        self.assertEqual(detect_windows(self._filled_band(0, 1407.7, 1563.7, 4143.4, 4158.2)), [])
+
+    def test_unstroked_fill_band_is_not_a_window(self):
+        # Vectorworks-style fill-only polygons (type "f": no stroke colour).
+        band = self._filled_band(0, 486.9, 646.4, 663.2, 669.2, color=None)
+        self.assertEqual(detect_windows(band), [])
+
+    def test_stroked_window_inside_a_filled_wall_still_detected(self):
+        # A real stroked 3-pane window whose band happens to sit inside a
+        # filled wall band: the fill edges are ignored, the ink is not.
+        paths = horizontal_window(100, 100.0, 176.0, 387.0)
+        paths += self._filled_band(200, 60.0, 216.0, 376.0, 398.0)
+        wins = detect_windows(paths)
+        self.assertEqual(len(wins), 1)
+        self.assertTrue(_covers(wins[0].bbox, 138.0, 387.0))
+
+    @classmethod
+    def _capped_rectangle(cls, **kw) -> list[PathPrimitive]:
+        # test_two_line_capped_rectangle_detected's geometry (5-1133 Window B:
+        # two panes 2px apart between 22px caps), drawn as one filled path.
+        return [
+            cls._fill_edge(0, (100.0, 386.0), (176.0, 386.0), **kw),
+            cls._fill_edge(1, (100.0, 388.0), (176.0, 388.0), **kw),
+            cls._fill_edge(2, (100.0, 376.0), (100.0, 398.0), **kw),
+            cls._fill_edge(3, (176.0, 376.0), (176.0, 398.0), **kw),
+        ]
+
+    def test_visibly_outlined_fill_edges_stay_linework(self):
+        # A filled path whose stroke is a DIFFERENT colour from its fill is
+        # drawn linework: its edges are as eligible as plain stroked lines.
+        wins = detect_windows(self._capped_rectangle(color=(0.0, 0.0, 0.0), fill=self.GRAY))
+        self.assertEqual(len(wins), 1)
+
+    def test_self_coloured_fill_edges_are_not_linework(self):
+        # ...while the SAME geometry stroked in its own fill colour (or not
+        # stroked at all) is invisible area, whatever the pen width says.
+        self.assertEqual(detect_windows(self._capped_rectangle(stroke_width=0.0)), [])
+        self.assertEqual(detect_windows(self._capped_rectangle(stroke_width=1.5)), [])
+        self.assertEqual(detect_windows(self._capped_rectangle(color=None)), [])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -7,6 +7,7 @@ from models import BBox, Candidate, PathPrimitive
 from detection.geometry import (
     _bbox_union, _interval_overlap, _line_length,
     _line_angle_deg, _angle_diff_mod180, _project_onto_axis, _projected_interval,
+    _stroke_is_visible,
 )
 from detection.layers import _layer_hint, _layer_strong_prior
 
@@ -177,15 +178,24 @@ _GRID_PX = 64.0
 
 
 def _line_records(paths: list[PathPrimitive]) -> list[dict]:
-    """All straight line primitives with endpoints, length and direction.
+    """All DRAWN straight line primitives with endpoints, length and direction.
 
     Direction (``angle``, mod 180 deg) lets us group parallel lines and find
     perpendiculars regardless of the page axes — windows are drawn at any angle,
     so detection works in a rotated frame rather than the x/y axes.
+
+    Only visible strokes qualify (``_stroke_is_visible``): the boundary edges
+    of a filled area whose stroke cannot be seen against its own fill are not
+    linework. A solid wall fill explodes into its two faces, its end edges and
+    — exporters triangulate fills — the triangles' shared diagonal, which on a
+    thin band lies within WINDOW_ANGLE_TOL_DEG of the faces. Read as lines,
+    those are two panes + a mid-band third pane between two caps: the exact
+    3-pane signature, once per wall segment between crossing walls (measured
+    on s03: 21 phantom windows, every cap and pane an invisible fill edge).
     """
     recs: list[dict] = []
     for p in paths:
-        if p.item_type != "l" or len(p.points) < 2:
+        if p.item_type != "l" or len(p.points) < 2 or not _stroke_is_visible(p):
             continue
         a, b = p.points[0], p.points[-1]
         length = _line_length(a, b)
@@ -213,10 +223,11 @@ def _block_cap_records(paths: list[PathPrimitive]) -> list[dict]:
     # lies entirely inside a box no wider than the block itself. Bucketing the
     # page's lines by their first endpoint means the cross test only looks at
     # the handful of cells that box touches, instead of walking every path once
-    # per bar candidate.
+    # per bar candidate. Only drawn strokes can cross a block — an invisible
+    # fill edge is not an X.
     grid: dict[tuple[int, int], list[tuple[float, float, float, float, float]]] = {}
     for q in paths:
-        if q.item_type != "l" or len(q.points) < 2:
+        if q.item_type != "l" or len(q.points) < 2 or not _stroke_is_visible(q):
             continue
         (ax, ay), (bx, by) = q.points[0], q.points[-1]
         grid.setdefault((int(ax // _GRID_PX), int(ay // _GRID_PX)), []).append(

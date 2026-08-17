@@ -44,6 +44,37 @@ def _is_line_path(path: PathPrimitive) -> tuple[bool, tuple[float, float], tuple
     return True, path.points[0], path.points[-1]
 
 
+# Two pen colours closer than this per channel are the same pen: PyMuPDF hands
+# back the stroke and fill of one path from the same colour objects, so real
+# self-coloured outlines compare exactly — the tolerance only absorbs float
+# round-tripping (JSON, colourspace conversion), never a visibly different tint.
+_SAME_COLOR_EPS = 1e-3
+
+
+def _stroke_is_visible(path: PathPrimitive) -> bool:
+    """Whether a path's segments are DRAWN lines, as opposed to the boundary
+    of a filled area that no pen ever shows.
+
+    A plain stroke (no fill) is linework, hairline or heavy. A filled path's
+    ``l`` items are its polygon boundary: PyMuPDF explodes a solid wall fill
+    into edges — and CAD exporters triangulate fills, so the shared diagonals
+    of the triangles arrive as edges too — but the reader only sees a line
+    there when the stroke contrasts with the fill. No stroke colour (fill-only,
+    the Vectorworks polygon signature) or a stroke in the fill's own colour
+    (the seam-hiding outline AutoCAD-family exporters give solid hatches,
+    whatever its width) is invisible against the fill it bounds — area, not
+    linework — and a detector reading DRAWN geometry must not see it as a
+    line (measured on s03: every one of the 21 phantom windows was built
+    entirely from such edges, the invisible triangulation diagonal posing as
+    a third glazing pane between a wall's two faces).
+    """
+    if path.fill is None:
+        return True
+    if path.color is None:
+        return False
+    return any(abs(a - b) > _SAME_COLOR_EPS for a, b in zip(path.color, path.fill))
+
+
 def _point_to_segment_distance(
     p: tuple[float, float],
     a: tuple[float, float],
