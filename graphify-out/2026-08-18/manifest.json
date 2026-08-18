@@ -100,8 +100,8 @@
     "semantic_hash": ""
   },
   "detection/walls.py": {
-    "mtime": 1787063527.8652573,
-    "ast_hash": "5459a75804411d571708db68e8f21c0a",
+    "mtime": 1787065158.7276433,
+    "ast_hash": "f848cb5b48925fcfedde5c0195d6f0c0",
     "semantic_hash": ""
   },
   "detection/windows.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1787063572.0947082,
-    "ast_hash": "4a63b1e1e83c504dc35105abbb7475e4",
+    "mtime": 1787065193.9917846,
+    "ast_hash": "98e09ab2f1205fb00af23e7928a88e82",
     "semantic_hash": ""
   },
   "README.md": {
@@ -260,8 +260,8 @@
     "semantic_hash": ""
   },
   "tests/test_room_detection.py": {
-    "mtime": 1787063527.5200405,
-    "ast_hash": "83f80c90e6501d370f143644d74c2efd",
+    "mtime": 1787065149.165229,
+    "ast_hash": "09d238d6ade84225a3b3934d15ba3df6",
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
@@ -440,7 +440,7 @@
     "semantic_hash": ""
   },
   "fixtures/MANIFEST.json": {
-    "mtime": 1787057674.2614534,
+    "mtime": 1787064477.7942336,
     "ast_hash": "484b355717add2612768232df1a42192",
     "semantic_hash": ""
   },
@@ -665,8 +665,8 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s03.json": {
-    "mtime": 1787002915.7523699,
-    "ast_hash": "fb5c731abdc0cee13b70c7f5880d907a",
+    "mtime": 1787065092.8500948,
+    "ast_hash": "abea134f7c42c5e397ab887e153bb7fe",
     "semantic_hash": ""
   },
   "tests/ground_truth/s04.json": {
@@ -700,7 +700,7 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s11.json": {
-    "mtime": 1786619016.7090533,
+    "mtime": 1787065092.8509266,
     "ast_hash": "76a52e535adf89b63cd891a8270abc28",
     "semantic_hash": ""
   },
@@ -710,8 +710,8 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s13.json": {
-    "mtime": 1787058087.2223012,
-    "ast_hash": "0e2b0f7d6434a1de4208429118cb7a56",
+    "mtime": 1787065092.8512893,
+    "ast_hash": "778cc53bbbc8ddf061908f6cec44d74d",
     "semantic_hash": ""
   },
   "tests/ground_truth/s14.json": {
@@ -730,8 +730,8 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s17.json": {
-    "mtime": 1787058087.2226014,
-    "ast_hash": "ee43f84b8e87fcae0fe0a169c53ac54e",
+    "mtime": 1787065092.8515658,
+    "ast_hash": "e5f27dac804414c166f80d223a5e96b2",
     "semantic_hash": ""
   },
   "tests/ground_truth/s18.json": {

@@ -1,7 +1,7 @@
 # Room Quantity Takeoff — Design
 
 **Date:** 2026-08-18
-**Status:** Awaiting approval
+**Status:** Implemented (branch feat/room-takeoff)
 **Predecessors:** `2026-08-11-floor-plan-scale-extraction-design.md` (scale
 resolution, `scale/`), room detection (`detection/rooms.py`).
 

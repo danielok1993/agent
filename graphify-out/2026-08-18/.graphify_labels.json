@@ -186,7 +186,13 @@
   "184": "Step 2 — Retune the window span-overshoot gate (paper-space FP kill)",
   "185": "Step 3 — Diagnose s15's 82 false positives (read-only)",
   "186": "Step 4 — Recall audit on the 1:100 sheets (misses are invisible to ground truth)",
+  "187": "TestSlugForPath",
+  "188": "TestPlumberTableBBox",
   "189": "TestDoorGatesUnscaledStopgapRatchet",
   "190": "TestSlugForPath",
+  "191": "TestThickMaterialPairs",
+  "192": "_dedupe_openings",
+  "193": "TestOrchestratorWiring",
+  "194": "TestCrossWindowToleranceUnscaled",
   "195": "README.md"
 }
