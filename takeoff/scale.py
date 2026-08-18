@@ -8,7 +8,11 @@ The unit model trusts that the PDF is at its intended sheet size: an A1
 drawing exported onto A3 paper carries a printed "1:50" that is really 1:100.
 Viewport- and user-sourced scales are immune (they measure the real page);
 text-sourced ones are verified against a title-block sheet-size token when
-one exists. Correction on mismatch is a follow-up branch — here we only flag.
+one exists. A bare "A1" anywhere on the sheet is NOT that token — s20 carries
+one inside the drawing number `18-069-001(A1).A` — so the scan only counts a
+size that is DECLARED: written after an "@" (`1:50@A3`, `As Shown @ A1`) or
+after a SHEET / SIZE / PAPER / FORMAT keyword. Correction on mismatch is a
+follow-up branch — here we only flag.
 """
 from __future__ import annotations
 
@@ -29,7 +33,12 @@ SHEET_SIZE_TOL_FRAC = 0.05
 # Half-size / double-size prints (A1↔A3: two ISO A-steps, linear factor 2).
 RESIZE_FACTOR_BANDS = ((1.8, 2.2), (0.45, 0.55))
 
-_SIZE_TOKEN_RE = re.compile(r"\bA[0-4]\b")
+# The size must be declared: "@ A3", or a SHEET/SIZE/PAPER/FORMAT keyword
+# with at most a short separator ("SHEET SIZE: A3", "ORIGINAL FORMAT - A0").
+_SIZE_TOKEN_RE = re.compile(
+    r"(?:@\s*|(?:SHEET|SIZE|PAPER|FORMAT)[^A-Za-z0-9]{0,12})(A[0-4])\b",
+    re.IGNORECASE,
+)
 
 
 @dataclass(frozen=True)
@@ -68,7 +77,7 @@ def select_room_scale(centroid, regions, page_scales, det_scale) -> RoomScale:
 
 
 def sheet_size_tokens(text: str) -> set[str]:
-    return set(_SIZE_TOKEN_RE.findall(text or ""))
+    return {m.upper() for m in _SIZE_TOKEN_RE.findall(text or "")}
 
 
 def _ratio_pair(token: str, w: float, h: float) -> tuple[float, float]:

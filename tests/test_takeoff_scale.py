@@ -65,10 +65,23 @@ class TestSelectRoomScale(unittest.TestCase):
 
 
 class TestSheetSize(unittest.TestCase):
-    def test_tokens_are_word_bounded(self):
+    def test_tokens_need_a_declaration_context(self):
         self.assertEqual(sheet_size_tokens("SHEET SIZE: A1  DWG A101 CAT5"), {"A1"})
         self.assertEqual(sheet_size_tokens("scale 1:50 @ A3"), {"A3"})
+        self.assertEqual(sheet_size_tokens("1:50@A3"), {"A3"})
+        self.assertEqual(sheet_size_tokens("As Shown @ A1"), {"A1"})
+        self.assertEqual(sheet_size_tokens("SHEET SIZE: A3"), {"A3"})
+        self.assertEqual(sheet_size_tokens("PAPER A2"), {"A2"})
+        self.assertEqual(sheet_size_tokens("ORIGINAL FORMAT - A0"), {"A0"})
         self.assertEqual(sheet_size_tokens("nothing"), set())
+
+    def test_bare_tokens_are_not_a_sheet_size(self):
+        # s20: the sheet size lives inside a drawing number
+        self.assertEqual(sheet_size_tokens("18-069-001(A1).A"), set())
+        self.assertEqual(sheet_size_tokens("DWG A101 CAT5"), set())
+        self.assertEqual(sheet_size_tokens("REV A3 ISSUED"), set())
+        self.assertEqual(sheet_size_tokens(""), set())
+        self.assertEqual(sheet_size_tokens(None), set())
 
     def test_matching_size_either_orientation(self):
         self.assertEqual(verify_sheet_size({"A3"}, 420.0, 297.0), (True, False))
