@@ -297,12 +297,13 @@ artifacts" — that is a new decision, not a reopening of this table.
 | WALL_WEAK_CLAIM_MARGIN_PX | P | measured 2026-08-12: no corpus signal (small tolerance); conservative default (§4b); revisit if 1:100 sweep shows artifacts |
 | WALL_WEAK_CLAIM_OVERLAP_FRAC | D | fraction |
 | WALL_LATTICE_MIN_RUNGS | D | count (5 keeps cavity party wall out) |
+| WALL_LATTICE_FIELD_COVER_FRAC | D | fraction (added 2026-08-18: a rung is demoted only when ≥ 0.5 of its extent lies in the ≥5-deep stacked span) |
 | WALL_LATTICE_PITCH_TOL_PX | P | measured 2026-08-12: no corpus signal (small tolerance); conservative default (§4b); revisit if 1:100 sweep shows artifacts |
-| WALL_LATTICE_MIN_RUNG_LEN_PX | W | 48px ≈ 406mm at 1:50; **key phantom-wall gate at 1:100** — updated 2026-08-12 (§4b): WALL_HATCH_MAX_LEN_PX is also W (both 48px × f), so at every f the two scale together and stay exactly equal, matching the 1:50 baseline relationship; no clamp risk, no collision, and the rung floor legitimately shrinks to ~24px at 1:100 so the design's predicted s12 phantom-wall fix (§3) is not neutralized |
+| WALL_LATTICE_MIN_RUNG_LEN_PX | W | **removed 2026-08-18** (branch fix/lattice-extent-aware-rows): rows are now extent-connected clusters, so the per-rung length total no longer sums collinear ink from across the page, and the floor rejected genuine short-rung fields (s17 stair treads 47.7px, s18 ramp balustrade 12.75px). Its stated purpose — keeping hatch strokes from forming rungs — is served by pitch alone (hatch is caught by the same scan). Historical rationale: 48px ≈ 406mm at 1:50; W, scaled with WALL_HATCH_MAX_LEN_PX. |
 | WALL_LATTICE_TOUCH_GAP_PX | P | measured 2026-08-12: no corpus signal (small tolerance); conservative default (§4b); revisit if 1:100 sweep shows artifacts |
 | WALL_LATTICE_OFFSET_TOL_PX | P | collinearity tolerance |
 | WALL_LATTICE_PEN_TOL | P | pen |
-| WALL_HATCH_MAX_PITCH_PX | W | measured 2026-08-12 (§4b): pitch ratio ≈0.50–0.55, robust across every angle-band width tried (0.500–0.551) — hatch pitch is world-space; move into gates dataclass, × f. This closes the gap with `WALL_LATTICE_MIN_RUNG_LEN_PX` at 1:100 (both shrink by f=0.5 together) rather than colliding |
+| WALL_HATCH_MAX_PITCH_PX | W | **removed 2026-08-18** (branch fix/lattice-extent-aware-rows): the separate hatch tier is subsumed by the single striped-field scan once the rung length floor is gone (max pitch WALL_MAX_THICKNESS_PX + tolerance covers 8px). Historical: measured 2026-08-12 (§4b) pitch ratio ≈0.50–0.55, world-space. |
 | WALL_WHITE_TOUCH_TOL_PX | P | contact tolerance |
 | WALL_WHITE_SPAN_MIN_FRAC | D | fraction |
 | WALL_WHITE_TEXT_COVER_FRAC | D | fraction |

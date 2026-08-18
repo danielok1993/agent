@@ -195,7 +195,5 @@
   "193": "TestWindowTightPairInterior",
   "194": "shape.py",
   "195": "README.md",
-  "196": "_is_dashed",
-  "197": "TestBlindWindowPocket",
-  "199": "TestWindowSpanOvershootRetune"
+  "197": "TestBlindWindowPocket"
 }
