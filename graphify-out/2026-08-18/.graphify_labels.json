@@ -164,14 +164,11 @@
   "162": "TestNetworkQueries",
   "163": "_double_arc",
   "164": "SplitDoubleArcTests",
-  "165": "ScaleInfo",
   "166": "Architecture",
-  "167": "test_scale_units.py",
   "168": "scales_in_text",
   "169": "File Structure",
   "170": "transform_scale",
   "171": "test_curve_arc_garden_doors.py",
-  "172": "TestOpeningSeals",
   "173": "MainExceptionIsolationTests",
   "174": "TestNetworkQueries",
   "175": "TestThickMaterialPairs",
@@ -188,10 +185,7 @@
   "189": "TestDoorGatesUnscaledStopgapRatchet",
   "190": "TestSlugForPath",
   "193": "TestWindowTightPairInterior",
-  "194": "TestFloorPlansRegression",
   "195": "README.md",
-  "197": "_seg_angle_bins",
   "198": "TestMinWidthNegativeControl",
-  "199": "TestWindowSpanOvershootRetune",
-  "202": "TestThickMaterialPairs"
+  "199": "TestWindowSpanOvershootRetune"
 }

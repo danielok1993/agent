@@ -172,6 +172,13 @@ ROOM_SLIDE_END_ASPECT_MIN   = 2.0     # bbox aspect above which a sliding door's
                                       # PDFs) and the short ends CROSS the wall band —
                                       # never a doorway plane. Near-square bboxes
                                       # (diagonal walls) veto nothing.
+ROOM_WINDOW_SIDE_MIN_OVERLAP_PX2 = 16.0  # a room "lies on a side" of a window when
+                                      # its polygon overlaps that side's probe (the
+                                      # bbox pushed WALL_MAX_THICKNESS_PX out from
+                                      # the glazing, perpendicular to it) by at
+                                      # least this much: a 4x4px touch, so a room
+                                      # merely grazing the probe's corner past a
+                                      # jamb does not count as facing the window
 ROOM_BLIND_WINDOW_MAX_AREA_PX2 = 10000.0  # a closet-scale space whose ONLY opening
                                       # is a window cannot be entered — it is the
                                       # exterior side of that window (a terrace
@@ -699,6 +706,69 @@ def _folding_chain_gap_plug(
     return best[1] if best else None
 
 
+def _window_side_probes(
+    candidate, *, gates: RoomGates = ROOM_GATES_UNSCALED,
+) -> tuple[Polygon, Polygon] | None:
+    """The two free-space probes on either side of a straight window.
+
+    A window's bbox lies in its wall band; the spaces it separates start
+    somewhere within a wall's thickness of the glazing on each side. Push
+    the bbox out perpendicular to the glazing by WALL_MAX_THICKNESS_PX
+    (plus the contact tolerance) — one probe per side. Diagonal windows
+    have no axis to push along and get None.
+    """
+    if candidate.evidence.get("orientation") == "diagonal":
+        return None
+    x0, y0, x1, y1 = candidate.bbox
+    reach = gates.WALL_MAX_THICKNESS_PX + ROOM_CONTACT_TOL_PX
+    if (x1 - x0) >= (y1 - y0):
+        return box(x0, y0 - reach, x1, y0), box(x0, y1, x1, y1 + reach)
+    return box(x0 - reach, y0, x0, y1), box(x1, y0, x1 + reach, y1)
+
+
+def _drop_window_exterior_sides(
+    rooms: list[tuple[Polygon, dict]], windows: list[Candidate],
+    *, gates: RoomGates = ROOM_GATES_UNSCALED,
+) -> list[tuple[Polygon, dict]]:
+    """Drop the door-less side of a window whose other side is entered.
+
+    A window is a wall opening between inside and outside. When the space
+    on one side of it is a door-bearing room and the space on the other
+    side carries no door at all, the door-less side is the exterior the
+    room looks out over — a lower roof, a terrace, a lightwell — not a
+    room (measured on s03: the ground-floor roof, drawn as a striped field
+    fenced by its outline above the PROPOSED BEDROOM, came out as a 133k
+    px2 door-less "room" across the bedroom's window; a garage whose
+    garage door reads as a window keeps its verdict because the far side
+    is open ground, not a room). Two entered rooms sharing a borrowed
+    light both stay; two door-less sides cannot be told apart and both
+    stay. Complements the blind-window rule, which needs no far-side room
+    but is capped to closet-scale pockets.
+    """
+    if not rooms or not windows:
+        return rooms
+    drop: set[int] = set()
+    for w in windows:
+        probes = _window_side_probes(w, gates=gates)
+        if probes is None:
+            continue
+        sides: list[list[int]] = [[], []]
+        for i, (poly, _info) in enumerate(rooms):
+            hits = [
+                k for k, probe in enumerate(probes)
+                if poly.intersection(probe).area >= ROOM_WINDOW_SIDE_MIN_OVERLAP_PX2
+            ]
+            if len(hits) == 1:
+                sides[hits[0]].append(i)
+        for k in (0, 1):
+            here, there = sides[k], sides[1 - k]
+            if not here or not there:
+                continue
+            if any(rooms[j][1]["door_count"] > 0 for j in there):
+                drop.update(i for i in here if rooms[i][1]["door_count"] == 0)
+    return [r for i, r in enumerate(rooms) if i not in drop]
+
+
 def _free_space_components(page, barriers) -> list[Polygon]:
     """Free-space polygons of the page, morphologically opened.
 
@@ -1191,6 +1261,7 @@ def detect_rooms(
             "holes": len(comp.interiors),
         }))
 
+    rooms = _drop_window_exterior_sides(rooms, windows, gates=gates)
     rooms.sort(key=lambda t: (t[0].bounds[1], t[0].bounds[0]))
 
     candidates: list[Candidate] = []

@@ -98,6 +98,16 @@ WALL_FILL_BLOCK_MAX_SIDE_PX = 72.0  # wall-rated rings up to this equivalent sho
                                     # side become barrier polygons (bands, corner
                                     # posts, piers); larger blobs (shaded zones)
                                     # contribute outline faces only
+WALL_FILL_MERGE_MIN_FRAC    = 0.5   # a collinear merge keeps wall_fill only when
+                                    # fill-outline members cover at least this
+                                    # fraction of the merged run: a fill ring's
+                                    # short edge stub (a jamb, 17px) collinear
+                                    # with a 354px stroke must not launder fill
+                                    # evidence over the whole stroke (measured
+                                    # on s03: roof-tile stripes over the wall
+                                    # band's end stubs became full-height
+                                    # wall-fill barriers). A fill outline with
+                                    # its own drawn-over stroke covers ~1.0.
 WALL_MARKER_MAX_SIDE_PX     = 24.0  # leader/dimension arrowheads are ~2-4mm
                                     # filled triangles (12-24px at 150 DPI) drawn
                                     # in the wall pen; rings this small with a
@@ -1488,7 +1498,8 @@ def _merge_collinear_segs(
     """Merge segments lying on the same infinite line into runs.
 
     Bridges gaps up to gap_px; keeps the max thickness, unions path indices,
-    and ORs layer hints across merged members.
+    and ORs layer hints across merged members. wall_fill carries over only
+    when fill-outline members cover >= WALL_FILL_MERGE_MIN_FRAC of the run.
 
     gates.COLLINEAR_OFFSET_TOL gates the same "is this the same drawn line"
     world-space judgment as WALL_MIN_THICKNESS_PX: at f=1.0 the 4.0px offset
@@ -1528,6 +1539,7 @@ def _merge_collinear_segs(
                 stroked=a.stroked, stroke_width=a.stroke_width,
                 wall_fill=a.wall_fill, pen=a.pen,
             )
+            fill_len = length_a if a.wall_fill else 0.0
 
             for j, b in enumerate(merged):
                 if j <= i or used[j]:
@@ -1565,7 +1577,8 @@ def _merge_collinear_segs(
                 run.layer_hint = run.layer_hint or b.layer_hint
                 run.stroked = run.stroked or b.stroked
                 run.stroke_width = max(run.stroke_width, b.stroke_width)
-                run.wall_fill = run.wall_fill or b.wall_fill
+                if b.wall_fill:
+                    fill_len += _line_length(b.p1, b.p2)
                 run.thickness = max(run.thickness, b.thickness)
                 if run.pen is None:
                     run.pen = b.pen
@@ -1578,6 +1591,16 @@ def _merge_collinear_segs(
             t_lo, t_hi = min(ts), max(ts)
             run.p1 = (a.p1[0] + ux * t_lo, a.p1[1] + uy * t_lo)
             run.p2 = (a.p1[0] + ux * t_hi, a.p1[1] + uy * t_hi)
+            # Fill evidence spans the merged run only when the fill-outline
+            # members cover most of it (see WALL_FILL_MERGE_MIN_FRAC): the
+            # pen rule above keeps annotation ink from laundering into wall
+            # evidence, and a fill stub must not launder its flag onto a
+            # long stroke either. Members overlapping one another can
+            # over-count, which only ever keeps a flag a coincident stroke
+            # would have kept anyway.
+            run.wall_fill = (
+                fill_len >= WALL_FILL_MERGE_MIN_FRAC * max(t_hi - t_lo, 1e-6)
+            )
             out.append(run)
             used[i] = True
 
