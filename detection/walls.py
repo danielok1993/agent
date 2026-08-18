@@ -241,6 +241,53 @@ WALL_LATTICE_OUTLAST_RATIO    = 3.0  # rights — when it is longer than the who
                                      # of one length; edge fragments of a course
                                      # are shorter than the span — both stay demoted
 
+# Stair symbols: a flight is FURNITURE to the room stage — room/area takeoff
+# (RICS GIA) runs the polygon to the enclosing walls straight through the
+# stair — yet its ink is drawn in the wall pen (s03: 1.5px, the wall
+# reference itself), so treads pass the lone-face gate and pair with each
+# other or with the flight's side walls at wall pitch (measured on s03:
+# two first-floor treads paired at th 14.8, the ground-floor stringer and
+# the balustrade line at th 14.8 — and the hall stopped at the stair edge).
+# Three recognizers, each anchored on drawing convention rather than pen:
+#   tread run — >= WALL_STAIR_MIN_TREADS parallel same-pen faces at a
+#     consistent tread pitch with aligned extents, plus a TRANSVERSE line
+#     (section cut, direction arrow, nosing edge) that properly crosses a
+#     tread's interior — the discriminator against a cavity party wall
+#     drawn leaf/cavity/leaf at equal width, which nothing ever crosses;
+#   stair arrow — a same-pen line chain ending on a filled arrowhead
+#     (marker ring) with UP/DN text at hand; every face it crosses through
+#     the interior is stair ink too (walls are never crossed by wall-pen
+#     linework, and a leader crossing a wall has no UP/DN);
+#   winder fan — >= 2 long unpaired diagonals sharing an endpoint (risers
+#     fanning from the newel; a 45deg bay wall is paired at wall spacing).
+# Members are demoted unconditionally; faces lying INSIDE the stair zone
+# (bbox of the members) lose their rights too unless a wall face OUTSIDE
+# the zone pairs with them at wall spacing — the flight's own side walls
+# and the wall it abuts keep every face. Demoted faces re-enter the weak
+# pipeline like lattice members: with no material between them they can
+# never bound a room again.
+WALL_STAIR_MIN_TREADS        = 3     # a flight; 2 parallel lines are a wall
+WALL_STAIR_MIN_PITCH_PX      = 6.0   # under this the run is hatch (4.05px)
+WALL_STAIR_PITCH_TOL_FRAC    = 0.35  # |pitch - median| / median; s13's cut
+                                     # treads pitch 8.7-11.0
+WALL_STAIR_END_TOL_PX        = 4.0   # a tread's extent lies within the
+                                     # reference tread's extent +/- this
+WALL_STAIR_MIN_LEN_FRAC      = 0.5   # ... and covers this much of it (treads
+                                     # clipped by the section cut are shorter)
+WALL_STAIR_TRANSVERSE_ANGLE  = 20.0  # degrees off the treads to count as
+                                     # a transverse (cut/arrow/nosing) line
+WALL_STAIR_CROSS_MARGIN_PX   = 2.0   # proper crossing: the crossed face and
+                                     # the crosser each extend past the
+                                     # intersection by this on both sides
+WALL_STAIR_TOUCH_PX          = 2.0   # endpoint contact / zone-inside tolerance
+WALL_STAIR_TEXT_NEAR_PX      = 12.0  # UP/DN text within this of the arrow
+WALL_STAIR_TEXT_TOKENS       = frozenset({"UP", "DN", "DOWN"})
+WALL_STAIR_FAN_MIN_ANGLE     = 10.0  # degrees between two winders of a fan
+WALL_STAIR_MAX_ASPECT        = 10.0  # tread length / pitch: a 2.5m-wide public
+                                     # flight at a 250mm going; measured stairs
+                                     # 3.3-4 (s03, s13, s17), multi-line walls
+                                     # 16-20 (s17)
+
 WALL_JOINERY_BRIDGE_GAP_PX      = 80.0  # max open span between accepted white
                                         # rings of one joinery/hollow-wall run
                                         # (open wardrobe fronts between boxes).
@@ -1899,6 +1946,487 @@ def _snap_intersections(segs: list[_Seg]) -> None:
                     seg.p2 = x
 
 
+def _demote_stair_faces(
+    faces: list[_Seg],
+    rings: list[_FillRing],
+    text_spans: list[TextSpan],
+    *, gates: WallGates = WALL_GATES_UNSCALED,
+) -> tuple[list[_Seg], list[_Seg]]:
+    """Split path-level faces into (kept, stair ink).
+
+    Runs BEFORE the collinear merge, on one face per path: a stair's landing
+    edge is often collinear with a wall nib's face and merges into it, and
+    demoting the merged run would cost the nib its face. See the
+    WALL_STAIR_* block for the three recognizers and the zone rule.
+    """
+    cand = [
+        (i, f) for i, f in enumerate(faces)
+        if f.stroked and f.stroke_width > 0
+        and not f.wall_fill and not f.layer_hint
+    ]
+    if len(cand) < 2:
+        return faces, []
+    max_pitch = gates.WALL_THICK_MATERIAL_MAX_PX + WALL_LATTICE_PITCH_TOL_PX
+    touch = WALL_STAIR_TOUCH_PX
+
+    def _unit(f):
+        L = _line_length(f.p1, f.p2)
+        return (f.p2[0] - f.p1[0]) / L, (f.p2[1] - f.p1[1]) / L
+
+    def _cross(f, g):
+        """Where segment g meets segment f: (t_f, t_g) params or None."""
+        x1, y1 = f.p1; x2, y2 = f.p2
+        x3, y3 = g.p1; x4, y4 = g.p2
+        d = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3)
+        if abs(d) < 1e-9:
+            return None
+        t = ((x3 - x1) * (y4 - y3) - (y3 - y1) * (x4 - x3)) / d
+        u = ((x3 - x1) * (y2 - y1) - (y3 - y1) * (x2 - x1)) / d
+        return t, u
+
+    def _proper_crossing(f, g):
+        """g passes through f's interior, both overshooting the meeting point."""
+        r = _cross(f, g)
+        if r is None:
+            return False
+        t, u = r
+        Lf, Lg = _line_length(f.p1, f.p2), _line_length(g.p1, g.p2)
+        m = WALL_STAIR_CROSS_MARGIN_PX
+        return (
+            m <= t * Lf <= Lf - m and m <= u * Lg <= Lg - m
+        )
+
+    def _end_on(f, g):
+        """An endpoint of f lies on g: a tread clipped by the section cut,
+        or landing on the nosing edge — NOT a hatch stroke, whose own
+        endpoints lie on the faces it hatches between."""
+        return (
+            _point_to_segment_distance(f.p1, g.p1, g.p2) <= touch
+            or _point_to_segment_distance(f.p2, g.p1, g.p2) <= touch
+        )
+
+    def _touches(f, g):
+        """Any endpoint contact between f and g."""
+        return (
+            _end_on(f, g)
+            or _point_to_segment_distance(g.p1, f.p1, f.p2) <= touch
+            or _point_to_segment_distance(g.p2, f.p1, f.p2) <= touch
+        )
+
+    def _fbox(f):
+        return (
+            min(f.p1[0], f.p2[0]), min(f.p1[1], f.p2[1]),
+            max(f.p1[0], f.p2[0]), max(f.p1[1], f.p2[1]),
+        )
+
+    def _inside(f, zone):
+        b = _fbox(f)
+        return (
+            b[0] >= zone[0] - touch and b[1] >= zone[1] - touch
+            and b[2] <= zone[2] + touch and b[3] <= zone[3] + touch
+        )
+
+    def _union(a, b):
+        return (min(a[0], b[0]), min(a[1], b[1]), max(a[2], b[2]), max(a[3], b[3]))
+
+    def _parallel(f, g):
+        return _angle_diff_mod180(
+            _line_angle_deg(f.p1, f.p2), _line_angle_deg(g.p1, g.p2)
+        ) <= WALL_PARALLEL_ANGLE_TOL
+
+    def _paired_with(f, g):
+        """g lies parallel to f at wall spacing over a pairing-length overlap."""
+        if not _parallel(f, g):
+            return False
+        off = _perpendicular_spacing(f.p1, f.p2, g.p1, g.p2)
+        if not (gates.WALL_MIN_THICKNESS_PX <= off <= gates.WALL_MAX_THICKNESS_PX + 1.0):
+            return False
+        ux, uy = _unit(f)
+        a = _projected_interval(f.p1, f.p2, ux, uy, f.p1)
+        b = _projected_interval(g.p1, g.p2, ux, uy, f.p1)
+        return max(0.0, min(a[1], b[1]) - max(a[0], b[0])) >= gates.WALL_PAIR_MIN_OVERLAP_PX
+
+    members: set[int] = set()          # face indices (into `faces`)
+    zones: list[tuple] = []
+
+    provisional: set[int] = set()      # transverse candidates awaiting the test
+
+    def _anchored(i, f):
+        """A non-member face pairs with f at wall spacing: f is (or shadows)
+        a wall face, wherever it lies. Two real wall faces inside a stair
+        zone anchor each other; stair ink pairs only with stair ink."""
+        for j, g in enumerate(faces):
+            if j == i or j in members or j in provisional:
+                continue
+            if _paired_with(f, g):
+                return True
+        return False
+
+    # --- 1. tread runs -----------------------------------------------------
+    # Hatch is excluded from tread candidacy by shape: a short OBLIQUE
+    # stroke (s20's cross-hatch: 20-43px strokes at 15/135deg, 12-18px
+    # pitch, each family crossing the other — a "flight" by every other
+    # measure). Treads are drawn square to the flight, i.e. axis-aligned on
+    # an orthogonal plan; a short tread on a rotated plan is the price.
+    def _short_oblique(f):
+        return (
+            _line_length(f.p1, f.p2) <= gates.WALL_HATCH_MAX_LEN_PX
+            and 8.0 <= (_line_angle_deg(f.p1, f.p2) % 90.0) <= 82.0
+        )
+
+    by_pen: dict[tuple, list[tuple[int, _Seg]]] = {}
+    for i, f in cand:
+        if _short_oblique(f):
+            continue
+        by_pen.setdefault(
+            (f.pen, int(round(f.stroke_width / WALL_LATTICE_PEN_TOL))), []
+        ).append((i, f))
+    runs: list[tuple[list[int], list[int]]] = []   # (tread idx, transverse idx)
+    for pen_members in by_pen.values():
+        if len(pen_members) < WALL_STAIR_MIN_TREADS:
+            continue
+        angled = sorted(
+            (_line_angle_deg(f.p1, f.p2), i, f) for i, f in pen_members
+        )
+        clusters: list[list[tuple[float, int, _Seg]]] = []
+        for entry in angled:
+            if clusters and entry[0] - clusters[-1][-1][0] <= WALL_PARALLEL_ANGLE_TOL:
+                clusters[-1].append(entry)
+            else:
+                clusters.append([entry])
+        if (
+            len(clusters) > 1
+            and (angled[0][0] + 180.0) - angled[-1][0] <= WALL_PARALLEL_ANGLE_TOL
+        ):
+            clusters[0].extend(clusters.pop())
+        for cluster in clusters:
+            if len(cluster) < WALL_STAIR_MIN_TREADS:
+                continue
+            _, _, ref = max(cluster, key=lambda t: _line_length(t[2].p1, t[2].p2))
+            ux, uy = _unit(ref)
+            nx, ny = -uy, ux
+            rows = []
+            for _, i, f in cluster:
+                mx = (f.p1[0] + f.p2[0]) / 2.0
+                my = (f.p1[1] + f.p2[1]) / 2.0
+                rows.append((
+                    mx * nx + my * ny,
+                    _projected_interval(f.p1, f.p2, ux, uy, (0.0, 0.0)),
+                    i, f,
+                ))
+            rows.sort(key=lambda r: r[0])
+            # Rungs: collinear pieces at one offset with overlapping extents
+            # are one tread drawn in pieces; pieces at one offset with
+            # DISJOINT extents are different lines that happen to align
+            # (a wall face far along the page) and stay separate rungs.
+            rungs: list[dict] = []
+            for off, (lo, hi), i, f in rows:
+                merged_into = None
+                for r in reversed(rungs):
+                    if off - r["off"] > WALL_LATTICE_OFFSET_TOL_PX:
+                        break
+                    if min(hi, r["hi"]) - max(lo, r["lo"]) >= -touch:
+                        merged_into = r
+                        break
+                if merged_into is not None:
+                    merged_into["members"].append(i)
+                    merged_into["lo"] = min(merged_into["lo"], lo)
+                    merged_into["hi"] = max(merged_into["hi"], hi)
+                else:
+                    rungs.append({"off": off, "lo": lo, "hi": hi, "members": [i]})
+            # Chain rungs at tread pitch with overlapping extents. Every
+            # open chain is a candidate predecessor (rungs at one offset with
+            # disjoint extents each carry their own chain), so an unrelated
+            # collinear piece cannot break a flight's run.
+            chains: list[list[dict]] = []
+            open_chains: list[list[dict]] = []
+            for r in rungs:
+                open_chains = [
+                    c for c in open_chains if r["off"] - c[-1]["off"] <= max_pitch
+                ]
+                for c in open_chains:
+                    prev = c[-1]
+                    d = r["off"] - prev["off"]
+                    ov = min(r["hi"], prev["hi"]) - max(r["lo"], prev["lo"])
+                    span = min(r["hi"] - r["lo"], prev["hi"] - prev["lo"])
+                    if (
+                        WALL_STAIR_MIN_PITCH_PX <= d <= max_pitch
+                        and ov >= WALL_STAIR_MIN_LEN_FRAC * span
+                    ):
+                        c.append(r)
+                        break
+                else:
+                    c = [r]
+                    chains.append(c)
+                    open_chains.append(c)
+            for chain in chains:
+                if len(chain) < WALL_STAIR_MIN_TREADS:
+                    continue
+                # Reference tread: the median-length rung — never the long
+                # wall face the flight abuts (its extent overshoots).
+                by_len = sorted(chain, key=lambda r: r["hi"] - r["lo"])
+                ref_row = by_len[len(by_len) // 2]
+                rlo, rhi = ref_row["lo"], ref_row["hi"]
+                rlen = rhi - rlo
+                tread_rungs = [
+                    r for r in chain
+                    if r["lo"] >= rlo - WALL_STAIR_END_TOL_PX
+                    and r["hi"] <= rhi + WALL_STAIR_END_TOL_PX
+                    and (r["hi"] - r["lo"]) >= WALL_STAIR_MIN_LEN_FRAC * rlen
+                ]
+                if len(tread_rungs) < WALL_STAIR_MIN_TREADS:
+                    continue
+                # Consistent pitch: split the chain wherever a gap strays
+                # from the median pitch (a jamb line one wall-width past the
+                # last tread chains on but is not a riser), keep the
+                # sub-runs of MIN_TREADS or more.
+                pitches = [
+                    b["off"] - a["off"] for a, b in zip(tread_rungs, tread_rungs[1:])
+                ]
+                med = sorted(pitches)[len(pitches) // 2]
+                tol = max(WALL_LATTICE_PITCH_TOL_PX, WALL_STAIR_PITCH_TOL_FRAC * med)
+                sub_runs: list[list[dict]] = [[tread_rungs[0]]]
+                for r, pitch in zip(tread_rungs[1:], pitches):
+                    if abs(pitch - med) <= tol:
+                        sub_runs[-1].append(r)
+                    else:
+                        sub_runs.append([r])
+                sub_runs = [sr for sr in sub_runs if len(sr) >= WALL_STAIR_MIN_TREADS]
+                if not sub_runs:
+                    continue
+                tread_rungs = max(sub_runs, key=len)
+                offs = [r["off"] for r in tread_rungs]
+                # A flight is at most WALL_STAIR_MAX_ASPECT goings wide; a
+                # wall drawn as several parallel lines at leaf pitch runs
+                # 15-20x its pitch (s17: 238px lines at 11.7px).
+                if rlen > WALL_STAIR_MAX_ASPECT * med:
+                    continue
+                tread_idx = [i for r in tread_rungs for i in r["members"]]
+                tread_faces = [faces[i] for i in tread_idx]
+                zone = _fbox(tread_faces[0])
+                for f in tread_faces[1:]:
+                    zone = _union(zone, _fbox(f))
+                # Transverse lines live at the flight's own scale: the cut
+                # clips the last treads and runs on past them, the nosing
+                # edge follows it — allow one flight depth (never less than
+                # a wall band) beyond the treads.
+                margin = max(gates.WALL_MAX_THICKNESS_PX, offs[-1] - offs[0])
+                wide = (zone[0] - margin, zone[1] - margin, zone[2] + margin, zone[3] + margin)
+                # Evidence that the run is a flight and not a cavity wall:
+                # a transverse line properly CROSSING a tread's interior
+                # (the direction arrow), or an OBLIQUE one that >= 2 treads
+                # END on (the section cut clips the treads it passes; a
+                # wall's perpendicular end cap closes its faces' ends too,
+                # but never obliquely, and a hatch stroke's own ends lie on
+                # the faces, not the faces' ends on it). Perpendicular
+                # touching lines (nosing edge, stringer) are stair ink once
+                # the evidence is in, never evidence themselves.
+                transverse: list[int] = []
+                evidence = False
+                ref_angle = _line_angle_deg(ref.p1, ref.p2)
+                for j, g in cand:
+                    if j in tread_idx or not _inside(g, wide):
+                        continue
+                    diff = _angle_diff_mod180(_line_angle_deg(g.p1, g.p2), ref_angle)
+                    if diff < WALL_STAIR_TRANSVERSE_ANGLE:
+                        continue
+                    n_cross = sum(1 for f in tread_faces if _proper_crossing(f, g))
+                    n_end = sum(1 for f in tread_faces if _end_on(f, g))
+                    n_touch = sum(1 for f in tread_faces if _touches(f, g))
+                    oblique = diff <= 90.0 - WALL_STAIR_TRANSVERSE_ANGLE
+                    # Evidence must come from the stair's own pen: the
+                    # arrow and cut are part of the symbol. An annotation
+                    # stroke in another color crossing a wall's lines (s17's
+                    # orange "to be removed" ticks over a 5-line cavity
+                    # wall) is not a stair arrow.
+                    same_pen = g.pen == ref.pen
+                    if same_pen and (n_cross >= 1 or (oblique and n_end >= 2)):
+                        evidence = True
+                        transverse.append(j)
+                    elif n_touch >= 2 or n_cross >= 1:
+                        transverse.append(j)
+                if not evidence:
+                    continue
+                # Cross-hatch: the crossing family is itself a parallel
+                # equal-pitch set. A stair is crossed by one arrow and one
+                # cut, never by three parallel lines.
+                cross_angles = [
+                    _line_angle_deg(faces[j].p1, faces[j].p2)
+                    for j in transverse
+                    if any(_proper_crossing(f, faces[j]) for f in tread_faces)
+                ]
+                if any(
+                    sum(
+                        1 for b in cross_angles
+                        if _angle_diff_mod180(a, b) <= WALL_PARALLEL_ANGLE_TOL
+                    ) >= 3
+                    for a in cross_angles
+                ):
+                    continue
+                runs.append((tread_idx, transverse))
+
+    for tread_idx, transverse in runs:
+        members.update(tread_idx)
+        provisional.update(transverse)
+    # Transverse lines are stair ink unless a wall face outside the flight
+    # pairs with them (a short partition stub alongside the flight). The
+    # arrow and the nosing edge of one flight are parallel at wall spacing;
+    # neither anchors the other.
+    for tread_idx, transverse in runs:
+        zone = None
+        for i in tread_idx:
+            zone = _fbox(faces[i]) if zone is None else _union(zone, _fbox(faces[i]))
+        for j in transverse:
+            if not _anchored(j, faces[j]):
+                members.add(j)
+                zone = _union(zone, _fbox(faces[j]))
+        zones.append(zone)
+
+    # --- 2. stair arrows -----------------------------------------------------
+    stair_texts = []
+    for t in text_spans:
+        tokens = {tok.strip(".,:;()").upper() for tok in (t.text or "").split()}
+        if tokens & WALL_STAIR_TEXT_TOKENS:
+            stair_texts.append(t.bbox)
+    if stair_texts:
+        heads = [r for r in rings if r.is_marker()]
+        cand_idx = [i for i, _ in cand]
+        for head in heads:
+            hb = head.poly.bounds
+            hbox = (hb[0] - touch, hb[1] - touch, hb[2] + touch, hb[3] + touch)
+            starts = [
+                i for i in cand_idx
+                if _point_in_bbox(faces[i].p1, hbox) or _point_in_bbox(faces[i].p2, hbox)
+            ]
+            for start in starts:
+                chain = [start]
+                f = faces[start]
+                # Walk away from the head along end-to-end connected faces.
+                tail = f.p2 if _point_in_bbox(f.p1, hbox) else f.p1
+                for _ in range(6):
+                    nxt = [
+                        j for j in cand_idx
+                        if j not in chain and j not in members
+                        and (_distance(faces[j].p1, tail) <= touch
+                             or _distance(faces[j].p2, tail) <= touch)
+                    ]
+                    if len(nxt) != 1:
+                        break
+                    j = nxt[0]
+                    chain.append(j)
+                    g = faces[j]
+                    tail = g.p2 if _distance(g.p1, tail) <= touch else g.p1
+                near_text = any(
+                    min(
+                        _segments_min_distance(
+                            faces[i].p1, faces[i].p2, (tb[0], tb[1]), (tb[2], tb[1])
+                        ),
+                        _segments_min_distance(
+                            faces[i].p1, faces[i].p2, (tb[0], tb[3]), (tb[2], tb[3])
+                        ),
+                        _segments_min_distance(
+                            faces[i].p1, faces[i].p2, (tb[0], tb[1]), (tb[0], tb[3])
+                        ),
+                        _segments_min_distance(
+                            faces[i].p1, faces[i].p2, (tb[2], tb[1]), (tb[2], tb[3])
+                        ),
+                    ) <= WALL_STAIR_TEXT_NEAR_PX
+                    or (_point_in_bbox(faces[i].p1, tb) or _point_in_bbox(faces[i].p2, tb))
+                    for i in chain for tb in stair_texts
+                )
+                if not near_text:
+                    continue
+                zone = (hb[0], hb[1], hb[2], hb[3])
+                for i in chain:
+                    members.add(i)
+                    zone = _union(zone, _fbox(faces[i]))
+                for j in cand_idx:
+                    if j in chain:
+                        continue
+                    if any(_proper_crossing(faces[j], faces[i]) for i in chain):
+                        members.add(j)
+                        zone = _union(zone, _fbox(faces[j]))
+                zones.append(zone)
+
+    # --- 3. winder fans ------------------------------------------------------
+    diag = [
+        (i, f) for i, f in cand
+        if _line_length(f.p1, f.p2) > gates.WALL_HATCH_MAX_LEN_PX
+        and 8.0 <= (_line_angle_deg(f.p1, f.p2) % 90.0) <= 82.0
+    ]
+    if len(diag) >= 2:
+        for a in range(len(diag)):
+            i, f = diag[a]
+            for b in range(a + 1, len(diag)):
+                j, g = diag[b]
+                shared = None
+                for pf in (f.p1, f.p2):
+                    for pg in (g.p1, g.p2):
+                        if _distance(pf, pg) <= touch:
+                            shared = pf
+                if shared is None:
+                    continue
+                if _angle_diff_mod180(
+                    _line_angle_deg(f.p1, f.p2), _line_angle_deg(g.p1, g.p2)
+                ) < WALL_STAIR_FAN_MIN_ANGLE:
+                    continue
+                # A bay wall's angled face has its pair partner; winders do not.
+                if any(_paired_with(f, h) for k, h in enumerate(faces) if k != i) \
+                        or any(_paired_with(g, h) for k, h in enumerate(faces) if k != j):
+                    continue
+                members.update((i, j))
+                zones.append(_union(_fbox(f), _fbox(g)))
+
+    if not members:
+        return faces, []
+
+    # Merge touching zones (arrow zone + winder box + flight).
+    merged_zones: list[tuple] = []
+    for z in zones:
+        z_cur = z
+        changed = True
+        while changed:
+            changed = False
+            for k, m in enumerate(merged_zones):
+                if _bboxes_overlap(_bbox_expanded(z_cur, touch), m):
+                    z_cur = _union(z_cur, merged_zones.pop(k))
+                    changed = True
+                    break
+        merged_zones.append(z_cur)
+
+    # Zone extras: stair ink inside the flight that no recognizer named —
+    # the collinear end-to-end continuation of a crossed stringer, the
+    # balustrade line pairing with it, landing edges, cut treads. A face
+    # joins when it lies in a zone and its only wall-spacing partners are
+    # stair ink (or it has none); iterate to a fixpoint, since a stringer's
+    # continuation must join before the line pairing with it can. A real
+    # wall pair inside the zone anchors itself and stays.
+    def _continues(f, g):
+        """g continues f end-to-end on the same line."""
+        if not _parallel(f, g):
+            return False
+        if _perpendicular_spacing(f.p1, f.p2, g.p1, g.p2) > touch:
+            return False
+        return any(
+            _distance(a, b) <= touch for a in (f.p1, f.p2) for b in (g.p1, g.p2)
+        )
+
+    provisional.clear()
+    changed = True
+    while changed:
+        changed = False
+        for i, f in cand:
+            if i in members or not any(_inside(f, z) for z in merged_zones):
+                continue
+            if any(_continues(faces[m], f) for m in members) or not _anchored(i, f):
+                members.add(i)
+                changed = True
+
+    kept = [f for i, f in enumerate(faces) if i not in members]
+    demoted = [f for i, f in enumerate(faces) if i in members]
+    return kept, demoted
+
+
 def detect_wall_network(
     paths: list[PathPrimitive], text_spans: list[TextSpan] | None = None,
     exclude_path_indices: set[int] | None = None,
@@ -1928,6 +2456,17 @@ def detect_wall_network(
     faces, bands = _collect_wall_faces(
         paths, fill_is_wall, marker_indices, excluded, gates=gates
     )
+    # Stair symbols (tread runs crossed by a cut/arrow, UP/DN arrows and
+    # the lines they cross, winder fans, and the flight-zone ink around
+    # them) are furniture in the wall pen: demoted to the weak pipeline
+    # BEFORE the collinear merge, at path granularity, so a landing edge
+    # collinear with a wall nib's face cannot take the nib down with it.
+    faces, stair_faces = _demote_stair_faces(
+        faces, rings, text_spans or [], gates=gates
+    )
+    for f in stair_faces:
+        f.stroked = False
+        f.stroke_width = 0.0
     merged_faces = _merge_collinear_segs(
         faces, gap_px=WALL_FACE_MERGE_GAP_PX, gates=gates
     )
@@ -2016,7 +2555,9 @@ def detect_wall_network(
     weak_merged = _merge_collinear_segs(
         _collect_weak_faces(paths, excluded, gates=gates),
         gap_px=WALL_FACE_MERGE_GAP_PX, gates=gates,
-    ) + demoted + lattice_faces + light_faces
+    ) + demoted + lattice_faces + light_faces + _merge_collinear_segs(
+        stair_faces, gap_px=WALL_FACE_MERGE_GAP_PX, gates=gates
+    )
     for f in weak_merged:
         f.weak = True
 
