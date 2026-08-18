@@ -119,7 +119,7 @@ def _door_attribute_overlay(candidate: Optional[Candidate]) -> dict:
 # room boundary that overlay drawing and downstream consumers rely on.
 _ROOM_EVIDENCE_PASSTHROUGH = (
     "polygon", "area_px2", "perimeter_px", "door_openings", "window_openings",
-    "wall_segment_count", "wall_contact",
+    "wall_segment_count", "wall_contact", "holes",
 )
 
 
@@ -502,8 +502,10 @@ def run_extract(
     total_candidates = 0
     total_entities = 0
 
+    # Rooms disabled → no takeoff to compute, so nothing to prompt for; the
+    # flags are still validated and takeoff.json is still written (empty).
     heights = resolve_heights(ceiling_height, door_height, window_height,
-                              allow_prompt=allow_scale_prompt)
+                              allow_prompt=allow_scale_prompt and not disable_rooms)
     takeoff_totals = {"floor_m2": 0.0, "ceiling_m2": 0.0, "wall_net_m2": 0.0,
                       "rooms_measured": 0, "rooms_unscaled": 0}
 
