@@ -712,11 +712,12 @@ class TestLatticeDemotion(unittest.TestCase):
         inside = self._segments_inside(network, 495, 495, 805, 537)
         self.assertGreater(len(inside), 0)
 
-    def test_short_pieces_form_no_rungs(self):
+    def test_short_pieces_form_a_field_and_flanking_walls_survive(self):
         # Radiator/grille fins: many short parallel same-pen strokes at
-        # equal pitch. Each rung is under WALL_LATTICE_MIN_RUNG_LEN_PX, so
-        # no striped field is declared — and no face is demoted (the fins
-        # were never faces; the flanking wall pair must survive).
+        # equal pitch between two wall faces. The fins are a striped field
+        # (there is no rung length floor — short strokes at wall pitch five
+        # deep are still never walls) and are demoted; the perpendicular
+        # flanking wall pair is a different direction cluster and survives.
         paths = rect_room(0, 100, 100, 400, 400) + [
             vline(50, 500, 100, 400), vline(51, 530, 100, 400),
         ] + [
@@ -726,6 +727,36 @@ class TestLatticeDemotion(unittest.TestCase):
         network = detect_wall_network(paths)
         inside = self._segments_inside(network, 495, 95, 545, 405)
         self.assertGreater(len(inside), 0)
+        used = network.paired_face_indices()
+        self.assertFalse(used & set(range(60, 80)))
+
+    def test_short_rung_field_is_demoted(self):
+        # Stair treads / balustrade rungs: 7 same-pen strokes 40px long at
+        # 13px pitch (s17's treads measure 47.7px, s18's ramp balustrade
+        # 12.75px). Under the old 48px rung floor they stayed strong and
+        # paired into 13px "walls" across the stair.
+        paths = rect_room(0, 100, 100, 400, 400) + [
+            hline(50 + i, 500, 540, 100 + i * 13.0) for i in range(7)
+        ]
+        network = detect_wall_network(paths)
+        self.assertEqual(self._segments_inside(network, 495, 95, 545, 185), [])
+
+    def test_long_face_beside_a_short_stack_keeps_its_rights(self):
+        # A room's wall face coexists with a short equal-pitch stack (a
+        # radiator's edge lines drawn parallel to the wall) over a fraction
+        # of its length. Only the rungs lying in the stacked span are the
+        # field; the wall face keeps its rights and the room's band pairs.
+        paths = rect_room(0, 100, 100, 400, 400) + [
+            hline(50 + i, 200, 240, 108 + (i + 1) * 12.0) for i in range(4)
+        ]
+        network = detect_wall_network(paths)
+        top = [
+            s for s in self._segments_inside(network, 95, 95, 405, 125)
+            if abs(s.p1[1] - s.p2[1]) < 1.0
+        ]
+        self.assertGreater(len(top), 0)
+        used = network.paired_face_indices()
+        self.assertFalse(used & {50, 51, 52, 53})
 
     def test_hatch_field_forms_no_diagonal_walls(self):
         # A wall band's 45deg hatch: short same-pen strokes at a pitch far
@@ -733,9 +764,8 @@ class TestLatticeDemotion(unittest.TestCase):
         # other like any parallel pen mates, and at an L-corner the phantom
         # diagonal band juts out of the wall and chamfers the room corner
         # (measured on floor-plans: strokes 28.1px apart cut ~16px off
-        # room_0000's and room_0001's top-right corners). The rungs are far
-        # under WALL_LATTICE_MIN_RUNG_LEN_PX, so only the hatch tier — which
-        # drops that floor below WALL_HATCH_MAX_PITCH_PX — catches them.
+        # room_0000's and room_0001's top-right corners). Pitch is what
+        # proves the strokes are not walls, not their length or angle.
         paths = rect_room(0, 100, 100, 400, 400)
         idx = 50
         for i in range(20):
@@ -749,8 +779,59 @@ class TestLatticeDemotion(unittest.TestCase):
         field = self._segments_inside(network, 495, 195, 640, 225)
         self.assertEqual(field, [])
 
-    def test_wall_pitch_diagonal_pair_survives_hatch_tier(self):
-        # The hatch tier keys on PITCH, not on being diagonal: a genuine
+    def test_stray_row_far_along_the_axis_does_not_break_the_run(self):
+        # A 12-rung field with one unrelated same-pen stroke sitting at an
+        # intermediate offset but FAR along the axis (s17: a 49px stroke
+        # 2000px away). The stray row must be skipped, not treated as a
+        # break in the run — otherwise the rungs past it stay strong (s03:
+        # 3 of 22 roof-tile rungs survived and paired into phantom bands).
+        paths = rect_room(0, 100, 100, 400, 400) + [
+            vline(50 + i, 500 + i * 6.0, 100, 400) for i in range(12)
+        ] + [vline(80, 515, 600, 700)]
+        network = detect_wall_network(paths)
+        field = self._segments_inside(network, 495, 95, 575, 405)
+        self.assertEqual(field, [])
+
+    def test_collinear_wall_line_far_from_the_field_is_not_a_rung(self):
+        # A room's wall face that merely happens to be collinear with one
+        # rung of a distant field (s17: the WC's top face at y=1167 shares
+        # its offset with a roof-tile rung 2000px to the right) is not a
+        # member of that rung: rows are extent-aware, so the field demotes
+        # and the wall face still pairs.
+        paths = [
+            hline(50 + i, 1500, 1800, 100 + i * 6.0) for i in range(12)
+        ] + rect_room(0, 100, 118, 400, 400)
+        network = detect_wall_network(paths)
+        field = self._segments_inside(network, 1495, 95, 1805, 175)
+        self.assertEqual(field, [])
+        top = [
+            s for s in self._segments_inside(network, 95, 110, 405, 135)
+            if abs(s.p1[1] - s.p2[1]) < 1.0
+        ]
+        self.assertGreater(len(top), 0)
+
+    def test_rung_split_by_a_wide_text_mask_still_chains(self):
+        # A course line interrupted by a text mask wider than the touch gap
+        # is two extent-separated pieces at one offset. Both lie inside the
+        # field's span, so both are that rung — the second must not read as
+        # a zero-pitch break in the run.
+        paths = rect_room(0, 100, 100, 400, 400)
+        field = []
+        for p in paving_field(50, 500, 100):
+            if (p.points[0][1] == p.points[1][1]
+                    and abs(p.points[0][1] - 193.0) < 1.0):
+                field.append(hline(p.path_index, 500.0, 580.0, 193.0,
+                                   stroke_width=1.05))
+                field.append(hline(p.path_index + 500, 610.0, 686.0, 193.0,
+                                   stroke_width=1.05))
+            else:
+                field.append(p)
+        network = detect_wall_network(paths + field)
+        inside = self._segments_inside(network, 495, 95, 700, 300)
+        self.assertEqual(inside, [])
+
+    def test_wall_pitch_diagonal_pair_survives(self):
+        # The lattice rule keys on PITCH, not on being diagonal: a genuine
         # 45deg bay wall (5-1133) is two faces at wall spacing and must
         # still pair.
         paths = rect_room(0, 100, 100, 400, 400) + [
@@ -848,6 +929,46 @@ class TestPenGates(unittest.TestCase):
         self.assertNotIn(50, used)
         # One-ended tick (a wall a chain terminates against) stays a face.
         paths = rect_room(0, 100, 100, 400, 400) + dim[:2]
+        network = detect_wall_network(paths)
+        self.assertIn(50, network.paired_face_indices())
+
+    def test_dimension_line_with_arrowheads_excluded(self):
+        # Open arrowheads — two short strokes meeting AT the endpoint on
+        # opposite sides of the line (s16: 9px barbs at ~12deg) — are the
+        # other common dimension terminator; the line is annotation and must
+        # not pair with the wall face below (measured on s16: an unrecognized
+        # "3550" dimension line and its end bar fenced a 205x38px strip out
+        # of the room as a phantom).
+        dim = [
+            hline(50, 150, 350, 80),
+            path(51, [(150.0, 80.0), (159.0, 78.0)]),
+            path(52, [(150.0, 80.0), (159.0, 82.0)]),
+            path(53, [(350.0, 80.0), (341.0, 78.0)]),
+            path(54, [(350.0, 80.0), (341.0, 82.0)]),
+        ]
+        paths = rect_room(0, 100, 100, 400, 400) + dim
+        network = detect_wall_network(paths)
+        self.assertNotIn(50, network.paired_face_indices())
+        # The open head drawn base-first (s16): barb bases straddle the
+        # endpoint 2px either side and the tip sits on the line 9px beyond.
+        open_head = dim[:1] + [
+            path(51, [(150.0, 78.0), (141.0, 80.0)]),
+            path(52, [(150.0, 82.0), (141.0, 80.0)]),
+            path(53, [(350.0, 78.0), (359.0, 80.0)]),
+            path(54, [(350.0, 82.0), (359.0, 80.0)]),
+        ]
+        paths = rect_room(0, 100, 100, 400, 400) + open_head
+        network = detect_wall_network(paths)
+        self.assertNotIn(50, network.paired_face_indices())
+        # Barbs on ONE side only (a hatch stroke pair touching a face end
+        # from inside the band) are no arrowhead: the line stays a face.
+        one_sided = dim[:1] + [
+            path(51, [(150.0, 80.0), (159.0, 78.0)]),
+            path(52, [(150.0, 80.0), (159.0, 76.0)]),
+            path(53, [(350.0, 80.0), (341.0, 78.0)]),
+            path(54, [(350.0, 80.0), (341.0, 76.0)]),
+        ]
+        paths = rect_room(0, 100, 100, 400, 400) + one_sided
         network = detect_wall_network(paths)
         self.assertIn(50, network.paired_face_indices())
 

@@ -87,6 +87,14 @@ WALL_DIM_TICK_END_TOL_PX    = 3.0    # tick midpoint-to-endpoint distance
 WALL_DIM_TICK_ANGLE_MIN     = 20.0   # tick-vs-line angle window, matching the
 WALL_DIM_TICK_ANGLE_MAX     = 70.0   # material-mark diagonal window
 WALL_DIM_TICK_STRADDLE_MIN_PX = 1.0  # both tick ends clear the line by this
+# The other common terminator is an OPEN ARROWHEAD: two short barbs meeting
+# AT the endpoint, one on each side of the line, at a shallow angle to it
+# (measured on s16: 9px barbs at ~12deg; an unrecognized "3550" dimension
+# and its end bar fenced a 205x38px strip out of a room). Hatch strokes touch
+# a face end from INSIDE the band — one side — so a barb pair on opposite
+# sides is never wall linework.
+WALL_DIM_ARROW_ANGLE_MIN    = 5.0    # barb-vs-line angle window
+WALL_DIM_ARROW_ANGLE_MAX    = 45.0
 
 WALL_BACKGROUND_FILL_MIN    = 0.97  # every channel at/above this = page background;
                                     # unstroked white shapes are text masks and
@@ -180,54 +188,58 @@ WALL_WEAK_CLAIM_OVERLAP_FRAC = 0.5   # the inner pair must cover this fraction o
                                      # long band says nothing about the material HERE
 
 # Striped-field ("lattice") faces: paving bonds, tile fields, stair treads,
-# roof tiling on elevations, table rows. A run of parallel SAME-PEN faces at
-# equal wall-like pitch is never wall structure — rooms are wider than
-# WALL_MAX_THICKNESS_PX by definition, so real walls cannot stack five deep
-# at wall pitch. Pen weight cannot catch these: the open-vestibule paving
-# bond on 5-1133 is penned at 1.05 vs the 1.50 wall reference (ratio 0.70,
-# above WALL_WEAK_STROKE_RATIO), and the sample set has real wall pens down
-# to 0.67 of the reference, so the ratio gate cannot be raised. Demoted
-# lattice faces re-enter the weak (material-gated) pipeline, so a hatched
-# partition that happens to sit inside a striped field still comes back.
+# roof tiling on elevations, table rows, balustrades, hatch. A run of
+# parallel SAME-PEN faces at equal wall-like pitch is never wall structure —
+# rooms are wider than WALL_MAX_THICKNESS_PX by definition, so real walls
+# cannot stack five deep at wall pitch. Pen weight cannot catch these: the
+# open-vestibule paving bond on 5-1133 is penned at 1.05 vs the 1.50 wall
+# reference (ratio 0.70, above WALL_WEAK_STROKE_RATIO), and the sample set
+# has real wall pens down to 0.67 of the reference, so the ratio gate cannot
+# be raised. Demoted lattice faces re-enter the weak (material-gated)
+# pipeline, so a hatched partition that happens to sit inside a striped
+# field still comes back. Hatch is the same signature pitched too tightly
+# to be walls (measured: both reference PDFs' hatch fields pitch at
+# 4.05/4.07px, the tightest real striped field on either at 11.4px); two
+# strokes of one field otherwise pair like any parallel pen mates, and at
+# an L-corner the phantom diagonal band juts out of the wall (measured on
+# floor-plans: strokes 2502/2516 of the 45deg field paired 28.1px apart and
+# chamfered room_0000's and room_0001's top-right corners by ~16px).
+# There is no length floor on a rung: stair treads (47.7px on s17), a
+# ramp balustrade's 12.75px rungs (s18) and the tread pieces beside a
+# stair void (43px on s01) are fields of short strokes, and short strokes
+# at wall pitch five deep are still never walls.
 WALL_LATTICE_MIN_RUNGS       = 5     # rungs per run; a 4-face cavity party wall
                                      # (leaf/cavity/leaf at equal width) stays wall
 WALL_LATTICE_PITCH_TOL_PX    = 2.0   # rung pitch equality; also accepts one missing
                                      # rung (gap ~= 2x pitch, e.g. eaten by a text
                                      # mask — "VESTIBULE" ate the 1070.8 joint line)
-WALL_LATTICE_MIN_RUNG_LEN_PX = 48.0  # total drawn length per rung, above
-                                     # WALL_HATCH_MAX_LEN_PX so hatch strokes (which
-                                     # are also parallel and equally pitched, one
-                                     # short stroke per offset) never form rungs
 WALL_LATTICE_TOUCH_GAP_PX    = 8.0   # rung extents must overlap or nearly touch the
                                      # run so far — staggered-bond joints on adjacent
                                      # courses meet end-to-end, while an unrelated
-                                     # parallel face far along the axis is no rung
+                                     # parallel face far along the axis is no rung.
+                                     # Also the extent-cluster gap: collinear
+                                     # pieces further apart than this at one offset
+                                     # are separate rows (a room's wall face merely
+                                     # collinear with a distant field's course is
+                                     # not that course — s17's WC top face shared
+                                     # its offset with a roof-tile rung 2000px away)
 WALL_LATTICE_OFFSET_TOL_PX   = 1.5   # collinear pieces at one offset are one rung
 WALL_LATTICE_PEN_TOL         = 0.05  # rungs must share a pen: a field is drawn in
                                      # one pen, while a wall face that happens to
                                      # run parallel nearby is penned as the walls
-WALL_HATCH_MAX_PITCH_PX      = 8.0   # a striped field pitched this tightly is the
-                                     # HATCH inside a wall band, and its rungs are
-                                     # exempt from WALL_LATTICE_MIN_RUNG_LEN_PX.
-                                     # That floor sits above WALL_HATCH_MAX_LEN_PX
-                                     # so hatch can never fake a wall-pitch field —
-                                     # but it also let real hatch keep FACE rights,
-                                     # and two strokes of one field pair with each
-                                     # other like any parallel pen mates. Inside a
-                                     # straight band the phantom band hides in the
-                                     # real one; at an L-corner it juts out (measured
-                                     # on floor-plans: strokes 2502/2516 of the 45deg
-                                     # field paired 28.1px apart into a diagonal
-                                     # centerline that chamfered room_0000's and
-                                     # room_0001's top-right corners by ~16px). The
-                                     # pitch is what proves they are not walls: five
-                                     # courses COEXISTING at <= this pitch span <=
-                                     # 32px total, one band's worth
-                                     # (WALL_MAX_THICKNESS_PX 36), so the lines are
-                                     # that band's material, never five walls.
-                                     # Measured: both reference PDFs' hatch fields
-                                     # pitch at 4.05/4.07px, while the tightest real
-                                     # striped field on either is 11.4px.
+WALL_LATTICE_FIELD_COVER_FRAC = 0.5  # a rung OUTLASTS the field — keeps its face
+WALL_LATTICE_OUTLAST_RATIO    = 3.0  # rights — when it is longer than the whole
+                                     # stacked span (where MIN_RUNGS coexist), more
+                                     # than OUTLAST_RATIO x the run's shortest rung,
+                                     # and under COVER_FRAC of it lies in the span:
+                                     # a wall face that a short stack coexists with
+                                     # over a fraction of its length is not the
+                                     # field's course (s17: four 891px lines of a
+                                     # doubled frame at 12px pitch beside a fifth
+                                     # parallel line). Hatch strokes staggered along
+                                     # the axis coexist only marginally but are all
+                                     # of one length; edge fragments of a course
+                                     # are shorter than the span — both stay demoted
 
 WALL_JOINERY_BRIDGE_GAP_PX      = 80.0  # max open span between accepted white
                                         # rings of one joinery/hollow-wall run
@@ -262,10 +274,8 @@ class WallGates:
     WALL_FILL_CLASS_MIN_INK_PX: float
     WALL_FILL_BLOCK_MAX_SIDE_PX: float
     WALL_WEAK_MIN_RUN_PX: float
-    WALL_LATTICE_MIN_RUNG_LEN_PX: float
     WALL_JOINERY_BRIDGE_GAP_PX: float
     WALL_HATCH_MAX_LEN_PX: float
-    WALL_HATCH_MAX_PITCH_PX: float
     WALL_WEAK_MATERIAL_PER_100PX: float
     COLLINEAR_OFFSET_TOL: float
 
@@ -283,14 +293,8 @@ class WallGates:
             WALL_FILL_CLASS_MIN_INK_PX=WALL_FILL_CLASS_MIN_INK_PX * factor,
             WALL_FILL_BLOCK_MAX_SIDE_PX=WALL_FILL_BLOCK_MAX_SIDE_PX * factor,
             WALL_WEAK_MIN_RUN_PX=WALL_WEAK_MIN_RUN_PX * factor,
-            # WALL_HATCH_MAX_LEN_PX is also W and scales by the identical
-            # factor, so the two stay exactly equal at every f (both 48.0
-            # at f=1.0) — no cross-class floor needed (see
-            # docs/scale-normalization-findings.md §4b).
-            WALL_LATTICE_MIN_RUNG_LEN_PX=WALL_LATTICE_MIN_RUNG_LEN_PX * factor,
             WALL_JOINERY_BRIDGE_GAP_PX=WALL_JOINERY_BRIDGE_GAP_PX * factor,
             WALL_HATCH_MAX_LEN_PX=WALL_HATCH_MAX_LEN_PX * factor,
-            WALL_HATCH_MAX_PITCH_PX=WALL_HATCH_MAX_PITCH_PX * factor,
             # Density (marks per 100 PAPER-px of band length), not a length:
             # world-spaced marks pack 2x tighter per paper-px at f=0.5, so
             # the minimum must RISE to keep noise out — divide, not
@@ -1073,27 +1077,37 @@ def _dimension_line_indices(
 
     def _has_end_tick(pt, origin, ux, uy, line_angle, pen) -> bool:
         cx, cy = int(pt[0] // cell), int(pt[1] // cell)
+        barb_sides: set[int] = set()
         for gx in (cx - 1, cx, cx + 1):
             for gy in (cy - 1, cy, cy + 1):
                 for mid, t1, t2, ang, tpen in grid.get((gx, gy), ()):
                     if tpen != pen:
                         continue
-                    if _distance(mid, pt) > WALL_DIM_TICK_END_TOL_PX:
-                        continue
                     rel = _angle_diff_mod180(ang, line_angle)
-                    if not (
-                        WALL_DIM_TICK_ANGLE_MIN <= rel <= WALL_DIM_TICK_ANGLE_MAX
-                    ):
-                        continue
                     off1 = (t1[0] - origin[0]) * (-uy) + (t1[1] - origin[1]) * ux
                     off2 = (t2[0] - origin[0]) * (-uy) + (t2[1] - origin[1]) * ux
                     if (
-                        off1 * off2 < 0
+                        _distance(mid, pt) <= WALL_DIM_TICK_END_TOL_PX
+                        and WALL_DIM_TICK_ANGLE_MIN <= rel <= WALL_DIM_TICK_ANGLE_MAX
+                        and off1 * off2 < 0
                         and min(abs(off1), abs(off2))
                         >= WALL_DIM_TICK_STRADDLE_MIN_PX
                     ):
                         return True
-        return False
+                    # Arrowhead barb: one end at the endpoint (the tip, or
+                    # the base of an open head whose tip sits on the line
+                    # a barb-length beyond the endpoint — s16 draws them
+                    # so), the barb leaning off the line to one side; barbs
+                    # on both sides = arrowhead.
+                    if (
+                        WALL_DIM_ARROW_ANGLE_MIN <= rel <= WALL_DIM_ARROW_ANGLE_MAX
+                        and min(_distance(t1, pt), _distance(t2, pt))
+                        <= WALL_DIM_TICK_END_TOL_PX
+                    ):
+                        lean = off1 if abs(off1) >= abs(off2) else off2
+                        if abs(lean) >= WALL_DIM_TICK_STRADDLE_MIN_PX:
+                            barb_sides.add(1 if lean > 0 else -1)
+        return len(barb_sides) == 2
 
     out: set[int] = set()
     for p in lines:
@@ -1294,12 +1308,15 @@ def _demote_lattice_faces(
 
     A striped field is >= WALL_LATTICE_MIN_RUNGS parallel same-pen rungs at
     equal wall-like pitch (one missing rung tolerated as a 2x-pitch gap),
-    each rung carrying enough drawn length to be structural linework rather
-    than hatching, with rung extents chaining along the run. Paving bonds,
-    tile fields, stair treads, roof tiling and table rows all match; wall
-    structure cannot (rooms are wider than WALL_MAX_THICKNESS_PX). Members
-    are demoted to the weak pipeline, not dropped: every pair they form —
-    with each other or with a real wall's face — then needs drawn material
+    with rung extents chaining along the run and MIN_RUNGS of them coexisting
+    somewhere along the axis. Paving bonds, tile fields, stair treads, roof
+    tiling, balustrades, hatch and table rows all match; wall structure
+    cannot (rooms are wider than WALL_MAX_THICKNESS_PX). A rung is an
+    EXTENT-CONNECTED cluster of collinear pieces, not every piece at that
+    offset on the page: a wall face merely collinear with a distant field's
+    course is not that course. Members lying in the field's stacked span are
+    demoted to the weak pipeline, not dropped: every pair they form — with
+    each other or with a real wall's face — then needs drawn material
     between the faces, exactly like the hairline joinery pen.
 
     Fill outlines and layer-hinted faces carry their own evidence and are
@@ -1355,7 +1372,7 @@ def _demote_lattice_faces(
             # at one offset (staggered-bond joints, interrupted joint lines)
             # are one rung. Pieces are kept individually: the field test
             # below needs actual coverage, not envelopes.
-            rows: list[dict] = []
+            offset_rows: list[dict] = []
             for _, i, f in sorted(
                 cluster,
                 key=lambda t: (t[2].p1[0] + t[2].p2[0]) * nx / 2.0
@@ -1365,32 +1382,46 @@ def _demote_lattice_faces(
                 my = (f.p1[1] + f.p2[1]) / 2.0
                 off = mx * nx + my * ny
                 lo, hi = _projected_interval(f.p1, f.p2, ux, uy, (0.0, 0.0))
-                if rows and off - rows[-1]["off"] <= WALL_LATTICE_OFFSET_TOL_PX:
-                    r = rows[-1]
-                    r["members"].append(i)
-                    r["pieces"].append((lo, hi))
-                    r["total"] += hi - lo
-                    r["lo"] = min(r["lo"], lo)
-                    r["hi"] = max(r["hi"], hi)
+                if (
+                    offset_rows
+                    and off - offset_rows[-1]["off"] <= WALL_LATTICE_OFFSET_TOL_PX
+                ):
+                    offset_rows[-1]["pieces"].append((lo, hi, i))
                 else:
-                    rows.append({
-                        "off": off, "members": [i], "pieces": [(lo, hi)],
-                        "total": hi - lo, "lo": lo, "hi": hi,
-                    })
-            # Two tiers over the same rows, scanned independently. The
-            # structural tier catches wall-pitch fields and needs the rung
-            # length floor to tell a paving course from a wall face. The
-            # hatch tier catches fields pitched too tightly to BE walls, and
-            # there the floor must not apply — it is precisely what keeps a
-            # real hatch field's strokes in the strong pipeline.
+                    offset_rows.append({"off": off, "pieces": [(lo, hi, i)]})
+            # A rung is extent-connected: a room's wall face that merely
+            # happens to be collinear with a distant field's course (s17:
+            # the WC's top face shares its offset with a roof-tile rung
+            # 2000px to the right) is not a member of that rung, so it can
+            # not be demoted along with the field. Pieces at one offset are
+            # split wherever the along-axis gap exceeds the touch gap.
+            rows: list[dict] = []
+            for orow in offset_rows:
+                for lo, hi, i in sorted(orow["pieces"]):
+                    if rows and rows[-1]["off"] == orow["off"] and (
+                        lo - rows[-1]["hi"] <= WALL_LATTICE_TOUCH_GAP_PX
+                    ):
+                        r = rows[-1]
+                        r["members"].append(i)
+                        r["pieces"].append((lo, hi))
+                        r["total"] += hi - lo
+                        r["hi"] = max(r["hi"], hi)
+                    else:
+                        rows.append({
+                            "off": orow["off"], "members": [i],
+                            "pieces": [(lo, hi)], "total": hi - lo,
+                            "lo": lo, "hi": hi,
+                        })
+            rows.sort(key=lambda r: (r["off"], r["lo"]))
+            # One scan: hatch is a striped field like any other, just one
+            # pitched too tightly to be walls, and it is caught by the same
+            # rule (pitch is what proves the lines are not walls; measured,
+            # both reference PDFs' hatch fields pitch at 4.05/4.07px while
+            # the tightest real striped field on either is 11.4px).
             lattice |= _scan_striped_runs(
                 rows,
-                gates.WALL_LATTICE_MIN_RUNG_LEN_PX,
                 gates.WALL_MAX_THICKNESS_PX + WALL_LATTICE_PITCH_TOL_PX,
                 gates=gates,
-            )
-            lattice |= _scan_striped_runs(
-                rows, 0.0, gates.WALL_HATCH_MAX_PITCH_PX, gates=gates,
             )
 
     kept = [f for i, f in enumerate(faces) if i not in lattice]
@@ -1400,48 +1431,59 @@ def _demote_lattice_faces(
 
 def _scan_striped_runs(
     rows: list[dict],
-    min_rung_len: float,
     max_pitch: float,
     *, gates: WallGates = WALL_GATES_UNSCALED,
 ) -> set[int]:
-    """Face indices belonging to striped runs under one tier's thresholds.
+    """Face indices belonging to striped runs.
 
-    Rungs shorter than min_rung_len are ignored outright; runs chain while
-    the pitch stays equal (one missing rung tolerated) and within max_pitch,
-    and demote only when MIN_RUNGS of them also COEXIST along the axis.
+    Runs chain while the pitch stays equal (one missing rung tolerated) and
+    within max_pitch, and demote only where MIN_RUNGS of them COEXIST along
+    the axis — and only the rungs lying in that stacked span.
     """
     demoted: set[int] = set()
-    rungs = [r for r in rows if r["total"] >= min_rung_len]
+    rungs = rows
     if len(rungs) < WALL_LATTICE_MIN_RUNGS:
         return demoted
 
     start = 0
     while start < len(rungs) - 1:
-        pitch = rungs[start + 1]["off"] - rungs[start]["off"]
-        if not (
-            gates.WALL_MIN_THICKNESS_PX <= pitch <= max_pitch
-        ) or _rungs_apart(rungs[start], rungs[start + 1]):
-            start += 1
-            continue
-        run = [rungs[start], rungs[start + 1]]
-        env_lo = min(rungs[start]["lo"], rungs[start + 1]["lo"])
-        env_hi = max(rungs[start]["hi"], rungs[start + 1]["hi"])
-        nxt = start + 2
+        # Rows are extent-aware, so a rung lying apart from the run along
+        # the axis is unrelated linework at a coincident offset (s17: a
+        # 49px stroke 2000px along the axis at an intermediate offset) —
+        # it is SKIPPED, never a break: treating it as one left 3 of a
+        # 22-rung roof-tile field strong on s03, and they paired into
+        # phantom wall bands. A second row at the SAME offset that does
+        # touch the run is the same rung split by a text mask wider than
+        # the touch gap, and is absorbed into it.
+        run = [rungs[start]]
+        env_lo, env_hi = rungs[start]["lo"], rungs[start]["hi"]
+        pitch: float | None = None
+        nxt = start + 1
         while nxt < len(rungs):
-            gap = rungs[nxt]["off"] - run[-1]["off"]
+            r = rungs[nxt]
             if (
+                r["lo"] - env_hi > WALL_LATTICE_TOUCH_GAP_PX
+                or env_lo - r["hi"] > WALL_LATTICE_TOUCH_GAP_PX
+            ):
+                nxt += 1
+                continue
+            gap = r["off"] - run[-1]["off"]
+            if gap <= WALL_LATTICE_OFFSET_TOL_PX:
+                run[-1] = _merge_rungs(run[-1], r)
+            elif pitch is None:
+                if not (gates.WALL_MIN_THICKNESS_PX <= gap <= max_pitch):
+                    break
+                pitch = gap
+                run.append(r)
+            elif (
                 abs(gap - pitch) > WALL_LATTICE_PITCH_TOL_PX
                 and abs(gap - 2.0 * pitch) > WALL_LATTICE_PITCH_TOL_PX
             ):
                 break
-            if (
-                rungs[nxt]["lo"] - env_hi > WALL_LATTICE_TOUCH_GAP_PX
-                or env_lo - rungs[nxt]["hi"] > WALL_LATTICE_TOUCH_GAP_PX
-            ):
-                break
-            run.append(rungs[nxt])
-            env_lo = min(env_lo, rungs[nxt]["lo"])
-            env_hi = max(env_hi, rungs[nxt]["hi"])
+            else:
+                run.append(r)
+            env_lo = min(env_lo, r["lo"])
+            env_hi = max(env_hi, r["hi"])
             nxt += 1
         # Chained membership is not enough: distinct parallel wall bands
         # stacked at quasi-equal spacing chain too (measured on
@@ -1450,46 +1492,80 @@ def _scan_striped_runs(
         # belt). A drawn FIELD has its courses side by side: somewhere along
         # the axis, MIN_RUNGS rungs coexist. Wall belts never stack that
         # deep — their rungs occupy disjoint spans that only envelopes glue
-        # together.
-        if (
-            len(run) >= WALL_LATTICE_MIN_RUNGS
-            and _max_rung_stack(run) >= WALL_LATTICE_MIN_RUNGS
-        ):
+        # together. And a rung OUTLASTING that stacked span — longer than
+        # the whole span, out of scale with the run's shortest rung, and
+        # lying mostly outside the span — is not the field's course but a
+        # wall face the stack happens to coexist with over a fraction of
+        # its length (measured on s17: four 891px lines of a doubled frame
+        # at 12px pitch, demoted wholesale by a fifth parallel line beside
+        # them); it keeps its face rights. Everything else in the run is
+        # the field's own ink: ragged-edge fragments (no longer than the
+        # span) and hatch strokes staggered along the axis (all of one
+        # length, coexisting only marginally) included.
+        if len(run) >= WALL_LATTICE_MIN_RUNGS:
+            span = _field_span(run)
+            if not span:
+                start += 1
+                continue
+            span_len = sum(b - a for a, b in span)
+            shortest = min(r["hi"] - r["lo"] for r in run)
             for r in run:
-                demoted.update(r["members"])
-        start = max(nxt - 1, start + 1)
+                extent = r["hi"] - r["lo"]
+                outlasts = (
+                    extent > span_len
+                    and extent > WALL_LATTICE_OUTLAST_RATIO * shortest
+                    and _covered_length(r, span)
+                    < WALL_LATTICE_FIELD_COVER_FRAC * extent
+                )
+                if not outlasts:
+                    demoted.update(r["members"])
+        # Every rung seeds: with skipped (apart) rungs inside a run's index
+        # range, jumping to the run's end would deny those rungs — another
+        # field's courses at coincident offsets — a run of their own.
+        start += 1
 
     return demoted
 
 
-def _rungs_apart(a: dict, b: dict) -> bool:
-    """True when two rungs' extents neither overlap nor nearly touch."""
-    return (
-        b["lo"] - a["hi"] > WALL_LATTICE_TOUCH_GAP_PX
-        or a["lo"] - b["hi"] > WALL_LATTICE_TOUCH_GAP_PX
-    )
+def _merge_rungs(a: dict, b: dict) -> dict:
+    """One rung from two same-offset rows (a copy; rows are re-scanned)."""
+    return {
+        "off": a["off"], "members": a["members"] + b["members"],
+        "pieces": a["pieces"] + b["pieces"], "total": a["total"] + b["total"],
+        "lo": min(a["lo"], b["lo"]), "hi": max(a["hi"], b["hi"]),
+    }
 
 
-def _max_rung_stack(run: list[dict]) -> int:
-    """Deepest simultaneous rung coverage along the run's axis.
+def _field_span(run: list[dict]) -> list[tuple[float, float]]:
+    """Intervals along the axis where >= MIN_RUNGS rungs of the run coexist.
 
-    Sweeps the rungs' drawn pieces; ends sort before starts, so courses
-    meeting end-to-end (staggered-bond joints on adjacent courses) never
-    count as coexisting. Pieces within one rung are disjoint by
-    construction, so piece coverage equals rung coverage.
+    Sweeps the rungs' extents; ends sort before starts, so courses meeting
+    end-to-end (staggered-bond joints on adjacent courses) never count as
+    coexisting.
     """
     events: list[tuple[float, int]] = []
     for r in run:
-        for lo, hi in r["pieces"]:
-            events.append((lo, 1))
-            events.append((hi, -1))
+        events.append((r["lo"], 1))
+        events.append((r["hi"], -1))
     events.sort(key=lambda e: (e[0], e[1]))
-    depth = deepest = 0
-    for _, delta in events:
+    span: list[tuple[float, float]] = []
+    depth = 0
+    open_at: float | None = None
+    for x, delta in events:
         depth += delta
-        if depth > deepest:
-            deepest = depth
-    return deepest
+        if depth >= WALL_LATTICE_MIN_RUNGS and open_at is None:
+            open_at = x
+        elif depth < WALL_LATTICE_MIN_RUNGS and open_at is not None:
+            span.append((open_at, x))
+            open_at = None
+    return span
+
+
+def _covered_length(r: dict, span: list[tuple[float, float]]) -> float:
+    """Length of the rung's extent lying inside the field span."""
+    return sum(
+        max(0.0, min(r["hi"], b) - max(r["lo"], a)) for a, b in span
+    )
 
 
 def _merge_collinear_segs(

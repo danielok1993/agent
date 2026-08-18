@@ -11,7 +11,7 @@ import unittest
 from detection import detect_rooms, detect_wall_network
 from detection.rooms import ROOM_MIN_AREA_PX2, ROOM_GATES_UNSCALED, RoomGates
 from detection.walls import (
-    COLLINEAR_OFFSET_TOL, WALL_HATCH_MAX_LEN_PX, WALL_HATCH_MAX_PITCH_PX,
+    COLLINEAR_OFFSET_TOL, WALL_HATCH_MAX_LEN_PX,
     WALL_JOINERY_BRIDGE_GAP_PX,
     WALL_MAX_THICKNESS_PX, WALL_MIN_THICKNESS_PX, WALL_WEAK_MATERIAL_PER_100PX,
     WallGates, WALL_GATES_UNSCALED, _Seg, _bridge_white_runs,
@@ -56,7 +56,6 @@ class TestWallGatesConstruction(unittest.TestCase):
         self.assertEqual(g.WALL_MAX_THICKNESS_PX, WALL_MAX_THICKNESS_PX)
         self.assertEqual(g.WALL_MIN_THICKNESS_PX, WALL_MIN_THICKNESS_PX)
         self.assertEqual(g.WALL_HATCH_MAX_LEN_PX, WALL_HATCH_MAX_LEN_PX)
-        self.assertEqual(g.WALL_HATCH_MAX_PITCH_PX, WALL_HATCH_MAX_PITCH_PX)
         self.assertEqual(
             g.WALL_WEAK_MATERIAL_PER_100PX, WALL_WEAK_MATERIAL_PER_100PX)
         self.assertEqual(g.WALL_WEAK_MATERIAL_PER_100PX, 3.0)
@@ -65,8 +64,6 @@ class TestWallGatesConstruction(unittest.TestCase):
         g = WallGates.at(0.5)
         self.assertEqual(g.WALL_MAX_THICKNESS_PX, WALL_MAX_THICKNESS_PX * 0.5)
         self.assertEqual(g.WALL_HATCH_MAX_LEN_PX, WALL_HATCH_MAX_LEN_PX * 0.5)
-        self.assertEqual(
-            g.WALL_HATCH_MAX_PITCH_PX, WALL_HATCH_MAX_PITCH_PX * 0.5)
 
     def test_weak_material_density_scales_inversely(self):
         # WALL_WEAK_MATERIAL_PER_100PX is a density (marks per 100 paper-px
@@ -88,15 +85,6 @@ class TestWallGatesConstruction(unittest.TestCase):
             self.assertLess(g.WALL_MIN_THICKNESS_PX, g.WALL_MAX_THICKNESS_PX)
             self.assertLess(g.WALL_MAX_THICKNESS_PX,
                             g.WALL_THICK_MATERIAL_MAX_PX)
-
-    def test_hatch_len_and_rung_floor_stay_equal_at_every_factor(self):
-        # Both constants are W and scale by the identical factor, so their
-        # 1:50 relationship (currently exactly equal, 48.0 == 48.0) holds
-        # unchanged at every scale — no clamp, no collision.
-        for f in (0.25, 0.5, 1.0, 2.0, 4.0):
-            g = WallGates.at(f)
-            self.assertEqual(
-                g.WALL_HATCH_MAX_LEN_PX, g.WALL_LATTICE_MIN_RUNG_LEN_PX)
 
 
 class TestMergeCollinearOffsetScaling(unittest.TestCase):
