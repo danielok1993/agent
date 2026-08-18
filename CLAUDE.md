@@ -275,10 +275,18 @@ Warnings are structured dicts with `warning_code`, `severity`, `message`,
 `page_number`. The set is intentionally small — when adding a new warning,
 follow the existing `SCREAMING_SNAKE_CASE` convention and emit from
 `pipeline.collect_warnings`, `extraction.plumber.compare_counts`,
-`gemini.client._validate_response`, or `scale.resolver.resolve_page_scales`
+`gemini.client._validate_response`, `scale.resolver.resolve_page_scales`
 (which returns them on `PageScales.warnings` for `run_extract` to fold into
 the page's warning list — only the resolver knows which tier resolved a
-region, so only it can say why one did not).
+region, so only it can say why one did not), or
+`takeoff.quantities.compute_takeoff` (same shape, on `TakeoffPage.warnings`:
+`TAKEOFF_NO_SCALE` — a room with no resolvable drawing scale gets no
+quantities; `SCALE_UNVERIFIED` — a measured room's scale is text-only and
+untied to a viewport/user source or a sheet-size confirmation;
+`SCALE_PRINT_RESIZED` — the declared title-block sheet size mismatches the
+mediabox by ~2× (half-/double-size print); `TAKEOFF_OPENING_TALLER_THAN_CEILING`
+— an opening height was clamped to the ceiling; `TAKEOFF_OPENING_MULTI_ROOM`
+— an opening reached 3+ rooms and was capped to the two nearest).
 
 ## graphify
 

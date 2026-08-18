@@ -68,8 +68,14 @@ against.
 This spec records the outcome only: every quantity block carries
 `scale_verified: true|false`. Verified means the room's `ScaleInfo.source` is
 `"viewport"` or `"user"`, or is `"text"` with a title-block sheet-size
-declaration (`A0`–`A4` token in the page text) matching the mediabox within
-5 % on both sides (ISO sizes: A0 841×1189 … A4 210×297, either orientation).
+declaration matching the mediabox within 5 % on both sides (ISO sizes:
+A0 841×1189 … A4 210×297, either orientation). A DECLARATION, not any
+`A0`–`A4` token on the page: the token counts only when written after an
+`@` (`1:50@A3`, `As Shown @ A1`) or after a SHEET / SIZE / PAPER / FORMAT
+keyword (up to a short separator). A bare token is usually part of a drawing
+number — measured 2026-08-19, the page-wide scan matched s20's
+`18-069-001(A1).A`; with the context rule s20 yields nothing and the six real
+declarations (s02 s03 s04 s08 s14 s17) all still match.
 Unverified rooms still get quantities plus one `SCALE_UNVERIFIED` (info)
 warning per page. A declared size that *mismatches* the mediabox by ~2× is
 recorded (`SCALE_PRINT_RESIZED`, warning) but **not** auto-corrected here —
@@ -114,19 +120,36 @@ room, scaled or not, so an opening on an unscaled room is never mis-reported
 as free-space; deductions are computed for scaled rooms only.
 An internal door therefore deducts from both rooms; an external door or a
 window from one. An opening touching no room is listed under the page's
-`unassigned_openings` and deducts nothing.
+`unassigned_openings` and deducts nothing. Assignment is CAPPED at two rooms
+— a door separates at most two spaces, yet the grown reach put three s01
+doors in three rooms each (measured 2026-08-19) — so when three or more rooms
+are hit, only the two whose un-grown polygon boundary lies nearest the bbox
+centre keep it; the rest are recorded under the page's
+`over_assigned_openings` (`{"id":…, "dropped_rooms":[…]}`) with one
+`TAKEOFF_OPENING_MULTI_ROOM` (info) warning.
 
 Opening width, in order of evidence:
 
-- door with `evidence["opening_line"]` (swing/french/garden pairs): the
-  chord length;
-- window: `evidence["opening_width_px"]`;
+- SINGLE swing door (`assembly_type` `"single"` / `"single_line_leaf"`, or
+  any door carrying an `arc_bbox` with no merged/arcless type): the arc
+  RADIUS — the longer side of `evidence["arc_bbox"]` — falling back to
+  `leaf_line_length_px`. `opening_line` is NOT the opening for a single leaf:
+  `detection/doors/assembly.py` sets it to the two swing-arc endpoints, which
+  a quarter swing puts 90° apart, so the chord measures r·√2 (measured on
+  s02: chord = 1.08 m against a 0.762 m leaf);
+- MERGED pair (`assembly_type` `"double_swing"` — french/garden/double
+  swings): `evidence["opening_line"]`, recomputed at merge time as the
+  farthest-apart pair of both halves' arc endpoints, so it does span the
+  opening;
+- window: `evidence["opening_width_px"]`, except a DIAGONAL one
+  (`orientation == "diagonal"`), which takes `glazing_len_px` — the
+  axis-aligned opening width is only the angled run's projection;
 - sliding / folding doors: `evidence["opening_span_px"]` (recorded by both
   `detection/doors/sliding.py` and `folding.py`; bbox is ~2× the opening —
   parked panel / stack), falling back to `panel_length_px` for the fill-less
   parked_leaf / open_v tiers that carry no span;
-- else: the bbox side that lies along the room edge — the longer of the two
-  bbox sides whose midpoint is nearest the room boundary.
+- else: the bbox side that lies along the room edge — of the four bbox
+  edges, the one whose midpoint is nearest the room boundary.
 
 The takeoff reads a `{candidate_id: evidence}` map built from the page's
 candidates because `finalize_candidates` strips evidence from
@@ -223,6 +246,7 @@ appear in `unscaled_rooms` with no numbers, never with zeros.
 | `SCALE_UNVERIFIED` | info | ≥1 measured room's scale is text-only and unverifiable |
 | `SCALE_PRINT_RESIZED` | warning | title-block sheet size mismatches the mediabox by a factor in [1.8, 2.2] or [0.45, 0.55] (half-/double-size print — linear factor 2, two ISO A-steps, A1↔A3) |
 | `TAKEOFF_OPENING_TALLER_THAN_CEILING` | info | an opening height was clamped |
+| `TAKEOFF_OPENING_MULTI_ROOM` | info | ≥1 opening reached 3+ rooms; the two nearest kept, the rest dropped |
 
 Emitted from `takeoff.quantities` on `TakeoffPage.warnings` and folded into
 the page list by `run_extract`, mirroring how `PageScales.warnings` travels.
@@ -265,3 +289,11 @@ length × width from those dimensions.
   skirting/coving lengths (trivial once perimeter exists — a follow-up if
   wanted).
 - Wall-centric (per `WallNetwork` segment) quantities.
+- `RoomTakeoff.label` is always `None` until room labels are matched to
+  rooms — `pipeline._room_entity` sets `label=None`.
+- s01's stored user scale (1:50) measures as 1:100 on the drawing (1800 mm
+  garden pair = 108.7 px); its takeoff numbers are 4× low until that stored
+  scale is corrected — a separate data fix, because the stored scale also
+  moves the detection factor and every W-classed wall/room gate. A
+  plausibility guard (room < 1 m² / door < 0.5 m at the resolved scale) is a
+  candidate follow-up.

@@ -648,8 +648,8 @@ git commit -m "feat(takeoff): per-room scale selection + sheet-size verification
 **Interfaces:**
 - Consumes: shapely (`Polygon`, `box`, `Point`); `detection.rooms.ROOM_WALL_DILATE_PX`, `detection.rooms.ROOM_OPENING_SEAL_PX`.
 - Produces:
-  - `opening_width_px(entity_type: str, bbox, evidence: dict, room_polygon: Polygon) -> tuple[float, str]` — `(width_px, width_source)`; `width_source` ∈ `"opening_line"|"opening_width_px"|"opening_span_px"|"panel_length_px"|"bbox_edge"`.
-  - `assign_openings(room_polygons: dict[str, Polygon], openings: list[tuple[str, str, tuple]]) -> tuple[dict[str, list[str]], list[str]]` — input tuples are `(entity_id, entity_type, bbox)`; `room_polygons` are the STANDOFF-CORRECTED polygons (already grown by `ROOM_WALL_DILATE_PX`); returns `(room_id → [entity_id...], unassigned_ids)`. Assignment: `room_polygon.buffer(ROOM_OPENING_SEAL_PX).intersects(box(*bbox))` — 14 px total reach from the detected polygon, never 16.
+  - `opening_width_px(entity_type: str, bbox, evidence: dict, room_polygon: Polygon) -> tuple[float, str]` — `(width_px, width_source)`; `width_source` ∈ `"arc_radius"|"leaf_line_length_px"|"opening_line"|"opening_width_px"|"glazing_len_px"|"opening_span_px"|"panel_length_px"|"bbox_edge"`. A SINGLE swing (`assembly_type` `"single"`/`"single_line_leaf"`) is measured by its arc RADIUS (`max(w,h)` of `evidence["arc_bbox"]`), not by `opening_line`: those are the two arc endpoints, 90° apart on a quarter swing, so the chord is r·√2 (measured on s02: 1.08 m vs a 0.762 m leaf). Only a merged pair (`"double_swing"`) keeps the chord.
+  - `assign_openings(room_polygons: dict[str, Polygon], openings: list[tuple[str, str, tuple]]) -> tuple[dict[str, list[str]], list[str], list[tuple[str, list[str]]]]` — input tuples are `(entity_id, entity_type, bbox)`; `room_polygons` are the STANDOFF-CORRECTED polygons (already grown by `ROOM_WALL_DILATE_PX`); returns `(room_id → [entity_id...], unassigned_ids, over_assigned)`. An opening is capped at `OPENING_MAX_ROOMS` (2) rooms — the two whose un-grown boundary is nearest the bbox centre; the dropped ones travel in `over_assigned` as `(entity_id, [room_id...])`. Assignment: `room_polygon.buffer(ROOM_OPENING_SEAL_PX).intersects(box(*bbox))` — 14 px total reach from the detected polygon, never 16.
   - `OPENING_ASSIGN_BUFFER_PX = ROOM_OPENING_SEAL_PX`
 
 - [ ] **Step 1: Write the failing tests**
@@ -667,8 +667,11 @@ ROOM = box(0, 0, 300, 200)   # a 300×200 px room
 
 
 class TestOpeningWidth(unittest.TestCase):
-    def test_swing_door_uses_opening_line_chord(self):
-        ev = {"opening_line": [[100, 200], [160, 200]]}
+    def test_single_swing_uses_arc_radius_not_the_chord(self):
+        # superseded: see tests/test_takeoff_openings.py — a single swing is
+        # measured by evidence["arc_bbox"]'s radius, and only a merged
+        # ("double_swing") pair keeps the opening_line chord
+        ev = {"assembly_type": "double_swing", "opening_line": [[100, 200], [160, 200]]}
         w, src = opening_width_px("door", (100, 140, 160, 206), ev, ROOM)
         self.assertAlmostEqual(w, 60.0)
         self.assertEqual(src, "opening_line")
