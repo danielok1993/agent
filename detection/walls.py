@@ -274,8 +274,9 @@ WALL_STAIR_END_TOL_PX        = 4.0   # a tread's extent lies within the
                                      # reference tread's extent +/- this
 WALL_STAIR_MIN_LEN_FRAC      = 0.5   # ... and covers this much of it (treads
                                      # clipped by the section cut are shorter)
-WALL_STAIR_TRANSVERSE_ANGLE  = 20.0  # degrees off the treads to count as
-                                     # a transverse (cut/arrow/nosing) line
+WALL_STAIR_TRANSVERSE_ANGLE  = 8.0   # degrees off the treads to count as a
+                                     # transverse (cut/arrow/nosing) line; s17's
+                                     # zigzag cuts run 12-15deg off the treads
 WALL_STAIR_CROSS_MARGIN_PX   = 2.0   # proper crossing: the crossed face and
                                      # the crosser each extend past the
                                      # intersection by this on both sides
@@ -2263,6 +2264,48 @@ def _demote_stair_faces(
                     for a in cross_angles
                 ):
                     continue
+                # End cuts: the section cut (or landing/nosing edge) that
+                # lies just OUTSIDE the first or last tread — within one
+                # pitch — touches nothing and crosses nothing, yet bounds
+                # the flight (s17: shallow zigzag cuts one pitch above the
+                # first and below the last tread fenced the flight into its
+                # own "room"). A same-pen chain of end-to-end pieces inside
+                # the flight zone whose near edge sits within a pitch of a
+                # run end and which spans the flight width is stair ink.
+                lo_end, hi_end = offs[0], offs[-1]
+                reach = med + tol
+                for j, g in cand:
+                    if j in tread_idx or j in transverse or not _inside(g, wide):
+                        continue
+                    if g.pen != ref.pen or _parallel(g, ref):
+                        continue
+                    chain = [j]
+                    ends = [g.p1, g.p2]
+                    for _ in range(8):
+                        grown = False
+                        for k, h in cand:
+                            if (
+                                k in chain or k in tread_idx or h.pen != ref.pen
+                                or not _inside(h, wide) or _parallel(h, ref)
+                            ):
+                                continue
+                            if any(_distance(e, q) <= touch for e in ends for q in (h.p1, h.p2)):
+                                chain.append(k)
+                                ends = [h.p1, h.p2] + ends
+                                grown = True
+                        if not grown:
+                            break
+                    pts = [faces[k].p1 for k in chain] + [faces[k].p2 for k in chain]
+                    span_lo = min(px * ux + py * uy for px, py in pts)
+                    span_hi = max(px * ux + py * uy for px, py in pts)
+                    if min(span_hi, rhi) - max(span_lo, rlo) < WALL_STAIR_MIN_LEN_FRAC * rlen:
+                        continue
+                    off_lo = min(px * nx + py * ny for px, py in pts)
+                    off_hi = max(px * nx + py * ny for px, py in pts)
+                    near_low = off_lo <= lo_end + touch and off_hi >= lo_end - reach
+                    near_high = off_hi >= hi_end - touch and off_lo <= hi_end + reach
+                    if near_low or near_high:
+                        transverse.extend(k for k in chain if k not in transverse)
                 runs.append((tread_idx, transverse))
 
     for tread_idx, transverse in runs:

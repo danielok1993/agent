@@ -1173,6 +1173,26 @@ class TestStairFurniture(unittest.TestCase):
         rooms = rooms_for(rect_room(0, 100, 100, 600, 400) + lines + tick)
         self.assertEqual(len(rooms), 2)
 
+    def test_end_cuts_outside_the_treads_do_not_bound_the_flight(self):
+        # s17: a stairwell whose section cuts (shallow zigzag lines) lie one
+        # pitch ABOVE the first tread and BELOW the last — touching and
+        # crossing nothing — fenced the flight into its own "room" between
+        # them. A same-pen chain within a pitch of a run end that spans the
+        # flight is the cut, and stair ink.
+        well = wall_band_v(100, 300, 100, 400) + wall_band_v(102, 400, 100, 400)
+        treads = [hline(110 + i, 308, 400, 160 + 20 * i) for i in range(6)]
+        arrow = [vline(120, 354, 150, 300)]
+        top_cut = [path(121, [(308, 148), (350, 140)]), path(122, [(350, 140), (352, 146)]),
+                   path(123, [(352, 146), (400, 138)])]
+        bottom_cut = [path(124, [(308, 300), (400, 285)])]
+        paths = rect_room(0, 100, 100, 600, 400) + well + treads + arrow + top_cut + bottom_cut
+        rooms = rooms_for(paths)
+        wells = [r for r in rooms if 300 < r.bbox[0] < 320]
+        self.assertEqual(len(wells), 1, [r.bbox for r in rooms])
+        poly = ShapelyPolygon(wells[0].evidence["polygon"])
+        self.assertTrue(poly.contains(ShapelyPoint(354, 120)))   # above the top cut
+        self.assertTrue(poly.contains(ShapelyPoint(354, 380)))   # below the bottom cut
+
     def test_flight_abutting_wall_keeps_that_wall(self):
         # The last tread sits one pitch off a wall face (s03 FF tread 1131 vs
         # face 355): the tread is stair ink, the wall face is not.
