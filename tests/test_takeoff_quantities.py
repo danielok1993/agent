@@ -61,7 +61,8 @@ class TestComputeTakeoff(unittest.TestCase):
         a = _room("room_a", 0, 0, 3 * s, 3 * s)
         b = _room("room_b", 3 * s + 10, 0, 6 * s + 10, 3 * s)
         de, dc = _door("door_0001", (3 * s + 1, s, 3 * s + 9, s + 0.9 * s),
-                       {"opening_line": [[3 * s + 5, s], [3 * s + 5, 1.9 * s]]})
+                       {"assembly_type": "double_swing",
+                        "opening_line": [[3 * s + 5, s], [3 * s + 5, 1.9 * s]]})
         page = self._run([a, b, de], [dc])
         for r in page.rooms:
             self.assertEqual(len(r.openings), 1)
@@ -100,7 +101,7 @@ class TestComputeTakeoff(unittest.TestCase):
     def test_text_scale_verified_by_sheet_size(self):
         scales = PageScales(by_region={"r1": ScaleInfo(denominator=50.0, source="text", nominal=50.0)})
         page = self._run([_room("room_a", 0, 0, 300, 300)], page_scales=scales,
-                         text="A3 SHEET", w_mm=420.0, h_mm=297.0)
+                         text="SHEET SIZE: A3", w_mm=420.0, h_mm=297.0)
         self.assertTrue(page.rooms[0].scale.verified)
         self.assertEqual(page.warnings, [])
 
@@ -111,11 +112,13 @@ class TestComputeTakeoff(unittest.TestCase):
         self.assertFalse(page.rooms[0].scale.verified)
         self.assertEqual([w["warning_code"] for w in page.warnings], ["SCALE_UNVERIFIED"])
         self.assertEqual(page.warnings[0]["severity"], "info")
+        self.assertNotIn("printed scale", page.warnings[0]["message"])
+        self.assertIn("verified region source", page.warnings[0]["message"])
 
     def test_resized_sheet_warns(self):
         scales = PageScales(by_region={"r1": ScaleInfo(denominator=50.0, source="text", nominal=50.0)})
         page = self._run([_room("room_a", 0, 0, 300, 300)], page_scales=scales,
-                         text="A1", w_mm=420.0, h_mm=297.0)
+                         text="SHEET SIZE: A1", w_mm=420.0, h_mm=297.0)
         codes = sorted(w["warning_code"] for w in page.warnings)
         self.assertEqual(codes, ["SCALE_PRINT_RESIZED", "SCALE_UNVERIFIED"])
         self.assertFalse(page.rooms[0].scale.verified)
@@ -124,7 +127,8 @@ class TestComputeTakeoff(unittest.TestCase):
         low = Heights(2.0, 2.1, 1.2, {"ceiling": "flag", "door": "default", "window": "default"})
         s = PX_PER_M_50
         de, dc = _door("door_0001", (s, 3 * s - 4, 1.9 * s, 3 * s + 4),
-                       {"opening_line": [[s, 3 * s], [1.9 * s, 3 * s]]})
+                       {"assembly_type": "double_swing",
+                        "opening_line": [[s, 3 * s], [1.9 * s, 3 * s]]})
         page = compute_takeoff([_room("room_a", 0, 0, 3 * s, 3 * s), de], [dc], SCALES_VP,
                                [REGION], DET50, low, 1, "", 420.0, 297.0)
         op = page.rooms[0].openings[0]
@@ -144,7 +148,7 @@ class TestComputeTakeoff(unittest.TestCase):
         page = self._run([_room("room_a", 0, 0, 300, 300, "HALL")])
         d = page.to_dict()
         self.assertEqual(set(d), {"page_number", "heights", "rooms", "unassigned_openings",
-                                  "unscaled_rooms", "totals"})
+                                  "over_assigned_openings", "unscaled_rooms", "totals"})
         room = d["rooms"][0]
         for k in ("room_id", "label", "scale", "mm_per_px", "floor_m2", "ceiling_m2",
                   "perimeter_m", "height_m", "height_source", "wall_gross_m2",
@@ -155,6 +159,40 @@ class TestComputeTakeoff(unittest.TestCase):
         self.assertNotIn("room_id", attrs)
         self.assertIn("floor_m2", attrs)
         self.assertEqual(d["totals"]["rooms_measured"], 1)
+
+    def test_opening_never_serves_more_than_two_rooms(self):
+        a = _room("room_a", 0, 0, 300, 200)
+        b = _room("room_b", 320, 0, 600, 200)
+        c = _room("room_c", 0, 210, 300, 410)
+        de, dc = _door("door_0001", (302, 190, 308, 250),
+                       {"assembly_type": "double_swing",
+                        "opening_line": [[302, 220], [308, 220]]})
+        page = self._run([a, b, c, de], [dc])
+        served = [r.room_id for r in page.rooms if r.openings]
+        self.assertEqual(sorted(served), ["room_a", "room_c"])
+        self.assertIn("TAKEOFF_OPENING_MULTI_ROOM",
+                      [w["warning_code"] for w in page.warnings])
+        self.assertEqual(
+            [w["severity"] for w in page.warnings
+             if w["warning_code"] == "TAKEOFF_OPENING_MULTI_ROOM"], ["info"])
+        self.assertEqual(page.over_assigned_openings,
+                         [{"id": "door_0001", "dropped_rooms": ["room_b"]}])
+        self.assertEqual(page.to_dict()["over_assigned_openings"],
+                         [{"id": "door_0001", "dropped_rooms": ["room_b"]}])
+
+    def test_scale_is_picked_at_a_point_inside_the_room(self):
+        # an L-shaped room: its centroid (135.7, 135.7) lies OUTSIDE both the
+        # polygon and the region; the representative point (50, 250) is inside
+        poly = [[0, 0], [400, 0], [400, 100], [100, 100], [100, 400], [0, 400], [0, 0]]
+        room = Entity(entity_id="room_L", entity_type="room", bbox=(0, 0, 400, 400),
+                      confidence=0.9, source="heuristic", label=None,
+                      attributes={"polygon": poly})
+        region = Region(region_id="r1", bbox=(0, 150, 110, 400), region_type="floor_plan")
+        scales = PageScales(by_region={
+            "r1": ScaleInfo(denominator=100.0, source="viewport", nominal=100.0)})
+        page = self._run([room], page_scales=scales, regions=(region,))
+        self.assertEqual((page.rooms[0].scale.denominator, page.rooms[0].scale.region_id),
+                         (100.0, "r1"))
 
     def test_bowtie_ring_repairs_to_largest_lobe(self):
         bowtie = Entity(entity_id="room_bowtie", entity_type="room", bbox=(0, 0, 300, 300),

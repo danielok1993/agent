@@ -66,6 +66,7 @@ class TakeoffPage:
     heights: Heights
     rooms: list = field(default_factory=list)
     unassigned_openings: list = field(default_factory=list)
+    over_assigned_openings: list = field(default_factory=list)
     unscaled_rooms: list = field(default_factory=list)
     warnings: list = field(default_factory=list)
 
@@ -84,6 +85,7 @@ class TakeoffPage:
             "heights": self.heights.to_dict(),
             "rooms": [r.to_dict() for r in self.rooms],
             "unassigned_openings": list(self.unassigned_openings),
+            "over_assigned_openings": [dict(o) for o in self.over_assigned_openings],
             "unscaled_rooms": list(self.unscaled_rooms),
             "totals": self.totals(),
         }
@@ -156,7 +158,9 @@ def compute_takeoff(entities, candidates, page_scales, regions, det_scale, heigh
         if poly is None:
             continue
         room_polys[e.entity_id] = poly
-        c = raw.centroid
+        # A point ON the room, never its centroid: an L-shaped room's centroid
+        # can fall outside both the polygon and its own floor_plan region.
+        c = raw.representative_point()
         rs = select_room_scale((c.x, c.y), regions, page_scales, det_scale)
         if rs.denominator is None:
             page.unscaled_rooms.append(e.entity_id)
@@ -173,8 +177,14 @@ def compute_takeoff(entities, candidates, page_scales, regions, det_scale, heigh
     openings = [(e.entity_id, e.entity_type, e.bbox) for e in entities
                 if e.entity_type in ("door", "window")]
     opening_by_id = {e.entity_id: e for e in entities if e.entity_type in ("door", "window")}
-    assigned, unassigned = assign_openings(room_polys, openings)
+    assigned, unassigned, over_assigned = assign_openings(room_polys, openings)
     page.unassigned_openings = unassigned
+    page.over_assigned_openings = [{"id": oid, "dropped_rooms": list(dropped)}
+                                   for oid, dropped in over_assigned]
+    if over_assigned:
+        _warn(page, "TAKEOFF_OPENING_MULTI_ROOM", "info",
+              f"{len(over_assigned)} opening(s) reached 3+ rooms; kept the two "
+              "nearest room boundaries — an opening serves at most two spaces")
 
     for rid, (e, rs, poly) in room_meta.items():
         D = rs.denominator
@@ -211,7 +221,7 @@ def compute_takeoff(entities, candidates, page_scales, regions, det_scale, heigh
         page.rooms.append(room)
         if not rs.verified:
             _warn(page, "SCALE_UNVERIFIED", "info",
-                  "Room quantities rest on a printed scale that could not be verified "
-                  "against a viewport or sheet size")
+                  "Room quantities rest on a scale that could not be tied to a verified "
+                  "region source (viewport/user, or text confirmed by sheet size)")
 
     return page
