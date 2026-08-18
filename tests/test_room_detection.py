@@ -7,7 +7,9 @@ the inner wall faces (inner face + line barrier + wall dilation).
 """
 import unittest
 
-from shapely.geometry import box as shapely_box
+from shapely.geometry import (
+    Point as ShapelyPoint, Polygon as ShapelyPolygon, box as shapely_box,
+)
 from shapely.ops import unary_union
 
 from models import Candidate, PathPrimitive, TextSpan
@@ -80,7 +82,7 @@ def text_span(text, bbox):
 
 
 def rooms_for(paths, doors=(), windows=(), text_spans=()):
-    network = detect_wall_network(paths)
+    network = detect_wall_network(paths, list(text_spans))
     return detect_rooms(
         network, list(doors), list(windows), PAGE_W, PAGE_H, list(text_spans)
     )
@@ -1052,6 +1054,159 @@ class TestPlugPlaneEvidence(unittest.TestCase):
         plugs = _door_plugs((205, 150, 255, 270), material)
         edge2 = [kind for _, kind, e in plugs if e == 2]
         self.assertEqual(edge2, ["full"])
+
+
+def stair_arrowhead(start_idx, tip, base_y, half=3.0):
+    """Filled arrowhead triangle (a marker ring) pointing down at `tip`."""
+    tx, ty = tip
+    pts = [(tx - half, base_y), (tx + half, base_y), (tx, ty), (tx - half, base_y)]
+    return [
+        path(start_idx + i, [pts[i], pts[i + 1]], stroke_width=0.0,
+             fill=(0.0, 0.0, 0.0))
+        for i in range(3)
+    ]
+
+
+class TestStairFurniture(unittest.TestCase):
+    """Stairs are furniture to the room stage: a room polygon runs to the
+    enclosing walls straight through the flight (RICS GIA takeoff). None of
+    a stair's ink — treads, stringers, cut line, direction arrow, winders,
+    balustrade lines — may qualify as a barrier, whatever pen it is drawn
+    in (s03 draws the stair in the 1.5px wall pen)."""
+
+    def _one_room_containing(self, paths, points, text_spans=()):
+        rooms = rooms_for(paths, text_spans=text_spans)
+        self.assertEqual(len(rooms), 1, [r.bbox for r in rooms])
+        poly = ShapelyPolygon(rooms[0].evidence["polygon"])
+        for pt in points:
+            self.assertTrue(
+                poly.contains(ShapelyPoint(*pt)), f"{pt} fenced out of the room"
+            )
+        return rooms[0], poly
+
+    def _flight(self):
+        # Four treads at 15px pitch spanning from the top wall face down to
+        # a partition band, plus the section cut line crossing them (the
+        # s03 first-floor stair beside room_0012).
+        treads = [vline(100 + i, 440 + 15 * i, 108, 200) for i in range(4)]
+        cut = [path(110, [(430, 120), (500, 190)])]
+        partition = wall_band_h(120, 400, 592, 200)
+        return treads + cut + partition
+
+    def test_tread_flight_with_cut_line_does_not_bound_room(self):
+        paths = rect_room(0, 100, 100, 600, 400) + self._flight()
+        room, poly = self._one_room_containing(
+            paths, [(447, 150), (462, 150), (477, 150), (492, 150)]
+        )
+        # The partition the flight lands on is still a wall.
+        self.assertFalse(poly.contains(ShapelyPoint(500, 204)))
+
+    def test_four_faces_without_crossing_stay_walls(self):
+        # The same four parallel faces with nothing crossing them are a
+        # cavity party wall (leaf/cavity/leaf at equal width): rooms split.
+        treads = [vline(100 + i, 440 + 15 * i, 100, 400) for i in range(4)]
+        rooms = rooms_for(rect_room(0, 100, 100, 600, 400) + treads)
+        self.assertEqual(len(rooms), 2)
+
+    def test_arrow_with_up_text_and_winders_do_not_bound_room(self):
+        # s03 ground-floor stair: no tread lines at all — a full-height
+        # stringer beside the flight, two winders fanning from the newel
+        # corner, a direction arrow crossing the stringer into the flight
+        # with an arrowhead, "UP" at its tail, and a landing edge line.
+        stringer = [vline(100, 180, 108, 392)]
+        winders = [
+            path(101, [(180, 300), (108, 340)]),
+            path(102, [(180, 300), (140, 392)]),
+        ]
+        landing_edge = [hline(103, 108, 180, 300)]
+        arrow = [hline(104, 140, 240, 200), vline(105, 140, 200, 290)]
+        head = stair_arrowhead(106, (140, 300), 290)
+        text = [text_span("UP", (243, 194, 258, 206))]
+        paths = rect_room(0, 100, 100, 600, 400) + stringer + winders + landing_edge + arrow + head
+        self._one_room_containing(
+            paths, [(150, 250), (150, 350), (300, 250)], text_spans=text
+        )
+
+    def test_leader_arrow_without_stair_text_keeps_walls(self):
+        # A leader crossing a partition to point at something beyond it
+        # is annotation, not a stair: the partition it crosses stays.
+        partition = wall_band_v(100, 300, 100, 400)
+        arrow = [hline(104, 400, 250, 200)]
+        head = stair_arrowhead(106, (250, 200), 200)  # degenerate; use side head
+        head = [
+            path(106, [(250, 200), (256, 197)], stroke_width=0.0, fill=(0.0, 0.0, 0.0)),
+            path(107, [(256, 197), (256, 203)], stroke_width=0.0, fill=(0.0, 0.0, 0.0)),
+            path(108, [(256, 203), (250, 200)], stroke_width=0.0, fill=(0.0, 0.0, 0.0)),
+        ]
+        rooms = rooms_for(rect_room(0, 100, 100, 600, 400) + partition + arrow + head)
+        self.assertEqual(len(rooms), 2)
+
+    def test_cross_hatched_wall_stays_wall(self):
+        # s20: a wall band filled with cross-hatch — two families of short
+        # shallow-oblique (15deg) strokes at 12px pitch crossing each other — is a
+        # "flight" by pitch, extent and crossing; hatch is excluded by
+        # shape (short + oblique), and the wall faces beside it stay.
+        # Faces drawn in short pieces (s20 draws walls between openings as
+        # 50-70px lines), so a hatch-run zone can enclose a piece whole.
+        band = [
+            vline(100 + k, x, y, y + 50)
+            for k, (x, y) in enumerate(
+                (x, y) for x in (300, 336) for y in range(100, 400, 50)
+            )
+        ]
+        idx = 120
+        hatch = []
+        for y in range(104, 390, 12):
+            hatch.append(path(idx, [(300, y + 10), (336, y)], stroke_width=0.75))
+            idx += 1
+            hatch.append(path(idx, [(300, y - 4), (336, y + 6)], stroke_width=0.75))
+            idx += 1
+        rooms = rooms_for(rect_room(0, 100, 100, 600, 400) + band + hatch)
+        self.assertEqual(len(rooms), 2)
+
+    def test_multi_line_wall_crossed_by_annotation_stays_wall(self):
+        # s17: a wall drawn as four parallel lines at leaf pitch, with a
+        # short "to be removed" tick in another pen crossing one of them.
+        # Neither an off-pen crosser nor lines 20x their pitch make a stair.
+        lines = [vline(100 + i, 300 + 12 * i, 100, 400) for i in range(4)]
+        tick = [hline(110, 306, 330, 250, color=(1.0, 0.5, 0.0))]
+        rooms = rooms_for(rect_room(0, 100, 100, 600, 400) + lines + tick)
+        self.assertEqual(len(rooms), 2)
+
+    def test_end_cuts_outside_the_treads_do_not_bound_the_flight(self):
+        # s17: a stairwell whose section cuts (shallow zigzag lines) lie one
+        # pitch ABOVE the first tread and BELOW the last — touching and
+        # crossing nothing — fenced the flight into its own "room" between
+        # them. A same-pen chain within a pitch of a run end that spans the
+        # flight is the cut, and stair ink.
+        well = wall_band_v(100, 300, 100, 400) + wall_band_v(102, 400, 100, 400)
+        treads = [hline(110 + i, 308, 400, 160 + 20 * i) for i in range(6)]
+        arrow = [vline(120, 354, 150, 300)]
+        top_cut = [path(121, [(308, 148), (350, 140)]), path(122, [(350, 140), (352, 146)]),
+                   path(123, [(352, 146), (400, 138)])]
+        bottom_cut = [path(124, [(308, 300), (400, 285)])]
+        paths = rect_room(0, 100, 100, 600, 400) + well + treads + arrow + top_cut + bottom_cut
+        rooms = rooms_for(paths)
+        wells = [r for r in rooms if 300 < r.bbox[0] < 320]
+        self.assertEqual(len(wells), 1, [r.bbox for r in rooms])
+        poly = ShapelyPolygon(wells[0].evidence["polygon"])
+        self.assertTrue(poly.contains(ShapelyPoint(354, 120)))   # above the top cut
+        self.assertTrue(poly.contains(ShapelyPoint(354, 380)))   # below the bottom cut
+
+    def test_flight_abutting_wall_keeps_that_wall(self):
+        # The last tread sits one pitch off a wall face (s03 FF tread 1131 vs
+        # face 355): the tread is stair ink, the wall face is not.
+        treads = [vline(100 + i, 440 + 15 * i, 108, 200) for i in range(4)]
+        cut = [path(110, [(430, 120), (500, 190)])]
+        nosing = [hline(111, 430, 500, 200)]
+        wall = wall_band_v(120, 500, 100, 400)
+        paths = rect_room(0, 100, 100, 600, 400) + treads + cut + nosing + wall
+        rooms = rooms_for(paths)
+        self.assertEqual(len(rooms), 2)
+        left = min(rooms, key=lambda r: r.bbox[0])
+        poly = ShapelyPolygon(left.evidence["polygon"])
+        self.assertTrue(poly.contains(ShapelyPoint(492, 150)))
+        self.assertAlmostEqual(left.bbox[2], 498.0, delta=2.0)
 
 
 if __name__ == "__main__":

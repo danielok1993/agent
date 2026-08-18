@@ -303,6 +303,17 @@ artifacts" — that is a new decision, not a reopening of this table.
 | WALL_LATTICE_TOUCH_GAP_PX | P | measured 2026-08-12: no corpus signal (small tolerance); conservative default (§4b); revisit if 1:100 sweep shows artifacts |
 | WALL_LATTICE_OFFSET_TOL_PX | P | collinearity tolerance |
 | WALL_LATTICE_PEN_TOL | P | pen |
+| WALL_STAIR_MIN_TREADS | D | count (3; 2 parallel lines are a wall) — added 2026-08-18 (fix/stairs-are-furniture) |
+| WALL_STAIR_MIN_PITCH_PX | P | 6px: above hatch pitch (4.05); tread pitch upper bound reuses gates.WALL_THICK_MATERIAL_MAX_PX (W) |
+| WALL_STAIR_PITCH_TOL_FRAC | D | fraction of median pitch |
+| WALL_STAIR_END_TOL_PX | P | drafting tolerance on tread-end alignment |
+| WALL_STAIR_MIN_LEN_FRAC | D | fraction |
+| WALL_STAIR_MAX_ASPECT | D | tread length / pitch ratio (flight width / going) |
+| WALL_STAIR_TRANSVERSE_ANGLE | D | degrees |
+| WALL_STAIR_CROSS_MARGIN_PX | P | overshoot past an intersection |
+| WALL_STAIR_TOUCH_PX | P | endpoint contact / zone-inside tolerance |
+| WALL_STAIR_TEXT_NEAR_PX | P | text-to-arrow distance (text is paper-space) |
+| WALL_STAIR_FAN_MIN_ANGLE | D | degrees |
 | WALL_HATCH_MAX_PITCH_PX | W | **removed 2026-08-18** (branch fix/lattice-extent-aware-rows): the separate hatch tier is subsumed by the single striped-field scan once the rung length floor is gone (max pitch WALL_MAX_THICKNESS_PX + tolerance covers 8px). Historical: measured 2026-08-12 (§4b) pitch ratio ≈0.50–0.55, world-space. |
 | WALL_WHITE_TOUCH_TOL_PX | P | contact tolerance |
 | WALL_WHITE_SPAN_MIN_FRAC | D | fraction |
