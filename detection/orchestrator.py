@@ -31,7 +31,7 @@ def _stage(name: str):
 
 def run_heuristics(
     page_data: PageData,
-    plumber_tables: list[list[list[str | None]]],
+    plumber_tables: list[dict],
     disable_walls: bool = False,   # deprecated alias for disable_rooms
     disable_windows: bool = False,
     collector: DebugTraceCollector | None = None,

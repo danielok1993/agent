@@ -617,7 +617,8 @@ def run_extract(
             comparison = compare_counts(pymupdf_counts, plumber_counts)
             comparison["page_number"] = page_num
             comparison["tables"] = [
-                {"rows": len(t), "cols": max((len(r) for r in t), default=0), "sample": str(t[0])[:120]}
+                {"rows": len(t["rows"]), "cols": max((len(r) for r in t["rows"]), default=0),
+                 "bbox": list(t["bbox"]), "sample": str(t["rows"][0])[:120]}
                 for t in plumber_page.get("tables", [])
             ]
             write_json(str(Path(page_dir) / "pdfplumber_comparison.json"), comparison)
