@@ -100,8 +100,8 @@
     "semantic_hash": ""
   },
   "detection/walls.py": {
-    "mtime": 1787052466.2987251,
-    "ast_hash": "ac9d441bd9bd7f7b6a41cc5d1fc49d74",
+    "mtime": 1787065158.7276433,
+    "ast_hash": "f848cb5b48925fcfedde5c0195d6f0c0",
     "semantic_hash": ""
   },
   "detection/windows.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1787051821.1651642,
-    "ast_hash": "b7917738aa17403c477c645a50a265e1",
+    "mtime": 1787065193.9917846,
+    "ast_hash": "98e09ab2f1205fb00af23e7928a88e82",
     "semantic_hash": ""
   },
   "README.md": {
@@ -260,12 +260,12 @@
     "semantic_hash": ""
   },
   "tests/test_room_detection.py": {
-    "mtime": 1787049394.1369433,
-    "ast_hash": "71b5efeaf08ee1ad52a7762aca8f2bdc",
+    "mtime": 1787065149.165229,
+    "ast_hash": "09d238d6ade84225a3b3934d15ba3df6",
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
-    "mtime": 1787051917.7294962,
+    "mtime": 1787058087.2235672,
     "ast_hash": "5546953bb7b9949d466bea90a18215e8",
     "semantic_hash": ""
   },
@@ -440,7 +440,7 @@
     "semantic_hash": ""
   },
   "fixtures/MANIFEST.json": {
-    "mtime": 1787002664.5541124,
+    "mtime": 1787064477.7942336,
     "ast_hash": "484b355717add2612768232df1a42192",
     "semantic_hash": ""
   },
@@ -665,8 +665,8 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s03.json": {
-    "mtime": 1787002915.7523699,
-    "ast_hash": "fb5c731abdc0cee13b70c7f5880d907a",
+    "mtime": 1787065092.8500948,
+    "ast_hash": "abea134f7c42c5e397ab887e153bb7fe",
     "semantic_hash": ""
   },
   "tests/ground_truth/s04.json": {
@@ -680,8 +680,8 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s06.json": {
-    "mtime": 1787049394.1345778,
-    "ast_hash": "2d0a66e6efc0ec24c741b35c2fa3a1a8",
+    "mtime": 1787058087.2221076,
+    "ast_hash": "2a4eb5496451f010b941d717eda3fc57",
     "semantic_hash": ""
   },
   "tests/ground_truth/s07.json": {
@@ -700,7 +700,7 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s11.json": {
-    "mtime": 1786619016.7090533,
+    "mtime": 1787065092.8509266,
     "ast_hash": "76a52e535adf89b63cd891a8270abc28",
     "semantic_hash": ""
   },
@@ -710,8 +710,8 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s13.json": {
-    "mtime": 1787049394.1351137,
-    "ast_hash": "cb438307bdd10b487fc1e17073035e2d",
+    "mtime": 1787065092.8512893,
+    "ast_hash": "778cc53bbbc8ddf061908f6cec44d74d",
     "semantic_hash": ""
   },
   "tests/ground_truth/s14.json": {
@@ -725,18 +725,18 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s16.json": {
-    "mtime": 1786630609.6242273,
-    "ast_hash": "4bf1ade6b1f2aa0f83cf047cde31d348",
+    "mtime": 1787058087.2224522,
+    "ast_hash": "8473f3b14c1cdb0d1648350869e30560",
     "semantic_hash": ""
   },
   "tests/ground_truth/s17.json": {
-    "mtime": 1786638771.6543553,
-    "ast_hash": "e3a6b02e853b8b22a8a453f48d285567",
+    "mtime": 1787065092.8515658,
+    "ast_hash": "e5f27dac804414c166f80d223a5e96b2",
     "semantic_hash": ""
   },
   "tests/ground_truth/s18.json": {
-    "mtime": 1787049394.1363037,
-    "ast_hash": "ad5d89dcab565ec5e9e7827ebd8cfb19",
+    "mtime": 1787058087.222734,
+    "ast_hash": "b5d4fc72544b3f879e03405ce67771d8",
     "semantic_hash": ""
   },
   "tests/ground_truth/s20.json": {
@@ -815,8 +815,8 @@
     "semantic_hash": ""
   },
   "docs/scale-normalization-findings.md": {
-    "mtime": 1787051835.2941751,
-    "ast_hash": "cf78d8697dcade891a7f84e072d01f96",
+    "mtime": 1787063572.0951416,
+    "ast_hash": "e5bf276223ae777331c296eac1fc6870",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-08-12-scale-aware-wall-room-gates.md": {
@@ -830,7 +830,7 @@
     "semantic_hash": ""
   },
   "tests/test_scale_gates.py": {
-    "mtime": 1787051361.7715476,
+    "mtime": 1787058087.2230563,
     "ast_hash": "df494e98a534f79e2bbe6cd2f969ed75",
     "semantic_hash": ""
   },

@@ -186,16 +186,7 @@
   "184": "Step 2 — Retune the window span-overshoot gate (paper-space FP kill)",
   "185": "Step 3 — Diagnose s15's 82 false positives (read-only)",
   "186": "Step 4 — Recall audit on the 1:100 sheets (misses are invisible to ground truth)",
-  "187": "TestWindowExteriorSide",
-  "188": "TestCrossGatesUnscaledStopgapRatchet",
   "189": "TestDoorGatesUnscaledStopgapRatchet",
   "190": "TestSlugForPath",
-  "191": "_projected_interval",
-  "192": "TestSlidingScaleBehavior",
-  "193": "TestWindowTightPairInterior",
-  "194": "shape.py",
-  "195": "README.md",
-  "196": "_is_dashed",
-  "197": "TestBlindWindowPocket",
-  "199": "TestWindowSpanOvershootRetune"
+  "195": "README.md"
 }

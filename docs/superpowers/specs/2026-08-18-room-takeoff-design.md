@@ -111,10 +111,10 @@ Opening width, in order of evidence:
 - door with `evidence["opening_line"]` (swing/french/garden pairs): the
   chord length;
 - window: `evidence["opening_width_px"]`;
-- sliding / folding doors: `evidence` width fields those assemblers record
-  (bbox is ~2× the opening — parked panel / stack); the exact key is read
-  from `detection/doors/sliding.py` / `folding.py` at implementation time
-  and pinned by a test;
+- sliding / folding doors: `evidence["opening_span_px"]` (recorded by both
+  `detection/doors/sliding.py` and `folding.py`; bbox is ~2× the opening —
+  parked panel / stack), falling back to `panel_length_px` for the fill-less
+  parked_leaf / open_v tiers that carry no span;
 - else: the bbox side that lies along the room edge — the longer of the two
   bbox sides whose midpoint is nearest the room boundary.
 
