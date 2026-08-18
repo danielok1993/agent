@@ -413,7 +413,7 @@ git commit -m "feat(takeoff): heights — flag, tty prompt, default"
   - `@dataclass(frozen=True) RoomScale(denominator: Optional[float], source: str, region_id: Optional[str], verified: bool)` — `source` ∈ `"viewport"|"text"|"user"|"detection"|"unresolved"`; `to_dict()` → `{"denominator","source","region_id","verified"}`.
   - `select_room_scale(centroid: tuple[float,float], regions: list[Region], page_scales: PageScales, det_scale: Optional[DetectionScale]) -> RoomScale` — verification is filled by the caller (`verified=False` here). Rule: the first `floor_plan` region containing the centroid decides — if `page_scales.by_region` has an entry for it, that entry's effective D is the answer and an unresolved entry means `denominator=None, source="unresolved"` (NO det_scale fallback: on mixed-scale pages det_scale is another plan's scale); only a room in no floor_plan region, or in one with no `by_region` entry at all, falls to `det_scale`; else unresolved.
   - `sheet_size_tokens(text: str) -> set[str]` — `{"A1"}` etc., word-bounded `A0`–`A4`.
-  - `verify_sheet_size(tokens: set[str], page_w_mm: float, page_h_mm: float) -> tuple[bool, bool]` → `(matches, resized)`: `matches` when any token's ISO size (either orientation) is within 5 % of the page on both sides; `resized` when any token is off by a factor in [1.8, 2.2] or [0.45, 0.55] on both sides (one A-step). Both False when no tokens.
+  - `verify_sheet_size(tokens: set[str], page_w_mm: float, page_h_mm: float) -> tuple[bool, bool]` → `(matches, resized)`: `matches` when any token's ISO size (either orientation) is within 5 % of the page on both sides; `resized` when any token is off by a linear factor in [1.8, 2.2] or [0.45, 0.55] on both sides — a half-size / double-size print, i.e. TWO ISO A-steps (A1↔A3), the common plot-shop reduction. Both False when no tokens.
   - `is_verified(room_scale: RoomScale, sheet_matches: bool) -> bool` — `source in ("viewport","user")` or (`source == "text"` and `sheet_matches`). `"detection"` inherits nothing → False.
   - `ISO_A_SIZES_MM = {"A0": (841, 1189), "A1": (594, 841), "A2": (420, 594), "A3": (297, 420), "A4": (210, 297)}`
 
@@ -498,8 +498,8 @@ class TestSheetSize(unittest.TestCase):
         self.assertEqual(verify_sheet_size({"A3"}, 297.0, 420.0), (True, False))
         self.assertEqual(verify_sheet_size({"A1"}, 841.0, 594.0), (True, False))
 
-    def test_one_step_mismatch_is_resized(self):
-        # A1 drawing printed on A3 paper: both sides ~halved
+    def test_half_size_print_is_resized(self):
+        # A1 drawing printed half-size on A3 paper (two A-steps): both sides ~halved
         self.assertEqual(verify_sheet_size({"A1"}, 420.0, 297.0), (False, True))
         # A3 drawing blown up to A1
         self.assertEqual(verify_sheet_size({"A3"}, 841.0, 594.0), (False, True))
@@ -553,6 +553,7 @@ ISO_A_SIZES_MM = {
     "A4": (210.0, 297.0),
 }
 SHEET_SIZE_TOL_FRAC = 0.05
+# Half-size / double-size prints (A1↔A3: two ISO A-steps, linear factor 2).
 RESIZE_FACTOR_BANDS = ((1.8, 2.2), (0.45, 0.55))
 
 _SIZE_TOKEN_RE = re.compile(r"\bA[0-4]\b")
@@ -1164,7 +1165,8 @@ def compute_takeoff(entities, candidates, page_scales, regions, det_scale, heigh
     if sheet_resized:
         _warn(page, "SCALE_PRINT_RESIZED", "warning",
               f"Title block declares {'/'.join(sorted(tokens))} but the page is "
-              f"{page_w_mm:.0f}x{page_h_mm:.0f} mm — printed scale may be one A-size off")
+              f"{page_w_mm:.0f}x{page_h_mm:.0f} mm — looks like a half-/double-size print "
+              "(two A-steps); the printed scale may be off by 2x")
 
     # Rooms: polygon, corrected for the barrier standoff, and its scale.
     # EVERY valid room takes part in opening assignment (so an opening on an
@@ -1347,6 +1349,80 @@ class TestSummaryTotals(unittest.TestCase):
         self.assertNotIn("takeoff", d)
 
 
+class TestRunExtractWiring(unittest.TestCase):
+    """End-to-end through run_extract on a synthetic 2-page PDF, with
+    compute_takeoff mocked so the assertions are about WIRING (called per
+    page, takeoff.json written, warnings reach warnings.json, root totals
+    aggregate) and never about detection."""
+
+    def _pdf(self, path):
+        import fitz
+        doc = fitz.open()
+        for _ in range(2):
+            page = doc.new_page(width=595, height=842)
+            page.draw_rect(fitz.Rect(100, 100, 300, 250), color=(0, 0, 0), width=1.5)
+            page.insert_text((110, 120), "HALL", fontsize=8)
+        doc.save(path)
+        doc.close()
+
+    def _canned(self, page_number, floor):
+        h = Heights(2.4, 2.1, 1.2, {"ceiling": "default", "door": "default", "window": "default"})
+        page = TakeoffPage(page_number=page_number, heights=h)
+        page.rooms.append(RoomTakeoff(
+            room_id="room_0000", label=None, scale=RoomScale(50.0, "text", "r1", False),
+            mm_per_px=8.467, floor_m2=floor, ceiling_m2=floor, perimeter_m=1.0, height_m=2.4,
+            height_source="default", wall_gross_m2=2.4, openings=[], wall_net_m2=2.4,
+            assumptions=[]))
+        page.warnings.append({"page_number": page_number, "warning_code": "SCALE_UNVERIFIED",
+                              "severity": "info", "message": "canned"})
+        return page
+
+    def test_takeoff_is_wired_per_page(self):
+        import json
+        import tempfile
+        from pathlib import Path
+        import pipeline
+
+        with tempfile.TemporaryDirectory() as tmp:
+            pdf = str(Path(tmp) / "two.pdf")
+            self._pdf(pdf)
+            calls = []
+
+            def fake_compute(entities, candidates, page_scales, regions, det_scale,
+                             heights, page_number, page_text, w_mm, h_mm):
+                calls.append((page_number, heights, round(w_mm), round(h_mm)))
+                return self._canned(page_number, floor=10.0 * page_number)
+
+            with mock.patch.object(pipeline, "compute_takeoff", side_effect=fake_compute):
+                out_dir = pipeline.run_extract(pdf, [0, 1], out_parent=tmp, skip_gemini=True,
+                                               allow_scale_prompt=False, ceiling_height=2.7)
+
+            # called once per page, with the resolved heights and the page size in mm
+            self.assertEqual([c[0] for c in calls], [1, 2])
+            self.assertEqual(calls[0][1].ceiling_m, 2.7)
+            self.assertEqual(calls[0][1].sources["ceiling"], "flag")
+            self.assertEqual((calls[0][2], calls[0][3]), (210, 297))   # 595x842 pt = A4
+
+            # takeoff.json per page, with the canned totals
+            for n in (1, 2):
+                d = json.loads((Path(out_dir) / "pages" / f"page_{n:02d}" / "takeoff.json").read_text())
+                self.assertEqual(d["totals"]["floor_m2"], 10.0 * n)
+                fe = json.loads((Path(out_dir) / "pages" / f"page_{n:02d}" / "final_entities.json").read_text())
+                # attach only touches room entities; none detected on the blank page is fine
+                self.assertIn("entities", fe)
+
+            # takeoff warnings reach warnings.json
+            w = json.loads((Path(out_dir) / "warnings.json").read_text())
+            codes = [x["warning_code"] for x in w["warnings"]]
+            self.assertEqual(codes.count("SCALE_UNVERIFIED"), 2)
+
+            # root totals aggregate across pages; per-page summary carries its own
+            summ = json.loads((Path(out_dir) / "summary.json").read_text())
+            self.assertEqual(summ["totals"]["takeoff"]["floor_m2"], 30.0)
+            self.assertEqual(summ["totals"]["takeoff"]["rooms_measured"], 2)
+            self.assertEqual(summ["pages"][1]["takeoff"]["floor_m2"], 20.0)
+
+
 class TestCliFlags(unittest.TestCase):
     def test_extract_parser_accepts_height_flags(self):
         import app
@@ -1519,7 +1595,7 @@ Root `summary.json` totals — add `"takeoff": takeoff_totals,` inside `"totals"
 - [ ] **Step 5: Run to verify pass**
 
 Run: `python -m unittest tests.test_takeoff_pipeline -v && python -m unittest discover tests`
-Expected: all OK. `tests/test_scale_no_prompt.py` and `tests/test_batch_extract.py` must still pass (the new flags are optional).
+Expected: all OK (the wiring test takes ~2–5 s: it renders two blank A4 pages through the full stack). `tests/test_scale_no_prompt.py` and `tests/test_batch_extract.py` must still pass (the new flags are optional). If the wiring test fails on `region_result` / Gemini, check `skip_gemini=True` reached `run_extract` — no network is involved.
 
 - [ ] **Step 6: Smoke run on a real sheet**
 
@@ -1637,7 +1713,10 @@ Pipeline architecture stage 6 — append one paragraph:
    After finalisation, `takeoff.compute_takeoff` converts each room polygon
    (buffered out by `ROOM_WALL_DILATE_PX` to undo the barrier standoff) into
    metres at 0.16933 mm/px × the room's denominator (its floor_plan region's
-   scale, else the detection scale, else no numbers + `TAKEOFF_NO_SCALE`),
+   scale; a region the resolver marked unresolved leaves its rooms UNSCALED —
+   the detection scale is borrowed only by rooms in no region / no verdict,
+   never across plans on a mixed-scale sheet; else no numbers +
+   `TAKEOFF_NO_SCALE`),
    assigns door/window entities to the rooms whose grown polygon touches them
    (widths from `opening_line` / `opening_width_px` / `opening_span_px`, bbox
    edge as last resort), and writes `takeoff.json`; the block is mirrored onto

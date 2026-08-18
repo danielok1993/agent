@@ -221,7 +221,7 @@ appear in `unscaled_rooms` with no numbers, never with zeros.
 |---|---|---|
 | `TAKEOFF_NO_SCALE` | warning | ≥1 room on the page has no effective D |
 | `SCALE_UNVERIFIED` | info | ≥1 measured room's scale is text-only and unverifiable |
-| `SCALE_PRINT_RESIZED` | warning | title-block sheet size mismatches the mediabox by a factor in [1.8, 2.2] or [0.45, 0.55] (one A-size step) |
+| `SCALE_PRINT_RESIZED` | warning | title-block sheet size mismatches the mediabox by a factor in [1.8, 2.2] or [0.45, 0.55] (half-/double-size print — linear factor 2, two ISO A-steps, A1↔A3) |
 | `TAKEOFF_OPENING_TALLER_THAN_CEILING` | info | an opening height was clamped |
 
 Emitted from `takeoff.quantities` on `TakeoffPage.warnings` and folded into
