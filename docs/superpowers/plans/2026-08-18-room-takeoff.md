@@ -724,11 +724,11 @@ class TestAssignOpenings(unittest.TestCase):
         self.assertEqual(unassigned, ["door_9"])
 
     def test_reach_is_seal_only(self):
-        # corrected room; an opening 13 px away is in, 15 px away is out
+        # corrected room (already +2 px); reach is 12 px more: 211 in, 213 out
         rooms = {"room_a": box(0, 0, 300, 200)}
-        assigned, _ = assign_openings(rooms, [("d_in", "door", (100, 213, 160, 220))])
+        assigned, _ = assign_openings(rooms, [("d_in", "door", (100, 211, 160, 220))])
         self.assertEqual(assigned, {"room_a": ["d_in"]})
-        assigned, unassigned = assign_openings(rooms, [("d_out", "door", (100, 215, 160, 220))])
+        assigned, unassigned = assign_openings(rooms, [("d_out", "door", (100, 213, 160, 220))])
         self.assertEqual(unassigned, ["d_out"])
 
     def test_room_key_order_is_stable(self):
