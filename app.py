@@ -98,10 +98,22 @@ def cmd_extract(args: argparse.Namespace) -> None:
         debug=args.debug,
         refresh_regions=args.refresh_regions,
         allow_scale_prompt=not args.no_scale_prompt,
+        ceiling_height=args.ceiling_height,
+        door_height=args.door_height,
+        window_height=args.window_height,
     )
 
 
-def main() -> None:
+def positive_metres(text: str) -> float:
+    """argparse type: a positive, finite height in metres."""
+    from takeoff.heights import valid_height_m
+    try:
+        return valid_height_m(float(text), "flag")
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"expected a positive number of metres, got {text!r}")
+
+
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Architectural PDF extraction — vector-first, Gemini-assisted",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -175,8 +187,24 @@ def main() -> None:
              "Set automatically by batch_extract and regress.py, which run "
              "unattended but may still inherit a terminal.",
     )
+    p_extract.add_argument(
+        "--ceiling-height", type=positive_metres, default=None, metavar="M",
+        help="Ceiling height in metres for the wall-area takeoff (default: ask on a tty, else 2.4)",
+    )
+    p_extract.add_argument(
+        "--door-height", type=positive_metres, default=None, metavar="M",
+        help="Door opening height in metres (default 2.1)",
+    )
+    p_extract.add_argument(
+        "--window-height", type=positive_metres, default=None, metavar="M",
+        help="Window opening height in metres, sill to head (default 1.2)",
+    )
     p_extract.set_defaults(func=cmd_extract)
+    return parser
 
+
+def main() -> None:
+    parser = build_parser()
     args = parser.parse_args()
     args.func(args)
 
