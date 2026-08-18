@@ -105,6 +105,14 @@ def _warn(page: TakeoffPage, code: str, severity: str, message: str) -> None:
                           "severity": severity, "message": message})
 
 
+def _largest_polygon(geom):
+    """A Polygon from whatever shapely returned; MultiPolygon → its largest part."""
+    if geom.geom_type == "Polygon":
+        return geom
+    parts = [g for g in getattr(geom, "geoms", []) if g.geom_type == "Polygon" and not g.is_empty]
+    return max(parts, key=lambda g: g.area) if parts else None
+
+
 def _room_polygon(entity) -> Optional[Polygon]:
     pts = entity.attributes.get("polygon")
     if not pts or len(pts) < 3:
@@ -112,6 +120,9 @@ def _room_polygon(entity) -> Optional[Polygon]:
     poly = Polygon([tuple(p) for p in pts])
     if not poly.is_valid:
         poly = poly.buffer(0)
+        poly = _largest_polygon(poly)
+        if poly is None:
+            return None
     return poly if not poly.is_empty else None
 
 
@@ -141,6 +152,9 @@ def compute_takeoff(entities, candidates, page_scales, regions, det_scale, heigh
         if raw is None:
             continue
         poly = raw.buffer(ROOM_WALL_DILATE_PX, join_style=2)   # 2 = mitre
+        poly = _largest_polygon(poly)
+        if poly is None:
+            continue
         room_polys[e.entity_id] = poly
         c = raw.centroid
         rs = select_room_scale((c.x, c.y), regions, page_scales, det_scale)

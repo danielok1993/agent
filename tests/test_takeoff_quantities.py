@@ -155,3 +155,11 @@ class TestComputeTakeoff(unittest.TestCase):
         self.assertNotIn("room_id", attrs)
         self.assertIn("floor_m2", attrs)
         self.assertEqual(d["totals"]["rooms_measured"], 1)
+
+    def test_bowtie_ring_repairs_to_largest_lobe(self):
+        bowtie = Entity(entity_id="room_bowtie", entity_type="room", bbox=(0, 0, 300, 300),
+                        confidence=0.9, source="heuristic",
+                        attributes={"polygon": [[0, 0], [300, 300], [300, 0], [0, 300], [0, 0]]})
+        page = self._run([bowtie])
+        self.assertEqual(len(page.rooms), 1)
+        self.assertGreater(page.rooms[0].floor_m2, 0)
