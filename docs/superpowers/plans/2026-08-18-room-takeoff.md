@@ -15,7 +15,10 @@
 - One pixel is `25.4 / 150` mm on paper (150-DPI pixel space everywhere past `extraction/`); `mm_per_px = 0.16933 × D`.
 - D is `ScaleInfo.nominal` when not None, else `ScaleInfo.denominator` (mirrors `scale/factor.py::_effective_denominator`). Never guess a denominator: no D → no numbers.
 - Standoff correction: buffer room polygons out by `detection.rooms.ROOM_WALL_DILATE_PX` (2.0) with mitre joins before measuring.
-- Opening assignment: room polygon buffered by `ROOM_WALL_DILATE_PX + ROOM_OPENING_SEAL_PX` (2 + 12 px) intersects the opening bbox.
+- Opening assignment: the standoff-corrected room polygon buffered by a further `ROOM_OPENING_SEAL_PX` (12 px; 14 px total from the detected polygon) intersects the opening bbox. Assignment runs over EVERY valid room; deductions only for scaled rooms.
+- Room polygons are the filled exterior ring (`detection/rooms.py:1214` fills interior holes — they are fixture islands, which ARE floor for a finishes takeoff); no hole subtraction, recorded as assumption `holes_filled`.
+- Heights must be positive, finite metres: `resolve_heights` raises `ValueError` on a bad explicit value; the CLI rejects it at parse time (`positive_metres`).
+- `det_scale` is a fallback ONLY for a room in no `floor_plan` region (or one with no `by_region` entry); a room whose region is explicitly `unresolved` stays unscaled — on mixed-scale pages `det_scale` is another plan's scale.
 - Height defaults: ceiling 2.4 m, door 2.1 m, window 1.2 m; precedence flag → prompt → default; prompt only for the ceiling, only when the caller allows prompting AND `scale.prompt.can_prompt()` is true.
 - Rounding: 2 dp on m / m², 3 dp on `mm_per_px`.
 - Warning codes: `TAKEOFF_NO_SCALE` (warning), `SCALE_UNVERIFIED` (info), `SCALE_PRINT_RESIZED` (warning), `TAKEOFF_OPENING_TALLER_THAN_CEILING` (info). One per page per code.
@@ -179,6 +182,7 @@ git commit -m "feat(takeoff): pixel-to-metre unit model"
   - `@dataclass(frozen=True) Heights(ceiling_m: float, door_m: float, window_m: float, sources: dict)` where `sources == {"ceiling": "flag"|"prompt"|"default", "door": ..., "window": ...}`; method `to_dict()` → `{"ceiling_m", "door_m", "window_m", "source": sources}`
   - `resolve_heights(ceiling: Optional[float], door: Optional[float], window: Optional[float], allow_prompt: bool = True, can_prompt_fn=can_prompt, input_fn=input, output_fn=print) -> Heights`
   - `parse_height(answer: str) -> Optional[float]` — accepts "2.4", "2400" (mm → m when ≥ 100), "2.4m"; None on blank/nonsense/≤0.
+  - `valid_height_m(value: float, name: str) -> float` — returns the float when `0 < value < inf` and not NaN; else raises `ValueError(f"{name} height must be a positive finite number of metres, got {value!r}")`. `resolve_heights` runs every explicit (non-None) flag through it.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -188,7 +192,7 @@ import unittest
 
 from takeoff.heights import (
     DEFAULT_CEILING_M, DEFAULT_DOOR_M, DEFAULT_WINDOW_M,
-    Heights, parse_height, resolve_heights,
+    Heights, parse_height, resolve_heights, valid_height_m,
 )
 
 
@@ -256,6 +260,20 @@ class TestResolveHeights(unittest.TestCase):
         d = Heights(2.4, 2.1, 1.2, {"ceiling": "default", "door": "default",
                                      "window": "default"}).to_dict()
         self.assertEqual(set(d), {"ceiling_m", "door_m", "window_m", "source"})
+
+    def test_invalid_flags_raise(self):
+        for bad in (0.0, -2.0, float("nan"), float("inf")):
+            with self.assertRaises(ValueError):
+                resolve_heights(bad, None, None, allow_prompt=False)
+            with self.assertRaises(ValueError):
+                resolve_heights(None, bad, None, allow_prompt=False)
+            with self.assertRaises(ValueError):
+                resolve_heights(None, None, bad, allow_prompt=False)
+
+    def test_valid_height_m(self):
+        self.assertEqual(valid_height_m(2.4, "ceiling"), 2.4)
+        with self.assertRaises(ValueError):
+            valid_height_m(float("nan"), "ceiling")
 ```
 
 - [ ] **Step 2: Run to verify failure**
@@ -277,6 +295,7 @@ value for a future text/section reader; nothing here emits it.
 """
 from __future__ import annotations
 
+import math
 import re
 from dataclasses import dataclass
 from typing import Callable, Optional
@@ -314,6 +333,17 @@ def parse_height(answer: Optional[str]) -> Optional[float]:
     return value if value > 0 else None
 
 
+def valid_height_m(value, name: str) -> float:
+    """A positive, finite number of metres — or ValueError naming the offender."""
+    try:
+        v = float(value)
+    except (TypeError, ValueError):
+        v = float("nan")
+    if not math.isfinite(v) or v <= 0:
+        raise ValueError(f"{name} height must be a positive finite number of metres, got {value!r}")
+    return v
+
+
 def _prompt_ceiling(input_fn, output_fn) -> Optional[float]:
     output_fn("No ceiling height on the drawing.")
     try:
@@ -334,7 +364,7 @@ def resolve_heights(
 ) -> Heights:
     sources = {}
     if ceiling is not None:
-        sources["ceiling"] = "flag"
+        ceiling, sources["ceiling"] = valid_height_m(ceiling, "ceiling"), "flag"
     else:
         answered = None
         if allow_prompt and can_prompt_fn():
@@ -345,12 +375,12 @@ def resolve_heights(
             ceiling, sources["ceiling"] = DEFAULT_CEILING_M, "default"
 
     if door is not None:
-        sources["door"] = "flag"
+        door, sources["door"] = valid_height_m(door, "door"), "flag"
     else:
         door, sources["door"] = DEFAULT_DOOR_M, "default"
 
     if window is not None:
-        sources["window"] = "flag"
+        window, sources["window"] = valid_height_m(window, "window"), "flag"
     else:
         window, sources["window"] = DEFAULT_WINDOW_M, "default"
 
@@ -360,7 +390,7 @@ def resolve_heights(
 - [ ] **Step 4: Run to verify pass**
 
 Run: `python -m unittest tests.test_takeoff_heights -v`
-Expected: 9 tests OK
+Expected: 11 tests OK
 
 - [ ] **Step 5: Commit**
 
@@ -381,7 +411,7 @@ git commit -m "feat(takeoff): heights — flag, tty prompt, default"
 - Consumes: `takeoff.units.effective_denominator`; `models.Region` (`.region_id`, `.bbox`, `.region_type`); `scale.resolver.PageScales` (`.by_region: dict[str, ScaleInfo]`); `scale.factor.DetectionScale` (`.denominator`, `.source`).
 - Produces:
   - `@dataclass(frozen=True) RoomScale(denominator: Optional[float], source: str, region_id: Optional[str], verified: bool)` — `source` ∈ `"viewport"|"text"|"user"|"detection"|"unresolved"`; `to_dict()` → `{"denominator","source","region_id","verified"}`.
-  - `select_room_scale(centroid: tuple[float,float], regions: list[Region], page_scales: PageScales, det_scale: Optional[DetectionScale]) -> RoomScale` — verification is filled by the caller (`verified=False` here); `denominator=None, source="unresolved"` when nothing applies.
+  - `select_room_scale(centroid: tuple[float,float], regions: list[Region], page_scales: PageScales, det_scale: Optional[DetectionScale]) -> RoomScale` — verification is filled by the caller (`verified=False` here). Rule: the first `floor_plan` region containing the centroid decides — if `page_scales.by_region` has an entry for it, that entry's effective D is the answer and an unresolved entry means `denominator=None, source="unresolved"` (NO det_scale fallback: on mixed-scale pages det_scale is another plan's scale); only a room in no floor_plan region, or in one with no `by_region` entry at all, falls to `det_scale`; else unresolved.
   - `sheet_size_tokens(text: str) -> set[str]` — `{"A1"}` etc., word-bounded `A0`–`A4`.
   - `verify_sheet_size(tokens: set[str], page_w_mm: float, page_h_mm: float) -> tuple[bool, bool]` → `(matches, resized)`: `matches` when any token's ISO size (either orientation) is within 5 % of the page on both sides; `resized` when any token is off by a factor in [1.8, 2.2] or [0.45, 0.55] on both sides (one A-step). Both False when no tokens.
   - `is_verified(room_scale: RoomScale, sheet_matches: bool) -> bool` — `source in ("viewport","user")` or (`source == "text"` and `sheet_matches`). `"detection"` inherits nothing → False.
@@ -432,9 +462,16 @@ class TestSelectRoomScale(unittest.TestCase):
         rs = select_room_scale((2000, 2000), self.regions, self.scales, self.det)
         self.assertEqual((rs.denominator, rs.source), (50.0, "detection"))
 
-    def test_unresolved_region_falls_to_detection_scale(self):
-        scales = PageScales(by_region={"r1": ScaleInfo(denominator=None, source="unresolved")})
-        rs = select_room_scale((100, 100), self.regions, scales, self.det)
+    def test_unresolved_region_stays_unresolved_never_borrows_detection_scale(self):
+        # mixed-scale page: det_scale is the OTHER plan's scale
+        scales = PageScales(by_region={"r1": ScaleInfo(denominator=None, source="unresolved"),
+                                       "r2": ScaleInfo(denominator=100.0, source="text", nominal=100.0)})
+        det = DetectionScale(factor=0.5, denominator=100.0, source="floor_plan_regions")
+        rs = select_room_scale((100, 100), self.regions, scales, det)
+        self.assertEqual((rs.denominator, rs.source, rs.region_id), (None, "unresolved", "r1"))
+
+    def test_region_with_no_entry_falls_to_detection_scale(self):
+        rs = select_room_scale((100, 100), self.regions, PageScales(), self.det)
         self.assertEqual((rs.denominator, rs.source), (50.0, "detection"))
 
     def test_nothing_resolves_to_none(self):
@@ -542,10 +579,15 @@ def select_room_scale(centroid, regions, page_scales, det_scale) -> RoomScale:
     for region in regions:
         if region.region_type != "floor_plan" or not _contains(region.bbox, x, y):
             continue
-        info = page_scales.by_region.get(region.region_id) if page_scales else None
+        by_region = page_scales.by_region if page_scales else {}
+        if region.region_id not in by_region:
+            break                       # no verdict for this region → page fallback
+        info = by_region[region.region_id]
         denom = effective_denominator(info)
-        if denom is not None:
-            return RoomScale(denom, info.source, region.region_id, False)
+        if denom is None:
+            # Explicitly unresolved: never borrow another plan's scale.
+            return RoomScale(None, "unresolved", region.region_id, False)
+        return RoomScale(denom, info.source, region.region_id, False)
     if det_scale is not None and det_scale.denominator is not None:
         return RoomScale(float(det_scale.denominator), "detection", None, False)
     return RoomScale(None, "unresolved", None, False)
@@ -585,7 +627,7 @@ def is_verified(room_scale: RoomScale, sheet_matches: bool) -> bool:
 - [ ] **Step 4: Run to verify pass**
 
 Run: `python -m unittest tests.test_takeoff_scale -v`
-Expected: 11 tests OK
+Expected: 12 tests OK
 
 - [ ] **Step 5: Commit**
 
@@ -606,8 +648,8 @@ git commit -m "feat(takeoff): per-room scale selection + sheet-size verification
 - Consumes: shapely (`Polygon`, `box`, `Point`); `detection.rooms.ROOM_WALL_DILATE_PX`, `detection.rooms.ROOM_OPENING_SEAL_PX`.
 - Produces:
   - `opening_width_px(entity_type: str, bbox, evidence: dict, room_polygon: Polygon) -> tuple[float, str]` — `(width_px, width_source)`; `width_source` ∈ `"opening_line"|"opening_width_px"|"opening_span_px"|"panel_length_px"|"bbox_edge"`.
-  - `assign_openings(room_polygons: dict[str, Polygon], openings: list[tuple[str, str, tuple]]) -> tuple[dict[str, list[str]], list[str]]` — input tuples are `(entity_id, entity_type, bbox)`; returns `(room_id → [entity_id...], unassigned_ids)`. Assignment: `room_polygon.buffer(ROOM_WALL_DILATE_PX + ROOM_OPENING_SEAL_PX).intersects(box(*bbox))`.
-  - `OPENING_ASSIGN_BUFFER_PX = ROOM_WALL_DILATE_PX + ROOM_OPENING_SEAL_PX`
+  - `assign_openings(room_polygons: dict[str, Polygon], openings: list[tuple[str, str, tuple]]) -> tuple[dict[str, list[str]], list[str]]` — input tuples are `(entity_id, entity_type, bbox)`; `room_polygons` are the STANDOFF-CORRECTED polygons (already grown by `ROOM_WALL_DILATE_PX`); returns `(room_id → [entity_id...], unassigned_ids)`. Assignment: `room_polygon.buffer(ROOM_OPENING_SEAL_PX).intersects(box(*bbox))` — 14 px total reach from the detected polygon, never 16.
+  - `OPENING_ASSIGN_BUFFER_PX = ROOM_OPENING_SEAL_PX`
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -681,6 +723,14 @@ class TestAssignOpenings(unittest.TestCase):
         self.assertEqual(assigned, {})
         self.assertEqual(unassigned, ["door_9"])
 
+    def test_reach_is_seal_only(self):
+        # corrected room; an opening 13 px away is in, 15 px away is out
+        rooms = {"room_a": box(0, 0, 300, 200)}
+        assigned, _ = assign_openings(rooms, [("d_in", "door", (100, 213, 160, 220))])
+        self.assertEqual(assigned, {"room_a": ["d_in"]})
+        assigned, unassigned = assign_openings(rooms, [("d_out", "door", (100, 215, 160, 220))])
+        self.assertEqual(unassigned, ["d_out"])
+
     def test_room_key_order_is_stable(self):
         rooms = {"room_b": box(310, 0, 600, 200), "room_a": box(0, 0, 300, 200)}
         assigned, _ = assign_openings(rooms, [("door_1", "door", (302, 80, 308, 140))])
@@ -704,8 +754,8 @@ panel / stack), so the bbox alone is the wrong measure for most doors. Only
 the bare fallback reads the bbox, and then the edge that lies along the room
 boundary, never the longer side.
 
-Assignment is geometric: an opening belongs to every room whose polygon,
-grown by the barrier standoff plus the seal reach, touches its bbox — an
+Assignment is geometric: an opening belongs to every room whose
+standoff-corrected polygon, grown by the seal reach, touches its bbox — an
 internal door deducts on both sides, an external one on one.
 """
 from __future__ import annotations
@@ -715,9 +765,11 @@ from typing import Optional
 
 from shapely.geometry import Point, Polygon, box
 
-from detection.rooms import ROOM_OPENING_SEAL_PX, ROOM_WALL_DILATE_PX
+from detection.rooms import ROOM_OPENING_SEAL_PX
 
-OPENING_ASSIGN_BUFFER_PX = ROOM_WALL_DILATE_PX + ROOM_OPENING_SEAL_PX
+# Callers pass standoff-corrected polygons (already +ROOM_WALL_DILATE_PX), so
+# only the seal reach is added here: 2 + 12 = 14 px from the detected polygon.
+OPENING_ASSIGN_BUFFER_PX = ROOM_OPENING_SEAL_PX
 
 
 def _positive(value) -> Optional[float]:
@@ -786,7 +838,7 @@ def assign_openings(room_polygons: dict, openings: list) -> tuple[dict, list]:
 - [ ] **Step 4: Run to verify pass**
 
 Run: `python -m unittest tests.test_takeoff_openings -v`
-Expected: 10 tests OK
+Expected: 11 tests OK
 
 - [ ] **Step 5: Commit**
 
@@ -903,6 +955,19 @@ class TestComputeTakeoff(unittest.TestCase):
         self.assertEqual([w["warning_code"] for w in page.warnings], ["TAKEOFF_NO_SCALE"])
         self.assertEqual(page.totals()["rooms_unscaled"], 1)
 
+    def test_opening_on_unscaled_room_is_not_unassigned(self):
+        det = DetectionScale(factor=1.0, denominator=None, source="unresolved")
+        de, dc = _door("door_0001", (100, 296, 160, 304))
+        page = self._run([_room("room_a", 0, 0, 300, 300), de], [dc],
+                         page_scales=PageScales(), det=det)
+        self.assertEqual(page.unscaled_rooms, ["room_a"])
+        self.assertEqual(page.unassigned_openings, [])
+        self.assertEqual(page.rooms, [])
+
+    def test_holes_are_filled_and_recorded(self):
+        page = self._run([_room("room_a", 0, 0, 300, 300)])
+        self.assertIn("holes_filled", page.rooms[0].assumptions)
+
     def test_text_scale_verified_by_sheet_size(self):
         scales = PageScales(by_region={"r1": ScaleInfo(denominator=50.0, source="text", nominal=50.0)})
         page = self._run([_room("room_a", 0, 0, 300, 300)], page_scales=scales,
@@ -997,6 +1062,7 @@ from takeoff.units import mm_per_px, px2_to_m2, px_to_m
 
 STANDOFF_ASSUMPTION = f"standoff_corrected_{ROOM_WALL_DILATE_PX:g}px"
 FLAT_CEILING_ASSUMPTION = "flat_ceiling"
+HOLES_FILLED_ASSUMPTION = "holes_filled"   # detector fills fixture islands; they are floor
 
 
 @dataclass
@@ -1101,6 +1167,9 @@ def compute_takeoff(entities, candidates, page_scales, regions, det_scale, heigh
               f"{page_w_mm:.0f}x{page_h_mm:.0f} mm — printed scale may be one A-size off")
 
     # Rooms: polygon, corrected for the barrier standoff, and its scale.
+    # EVERY valid room takes part in opening assignment (so an opening on an
+    # unscaled room is not mis-reported as free-space); only scaled rooms
+    # get quantities.
     room_polys: dict[str, Polygon] = {}
     room_meta: dict[str, tuple] = {}
     for e in entities:
@@ -1109,14 +1178,14 @@ def compute_takeoff(entities, candidates, page_scales, regions, det_scale, heigh
         raw = _room_polygon(e)
         if raw is None:
             continue
+        poly = raw.buffer(ROOM_WALL_DILATE_PX, join_style=2)   # 2 = mitre
+        room_polys[e.entity_id] = poly
         c = raw.centroid
         rs = select_room_scale((c.x, c.y), regions, page_scales, det_scale)
         if rs.denominator is None:
             page.unscaled_rooms.append(e.entity_id)
             continue
         rs = RoomScale(rs.denominator, rs.source, rs.region_id, is_verified(rs, sheet_matches))
-        poly = raw.buffer(ROOM_WALL_DILATE_PX, join_style=2)   # 2 = mitre
-        room_polys[e.entity_id] = poly
         room_meta[e.entity_id] = (e, rs, poly)
 
     if page.unscaled_rooms:
@@ -1161,7 +1230,7 @@ def compute_takeoff(entities, candidates, page_scales, regions, det_scale, heigh
             height_m=heights.ceiling_m, height_source=heights.sources["ceiling"],
             wall_gross_m2=round(gross, 2), openings=ops,
             wall_net_m2=round(max(gross - deduct, 0.0), 2),
-            assumptions=[FLAT_CEILING_ASSUMPTION, STANDOFF_ASSUMPTION],
+            assumptions=[FLAT_CEILING_ASSUMPTION, STANDOFF_ASSUMPTION, HOLES_FILLED_ASSUMPTION],
         )
         page.rooms.append(room)
         if not rs.verified:
@@ -1186,7 +1255,7 @@ __all__ = ["Heights", "resolve_heights", "RoomTakeoff", "TakeoffPage", "compute_
 - [ ] **Step 4: Run to verify pass**
 
 Run: `python -m unittest tests.test_takeoff_quantities -v`
-Expected: 10 tests OK. If `test_square_room_at_1_50` is off by the standoff, check the buffer is applied once with `join_style=2` (a 4 px total growth per axis restores the 3 × 4 m).
+Expected: 12 tests OK. If `test_square_room_at_1_50` is off by the standoff, check the buffer is applied once with `join_style=2` (a 4 px total growth per axis restores the 3 × 4 m).
 
 - [ ] **Step 5: Run the whole fast tier**
 
@@ -1287,6 +1356,14 @@ class TestCliFlags(unittest.TestCase):
         self.assertEqual((ns.ceiling_height, ns.door_height, ns.window_height), (2.7, 2.0, 1.5))
         ns = parser.parse_args(["extract", "x.pdf"])
         self.assertIsNone(ns.ceiling_height)
+
+    def test_extract_parser_rejects_bad_heights(self):
+        import app
+        parser = app.build_parser()
+        for bad in ("0", "-2", "nan", "inf", "tall"):
+            with self.assertRaises(SystemExit):
+                with mock.patch("sys.stderr"):
+                    parser.parse_args(["extract", "x.pdf", "--ceiling-height", bad])
 ```
 
 - [ ] **Step 2: Run to verify failure**
@@ -1304,6 +1381,15 @@ def main() -> None:
 ```
 with
 ```python
+def positive_metres(text: str) -> float:
+    """argparse type: a positive, finite height in metres."""
+    from takeoff.heights import valid_height_m
+    try:
+        return valid_height_m(float(text), "flag")
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"expected a positive number of metres, got {text!r}")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
 ```
@@ -1317,15 +1403,15 @@ and replace the tail
 with
 ```python
     p_extract.add_argument(
-        "--ceiling-height", type=float, default=None, metavar="M",
+        "--ceiling-height", type=positive_metres, default=None, metavar="M",
         help="Ceiling height in metres for the wall-area takeoff (default: ask on a tty, else 2.4)",
     )
     p_extract.add_argument(
-        "--door-height", type=float, default=None, metavar="M",
+        "--door-height", type=positive_metres, default=None, metavar="M",
         help="Door opening height in metres (default 2.1)",
     )
     p_extract.add_argument(
-        "--window-height", type=float, default=None, metavar="M",
+        "--window-height", type=positive_metres, default=None, metavar="M",
         help="Window opening height in metres, sill to head (default 1.2)",
     )
     p_extract.set_defaults(func=cmd_extract)

@@ -47,7 +47,11 @@ Pages can carry different scales per region (s03, s17). Per room, in order:
 
 1. the `floor_plan` region whose bbox contains the room polygon centroid,
    looked up in `page_scales.by_region` — if it has an effective D;
-2. else `det_scale.denominator` (the ink-dominant floor-plan scale);
+2. else, ONLY when the room lies in no `floor_plan` region (or in one the
+   resolver recorded no verdict for), `det_scale.denominator`; a region the
+   resolver marked `unresolved` leaves its rooms unscaled — on a mixed-scale
+   page `det_scale` is the OTHER plan's scale, and borrowing it would be a
+   guess dressed as a fallback;
 3. else **no quantities for that room** and one `TAKEOFF_NO_SCALE` warning
    per page. Never a guessed denominator.
 
@@ -87,10 +91,13 @@ perimeter_m  = length(buffered.exterior) × mm_per_px/1000
 ceiling_m2   = floor_m2               # flat-ceiling assumption, recorded
 ```
 
-Holes (`evidence["holes"]`, e.g. a chimney breast island) are subtracted from
-the floor by shapely already; their perimeter is **not** added to the wall
-perimeter (they are usually structure the decorator also paints, but the
-polygon does not tell us which face is which — noted as a limitation).
+The polygon is the FILLED exterior ring: `detect_rooms` deliberately fills
+interior holes (`detection/rooms.py:1214`, "interior holes (fixtures)
+filled") and keeps only their count. Those holes are fixture islands
+(kitchen units, sanitaryware rings) — floor for a finishes takeoff — so
+nothing is subtracted, and every room records the assumption
+`holes_filled`. A true structural island (a chimney breast standing free of
+the walls) is therefore counted as floor; noted as a limitation.
 
 ### Openings and wall area
 
@@ -101,7 +108,10 @@ wall_net_m2   = wall_gross_m2 − Σ openings (width_m × H_type)
 
 Every door and window **entity** (post-`finalize_candidates`, so rejected
 candidates never deduct) is assigned to each room whose buffered polygon,
-dilated by a further `ROOM_OPENING_SEAL_PX`, intersects the opening's bbox.
+dilated by a further `ROOM_OPENING_SEAL_PX` (14 px total from the detected
+polygon), intersects the opening's bbox. Assignment runs over every valid
+room, scaled or not, so an opening on an unscaled room is never mis-reported
+as free-space; deductions are computed for scaled rooms only.
 An internal door therefore deducts from both rooms; an external door or a
 window from one. An opening touching no room is listed under the page's
 `unassigned_openings` and deducts nothing.
@@ -128,8 +138,10 @@ Openings taller than the ceiling are clamped to `H_ceiling` and flagged.
 
 ## Heights
 
-Three CLI options on `extract` (and `batch_extract.py`'s prompt): 
-`--ceiling-height`, `--door-height`, `--window-height`, metres.
+Three CLI options on `extract` (and `batch_extract.py`'s prompt):
+`--ceiling-height`, `--door-height`, `--window-height`, metres — each must be
+a positive finite number; the CLI rejects anything else at parse time and
+`resolve_heights` raises on a bad explicit value (never a silent default).
 
 Precedence per value: **flag → prompt → default**. The prompt asks once per
 run for the ceiling height only (doors/windows are rarely known better than
@@ -190,7 +202,7 @@ page warning list via the existing collection path.
          "area_m2": 1.44, "width_source": "opening_width_px"}
       ],
       "wall_net_m2": 31.65,
-      "assumptions": ["flat_ceiling", "standoff_corrected_2px"]
+      "assumptions": ["flat_ceiling", "standoff_corrected_2px", "holes_filled"]
     }
   ],
   "unassigned_openings": ["door_0011"],
