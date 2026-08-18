@@ -85,7 +85,7 @@
     "semantic_hash": "077d463bc896b1bd54e32519f7d9cf45"
   },
   "detection/orchestrator.py": {
-    "mtime": 1787048179.0615668,
+    "mtime": 1787048138.6731539,
     "ast_hash": "2734b95e69e2e87ae1b0cafaf3d92488",
     "semantic_hash": ""
   },
@@ -95,13 +95,13 @@
     "semantic_hash": ""
   },
   "detection/schedules.py": {
-    "mtime": 1787048179.061659,
+    "mtime": 1787048138.6735528,
     "ast_hash": "d01a256da220c28a1e5c878709f23780",
     "semantic_hash": ""
   },
   "detection/walls.py": {
-    "mtime": 1787048178.8855963,
-    "ast_hash": "eb462e151c32229846106b491ad2a92b",
+    "mtime": 1787048138.4194353,
+    "ast_hash": "74d84ad98e51163fecf38aa3510c0858",
     "semantic_hash": ""
   },
   "detection/windows.py": {
@@ -120,7 +120,7 @@
     "semantic_hash": ""
   },
   "extraction/plumber.py": {
-    "mtime": 1787048179.0617604,
+    "mtime": 1787048138.674026,
     "ast_hash": "cf5967d20c2e32a51edf264666567f2c",
     "semantic_hash": ""
   },
@@ -150,7 +150,7 @@
     "semantic_hash": ""
   },
   "pipeline.py": {
-    "mtime": 1787048179.0781436,
+    "mtime": 1787048138.6932793,
     "ast_hash": "6804d350e06873f9fda978d29c38ba48",
     "semantic_hash": ""
   },
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1787048178.8835218,
-    "ast_hash": "359c504ab21fdb2b8f2e4f16e119448c",
+    "mtime": 1787048138.4180121,
+    "ast_hash": "5ed6654c4024232894c05fb7c5e508fd",
     "semantic_hash": ""
   },
   "README.md": {
@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "detection/rooms.py": {
-    "mtime": 1787048178.8844802,
-    "ast_hash": "d276f3222c15e1b956c23140f0ce382e",
+    "mtime": 1787048138.4187505,
+    "ast_hash": "0fc277ddf449ca90b8f01bf7e474cc38",
     "semantic_hash": ""
   },
   "tests/test_cross_validate.py": {
@@ -260,13 +260,13 @@
     "semantic_hash": ""
   },
   "tests/test_room_detection.py": {
-    "mtime": 1787048178.9043188,
-    "ast_hash": "71b5efeaf08ee1ad52a7762aca8f2bdc",
+    "mtime": 1787048138.4434295,
+    "ast_hash": "e2bf3c75467a1831bbe349d47837d0d4",
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
-    "mtime": 1787048178.9047308,
-    "ast_hash": "4326613b48000a58065ef9295fdff842",
+    "mtime": 1787048138.4440322,
+    "ast_hash": "3f6ea2ef996c3179708f5d8cef8d3989",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-07-03-batch-extraction-design.md": {
@@ -660,7 +660,7 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s02.json": {
-    "mtime": 1787048179.0783308,
+    "mtime": 1787048138.6934392,
     "ast_hash": "414e2da5a212dd0496e50894c21fd9e2",
     "semantic_hash": ""
   },
@@ -815,8 +815,8 @@
     "semantic_hash": ""
   },
   "docs/scale-normalization-findings.md": {
-    "mtime": 1787048178.8866696,
-    "ast_hash": "a84cdf7036b86edd0700fbdf2e845cd5",
+    "mtime": 1787048138.420203,
+    "ast_hash": "b89ed0963b0bf6103fe63393cb6fe34e",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-08-12-scale-aware-wall-room-gates.md": {
@@ -930,7 +930,7 @@
     "semantic_hash": ""
   },
   "tests/test_schedule_detection.py": {
-    "mtime": 1787048179.078462,
+    "mtime": 1787048138.6937397,
     "ast_hash": "10dd77552d9a6fd0c4d2b94d260db7ae",
     "semantic_hash": ""
   }
