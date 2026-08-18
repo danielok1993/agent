@@ -34,6 +34,17 @@ class TestBuildExtractCommand(unittest.TestCase):
         self.assertIn("--no-gemini", cmd)
 
 
+class TestCeilingHeightFlag(unittest.TestCase):
+    def test_flag_forwarded_when_given(self):
+        cmd = batch_extract.build_extract_command(Path("x.pdf"), True, True, False, ceiling_height=2.7)
+        i = cmd.index("--ceiling-height")
+        self.assertEqual(cmd[i + 1], "2.7")
+
+    def test_flag_absent_by_default(self):
+        cmd = batch_extract.build_extract_command(Path("x.pdf"), True, True, False)
+        self.assertNotIn("--ceiling-height", cmd)
+
+
 class TestRunWithGroupKill(unittest.TestCase):
     def test_success_returns_ok(self):
         ok, msg = batch_extract._run_with_group_kill(

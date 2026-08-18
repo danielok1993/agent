@@ -10,6 +10,7 @@ import signal
 import sys
 import subprocess
 from pathlib import Path
+from typing import Optional
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 REPO_ROOT = Path(__file__).parent
@@ -43,6 +44,7 @@ def build_extract_command(
     enable_windows: bool,
     enable_walls: bool,
     use_gemini: bool,
+    ceiling_height: Optional[float] = None,
 ) -> list[str]:
     """Build the extract argv for a single PDF (no shell involved)."""
     cmd = [str(VENV_PYTHON), "app.py", "extract", str(pdf_path)]
@@ -55,6 +57,8 @@ def build_extract_command(
     # Unconditional: batch is never interactive, and the child inherits this
     # terminal's stdin, so the tty gate alone would not stop it prompting.
     cmd.append("--no-scale-prompt")
+    if ceiling_height is not None:
+        cmd += ["--ceiling-height", str(ceiling_height)]
     return cmd
 
 
@@ -98,12 +102,13 @@ def run_extract(
     enable_walls: bool,
     use_gemini: bool,
     timeout_seconds: float = DEFAULT_TIMEOUT_MINUTES * 60,
+    ceiling_height: Optional[float] = None,
 ) -> tuple[Path, bool, str]:
     """
     Run extract command for a single PDF.
     Returns (pdf_path, success: bool, output_or_error: str)
     """
-    cmd = build_extract_command(pdf_path, enable_windows, enable_walls, use_gemini)
+    cmd = build_extract_command(pdf_path, enable_windows, enable_walls, use_gemini, ceiling_height=ceiling_height)
     try:
         success, error_msg = _run_with_group_kill(cmd, timeout_seconds, cwd=REPO_ROOT)
         return (pdf_path, success, error_msg)
@@ -147,11 +152,19 @@ def main() -> None:
     enable_walls = prompt_bool("Enable wall detection?", default=True)
     use_gemini = prompt_bool("Use Gemini for validation?", default=True)
 
+    from takeoff.heights import DEFAULT_CEILING_M, parse_height
+    try:
+        ceiling_height = parse_height(
+            input(f"Ceiling height in m for the wall takeoff (blank = {DEFAULT_CEILING_M}): "))
+    except (EOFError, KeyboardInterrupt):
+        ceiling_height = None
+
     # Confirm settings
     print("\nConfiguration:")
     print(f"  Window detection: {'enabled' if enable_windows else 'disabled'}")
     print(f"  Wall detection: {'enabled' if enable_walls else 'disabled'}")
     print(f"  Gemini validation: {'enabled' if use_gemini else 'disabled (offline mode)'}")
+    print(f"  Ceiling height: {ceiling_height if ceiling_height is not None else f'{DEFAULT_CEILING_M} (default)'} m")
     print(f"\nStarting extraction of {len(pdfs)} PDFs (5 at a time)...\n")
 
     # Run in parallel
@@ -169,6 +182,7 @@ def main() -> None:
                     enable_walls,
                     use_gemini,
                     timeout_seconds,
+                    ceiling_height,
                 ): pdf
                 for pdf in pdfs
             }
