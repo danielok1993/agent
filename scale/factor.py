@@ -16,7 +16,12 @@ from models import Region
 from scale.resolver import PageScales
 from scale.units import format_scale
 
-# The scale every detection constant was tuned at (s01/s02 are 1:50).
+# The scale every detection constant was tuned at. NOTE (2026-08-19): the
+# tuning premise "s01 and s02 are both 1:50" turned out half-false — s01's
+# dimension strings measure 1:92.2 (plot metric), though its paper
+# conventions are standard — so the constants were calibrated at factor 1.0
+# on ink spanning 1:50–1:92.2 world density. That is why _gate_denominator
+# refuses to scale gates by measured, non-standard denominators.
 DETECTION_REFERENCE_DENOMINATOR = 50.0
 
 # Calibration domain: the corpus evidence spans 1:50–1:136. Beyond
@@ -31,13 +36,40 @@ DETECTION_FACTOR_MAX = 4.0
 class DetectionScale:
     factor: float
     denominator: Optional[float]
-    source: str  # "floor_plan_regions" | "page" | "unresolved" | "clamped"
+    source: str  # "floor_plan_regions" | "page" | "unresolved" | "clamped" | "measured"
     warnings: list = field(default_factory=list)
 
 
 def _effective_denominator(info) -> Optional[float]:
     """Nominal beats raw so 1:50 sheets compute factor 1.0 EXACTLY."""
     return info.nominal if info.nominal is not None else info.denominator
+
+
+def _gate_denominator(info) -> Optional[float]:
+    """The denominator allowed to drive gate scaling, or None to abstain.
+
+    Only a DRAFTING scale may scale the world gates: a nominal (standard)
+    denominator from any source, or a raw viewport value — /VP declares the
+    CAD world-to-paper transform, so its world ink genuinely sits at that
+    density under standard paper conventions (s13's 1:136.4).
+
+    A non-nominal denominator from any other source (user-stored, text) is a
+    MEASUREMENT of the plot — the mm-per-px truth the takeoff needs — not a
+    drafting scale. Feeding it to the gates is how s01 regressed (measured
+    2026-08-19): the sheet's paper conventions are standard (wall pen 1.5px
+    and hatch pitch 4.05px, identical to s02's 1.5/4.07) while its world ink
+    measures 1:92.2, and every W constant was calibrated on that very ink at
+    factor 1.0 — so f=50/92.2 pushed s01's own features just outside the
+    gates (its 25px party wall past the 19.5px cap, its 30–35px hatch marks
+    past the 26px material cap, plugs short of their jambs) and the sweep
+    fell from 13/13 rooms to 7/13 with 17 phantoms. Identity is the
+    conservative fallback, same as the factor clamp above.
+    """
+    if info.nominal is not None:
+        return info.nominal
+    if info.source == "viewport":
+        return info.denominator
+    return None
 
 
 def detection_scale(
@@ -49,12 +81,17 @@ def detection_scale(
                    if r.region_type == "floor_plan"}
 
     votes: dict[float, int] = {}
+    measured_only: list[float] = []
     for rid, info in page_scales.by_region.items():
         reg = floor_plans.get(rid)
         if reg is None:
             continue
-        denom = _effective_denominator(info)
+        denom = _gate_denominator(info)
         if denom is None:
+            # Resolved but not gate-qualified (measured, non-standard, not
+            # viewport-declared): the takeoff still uses it; the gates don't.
+            if _effective_denominator(info) is not None:
+                measured_only.append(_effective_denominator(info))
             continue
         # Gates act on primitives, not blank paper: dominance is ink
         # (path count), not bbox area. max(_, 1) so a zero-count region
@@ -62,6 +99,19 @@ def detection_scale(
         votes[denom] = votes.get(denom, 0) + max(reg.path_count, 1)
 
     warnings: list[dict] = []
+    if measured_only:
+        warnings.append({
+            "page_number": page_number,
+            "warning_code": "SCALE_FACTOR_MEASURED_ONLY",
+            "severity": "warning",
+            "message": (
+                "Measured, non-standard scale(s) ("
+                + ", ".join(format_scale(d) for d in sorted(set(measured_only)))
+                + ") do not drive detection-gate scaling — gates are "
+                "calibrated for standard drafting scales and viewport "
+                "transforms; the takeoff still uses the measured scale"
+            ),
+        })
     if votes:
         # Tie-break: smaller denominator (less aggressive scaling), made
         # deterministic by iterating denominators in sorted order.
@@ -78,9 +128,31 @@ def detection_scale(
                     + f"); detection runs at ink-dominant {format_scale(denom)}"
                 ),
             })
+    elif measured_only:
+        # Every resolved floor-plan scale was measured-only: identity, with
+        # the single measured denominator recorded (mirrors "clamped").
+        distinct = sorted(set(measured_only))
+        return DetectionScale(
+            1.0, distinct[0] if len(distinct) == 1 else None,
+            "measured", warnings)
     elif (page_scales.page_scale is not None
           and _effective_denominator(page_scales.page_scale) is not None):
-        denom = _effective_denominator(page_scales.page_scale)
+        denom = _gate_denominator(page_scales.page_scale)
+        if denom is None:
+            measured = _effective_denominator(page_scales.page_scale)
+            warnings.append({
+                "page_number": page_number,
+                "warning_code": "SCALE_FACTOR_MEASURED_ONLY",
+                "severity": "warning",
+                "message": (
+                    f"Measured, non-standard page scale "
+                    f"{format_scale(measured)} does not drive detection-gate "
+                    "scaling — gates are calibrated for standard drafting "
+                    "scales and viewport transforms; the takeoff still uses "
+                    "the measured scale"
+                ),
+            })
+            return DetectionScale(1.0, measured, "measured", warnings)
         source = "page"
     else:
         return DetectionScale(1.0, None, "unresolved", warnings)

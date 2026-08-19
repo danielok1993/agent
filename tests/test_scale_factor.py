@@ -48,6 +48,64 @@ class TestDetectionScale(unittest.TestCase):
         ds = detection_scale(ps, [region("region_0000")], page_number=1)
         self.assertAlmostEqual(ds.factor, 50.0 / 136.4)
 
+    def test_measured_nonstandard_scale_does_not_drive_gates(self):
+        # s01: user-stored 1:92.2 (dimension-measured plot metric, nominal
+        # None, not viewport-declared). The takeoff uses it; the gates must
+        # not — the W constants were calibrated on this very ink at factor
+        # 1.0, and scaling them regressed s01 from 13/13 rooms to 7/13.
+        ps = PageScales(by_region={
+            "region_0000": ScaleInfo(denominator=92.2, source="user",
+                                     nominal=None),
+            "region_0001": ScaleInfo(denominator=92.2, source="user",
+                                     nominal=None)})
+        ds = detection_scale(
+            ps, [region("region_0000"), region("region_0001")], page_number=1)
+        self.assertEqual(ds.factor, 1.0)
+        self.assertEqual(ds.source, "measured")
+        self.assertEqual(ds.denominator, 92.2)
+        self.assertEqual(ds.warnings[0]["warning_code"],
+                         "SCALE_FACTOR_MEASURED_ONLY")
+        self.assertEqual(ds.warnings[0]["page_number"], 1)
+
+    def test_nominal_user_scale_still_scales_gates(self):
+        # A user-typed 1:100 asserts a drafting scale, not a measurement.
+        ps = PageScales(by_region={
+            "region_0000": ScaleInfo(denominator=100.0, source="user",
+                                     nominal=100.0)})
+        ds = detection_scale(ps, [region("region_0000")], page_number=1)
+        self.assertEqual(ds.factor, 0.5)
+        self.assertEqual(ds.warnings, [])
+
+    def test_measured_region_abstains_but_nominal_region_scales(self):
+        # Mixed: the nominal region drives the factor; the measured one
+        # abstains loudly instead of skewing the vote.
+        ps = PageScales(by_region={
+            "region_0000": ScaleInfo(denominator=100.0, source="viewport",
+                                     nominal=100.0),
+            "region_0001": ScaleInfo(denominator=92.2, source="user",
+                                     nominal=None)})
+        regions = [region("region_0000", path_count=100),
+                   region("region_0001", path_count=2000)]
+        ds = detection_scale(ps, regions, page_number=1)
+        self.assertEqual(ds.factor, 0.5)
+        self.assertEqual(ds.source, "floor_plan_regions")
+        codes = [w["warning_code"] for w in ds.warnings]
+        self.assertIn("SCALE_FACTOR_MEASURED_ONLY", codes)
+        self.assertNotIn("SCALE_MIXED_FLOOR_PLANS", codes)
+
+    def test_measured_page_scale_does_not_drive_gates(self):
+        # Page-level fallback path: a measured non-standard caption scale
+        # behaves like the per-region case — identity, loud warning.
+        ps = PageScales(by_region={}, page_scale=ScaleInfo(
+            denominator=92.2, source="text", nominal=None))
+        ds = detection_scale(ps, [], page_number=2)
+        self.assertEqual(ds.factor, 1.0)
+        self.assertEqual(ds.source, "measured")
+        self.assertEqual(ds.denominator, 92.2)
+        self.assertEqual(ds.warnings[0]["warning_code"],
+                         "SCALE_FACTOR_MEASURED_ONLY")
+        self.assertEqual(ds.warnings[0]["page_number"], 2)
+
     def test_mixed_scales_ink_dominant_wins_and_warns(self):
         # s03 shape: two 1:100 regions carry more ink than the 1:50 one
         ps = PageScales(by_region={

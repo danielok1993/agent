@@ -955,6 +955,58 @@ verified byte-inert (the tapped sweep reproduced the baseline sweep on
 every comparison key of every sheet) and fully reverted before the
 implementation commit; they never ship.
 
+## 4f. Measured scales do not drive the gates (2026-08-19)
+
+**Discovery.** s01's ground-truth scale was corrected from the assumed 1:50
+to the dimension-measured 1:92.2 (31 dimension strings all land within
+±0.5 % — plot metric, correct for the takeoff, verified by the plausibility
+layer). Feeding that denominator to `detection_scale` (f = 50/92.2 = 0.542)
+regressed s01's detection from clean (11/11 doors, 13/13 rooms) to
+door 10/11, room 7/13 with 17 phantom entities.
+
+**Root cause (measured on the real PDF, per-gate ablation harness).** No
+single constant explains it — fully unscaled reproduces exactly 13/13 + 0
+extras, and at f = 0.542 at least six independent mechanisms break:
+`WALL_MAX_THICKNESS_PX` (36→19.5 vs s01's real 25px = 390 mm party wall),
+`WALL_HATCH_MAX_LEN_PX` (48→26 rejects that wall's own 30–35px hatch, so
+the thick tier finds "no material"), `WALL_WEAK_MATERIAL_PER_100PX` (÷f →
+5.5 vs s01's real hatch density 4.8), `ROOM_OPENING_SEAL_PX` (12→6.5 stops
+plug tails reaching jambs 12px past the swing bbox),
+`ROOM_MIN_AREA_PX2` (×f² admits 34×34px cushion cells as rooms),
+`WALL_FACE_MIN_LEN_PX`+`COLLINEAR_OFFSET_TOL` (furniture edges become
+faces), `DOOR_FOLD_JAMB_ANCHOR_TOL_PX` (6→3.25 vs the 3.4/3.6 measured ON
+s01, losing door_0012). The pattern indicts the premise, not the constants
+individually: **§1's "tuned on the 1:50 reference sheets (s01, s02)" was
+half-false.** s01's paper conventions are standard drafting size (wall pen
+1.5px, hatch pitch 4.05px — identical to s02's 1.5/4.07) but its world ink
+is at 1:92.2, so every constant whose defining measurement came from s01
+encodes a 1:92.2 world quantity under a 1:50 label. Scaling those gates by
+50/92.2 on the very sheet that calibrated them puts its own features just
+outside every one of them. (This also explains oddities in the old
+rationales: the "≈305 mm" thickness cap was actually admitting 390–546 mm
+bands; the 48px thick tier is a 750 mm chimney breast, not a "400 mm band".)
+
+**Rule shipped (`scale/factor.py::_gate_denominator`).** Only a DRAFTING
+scale may scale the world gates: a nominal (standard) denominator from any
+source, or a raw viewport denominator (/VP declares the CAD world-to-paper
+transform — s13's 1:136.4 keeps its 0.367 factor). A non-nominal
+denominator from any other source (user-stored, text) is a *measurement of
+the plot* — the mm-per-px truth the takeoff needs — and abstains from gate
+scaling: identity factor, source `"measured"`, warning
+`SCALE_FACTOR_MEASURED_ONLY`, same conservative-fallback shape as the
+existing factor clamp. Verified blast radius: s01 is the only corpus sheet
+with a non-nominal, non-viewport scale (every other stored scale is 1:50 or
+1:100); the full sweep after the change shows zero LOST, s01 green, and
+exactly the pre-existing 103 RETURNED FPs.
+
+**What this does NOT fix.** The honest long-term fix is recalibration: the
+W constants' reference values mix 1:50-px and 1:92.2-px measurements, so
+their world meanings are only accurate to ~1.8×. A sheet that genuinely
+needs scaling (a true 1:92 viewport) would today inherit that blur. If a
+future branch re-derives the W references per constant from the corpus at
+resolved scales, this rule can be revisited — that is a new decision, not a
+reopening of the frozen class table.
+
 ## 5. Decisions (2026-08-12 brainstorm, user-approved)
 
 1. **Approach: thread a scale factor** into walls/rooms and scale classified
