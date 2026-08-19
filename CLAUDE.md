@@ -270,7 +270,9 @@ outputs/<YYYY-MM-DD_HH-MM-SS>/
     │                         # Gemini (absent on a cache hit, --no-gemini, or a raster page)
     ├── candidates.json       # heuristic output
     ├── final_entities.json   # finalized entities + rejected
-    ├── takeoff.json          # per-room floor/ceiling/wall m², openings, scale provenance
+    ├── takeoff.json          # per-room floor/ceiling/wall m², openings, scale provenance,
+    │                         # scale_evidence (every measured dimension line: path_index,
+    │                         # endpoints, label, implied denominator; verdict per scale)
     ├── debug_trace.json      # --debug only: per-primitive detection trace
     └── debug_viewer.html     # --debug only: self-contained trace viewer
 ```

@@ -124,6 +124,17 @@ class TestDimensionMatches(unittest.TestCase):
         self.assertAlmostEqual(m[0].length_px, 425.2)
         self.assertAlmostEqual(m[0].implied_denominator, 50.0, places=1)
 
+    def test_match_records_the_line_and_label_for_debugging(self):
+        paths, span = _dim_chain(7, 100, 100, 525.2, "3600")
+        m = dimension_matches(paths, [span])[0]
+        self.assertEqual(m.path_index, 7)
+        self.assertEqual(m.label, "3600")
+        self.assertEqual(m.label_bbox, span.bbox)
+        self.assertEqual(m.line, ((100.0, 100.0), (525.2, 100.0)))
+        d = m.to_dict()
+        self.assertEqual((d["path_index"], d["label"]), (7, "3600"))
+        self.assertEqual(d["line"], [[100.0, 100.0], [525.2, 100.0]])
+
     def test_unticked_line_is_not_a_dimension(self):
         paths, span = _dim_chain(0, 100, 100, 525.2, "3600")
         self.assertEqual(dimension_matches(paths[:1], [span]), [])
@@ -266,6 +277,26 @@ class TestTakeoffPlausibility(unittest.TestCase):
         self.assertAlmostEqual(pl["implied_denominator"], 46.2, places=1)
         self.assertTrue(sc.verified)            # source-level trust stands
         self.assertEqual([w["warning_code"] for w in page.warnings], [])
+
+    def test_dimension_evidence_is_written_per_page(self):
+        paths, spans = [], []
+        for i in range(3):
+            p, s = _dim_chain(100 + i * 10, 900 + i * 40, 100, 525.2, "3600")
+            paths += p
+            spans.append(s)
+        page = self._run(SCALES_TEXT, [], paths, spans)
+        ev = page.to_dict()["scale_evidence"]
+        self.assertEqual(len(ev["dimensions"]), 3)
+        self.assertEqual(ev["dimensions"][0]["label"], "3600")
+        self.assertEqual(ev["dimensions"][0]["path_index"], 100)
+        self.assertEqual(ev["verdicts"], {"50": {"status": "ok", "method": "dimensions", "n": 3,
+                                                 "implied_denominator": 50.0}})
+
+    def test_no_dimensions_still_writes_empty_evidence(self):
+        page = self._run(SCALES_TEXT, [0.8 * PX_PER_M_50, 0.9 * PX_PER_M_50])
+        ev = page.to_dict()["scale_evidence"]
+        self.assertEqual(ev["dimensions"], [])
+        self.assertEqual(ev["verdicts"]["50"]["method"], "door_leaves")
 
     def test_contradicting_dimensions_unverify_a_typed_scale(self):
         paths, spans = [], []

@@ -149,7 +149,7 @@ class TestComputeTakeoff(unittest.TestCase):
         page = self._run([_room("room_a", 0, 0, 300, 300, "HALL")])
         d = page.to_dict()
         self.assertEqual(set(d), {"page_number", "heights", "rooms", "unassigned_openings",
-                                  "over_assigned_openings", "unscaled_rooms", "totals"})
+                                  "over_assigned_openings", "unscaled_rooms", "scale_evidence", "totals"})
         room = d["rooms"][0]
         for k in ("room_id", "label", "scale", "mm_per_px", "floor_m2", "ceiling_m2",
                   "perimeter_m", "height_m", "height_source", "wall_gross_m2",

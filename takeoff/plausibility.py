@@ -152,10 +152,22 @@ class DimensionMatch:
     value_mm: float
     length_px: float
     implied_denominator: float
+    # Debug trail: which line (primitives.json path_index, endpoints) was
+    # measured against which label.
+    path_index: Optional[int] = None
+    line: Optional[tuple] = None
+    label: Optional[str] = None
+    label_bbox: Optional[tuple] = None
 
     def to_dict(self) -> dict:
-        return {"value_mm": self.value_mm, "length_px": round(self.length_px, 1),
-                "implied_denominator": round(self.implied_denominator, 1)}
+        d = {"value_mm": self.value_mm, "length_px": round(self.length_px, 1),
+             "implied_denominator": round(self.implied_denominator, 1),
+             "path_index": self.path_index, "label": self.label}
+        if self.line is not None:
+            d["line"] = [[round(v, 1) for v in pt] for pt in self.line]
+        if self.label_bbox is not None:
+            d["label_bbox"] = [round(v, 1) for v in self.label_bbox]
+        return d
 
 
 def parse_dimension_mm(text: str) -> Optional[float]:
@@ -180,7 +192,7 @@ def dimension_matches(paths, text_spans) -> list[DimensionMatch]:
         if v is None:
             continue
         x0, y0, x1, y1 = s.bbox
-        labels.append((v, ((x0 + x1) / 2.0, (y0 + y1) / 2.0), x1 - x0, y1 - y0))
+        labels.append((v, ((x0 + x1) / 2.0, (y0 + y1) / 2.0), x1 - x0, y1 - y0, s))
     if not labels:
         return []
     idx = _dimension_line_indices(paths)
@@ -192,13 +204,13 @@ def dimension_matches(paths, text_spans) -> list[DimensionMatch]:
         length = math.hypot(b[0] - a[0], b[1] - a[1])
         if length <= 0:
             continue
-        lines.append((a, b, length))
+        lines.append((a, b, length, p.path_index))
 
     pairs = []   # (score, line_no, label_no)
-    for li, (a, b, length) in enumerate(lines):
+    for li, (a, b, length, _pi) in enumerate(lines):
         ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
         mx, my = (a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0
-        for ti, (v, (cx, cy), w, h) in enumerate(labels):
+        for ti, (v, (cx, cy), w, h, _s) in enumerate(labels):
             dx, dy = cx - mx, cy - my
             along = abs(dx * ux + dy * uy)
             perp = abs(-dx * uy + dy * ux)
@@ -221,9 +233,12 @@ def dimension_matches(paths, text_spans) -> list[DimensionMatch]:
             continue
         used_lines.add(li)
         used_labels.add(ti)
-        v = labels[ti][0]
-        length = lines[li][2]
-        out.append(DimensionMatch(v, length, v / (length * MM_PER_PX_AT_1_1)))
+        v, span = labels[ti][0], labels[ti][4]
+        a, b, length, pi = lines[li]
+        out.append(DimensionMatch(
+            v, length, v / (length * MM_PER_PX_AT_1_1), path_index=pi,
+            line=((float(a[0]), float(a[1])), (float(b[0]), float(b[1]))),
+            label=span.text.strip(), label_bbox=tuple(float(x) for x in span.bbox)))
     return out
 
 
@@ -244,9 +259,10 @@ def check_dimensions(matches: list[DimensionMatch], denominator: float) -> Verdi
 
 # ---------------------------------------------------------------- combined
 
-def assess_scale(denominator: float, leaf_px: list[float], paths, text_spans) -> Verdict:
+def assess_scale(denominator: float, leaf_px: list[float],
+                 matches: list[DimensionMatch]) -> Verdict:
     """Dimensions decide when they can; door leaves are the fallback."""
-    dims = check_dimensions(dimension_matches(paths, text_spans), denominator)
+    dims = check_dimensions(matches, denominator)
     if dims.status != "untested":
         return dims          # measured (ok / inconclusive / implausible) beats a band
     return check_door_leaves(leaf_px, denominator)

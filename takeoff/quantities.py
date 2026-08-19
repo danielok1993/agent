@@ -16,7 +16,7 @@ from shapely.geometry import Polygon
 from detection.rooms import ROOM_WALL_DILATE_PX
 from takeoff.heights import Heights
 from takeoff.openings import assign_openings, opening_width_px
-from takeoff.plausibility import assess_scale, leaf_width_px
+from takeoff.plausibility import assess_scale, dimension_matches, leaf_width_px
 from takeoff.scale import (
     RoomScale, is_verified, select_room_scale, sheet_size_tokens, verify_sheet_size,
 )
@@ -70,6 +70,8 @@ class TakeoffPage:
     over_assigned_openings: list = field(default_factory=list)
     unscaled_rooms: list = field(default_factory=list)
     warnings: list = field(default_factory=list)
+    dimension_matches: list = field(default_factory=list)   # DimensionMatch
+    verdicts: dict = field(default_factory=dict)            # denominator → Verdict
 
     def totals(self) -> dict:
         return {
@@ -88,6 +90,10 @@ class TakeoffPage:
             "unassigned_openings": list(self.unassigned_openings),
             "over_assigned_openings": [dict(o) for o in self.over_assigned_openings],
             "unscaled_rooms": list(self.unscaled_rooms),
+            "scale_evidence": {
+                "dimensions": [m.to_dict() for m in self.dimension_matches],
+                "verdicts": {f"{D:g}": v.to_dict() for D, v in self.verdicts.items()},
+            },
             "totals": self.totals(),
         }
 
@@ -199,8 +205,10 @@ def compute_takeoff(entities, candidates, page_scales, regions, det_scale, heigh
             w = leaf_width_px(evidence.get(oid, {}))
             if w is not None:
                 bucket.append(w)
-    verdicts = {D: assess_scale(D, leaves, list(paths), list(text_spans))
+    page.dimension_matches = dimension_matches(list(paths), list(text_spans))
+    verdicts = {D: assess_scale(D, leaves, page.dimension_matches)
                 for D, leaves in leaves_by_denom.items()}
+    page.verdicts = verdicts
     for D, v in verdicts.items():
         if v.status == "implausible":
             _warn(page, "SCALE_IMPLAUSIBLE", "warning", v.describe(D))
