@@ -166,7 +166,8 @@ scale/            # drawing-scale resolution: /VP measure viewports, scale text,
                   # a tty-gated prompt, and geometric binding to floor_plan regions
 takeoff/           # rooms + scale + heights → floor / ceiling / net wall m² per room
                    # (units, heights, per-room scale + sheet-size verification,
-                   # opening assignment, compute_takeoff). Pure; wired in
+                   # opening assignment, plausibility — dimension strings /
+                   # door-leaf band, compute_takeoff). Pure; wired in
                    # pipeline.run_extract after finalize_candidates.
 debug/             # trace.py (DebugTraceCollector) + renderer.py (HTML viewer)
 tools/             # standalone dev scripts (numpy/cv2)
@@ -237,7 +238,18 @@ The call is schema-constrained (`classifier.RESPONSE_SCHEMA` passed as `response
    the room entity's `attributes["takeoff"]` and totals into `summary.json`.
    `scale.verified` is true for viewport/user scales, or text scales whose
    title-block sheet size matches the mediabox; `SCALE_UNVERIFIED` /
-   `SCALE_PRINT_RESIZED` flag the rest. Heights: flag → tty prompt → default.
+   `SCALE_PRINT_RESIZED` flag the rest. Then `takeoff/plausibility.py` reads
+   the drawing itself (one verdict per denominator in use on the page, on
+   `scale.plausibility`): ticked dimension lines with a numeric label beside
+   them (`3600`, `7,434`, `4.50`; ≥ 3 matches, reusing
+   `walls._dimension_line_indices`) measure the scale directly — agreement
+   within 5 % verifies even a text-only scale, disagreement past 15 % is
+   `SCALE_IMPLAUSIBLE` and unverifies even a typed one (s01: typed 1:50, 31
+   dimensions say 1:92.2); otherwise the median door leaf (arc radius / pair
+   chord ÷ 2 / panel length, ≥ 2 doors) must fall in 0.55–1.20 m (corpus
+   medians 0.64–0.90; s01 0.38) or the verdict is implausible with the
+   print-factor correction (×0.25/0.5/2/4) named. Numbers are NEVER swapped —
+   the verdict only gates `verified`. Heights: flag → tty prompt → default.
 7. JSON dump (`primitives.json`, `candidates.json`, `final_entities.json`, `pdfplumber_comparison.json`) and warning collection.
 
 Aggregate `summary.json` and `warnings.json` are written at the run root once all pages finish.
@@ -286,7 +298,9 @@ untied to a viewport/user source or a sheet-size confirmation;
 `SCALE_PRINT_RESIZED` — the declared title-block sheet size mismatches the
 mediabox by ~2× (half-/double-size print); `TAKEOFF_OPENING_TALLER_THAN_CEILING`
 — an opening height was clamped to the ceiling; `TAKEOFF_OPENING_MULTI_ROOM`
-— an opening reached 3+ rooms and was capped to the two nearest).
+— an opening reached 3+ rooms and was capped to the two nearest;
+`SCALE_IMPLAUSIBLE` — the drawing's dimension strings or door-leaf widths
+contradict the resolved scale, `verified` is false, numbers unchanged).
 
 ## graphify
 

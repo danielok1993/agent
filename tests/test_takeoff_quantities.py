@@ -49,8 +49,9 @@ class TestComputeTakeoff(unittest.TestCase):
         self.assertEqual(r.wall_net_m2, r.wall_gross_m2)
         self.assertEqual(r.height_source, "default")
         self.assertAlmostEqual(r.mm_per_px, 8.467, places=3)
-        self.assertEqual(r.scale.to_dict(), {"denominator": 50.0, "source": "viewport",
-                                             "region_id": "r1", "verified": True})
+        self.assertEqual(r.scale.to_dict(), {
+            "denominator": 50.0, "source": "viewport", "region_id": "r1", "verified": True,
+            "plausibility": {"status": "untested", "method": "door_leaves", "n": 0}})
         self.assertIn("flat_ceiling", r.assumptions)
         self.assertIn("standoff_corrected_2px", r.assumptions)
         self.assertEqual(page.unscaled_rooms, [])

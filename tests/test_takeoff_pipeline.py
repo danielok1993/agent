@@ -94,8 +94,10 @@ class TestRunExtractWiring(unittest.TestCase):
             calls = []
 
             def fake_compute(entities, candidates, page_scales, regions, det_scale,
-                             heights, page_number, page_text, w_mm, h_mm):
+                             heights, page_number, page_text, w_mm, h_mm,
+                             paths=(), text_spans=()):
                 calls.append((page_number, heights, round(w_mm), round(h_mm)))
+                self.assertIsInstance(list(paths), list)     # primitives reach the takeoff
                 return self._canned(page_number, floor=10.0 * page_number)
 
             with mock.patch.object(pipeline, "compute_takeoff", side_effect=fake_compute):

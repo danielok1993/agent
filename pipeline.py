@@ -685,6 +685,7 @@ def run_extract(
                 " ".join(s.text for s in page_data.text_spans),
                 page_data.width_px / 150.0 * 25.4,
                 page_data.height_px / 150.0 * 25.4,
+                paths=page_data.paths, text_spans=page_data.text_spans,
             )
             attach_takeoff(entities, takeoff_page)
             write_json(str(Path(page_dir) / "takeoff.json"), takeoff_page.to_dict())

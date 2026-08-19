@@ -16,6 +16,7 @@ from shapely.geometry import Polygon
 from detection.rooms import ROOM_WALL_DILATE_PX
 from takeoff.heights import Heights
 from takeoff.openings import assign_openings, opening_width_px
+from takeoff.plausibility import assess_scale, leaf_width_px
 from takeoff.scale import (
     RoomScale, is_verified, select_room_scale, sheet_size_tokens, verify_sheet_size,
 )
@@ -129,7 +130,8 @@ def _room_polygon(entity) -> Optional[Polygon]:
 
 
 def compute_takeoff(entities, candidates, page_scales, regions, det_scale, heights: Heights,
-                    page_number: int, page_text: str, page_w_mm: float, page_h_mm: float) -> TakeoffPage:
+                    page_number: int, page_text: str, page_w_mm: float, page_h_mm: float,
+                    paths=(), text_spans=()) -> TakeoffPage:
     page = TakeoffPage(page_number=page_number, heights=heights)
     evidence = {c.candidate_id: c.evidence for c in candidates}
 
@@ -186,8 +188,29 @@ def compute_takeoff(entities, candidates, page_scales, regions, det_scale, heigh
               f"{len(over_assigned)} opening(s) reached 3+ rooms; kept the two "
               "nearest room boundaries — an opening serves at most two spaces")
 
+    # Plausibility: one verdict per denominator in use on the page, from the
+    # doors assigned to rooms at that scale and the page's dimension strings.
+    leaves_by_denom: dict[float, list[float]] = {}
+    for rid, (_e, rs, _poly) in room_meta.items():
+        bucket = leaves_by_denom.setdefault(rs.denominator, [])
+        for oid in assigned.get(rid, []):
+            if opening_by_id[oid].entity_type != "door":
+                continue
+            w = leaf_width_px(evidence.get(oid, {}))
+            if w is not None:
+                bucket.append(w)
+    verdicts = {D: assess_scale(D, leaves, list(paths), list(text_spans))
+                for D, leaves in leaves_by_denom.items()}
+    for D, v in verdicts.items():
+        if v.status == "implausible":
+            _warn(page, "SCALE_IMPLAUSIBLE", "warning", v.describe(D))
+
     for rid, (e, rs, poly) in room_meta.items():
         D = rs.denominator
+        v = verdicts.get(D)
+        rs = RoomScale(rs.denominator, rs.source, rs.region_id,
+                       is_verified(rs, sheet_matches, v), v)
+        room_meta[rid] = (e, rs, poly)
         floor = px2_to_m2(poly.area, D)
         perim = px_to_m(poly.exterior.length, D)
         gross = perim * heights.ceiling_m
@@ -219,7 +242,7 @@ def compute_takeoff(entities, candidates, page_scales, regions, det_scale, heigh
             assumptions=[FLAT_CEILING_ASSUMPTION, STANDOFF_ASSUMPTION, HOLES_FILLED_ASSUMPTION],
         )
         page.rooms.append(room)
-        if not rs.verified:
+        if not rs.verified and (v is None or v.status != "implausible"):
             _warn(page, "SCALE_UNVERIFIED", "info",
                   "Room quantities rest on a scale that could not be tied to a verified "
                   "region source (viewport/user, or text confirmed by sheet size)")

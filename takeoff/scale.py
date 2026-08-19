@@ -47,10 +47,14 @@ class RoomScale:
     source: str          # viewport | text | user | detection | unresolved
     region_id: Optional[str]
     verified: bool
+    plausibility: Optional[object] = None   # takeoff.plausibility.Verdict
 
     def to_dict(self) -> dict:
-        return {"denominator": self.denominator, "source": self.source,
-                "region_id": self.region_id, "verified": self.verified}
+        d = {"denominator": self.denominator, "source": self.source,
+             "region_id": self.region_id, "verified": self.verified}
+        if self.plausibility is not None:
+            d["plausibility"] = self.plausibility.to_dict()
+        return d
 
 
 def _contains(bbox, x: float, y: float) -> bool:
@@ -101,7 +105,15 @@ def verify_sheet_size(tokens: set[str], page_w_mm: float, page_h_mm: float) -> t
     return matches, resized
 
 
-def is_verified(room_scale: RoomScale, sheet_matches: bool) -> bool:
+def is_verified(room_scale: RoomScale, sheet_matches: bool, plausibility=None) -> bool:
+    """Source-level trust, then the drawing's own evidence: a failed
+    plausibility check unverifies every tier (typed scales included), and
+    agreeing dimension strings verify even a text-only one."""
+    if plausibility is not None:
+        if plausibility.status == "implausible":
+            return False
+        if plausibility.status == "ok" and plausibility.method == "dimensions":
+            return True
     if room_scale.source in ("viewport", "user"):
         return True
     return room_scale.source == "text" and sheet_matches
