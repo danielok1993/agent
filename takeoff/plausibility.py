@@ -247,10 +247,7 @@ def check_dimensions(matches: list[DimensionMatch], denominator: float) -> Verdi
 def assess_scale(denominator: float, leaf_px: list[float], paths, text_spans) -> Verdict:
     """Dimensions decide when they can; door leaves are the fallback."""
     dims = check_dimensions(dimension_matches(paths, text_spans), denominator)
-    if dims.status in ("ok", "implausible"):
-        return dims
-    doors = check_door_leaves(leaf_px, denominator)
-    if doors.status != "untested":
-        return doors
-    return dims if dims.status == "inconclusive" else doors
+    if dims.status != "untested":
+        return dims          # measured (ok / inconclusive / implausible) beats a band
+    return check_door_leaves(leaf_px, denominator)
 

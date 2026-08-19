@@ -250,6 +250,23 @@ class TestTakeoffPlausibility(unittest.TestCase):
         self.assertEqual((pl["status"], pl["method"], pl["n"]), ("ok", "dimensions", 3))
         self.assertEqual([w["warning_code"] for w in page.warnings], [])
 
+    def test_inconclusive_dimensions_are_not_overruled_by_doors(self):
+        # s01 at the user's 1:100: 31 dimensions measure 1:92.2 (7.8% off) —
+        # that stays the verdict, with the implied value visible; the coarser
+        # door band must not stamp it "ok"
+        paths, spans = [], []
+        for i in range(3):
+            p, s = _dim_chain(100 + i * 10, 900 + i * 40, 100, 560.0, "3600")   # 1:46.2
+            paths += p
+            spans.append(s)
+        page = self._run(SCALES_USER, [0.8 * PX_PER_M_50, 0.9 * PX_PER_M_50], paths, spans)
+        sc = page.rooms[0].scale
+        pl = sc.to_dict()["plausibility"]
+        self.assertEqual((pl["status"], pl["method"], pl["n"]), ("inconclusive", "dimensions", 3))
+        self.assertAlmostEqual(pl["implied_denominator"], 46.2, places=1)
+        self.assertTrue(sc.verified)            # source-level trust stands
+        self.assertEqual([w["warning_code"] for w in page.warnings], [])
+
     def test_contradicting_dimensions_unverify_a_typed_scale(self):
         paths, spans = [], []
         for i in range(3):
