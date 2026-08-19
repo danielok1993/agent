@@ -33,6 +33,7 @@ from scale.resolver import PageScales, resolve_page_scales
 from scale.store import load_stored
 from scale.units import format_scale
 from scale.viewport import viewport_scales
+from takeoff import Heights, TakeoffPage, compute_takeoff, resolve_heights
 
 console = Console()
 
@@ -118,7 +119,7 @@ def _door_attribute_overlay(candidate: Optional[Candidate]) -> dict:
 # room boundary that overlay drawing and downstream consumers rely on.
 _ROOM_EVIDENCE_PASSTHROUGH = (
     "polygon", "area_px2", "perimeter_px", "door_openings", "window_openings",
-    "wall_segment_count", "wall_contact",
+    "wall_segment_count", "wall_contact", "holes",
 )
 
 
@@ -139,6 +140,14 @@ def _room_entity(candidate: Candidate) -> Entity:
             },
         },
     )
+
+
+def attach_takeoff(entities: list[Entity], page: TakeoffPage) -> None:
+    """Mirror the per-room takeoff onto room Entity.attributes["takeoff"]."""
+    blocks = page.attributes_by_room()
+    for e in entities:
+        if e.entity_type == "room" and e.entity_id in blocks:
+            e.attributes["takeoff"] = blocks[e.entity_id]
 
 
 def finalize_candidates(candidates: list[Candidate]) -> tuple[list[Entity], list[dict]]:
@@ -288,8 +297,9 @@ def _page_summary_dict(
     regions: list[Region],
     page_scales: PageScales,
     det_scale: DetectionScale | None = None,
+    takeoff: Optional[TakeoffPage] = None,
 ) -> dict:
-    return {
+    out = {
         "page_number": page_data.page_number,
         "page_type": page_data.page_type,
         "width_px": round(page_data.width_px, 1),
@@ -304,6 +314,9 @@ def _page_summary_dict(
         "floor_plan_region_count": sum(1 for r in regions if r.region_type == "floor_plan"),
         "scales": scale_summary_dict(page_scales, det_scale),
     }
+    if takeoff is not None:
+        out["takeoff"] = takeoff.totals()
+    return out
 
 
 @dataclass
@@ -458,6 +471,9 @@ def run_extract(
     disable_rooms: bool = False,
     refresh_regions: bool = False,
     allow_scale_prompt: bool = True,
+    ceiling_height: Optional[float] = None,
+    door_height: Optional[float] = None,
+    window_height: Optional[float] = None,
 ) -> str:
     disable_rooms = disable_rooms or disable_walls
     path = Path(pdf_path)
@@ -485,6 +501,13 @@ def run_extract(
     all_warnings: list[dict] = []
     total_candidates = 0
     total_entities = 0
+
+    # Rooms disabled → no takeoff to compute, so nothing to prompt for; the
+    # flags are still validated and takeoff.json is still written (empty).
+    heights = resolve_heights(ceiling_height, door_height, window_height,
+                              allow_prompt=allow_scale_prompt and not disable_rooms)
+    takeoff_totals = {"floor_m2": 0.0, "ceiling_m2": 0.0, "wall_net_m2": 0.0,
+                      "rooms_measured": 0, "rooms_unscaled": 0}
 
     steps = ["extract", "render", "regions", "scale", "plumber", "heuristics",
              "overlay", "save"]
@@ -655,6 +678,20 @@ def run_extract(
             entities, rejected = finalize_candidates(candidates)
             total_entities += len(entities)
 
+            # 5a. Quantity takeoff — rooms + scale + heights → metres
+            takeoff_page = compute_takeoff(
+                entities, candidates, page_scales, region_result.regions, det_scale,
+                heights, page_num,
+                " ".join(s.text for s in page_data.text_spans),
+                page_data.width_px / 150.0 * 25.4,
+                page_data.height_px / 150.0 * 25.4,
+                paths=page_data.paths, text_spans=page_data.text_spans,
+            )
+            attach_takeoff(entities, takeoff_page)
+            write_json(str(Path(page_dir) / "takeoff.json"), takeoff_page.to_dict())
+            for k, v in takeoff_page.totals().items():
+                takeoff_totals[k] = round(takeoff_totals[k] + v, 2) if isinstance(v, float) else takeoff_totals[k] + v
+
             write_json(
                 str(Path(page_dir) / "final_entities.json"),
                 {
@@ -719,6 +756,7 @@ def run_extract(
             )
             page_warnings.extend(page_scales.warnings)
             page_warnings.extend(det_scale.warnings)
+            page_warnings.extend(takeoff_page.warnings)
             for w in page_warnings:
                 w.setdefault("page_number", page_num)
             all_warnings.extend(page_warnings)
@@ -728,7 +766,8 @@ def run_extract(
 
             all_page_summaries.append(
                 _page_summary_dict(page_data, candidates, entities, page_warnings,
-                                   region_result.regions, page_scales, det_scale)
+                                   region_result.regions, page_scales, det_scale,
+                                   takeoff=takeoff_page)
             )
 
     doc.close()
@@ -749,6 +788,7 @@ def run_extract(
                 "total_candidates": total_candidates,
                 "total_entities": total_entities,
                 "total_warnings": len(all_warnings),
+                "takeoff": takeoff_totals,
             },
         },
     )

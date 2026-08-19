@@ -25,10 +25,15 @@ python app.py extract path/to/drawing.pdf [--pages SPEC] [--out DIR]
                                           [--no-gemini] [--refresh-regions]
                                           [--disable-rooms] [--disable-windows]
                                           [--debug]
+                                          [--ceiling-height M] [--door-height M]
+                                          [--window-height M]
 # --disable-walls is a deprecated alias for --disable-rooms (skips the wall
 # network + room detection together).
 # --refresh-regions ignores the cached region classification for the page
 # and calls Gemini again instead of reusing gemini/region_cache.py's entry.
+# Heights feed the per-room quantity takeoff (takeoff/). --ceiling-height is
+# prompted for on a tty when absent (same gate as the scale prompt); defaults
+# 2.4 / 2.1 / 1.2 m.
 
 # Batch extract — discovers fixtures/sheets/*.pdf, prompts for detection options
 # interactively, runs `app.py extract` 5-at-a-time (ProcessPoolExecutor)
@@ -159,6 +164,11 @@ gemini/classifier.py    # region classification (replaced candidate validation)
 gemini/region_cache.py  # classification cache, keyed by page content + region geometry
 scale/            # drawing-scale resolution: /VP measure viewports, scale text,
                   # a tty-gated prompt, and geometric binding to floor_plan regions
+takeoff/           # rooms + scale + heights → floor / ceiling / net wall m² per room
+                   # (units, heights, per-room scale + sheet-size verification,
+                   # opening assignment, plausibility — dimension strings /
+                   # door-leaf band, compute_takeoff). Pure; wired in
+                   # pipeline.run_extract after finalize_candidates.
 debug/             # trace.py (DebugTraceCollector) + renderer.py (HTML viewer)
 tools/             # standalone dev scripts (numpy/cv2)
 ```
@@ -214,6 +224,32 @@ The call is schema-constrained (`classifier.RESPONSE_SCHEMA` passed as `response
 4. `extraction.plumber.extract_plumber_page` — pdfplumber cross-check (chars/lines/rects/curves/images/tables). `compare_counts` emits `PLUMBER_LARGE_DELTA` warnings when PyMuPDF vs pdfplumber geometry diverges >50%. Tables here feed schedule detection.
 5. `detection.run_heuristics` (`detection/orchestrator.py`) — deterministic detection of doors / windows / rooms / labels / schedules, run once over the region-filtered page data from stage 3 (skipped entirely only when a split page has neither a `floor_plan` nor a `schedule_table` region; a schedule-only sheet still runs heuristics over an empty path set so `detect_schedules` can read the schedule). Doors and windows detect first; the internal wall-centerline network (`detection/walls.py::detect_wall_network`, never emitted as candidates) then cross-validates them and feeds `detection/rooms.py::detect_rooms`, which subtracts wall solids, face linework, and opening seals (wall-plane plugs at doors, bboxes at windows) from the page and emits the enclosed free-space components as room polygons. `--disable-rooms` / `--disable-windows` exist because each detector can dominate noise on different drawing styles. Pass a `DebugTraceCollector` (via `--debug`) to record per-primitive reasoning.
 6. `pipeline.finalize_candidates` + `renderer.draw_overlay` — Gemini no longer votes on individual candidates, so `finalize_candidates` applies the `OFFLINE_MIN_CONFIDENCE` floors unconditionally: candidates below threshold move to `rejected` and are not promoted to entities. Room candidates bypass the floors — they are heuristic-only by design and always promoted, with the polygon in `Entity.attributes`. `draw_overlay` then draws entities, rejected candidates, and the page's region outlines onto the render.
+
+   After finalisation, `takeoff.compute_takeoff` converts each room polygon
+   (buffered out by `ROOM_WALL_DILATE_PX` to undo the barrier standoff) into
+   metres at 0.16933 mm/px × the room's denominator (its floor_plan region's
+   scale; a region the resolver marked unresolved leaves its rooms UNSCALED —
+   the detection scale is borrowed only by rooms in no region / no verdict,
+   never across plans on a mixed-scale sheet; else no numbers +
+   `TAKEOFF_NO_SCALE`),
+   assigns door/window entities to the rooms whose grown polygon touches them
+   (widths from `opening_line` / `opening_width_px` / `opening_span_px`, bbox
+   edge as last resort), and writes `takeoff.json`; the block is mirrored onto
+   the room entity's `attributes["takeoff"]` and totals into `summary.json`.
+   `scale.verified` is true for viewport/user scales, or text scales whose
+   title-block sheet size matches the mediabox; `SCALE_UNVERIFIED` /
+   `SCALE_PRINT_RESIZED` flag the rest. Then `takeoff/plausibility.py` reads
+   the drawing itself (one verdict per denominator in use on the page, on
+   `scale.plausibility`): ticked dimension lines with a numeric label beside
+   them (`3600`, `7,434`, `4.50`; ≥ 3 matches, reusing
+   `walls._dimension_line_indices`) measure the scale directly — agreement
+   within 5 % verifies even a text-only scale, disagreement past 15 % is
+   `SCALE_IMPLAUSIBLE` and unverifies even a typed one (s01: typed 1:50, 31
+   dimensions say 1:92.2); otherwise the median door leaf (arc radius / pair
+   chord ÷ 2 / panel length, ≥ 2 doors) must fall in 0.55–1.20 m (corpus
+   medians 0.64–0.90; s01 0.38) or the verdict is implausible with the
+   print-factor correction (×0.25/0.5/2/4) named. Numbers are NEVER swapped —
+   the verdict only gates `verified`. Heights: flag → tty prompt → default.
 7. JSON dump (`primitives.json`, `candidates.json`, `final_entities.json`, `pdfplumber_comparison.json`) and warning collection.
 
 Aggregate `summary.json` and `warnings.json` are written at the run root once all pages finish.
@@ -234,6 +270,9 @@ outputs/<YYYY-MM-DD_HH-MM-SS>/
     │                         # Gemini (absent on a cache hit, --no-gemini, or a raster page)
     ├── candidates.json       # heuristic output
     ├── final_entities.json   # finalized entities + rejected
+    ├── takeoff.json          # per-room floor/ceiling/wall m², openings, scale provenance,
+    │                         # scale_evidence (every measured dimension line: path_index,
+    │                         # endpoints, label, implied denominator; verdict per scale)
     ├── debug_trace.json      # --debug only: per-primitive detection trace
     └── debug_viewer.html     # --debug only: self-contained trace viewer
 ```
@@ -250,10 +289,20 @@ Warnings are structured dicts with `warning_code`, `severity`, `message`,
 `page_number`. The set is intentionally small — when adding a new warning,
 follow the existing `SCREAMING_SNAKE_CASE` convention and emit from
 `pipeline.collect_warnings`, `extraction.plumber.compare_counts`,
-`gemini.client._validate_response`, or `scale.resolver.resolve_page_scales`
+`gemini.client._validate_response`, `scale.resolver.resolve_page_scales`
 (which returns them on `PageScales.warnings` for `run_extract` to fold into
 the page's warning list — only the resolver knows which tier resolved a
-region, so only it can say why one did not).
+region, so only it can say why one did not), or
+`takeoff.quantities.compute_takeoff` (same shape, on `TakeoffPage.warnings`:
+`TAKEOFF_NO_SCALE` — a room with no resolvable drawing scale gets no
+quantities; `SCALE_UNVERIFIED` — a measured room's scale is text-only and
+untied to a viewport/user source or a sheet-size confirmation;
+`SCALE_PRINT_RESIZED` — the declared title-block sheet size mismatches the
+mediabox by ~2× (half-/double-size print); `TAKEOFF_OPENING_TALLER_THAN_CEILING`
+— an opening height was clamped to the ceiling; `TAKEOFF_OPENING_MULTI_ROOM`
+— an opening reached 3+ rooms and was capped to the two nearest;
+`SCALE_IMPLAUSIBLE` — the drawing's dimension strings or door-leaf widths
+contradict the resolved scale, `verified` is false, numbers unchanged).
 
 ## graphify
 
