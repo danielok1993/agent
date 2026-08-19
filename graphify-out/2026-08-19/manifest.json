@@ -150,8 +150,8 @@
     "semantic_hash": ""
   },
   "pipeline.py": {
-    "mtime": 1787091787.7598808,
-    "ast_hash": "e1b9a297560266afe74891c9ab8182ab",
+    "mtime": 1787171515.2445998,
+    "ast_hash": "1a07d64c7e68a64780fc8fb27848d0c8",
     "semantic_hash": ""
   },
   "tests/__init__.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1787092290.3809223,
-    "ast_hash": "fed966d64810893b142694401cd56ef4",
+    "mtime": 1787171515.2441974,
+    "ast_hash": "e553547b7864ce8e4fda7379da5c0908",
     "semantic_hash": ""
   },
   "README.md": {
@@ -945,18 +945,18 @@
     "semantic_hash": ""
   },
   "takeoff/openings.py": {
-    "mtime": 1787090886.025813,
-    "ast_hash": "85e3f5e63eecc83623a19db05a61b670",
+    "mtime": 1787094323.2702029,
+    "ast_hash": "1a643d43144bcb918eb1bb1a8514bff2",
     "semantic_hash": ""
   },
   "takeoff/quantities.py": {
-    "mtime": 1787091532.7379458,
-    "ast_hash": "571fc26a0198eda66e2db33b200c66f6",
+    "mtime": 1787171515.2449152,
+    "ast_hash": "1196fece08608eb86aa726907f922f51",
     "semantic_hash": ""
   },
   "takeoff/scale.py": {
-    "mtime": 1787090826.486508,
-    "ast_hash": "6d5c8c74e6fc6ec1ca696a5652e3ff83",
+    "mtime": 1787171515.2452374,
+    "ast_hash": "928c4211acb098ac817ee208863fb988",
     "semantic_hash": ""
   },
   "takeoff/units.py": {
@@ -970,23 +970,23 @@
     "semantic_hash": ""
   },
   "tests/test_takeoff_openings.py": {
-    "mtime": 1787090871.983429,
-    "ast_hash": "ce3799dbcc2fee52f1fabb039be86332",
+    "mtime": 1787094208.0750277,
+    "ast_hash": "a8f98ab62d20b4b9023549f962051be3",
     "semantic_hash": ""
   },
   "tests/test_takeoff_pipeline.py": {
-    "mtime": 1787091737.9446418,
-    "ast_hash": "b72f5ab692f1949e6cf91459548d9a40",
+    "mtime": 1787171515.245534,
+    "ast_hash": "ca81e3777d558eadcd05b53b998306e4",
     "semantic_hash": ""
   },
   "tests/test_takeoff_quantities.py": {
-    "mtime": 1787091540.3264267,
-    "ast_hash": "e7c91ffdc24f7ec39eacb020db8c22ec",
+    "mtime": 1787171515.2457712,
+    "ast_hash": "f0249c0586b681ef81ecce4bdb17b380",
     "semantic_hash": ""
   },
   "tests/test_takeoff_scale.py": {
-    "mtime": 1787090810.8266835,
-    "ast_hash": "fd26811e8000a7f4b953cd2cbff25a1c",
+    "mtime": 1787094218.516921,
+    "ast_hash": "61485ca94722d7a938a11d0b5d51c19a",
     "semantic_hash": ""
   },
   "tests/test_takeoff_units.py": {
@@ -995,13 +995,23 @@
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-08-18-room-takeoff.md": {
-    "mtime": 1787090244.1318436,
-    "ast_hash": "57acbc14e947be0e5b3e8927dbc97337",
+    "mtime": 1787094444.6338844,
+    "ast_hash": "7cec719d72189973cd1909d15411d4ce",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-08-18-room-takeoff-design.md": {
-    "mtime": 1787092561.2771118,
-    "ast_hash": "3a403caaf63ca4a8d9834f4efbdcbcdf",
+    "mtime": 1787094444.633108,
+    "ast_hash": "1fd43143945fefcaf75dd9dce1bdf6d8",
+    "semantic_hash": ""
+  },
+  "takeoff/plausibility.py": {
+    "mtime": 1787171515.2587988,
+    "ast_hash": "4cd3318a097dacf8c53f5d6b8a61752a",
+    "semantic_hash": ""
+  },
+  "tests/test_takeoff_plausibility.py": {
+    "mtime": 1787171515.2589648,
+    "ast_hash": "6cd2e6e33915ca600eae1386aab8fc6b",
     "semantic_hash": ""
   }
 }
