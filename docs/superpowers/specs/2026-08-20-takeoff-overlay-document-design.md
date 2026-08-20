@@ -52,8 +52,10 @@ Three were taken by the user during design:
   "scale": {
     "page": {"denominator": 50.0, "source": "text", "verified": true},
     "by_region": {"region_0000": {"denominator": 50.0, "source": "text"}},
-    "plausibility": {"50": {"verdict": "verified", "method": "dimensions"}},
-    "evidence": {"dimensions": [], "verdicts": {}}
+    "evidence": {
+      "dimensions": [{"path_index": 41, "label": "3600", "denominator": 92.2}],
+      "verdicts": {"50": {"verdict": "implausible", "method": "dimensions"}}
+    }
   },
   "heights": {
     "ceiling_m": 2.4, "door_m": 2.1, "window_m": 1.2,
@@ -105,6 +107,10 @@ Every value already exists somewhere; nothing new is computed.
 
 | Field | Source |
 | --- | --- |
+| `schema_version` | literal `1`; bumped only on a breaking change |
+| `scale.page` / `scale.by_region` | `PageScales.page_scale` / `.by_region`, already passed to `compute_takeoff` |
+| `scale.evidence.dimensions` | `TakeoffPage.dimension_matches` (today's `scale_evidence.dimensions`) |
+| `scale.evidence.verdicts` | `TakeoffPage.verdicts` — `takeoff/plausibility.py`'s verdict per denominator |
 | `page_frame.width_px` / `height_px` | `PageData.width_px` / `height_px` |
 | `page_frame.pdf_width_pt` / `height_pt` | `width_px / SCALE`, `SCALE = 150/72` |
 | `page_frame.rotation` | `doc[idx].rotation`, in scope at the call site |
