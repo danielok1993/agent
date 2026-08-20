@@ -13,6 +13,7 @@ outputs/
 
 .regions_cache/
 .scale_cache/
+.room_labels_cache/
 
 # Subagent-driven-development scratch (ledgers, briefs, review packages)
 .superpowers/

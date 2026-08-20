@@ -342,9 +342,10 @@ recorded against it. `add_sheet.py` refuses a duplicate by sha and assigns the
 next free slug (never reusing a gap, which would collide with a retired slug's
 ground truth).
 
-Adopting a sheet leaves two follow-ups: seed its region cache with one
-Gemini-enabled run (`python app.py extract fixtures/sheets/sNN-….pdf`), and
-upload the PDF plus its `.regions_cache/` entry to shared storage.
+Adopting a sheet leaves two follow-ups: seed its region cache AND its
+room-label cache with one Gemini-enabled run (`python app.py extract
+fixtures/sheets/sNN-….pdf`), and upload the PDF plus its `.regions_cache/`
+and `.room_labels_cache/` entries to shared storage.
 
 ## 12. Invariants you must not break
 

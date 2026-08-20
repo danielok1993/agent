@@ -162,6 +162,8 @@ layout/            # page segmentation — splits a sheet into its drawings
 gemini/client.py        # Vertex AI client (was gemini_client.py)
 gemini/classifier.py    # region classification (replaced candidate validation)
 gemini/region_cache.py  # classification cache, keyed by page content + region geometry
+gemini/room_labeler.py     # room names from in-polygon text (one text-only call)
+gemini/room_label_cache.py # label cache, keyed by page + room geometry + prompt version
 scale/            # drawing-scale resolution: /VP measure viewports, scale text,
                   # a tty-gated prompt, and geometric binding to floor_plan regions
 takeoff/           # rooms + scale + heights → floor / ceiling / net wall m² per room
@@ -189,7 +191,22 @@ gcloud config set project <PROJECT_ID>           # or set GOOGLE_CLOUD_PROJECT
 # Optional: GOOGLE_CLOUD_LOCATION (default us-central1)
 ```
 
-Model is hard-coded to `gemini-2.5-flash`, called once per page for region classification (`gemini/classifier.py`) — Gemini no longer votes on individual door/window/room/label/schedule candidates; `pipeline.finalize_candidates` applies the `OFFLINE_MIN_CONFIDENCE` floors unconditionally regardless of Gemini. Pass `--no-gemini` to skip the classification call: a cached classification for the page (`gemini/region_cache.py`, keyed by page content + region geometry) is still used if one exists; only when there is no usable cache does region filtering fall back to detecting the whole, unfiltered page (`REGION_CACHE_MISS_OFFLINE` warning). Pass `--refresh-regions` to force a fresh classification call even when a cache entry exists.
+Model is hard-coded to `gemini-2.5-flash`, called twice per page at most:
+once for region classification (`gemini/classifier.py`, image crops, before
+detection) and once for room labelling (`gemini/room_labeler.py`, text only,
+after `finalize_candidates`). Both are schema-constrained and separately
+cached (`gemini/region_cache.py`, keyed by page content + region geometry;
+`gemini/room_label_cache.py`, keyed by page content + room geometry + prompt
+version). Gemini no longer votes on individual door/window/room/label/schedule
+candidates; `pipeline.finalize_candidates` applies the `OFFLINE_MIN_CONFIDENCE`
+floors unconditionally regardless of Gemini. `--no-gemini` skips both calls
+and reuses whichever cache exists for the page; a miss warns instead of
+calling out — `REGION_CACHE_MISS_OFFLINE` falls back to detecting the whole,
+unfiltered page, `ROOM_LABEL_NO_GEMINI` just leaves that page's rooms
+unnamed. Pass `--refresh-regions` to force a fresh classification call even
+when a region cache entry exists; there is no equivalent flag for room
+labels, so to force a single page's labels to be recomputed, delete that
+page's cache file: `.room_labels_cache/<pdf-stem>_p<NN>_*.json`.
 
 The call is schema-constrained (`classifier.RESPONSE_SCHEMA` passed as `response_schema`, not plain JSON mode): the decoder cannot emit a response that fails to parse or a `type` outside `REGION_TYPES` — measured 2026-08-05 on `LOCATION_PLAN…-s11`, where an unconstrained response started as valid JSON, degenerated mid-stream into an off-topic fragment, and lost an object separator. Should a response still fail to parse, `resolve_page_regions` treats it exactly like the raising failure path — `REGION_CLASSIFY_PARSE_FAILURE`, whole page detected, **no cache write**: an all-`unclassified` region list reads downstream as "no floor plan" (Rule 1) and skips detection, so caching one would make a one-off flake permanent until the next `--refresh-regions`. A *partial* response (`REGION_CLASSIFY_INCOMPLETE` — some regions unaddressed or type-coerced) is real information and still caches.
 
@@ -223,7 +240,7 @@ The call is schema-constrained (`classifier.RESPONSE_SCHEMA` passed as `response
    `s05`, 0.94–1.00 on every other sheet).
 4. `extraction.plumber.extract_plumber_page` — pdfplumber cross-check (chars/lines/rects/curves/images/tables). `compare_counts` emits `PLUMBER_LARGE_DELTA` warnings when PyMuPDF vs pdfplumber geometry diverges >50%. Tables here feed schedule detection.
 5. `detection.run_heuristics` (`detection/orchestrator.py`) — deterministic detection of doors / windows / rooms / labels / schedules, run once over the region-filtered page data from stage 3 (skipped entirely only when a split page has neither a `floor_plan` nor a `schedule_table` region; a schedule-only sheet still runs heuristics over an empty path set so `detect_schedules` can read the schedule). Doors and windows detect first; the internal wall-centerline network (`detection/walls.py::detect_wall_network`, never emitted as candidates) then cross-validates them and feeds `detection/rooms.py::detect_rooms`, which subtracts wall solids, face linework, and opening seals (wall-plane plugs at doors, bboxes at windows) from the page and emits the enclosed free-space components as room polygons. `--disable-rooms` / `--disable-windows` exist because each detector can dominate noise on different drawing styles. Pass a `DebugTraceCollector` (via `--debug`) to record per-primitive reasoning.
-6. `pipeline.finalize_candidates` + `renderer.draw_overlay` — Gemini no longer votes on individual candidates, so `finalize_candidates` applies the `OFFLINE_MIN_CONFIDENCE` floors unconditionally: candidates below threshold move to `rejected` and are not promoted to entities. Room candidates bypass the floors — they are heuristic-only by design and always promoted, with the polygon in `Entity.attributes`. `draw_overlay` then draws entities, rejected candidates, and the page's region outlines onto the render.
+6. `pipeline.finalize_candidates` + `renderer.draw_overlay` — Gemini no longer votes on individual candidates, so `finalize_candidates` applies the `OFFLINE_MIN_CONFIDENCE` floors unconditionally: candidates below threshold move to `rejected` and are not promoted to entities. Room candidates bypass the floors — they are heuristic-only by design and always promoted, with the polygon in `Entity.attributes`. `draw_overlay` then draws entities, rejected candidates, and the page's region outlines onto the render. Between finalisation and the takeoff, `pipeline.resolve_room_labels` names each room from the text drawn in and within `ROOM_LABEL_BUFFER_PX` (40px) of its polygon — one text-only Gemini call per page, cached by page content + room geometry + prompt version (`gemini/room_label_cache.py`). A returned name is kept only when every word of it appears in that room's own spans (`room_labeler.is_grounded`), so a name is read off the drawing or the room stays unnamed. Labels never feed the quantity maths.
 
    After finalisation, `takeoff.compute_takeoff` converts each room polygon
    (buffered out by `ROOM_WALL_DILATE_PX` to undo the barrier standoff) into
@@ -302,7 +319,15 @@ mediabox by ~2× (half-/double-size print); `TAKEOFF_OPENING_TALLER_THAN_CEILING
 — an opening height was clamped to the ceiling; `TAKEOFF_OPENING_MULTI_ROOM`
 — an opening reached 3+ rooms and was capped to the two nearest;
 `SCALE_IMPLAUSIBLE` — the drawing's dimension strings or door-leaf widths
-contradict the resolved scale, `verified` is false, numbers unchanged).
+contradict the resolved scale, `verified` is false, numbers unchanged), or
+`pipeline.resolve_room_labels` (`ROOM_LABEL_NO_GEMINI` — no cached labels
+and Gemini disabled/unavailable, rooms stay unnamed; `ROOM_LABEL_FAILED` —
+the labelling call raised (auth, network, bug); `ROOM_LABEL_PARSE_FAILURE` —
+a response that didn't parse, not cached, same reasoning as
+`REGION_CLASSIFY_PARSE_FAILURE`; `ROOM_LABEL_UNGROUNDED` — a returned name
+failed the grounding check and was dropped; `ROOM_LABEL_CACHE_WRITE_FAILED`
+— labelling succeeded but the cache write failed, so the next run calls
+Gemini again).
 
 ## graphify
 

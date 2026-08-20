@@ -2,6 +2,7 @@ from __future__ import annotations
 import json
 import os
 from contextlib import contextmanager
+import dataclasses
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -28,6 +29,12 @@ from layout import (
 from gemini import client as gc
 from gemini.classifier import classify_regions, render_region_crop
 from gemini.region_cache import cache_key, load_regions, save_regions
+from gemini.room_labeler import label_rooms
+from gemini.room_label_cache import (
+    cache_key as label_cache_key,
+    load_labels,
+    save_labels,
+)
 from scale.factor import DetectionScale, detection_scale
 from scale.resolver import PageScales, resolve_page_scales
 from scale.store import load_stored
@@ -460,6 +467,83 @@ def resolve_page_regions(
     return PageRegionResult(regions, detection_page_data, schedule_spans, warnings, False)
 
 
+def resolve_room_labels(
+    pdf_path: str,
+    page_data: PageData,
+    entities: list[Entity],
+    gemini_client,
+    skip_gemini: bool,
+    label_fn=label_rooms,
+) -> tuple[list[Entity], list[dict]]:
+    """Name each detected room from the text drawn in it. Returns the full
+    entity list (rooms replaced, everything else untouched) plus warnings.
+
+    label_fn is injectable so the behaviour rules can be tested without
+    credentials. Labels never feed the quantity maths — a null label costs a
+    display string, never a number — so every failure path here degrades to
+    "no labels" and the run continues.
+    """
+    pn = page_data.page_number
+    warnings: list[dict] = []
+
+    def warn(code, severity, msg):
+        warnings.append({"page_number": pn, "warning_code": code,
+                         "severity": severity, "message": msg})
+
+    rooms = [e for e in entities if e.entity_type == "room"]
+    if not rooms:
+        return entities, warnings
+
+    def merged(labelled: list[Entity]) -> list[Entity]:
+        by_id = {e.entity_id: e for e in labelled}
+        return [by_id.get(e.entity_id, e) for e in entities]
+
+    key = label_cache_key(page_data, rooms)
+    cached = load_labels(pdf_path, pn, key)
+
+    if cached is not None:
+        out = [dataclasses.replace(e, label=cached.get(e.entity_id))
+               for e in rooms]
+        return merged(out), warnings
+
+    if skip_gemini or gemini_client is None:
+        warn("ROOM_LABEL_NO_GEMINI", "warning",
+             f"Page {pn}: no cached room labels and Gemini is disabled — "
+             f"rooms are unnamed")
+        return entities, warnings
+
+    try:
+        out, label_warnings = label_fn(gemini_client, rooms, page_data.text_spans)
+    except Exception as e:
+        # NOT a parse failure — apply_labels reports those itself, without
+        # raising. Anything landing here is auth, network, or a bug.
+        warn("ROOM_LABEL_FAILED", "error",
+             f"Room labelling failed for page {pn}: {e}")
+        return entities, warnings
+
+    for w in label_warnings:
+        w.setdefault("page_number", pn)
+    warnings.extend(label_warnings)
+
+    # A response that did not parse carries no information, and caching one
+    # makes a one-off flake permanent — the same reasoning that keeps
+    # REGION_CLASSIFY_PARSE_FAILURE out of the region cache.
+    if any(w.get("warning_code") == "ROOM_LABEL_PARSE_FAILURE"
+           for w in label_warnings):
+        return merged(out), warnings
+
+    # Outside the try: the call above is billed and has already succeeded, so
+    # a read-only input directory must not throw its result away.
+    try:
+        save_labels(pdf_path, pn, key, out)
+    except Exception as e:
+        warn("ROOM_LABEL_CACHE_WRITE_FAILED", "warning",
+             f"Page {pn}: room labelling succeeded but could not be cached "
+             f"({e}) — the next run will call the API again")
+
+    return merged(out), warnings
+
+
 def run_extract(
     pdf_path: str,
     page_indices: list[int],
@@ -678,7 +762,13 @@ def run_extract(
             entities, rejected = finalize_candidates(candidates)
             total_entities += len(entities)
 
-            # 5a. Quantity takeoff — rooms + scale + heights → metres
+            # 5a. Room names — one cached, text-only Gemini call. Must run
+            # BEFORE compute_takeoff, which copies Entity.label onto
+            # RoomTakeoff.label.
+            entities, room_label_warnings = resolve_room_labels(
+                pdf_path, page_data, entities, gemini_client, skip_gemini)
+
+            # 5b. Quantity takeoff — rooms + scale + heights → metres
             takeoff_page = compute_takeoff(
                 entities, candidates, page_scales, region_result.regions, det_scale,
                 heights, page_num,
@@ -756,6 +846,7 @@ def run_extract(
             )
             page_warnings.extend(page_scales.warnings)
             page_warnings.extend(det_scale.warnings)
+            page_warnings.extend(room_label_warnings)
             page_warnings.extend(takeoff_page.warnings)
             for w in page_warnings:
                 w.setdefault("page_number", page_num)
