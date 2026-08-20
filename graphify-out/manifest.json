@@ -150,8 +150,8 @@
     "semantic_hash": ""
   },
   "pipeline.py": {
-    "mtime": 1787225344.9732132,
-    "ast_hash": "f3e8d8317d725373ecd0a3e92d46a30e",
+    "mtime": 1787239164.7360027,
+    "ast_hash": "9989df01570fa281d2a79475ee6bf525",
     "semantic_hash": ""
   },
   "tests/__init__.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1787226318.0757287,
-    "ast_hash": "b9687b4f737e1a883e22278f04c82387",
+    "mtime": 1787239819.3967779,
+    "ast_hash": "e2ec5d13c35e1a1edc7caa7db366c934",
     "semantic_hash": ""
   },
   "README.md": {
@@ -575,8 +575,8 @@
     "semantic_hash": ""
   },
   "docs/regression-testing-guide.md": {
-    "mtime": 1787002915.740138,
-    "ast_hash": "dc13e65bafac85446ccb65a0a3030586",
+    "mtime": 1787231898.888354,
+    "ast_hash": "d0294e4f2fcca4f352a59a59f14a7cfc",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-08-06-detection-review-tooling-v1.md": {
@@ -635,8 +635,8 @@
     "semantic_hash": ""
   },
   "scale/resolver.py": {
-    "mtime": 1786525220.6420186,
-    "ast_hash": "3bacd8b7fe5d7627b55d12c4df55982d",
+    "mtime": 1787235650.7964535,
+    "ast_hash": "6437dc28a1dc4c8c8f53a972925dc1da",
     "semantic_hash": ""
   },
   "scale/store.py": {
@@ -945,13 +945,13 @@
     "semantic_hash": ""
   },
   "takeoff/openings.py": {
-    "mtime": 1787172707.3397768,
-    "ast_hash": "1a643d43144bcb918eb1bb1a8514bff2",
+    "mtime": 1787235910.6876636,
+    "ast_hash": "286cf9ad029f5d97e928bea9a03a2f22",
     "semantic_hash": ""
   },
   "takeoff/quantities.py": {
-    "mtime": 1787172707.340197,
-    "ast_hash": "c064616b21c7478d75ba30653391f5ed",
+    "mtime": 1787238797.479496,
+    "ast_hash": "38eac7497090258f87381d64e6b96718",
     "semantic_hash": ""
   },
   "takeoff/scale.py": {
@@ -970,23 +970,23 @@
     "semantic_hash": ""
   },
   "tests/test_takeoff_openings.py": {
-    "mtime": 1787172707.3409276,
-    "ast_hash": "a8f98ab62d20b4b9023549f962051be3",
+    "mtime": 1787235990.0237951,
+    "ast_hash": "d1c53471c72925dd2886071bd2601823",
     "semantic_hash": ""
   },
   "tests/test_takeoff_pipeline.py": {
-    "mtime": 1787172707.3412387,
-    "ast_hash": "ca81e3777d558eadcd05b53b998306e4",
+    "mtime": 1787239143.5001752,
+    "ast_hash": "d17eb069c464e44f1eaee4a675e4b550",
     "semantic_hash": ""
   },
   "tests/test_takeoff_quantities.py": {
-    "mtime": 1787172707.3427951,
-    "ast_hash": "678060729c2a92a6ef1130ec4b2d4899",
+    "mtime": 1787238829.6231658,
+    "ast_hash": "afe01357ef83604a8cff6a5a05f94139",
     "semantic_hash": ""
   },
   "tests/test_takeoff_scale.py": {
-    "mtime": 1787172707.342864,
-    "ast_hash": "61485ca94722d7a938a11d0b5d51c19a",
+    "mtime": 1787235630.4168608,
+    "ast_hash": "a1b75a155da499573db602dcf446e679",
     "semantic_hash": ""
   },
   "tests/test_takeoff_units.py": {
@@ -1010,48 +1010,68 @@
     "semantic_hash": ""
   },
   "tests/test_takeoff_plausibility.py": {
-    "mtime": 1787172707.342553,
-    "ast_hash": "0af0f00ae76767533b518980fb87a716",
+    "mtime": 1787238196.2340806,
+    "ast_hash": "eadd7fa8584b62a81332591172f83803",
     "semantic_hash": ""
   },
   "gemini/room_label_cache.py": {
-    "mtime": 1787224986.2844734,
+    "mtime": 1787231898.8893096,
     "ast_hash": "60ad015995365c01fa3f08039d066720",
     "semantic_hash": ""
   },
   "gemini/room_labeler.py": {
-    "mtime": 1787224737.408286,
-    "ast_hash": "2dac36c4bf312a8c7c59864e772f0fb1",
+    "mtime": 1787231898.8895376,
+    "ast_hash": "6f49fa86231984bccb953a4f2971e4db",
     "semantic_hash": ""
   },
   "tests/test_room_label_cache.py": {
-    "mtime": 1787224971.3066504,
+    "mtime": 1787231898.9155176,
     "ast_hash": "d4b4f4510ab59c13e308ec30008ac341",
     "semantic_hash": ""
   },
   "tests/test_room_label_pipeline.py": {
-    "mtime": 1787225288.9946387,
+    "mtime": 1787231898.915777,
     "ast_hash": "10e3b2b1a68aaf1cc42a13b587877d3b",
     "semantic_hash": ""
   },
   "tests/test_room_labeler.py": {
-    "mtime": 1787224724.3926637,
-    "ast_hash": "54e4d2ca801508c04b9acad11ac79e6d",
+    "mtime": 1787231898.9163325,
+    "ast_hash": "4f3f50cf5c65a87625af6804c94fcdc3",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-08-20-room-labels.md": {
-    "mtime": 1787223743.2330012,
+    "mtime": 1787231898.8887331,
     "ast_hash": "4d6d8e1121b9a80d07d2da763a818d41",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-08-20-room-labels-design.md": {
-    "mtime": 1787226332.7984762,
-    "ast_hash": "fec8bca6da35adfe558567289e08882f",
+    "mtime": 1787231898.8890274,
+    "ast_hash": "9d084b3a415adf349ca38b4473bb8ea3",
     "semantic_hash": ""
   },
   "docs/w-gate-recalibration-handoff.md": {
     "mtime": 1787220397.9485168,
     "ast_hash": "12598b8fa35dfbc00e45b929694e4903",
+    "semantic_hash": ""
+  },
+  "takeoff/document.py": {
+    "mtime": 1787238801.820445,
+    "ast_hash": "33ac18eddeb3ae4f5ad6134171ffc641",
+    "semantic_hash": ""
+  },
+  "tests/test_takeoff_document.py": {
+    "mtime": 1787238836.3509936,
+    "ast_hash": "1f27ab28f45b6ae8feea176dd98a4803",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/plans/2026-08-20-takeoff-overlay-document.md": {
+    "mtime": 1787235548.2043893,
+    "ast_hash": "feaea654cd67b4e252aeda155490aeaf",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/specs/2026-08-20-takeoff-overlay-document-design.md": {
+    "mtime": 1787233722.694154,
+    "ast_hash": "5b7d7cea87d90fd46df575896c49f6eb",
     "semantic_hash": ""
   }
 }

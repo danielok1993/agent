@@ -1,11 +1,11 @@
 import unittest
 
-from shapely.geometry import box
+from shapely.geometry import Polygon, box
 
-from takeoff.openings import assign_openings, opening_width_px
-
+from takeoff.openings import assign_openings, opening_width_px, opening_width_px_from_evidence
 
 ROOM = box(0, 0, 300, 200)   # a 300×200 px room
+SQUARE = Polygon([(0, 0), (200, 0), (200, 200), (0, 200)])
 
 
 class TestOpeningWidth(unittest.TestCase):
@@ -134,3 +134,35 @@ class TestAssignOpenings(unittest.TestCase):
         rooms = {"room_b": box(310, 0, 600, 200), "room_a": box(0, 0, 300, 200)}
         assigned, _, over = assign_openings(rooms, [("door_1", "door", (302, 80, 308, 140))])
         self.assertEqual(list(assigned), ["room_b", "room_a"])
+
+
+class TestOpeningWidthFromEvidence(unittest.TestCase):
+    """Evidence-only opening width — no room polygon needed or consulted."""
+
+    def test_a_window_reads_its_opening_width(self):
+        self.assertEqual(
+            opening_width_px_from_evidence("window", {"opening_width_px": 54.5}),
+            (54.5, "opening_width_px"))
+
+    def test_a_sliding_door_reads_its_panel_length(self):
+        self.assertEqual(
+            opening_width_px_from_evidence("door", {"panel_length_px": 94.5}),
+            (94.5, "panel_length_px"))
+
+    def test_no_evidence_returns_none_rather_than_falling_back(self):
+        self.assertIsNone(opening_width_px_from_evidence("door", {}))
+        self.assertIsNone(opening_width_px_from_evidence("window", {}))
+
+    def test_the_polygon_form_still_falls_back_to_the_bbox_edge(self):
+        w, src = opening_width_px("door", (10, 10, 40, 16), {}, SQUARE)
+        self.assertEqual(src, "bbox_edge")
+        self.assertGreater(w, 0)
+
+    def test_the_polygon_form_prefers_evidence_over_the_bbox(self):
+        self.assertEqual(
+            opening_width_px("door", (10, 10, 40, 16), {"panel_length_px": 94.5}, SQUARE),
+            (94.5, "panel_length_px"))
+
+
+if __name__ == "__main__":
+    unittest.main()

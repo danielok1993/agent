@@ -192,18 +192,11 @@
   "190": "TestSlugForPath",
   "191": "TestThickMaterialPairs",
   "192": "Global Constraints",
-  "193": "TestOrchestratorWiring",
   "194": "TestCrossWindowToleranceUnscaled",
   "195": "README.md",
   "196": "Handoff: W-gate recalibration (the proper fix behind `fix/measured-scale-detection-factor`)",
-  "197": "wall_band_h",
-  "198": "TestLeafWidth",
-  "199": "TestRoomGatesConstruction",
-  "200": "TestComponentFiltering",
   "201": "File structure",
   "205": "parse_answer",
-  "207": "fill_ring",
   "211": "TestMinWidthNegativeControl",
-  "212": "TestWindowSpanOvershootRetune",
-  "213": "TestBlindWindowPocket"
+  "212": "TestWindowSpanOvershootRetune"
 }

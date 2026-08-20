@@ -4,7 +4,7 @@ from unittest import mock
 from models import Entity
 from pipeline import _page_summary_dict, attach_takeoff
 from takeoff.heights import Heights
-from takeoff.quantities import RoomTakeoff, TakeoffPage
+from takeoff.quantities import PageFrame, RoomTakeoff, TakeoffPage
 from takeoff.scale import RoomScale
 
 
@@ -12,9 +12,13 @@ def _page():
     h = Heights(2.4, 2.1, 1.2, {"ceiling": "default", "door": "default", "window": "default"})
     page = TakeoffPage(page_number=1, heights=h)
     page.rooms.append(RoomTakeoff(
-        room_id="room_0000", label="HALL", scale=RoomScale(50.0, "viewport", "r1", True),
+        room_id="room_0000", label="HALL", confidence=0.9,
+        bbox=(0.0, 0.0, 100.0, 100.0),
+        polygon=[[0.0, 0.0], [100.0, 0.0], [100.0, 100.0], [0.0, 100.0], [0.0, 0.0]],
+        opening_ids=[],
+        scale=RoomScale(50.0, "viewport", "r1", True),
         mm_per_px=8.467, floor_m2=5.5, ceiling_m2=5.5, perimeter_m=9.4, height_m=2.4,
-        height_source="default", wall_gross_m2=22.56, openings=[], wall_net_m2=22.56,
+        height_source="default", wall_gross_m2=22.56, wall_net_m2=22.56,
         assumptions=["flat_ceiling"]))
     return page
 
@@ -26,8 +30,12 @@ class TestAttachTakeoff(unittest.TestCase):
         door = Entity(entity_id="door_0000", entity_type="door", bbox=(0, 0, 1, 1),
                       confidence=0.9, source="heuristic", attributes={})
         attach_takeoff([room, door], _page())
-        self.assertEqual(room.attributes["takeoff"]["floor_m2"], 5.5)
+        self.assertEqual(room.attributes["takeoff"]["quantities"]["floor_m2"], 5.5)
         self.assertNotIn("room_id", room.attributes["takeoff"])
+        self.assertNotIn("label", room.attributes["takeoff"])
+        self.assertNotIn("bbox", room.attributes["takeoff"])
+        self.assertNotIn("polygon", room.attributes["takeoff"])
+        self.assertNotIn("confidence", room.attributes["takeoff"])
         self.assertNotIn("takeoff", door.attributes)
 
     def test_unscaled_room_gets_no_block(self):
@@ -74,12 +82,18 @@ class TestRunExtractWiring(unittest.TestCase):
         h = Heights(2.4, 2.1, 1.2, {"ceiling": "default", "door": "default", "window": "default"})
         page = TakeoffPage(page_number=page_number, heights=h)
         page.rooms.append(RoomTakeoff(
-            room_id="room_0000", label=None, scale=RoomScale(50.0, "text", "r1", False),
-            mm_per_px=8.467, floor_m2=floor, ceiling_m2=floor, perimeter_m=1.0, height_m=2.4,
-            height_source="default", wall_gross_m2=2.4, openings=[], wall_net_m2=2.4,
-            assumptions=[]))
+            room_id="room_0000", label=None, confidence=0.9,
+            bbox=(100.0, 100.0, 300.0, 250.0),
+            polygon=[[100.0, 100.0], [300.0, 100.0], [300.0, 250.0],
+                     [100.0, 250.0], [100.0, 100.0]],
+            opening_ids=[],
+            scale=RoomScale(50.0, "text", "r1", False),
+            mm_per_px=8.467, floor_m2=floor, ceiling_m2=floor, perimeter_m=1.0,
+            height_m=2.4, height_source="default", wall_gross_m2=2.4,
+            wall_net_m2=2.4, assumptions=[]))
         page.warnings.append({"page_number": page_number, "warning_code": "SCALE_UNVERIFIED",
                               "severity": "info", "message": "canned"})
+        page.page_frame = PageFrame(1239.6, 1754.2, 0)
         return page
 
     def test_takeoff_is_wired_per_page(self):
@@ -95,8 +109,10 @@ class TestRunExtractWiring(unittest.TestCase):
 
             def fake_compute(entities, candidates, page_scales, regions, det_scale,
                              heights, page_number, page_text, w_mm, h_mm,
-                             paths=(), text_spans=()):
-                calls.append((page_number, heights, round(w_mm), round(h_mm)))
+                             paths=(), text_spans=(),
+                             page_width_px=0.0, page_height_px=0.0, page_rotation=0):
+                calls.append((page_number, heights, round(w_mm), round(h_mm),
+                              round(page_width_px), round(page_height_px), page_rotation))
                 self.assertIsInstance(list(paths), list)     # primitives reach the takeoff
                 return self._canned(page_number, floor=10.0 * page_number)
 
@@ -128,6 +144,60 @@ class TestRunExtractWiring(unittest.TestCase):
             self.assertEqual(summ["totals"]["takeoff"]["floor_m2"], 30.0)
             self.assertEqual(summ["totals"]["takeoff"]["rooms_measured"], 2)
             self.assertEqual(summ["pages"][1]["takeoff"]["floor_m2"], 20.0)
+
+    def test_the_page_frame_is_passed_from_the_real_page(self):
+        """The synthetic PDF is 595x842 pt; at 150 DPI that is 1239.6x1754.2 px.
+        A zero here means run_extract fell back to compute_takeoff's defaults."""
+        import tempfile
+        from pathlib import Path
+        import pipeline
+
+        with tempfile.TemporaryDirectory() as tmp:
+            pdf = str(Path(tmp) / "two.pdf")
+            self._pdf(pdf)
+            calls = []
+
+            def fake_compute(entities, candidates, page_scales, regions, det_scale,
+                             heights, page_number, page_text, w_mm, h_mm,
+                             paths=(), text_spans=(),
+                             page_width_px=0.0, page_height_px=0.0, page_rotation=0):
+                calls.append((round(page_width_px), round(page_height_px), page_rotation))
+                return self._canned(page_number, floor=1.0)
+
+            with mock.patch.object(pipeline, "compute_takeoff", side_effect=fake_compute):
+                pipeline.run_extract(pdf, [0], out_parent=tmp, skip_gemini=True,
+                                     allow_scale_prompt=False, ceiling_height=2.7)
+
+        self.assertEqual(calls[0], (1240, 1754, 0))
+
+    def test_takeoff_json_is_written_in_the_document_shape(self):
+        import json
+        import tempfile
+        from pathlib import Path
+        import pipeline
+
+        with tempfile.TemporaryDirectory() as tmp:
+            pdf = str(Path(tmp) / "two.pdf")
+            self._pdf(pdf)
+
+            def fake_compute(*args, **kwargs):
+                return self._canned(kwargs.get("page_number") or args[6], floor=7.5)
+
+            with mock.patch.object(pipeline, "compute_takeoff", side_effect=fake_compute):
+                out_dir = pipeline.run_extract(pdf, [0], out_parent=tmp, skip_gemini=True,
+                                               allow_scale_prompt=False, ceiling_height=2.7)
+
+            d = json.loads((Path(out_dir) / "pages" / "page_01" / "takeoff.json").read_text())
+
+        self.assertEqual(d["schema_version"], 1)
+        self.assertEqual(set(d), {
+            "schema_version", "page_number", "page_frame", "scale", "heights",
+            "rooms", "openings", "totals", "warnings"})
+        self.assertEqual(d["page_frame"]["dpi"], 150)
+        self.assertEqual(d["page_frame"]["width_px"], 1239.6)
+        self.assertEqual(d["rooms"][0]["quantities"]["floor_m2"], 7.5)
+        self.assertEqual(d["rooms"][0]["opening_ids"], [])
+        self.assertEqual(d["openings"], [])
 
 
 class TestHeightPromptGating(unittest.TestCase):

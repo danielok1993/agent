@@ -41,6 +41,34 @@ class PageScales:
     warnings: list[dict] = field(default_factory=list)
 
 
+def scale_summary_dict(page_scales: PageScales, det_scale: "DetectionScale | None" = None) -> dict:
+    """The scales block written into each page's summary.json entry, and into
+    takeoff.json's `scale` block.
+
+    Lives here rather than in pipeline.py because it serialises PageScales,
+    and takeoff/ needs it too — takeoff/ must never import pipeline.
+    The DetectionScale annotation is a string so no import of scale.factor is
+    needed; only three attributes are read.
+    """
+    def one(info):
+        return {"denominator": info.denominator, "source": info.source,
+                "raw": info.raw, "nominal": info.nominal,
+                "conflict": info.conflict,
+                "bbox": list(info.bbox) if info.bbox else None}
+
+    out = {
+        "by_region": {rid: one(info) for rid, info in page_scales.by_region.items()},
+        "page_scale": one(page_scales.page_scale) if page_scales.page_scale else None,
+    }
+    if det_scale is not None:
+        out["detection"] = {
+            "factor": round(det_scale.factor, 4),
+            "denominator": det_scale.denominator,
+            "source": det_scale.source,
+        }
+    return out
+
+
 def _centroid(bbox) -> tuple[float, float]:
     return ((bbox[0] + bbox[2]) / 2.0, (bbox[1] + bbox[3]) / 2.0)
 

@@ -103,7 +103,13 @@ def _bbox_edge_along_boundary(bbox, room_polygon: Polygon) -> float:
     return float(length)
 
 
-def opening_width_px(entity_type: str, bbox, evidence: dict, room_polygon: Polygon) -> tuple[float, str]:
+def opening_width_px_from_evidence(entity_type: str, evidence: dict):
+    """Width from detector evidence alone, or None.
+
+    Separated from opening_width_px because an UNASSIGNED opening has no room
+    boundary to measure a bbox edge against, and the page-level opening record
+    still wants whatever width the detector did establish.
+    """
     evidence = evidence or {}
     if entity_type == "window":
         if evidence.get("orientation") == "diagonal":
@@ -115,18 +121,27 @@ def opening_width_px(entity_type: str, bbox, evidence: dict, room_polygon: Polyg
         w = _positive(evidence.get("opening_width_px"))
         if w is not None:
             return w, "opening_width_px"
-    else:
-        single = _single_swing_width(evidence)
-        if single is not None:
-            return single
-        for key in ("opening_line",):
-            w = _chord_length(evidence.get(key))
-            if w is not None:
-                return w, key
-        for key in ("opening_span_px", "panel_length_px"):
-            w = _positive(evidence.get(key))
-            if w is not None:
-                return w, key
+        return None
+
+    single = _single_swing_width(evidence)
+    if single is not None:
+        return single
+    for key in ("opening_line",):
+        w = _chord_length(evidence.get(key))
+        if w is not None:
+            return w, key
+    for key in ("opening_span_px", "panel_length_px"):
+        w = _positive(evidence.get(key))
+        if w is not None:
+            return w, key
+    return None
+
+
+def opening_width_px(entity_type: str, bbox, evidence: dict,
+                     room_polygon: Polygon) -> tuple[float, str]:
+    hit = opening_width_px_from_evidence(entity_type, evidence)
+    if hit is not None:
+        return hit
     return _bbox_edge_along_boundary(bbox, room_polygon), "bbox_edge"
 
 

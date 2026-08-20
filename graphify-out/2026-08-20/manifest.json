@@ -150,8 +150,8 @@
     "semantic_hash": ""
   },
   "pipeline.py": {
-    "mtime": 1787172707.3395457,
-    "ast_hash": "1a07d64c7e68a64780fc8fb27848d0c8",
+    "mtime": 1787225344.9732132,
+    "ast_hash": "f3e8d8317d725373ecd0a3e92d46a30e",
     "semantic_hash": ""
   },
   "tests/__init__.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1787174947.8031974,
-    "ast_hash": "0ba35add2fc3584414258c494c0b37ce",
+    "mtime": 1787226318.0757287,
+    "ast_hash": "b9687b4f737e1a883e22278f04c82387",
     "semantic_hash": ""
   },
   "README.md": {
@@ -1012,6 +1012,46 @@
   "tests/test_takeoff_plausibility.py": {
     "mtime": 1787172707.342553,
     "ast_hash": "0af0f00ae76767533b518980fb87a716",
+    "semantic_hash": ""
+  },
+  "gemini/room_label_cache.py": {
+    "mtime": 1787224986.2844734,
+    "ast_hash": "60ad015995365c01fa3f08039d066720",
+    "semantic_hash": ""
+  },
+  "gemini/room_labeler.py": {
+    "mtime": 1787224737.408286,
+    "ast_hash": "2dac36c4bf312a8c7c59864e772f0fb1",
+    "semantic_hash": ""
+  },
+  "tests/test_room_label_cache.py": {
+    "mtime": 1787224971.3066504,
+    "ast_hash": "d4b4f4510ab59c13e308ec30008ac341",
+    "semantic_hash": ""
+  },
+  "tests/test_room_label_pipeline.py": {
+    "mtime": 1787225288.9946387,
+    "ast_hash": "10e3b2b1a68aaf1cc42a13b587877d3b",
+    "semantic_hash": ""
+  },
+  "tests/test_room_labeler.py": {
+    "mtime": 1787224724.3926637,
+    "ast_hash": "54e4d2ca801508c04b9acad11ac79e6d",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/plans/2026-08-20-room-labels.md": {
+    "mtime": 1787223743.2330012,
+    "ast_hash": "4d6d8e1121b9a80d07d2da763a818d41",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/specs/2026-08-20-room-labels-design.md": {
+    "mtime": 1787226332.7984762,
+    "ast_hash": "fec8bca6da35adfe558567289e08882f",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-recalibration-handoff.md": {
+    "mtime": 1787220397.9485168,
+    "ast_hash": "12598b8fa35dfbc00e45b929694e4903",
     "semantic_hash": ""
   }
 }

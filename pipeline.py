@@ -21,7 +21,7 @@ from extraction.plumber import (
 from detection import run_heuristics
 from debug.trace import DebugTraceCollector
 from debug.renderer import generate_debug_viewer
-from extraction.renderer import render_page_png, draw_overlay
+from extraction.renderer import render_page_png, render_page_svg, draw_overlay
 from layout import (
     assigned_path_fraction, filter_page_data, page_fallback_region,
     qualifying_clip_rects, region_text_spans, segment_page,
@@ -36,11 +36,12 @@ from gemini.room_label_cache import (
     save_labels,
 )
 from scale.factor import DetectionScale, detection_scale
-from scale.resolver import PageScales, resolve_page_scales
+from scale.resolver import PageScales, resolve_page_scales, scale_summary_dict
 from scale.store import load_stored
 from scale.units import format_scale
 from scale.viewport import viewport_scales
 from takeoff import Heights, TakeoffPage, compute_takeoff, resolve_heights
+from takeoff.document import attributes_by_room, to_document
 
 console = Console()
 
@@ -151,7 +152,7 @@ def _room_entity(candidate: Candidate) -> Entity:
 
 def attach_takeoff(entities: list[Entity], page: TakeoffPage) -> None:
     """Mirror the per-room takeoff onto room Entity.attributes["takeoff"]."""
-    blocks = page.attributes_by_room()
+    blocks = attributes_by_room(page)
     for e in entities:
         if e.entity_type == "room" and e.entity_id in blocks:
             e.attributes["takeoff"] = blocks[e.entity_id]
@@ -273,27 +274,6 @@ def scale_table(page_scales: PageScales, regions: list[Region]) -> Table:
                       f"[green]{format_scale(info.denominator)}[/green]",
                       info.source, rich_escape(info.raw) if info.raw else "")
     return table
-
-
-def scale_summary_dict(page_scales: PageScales, det_scale: DetectionScale | None = None) -> dict:
-    """The scales block written into each page's summary.json entry."""
-    def one(info):
-        return {"denominator": info.denominator, "source": info.source,
-                "raw": info.raw, "nominal": info.nominal,
-                "conflict": info.conflict,
-                "bbox": list(info.bbox) if info.bbox else None}
-
-    out = {
-        "by_region": {rid: one(info) for rid, info in page_scales.by_region.items()},
-        "page_scale": one(page_scales.page_scale) if page_scales.page_scale else None,
-    }
-    if det_scale is not None:
-        out["detection"] = {
-            "factor": round(det_scale.factor, 4),
-            "denominator": det_scale.denominator,
-            "source": det_scale.source,
-        }
-    return out
 
 
 def _page_summary_dict(
@@ -554,6 +534,7 @@ def run_extract(
     debug: bool = False,
     disable_rooms: bool = False,
     refresh_regions: bool = False,
+    write_svg: bool = False,
     allow_scale_prompt: bool = True,
     ceiling_height: Optional[float] = None,
     door_height: Optional[float] = None,
@@ -622,6 +603,8 @@ def run_extract(
             step("render")
             render_path = str(Path(page_dir) / "render.png")
             render_page_png(doc, idx, render_path)
+            if write_svg:
+                render_page_svg(doc, idx, str(Path(page_dir) / "page.svg"))
 
             # 2a-2c. Segment, classify, filter
             step("regions")
@@ -776,9 +759,12 @@ def run_extract(
                 page_data.width_px / 150.0 * 25.4,
                 page_data.height_px / 150.0 * 25.4,
                 paths=page_data.paths, text_spans=page_data.text_spans,
+                page_width_px=page_data.width_px,
+                page_height_px=page_data.height_px,
+                page_rotation=doc[idx].rotation,
             )
             attach_takeoff(entities, takeoff_page)
-            write_json(str(Path(page_dir) / "takeoff.json"), takeoff_page.to_dict())
+            write_json(str(Path(page_dir) / "takeoff.json"), to_document(takeoff_page))
             for k, v in takeoff_page.totals().items():
                 takeoff_totals[k] = round(takeoff_totals[k] + v, 2) if isinstance(v, float) else takeoff_totals[k] + v
 

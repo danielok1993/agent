@@ -57,6 +57,21 @@ def render_page_png(doc: fitz.Document, page_index: int, out_path: str) -> None:
     pix.save(out_path)
 
 
+def render_page_svg(doc: fitz.Document, page_index: int, out_path: str) -> None:
+    """MuPDF's own vector redraw of the page, in render.png's coordinate space.
+
+    Same matrix as render_page_png, so the SVG's user units ARE 150-DPI pixels
+    and an entity bbox overlays it unchanged; /Rotate is baked in by the SVG
+    device exactly as get_pixmap bakes it into the raster. Glyphs come out as
+    outlines (text_as_path default) so the file does not depend on the reader
+    having the sheet's fonts. This is a redraw of the PDF, not of our extracted
+    primitives — it shows what the page looks like, never what detection saw.
+    """
+    page = doc[page_index]
+    svg = page.get_svg_image(matrix=fitz.Matrix(SCALE, SCALE))
+    Path(out_path).write_text(svg, encoding="utf-8")
+
+
 def _load_font(size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
     try:
         return ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", size)

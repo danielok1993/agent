@@ -537,8 +537,11 @@ Append to `tests/test_takeoff_quantities.py`, inside `class TestComputeTakeoff`:
         self.assertGreaterEqual(len(r.polygon), 4)
 
     def test_an_unscaled_room_is_kept_with_geometry_and_no_quantities(self):
+        # The file's established idiom for "no scale resolves" — see
+        # test_no_scale_room_is_listed_not_zeroed. Do NOT pass det=None.
+        det = DetectionScale(factor=1.0, denominator=None, source="unresolved")
         page = self._run([_room("room_a", 100, 100, 400, 400)],
-                         page_scales=PageScales(), det=None, regions=())
+                         page_scales=PageScales(), det=det, regions=())
         self.assertEqual([r.room_id for r in page.rooms], ["room_a"])
         r = page.rooms[0]
         self.assertIsNone(r.scale)
@@ -558,8 +561,9 @@ Append to `tests/test_takeoff_quantities.py`, inside `class TestComputeTakeoff`:
         self.assertGreater(t["floor_m2"], 0)
 
     def test_an_unscaled_room_gets_no_entity_attributes_block(self):
+        det = DetectionScale(factor=1.0, denominator=None, source="unresolved")
         page = self._run([_room("room_a", 100, 100, 400, 400)],
-                         page_scales=PageScales(), det=None, regions=())
+                         page_scales=PageScales(), det=det, regions=())
         self.assertEqual(page.attributes_by_room(), {})
 ```
 
@@ -704,7 +708,35 @@ Replace `TakeoffPage.totals` and `TakeoffPage.attributes_by_room` with:
 Run: `source .venv/bin/activate && python -m unittest tests.test_takeoff_quantities.TestComputeTakeoff -v`
 Expected: PASS, except `test_an_unscaled_room_gets_no_entity_attributes_block`, which fails with `ModuleNotFoundError: No module named 'takeoff.document'`. That module is Task 4.
 
-- [ ] **Step 8: Fix the canned `RoomTakeoff` in the pipeline test**
+- [ ] **Step 8: Update the two existing tests that assert unscaled rooms are dropped**
+
+Two tests in `tests/test_takeoff_quantities.py` assert the OLD behaviour —
+that an unscaled room produces no room record at all. This task deliberately
+changes that, so both must move with it. They are the reason the change is
+worth reviewing, not collateral damage: read each before editing.
+
+In `test_no_scale_room_is_listed_not_zeroed`, replace
+`self.assertEqual(page.rooms, [])` with:
+
+```python
+        self.assertEqual([r.room_id for r in page.rooms], ["room_a"])
+        self.assertIsNone(page.rooms[0].scale)
+        self.assertIsNone(page.rooms[0].floor_m2)
+```
+
+In `test_opening_on_unscaled_room_is_not_unassigned`, replace
+`self.assertEqual(page.rooms, [])` with:
+
+```python
+        self.assertEqual([r.room_id for r in page.rooms], ["room_a"])
+        self.assertIsNone(page.rooms[0].floor_m2)
+```
+
+Both keep their existing `page.unscaled_rooms` and `totals()` assertions
+unchanged — `rooms_unscaled` still counts them, and `rooms_measured` still
+does not.
+
+- [ ] **Step 9: Fix the canned `RoomTakeoff` in the pipeline test**
 
 `tests/test_takeoff_pipeline.py` has a `_canned()` helper that builds a
 `RoomTakeoff` with the OLD signature, so it now raises `TypeError`. Replace its
@@ -723,13 +755,13 @@ construction with:
             wall_net_m2=2.4, assumptions=[]))
 ```
 
-- [ ] **Step 9: Run the full suite**
+- [ ] **Step 10: Run the full suite**
 
 Run: `source .venv/bin/activate && python -m unittest discover tests`
 Expected: PASS except `test_an_unscaled_room_gets_no_entity_attributes_block`, which
 still fails on the missing `takeoff.document` module from Task 4. No other failures.
 
-- [ ] **Step 10: Commit**
+- [ ] **Step 11: Commit**
 
 ```bash
 git add takeoff/quantities.py tests/test_takeoff_quantities.py tests/test_takeoff_pipeline.py
@@ -830,8 +862,9 @@ class TestDocumentShape(unittest.TestCase):
         self.assertNotIn("floor_m2", r)          # grouped, not flat
 
     def test_an_unscaled_room_serialises_null_scale_and_null_quantities(self):
+        unresolved = DetectionScale(factor=1.0, denominator=None, source="unresolved")
         page = compute_takeoff([_room("room_a", 100, 100, 500, 500)], [], PageScales(),
-                               [], None, HEIGHTS, 1, "", 420.0, 297.0,
+                               [], unresolved, HEIGHTS, 1, "", 420.0, 297.0,
                                page_width_px=100.0, page_height_px=100.0)
         r = to_document(page)["rooms"][0]
         self.assertIsNone(r["scale"])

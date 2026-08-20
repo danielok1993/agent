@@ -154,6 +154,13 @@ const s = canvas.width / doc.page_frame.width_px;
 polygon.map(([x, y]) => [x * s, y * s]);
 ```
 
+`rooms[].polygon` is the raw detected polygon — the drawing's own linework,
+so the overlay traces what the user sees on the sheet. `quantities.floor_m2`
+(and the other area/perimeter fields) are computed from that polygon buffered
+out by `ROOM_WALL_DILATE_PX` to undo the barrier standoff (`assumptions`
+records this as `standoff_corrected_2px`). A consumer must not expect an area
+recomputed from `polygon` to equal `floor_m2`.
+
 ## Editing
 
 The document carries every input needed to recompute a room after the user

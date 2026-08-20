@@ -97,6 +97,7 @@ def cmd_extract(args: argparse.Namespace) -> None:
         disable_windows=args.disable_windows,
         debug=args.debug,
         refresh_regions=args.refresh_regions,
+        write_svg=args.write_svg,
         allow_scale_prompt=not args.no_scale_prompt,
         ceiling_height=args.ceiling_height,
         door_height=args.door_height,
@@ -179,6 +180,14 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         dest="debug",
         help="Write debug_trace.json per page with per-primitive detection trace",
+    )
+    p_extract.add_argument(
+        "--svg",
+        action="store_true",
+        dest="write_svg",
+        help="Also write page.svg per page — MuPDF's vector redraw of the page in "
+             "render.png's 150-DPI coordinate space (off by default: image-heavy "
+             "sheets run to tens of MB)",
     )
     p_extract.add_argument(
         "--no-scale-prompt",

@@ -104,3 +104,26 @@ class TestSheetSize(unittest.TestCase):
         self.assertTrue(is_verified(RoomScale(50.0, "text", "r1", False), True))
         self.assertFalse(is_verified(RoomScale(50.0, "text", "r1", False), False))
         self.assertFalse(is_verified(RoomScale(50.0, "detection", None, False), True))
+
+
+class TestScaleSummaryDict(unittest.TestCase):
+    def test_page_and_region_scales_serialise(self):
+        from models import ScaleInfo
+        from scale.factor import DetectionScale
+        from scale.resolver import PageScales, scale_summary_dict
+
+        info = ScaleInfo(denominator=50.0, source="text", nominal=50.0)
+        out = scale_summary_dict(
+            PageScales(by_region={"region_0000": info}, page_scale=info),
+            DetectionScale(factor=1.0, denominator=50.0, source="floor_plan_regions"),
+        )
+        self.assertEqual(out["by_region"]["region_0000"]["denominator"], 50.0)
+        self.assertEqual(out["page_scale"]["source"], "text")
+        self.assertEqual(out["detection"]["factor"], 1.0)
+
+    def test_no_detection_scale_omits_the_block(self):
+        from scale.resolver import PageScales, scale_summary_dict
+        out = scale_summary_dict(PageScales())
+        self.assertNotIn("detection", out)
+        self.assertIsNone(out["page_scale"])
+        self.assertEqual(out["by_region"], {})

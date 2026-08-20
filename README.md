@@ -82,6 +82,7 @@ python app.py extract path/to/drawing.pdf
 | `--disable-walls` | Deprecated alias for `--disable-rooms` |
 | `--disable-windows` | Skip window detection |
 | `--debug` | Write `debug_trace.json` + `debug_viewer.html` per page (per-primitive detection trace) |
+| `--svg` | Also write `page.svg` per page — MuPDF's vector redraw of the page in `render.png`'s 150-DPI space (0.2–21 MB/sheet, so off by default) |
 
 Examples:
 
@@ -119,6 +120,7 @@ outputs/<YYYY-MM-DD_HH-MM-SS>/
 ├── warnings.json             # flat list across all pages
 └── pages/page_NN/
     ├── render.png            # 150 DPI render
+    ├── page.svg              # --svg only: vector redraw, same frame as render.png
     ├── overlay.png           # entities + rejected + region outlines drawn on render
     ├── primitives.json       # raw PyMuPDF paths/text/images
     ├── pdfplumber_comparison.json

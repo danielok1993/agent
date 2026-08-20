@@ -184,6 +184,7 @@ class TestCheckDimensions(unittest.TestCase):
 from models import Candidate, Entity, Region, ScaleInfo
 from scale.factor import DetectionScale
 from scale.resolver import PageScales
+from takeoff.document import to_document
 from takeoff.heights import Heights
 from takeoff.quantities import compute_takeoff
 
@@ -285,7 +286,7 @@ class TestTakeoffPlausibility(unittest.TestCase):
             paths += p
             spans.append(s)
         page = self._run(SCALES_TEXT, [], paths, spans)
-        ev = page.to_dict()["scale_evidence"]
+        ev = to_document(page)["scale"]["evidence"]
         self.assertEqual(len(ev["dimensions"]), 3)
         self.assertEqual(ev["dimensions"][0]["label"], "3600")
         self.assertEqual(ev["dimensions"][0]["path_index"], 100)
@@ -294,7 +295,7 @@ class TestTakeoffPlausibility(unittest.TestCase):
 
     def test_no_dimensions_still_writes_empty_evidence(self):
         page = self._run(SCALES_TEXT, [0.8 * PX_PER_M_50, 0.9 * PX_PER_M_50])
-        ev = page.to_dict()["scale_evidence"]
+        ev = to_document(page)["scale"]["evidence"]
         self.assertEqual(ev["dimensions"], [])
         self.assertEqual(ev["verdicts"]["50"]["method"], "door_leaves")
 

@@ -24,7 +24,7 @@ python app.py inspect path/to/drawing.pdf [--pages 1,3-5]
 python app.py extract path/to/drawing.pdf [--pages SPEC] [--out DIR]
                                           [--no-gemini] [--refresh-regions]
                                           [--disable-rooms] [--disable-windows]
-                                          [--debug]
+                                          [--debug] [--svg]
                                           [--ceiling-height M] [--door-height M]
                                           [--window-height M]
 # --disable-walls is a deprecated alias for --disable-rooms (skips the wall
@@ -48,6 +48,14 @@ No PDF is committed to this repo. For a quick run, download the regression
 corpus (see "Regression testing" below) and point `app.py` at any sheet under
 `fixtures/sheets/` — `s01` (formerly `floor-plans.pdf`) and `s02` (formerly
 `5-1133-WD03.pdf`) are the two primary references.
+
+`--svg` additionally writes `page.svg` per page — MuPDF's own vector redraw of
+the page (`extraction/renderer.render_page_svg`) at the same 150-DPI matrix as
+`render.png`, so entity/takeoff bboxes overlay it unchanged and `/Rotate` is
+already baked in. It is a redraw of the PDF, not of the extracted primitives, so
+it never shows what detection saw. Off by default: measured across the corpus it
+costs <=0.2 s/sheet but 0.2-21 MB (image-heavy sheets inline their rasters as
+base64).
 
 `--debug` writes `debug_trace.json` + a self-contained `debug_viewer.html` per page (per-primitive detection trace for diagnosing missed/false door detections — see the tuning guide's debug-trace playbook).
 
@@ -171,6 +179,7 @@ takeoff/           # rooms + scale + heights → floor / ceiling / net wall m² 
                    # opening assignment, plausibility — dimension strings /
                    # door-leaf band, compute_takeoff). Pure; wired in
                    # pipeline.run_extract after finalize_candidates.
+  document.py      # serialisation only — the takeoff.json overlay document
 debug/             # trace.py (DebugTraceCollector) + renderer.py (HTML viewer)
 tools/             # standalone dev scripts (numpy/cv2)
 ```
@@ -267,6 +276,15 @@ The call is schema-constrained (`classifier.RESPONSE_SCHEMA` passed as `response
    medians 0.64–0.90; s01 0.38) or the verdict is implausible with the
    print-factor correction (×0.25/0.5/2/4) named. Numbers are NEVER swapped —
    the verdict only gates `verified`. Heights: flag → tty prompt → default.
+
+   `takeoff/document.py` then serialises the page into `takeoff.json`. Rooms and
+   openings are sibling arrays cross-referenced by id rather than openings nested
+   per room, so a door serving two rooms is one record carrying both `room_ids`.
+   Geometry is 150-DPI pixels — the same space as `final_entities.json` and
+   `render.png` — with a `page_frame` block recording it; `extractor.page_transform`
+   has already applied the page's `/Rotate`, so `rotation` is provenance and a
+   consumer must not re-apply it. A room whose scale did not resolve is kept, with
+   its polygon, `scale: null` and `quantities: null`.
 7. JSON dump (`primitives.json`, `candidates.json`, `final_entities.json`, `pdfplumber_comparison.json`) and warning collection.
 
 Aggregate `summary.json` and `warnings.json` are written at the run root once all pages finish.
@@ -279,6 +297,7 @@ outputs/<YYYY-MM-DD_HH-MM-SS>/
 ├── warnings.json             # flat list across all pages
 └── pages/page_NN/
     ├── render.png            # 150 DPI render
+    ├── page.svg              # --svg only: MuPDF vector redraw, same 150-DPI frame
     ├── overlay.png           # entities + rejected + region outlines drawn on render
     ├── primitives.json       # raw PyMuPDF paths/text/images
     ├── pdfplumber_comparison.json
@@ -287,9 +306,13 @@ outputs/<YYYY-MM-DD_HH-MM-SS>/
     │                         # Gemini (absent on a cache hit, --no-gemini, or a raster page)
     ├── candidates.json       # heuristic output
     ├── final_entities.json   # finalized entities + rejected
-    ├── takeoff.json          # per-room floor/ceiling/wall m², openings, scale provenance,
-    │                         # scale_evidence (every measured dimension line: path_index,
-    │                         # endpoints, label, implied denominator; verdict per scale)
+    ├── takeoff.json          # THE overlay document: page_frame (150-DPI px space),
+    │                         # scale + evidence, heights, rooms[] (polygon, bbox,
+    │                         # label, opening_ids, quantities), openings[] (bbox,
+    │                         # type, tag, room_ids, widths), totals, warnings.
+    │                         # schema_version 1. Rooms and openings are sibling
+    │                         # arrays cross-referenced by id — one physical opening
+    │                         # is one record, whichever rooms it serves.
     ├── debug_trace.json      # --debug only: per-primitive detection trace
     └── debug_viewer.html     # --debug only: self-contained trace viewer
 ```
