@@ -207,7 +207,5 @@
   "205": "parse_answer",
   "206": "render_page_svg",
   "207": "TestExtractImagesInstances",
-  "208": "TestSpanFilterIsLoadBearing",
-  "209": "TestBatchNeverPrompts",
   "212": "TestWindowSpanOvershootRetune"
 }
