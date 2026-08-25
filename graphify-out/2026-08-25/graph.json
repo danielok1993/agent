@@ -331,7 +331,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "debug_trace",
-      "community": 24,
+      "community": 17,
       "norm_label": "trace.py"
     },
     {
@@ -781,7 +781,7 @@
       "source_location": "L792",
       "_origin": "ast",
       "id": "detection_doors_arcs_fit_circle_3pt",
-      "community": 143,
+      "community": 17,
       "norm_label": "_fit_circle_3pt()"
     },
     {
@@ -791,7 +791,7 @@
       "source_location": "L818",
       "_origin": "ast",
       "id": "detection_doors_arcs_native_curve_chains",
-      "community": 143,
+      "community": 118,
       "norm_label": "_native_curve_chains()"
     },
     {
@@ -881,7 +881,7 @@
       "source_location": "L797",
       "_origin": "ast",
       "id": "detection_doors_arcs_rationale_797",
-      "community": 143,
+      "community": 17,
       "norm_label": "fit a circle through 3 points. returns (cx, cy, radius) or none if     the point"
     },
     {
@@ -891,7 +891,7 @@
       "source_location": "L821",
       "_origin": "ast",
       "id": "detection_doors_arcs_rationale_821",
-      "community": 143,
+      "community": 118,
       "norm_label": "group native `c` (bezier) primitives by endpoint adjacency.      pdf arcs are of"
     },
     {
@@ -1031,7 +1031,7 @@
       "source_location": "L843",
       "_origin": "ast",
       "id": "detection_doors_assembly_door_open_leaf_path_indices",
-      "community": 9,
+      "community": 24,
       "norm_label": "door_open_leaf_path_indices()"
     },
     {
@@ -1101,7 +1101,7 @@
       "source_location": "L846",
       "_origin": "ast",
       "id": "detection_doors_assembly_rationale_846",
-      "community": 9,
+      "community": 24,
       "norm_label": "path indices of swing doors' open leaf linework.      a swing door's leaf is dra"
     },
     {
@@ -1111,7 +1111,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "detection_doors_constants",
-      "community": 7,
+      "community": 17,
       "norm_label": "constants.py"
     },
     {
@@ -1121,7 +1121,7 @@
       "source_location": "L251",
       "_origin": "ast",
       "id": "detection_doors_constants_doorgates",
-      "community": 7,
+      "community": 17,
       "norm_label": "doorgates"
     },
     {
@@ -1141,7 +1141,7 @@
       "source_location": "L252",
       "_origin": "ast",
       "id": "detection_doors_constants_rationale_252",
-      "community": 7,
+      "community": 17,
       "norm_label": "world-space door gates, pre-multiplied by the detection factor.      fields keep"
     },
     {
@@ -1151,7 +1151,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "detection_doors_detect",
-      "community": 24,
+      "community": 17,
       "norm_label": "detect.py"
     },
     {
@@ -1531,7 +1531,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "detection_doors_models",
-      "community": 17,
+      "community": 7,
       "norm_label": "models.py"
     },
     {
@@ -2231,7 +2231,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "detection_layers",
-      "community": 17,
+      "community": 7,
       "norm_label": "layers.py"
     },
     {
@@ -2241,7 +2241,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "detection_layers_layer_tokens",
-      "community": 17,
+      "community": 111,
       "norm_label": "_layer_tokens()"
     },
     {
@@ -2271,7 +2271,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "detection_layers_layer_hint_from_layer",
-      "community": 17,
+      "community": 7,
       "norm_label": "_layer_hint_from_layer()"
     },
     {
@@ -2321,7 +2321,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "detection_orchestrator_run_heuristics",
-      "community": 15,
+      "community": 24,
       "norm_label": "run_heuristics()"
     },
     {
@@ -2361,7 +2361,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "detection_postprocess_py_bbox",
-      "community": 5,
+      "community": 24,
       "norm_label": "bbox"
     },
     {
@@ -2391,7 +2391,7 @@
       "source_location": "L210",
       "_origin": "ast",
       "id": "detection_postprocess_projected_overlap_1d",
-      "community": 17,
+      "community": 24,
       "norm_label": "_projected_overlap_1d()"
     },
     {
@@ -2461,7 +2461,7 @@
       "source_location": "L211",
       "_origin": "ast",
       "id": "detection_postprocess_rationale_211",
-      "community": 17,
+      "community": 24,
       "norm_label": "projected overlap fraction and perpendicular gap on bbox a's dominant axis."
     },
     {
@@ -2891,7 +2891,7 @@
       "source_location": "L383",
       "_origin": "ast",
       "id": "detection_walls_is_light_pen",
-      "community": 199,
+      "community": 34,
       "norm_label": "_is_light_pen()"
     },
     {
@@ -2931,7 +2931,7 @@
       "source_location": "L408",
       "_origin": "ast",
       "id": "detection_walls_fill_key",
-      "community": 111,
+      "community": 171,
       "norm_label": "_fill_key()"
     },
     {
@@ -2951,7 +2951,7 @@
       "source_location": "L425",
       "_origin": "ast",
       "id": "detection_walls_fillring",
-      "community": 111,
+      "community": 171,
       "norm_label": "_fillring"
     },
     {
@@ -2961,7 +2961,7 @@
       "source_location": "L433",
       "_origin": "ast",
       "id": "detection_walls_fillring_is_band",
-      "community": 111,
+      "community": 171,
       "norm_label": ".is_band()"
     },
     {
@@ -2971,7 +2971,7 @@
       "source_location": "L439",
       "_origin": "ast",
       "id": "detection_walls_fillring_is_marker",
-      "community": 111,
+      "community": 171,
       "norm_label": ".is_marker()"
     },
     {
@@ -2981,7 +2981,7 @@
       "source_location": "L459",
       "_origin": "ast",
       "id": "detection_walls_collect_fill_rings",
-      "community": 111,
+      "community": 171,
       "norm_label": "_collect_fill_rings()"
     },
     {
@@ -2991,7 +2991,7 @@
       "source_location": "L518",
       "_origin": "ast",
       "id": "detection_walls_rate_fill_classes",
-      "community": 111,
+      "community": 171,
       "norm_label": "_rate_fill_classes()"
     },
     {
@@ -3041,7 +3041,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "detection_walls_py_bbox",
-      "community": 5,
+      "community": 111,
       "norm_label": "bbox"
     },
     {
@@ -3091,7 +3091,7 @@
       "source_location": "L809",
       "_origin": "ast",
       "id": "detection_walls_wallnetwork_is_empty",
-      "community": 5,
+      "community": 111,
       "norm_label": ".is_empty()"
     },
     {
@@ -3121,7 +3121,7 @@
       "source_location": "L842",
       "_origin": "ast",
       "id": "detection_walls_wallnetwork_near_bbox",
-      "community": 5,
+      "community": 111,
       "norm_label": ".near_bbox()"
     },
     {
@@ -3141,7 +3141,7 @@
       "source_location": "L869",
       "_origin": "ast",
       "id": "detection_walls_wallnetwork_collinear_overlap",
-      "community": 5,
+      "community": 111,
       "norm_label": ".collinear_overlap()"
     },
     {
@@ -3151,7 +3151,7 @@
       "source_location": "L906",
       "_origin": "ast",
       "id": "detection_walls_segments_properly_intersect",
-      "community": 5,
+      "community": 111,
       "norm_label": "_segments_properly_intersect()"
     },
     {
@@ -3161,7 +3161,7 @@
       "source_location": "L923",
       "_origin": "ast",
       "id": "detection_walls_segment_bbox_distance",
-      "community": 5,
+      "community": 111,
       "norm_label": "_segment_bbox_distance()"
     },
     {
@@ -3181,7 +3181,7 @@
       "source_location": "L962",
       "_origin": "ast",
       "id": "detection_walls_is_dashed",
-      "community": 111,
+      "community": 171,
       "norm_label": "_is_dashed()"
     },
     {
@@ -3201,7 +3201,7 @@
       "source_location": "L977",
       "_origin": "ast",
       "id": "detection_walls_collect_wall_faces",
-      "community": 111,
+      "community": 171,
       "norm_label": "_collect_wall_faces()"
     },
     {
@@ -3401,7 +3401,7 @@
       "source_location": "L2546",
       "_origin": "ast",
       "id": "detection_walls_detect_wall_network",
-      "community": 199,
+      "community": 34,
       "norm_label": "detect_wall_network()"
     },
     {
@@ -3441,7 +3441,7 @@
       "source_location": "L384",
       "_origin": "ast",
       "id": "detection_walls_rationale_384",
-      "community": 199,
+      "community": 34,
       "norm_label": "faint (light-grey/pastel) ink: every channel at/above the light floor."
     },
     {
@@ -3481,7 +3481,7 @@
       "source_location": "L426",
       "_origin": "ast",
       "id": "detection_walls_rationale_426",
-      "community": 111,
+      "community": 171,
       "norm_label": "a closed same-fill polygon reconstructed from exploded `l` items."
     },
     {
@@ -3491,7 +3491,7 @@
       "source_location": "L440",
       "_origin": "ast",
       "id": "detection_walls_rationale_440",
-      "community": 111,
+      "community": 171,
       "norm_label": "annotation arrowhead: a tiny filled triangle or concave dart.          walls are"
     },
     {
@@ -3501,7 +3501,7 @@
       "source_location": "L460",
       "_origin": "ast",
       "id": "detection_walls_rationale_460",
-      "community": 111,
+      "community": 171,
       "norm_label": "chain consecutive same-fill `l` items (plus filled re/qu) into rings.      extra"
     },
     {
@@ -3511,7 +3511,7 @@
       "source_location": "L521",
       "_origin": "ast",
       "id": "detection_walls_rationale_521",
-      "community": 111,
+      "community": 171,
       "norm_label": "classify each fill color as wall material (true) or furniture (false).      vect"
     },
     {
@@ -3621,7 +3621,7 @@
       "source_location": "L843",
       "_origin": "ast",
       "id": "detection_walls_rationale_843",
-      "community": 5,
+      "community": 111,
       "norm_label": "true when any centerline corridor (dilated by thickness/2 + expand) hits bbox."
     },
     {
@@ -3631,7 +3631,7 @@
       "source_location": "L870",
       "_origin": "ast",
       "id": "detection_walls_rationale_870",
-      "community": 5,
+      "community": 111,
       "norm_label": "max fraction of the bbox long axis covered by one near-collinear centerline."
     },
     {
@@ -3641,7 +3641,7 @@
       "source_location": "L910",
       "_origin": "ast",
       "id": "detection_walls_rationale_910",
-      "community": 5,
+      "community": 111,
       "norm_label": "true when the two segments cross at an interior point.      _segments_min_distan"
     },
     {
@@ -3651,7 +3651,7 @@
       "source_location": "L926",
       "_origin": "ast",
       "id": "detection_walls_rationale_926",
-      "community": 5,
+      "community": 111,
       "norm_label": "min distance between a segment and an axis-aligned bbox (0 if touching)."
     },
     {
@@ -3671,7 +3671,7 @@
       "source_location": "L963",
       "_origin": "ast",
       "id": "detection_walls_rationale_963",
-      "community": 111,
+      "community": 171,
       "norm_label": "true for a real dash pattern; pymupdf encodes solid as \"\" or \"[] 0\"."
     },
     {
@@ -3681,7 +3681,7 @@
       "source_location": "L984",
       "_origin": "ast",
       "id": "detection_walls_rationale_984",
-      "community": 111,
+      "community": 171,
       "norm_label": "return (stroked wall faces, filled-band centerlines)."
     },
     {
@@ -3881,7 +3881,7 @@
       "source_location": "L2551",
       "_origin": "ast",
       "id": "detection_walls_rationale_2551",
-      "community": 199,
+      "community": 34,
       "norm_label": "build the internal wall-centerline network for a page.      exclude_path_indices"
     },
     {
@@ -4651,7 +4651,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "extraction_renderer_py_document",
-      "community": 206,
+      "community": 108,
       "norm_label": "document"
     },
     {
@@ -4661,7 +4661,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "extraction_renderer_render_page_svg",
-      "community": 206,
+      "community": 108,
       "norm_label": "render_page_svg()"
     },
     {
@@ -4671,7 +4671,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "extraction_renderer_load_font",
-      "community": 115,
+      "community": 139,
       "norm_label": "_load_font()"
     },
     {
@@ -4791,7 +4791,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "extraction_renderer_rationale_61",
-      "community": 206,
+      "community": 108,
       "norm_label": "mupdf's own vector redraw of the page, in render.png's coordinate space.      sa"
     },
     {
@@ -4911,7 +4911,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "gemini_classifier_apply_classification",
-      "community": 125,
+      "community": 10,
       "norm_label": "apply_classification()"
     },
     {
@@ -4961,7 +4961,7 @@
       "source_location": "L172",
       "_origin": "ast",
       "id": "gemini_classifier_rationale_172",
-      "community": 125,
+      "community": 10,
       "norm_label": "apply a classification response to a region list.      returns new region object"
     },
     {
@@ -5501,7 +5501,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "layout_init",
-      "community": 36,
+      "community": 145,
       "norm_label": "__init__.py"
     },
     {
@@ -5511,7 +5511,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "layout_init_rationale_1",
-      "community": 36,
+      "community": 145,
       "norm_label": "page segmentation: split a sheet into its constituent drawings."
     },
     {
@@ -5521,7 +5521,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "layout_clips",
-      "community": 104,
+      "community": 145,
       "norm_label": "clips.py"
     },
     {
@@ -5551,7 +5551,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "layout_clips_qualifying_clip_rects",
-      "community": 104,
+      "community": 134,
       "norm_label": "qualifying_clip_rects()"
     },
     {
@@ -5561,7 +5561,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "layout_clips_clip_cut_positions",
-      "community": 41,
+      "community": 145,
       "norm_label": "clip_cut_positions()"
     },
     {
@@ -5571,7 +5571,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "layout_clips_rationale_1",
-      "community": 104,
+      "community": 145,
       "norm_label": "native pdf clip rects, used as extra cut hints for the segmenter.  clip rects ar"
     },
     {
@@ -5591,7 +5591,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "layout_clips_rationale_55",
-      "community": 104,
+      "community": 134,
       "norm_label": "read scissor rects off a fitz.page and gate them. returns [] if the     pdf expo"
     },
     {
@@ -5601,7 +5601,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "layout_clips_rationale_81",
-      "community": 41,
+      "community": 145,
       "norm_label": "convert clip edges to (row, col) cut candidates, in bin indices.      each candi"
     },
     {
@@ -5731,7 +5731,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "layout_occupancy",
-      "community": 145,
+      "community": 38,
       "norm_label": "occupancy.py"
     },
     {
@@ -5771,7 +5771,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "layout_occupancy_rationale_1",
-      "community": 145,
+      "community": 38,
       "norm_label": "binary ink occupancy map over a page, used to find whitespace gutters."
     },
     {
@@ -5841,7 +5841,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "layout_segmenter_widest_gap",
-      "community": 149,
+      "community": 145,
       "norm_label": "_widest_gap()"
     },
     {
@@ -5851,7 +5851,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "layout_segmenter_clip_cut",
-      "community": 149,
+      "community": 145,
       "norm_label": "_clip_cut()"
     },
     {
@@ -5941,7 +5941,7 @@
       "source_location": "L227",
       "_origin": "ast",
       "id": "layout_segmenter_attach_text_spans",
-      "community": 189,
+      "community": 131,
       "norm_label": "_attach_text_spans()"
     },
     {
@@ -5971,7 +5971,7 @@
       "source_location": "L338",
       "_origin": "ast",
       "id": "layout_segmenter_page_fallback_region",
-      "community": 36,
+      "community": 145,
       "norm_label": "page_fallback_region()"
     },
     {
@@ -6001,7 +6001,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "layout_segmenter_rationale_35",
-      "community": 149,
+      "community": 145,
       "norm_label": "widest fully-empty internal run of at least min_bins. leading and     trailing r"
     },
     {
@@ -6011,7 +6011,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "layout_segmenter_rationale_58",
-      "community": 149,
+      "community": 145,
       "norm_label": "first clip edge lying strictly inside the span with ink on both sides.      an e"
     },
     {
@@ -6051,7 +6051,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "layout_segmenter_rationale_228",
-      "community": 189,
+      "community": 131,
       "norm_label": "grow paths-only boxes to absorb the text spans beside them.      the tier-2 cut"
     },
     {
@@ -6071,7 +6071,7 @@
       "source_location": "L339",
       "_origin": "ast",
       "id": "layout_segmenter_rationale_339",
-      "community": 36,
+      "community": 145,
       "norm_label": "the whole page as a single region, for sheets too dense to split."
     },
     {
@@ -6081,7 +6081,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "models",
-      "community": 108,
+      "community": 24,
       "norm_label": "models.py"
     },
     {
@@ -6121,7 +6121,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "models_pagedata",
-      "community": 15,
+      "community": 131,
       "norm_label": "pagedata"
     },
     {
@@ -6151,7 +6151,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "models_region",
-      "community": 115,
+      "community": 1,
       "norm_label": "region"
     },
     {
@@ -6201,7 +6201,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "models_rationale_76",
-      "community": 115,
+      "community": 1,
       "norm_label": "one drawing on a sheet, found by whitespace segmentation.      bbox is 150-dpi p"
     },
     {
@@ -6461,7 +6461,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "regression_init",
-      "community": 136,
+      "community": 122,
       "norm_label": "__init__.py"
     },
     {
@@ -6471,7 +6471,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "regression_init_rationale_1",
-      "community": 136,
+      "community": 122,
       "norm_label": "regression corpus: fixture resolution, ground truth, matching, and the sweep."
     },
     {
@@ -6761,7 +6761,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "regression_corpus_load_manifest",
-      "community": 162,
+      "community": 107,
       "norm_label": "load_manifest()"
     },
     {
@@ -6831,7 +6831,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "regression_corpus_set_labeled",
-      "community": 112,
+      "community": 107,
       "norm_label": "set_labeled()"
     },
     {
@@ -6851,7 +6851,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "regression_corpus_rationale_20",
-      "community": 162,
+      "community": 107,
       "norm_label": "the committed manifest, or an empty corpus when it is absent."
     },
     {
@@ -6881,7 +6881,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "regression_corpus_rationale_69",
-      "community": 112,
+      "community": 107,
       "norm_label": "flip a manifest entry's `labeled` flag and write the manifest back.      `labele"
     },
     {
@@ -6901,7 +6901,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "regression_ground_truth_truthitem",
-      "community": 122,
+      "community": 106,
       "norm_label": "truthitem"
     },
     {
@@ -6921,7 +6921,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "regression_ground_truth_sheettruth",
-      "community": 106,
+      "community": 136,
       "norm_label": "sheettruth"
     },
     {
@@ -6931,7 +6931,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "regression_ground_truth_sheettruth_is_labeled",
-      "community": 106,
+      "community": 136,
       "norm_label": ".is_labeled()"
     },
     {
@@ -6941,7 +6941,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "regression_ground_truth_sheettruth_page",
-      "community": 106,
+      "community": 136,
       "norm_label": ".page()"
     },
     {
@@ -7291,7 +7291,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "regression_review_render",
-      "community": 115,
+      "community": 139,
       "norm_label": "review_render.py"
     },
     {
@@ -7331,7 +7331,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "regression_review_render_rationale_1",
-      "community": 115,
+      "community": 139,
       "norm_label": "the images a human looks at while giving verdicts.  one png per page per entity"
     },
     {
@@ -7621,7 +7621,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "regression_sweep_prune_unread_page_output",
-      "community": 204,
+      "community": 107,
       "norm_label": "_prune_unread_page_output()"
     },
     {
@@ -7641,7 +7641,7 @@
       "source_location": "L130",
       "_origin": "ast",
       "id": "regression_sweep_labeled_but_unreviewed",
-      "community": 106,
+      "community": 136,
       "norm_label": "_labeled_but_unreviewed()"
     },
     {
@@ -7701,7 +7701,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "regression_sweep_rationale_100",
-      "community": 204,
+      "community": 107,
       "norm_label": "delete the page-level files a sweep persists but never uses.      making sweep o"
     },
     {
@@ -7711,7 +7711,7 @@
       "source_location": "L131",
       "_origin": "ast",
       "id": "regression_sweep_rationale_131",
-      "community": 106,
+      "community": 136,
       "norm_label": "true when the manifest claims this sheet has been labeled but its     ground tru"
     },
     {
@@ -8321,7 +8321,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scale_text",
-      "community": 15,
+      "community": 133,
       "norm_label": "text.py"
     },
     {
@@ -8341,7 +8341,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "scale_text_text_scales",
-      "community": 15,
+      "community": 133,
       "norm_label": "text_scales()"
     },
     {
@@ -8351,7 +8351,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scale_text_rationale_1",
-      "community": 15,
+      "community": 133,
       "norm_label": "tier 2 \u2014 the scale a sheet prints as text.  three corpus sheets carry no viewpor"
     },
     {
@@ -8371,7 +8371,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "scale_text_rationale_41",
-      "community": 15,
+      "community": 133,
       "norm_label": "every scale printed on the page, each carrying its span's bbox."
     },
     {
@@ -9451,7 +9451,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "takeoff_scale_is_verified",
-      "community": 167,
+      "community": 40,
       "norm_label": "is_verified()"
     },
     {
@@ -9481,7 +9481,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "takeoff_scale_rationale_109",
-      "community": 167,
+      "community": 40,
       "norm_label": "source-level trust, then the drawing's own evidence: a failed     plausibility c"
     },
     {
@@ -9491,7 +9491,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "takeoff_units",
-      "community": 40,
+      "community": 15,
       "norm_label": "units.py"
     },
     {
@@ -9501,7 +9501,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "takeoff_units_effective_denominator",
-      "community": 167,
+      "community": 15,
       "norm_label": "effective_denominator()"
     },
     {
@@ -9511,7 +9511,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "takeoff_units_mm_per_px",
-      "community": 40,
+      "community": 15,
       "norm_label": "mm_per_px()"
     },
     {
@@ -9521,7 +9521,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "takeoff_units_px_to_m",
-      "community": 40,
+      "community": 15,
       "norm_label": "px_to_m()"
     },
     {
@@ -9531,7 +9531,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "takeoff_units_px2_to_m2",
-      "community": 40,
+      "community": 15,
       "norm_label": "px2_to_m2()"
     },
     {
@@ -9541,7 +9541,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "takeoff_units_rationale_1",
-      "community": 40,
+      "community": 15,
       "norm_label": "pixel \u2194 metre conversion.  everything downstream of extraction/extractor.py is 1"
     },
     {
@@ -9551,7 +9551,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "takeoff_units_rationale_15",
-      "community": 167,
+      "community": 15,
       "norm_label": "nominal beats raw so 1:50 sheets compute exactly (scale/factor.py rule)."
     },
     {
@@ -10091,7 +10091,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs",
-      "community": 143,
+      "community": 118,
       "norm_label": "test_chained_curve_arcs.py"
     },
     {
@@ -10101,7 +10101,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_curve",
-      "community": 143,
+      "community": 118,
       "norm_label": "_curve()"
     },
     {
@@ -10111,7 +10111,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_qu_leaf",
-      "community": 143,
+      "community": 118,
       "norm_label": "_qu_leaf()"
     },
     {
@@ -10121,7 +10121,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_circle_arc_chain",
-      "community": 143,
+      "community": 118,
       "norm_label": "_circle_arc_chain()"
     },
     {
@@ -10131,7 +10131,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_fitcircle3pttests",
-      "community": 143,
+      "community": 118,
       "norm_label": "fitcircle3pttests"
     },
     {
@@ -10141,7 +10141,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_fitcircle3pttests_test_three_axis_aligned_points_on_unit_circle",
-      "community": 143,
+      "community": 118,
       "norm_label": ".test_three_axis_aligned_points_on_unit_circle()"
     },
     {
@@ -10151,7 +10151,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_fitcircle3pttests_test_three_points_on_offset_circle",
-      "community": 143,
+      "community": 118,
       "norm_label": ".test_three_points_on_offset_circle()"
     },
     {
@@ -10161,7 +10161,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_fitcircle3pttests_test_collinear_points_return_none",
-      "community": 143,
+      "community": 118,
       "norm_label": ".test_collinear_points_return_none()"
     },
     {
@@ -10171,7 +10171,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_nativecurvechainstests",
-      "community": 143,
+      "community": 118,
       "norm_label": "nativecurvechainstests"
     },
     {
@@ -10181,7 +10181,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_nativecurvechainstests_test_empty_input",
-      "community": 143,
+      "community": 118,
       "norm_label": ".test_empty_input()"
     },
     {
@@ -10191,7 +10191,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_nativecurvechainstests_test_single_curve_yields_singleton_chain",
-      "community": 143,
+      "community": 118,
       "norm_label": ".test_single_curve_yields_singleton_chain()"
     },
     {
@@ -10201,7 +10201,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_nativecurvechainstests_test_two_curves_sharing_endpoint_join_into_one_chain",
-      "community": 143,
+      "community": 118,
       "norm_label": ".test_two_curves_sharing_endpoint_join_into_one_chain()"
     },
     {
@@ -10211,7 +10211,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_nativecurvechainstests_test_two_curves_with_disjoint_endpoints_stay_separate",
-      "community": 143,
+      "community": 118,
       "norm_label": ".test_two_curves_with_disjoint_endpoints_stay_separate()"
     },
     {
@@ -10221,7 +10221,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_chainedcurveswingdetectiontests",
-      "community": 143,
+      "community": 118,
       "norm_label": "chainedcurveswingdetectiontests"
     },
     {
@@ -10231,7 +10231,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_chainedcurveswingdetectiontests_test_chained_curves_partial_arc_pairs_with_leaf_via_fitted_radius",
-      "community": 143,
+      "community": 118,
       "norm_label": ".test_chained_curves_partial_arc_pairs_with_leaf_via_fitted_radius()"
     },
     {
@@ -10241,7 +10241,7 @@
       "source_location": "L181",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_chainedcurveswingdetectiontests_test_singleton_full_quarter_arc_still_uses_existing_path",
-      "community": 143,
+      "community": 118,
       "norm_label": ".test_singleton_full_quarter_arc_still_uses_existing_path()"
     },
     {
@@ -10251,7 +10251,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_rationale_16",
-      "community": 143,
+      "community": 118,
       "norm_label": "build a native cubic bezier (`c`) primitive from 4 control points."
     },
     {
@@ -10261,7 +10261,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_rationale_34",
-      "community": 143,
+      "community": 118,
       "norm_label": "build a `qu` rectangle primitive shaped like a door leaf."
     },
     {
@@ -10271,7 +10271,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_rationale_56",
-      "community": 143,
+      "community": 118,
       "norm_label": "build `n_curves` cubic bezier primitives chained end-to-end, each     spanning a"
     },
     {
@@ -10281,7 +10281,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_rationale_80",
-      "community": 143,
+      "community": 118,
       "norm_label": "trivial sanity check on the formula: 3 points on a circle of         radius 5 ce"
     },
     {
@@ -10291,7 +10291,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_rationale_90",
-      "community": 143,
+      "community": 118,
       "norm_label": "recover an offset center and radius from a different angular spread."
     },
     {
@@ -10301,7 +10301,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_rationale_107",
-      "community": 143,
+      "community": 118,
       "norm_label": "three collinear points have no unique circumscribed circle."
     },
     {
@@ -10311,7 +10311,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_rationale_123",
-      "community": 143,
+      "community": 118,
       "norm_label": "the door_0051 pattern: native curves with shared endpoints group         into a"
     },
     {
@@ -10321,7 +10321,7 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_rationale_140",
-      "community": 143,
+      "community": 118,
       "norm_label": "end-to-end via detect_doors: a 5-curve chain forming a 30\u00b0 arc of     a larger c"
     },
     {
@@ -10331,7 +10331,7 @@
       "source_location": "L182",
       "_origin": "ast",
       "id": "tests_test_chained_curve_arcs_rationale_182",
-      "community": 143,
+      "community": 118,
       "norm_label": "a single `c` primitive that already passes _is_arc_like (square         bbox, si"
     },
     {
@@ -10421,7 +10421,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "tests_test_compare_sweeps_classifytests",
-      "community": 139,
+      "community": 106,
       "norm_label": "classifytests"
     },
     {
@@ -10431,7 +10431,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "tests_test_compare_sweeps_classifytests_test_verdict_precedence_matches_the_sweep",
-      "community": 139,
+      "community": 106,
       "norm_label": ".test_verdict_precedence_matches_the_sweep()"
     },
     {
@@ -10441,7 +10441,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "tests_test_compare_sweeps_comparerunstests",
-      "community": 139,
+      "community": 106,
       "norm_label": "comparerunstests"
     },
     {
@@ -10451,7 +10451,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "tests_test_compare_sweeps_comparerunstests_setup",
-      "community": 139,
+      "community": 106,
       "norm_label": ".setup()"
     },
     {
@@ -10461,7 +10461,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "tests_test_compare_sweeps_comparerunstests_teardown",
-      "community": 139,
+      "community": 106,
       "norm_label": ".teardown()"
     },
     {
@@ -11011,7 +11011,7 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "tests_test_door_assembly_doorassemblytests_test_duplicate_components_dedupe_to_one_door",
-      "community": 24,
+      "community": 182,
       "norm_label": ".test_duplicate_components_dedupe_to_one_door()"
     },
     {
@@ -11521,7 +11521,7 @@
       "source_location": "L877",
       "_origin": "ast",
       "id": "tests_test_door_assembly_doorv2openingchecktests_test_estimate_arc_sweep_90deg_ideal",
-      "community": 182,
+      "community": 17,
       "norm_label": ".test_estimate_arc_sweep_90deg_ideal()"
     },
     {
@@ -11531,7 +11531,7 @@
       "source_location": "L886",
       "_origin": "ast",
       "id": "tests_test_door_assembly_doorv2openingchecktests_test_estimate_arc_sweep_degenerate_returns_none",
-      "community": 182,
+      "community": 17,
       "norm_label": ".test_estimate_arc_sweep_degenerate_returns_none()"
     },
     {
@@ -11761,7 +11761,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "tests_test_extract_images_testextractimagesinstances",
-      "community": 207,
+      "community": 104,
       "norm_label": "testextractimagesinstances"
     },
     {
@@ -11771,7 +11771,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "tests_test_extract_images_testextractimagesinstances_setupclass",
-      "community": 207,
+      "community": 104,
       "norm_label": ".setupclass()"
     },
     {
@@ -11781,7 +11781,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "tests_test_extract_images_testextractimagesinstances_teardownclass",
-      "community": 207,
+      "community": 104,
       "norm_label": ".teardownclass()"
     },
     {
@@ -11791,7 +11791,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "tests_test_extract_images_testextractimagesinstances_extract",
-      "community": 207,
+      "community": 104,
       "norm_label": ".extract()"
     },
     {
@@ -11801,7 +11801,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "tests_test_extract_images_testextractimagesinstances_test_each_displayed_instance_gets_its_own_bbox",
-      "community": 207,
+      "community": 104,
       "norm_label": ".test_each_displayed_instance_gets_its_own_bbox()"
     },
     {
@@ -11811,7 +11811,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "tests_test_extract_images_testextractimagesinstances_test_shared_xref_instances_keep_shared_pixel_size",
-      "community": 207,
+      "community": 104,
       "norm_label": ".test_shared_xref_instances_keep_shared_pixel_size()"
     },
     {
@@ -11821,7 +11821,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "tests_test_extract_images_testextractimagesinstances_test_pixel_area_is_raw_bbox_over_page_area",
-      "community": 207,
+      "community": 104,
       "norm_label": ".test_pixel_area_is_raw_bbox_over_page_area()"
     },
     {
@@ -11851,7 +11851,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "tests_test_extraction_transform_write_rotated_pdf",
-      "community": 104,
+      "community": 149,
       "norm_label": "write_rotated_pdf()"
     },
     {
@@ -11861,7 +11861,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "tests_test_extraction_transform_rotatedpdftestcase",
-      "community": 104,
+      "community": 149,
       "norm_label": "rotatedpdftestcase"
     },
     {
@@ -11871,7 +11871,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "tests_test_extraction_transform_rotatedpdftestcase_setupclass",
-      "community": 104,
+      "community": 149,
       "norm_label": ".setupclass()"
     },
     {
@@ -11881,7 +11881,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "tests_test_extraction_transform_rotatedpdftestcase_teardownclass",
-      "community": 104,
+      "community": 149,
       "norm_label": ".teardownclass()"
     },
     {
@@ -11891,7 +11891,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "tests_test_extraction_transform_rotatedpdftestcase_page_data",
-      "community": 134,
+      "community": 149,
       "norm_label": ".page_data()"
     },
     {
@@ -11951,7 +11951,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "tests_test_extraction_transform_testextractpageframe",
-      "community": 134,
+      "community": 149,
       "norm_label": "testextractpageframe"
     },
     {
@@ -11961,7 +11961,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "tests_test_extraction_transform_testextractpageframe_assert_all_geometry_inside_the_page",
-      "community": 134,
+      "community": 149,
       "norm_label": ".assert_all_geometry_inside_the_page()"
     },
     {
@@ -11971,7 +11971,7 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "tests_test_extraction_transform_testextractpageframe_test_every_rotation_keeps_geometry_inside_the_declared_page",
-      "community": 134,
+      "community": 149,
       "norm_label": ".test_every_rotation_keeps_geometry_inside_the_declared_page()"
     },
     {
@@ -11981,7 +11981,7 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "tests_test_extraction_transform_testextractpageframe_test_images_are_scaled_but_never_rotated_twice",
-      "community": 134,
+      "community": 149,
       "norm_label": ".test_images_are_scaled_but_never_rotated_twice()"
     },
     {
@@ -11991,7 +11991,7 @@
       "source_location": "L155",
       "_origin": "ast",
       "id": "tests_test_extraction_transform_testextractpageframe_test_rotation_does_not_change_pen_width",
-      "community": 134,
+      "community": 149,
       "norm_label": ".test_rotation_does_not_change_pen_width()"
     },
     {
@@ -12001,7 +12001,7 @@
       "source_location": "L162",
       "_origin": "ast",
       "id": "tests_test_extraction_transform_testextractpageframe_test_bboxes_are_never_inverted",
-      "community": 134,
+      "community": 149,
       "norm_label": ".test_bboxes_are_never_inverted()"
     },
     {
@@ -12011,7 +12011,7 @@
       "source_location": "L176",
       "_origin": "ast",
       "id": "tests_test_extraction_transform_testextractpageframe_test_lines_keep_their_length_under_every_rotation",
-      "community": 134,
+      "community": 149,
       "norm_label": ".test_lines_keep_their_length_under_every_rotation()"
     },
     {
@@ -12021,7 +12021,7 @@
       "source_location": "L188",
       "_origin": "ast",
       "id": "tests_test_extraction_transform_testextractpageframe_test_point_order_survives_the_transform",
-      "community": 134,
+      "community": 149,
       "norm_label": ".test_point_order_survives_the_transform()"
     },
     {
@@ -12051,7 +12051,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "tests_test_extraction_transform_rationale_40",
-      "community": 104,
+      "community": 149,
       "norm_label": "a saved 200x400pt pdf with two lines, a word and an image, rotated.      saved a"
     },
     {
@@ -12061,7 +12061,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "tests_test_extraction_transform_rationale_61",
-      "community": 104,
+      "community": 149,
       "norm_label": "builds all four rotations once; each test reopens what it needs."
     },
     {
@@ -12071,7 +12071,7 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "tests_test_extraction_transform_rationale_114",
-      "community": 134,
+      "community": 149,
       "norm_label": "every primitive, span and image must land in the declared frame."
     },
     {
@@ -13521,7 +13521,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "tests_test_layout_golden_testspanfilterisloadbearing",
-      "community": 208,
+      "community": 134,
       "norm_label": "testspanfilterisloadbearing"
     },
     {
@@ -13531,7 +13531,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "tests_test_layout_golden_testspanfilterisloadbearing_page_data",
-      "community": 208,
+      "community": 134,
       "norm_label": "._page_data()"
     },
     {
@@ -13541,7 +13541,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "tests_test_layout_golden_testspanfilterisloadbearing_test_sheet_has_page_spanning_primitives",
-      "community": 208,
+      "community": 134,
       "norm_label": ".test_sheet_has_page_spanning_primitives()"
     },
     {
@@ -13551,7 +13551,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "tests_test_layout_golden_testspanfilterisloadbearing_test_sheet_splits_into_many_regions_with_the_filter",
-      "community": 208,
+      "community": 134,
       "norm_label": ".test_sheet_splits_into_many_regions_with_the_filter()"
     },
     {
@@ -13561,7 +13561,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "tests_test_layout_golden_testspanfilterisloadbearing_test_ink_map_has_no_page_spanning_rows",
-      "community": 208,
+      "community": 134,
       "norm_label": ".test_ink_map_has_no_page_spanning_rows()"
     },
     {
@@ -13621,7 +13621,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "tests_test_layout_golden_rationale_58",
-      "community": 208,
+      "community": 134,
       "norm_label": "this sheet carries full-page border rules. with the span filter applied     the"
     },
     {
@@ -13841,7 +13841,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter",
-      "community": 189,
+      "community": 131,
       "norm_label": "test_layout_segmenter.py"
     },
     {
@@ -13851,7 +13851,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_block",
-      "community": 118,
+      "community": 131,
       "norm_label": "block()"
     },
     {
@@ -13861,7 +13861,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_page",
-      "community": 118,
+      "community": 131,
       "norm_label": "page()"
     },
     {
@@ -13871,7 +13871,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_cut",
-      "community": 118,
+      "community": 131,
       "norm_label": "cut()"
     },
     {
@@ -13881,7 +13881,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testprofilehelpers",
-      "community": 149,
+      "community": 145,
       "norm_label": "testprofilehelpers"
     },
     {
@@ -13891,7 +13891,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testprofilehelpers_test_trim_strips_leading_and_trailing_zeros",
-      "community": 149,
+      "community": 145,
       "norm_label": ".test_trim_strips_leading_and_trailing_zeros()"
     },
     {
@@ -13901,7 +13901,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testprofilehelpers_test_widest_gap_finds_the_longest_internal_run_of_zeros",
-      "community": 149,
+      "community": 145,
       "norm_label": ".test_widest_gap_finds_the_longest_internal_run_of_zeros()"
     },
     {
@@ -13911,7 +13911,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testprofilehelpers_test_widest_gap_ignores_runs_shorter_than_min_bins",
-      "community": 149,
+      "community": 145,
       "norm_label": ".test_widest_gap_ignores_runs_shorter_than_min_bins()"
     },
     {
@@ -13921,7 +13921,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testprofilehelpers_test_widest_gap_ignores_leading_and_trailing_zeros",
-      "community": 149,
+      "community": 145,
       "norm_label": ".test_widest_gap_ignores_leading_and_trailing_zeros()"
     },
     {
@@ -13931,7 +13931,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testprofilehelpers_test_clip_cut_returns_a_position_with_ink_on_both_sides",
-      "community": 149,
+      "community": 145,
       "norm_label": ".test_clip_cut_returns_a_position_with_ink_on_both_sides()"
     },
     {
@@ -13941,7 +13941,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testprofilehelpers_test_clip_cut_rejects_a_position_with_ink_on_one_side_only",
-      "community": 149,
+      "community": 145,
       "norm_label": ".test_clip_cut_rejects_a_position_with_ink_on_one_side_only()"
     },
     {
@@ -13951,7 +13951,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testprofilehelpers_test_clip_cut_rejects_an_edge_whose_rect_misses_the_cell",
-      "community": 149,
+      "community": 145,
       "norm_label": ".test_clip_cut_rejects_an_edge_whose_rect_misses_the_cell()"
     },
     {
@@ -13961,7 +13961,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut",
-      "community": 118,
+      "community": 131,
       "norm_label": "testxycut"
     },
     {
@@ -13971,7 +13971,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut_test_single_blob_yields_one_region",
-      "community": 118,
+      "community": 131,
       "norm_label": ".test_single_blob_yields_one_region()"
     },
     {
@@ -13981,7 +13981,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut_test_two_blobs_split_by_a_wide_vertical_gutter",
-      "community": 118,
+      "community": 131,
       "norm_label": ".test_two_blobs_split_by_a_wide_vertical_gutter()"
     },
     {
@@ -13991,7 +13991,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut_test_two_blobs_split_by_a_wide_horizontal_gutter",
-      "community": 118,
+      "community": 131,
       "norm_label": ".test_two_blobs_split_by_a_wide_horizontal_gutter()"
     },
     {
@@ -14001,7 +14001,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut_test_gap_narrower_than_the_threshold_does_not_split",
-      "community": 118,
+      "community": 131,
       "norm_label": ".test_gap_narrower_than_the_threshold_does_not_split()"
     },
     {
@@ -14011,7 +14011,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut_test_regions_are_trimmed_to_their_ink",
-      "community": 118,
+      "community": 131,
       "norm_label": ".test_regions_are_trimmed_to_their_ink()"
     },
     {
@@ -14021,7 +14021,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut_test_clip_edge_splits_when_no_gutter_exists",
-      "community": 118,
+      "community": 131,
       "norm_label": ".test_clip_edge_splits_when_no_gutter_exists()"
     },
     {
@@ -14031,7 +14031,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut_test_gutter_is_preferred_over_a_clip_edge",
-      "community": 118,
+      "community": 131,
       "norm_label": ".test_gutter_is_preferred_over_a_clip_edge()"
     },
     {
@@ -14041,7 +14041,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testxycut_test_clip_edges_cannot_preempt_the_gutter",
-      "community": 118,
+      "community": 131,
       "norm_label": ".test_clip_edges_cannot_preempt_the_gutter()"
     },
     {
@@ -14201,7 +14201,7 @@
       "source_location": "L278",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_span",
-      "community": 189,
+      "community": 131,
       "norm_label": "span()"
     },
     {
@@ -14211,7 +14211,7 @@
       "source_location": "L283",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testattachtextspans",
-      "community": 189,
+      "community": 131,
       "norm_label": "testattachtextspans"
     },
     {
@@ -14221,7 +14221,7 @@
       "source_location": "L284",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testattachtextspans_test_nearby_span_grows_its_nearest_box",
-      "community": 189,
+      "community": 131,
       "norm_label": ".test_nearby_span_grows_its_nearest_box()"
     },
     {
@@ -14231,7 +14231,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testattachtextspans_test_span_already_inside_a_box_changes_nothing",
-      "community": 189,
+      "community": 131,
       "norm_label": ".test_span_already_inside_a_box_changes_nothing()"
     },
     {
@@ -14241,7 +14241,7 @@
       "source_location": "L297",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testattachtextspans_test_distant_span_stays_unattached",
-      "community": 189,
+      "community": 131,
       "norm_label": ".test_distant_span_stays_unattached()"
     },
     {
@@ -14251,7 +14251,7 @@
       "source_location": "L304",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testattachtextspans_test_union_never_leaks_another_box",
-      "community": 189,
+      "community": 131,
       "norm_label": ".test_union_never_leaks_another_box()"
     },
     {
@@ -14261,7 +14261,7 @@
       "source_location": "L315",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_testattachtextspans_test_tie_breaks_to_first_box_and_does_not_double_attach",
-      "community": 189,
+      "community": 131,
       "norm_label": ".test_tie_breaks_to_first_box_and_does_not_double_attach()"
     },
     {
@@ -14361,7 +14361,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_rationale_1",
-      "community": 189,
+      "community": 131,
       "norm_label": "recursive xy-cut tests (layout/segmenter.py)."
     },
     {
@@ -14371,7 +14371,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "tests_test_layout_segmenter_rationale_17",
-      "community": 118,
+      "community": 131,
       "norm_label": "a solid-ish blob: a horizontal line every 4px so every bin row is inked."
     },
     {
@@ -14721,7 +14721,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_orchestrator_timing",
-      "community": 15,
+      "community": 24,
       "norm_label": "test_orchestrator_timing.py"
     },
     {
@@ -14731,7 +14731,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "tests_test_orchestrator_timing_teststagetiminglogs",
-      "community": 15,
+      "community": 131,
       "norm_label": "teststagetiminglogs"
     },
     {
@@ -14741,7 +14741,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "tests_test_orchestrator_timing_teststagetiminglogs_test_each_stage_logs_a_duration",
-      "community": 15,
+      "community": 131,
       "norm_label": ".test_each_stage_logs_a_duration()"
     },
     {
@@ -14751,7 +14751,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_orchestrator_timing_rationale_1",
-      "community": 15,
+      "community": 24,
       "norm_label": "run_heuristics emits per-stage wall-clock timings on its module logger.  the 202"
     },
     {
@@ -15751,7 +15751,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_region_classifier",
-      "community": 125,
+      "community": 10,
       "norm_label": "test_region_classifier.py"
     },
     {
@@ -15761,7 +15761,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "tests_test_region_classifier_region",
-      "community": 125,
+      "community": 10,
       "norm_label": "region()"
     },
     {
@@ -15771,7 +15771,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "tests_test_region_classifier_response",
-      "community": 125,
+      "community": 10,
       "norm_label": "response()"
     },
     {
@@ -15781,7 +15781,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testapplyclassification",
-      "community": 125,
+      "community": 10,
       "norm_label": "testapplyclassification"
     },
     {
@@ -15791,7 +15791,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testapplyclassification_test_types_titles_and_confidence_are_applied",
-      "community": 125,
+      "community": 10,
       "norm_label": ".test_types_titles_and_confidence_are_applied()"
     },
     {
@@ -15801,7 +15801,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testapplyclassification_test_markdown_fences_are_stripped",
-      "community": 125,
+      "community": 10,
       "norm_label": ".test_markdown_fences_are_stripped()"
     },
     {
@@ -15811,7 +15811,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testapplyclassification_test_missing_region_id_warns_and_stays_unclassified",
-      "community": 125,
+      "community": 10,
       "norm_label": ".test_missing_region_id_warns_and_stays_unclassified()"
     },
     {
@@ -15821,7 +15821,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testapplyclassification_test_invalid_json_warns_and_leaves_everything_unclassified",
-      "community": 125,
+      "community": 10,
       "norm_label": ".test_invalid_json_warns_and_leaves_everything_unclassified()"
     },
     {
@@ -15831,7 +15831,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testapplyclassification_test_unknown_type_is_coerced_to_other_with_a_warning",
-      "community": 125,
+      "community": 10,
       "norm_label": ".test_unknown_type_is_coerced_to_other_with_a_warning()"
     },
     {
@@ -15841,7 +15841,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testapplyclassification_test_unknown_region_id_in_response_is_ignored",
-      "community": 125,
+      "community": 10,
       "norm_label": ".test_unknown_region_id_in_response_is_ignored()"
     },
     {
@@ -15851,7 +15851,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testapplyclassification_test_original_regions_are_not_mutated",
-      "community": 125,
+      "community": 10,
       "norm_label": ".test_original_regions_are_not_mutated()"
     },
     {
@@ -15861,7 +15861,7 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testapplyclassification_test_taxonomy_contains_the_types_the_pipeline_consumes",
-      "community": 125,
+      "community": 10,
       "norm_label": ".test_taxonomy_contains_the_types_the_pipeline_consumes()"
     },
     {
@@ -15871,7 +15871,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "tests_test_region_classifier_capturingclient",
-      "community": 125,
+      "community": 10,
       "norm_label": "_capturingclient"
     },
     {
@@ -15881,7 +15881,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "tests_test_region_classifier_capturingclient_init",
-      "community": 125,
+      "community": 10,
       "norm_label": ".__init__()"
     },
     {
@@ -15891,7 +15891,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "tests_test_region_classifier_capturingclient_generate_content",
-      "community": 125,
+      "community": 10,
       "norm_label": ".generate_content()"
     },
     {
@@ -15901,7 +15901,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testrequestshape",
-      "community": 125,
+      "community": 10,
       "norm_label": "testrequestshape"
     },
     {
@@ -15911,7 +15911,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testrequestshape_call",
-      "community": 125,
+      "community": 10,
       "norm_label": ".call()"
     },
     {
@@ -15921,7 +15921,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testrequestshape_test_the_request_carries_a_response_schema",
-      "community": 125,
+      "community": 10,
       "norm_label": ".test_the_request_carries_a_response_schema()"
     },
     {
@@ -15931,7 +15931,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testrequestshape_test_the_schema_constrains_type_to_the_taxonomy",
-      "community": 125,
+      "community": 10,
       "norm_label": ".test_the_schema_constrains_type_to_the_taxonomy()"
     },
     {
@@ -15941,7 +15941,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testrequestshape_test_the_schema_requires_an_id_for_every_region",
-      "community": 125,
+      "community": 10,
       "norm_label": ".test_the_schema_requires_an_id_for_every_region()"
     },
     {
@@ -15951,7 +15951,7 @@
       "source_location": "L155",
       "_origin": "ast",
       "id": "tests_test_region_classifier_testrequestshape_test_a_schema_valid_response_still_classifies",
-      "community": 125,
+      "community": 10,
       "norm_label": ".test_a_schema_valid_response_still_classifies()"
     },
     {
@@ -16001,7 +16001,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_region_classifier_rationale_1",
-      "community": 125,
+      "community": 10,
       "norm_label": "region classification parsing tests (gemini/classifier.py).  no api calls: apply"
     },
     {
@@ -16011,7 +16011,7 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "tests_test_region_classifier_rationale_104",
-      "community": 125,
+      "community": 10,
       "norm_label": "stands in for genai.client, recording the config it was called with."
     },
     {
@@ -16021,7 +16021,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "tests_test_region_classifier_rationale_117",
-      "community": 125,
+      "community": 10,
       "norm_label": "the response must be schema-constrained at decode time.      plain json mode doe"
     },
     {
@@ -16971,7 +16971,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_render_svg",
-      "community": 206,
+      "community": 115,
       "norm_label": "test_render_svg.py"
     },
     {
@@ -16981,7 +16981,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "tests_test_render_svg_testrenderpagesvg",
-      "community": 206,
+      "community": 115,
       "norm_label": "testrenderpagesvg"
     },
     {
@@ -16991,7 +16991,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "tests_test_render_svg_testrenderpagesvg_svg",
-      "community": 206,
+      "community": 115,
       "norm_label": "._svg()"
     },
     {
@@ -17001,7 +17001,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "tests_test_render_svg_testrenderpagesvg_frame",
-      "community": 206,
+      "community": 115,
       "norm_label": "._frame()"
     },
     {
@@ -17011,7 +17011,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "tests_test_render_svg_testrenderpagesvg_test_svg_is_written_in_150dpi_pixel_space",
-      "community": 206,
+      "community": 115,
       "norm_label": ".test_svg_is_written_in_150dpi_pixel_space()"
     },
     {
@@ -17021,7 +17021,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "tests_test_render_svg_testrenderpagesvg_test_page_rotation_is_baked_in_like_the_raster",
-      "community": 206,
+      "community": 115,
       "norm_label": ".test_page_rotation_is_baked_in_like_the_raster()"
     },
     {
@@ -17031,7 +17031,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_review_cli",
-      "community": 121,
+      "community": 189,
       "norm_label": "test_review_cli.py"
     },
     {
@@ -17041,7 +17041,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "tests_test_review_cli_mainexceptionisolationtests",
-      "community": 121,
+      "community": 189,
       "norm_label": "mainexceptionisolationtests"
     },
     {
@@ -17051,7 +17051,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "tests_test_review_cli_mainexceptionisolationtests_test_a_non_review_blocked_failure_does_not_stop_the_walk",
-      "community": 121,
+      "community": 189,
       "norm_label": ".test_a_non_review_blocked_failure_does_not_stop_the_walk()"
     },
     {
@@ -17061,7 +17061,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "tests_test_review_cli_mainexceptionisolationtests_test_a_clean_walk_exits_zero",
-      "community": 121,
+      "community": 189,
       "norm_label": ".test_a_clean_walk_exits_zero()"
     },
     {
@@ -17071,7 +17071,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "tests_test_review_cli_mainexceptionisolationtests_test_keyboard_interrupt_still_stops_the_walk_immediately",
-      "community": 121,
+      "community": 189,
       "norm_label": ".test_keyboard_interrupt_still_stops_the_walk_immediately()"
     },
     {
@@ -17081,7 +17081,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_review_cli_rationale_1",
-      "community": 121,
+      "community": 189,
       "norm_label": "tools/review.py's main(): one sheet's unexpected failure must not kill the walk"
     },
     {
@@ -17321,7 +17321,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_review_render",
-      "community": 139,
+      "community": 0,
       "norm_label": "test_review_render.py"
     },
     {
@@ -17471,7 +17471,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_review_render_rationale_1",
-      "community": 139,
+      "community": 0,
       "norm_label": "review images: one per page per entity type, ids stamped on."
     },
     {
@@ -20371,7 +20371,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates",
-      "community": 8,
+      "community": 17,
       "norm_label": "test_scale_door_gates.py"
     },
     {
@@ -20561,7 +20561,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_production_door_gates_unscaled_usages",
-      "community": 8,
+      "community": 17,
       "norm_label": "_production_door_gates_unscaled_usages()"
     },
     {
@@ -20571,7 +20571,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_testdoorgatesunscaledstopgapratchet",
-      "community": 8,
+      "community": 17,
       "norm_label": "testdoorgatesunscaledstopgapratchet"
     },
     {
@@ -20581,7 +20581,7 @@
       "source_location": "L216",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_testdoorgatesunscaledstopgapratchet_test_door_gates_unscaled_stopgap_set_is_exactly_known",
-      "community": 8,
+      "community": 17,
       "norm_label": ".test_door_gates_unscaled_stopgap_set_is_exactly_known()"
     },
     {
@@ -20771,7 +20771,7 @@
       "source_location": "L364",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_testcrossgatesunscaledstopgapratchet",
-      "community": 8,
+      "community": 17,
       "norm_label": "testcrossgatesunscaledstopgapratchet"
     },
     {
@@ -20781,7 +20781,7 @@
       "source_location": "L391",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_testcrossgatesunscaledstopgapratchet_test_cross_gates_unscaled_stopgap_set_is_exactly_known",
-      "community": 8,
+      "community": 17,
       "norm_label": ".test_cross_gates_unscaled_stopgap_set_is_exactly_known()"
     },
     {
@@ -20791,7 +20791,7 @@
       "source_location": "L413",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_production_cross_gates_unscaled_usages",
-      "community": 8,
+      "community": 17,
       "norm_label": "_production_cross_gates_unscaled_usages()"
     },
     {
@@ -20801,7 +20801,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_rationale_1",
-      "community": 8,
+      "community": 17,
       "norm_label": "scale-factor behavior of the door gates: identity at 1.0, linear at 0.5.  a \"fai"
     },
     {
@@ -20821,7 +20821,7 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_rationale_154",
-      "community": 8,
+      "community": 17,
       "norm_label": "scan detection/**/*.py for production (non-import, non-comment) uses     of the"
     },
     {
@@ -20831,7 +20831,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_rationale_192",
-      "community": 8,
+      "community": 17,
       "norm_label": "ratchet on detection/'s production uses of door_gates_unscaled.      door_gates_"
     },
     {
@@ -20841,7 +20841,7 @@
       "source_location": "L365",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_rationale_365",
-      "community": 8,
+      "community": 17,
       "norm_label": "ratchet on detection/'s production uses of cross_gates_unscaled.      cross_gate"
     },
     {
@@ -20851,7 +20851,7 @@
       "source_location": "L414",
       "_origin": "ast",
       "id": "tests_test_scale_door_gates_rationale_414",
-      "community": 8,
+      "community": 17,
       "norm_label": "scan detection/**/*.py for production (non-import, non-comment) uses     of the"
     },
     {
@@ -21691,7 +21691,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "tests_test_scale_no_prompt_testbatchneverprompts",
-      "community": 209,
+      "community": 108,
       "norm_label": "testbatchneverprompts"
     },
     {
@@ -21701,7 +21701,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "tests_test_scale_no_prompt_testbatchneverprompts_test_the_argv_disables_scale_prompting",
-      "community": 209,
+      "community": 108,
       "norm_label": ".test_the_argv_disables_scale_prompting()"
     },
     {
@@ -21711,7 +21711,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "tests_test_scale_no_prompt_testbatchneverprompts_test_the_flag_is_present_regardless_of_other_options",
-      "community": 209,
+      "community": 108,
       "norm_label": ".test_the_flag_is_present_regardless_of_other_options()"
     },
     {
@@ -21721,7 +21721,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "tests_test_scale_no_prompt_testbatchneverprompts_test_the_child_gets_no_stdin",
-      "community": 209,
+      "community": 108,
       "norm_label": ".test_the_child_gets_no_stdin()"
     },
     {
@@ -21871,7 +21871,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "tests_test_scale_pipeline_testwarningcountincludesscalewarnings",
-      "community": 15,
+      "community": 108,
       "norm_label": "testwarningcountincludesscalewarnings"
     },
     {
@@ -21881,7 +21881,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "tests_test_scale_pipeline_testwarningcountincludesscalewarnings_test_scale_warnings_are_counted",
-      "community": 15,
+      "community": 108,
       "norm_label": ".test_scale_warnings_are_counted()"
     },
     {
@@ -21891,7 +21891,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "tests_test_scale_pipeline_testsummarydetectionsurvivesskipdetection",
-      "community": 15,
+      "community": 188,
       "norm_label": "testsummarydetectionsurvivesskipdetection"
     },
     {
@@ -21901,7 +21901,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "tests_test_scale_pipeline_testsummarydetectionsurvivesskipdetection_test_detection_block_populated_when_candidates_are_empty",
-      "community": 15,
+      "community": 188,
       "norm_label": ".test_detection_block_populated_when_candidates_are_empty()"
     },
     {
@@ -21931,7 +21931,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "tests_test_scale_pipeline_rationale_81",
-      "community": 15,
+      "community": 108,
       "norm_label": "warning_count comes from page_warnings, not all_warnings.      a scale warning a"
     },
     {
@@ -21941,7 +21941,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "tests_test_scale_pipeline_rationale_100",
-      "community": 15,
+      "community": 188,
       "norm_label": "det_scale is resolved before the skip_detection branch in run_extract     (so th"
     },
     {
@@ -23061,7 +23061,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_scale_text",
-      "community": 15,
+      "community": 133,
       "norm_label": "test_scale_text.py"
     },
     {
@@ -23071,7 +23071,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "tests_test_scale_text_span",
-      "community": 15,
+      "community": 133,
       "norm_label": "span()"
     },
     {
@@ -23231,7 +23231,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "tests_test_scale_text_testtextscales",
-      "community": 15,
+      "community": 133,
       "norm_label": "testtextscales"
     },
     {
@@ -23241,7 +23241,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "tests_test_scale_text_testtextscales_test_span_bbox_is_carried_through",
-      "community": 15,
+      "community": 133,
       "norm_label": ".test_span_bbox_is_carried_through()"
     },
     {
@@ -23251,7 +23251,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "tests_test_scale_text_testtextscales_test_source_is_text_and_raw_is_the_span",
-      "community": 15,
+      "community": 133,
       "norm_label": ".test_source_is_text_and_raw_is_the_span()"
     },
     {
@@ -23261,7 +23261,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "tests_test_scale_text_testtextscales_test_nominal_is_snapped",
-      "community": 15,
+      "community": 133,
       "norm_label": ".test_nominal_is_snapped()"
     },
     {
@@ -23271,7 +23271,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "tests_test_scale_text_testtextscales_test_two_scales_in_one_span_yield_two_results_sharing_a_bbox",
-      "community": 15,
+      "community": 133,
       "norm_label": ".test_two_scales_in_one_span_yield_two_results_sharing_a_bbox()"
     },
     {
@@ -23281,7 +23281,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "tests_test_scale_text_testtextscales_test_page_with_no_text_yields_nothing",
-      "community": 15,
+      "community": 133,
       "norm_label": ".test_page_with_no_text_yields_nothing()"
     },
     {
@@ -23291,7 +23291,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_scale_text_rationale_1",
-      "community": 15,
+      "community": 133,
       "norm_label": "reading a 1:n scale out of text spans.  every string below is copied verbatim fr"
     },
     {
@@ -24101,7 +24101,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "tests_test_scale_window_gates_testminwidthnegativecontrol",
-      "community": 179,
+      "community": 211,
       "norm_label": "testminwidthnegativecontrol"
     },
     {
@@ -24111,7 +24111,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "tests_test_scale_window_gates_testminwidthnegativecontrol_fixture",
-      "community": 179,
+      "community": 211,
       "norm_label": "._fixture()"
     },
     {
@@ -24121,7 +24121,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "tests_test_scale_window_gates_testminwidthnegativecontrol_test_missed_at_identity",
-      "community": 179,
+      "community": 211,
       "norm_label": ".test_missed_at_identity()"
     },
     {
@@ -24131,7 +24131,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "tests_test_scale_window_gates_testminwidthnegativecontrol_test_detected_at_half_scale",
-      "community": 179,
+      "community": 211,
       "norm_label": ".test_detected_at_half_scale()"
     },
     {
@@ -24291,7 +24291,7 @@
       "source_location": "L266",
       "_origin": "ast",
       "id": "tests_test_scale_window_gates_testcrosswindowtoleranceunscaled",
-      "community": 5,
+      "community": 179,
       "norm_label": "testcrosswindowtoleranceunscaled"
     },
     {
@@ -24301,7 +24301,7 @@
       "source_location": "L272",
       "_origin": "ast",
       "id": "tests_test_scale_window_gates_testcrosswindowtoleranceunscaled_window_over_gap",
-      "community": 5,
+      "community": 179,
       "norm_label": "._window_over_gap()"
     },
     {
@@ -24311,7 +24311,7 @@
       "source_location": "L278",
       "_origin": "ast",
       "id": "tests_test_scale_window_gates_testcrosswindowtoleranceunscaled_test_boost_fires_at_both_factors",
-      "community": 5,
+      "community": 179,
       "norm_label": ".test_boost_fires_at_both_factors()"
     },
     {
@@ -24341,7 +24341,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "tests_test_scale_window_gates_rationale_88",
-      "community": 179,
+      "community": 211,
       "norm_label": "the one world-space gate, exercised at a non-grid angle.      a faithful 1:100 e"
     },
     {
@@ -24361,7 +24361,7 @@
       "source_location": "L267",
       "_origin": "ast",
       "id": "tests_test_scale_window_gates_rationale_267",
-      "community": 5,
+      "community": 179,
       "norm_label": "cross_window_thickness_tol_px froze p (spec evidence 5): the mismatch     it tol"
     },
     {
@@ -24501,7 +24501,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_sliding_doors",
-      "community": 14,
+      "community": 7,
       "norm_label": "test_sliding_doors.py"
     },
     {
@@ -24581,7 +24581,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "tests_test_sliding_doors_orientedrectfittests",
-      "community": 14,
+      "community": 7,
       "norm_label": "orientedrectfittests"
     },
     {
@@ -24591,7 +24591,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "tests_test_sliding_doors_orientedrectfittests_test_fits_rotated_rectangle",
-      "community": 14,
+      "community": 7,
       "norm_label": ".test_fits_rotated_rectangle()"
     },
     {
@@ -24601,7 +24601,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "tests_test_sliding_doors_orientedrectfittests_test_rejects_non_rectangle",
-      "community": 14,
+      "community": 7,
       "norm_label": ".test_rejects_non_rectangle()"
     },
     {
@@ -24921,7 +24921,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_sweep",
-      "community": 106,
+      "community": 107,
       "norm_label": "test_sweep.py"
     },
     {
@@ -25031,7 +25031,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "tests_test_sweep_labeledflagtests",
-      "community": 106,
+      "community": 136,
       "norm_label": "labeledflagtests"
     },
     {
@@ -25041,7 +25041,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "tests_test_sweep_labeledflagtests_test_flag_set_and_truth_reviewed_is_clean",
-      "community": 106,
+      "community": 136,
       "norm_label": ".test_flag_set_and_truth_reviewed_is_clean()"
     },
     {
@@ -25051,7 +25051,7 @@
       "source_location": "L130",
       "_origin": "ast",
       "id": "tests_test_sweep_labeledflagtests_test_flag_set_and_truth_missing_is_flagged",
-      "community": 106,
+      "community": 136,
       "norm_label": ".test_flag_set_and_truth_missing_is_flagged()"
     },
     {
@@ -25061,7 +25061,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "tests_test_sweep_labeledflagtests_test_flag_set_and_truth_present_but_reviewed_null_is_flagged",
-      "community": 106,
+      "community": 136,
       "norm_label": ".test_flag_set_and_truth_present_but_reviewed_null_is_flagged()"
     },
     {
@@ -25071,7 +25071,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "tests_test_sweep_labeledflagtests_test_flag_absent_and_unlabeled_truth_is_unchanged_behaviour",
-      "community": 106,
+      "community": 136,
       "norm_label": ".test_flag_absent_and_unlabeled_truth_is_unchanged_behaviour()"
     },
     {
@@ -25081,7 +25081,7 @@
       "source_location": "L147",
       "_origin": "ast",
       "id": "tests_test_sweep_labeledflagtests_test_flag_false_and_unlabeled_truth_is_unchanged_behaviour",
-      "community": 106,
+      "community": 136,
       "norm_label": ".test_flag_false_and_unlabeled_truth_is_unchanged_behaviour()"
     },
     {
@@ -25151,7 +25151,7 @@
       "source_location": "L210",
       "_origin": "ast",
       "id": "tests_test_sweep_sweepslugsargumenttests",
-      "community": 106,
+      "community": 107,
       "norm_label": "sweepslugsargumenttests"
     },
     {
@@ -25161,7 +25161,7 @@
       "source_location": "L216",
       "_origin": "ast",
       "id": "tests_test_sweep_sweepslugsargumenttests_setup",
-      "community": 106,
+      "community": 107,
       "norm_label": ".setup()"
     },
     {
@@ -25171,7 +25171,7 @@
       "source_location": "L229",
       "_origin": "ast",
       "id": "tests_test_sweep_sweepslugsargumenttests_teardown",
-      "community": 106,
+      "community": 107,
       "norm_label": ".teardown()"
     },
     {
@@ -25181,7 +25181,7 @@
       "source_location": "L233",
       "_origin": "ast",
       "id": "tests_test_sweep_sweepslugsargumenttests_test_an_explicit_empty_list_sweeps_nothing",
-      "community": 106,
+      "community": 107,
       "norm_label": ".test_an_explicit_empty_list_sweeps_nothing()"
     },
     {
@@ -25191,7 +25191,7 @@
       "source_location": "L236",
       "_origin": "ast",
       "id": "tests_test_sweep_sweepslugsargumenttests_test_none_defaults_to_every_manifest_sheet",
-      "community": 106,
+      "community": 107,
       "norm_label": ".test_none_defaults_to_every_manifest_sheet()"
     },
     {
@@ -25291,7 +25291,7 @@
       "source_location": "L333",
       "_origin": "ast",
       "id": "tests_test_sweep_pruneunreadpageoutputtests",
-      "community": 204,
+      "community": 107,
       "norm_label": "pruneunreadpageoutputtests"
     },
     {
@@ -25301,7 +25301,7 @@
       "source_location": "L340",
       "_origin": "ast",
       "id": "tests_test_sweep_pruneunreadpageoutputtests_setup",
-      "community": 204,
+      "community": 107,
       "norm_label": ".setup()"
     },
     {
@@ -25311,7 +25311,7 @@
       "source_location": "L364",
       "_origin": "ast",
       "id": "tests_test_sweep_pruneunreadpageoutputtests_teardown",
-      "community": 204,
+      "community": 107,
       "norm_label": ".teardown()"
     },
     {
@@ -25321,7 +25321,7 @@
       "source_location": "L367",
       "_origin": "ast",
       "id": "tests_test_sweep_pruneunreadpageoutputtests_test_prune_list_matches_what_the_function_deletes",
-      "community": 204,
+      "community": 107,
       "norm_label": ".test_prune_list_matches_what_the_function_deletes()"
     },
     {
@@ -25331,7 +25331,7 @@
       "source_location": "L373",
       "_origin": "ast",
       "id": "tests_test_sweep_pruneunreadpageoutputtests_test_prune_removes_the_unread_files_and_dirs",
-      "community": 204,
+      "community": 107,
       "norm_label": ".test_prune_removes_the_unread_files_and_dirs()"
     },
     {
@@ -25341,7 +25341,7 @@
       "source_location": "L381",
       "_origin": "ast",
       "id": "tests_test_sweep_pruneunreadpageoutputtests_test_prune_preserves_everything_review_and_tooling_read",
-      "community": 204,
+      "community": 107,
       "norm_label": ".test_prune_preserves_everything_review_and_tooling_read()"
     },
     {
@@ -25351,7 +25351,7 @@
       "source_location": "L389",
       "_origin": "ast",
       "id": "tests_test_sweep_pruneunreadpageoutputtests_test_prune_is_safe_to_call_when_nothing_prunable_is_present",
-      "community": 204,
+      "community": 107,
       "norm_label": ".test_prune_is_safe_to_call_when_nothing_prunable_is_present()"
     },
     {
@@ -25361,7 +25361,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_sweep_rationale_1",
-      "community": 106,
+      "community": 107,
       "norm_label": "sweep correctness that does not require running the real pipeline.  `regression."
     },
     {
@@ -25381,7 +25381,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "tests_test_sweep_rationale_112",
-      "community": 106,
+      "community": 136,
       "norm_label": "a `\"labeled\": true` manifest entry is a durable claim that a human has     recor"
     },
     {
@@ -25401,7 +25401,7 @@
       "source_location": "L211",
       "_origin": "ast",
       "id": "tests_test_sweep_rationale_211",
-      "community": 106,
+      "community": 107,
       "norm_label": "`slugs=[]` is a deliberate \"sweep nothing\" request and must stay     empty -- `s"
     },
     {
@@ -25421,7 +25421,7 @@
       "source_location": "L334",
       "_origin": "ast",
       "id": "tests_test_sweep_rationale_334",
-      "community": 204,
+      "community": 107,
       "norm_label": "a fake run directory stands in for a real extraction (fast tier, no     pipeline"
     },
     {
@@ -26091,7 +26091,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "tests_test_takeoff_pipeline_testsummarytotals_test_page_summary_without_takeoff",
-      "community": 40,
+      "community": 165,
       "norm_label": ".test_page_summary_without_takeoff()"
     },
     {
@@ -27101,7 +27101,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_takeoff_scale",
-      "community": 167,
+      "community": 165,
       "norm_label": "test_takeoff_scale.py"
     },
     {
@@ -27111,7 +27111,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "tests_test_takeoff_scale_region",
-      "community": 167,
+      "community": 165,
       "norm_label": "_region()"
     },
     {
@@ -27131,7 +27131,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "tests_test_takeoff_scale_testselectroomscale_setup",
-      "community": 167,
+      "community": 165,
       "norm_label": ".setup()"
     },
     {
@@ -27271,7 +27271,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "tests_test_takeoff_scale_testsheetsize_test_is_verified",
-      "community": 167,
+      "community": 40,
       "norm_label": ".test_is_verified()"
     },
     {
@@ -27311,7 +27311,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_takeoff_units",
-      "community": 40,
+      "community": 15,
       "norm_label": "test_takeoff_units.py"
     },
     {
@@ -27321,7 +27321,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tests_test_takeoff_units_testunits",
-      "community": 40,
+      "community": 15,
       "norm_label": "testunits"
     },
     {
@@ -27331,7 +27331,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "tests_test_takeoff_units_testunits_test_one_pixel_is_150dpi_paper",
-      "community": 40,
+      "community": 15,
       "norm_label": ".test_one_pixel_is_150dpi_paper()"
     },
     {
@@ -27341,7 +27341,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "tests_test_takeoff_units_testunits_test_mm_per_px_scales_with_denominator",
-      "community": 40,
+      "community": 15,
       "norm_label": ".test_mm_per_px_scales_with_denominator()"
     },
     {
@@ -27351,7 +27351,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "tests_test_takeoff_units_testunits_test_118px_at_1_50_is_one_metre",
-      "community": 40,
+      "community": 15,
       "norm_label": ".test_118px_at_1_50_is_one_metre()"
     },
     {
@@ -27361,7 +27361,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "tests_test_takeoff_units_testunits_test_13948px2_at_1_50_is_one_square_metre",
-      "community": 40,
+      "community": 15,
       "norm_label": ".test_13948px2_at_1_50_is_one_square_metre()"
     },
     {
@@ -27371,7 +27371,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "tests_test_takeoff_units_testunits_test_area_at_1_100_is_four_times_smaller_per_px2",
-      "community": 40,
+      "community": 15,
       "norm_label": ".test_area_at_1_100_is_four_times_smaller_per_px2()"
     },
     {
@@ -27381,7 +27381,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "tests_test_takeoff_units_testeffectivedenominator",
-      "community": 167,
+      "community": 15,
       "norm_label": "testeffectivedenominator"
     },
     {
@@ -27391,7 +27391,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "tests_test_takeoff_units_testeffectivedenominator_test_nominal_beats_raw",
-      "community": 167,
+      "community": 15,
       "norm_label": ".test_nominal_beats_raw()"
     },
     {
@@ -27401,7 +27401,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "tests_test_takeoff_units_testeffectivedenominator_test_raw_when_no_nominal",
-      "community": 167,
+      "community": 15,
       "norm_label": ".test_raw_when_no_nominal()"
     },
     {
@@ -27411,7 +27411,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "tests_test_takeoff_units_testeffectivedenominator_test_unresolved_is_none",
-      "community": 167,
+      "community": 15,
       "norm_label": ".test_unresolved_is_none()"
     },
     {
@@ -27761,7 +27761,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "tests_test_wall_network_testdashdetection",
-      "community": 111,
+      "community": 171,
       "norm_label": "testdashdetection"
     },
     {
@@ -27771,7 +27771,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "tests_test_wall_network_testdashdetection_test_solid_variants",
-      "community": 111,
+      "community": 171,
       "norm_label": ".test_solid_variants()"
     },
     {
@@ -27781,7 +27781,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "tests_test_wall_network_testdashdetection_test_dashed",
-      "community": 111,
+      "community": 171,
       "norm_label": ".test_dashed()"
     },
     {
@@ -27791,7 +27791,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "tests_test_wall_network_testfacecollection",
-      "community": 126,
+      "community": 171,
       "norm_label": "testfacecollection"
     },
     {
@@ -27801,7 +27801,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "tests_test_wall_network_testfacecollection_test_dashed_lines_excluded",
-      "community": 126,
+      "community": 171,
       "norm_label": ".test_dashed_lines_excluded()"
     },
     {
@@ -27811,7 +27811,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "tests_test_wall_network_testfacecollection_test_filled_band_yields_centerline",
-      "community": 126,
+      "community": 171,
       "norm_label": ".test_filled_band_yields_centerline()"
     },
     {
@@ -27821,7 +27821,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "tests_test_wall_network_testfacecollection_test_solid_fixture_block_not_a_band",
-      "community": 126,
+      "community": 171,
       "norm_label": ".test_solid_fixture_block_not_a_band()"
     },
     {
@@ -27831,7 +27831,7 @@
       "source_location": "L124",
       "_origin": "ast",
       "id": "tests_test_wall_network_testcenterlines",
-      "community": 199,
+      "community": 126,
       "norm_label": "testcenterlines"
     },
     {
@@ -27841,7 +27841,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "tests_test_wall_network_testcenterlines_test_parallel_pair_gives_one_centerline",
-      "community": 199,
+      "community": 126,
       "norm_label": ".test_parallel_pair_gives_one_centerline()"
     },
     {
@@ -27851,7 +27851,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "tests_test_wall_network_testcenterlines_test_hatch_strokes_do_not_pair",
-      "community": 199,
+      "community": 126,
       "norm_label": ".test_hatch_strokes_do_not_pair()"
     },
     {
@@ -27861,7 +27861,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "tests_test_wall_network_testcenterlines_test_long_face_pairs_with_multiple_stubs",
-      "community": 199,
+      "community": 126,
       "norm_label": ".test_long_face_pairs_with_multiple_stubs()"
     },
     {
@@ -28041,7 +28041,7 @@
       "source_location": "L385",
       "_origin": "ast",
       "id": "tests_test_wall_network_testnetworkassembly",
-      "community": 199,
+      "community": 156,
       "norm_label": "testnetworkassembly"
     },
     {
@@ -28051,7 +28051,7 @@
       "source_location": "L386",
       "_origin": "ast",
       "id": "tests_test_wall_network_testnetworkassembly_test_rect_room_closes",
-      "community": 199,
+      "community": 34,
       "norm_label": ".test_rect_room_closes()"
     },
     {
@@ -28061,7 +28061,7 @@
       "source_location": "L399",
       "_origin": "ast",
       "id": "tests_test_wall_network_testnetworkassembly_test_t_junction_dangle_extension",
-      "community": 199,
+      "community": 156,
       "norm_label": ".test_t_junction_dangle_extension()"
     },
     {
@@ -28071,7 +28071,7 @@
       "source_location": "L416",
       "_origin": "ast",
       "id": "tests_test_wall_network_testnetworkassembly_test_sparse_page_is_empty",
-      "community": 199,
+      "community": 156,
       "norm_label": ".test_sparse_page_is_empty()"
     },
     {
@@ -28081,7 +28081,7 @@
       "source_location": "L423",
       "_origin": "ast",
       "id": "tests_test_wall_network_testnetworkassembly_test_cross_corridor_pair_does_not_inflate_wall_run",
-      "community": 199,
+      "community": 34,
       "norm_label": ".test_cross_corridor_pair_does_not_inflate_wall_run()"
     },
     {
@@ -28603,16 +28603,6 @@
       "id": "tests_test_wall_network_testfarsidepairs_test_unhatched_corridor_between_walls_does_not_pair",
       "community": 199,
       "norm_label": ".test_unhatched_corridor_between_walls_does_not_pair()"
-    },
-    {
-      "label": ".test_counter_front_loses_lone_face_rights()",
-      "file_type": "code",
-      "source_file": "tests/test_wall_network.py",
-      "source_location": "L1059",
-      "_origin": "ast",
-      "id": "tests_test_wall_network_testfarsidepairs_test_counter_front_loses_lone_face_rights",
-      "community": 34,
-      "norm_label": ".test_counter_front_loses_lone_face_rights()"
     },
     {
       "label": "Wall-network builder tests (detection/walls.py).  Synthetic PathPrimitive fixtur",
@@ -30221,7 +30211,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tools_fetch_fixtures",
-      "community": 162,
+      "community": 107,
       "norm_label": "fetch_fixtures.py"
     },
     {
@@ -30261,7 +30251,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "tools_fetch_fixtures_main",
-      "community": 162,
+      "community": 107,
       "norm_label": "main()"
     },
     {
@@ -30271,7 +30261,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tools_fetch_fixtures_rationale_1",
-      "community": 162,
+      "community": 107,
       "norm_label": "verify the downloaded corpus against the committed manifest.  download is manual"
     },
     {
@@ -53309,7 +53299,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/walls.py",
-      "source_location": "L2824",
+      "source_location": "L2803",
       "weight": 1.0,
       "source": "detection_walls_detect_wall_network",
       "target": "detection_walls_white_wall_candidates",
@@ -53535,7 +53525,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/walls.py",
-      "source_location": "L2765",
+      "source_location": "L2744",
       "weight": 1.0,
       "source": "detection_walls_detect_wall_network",
       "target": "detection_walls_wallsegment",
@@ -53631,7 +53621,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/walls.py",
-      "source_location": "L2789",
+      "source_location": "L2768",
       "weight": 1.0,
       "source": "detection_walls_detect_wall_network",
       "target": "detection_walls_wallface",
@@ -54623,7 +54613,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/walls.py",
-      "source_location": "L2800",
+      "source_location": "L2779",
       "weight": 1.0,
       "source": "detection_walls_detect_wall_network",
       "target": "detection_walls_face_is_material_backed",
@@ -54941,7 +54931,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/walls.py",
-      "source_location": "L2758",
+      "source_location": "L2737",
       "weight": 1.0,
       "source": "detection_walls_detect_wall_network",
       "target": "detection_walls_collapse_redundant_centerlines",
@@ -54962,7 +54952,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "detection/walls.py",
-      "source_location": "L2761",
+      "source_location": "L2740",
       "weight": 1.0,
       "source": "detection_walls_detect_wall_network",
       "target": "detection_walls_snap_intersections",
@@ -55216,17 +55206,6 @@
       "source_location": "L1019",
       "weight": 1.0,
       "source": "tests_test_wall_network_testfarsidepairs_test_counter_front_does_not_pair_with_wall_face",
-      "target": "detection_walls_detect_wall_network"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "tests/test_wall_network.py",
-      "source_location": "L1065",
-      "weight": 1.0,
-      "source": "tests_test_wall_network_testfarsidepairs_test_counter_front_loses_lone_face_rights",
       "target": "detection_walls_detect_wall_network"
     },
     {
@@ -127266,17 +127245,6 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_wall_network.py",
-      "source_location": "L1064",
-      "weight": 1.0,
-      "source": "tests_test_wall_network_testfarsidepairs_test_counter_front_loses_lone_face_rights",
-      "target": "tests_test_wall_network_vline",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_wall_network.py",
       "source_location": "L695",
       "weight": 1.0,
       "source": "tests_test_wall_network_testlatticedemotion_test_four_parallel_faces_stay_walls",
@@ -127509,17 +127477,6 @@
       "source_location": "L1016",
       "weight": 1.0,
       "source": "tests_test_wall_network_testfarsidepairs_test_counter_front_does_not_pair_with_wall_face",
-      "target": "tests_test_wall_network_rect_room",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_wall_network.py",
-      "source_location": "L1064",
-      "weight": 1.0,
-      "source": "tests_test_wall_network_testfarsidepairs_test_counter_front_loses_lone_face_rights",
       "target": "tests_test_wall_network_rect_room",
       "confidence_score": 1.0
     },
@@ -128953,16 +128910,6 @@
       "weight": 1.0,
       "source": "tests_test_wall_network_testfarsidepairs",
       "target": "tests_test_wall_network_testfarsidepairs_test_counter_front_does_not_pair_with_wall_face",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_wall_network.py",
-      "source_location": "L1059",
-      "weight": 1.0,
-      "source": "tests_test_wall_network_testfarsidepairs",
-      "target": "tests_test_wall_network_testfarsidepairs_test_counter_front_loses_lone_face_rights",
       "confidence_score": 1.0
     },
     {
@@ -137758,5 +137705,5 @@
       "source_file": "floor-plans.pdf"
     }
   ],
-  "built_at_commit": "2507180da4d3a3bcbf4d4dc19b24580a9eb53b2f"
+  "built_at_commit": "0ece227fb650702dbf95a6cdc646ae230aacc526"
 }

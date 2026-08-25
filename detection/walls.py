@@ -183,6 +183,12 @@ WALL_WEAK_CLAIM_MARGIN_PX    = 2.0   # a weak pair is dropped when a KEPT, meani
                                      # inside that band. The margin also keeps duplicate
                                      # same-band pairs (shared faces, edges within 2px)
                                      # from claiming each other.
+WALL_FAR_SIDE_FILL_COVER_MAX = 0.10  # a strong pair sharing a face with a tighter
+                                     # kept pair on the far side of that face is a
+                                     # wall face paired across the room; it keeps
+                                     # its band only when >= this fraction of the
+                                     # band lies on wall-rated fill (or hatch backs
+                                     # it) — see _claims_far_side_pair
 WALL_WEAK_CLAIM_OVERLAP_FRAC = 0.5   # the inner pair must cover this fraction of the
                                      # weak pair's run — an inner stub elsewhere along a
                                      # long band says nothing about the material HERE
@@ -1345,6 +1351,73 @@ def _claims_interior_pair(c: _Seg, kept: list[_Seg]) -> bool:
         overlap = min(max(t1, t2), length) - max(min(t1, t2), 0.0)
         if overlap < WALL_WEAK_CLAIM_OVERLAP_FRAC * length:
             continue
+        return True
+    return False
+
+
+def _band_fill_cover(c: _Seg, fill_union) -> float:
+    """Fraction of c's band interior (inset 1px from each face) lying on
+    wall-rated fill area. 0.0 when the page has no wall fill."""
+    if fill_union is None or fill_union.is_empty:
+        return 0.0
+    half = c.thickness / 2.0 - 1.0
+    if half <= 0.0:
+        return 0.0
+    band = LineString([c.p1, c.p2]).buffer(half, cap_style=2)
+    if band.area <= 0.0:
+        return 0.0
+    return band.intersection(fill_union).area / band.area
+
+
+def _claims_far_side_pair(
+    c: _Seg, kept: list[_Seg], fill_union, marks: list,
+    *, gates: WallGates = WALL_GATES_UNSCALED,
+) -> bool:
+    """True when c is a wall face paired ACROSS FREE SPACE with parallel ink.
+
+    A wall's material lies on exactly one side of each of its faces. When a
+    kept, meaningfully tighter pair shares a face with c and its band lies on
+    the OTHER side of that face, the shared face is a wall face and c's band
+    is the room beside it — a kitchen counter front, a wardrobe front or a
+    corridor's far wall drawn in the wall pen at wall-like spacing (measured
+    on s03: the worktop outline 35.2px off the kitchen's inner wall faces,
+    just under WALL_MAX_THICKNESS_PX, fenced the counters out of the room).
+    c survives only when its own band carries drawn wall material — fill
+    area or hatch — since a cavity wall drawn leaf/cavity/leaf legitimately
+    pairs its leaf faces across the cavity, and an unhatched cavity is a
+    closed sliver the room stage erodes away regardless.
+    """
+    length = _line_length(c.p1, c.p2)
+    if length < 1e-6 or not c.indices:
+        return False
+    ux = (c.p2[0] - c.p1[0]) / length
+    uy = (c.p2[1] - c.p1[1]) / length
+    hc = c.thickness / 2.0
+    for d in kept:
+        if d is c or not (c.indices & d.indices):
+            continue
+        if d.thickness > c.thickness - 2.0 * WALL_WEAK_CLAIM_MARGIN_PX:
+            continue
+        if _angle_diff_mod180(
+            _line_angle_deg(c.p1, c.p2), _line_angle_deg(d.p1, d.p2)
+        ) > WALL_PARALLEL_ANGLE_TOL:
+            continue
+        mx = (d.p1[0] + d.p2[0]) / 2.0 - c.p1[0]
+        my = (d.p1[1] + d.p2[1]) / 2.0 - c.p1[1]
+        off = abs(mx * -uy + my * ux)
+        # d's band must sit beyond c's edge — centred past the shared face,
+        # not nested inside c (that is _claims_interior_pair's case).
+        if off < hc - 1.0:
+            continue
+        t1 = (d.p1[0] - c.p1[0]) * ux + (d.p1[1] - c.p1[1]) * uy
+        t2 = (d.p2[0] - c.p1[0]) * ux + (d.p2[1] - c.p1[1]) * uy
+        overlap = min(max(t1, t2), length) - max(min(t1, t2), 0.0)
+        if overlap < WALL_WEAK_CLAIM_OVERLAP_FRAC * length:
+            continue
+        if _band_fill_cover(c, fill_union) >= WALL_FAR_SIDE_FILL_COVER_MAX:
+            return False
+        if _band_has_wall_material(c, marks, gates=gates):
+            return False
         return True
     return False
 
@@ -2633,6 +2706,46 @@ def detect_wall_network(
             if not (c.weak or c.thick)
             or not _claims_interior_pair(c, material_kept)
         ]
+    # A strong pair can also be a wall face paired across the ROOM: the
+    # partner is furniture/joinery drawn in the wall pen (counter fronts,
+    # wardrobe fronts) or a facing wall across a narrow corridor, at
+    # wall-like spacing. The tighter kept pair on the far side of the shared
+    # face is the wall; a material-less band on this side is free space.
+    fill_union = unary_union([
+        r.poly for r in rings
+        if fill_is_wall.get(r.key, False) and not r.is_marker()
+    ]) if rings else None
+    # Filled bands count as kept pairs here: a fill ring's outline face
+    # pairing with a counter front across the room shares its index with
+    # the band drawn on the other side of it.
+    kept_for_side = centerlines + bands
+    far_side_dropped: set[int] = set()
+    kept_pairs: list[_Seg] = []
+    for c in centerlines:
+        if not (c.weak or c.thick) and _claims_far_side_pair(
+            c, kept_for_side, fill_union, marks, gates=gates
+        ):
+            far_side_dropped |= c.indices
+        else:
+            kept_pairs.append(c)
+    centerlines = kept_pairs
+    # The partner in a dropped far-side pair — parallel to a wall at
+    # wall-like spacing across free space, with nothing else pairing it —
+    # is the fixture front itself. Strip its lone-face rights (the rooms
+    # stage otherwise keeps it as a thin barrier on pen weight alone and
+    # the counter strip still fences off), exactly like a demoted pen.
+    if far_side_dropped:
+        still_paired: set[int] = set()
+        for c in centerlines + bands:
+            still_paired |= c.indices
+        for f in merged_faces:
+            if (
+                f.stroked and not f.wall_fill and not f.layer_hint
+                and f.indices & far_side_dropped
+                and not f.indices & still_paired
+            ):
+                f.stroked = False
+                f.stroke_width = 0.0
     weak_paired: set[int] = set()
     for c in centerlines:
         if c.weak:

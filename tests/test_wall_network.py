@@ -1000,3 +1000,71 @@ class TestPenGates(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestFarSidePairs(unittest.TestCase):
+    """A wall face paired ACROSS the room with parallel wall-pen ink — a
+    kitchen counter front, a wardrobe front — at just under the thickness
+    cap (measured on s03: worktop outline 35.2px off the inner faces). The
+    tighter kept pair on the far side of the shared face is the wall; the
+    material-less band on this side is free space."""
+
+    def _thicknesses(self, network):
+        return sorted(round(s.thickness_px, 1) for s in network.segments)
+
+    def test_counter_front_does_not_pair_with_wall_face(self):
+        paths = rect_room(0, 100, 100, 500, 400)
+        # Counter front 34px inside the left wall's inner face (x=108).
+        paths.append(vline(50, 142, 150, 350))
+        network = detect_wall_network(paths)
+        self.assertNotIn(34.0, self._thicknesses(network))
+        self.assertIn(8.0, self._thicknesses(network))
+
+    def test_counter_front_beside_filled_band_does_not_pair(self):
+        # Wall drawn as a filled rectangle with stroked outline faces (the
+        # Vectorworks signature) — the band on the far side of the shared
+        # face is a filled band, not a face pair.
+        wall = [
+            path(0, [(100, 100), (100, 400), (108, 400), (108, 100)],
+                 item_type="re", fill=(0.6, 0.6, 0.6)),
+            vline(1, 100, 100, 400), vline(2, 108, 100, 400),
+        ]
+        paths = wall + [vline(3, 142, 150, 350)]
+        network = detect_wall_network(paths)
+        self.assertNotIn(34.0, self._thicknesses(network))
+
+    def test_hatched_cavity_keeps_its_pair(self):
+        # Leaf / hatched cavity / leaf: the cavity pair shares a face with
+        # each tighter leaf pair but carries drawn material, so it stays.
+        paths = wall_band_h(0, 100, 400, 100) + wall_band_h(2, 100, 400, 130)
+        idx = 10
+        for x in range(104, 392, 10):
+            paths.append(path(idx, [(x, 129), (x + 10, 109)], stroke_width=0.6))
+            idx += 1
+        network = detect_wall_network(paths)
+        # The redundancy collapse may fold the 22px cavity pair into the
+        # 30px leaf-outer/leaf-inner pair; either way the cavity stays wall.
+        self.assertGreaterEqual(max(self._thicknesses(network)), 22.0)
+
+    def test_unhatched_corridor_between_walls_does_not_pair(self):
+        # Two 8px walls 30px apart: the inner faces pair across the corridor
+        # at 30px, sharing a face with each real wall — dropped, the walls
+        # themselves stay.
+        paths = wall_band_h(0, 100, 400, 100) + wall_band_h(2, 100, 400, 138)
+        network = detect_wall_network(paths)
+        ths = self._thicknesses(network)
+        self.assertNotIn(30.0, ths)
+        self.assertEqual(ths.count(8.0), 2)
+
+    def test_counter_front_loses_lone_face_rights(self):
+        # The partner of a dropped far-side pair, paired with nothing else,
+        # is the fixture front: it must not keep the pen-weight lone-barrier
+        # rights the rooms stage grants stroked faces, or the counter strip
+        # still fences off.
+        paths = rect_room(0, 100, 100, 500, 400) + [vline(50, 142, 150, 350)]
+        network = detect_wall_network(paths)
+        counter = [f for f in network.faces if 50 in f.indices]
+        self.assertEqual(len(counter), 1)
+        self.assertFalse(counter[0].stroked)
+        wall = [f for f in network.faces if 4 in f.indices]
+        self.assertTrue(wall and all(f.stroked for f in wall))
