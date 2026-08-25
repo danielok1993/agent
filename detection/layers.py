@@ -5,11 +5,29 @@ from models import PathPrimitive
 
 _LAYER_TOKEN_RE = re.compile(r"[\W_]+")
 
+# A token this long or longer that ends in "s" also contributes its singular
+# stem. CAD layer conventions pluralise the class name — NBS/Uniclass
+# "A325G_INT_DOORS", "RR_Walls", "RR_New Doors and Windows", freehand
+# "WINDOWS"/"Windows"/"EXISTING_WINDOWS" — while the keyword lists are
+# singular, and an exact-token match never fired on any of them (measured
+# 2026-08-25: s03/s17 doors + windows, s06/s13 windows, s04/s08 walls —
+# every door/window/wall layer on the six layered corpus sheets is plural;
+# the only singular hits are "RR_Wall Hatches" and "Wall Insulation", which
+# are NOT wall faces). Stemming keeps exact-token matching (no substring
+# match, "doorstops" still misses), and the length floor keeps "as"/"is"
+# style tokens from contributing a one-letter stem.
+_LAYER_PLURAL_MIN_LEN = 4
+
 
 def _layer_tokens(layer: str | None) -> set[str]:
     if not layer:
         return set()
-    return set(_LAYER_TOKEN_RE.split(layer.lower()))
+    tokens = set(_LAYER_TOKEN_RE.split(layer.lower()))
+    tokens |= {
+        t[:-1] for t in tokens
+        if len(t) >= _LAYER_PLURAL_MIN_LEN and t.endswith("s")
+    }
+    return tokens
 
 
 def _layer_hint(path: PathPrimitive, keywords: list[str]) -> bool:

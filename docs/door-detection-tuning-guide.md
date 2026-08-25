@@ -326,7 +326,7 @@ All in `heuristics.py`. Grouped by stage. Defaults are the *current* values afte
 |---|---|---|
 | `DOOR_LABEL_PATTERN` | `(?i)^[A-Z]?[FD]-?\d{1,3}[A-Z]?$` | Matches `D01`, `GD6`, `F-12A`, etc. **Project-specific schedule naming convention.** If a project uses `DR-001`, regex must be widened. |
 | `DOOR_LABEL_SEARCH_RADIUS_PX` | 100.0 | Search radius around the assembly bbox. Larger = more spurious label matches. |
-| `DOOR_LAYER_KEYWORDS` | `["door", "a-door"]` | Substring match in layer name. CAD layers are often empty in the test PDFs, so layer_hint rarely fires. |
+| `DOOR_LAYER_KEYWORDS` | `["door", "a-door"]` | Exact-token match in the layer name (`detection/layers.py::_layer_tokens`), singular OR plural — a token of ≥ 4 chars ending in `s` also contributes its stem, because CAD conventions pluralise the class name (s03/s17 `A325G_INT_DOORS`, s04 `RR_New Doors and Windows`; every door/window/wall layer on the six layered corpus sheets is plural, and the singular-only match never fired on any of them until 2026-08-25). Still no substring match: `doorstops` misses. 14 of the 20 corpus sheets have no OCG layers at all, so the hint is a no-op there. |
 
 ### 4.9 Confidence boosts and floor
 
@@ -337,7 +337,7 @@ These hardcoded in `_pair_door_assemblies` (heuristics.py:1833+, 1730+):
 | Single (qu/re leaf) base | 0.65 | The strongest leaf evidence — a closed rectangle. |
 | `single_line_leaf` base | 0.60 (`DOOR_ASSEMBLY_LINE_LEAF_BASE`) | Weaker leaf evidence — one anchored line. |
 | Label boost | +0.20 | When a `DOOR_LABEL_PATTERN`-matching text span is within `DOOR_LABEL_SEARCH_RADIUS_PX`. |
-| Layer hint boost | +0.40 | When layer name contains a `DOOR_LAYER_KEYWORDS` token. Almost never fires on the test PDFs (empty layers). |
+| Layer hint boost | +0.40 | When the layer name carries a `DOOR_LAYER_KEYWORDS` token (singular or plural). Fires on s03/s17 (`A325G_INT_DOORS`); measured effect of enabling plurals: s17 doors 0033/0030/0001 — real swings crossed by orange `_to be removed` linework — rose 0.53 → 0.83 and were emitted; no other corpus entity changed. |
 | `DOOR_THRESHOLD_CONFIDENCE_BOOST` | 0.10 | When an entrance threshold line is detected across the opening. |
 | `DOOR_V2_OPENING_CLEAR_BOOST` | 0.07 | When the bridge between the arc's two endpoints is unobstructed. |
 | `DOOR_V2_OPENING_OBSTRUCTED_PENALTY` | 0.12 | When another line comes within `DOOR_V2_BRIDGE_BUFFER_PX` (3px) of the bridge somewhere in its INTERIOR (5–95% of its length). WHERE along the bridge a line comes close is the discriminator, never where the line's midpoint projects: the jamb wall the arc lands on touches the bridge at its end and runs away (closest approach −0.02..0.04 of the bridge on s02/s03's real doors), while a sill/glazing line drawn through the swing cuts the interior (s02's real interior crossers at 0.20–0.32; the bath-fixture `single_line_leaf` FP door_0012 at 0.17–0.83). The pre-2026-08-25 midpoint projection flagged s03 door_0006's 146px jamb wall (diagonal chord × long wall put its midpoint at 0.82) and dropped the door to 0.53, under the floor; it also passed a long line crossing the opening as clear when its midpoint projected off the bridge's end. `_line_nears_bridge_interior` solves the buffer slab analytically. |

@@ -228,7 +228,10 @@ Neither alone is sufficient; together they give 4/4 windows, 0 false positives.
 | `CROSS_DOOR_FALLBACK_EXPAND_PX` | 8.0 | Veto reach of a fallback-tier door. Measured on 5-1133: the joinery FPs a fallback veto rightly kills — (1072,740) slats, (999,890) recess column — overlap its ink at ≤6 px dilation; W8 stays clear up to ~17 px. 8 px sits between with margin both ways. |
 
 Confidence: base `0.62`, `+0.05` per glazing pane beyond 2, `+layer_prior` (or
-`+0.10` weak layer hint), capped `0.90`. `_cross_validate` subtracts the no-wall
+`+0.10` weak layer hint), capped `0.90`. Layer keywords match exact tokens,
+singular or plural (`WINDOWS`, `EXISTING_WINDOWS` on s03/s06/s13/s17 — see
+`detection/layers.py`); at the 0.90 cap the plural fix changed no window verdict
+on the corpus. `_cross_validate` subtracts the no-wall
 penalty when walls are enabled.
 
 ## 5. Reference data — current detection state (regression target)
