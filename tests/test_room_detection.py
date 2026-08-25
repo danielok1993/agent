@@ -1209,5 +1209,48 @@ class TestStairFurniture(unittest.TestCase):
         self.assertAlmostEqual(left.bbox[2], 498.0, delta=2.0)
 
 
+def triangulated_fill_band_v(start_idx, x0, y0, x1, y1, fill=(0.5, 0.5, 0.5)):
+    """A filled wall band exported as two triangles (CAD fill triangulation).
+
+    Each triangle is its own chained ring, so the shared diagonal arrives
+    twice — once per triangle — as an invisible (w0, filled) `l` item.
+    """
+    tri_a = [(x1, y0), (x0, y0), (x1, y1), (x1, y0)]
+    tri_b = [(x0, y0), (x1, y1), (x0, y1), (x0, y0)]
+    out = []
+    idx = start_idx
+    for tri in (tri_a, tri_b):
+        for a, b in zip(tri, tri[1:]):
+            out.append(path(idx, [a, b], stroke_width=0.0, fill=fill))
+            idx += 1
+    return out
+
+
+class TestFillSeams(unittest.TestCase):
+    def _right_edge_xs(self, room):
+        poly = room.evidence["polygon"]
+        top = [x for x, y in poly if y < 130 and x > 400]
+        bottom = [x for x, y in poly if y > 370 and x > 400]
+        return max(top), max(bottom)
+
+    def test_triangulated_fill_band_keeps_room_edge_straight(self):
+        # s03 bedroom: the right wall band is a grey fill exported as two
+        # triangles; the diagonal seam (18px over 300px, ~3.4 deg) lies
+        # within WALL_PARALLEL_ANGLE_TOL of the band's own face and paired
+        # with it into a slanted centerline whose solid cut the room 17px
+        # short at one end (measured on s03 room_0000: 818 vs 835).
+        paths = (
+            wall_band_h(0, 100, 610, 100)
+            + wall_band_h(2, 100, 610, 392)
+            + wall_band_v(4, 100, 100, 400)
+            + triangulated_fill_band_v(6, 592, 100, 610, 400)
+        )
+        rooms = rooms_for(paths)
+        self.assertEqual(len(rooms), 1)
+        top_x, bottom_x = self._right_edge_xs(rooms[0])
+        self.assertAlmostEqual(top_x, bottom_x, delta=1.5)
+        self.assertAlmostEqual(rooms[0].bbox[2], 590.0, delta=2.0)
+
+
 if __name__ == "__main__":
     unittest.main()

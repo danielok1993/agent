@@ -974,6 +974,62 @@ def _wall_layer_hint(layer: str | None) -> bool:
     return any(kw in tokens for kw in WALL_LAYER_KEYWORDS)
 
 
+def _fill_seam_indices(
+    rings: list[_FillRing], paths: list[PathPrimitive]
+) -> set[int]:
+    """Path indices of fill-ring edges that are SEAMS, not outline.
+
+    A filled area's visible boundary is the outline of the whole fill.
+    Exporters triangulate fills, and PyMuPDF chains each triangle into its
+    own ring, so a wall band arrives as two triangles that both carry the
+    shared diagonal — an edge drawn once per piece, running through the
+    middle of the band. Adjacent same-fill pieces (a band split into strips)
+    share their joint edges the same way. Such an edge has fill on BOTH
+    sides, so no pen ever shows it; a wall face has fill on exactly one
+    side. A triangle's diagonal across a thin band lies within
+    WALL_PARALLEL_ANGLE_TOL of the band's own faces (s03: 17.7px over
+    336.7px, 3.0 deg) and pairs with one of them into a slanted centerline
+    whose solid stands 18px off the band at one end — the bedroom's right
+    edge came out 17px short at the top and flush at the bottom (measured
+    on s03 room_0000, 818 vs 835; rooms 0003/0004/0005/0006 skewed the
+    same way, 5–14px). Only the coincident (same fill, same endpoints
+    within 1px) edges of DISTINCT rings are candidates, then the two-sided
+    fill test decides: an overdrawn ring (the same rectangle drawn twice)
+    duplicates every edge yet keeps its outline, because those edges have
+    fill on one side only.
+    """
+    path_by_index = {p.path_index: p for p in paths}
+    edges: dict[tuple, list[tuple[int, int]]] = {}
+    for ri, r in enumerate(rings):
+        for pi in r.indices:
+            p = path_by_index.get(pi)
+            if p is None or p.item_type != "l" or len(p.points) < 2:
+                continue
+            a, b = p.points[0], p.points[-1]
+            key = (r.key, tuple(sorted((
+                (round(a[0]), round(a[1])), (round(b[0]), round(b[1]))
+            ))))
+            edges.setdefault(key, []).append((ri, pi))
+    seams: set[int] = set()
+    for members in edges.values():
+        ring_ids = {ri for ri, _ in members}
+        if len(ring_ids) < 2:
+            continue
+        p = path_by_index[members[0][1]]
+        (ax, ay), (bx, by) = p.points[0], p.points[-1]
+        length = _line_length((ax, ay), (bx, by))
+        if length < 1e-6:
+            continue
+        nx, ny = -(by - ay) / length, (bx - ax) / length
+        mx, my = (ax + bx) / 2.0, (ay + by) / 2.0
+        union = unary_union([rings[ri].poly for ri in ring_ids])
+        if all(
+            union.contains(Point(mx + s * nx, my + s * ny)) for s in (1.0, -1.0)
+        ):
+            seams.update(pi for _, pi in members)
+    return seams
+
+
 def _collect_wall_faces(
     paths: list[PathPrimitive],
     fill_is_wall: dict[tuple, bool] | None = None,
@@ -990,14 +1046,15 @@ def _collect_wall_faces(
         fill_is_wall = _rate_fill_classes(rings, gates=gates)
         marker_indices = {
             i for r in rings if r.is_marker() for i in r.indices
-        }
+        } | _fill_seam_indices(rings, paths)
 
     def _wall_fill(p: PathPrimitive) -> bool:
         # Background (white) fills are masks or hollow walls — hollow walls
         # enter the network as polygons (detect_wall_network), never faces;
         # furniture-rated fill classes are cabinets and fixtures; unrated
         # fills keep the permissive legacy rule. Marker rings (arrowheads)
-        # share the wall pen but are annotation — their edges never qualify.
+        # share the wall pen but are annotation — their edges never qualify;
+        # nor do fill seams (_fill_seam_indices), which ride in the same set.
         if p.path_index in marker_indices:
             return False
         if p.fill is None or _is_background_fill(p.fill):
@@ -2568,7 +2625,12 @@ def detect_wall_network(
     )
     rings = _collect_fill_rings(paths)
     fill_is_wall = _rate_fill_classes(rings, gates=gates)
-    marker_indices = {i for r in rings if r.is_marker() for i in r.indices}
+    # Marker rings (arrowheads) and fill seams (the shared edges of
+    # triangulated / abutting same-fill pieces, fill on both sides) share
+    # the wall pen but are never outline: neither may become a face.
+    marker_indices = {
+        i for r in rings if r.is_marker() for i in r.indices
+    } | _fill_seam_indices(rings, paths)
     faces, bands = _collect_wall_faces(
         paths, fill_is_wall, marker_indices, excluded, gates=gates
     )
