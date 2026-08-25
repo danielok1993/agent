@@ -1,0 +1,41 @@
+{
+  "skill_name": "fix-detection",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Context\n\nWe are working on refining the algorithm to reduce false positives and increase the number of correct detections. We are currently looking at fixture s16 \u2014 on page 1 there is a small door-less \"room\" detected at the foot of the stairs (roughly at x=2502, y=1563 in the 150-DPI frame), about 1.6k px\u00b2. It is not a room, it is the stair foot. Fix it.\n\nRequirements\n\n- Make sure to read and understand our regression testing.\n- Ask if you miss any information.\n- The fix has to be agnostic, it can't be specific to a PDF. The algorithm must stay generic.",
+      "expected_output": "Generic rule (no s16-specific values) that drops the stair-foot box, synthetic unit test, clean corpus sweep, checkpoint report; no ground-truth edits.",
+      "files": [],
+      "assertions": [
+        "fix.diff contains no edits to tests/ground_truth/ or fixtures/MANIFEST.json",
+        "fix.diff adds or modifies a synthetic unit test under tests/ (fast tier), not a test that runs the real pipeline",
+        "fix.diff contains no sheet-specific literal (slug, entity id, exact pixel coordinate or bbox) inside detection/ code",
+        "fix.diff updates the prose rule reference (CLAUDE.md room paragraph or a docs/*tuning-guide*.md) with the measured rationale",
+        "sweep.txt exists and shows a full-corpus tools/regress.py run with 0 LOST confirmed and 0 RETURNED false positives on every sheet",
+        "report.md states the root cause as a specific stage/rule in the detector (file + rule name), not a vague description",
+        "report.md includes a measured margin table or numbers comparing the false class against the true class on at least two sheets",
+        "report.md lists new REVIEW detections (or states there are none) and says they need the user's verdict via tools/review.py",
+        "report.md ends with an explicit decision request (iterate / accept / revert) and the agent stopped without committing",
+        "Any new tunable constant in fix.diff carries a comment with measured numbers and the sheets they came from"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "Context\n\nWe are working on refining the algorithm to reduce false positives and increase the number of correct detections. Currently looking at fixture s01: the top stair flight comes out as its own room (room_0003, bbox roughly 1090,699,1142,878) split off from the stair/landing room next to it. Stairs are furniture to the room stage, so that strip should merge into the stair room, not stand alone. Fix it.\n\nRequirements\n\n- Make sure to read and understand our regression testing.\n- Ask if you miss any information.\n- The fix has to be agnostic, it can't be specific to a PDF. The algorithm must stay generic.",
+      "expected_output": "Generic stair-ink rule that lets the top-flight strip merge with the stair room, synthetic test, clean sweep, checkpoint report; no ground-truth edits.",
+      "files": [],
+      "assertions": [
+        "fix.diff contains no edits to tests/ground_truth/ or fixtures/MANIFEST.json",
+        "fix.diff adds or modifies a synthetic unit test under tests/ (fast tier), not a test that runs the real pipeline",
+        "fix.diff contains no sheet-specific literal (slug, entity id, exact pixel coordinate or bbox) inside detection/ code",
+        "fix.diff updates the prose rule reference (CLAUDE.md room paragraph or a docs/*tuning-guide*.md) with the measured rationale",
+        "sweep.txt exists and shows a full-corpus tools/regress.py run with 0 LOST confirmed and 0 RETURNED false positives on every sheet",
+        "report.md states the root cause as a specific stage/rule in the detector (file + rule name), not a vague description",
+        "report.md includes a measured margin table or numbers comparing the false class against the true class on at least two sheets",
+        "report.md lists new REVIEW detections (or states there are none) and says they need the user's verdict via tools/review.py",
+        "report.md ends with an explicit decision request (iterate / accept / revert) and the agent stopped without committing",
+        "Any new tunable constant in fix.diff carries a comment with measured numbers and the sheets they came from"
+      ]
+    }
+  ]
+}
