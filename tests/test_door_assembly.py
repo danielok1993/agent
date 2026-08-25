@@ -847,6 +847,24 @@ class DoorV2OpeningCheckTests(unittest.TestCase):
         result = _check_opening_clear([(0.0, 0.0), (80.0, 0.0)], [stub], set())
         self.assertEqual("clear", result)
 
+    def test_opening_check_jamb_wall_running_away_from_bridge_end_is_clear(self):
+        # s03 door_0006 topology: quarter-arc chord runs diagonally up-left
+        # from the closed-leaf tip; the wall face the arc lands on touches
+        # that end (1.8px off) and runs 146px straight up. Its MIDPOINT
+        # projects to ~0.8 of the bridge, but its closest approach is at the
+        # bridge end -- it is the jamb, never a sill.
+        bridge = [(0.0, 0.0), (-45.0, -45.0)]
+        jamb = line(99, (1.8, 0.3), (1.8, -146.0))
+        self.assertEqual("clear", _check_opening_clear(bridge, [jamb], set()))
+
+    def test_opening_check_long_line_crossing_interior_is_obstructed(self):
+        # A line crossing the bridge at t=0.3 but extending 200px past it:
+        # its midpoint projects outside the bridge span, yet it cuts the
+        # opening -- what a sill/glazing line drawn through the swing does.
+        bridge = [(0.0, 0.0), (-45.0, -45.0)]
+        sill = line(99, (-13.5, -13.5), (200.0, -13.5))
+        self.assertEqual("obstructed", _check_opening_clear(bridge, [sill], set()))
+
     def test_opening_check_excluded_indices_ignored(self):
         # Sill line at path_index=99 would obstruct, but it's in exclude_indices
         sill = line(99, (10.0, 0.0), (70.0, 0.0))

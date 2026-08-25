@@ -31,8 +31,20 @@ def _check_opening_clear(
 
     Implements the Wall Break Condition from v2 spec: creates a bridge line between
     the two arc attachment points and checks whether any non-assembly line segment
-    both (a) comes within buffer_px of the bridge AND (b) has its midpoint projected
-    within the interior span (5%–95%) of the bridge length.
+    comes within buffer_px of the bridge SOMEWHERE IN ITS INTERIOR span (5%–95%
+    of the bridge length).
+
+    Where along the bridge a line comes close is the discriminator, not where
+    the line's midpoint falls: the jamb wall the arc lands on touches the
+    bridge only at its END and runs away from it (measured: closest approach
+    at -0.02..0.04 of the bridge on s02/s03), while a sill/glazing line drawn
+    through the swing cuts the bridge's interior (s02's real interior crossers
+    sit at 0.20-0.32, the bath-fixture single_line_leaf FP at 0.17-0.83). The
+    old midpoint projection flagged s03 door_0006's 146px jamb wall -- a
+    diagonal chord and a long wall put the wall's midpoint at 0.82 of the
+    bridge -- and dropped a real door under the offline floor; it also let a
+    long line crossing the opening pass as clear when its midpoint projected
+    off the end of the bridge.
 
     Returns 'clear' (empty opening → door), 'obstructed' (sill/glass lines present →
     likely casement window), or 'unknown' (insufficient endpoint data).
@@ -55,11 +67,52 @@ def _check_opening_clear(
             continue
         if _segments_min_distance(a, b, p1, p2) > buffer_px:
             continue
-        mid = ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
-        t = (mid[0] - a[0]) * ux + (mid[1] - a[1]) * uy
-        if interior_lo <= t <= interior_hi:
+        if _line_nears_bridge_interior(a, ux, uy, p1, p2, interior_lo, interior_hi, buffer_px):
             return "obstructed"
     return "clear"
+
+
+def _line_nears_bridge_interior(
+    a: tuple[float, float],
+    ux: float,
+    uy: float,
+    p1: tuple[float, float],
+    p2: tuple[float, float],
+    interior_lo: float,
+    interior_hi: float,
+    buffer_px: float,
+) -> bool:
+    """True when some point of segment p1-p2 lies within buffer_px of the bridge
+    line AND projects onto the bridge at a parameter in [interior_lo, interior_hi].
+
+    Both the perpendicular offset and the along-bridge parameter are linear in
+    the segment parameter u, so the set of u within the buffer slab is one
+    interval and its projected t-range is the range at that interval's ends.
+    """
+    def perp(p: tuple[float, float]) -> float:
+        return (p[0] - a[0]) * uy - (p[1] - a[1]) * ux
+
+    def along(p: tuple[float, float]) -> float:
+        return (p[0] - a[0]) * ux + (p[1] - a[1]) * uy
+
+    d1, d2 = perp(p1), perp(p2)
+    # Interval of u in [0, 1] with |d1 + (d2 - d1) u| <= buffer_px.
+    if abs(d2 - d1) < 1e-9:
+        if abs(d1) > buffer_px:
+            return False
+        u_lo, u_hi = 0.0, 1.0
+    else:
+        ua = (-buffer_px - d1) / (d2 - d1)
+        ub = (buffer_px - d1) / (d2 - d1)
+        u_lo, u_hi = max(0.0, min(ua, ub)), min(1.0, max(ua, ub))
+        if u_lo > u_hi:
+            return False
+    t1, t2 = along(p1), along(p2)
+    t_lo = t1 + (t2 - t1) * u_lo
+    t_hi = t1 + (t2 - t1) * u_hi
+    if t_lo > t_hi:
+        t_lo, t_hi = t_hi, t_lo
+    return t_lo <= interior_hi and t_hi >= interior_lo
 
 
 

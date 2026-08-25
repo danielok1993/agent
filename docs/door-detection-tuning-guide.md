@@ -340,7 +340,7 @@ These hardcoded in `_pair_door_assemblies` (heuristics.py:1833+, 1730+):
 | Layer hint boost | +0.40 | When layer name contains a `DOOR_LAYER_KEYWORDS` token. Almost never fires on the test PDFs (empty layers). |
 | `DOOR_THRESHOLD_CONFIDENCE_BOOST` | 0.10 | When an entrance threshold line is detected across the opening. |
 | `DOOR_V2_OPENING_CLEAR_BOOST` | 0.07 | When the bridge between the arc's two endpoints is unobstructed. |
-| `DOOR_V2_OPENING_OBSTRUCTED_PENALTY` | 0.12 | When the bridge crosses another line (likely not a real opening). |
+| `DOOR_V2_OPENING_OBSTRUCTED_PENALTY` | 0.12 | When another line comes within `DOOR_V2_BRIDGE_BUFFER_PX` (3px) of the bridge somewhere in its INTERIOR (5–95% of its length). WHERE along the bridge a line comes close is the discriminator, never where the line's midpoint projects: the jamb wall the arc lands on touches the bridge at its end and runs away (closest approach −0.02..0.04 of the bridge on s02/s03's real doors), while a sill/glazing line drawn through the swing cuts the interior (s02's real interior crossers at 0.20–0.32; the bath-fixture `single_line_leaf` FP door_0012 at 0.17–0.83). The pre-2026-08-25 midpoint projection flagged s03 door_0006's 146px jamb wall (diagonal chord × long wall put its midpoint at 0.82) and dropped the door to 0.53, under the floor; it also passed a long line crossing the opening as clear when its midpoint projected off the bridge's end. `_line_nears_bridge_interior` solves the buffer slab analytically. |
 | `DOOR_ARC_FALLBACK_MAX` | 0.45 | Cap for arc-only fallback so it stays below the 0.55 offline floor. |
 | `DOOR_FALLBACK_CONFIDENCE` | 0.35 | Base for leaf-fallback (leaf without paired arc). Also below the floor. |
 | Confidence cap | 0.95 | Hardcoded ceiling. |
