@@ -440,6 +440,32 @@ class TestNetworkAssembly(unittest.TestCase):
         for s in runs:
             self.assertLessEqual(s.thickness_px, 12.0)
 
+    def test_local_pier_does_not_inflate_collinear_wall_run(self):
+        # A jamb-scale pier (nib) drawn as a small box on the room side of
+        # the right wall: its room-side face pairs with the wall's OUTER face
+        # into a short, thicker centerline offset < COLLINEAR_OFFSET_TOL from
+        # the band's own centerline. The collinear merge must not fuse the
+        # two and carry the pier's thickness over the whole run (s03 kitchen:
+        # a 16.5px nib pair stamped th 13.8 onto a 6px band over 272px and
+        # held the room outline 6px off the wall; same signature on s02
+        # (877,314) and s01 (818,907)).
+        paths = rect_room(0, 100, 100, 400, 300, thickness=6.0)
+        paths += [
+            vline(8, 387.0, 190.0, 206.0),
+            hline(9, 387.0, 394.0, 190.0),
+            hline(10, 387.0, 394.0, 206.0),
+        ]
+        network = detect_wall_network(paths)
+        runs = [
+            s for s in network.segments
+            if abs(s.p1[0] - s.p2[0]) < 1.0
+            and 395.0 <= (s.p1[0] + s.p2[0]) / 2.0 <= 399.0
+            and abs(s.p2[1] - s.p1[1]) >= 150.0
+        ]
+        self.assertTrue(runs, "right wall run missing from the network")
+        for s in runs:
+            self.assertLessEqual(s.thickness_px, 8.0)
+
 
 class TestNetworkQueries(unittest.TestCase):
     def make_network(self):

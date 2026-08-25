@@ -100,8 +100,8 @@
     "semantic_hash": ""
   },
   "detection/walls.py": {
-    "mtime": 1787658741.4791589,
-    "ast_hash": "858468f7dd27169ac89da5713aeb560a",
+    "mtime": 1787693082.6802583,
+    "ast_hash": "e3c3c85c80194cc72cd8fb16ba184728",
     "semantic_hash": ""
   },
   "detection/windows.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1787657997.7170303,
-    "ast_hash": "6c5322ae0d4f56c615f0b9919c0c2dc8",
+    "mtime": 1787693082.679782,
+    "ast_hash": "7987154b2b285bd4f4be7ae5c86e72c0",
     "semantic_hash": ""
   },
   "README.md": {
@@ -260,12 +260,12 @@
     "semantic_hash": ""
   },
   "tests/test_room_detection.py": {
-    "mtime": 1787066460.8946366,
-    "ast_hash": "09d238d6ade84225a3b3934d15ba3df6",
+    "mtime": 1787693082.6805277,
+    "ast_hash": "75a25380f340b4f5bf56a9832042ed5a",
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
-    "mtime": 1787658799.4619308,
+    "mtime": 1787659596.7542927,
     "ast_hash": "380bf75139b300341863194fe9595f7d",
     "semantic_hash": ""
   },
@@ -440,7 +440,7 @@
     "semantic_hash": ""
   },
   "fixtures/MANIFEST.json": {
-    "mtime": 1787066425.9428473,
+    "mtime": 1787692942.4039018,
     "ast_hash": "484b355717add2612768232df1a42192",
     "semantic_hash": ""
   },
@@ -500,8 +500,8 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s01.json": {
-    "mtime": 1787657941.1159384,
-    "ast_hash": "0068f373c533ee4c287718cc175ad404",
+    "mtime": 1787659596.7536552,
+    "ast_hash": "84f92e3bfd35364bcde806c95eb06068",
     "semantic_hash": ""
   },
   "tests/test_add_sheet.py": {
@@ -665,8 +665,8 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s03.json": {
-    "mtime": 1787658789.7144406,
-    "ast_hash": "8fb6f1f80d7da4a5bca9866245af5595",
+    "mtime": 1787659596.753803,
+    "ast_hash": "98eab7c03c36e686e9a8bc3daeb35d9a",
     "semantic_hash": ""
   },
   "tests/ground_truth/s04.json": {
@@ -705,8 +705,8 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s12.json": {
-    "mtime": 1787049394.1348367,
-    "ast_hash": "fd74d95aa5da15fd86d6de15788f429a",
+    "mtime": 1787692942.4054074,
+    "ast_hash": "21ee6f7c99b76f193da6a1c1010cb170",
     "semantic_hash": ""
   },
   "tests/ground_truth/s13.json": {
@@ -725,8 +725,8 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s16.json": {
-    "mtime": 1787066460.8941321,
-    "ast_hash": "b77441302c4cc7cd1ebcc4b2ead8722a",
+    "mtime": 1787659596.7539496,
+    "ast_hash": "6bc07130c261ea125d183c960f6226ea",
     "semantic_hash": ""
   },
   "tests/ground_truth/s17.json": {
@@ -1077,6 +1077,26 @@
   "tests/test_render_svg.py": {
     "mtime": 1787245062.1513183,
     "ast_hash": "7d103e4548f37b6c5d66251a5f8c2eae",
+    "semantic_hash": ""
+  },
+  ".claude/skills/fix-detection/evals/evals.json": {
+    "mtime": 1787673780.1337533,
+    "ast_hash": "64520ed2be7dd58adee7883609c51b34",
+    "semantic_hash": ""
+  },
+  ".claude/skills/fix-detection/SKILL.md": {
+    "mtime": 1787673780.1335719,
+    "ast_hash": "33a83d19e96fe75f908899df4e01d177",
+    "semantic_hash": ""
+  },
+  ".claude/skills/fix-detection/references/file-map.md": {
+    "mtime": 1787673780.1339233,
+    "ast_hash": "e2aac043160be25c6cb7cbaf56a5a7ab",
+    "semantic_hash": ""
+  },
+  ".claude/skills/fix-detection/references/report-template.md": {
+    "mtime": 1787673780.1340432,
+    "ast_hash": "b8d103154f9ce6fdd3f4ce751feaaf8c",
     "semantic_hash": ""
   }
 }

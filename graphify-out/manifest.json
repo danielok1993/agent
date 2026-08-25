@@ -100,8 +100,8 @@
     "semantic_hash": ""
   },
   "detection/walls.py": {
-    "mtime": 1787693082.6802583,
-    "ast_hash": "e3c3c85c80194cc72cd8fb16ba184728",
+    "mtime": 1787694468.5879958,
+    "ast_hash": "83c1d07833ffcb458890606d37a04ddc",
     "semantic_hash": ""
   },
   "detection/windows.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1787693082.679782,
-    "ast_hash": "7987154b2b285bd4f4be7ae5c86e72c0",
+    "mtime": 1787695573.8090239,
+    "ast_hash": "fd901afc2bbcf2effc35569c8895aa0f",
     "semantic_hash": ""
   },
   "README.md": {
@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "detection/rooms.py": {
-    "mtime": 1787051718.3920822,
-    "ast_hash": "d276f3222c15e1b956c23140f0ce382e",
+    "mtime": 1787695528.7609386,
+    "ast_hash": "8ebb2ed85664315f083d2c64554293f2",
     "semantic_hash": ""
   },
   "tests/test_cross_validate.py": {
@@ -260,13 +260,13 @@
     "semantic_hash": ""
   },
   "tests/test_room_detection.py": {
-    "mtime": 1787693082.6805277,
-    "ast_hash": "75a25380f340b4f5bf56a9832042ed5a",
+    "mtime": 1787695528.4993515,
+    "ast_hash": "91ac53ea5b5555656ed127ed4557801d",
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
-    "mtime": 1787659596.7542927,
-    "ast_hash": "380bf75139b300341863194fe9595f7d",
+    "mtime": 1787694254.3865798,
+    "ast_hash": "ea34f5dc7339fcb15e3e20ddffbfa120",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-07-03-batch-extraction-design.md": {

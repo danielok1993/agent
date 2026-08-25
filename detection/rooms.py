@@ -35,9 +35,12 @@ from shapely.geometry import LineString, Point, Polygon, box
 from shapely.ops import unary_union
 
 from models import BBox, Candidate, TextSpan
-from detection.geometry import _line_angle_deg, _line_length
+from detection.geometry import (
+    _angle_diff_mod180, _line_angle_deg, _line_length, _perpendicular_spacing,
+)
 from detection.walls import (
     WALL_HATCH_MAX_LEN_PX, WALL_MAX_THICKNESS_PX, WALL_MIN_STROKE_WIDTH_PX,
+    WALL_PARALLEL_ANGLE_TOL,
     WallGates, WallNetwork,
     _accept_white_walls, _bridge_white_runs, _is_diagonal_hatch_angle,
 )
@@ -250,6 +253,34 @@ ROOM_OPENING_TEXT_COVER_MAX = 0.60    # a door bbox covered this much by the tex
                                       # swing bboxes measure <= ~0.45 even with a room
                                       # label crossing them (text-mask principle, cf.
                                       # WALL_WHITE_TEXT_COVER_FRAC)
+
+ROOM_RECESS_GAP_COVER_MIN   = 0.65    # a door-less, window-less, textless component
+                                      # lying IN a wall's plane is a recess in that
+                                      # wall — a chimney breast, pier or duct drawn
+                                      # as a closed box on the room side of the
+                                      # band with its back open to the band — not
+                                      # a room. "In the plane": it fills at least
+                                      # this much of the gap between two collinear
+                                      # segments of the band (no opening bbox in
+                                      # the gap: a doorway strip is room floor),
+                                      # its back edge lies on the band's OUTER
+                                      # line (ROOM_RECESS_BACK_TOL_PX past the
+                                      # barrier standoff) and its depth across the
+                                      # band is at most ROOM_RECESS_DEPTH_RATIO_MAX
+                                      # band thicknesses. Measured on s11/s16: six
+                                      # breast pockets in the 17.6px external wall
+                                      # cover 0.69-0.85 of their gap, back edge at
+                                      # exactly the 2px standoff, depth 1.75-2.4x
+                                      # the band, no text; s02's "coats" cupboard
+                                      # matches the gap (0.68) and the back edge
+                                      # but is 5.2 bands deep and labelled, and
+                                      # real rooms beside a band sit >= 3.6px
+                                      # inside its outer edge (s01 room_0002,
+                                      # s16 room_0009) and carry openings. A named
+                                      # space is a space whatever its shape, so
+                                      # text inside the component vetoes the rule.
+ROOM_RECESS_BACK_TOL_PX     = 1.5
+ROOM_RECESS_DEPTH_RATIO_MAX = 3.0
 
 
 @dataclass(frozen=True)
@@ -769,6 +800,69 @@ def _drop_window_exterior_sides(
     return [r for i, r in enumerate(rooms) if i not in drop]
 
 
+def _is_wall_recess(comp, wall_segments, opening_boxes, text_spans) -> bool:
+    """True when comp lies in a wall band's plane — see ROOM_RECESS_GAP_COVER_MIN.
+
+    Called only for components with no door/window opening. Text inside the
+    component (a room label, a dimension) marks a named space and vetoes the
+    verdict outright.
+    """
+    for t in text_spans or ():
+        cx = (t.bbox[0] + t.bbox[2]) / 2.0
+        cy = (t.bbox[1] + t.bbox[3]) / 2.0
+        if comp.contains(Point(cx, cy)):
+            return False
+    coords = list(comp.exterior.coords)
+    for i, a in enumerate(wall_segments):
+        len_a = _line_length(a.p1, a.p2)
+        if len_a < 1e-6:
+            continue
+        ux = (a.p2[0] - a.p1[0]) / len_a
+        uy = (a.p2[1] - a.p1[1]) / len_a
+        nx, ny = -uy, ux
+        for b in wall_segments[i + 1:]:
+            if _line_length(b.p1, b.p2) < 1e-6:
+                continue
+            if _angle_diff_mod180(
+                _line_angle_deg(a.p1, a.p2), _line_angle_deg(b.p1, b.p2)
+            ) > WALL_PARALLEL_ANGLE_TOL:
+                continue
+            th = max(a.thickness_px, b.thickness_px)
+            if _perpendicular_spacing(a.p1, a.p2, b.p1, b.p2) > th / 2.0:
+                continue
+            tb = sorted(
+                (p[0] - a.p1[0]) * ux + (p[1] - a.p1[1]) * uy for p in (b.p1, b.p2)
+            )
+            if tb[0] > len_a:
+                lo, hi = len_a, tb[0]
+            elif tb[1] < 0.0:
+                lo, hi = tb[1], 0.0
+            else:
+                continue                      # overlapping, not a gap
+            if hi - lo < th:
+                continue
+            rect = Polygon([
+                (a.p1[0] + ux * t + nx * w, a.p1[1] + uy * t + ny * w)
+                for t, w in ((lo, -th / 2), (hi, -th / 2), (hi, th / 2), (lo, th / 2))
+            ])
+            if not rect.intersects(comp):
+                continue
+            if any(rect.intersects(o) for o in opening_boxes):
+                continue
+            if rect.intersection(comp).area < ROOM_RECESS_GAP_COVER_MIN * rect.area:
+                continue
+            ws = [(p[0] - a.p1[0]) * nx + (p[1] - a.p1[1]) * ny for p in coords]
+            depth = max(ws) - min(ws)
+            if depth > ROOM_RECESS_DEPTH_RATIO_MAX * th:
+                continue
+            # Back edge on the outer line: the component stops at the
+            # barrier standoff inside one band edge.
+            back = min(-th / 2.0 - min(ws), max(ws) - th / 2.0)
+            if abs(back + ROOM_WALL_DILATE_PX) <= ROOM_RECESS_BACK_TOL_PX:
+                return True
+    return False
+
+
 def _free_space_components(page, barriers) -> list[Polygon]:
     """Free-space polygons of the page, morphologically opened.
 
@@ -1171,6 +1265,7 @@ def detect_rooms(
     # Contact/adjacency references. Openings count as wall contact: a door
     # plug sits exactly where the wall is interrupted.
     contact_ref = unary_union([solids] + opening_parts)
+    opening_boxes = [box(*c.bbox) for c in doors] + [box(*c.bbox) for c in windows]
     door_geoms = door_barriers
     window_geoms = window_barriers
     opening_union = unary_union(opening_parts) if opening_parts else None
@@ -1251,6 +1346,13 @@ def detect_rooms(
         if (
             door_count == 0 and window_count > 0
             and comp.area < gates.ROOM_BLIND_WINDOW_MAX_AREA_PX2
+        ):
+            continue
+        # Wall recess: a door-less, window-less, unlabelled pocket lying in
+        # a band's plane is the wall's own material (chimney breast, pier).
+        if (
+            door_count == 0 and window_count == 0
+            and _is_wall_recess(comp, wall_segments, opening_boxes, text_spans)
         ):
             continue
         rooms.append((exterior, {

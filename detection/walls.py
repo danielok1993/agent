@@ -1809,6 +1809,27 @@ def _merge_collinear_segs(
                     _line_angle_deg(a.p1, a.p2), _line_angle_deg(b.p1, b.p2)
                 ) > COLLINEAR_ANGLE_TOL:
                     continue
+                # One run, one thickness: a centerline meaningfully thicker
+                # or thinner than the run measures a DIFFERENT band, not a
+                # continuation — a jamb-scale pier's room-side face pairs
+                # with the wall's outer face into a short thick centerline
+                # offset within COLLINEAR_OFFSET_TOL of the band's own, and
+                # taking the max over members stamped the pier's width onto
+                # the entire run (measured on s03: a 16.5px nib pair at th
+                # 13.8 carried onto a 6px band over 272px, holding the
+                # kitchen outline 6px off the wall; same on s02 (877,314):
+                # th 34.9 over 17px onto a 14px/251px run; s01 (818,907):
+                # th 29.2 over 12px onto a 22px/121px run). Same-band members
+                # differ by <= 0.3px on all three sheets, so the redundancy
+                # collapse's WALL_REDUNDANT_THICKNESS_SLACK_PX is the gate
+                # here too; the thick piece stays its own segment and its
+                # solid stays local. Faces carry thickness 0 and are never
+                # affected.
+                if (
+                    abs(b.thickness - run.thickness)
+                    > WALL_REDUNDANT_THICKNESS_SLACK_PX
+                ):
+                    continue
 
                 # Perpendicular offset from a's line to b
                 offset = abs((b.p1[0] - a.p1[0]) * (-uy) + (b.p1[1] - a.p1[1]) * ux)

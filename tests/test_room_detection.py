@@ -1252,5 +1252,44 @@ class TestFillSeams(unittest.TestCase):
         self.assertAlmostEqual(rooms[0].bbox[2], 590.0, delta=2.0)
 
 
+class TestWallRecess(unittest.TestCase):
+    """A chimney breast / pier drawn as a closed box on the room side of a
+    wall band, its back open to the band: the pocket between the wall's
+    outer line and the breast front is wall material, not a room."""
+
+    def _plan(self):
+        # 16px walls; the top band's inner face is interrupted by a 160px
+        # breast whose front lies 40px (2.5 bands) below the outer line —
+        # past WALL_MAX_THICKNESS_PX, so the front cannot pair with the
+        # outer line as a thick wall and the pocket comes out as free space.
+        return (
+            [hline(0, 100.0, 500.0, 100.0),
+             hline(1, 100.0, 180.0, 116.0), hline(2, 340.0, 500.0, 116.0),
+             vline(3, 180.0, 116.0, 140.0), vline(4, 340.0, 116.0, 140.0),
+             hline(5, 180.0, 340.0, 140.0)]
+            + wall_band_h(6, 100.0, 500.0, 384.0, thickness=16.0)
+            + wall_band_v(8, 100.0, 100.0, 400.0, thickness=16.0)
+            + wall_band_v(10, 484.0, 100.0, 400.0, thickness=16.0)
+        )
+
+    def test_breast_pocket_is_not_a_room(self):
+        # s11/s16: door-less, textless pockets 31-42px deep in a 17.6px band
+        # (depth 1.75-2.4x the band) came out as 0.63 rooms; the pocket fills
+        # the collinear gap between the band's two segments and its back
+        # lies on the wall's outer line.
+        rooms = rooms_for(self._plan())
+        self.assertEqual(len(rooms), 1)
+        self.assertAlmostEqual(rooms[0].bbox[1], 118.0, delta=2.0)
+
+    def test_labelled_recess_stays(self):
+        # s02's "coats" cupboard sits in the same signature but is labelled:
+        # a space the draughtsperson named is a space.
+        rooms = rooms_for(
+            self._plan(),
+            text_spans=[text_span("coats", (240.0, 112.0, 280.0, 124.0))],
+        )
+        self.assertEqual(len(rooms), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -198,14 +198,10 @@
   "196": "Handoff: W-gate recalibration (the proper fix behind `fix/measured-scale-detection-factor`)",
   "197": "denominator_from_c",
   "198": "fill_ring",
-  "199": "TestFarSidePairs",
   "200": "_dedupe_openings",
   "201": "File structure",
-  "202": "TestBlindWindowPocket",
-  "203": "TestComponentFiltering",
   "204": "PruneUnreadPageOutputTests",
   "205": "parse_answer",
-  "206": "render_page_svg",
   "207": "TestExtractImagesInstances",
   "212": "TestWindowSpanOvershootRetune"
 }
