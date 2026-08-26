@@ -820,6 +820,48 @@ class TestPlugTailTrim(unittest.TestCase):
         self.assertAlmostEqual(x1, 294.0, delta=0.1)
 
 
+class TestJambNib(unittest.TestCase):
+    """A doorway whose jamb is a one-wall-thickness nib (s03 door_0018)."""
+
+    def layout(self, nib_len):
+        # Two rooms side by side above a divider band (y 300..308); the
+        # vertical wall x 392..400 between them is interrupted by a doorway
+        # from y=200 down to the nib, and the nib runs from there to the
+        # divider. The door hinges bottom-right: leaf lying along the
+        # bottom edge, arc from the top jamb to the leaf tip at the left.
+        nib_top = 300 - nib_len
+        paths = (
+            rect_room(0, 100, 100, 700, 500)
+            + wall_band_h(8, 100, 700, 300)
+            + wall_band_v(10, 392, 100, 200)
+            + wall_band_v(12, 392, nib_top, 300)
+        )
+        door = Candidate(
+            candidate_id="door_0000", entity_type="door",
+            bbox=(304.0, 200.0, 392.0, nib_top), confidence=0.95,
+            evidence={
+                "method": "door_assembly", "assembly_type": "single",
+                "opening_line": [[392.0, 200.0], [304.0, nib_top - 2.0]],
+                "leaf_bbox": [304.0, nib_top - 5.0, 392.0, nib_top],
+            },
+        )
+        return paths, door
+
+    def test_one_thickness_nib_anchors_doorway_plug(self):
+        # 11.5px nib: one wall thickness (100mm at 1:50 is 11.8px). Its
+        # faces must reach the wall network so the doorway edge's plug
+        # anchors on it; otherwise no plug qualifies and the dilated-bbox
+        # fallback fences the swing square out of the room.
+        paths, door = self.layout(11.5)
+        rooms = rooms_for(paths, doors=[door])
+        self.assertEqual(len(rooms), 3)
+        top_left = min(
+            (r for r in rooms if r.bbox[1] < 250), key=lambda r: r.bbox[0])
+        poly = ShapelyPolygon(top_left.evidence["polygon"])
+        self.assertTrue(poly.contains(ShapelyPoint(348.0, 244.0)))
+        self.assertAlmostEqual(top_left.bbox[2], 392.0, delta=3.0)
+
+
 class TestSwingHingePlugRestriction(unittest.TestCase):
     """Single swing doors: plugs live on the hinge edges, one wall plane.
 

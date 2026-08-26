@@ -37,7 +37,20 @@ from detection.layers import LAYER_CLASS_KEYWORDS, _layer_hint_from_layer
 # Wall-network constants
 # ---------------------------------------------------------------------------
 WALL_MIN_STROKE_WIDTH_PX    = 0.5   # filters hairline hatch/dimension strokes
-WALL_FACE_MIN_LEN_PX        = 12.0  # min wall piece between adjacent openings
+WALL_FACE_MIN_LEN_PX        = 11.0  # min wall piece between adjacent openings:
+                                    # a one-thickness jamb nib. 100mm at 1:50
+                                    # is 11.8px and s03 draws its nibs at
+                                    # 11.75px (viewport 1:49.99) — a 12.0 floor
+                                    # excluded the nominal minimum it names,
+                                    # dropped the nib faces below door_0018,
+                                    # and the doorway plug lost its bottom
+                                    # anchor (end_cov 0.29 < 0.5), so the
+                                    # dilated-bbox fallback fenced the swing
+                                    # square out of the bedroom. Dimension
+                                    # ticks (7-13px) already overlap the floor
+                                    # and are recognised by their own rule
+                                    # (_dimension_line_indices), never by
+                                    # length.
 WALL_FACE_MERGE_GAP_PX      = 6.0   # drafting artifacts only; door/window openings stay open
 WALL_MIN_THICKNESS_PX       = 2.0   # thinnest partition at 150 DPI
 WALL_MAX_THICKNESS_PX       = 36.0  # heavy exterior/party walls (a 1:50 blockwork
