@@ -31,7 +31,7 @@ from detection.geometry import (
     _projected_interval,
     _segments_min_distance,
 )
-from detection.layers import _layer_tokens
+from detection.layers import LAYER_CLASS_KEYWORDS, _layer_hint_from_layer
 
 # ---------------------------------------------------------------------------
 # Wall-network constants
@@ -58,7 +58,7 @@ WALL_JUNCTION_SNAP_PX       = 8.0   # endpoint-to-intersection reach beyond part
 WALL_JUNCTION_MIN_ANGLE_DEG = 10.0  # below this, line intersections are unstable (collinear-merge territory)
 WALL_NETWORK_MIN_SEGMENTS   = 4     # below this the network is treated as empty everywhere
 
-WALL_LAYER_KEYWORDS = ["wall", "a-wall", "partition", "struct"]
+WALL_LAYER_KEYWORDS = LAYER_CLASS_KEYWORDS["wall"]
 
 WALL_LIGHT_PEN_MIN_CHANNEL  = 0.70  # stroke colors with EVERY channel at/above
     # this are faint reference ink — the light-grey overhead/hidden pen
@@ -968,10 +968,7 @@ def _is_dashed(dashes: str) -> bool:
 
 
 def _wall_layer_hint(layer: str | None) -> bool:
-    if not layer:
-        return False
-    tokens = _layer_tokens(layer)
-    return any(kw in tokens for kw in WALL_LAYER_KEYWORDS)
+    return _layer_hint_from_layer(layer, WALL_LAYER_KEYWORDS)
 
 
 def _fill_seam_indices(

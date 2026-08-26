@@ -23,7 +23,6 @@ class TestPluralLayerTokens(unittest.TestCase):
 
     def test_plural_door_layer(self):
         self.assertTrue(_layer_hint_from_layer("A325G_INT_DOORS", DOOR_LAYER_KEYWORDS))
-        self.assertTrue(_layer_hint_from_layer("RR_New Doors and Windows", DOOR_LAYER_KEYWORDS))
 
     def test_plural_window_layer(self):
         self.assertTrue(_layer_hint_from_layer("WINDOWS", WIN))
@@ -45,6 +44,20 @@ class TestPluralLayerTokens(unittest.TestCase):
         # "s"/"is"/"as" style tokens have no stem worth adding.
         self.assertNotIn("", _layer_tokens("s"))
         self.assertNotIn("a", _layer_tokens("as"))
+
+    def test_mixed_class_layer_is_conclusive_for_none(self):
+        # A layer naming two element classes groups joinery; it says the ink
+        # is a door OR a window, never which. Measured on the corpus
+        # (2026-08-26): 16 class-naming layers name exactly one class; only
+        # s04's "RR_New Doors and Windows" names two, and the door prior fired
+        # on its window paths.
+        for name in ("RR_New Doors and Windows", "DOORS_WINDOWS", "Walls & Doors"):
+            self.assertFalse(_layer_hint_from_layer(name, DOOR_LAYER_KEYWORDS), name)
+        self.assertFalse(_layer_hint_from_layer("RR_New Doors and Windows", WIN))
+        self.assertFalse(_wall_layer_hint("Walls & Doors"))
+        # Single-class layers with an unrelated extra word keep their hint.
+        self.assertTrue(_layer_hint_from_layer("RR_New Doors", DOOR_LAYER_KEYWORDS))
+        self.assertTrue(_wall_layer_hint("RR_New Walls"))
 
     def test_empty_layer(self):
         self.assertFalse(_layer_hint_from_layer(None, DOOR_LAYER_KEYWORDS))

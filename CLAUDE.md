@@ -151,7 +151,9 @@ detection/         # heuristic detection (the split monolith)
   geometry.py      # shared primitives (_distance, _line_angle_deg, …)
   layers.py        # OCG layer-name hints/priors (_layer_hint, _layer_strong_prior)
                    # — confidence boost when a layer name names the element type
-                   # (exact token, singular or plural: A325G_INT_DOORS, WINDOWS, RR_Walls)
+                   # (exact token, singular or plural: A325G_INT_DOORS, WINDOWS, RR_Walls;
+                   # only when the layer names ONE class — "RR_New Doors and
+                   # Windows" is a grouping layer and hints at neither)
   walls.py         # INTERNAL wall-centerline network (WallNetwork) — walls are
                    # never emitted as candidates; feeds rooms.py + postprocess.py
   rooms.py         # detect_rooms — rooms = free-space components between wall

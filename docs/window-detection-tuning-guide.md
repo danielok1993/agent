@@ -230,8 +230,10 @@ Neither alone is sufficient; together they give 4/4 windows, 0 false positives.
 Confidence: base `0.62`, `+0.05` per glazing pane beyond 2, `+layer_prior` (or
 `+0.10` weak layer hint), capped `0.90`. Layer keywords match exact tokens,
 singular or plural (`WINDOWS`, `EXISTING_WINDOWS` on s03/s06/s13/s17 — see
-`detection/layers.py`); at the 0.90 cap the plural fix changed no window verdict
-on the corpus. `_cross_validate` subtracts the no-wall
+`detection/layers.py`), and only when the layer names exactly one element
+class — s04's `RR_New Doors and Windows` names two and hints at neither
+(`LAYER_CLASS_KEYWORDS`); at the 0.90 cap the plural fix changed no window
+verdict on the corpus. `_cross_validate` subtracts the no-wall
 penalty when walls are enabled.
 
 ## 5. Reference data — current detection state (regression target)

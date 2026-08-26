@@ -9,7 +9,7 @@ from detection.geometry import (
     _line_angle_deg, _angle_diff_mod180, _project_onto_axis, _projected_interval,
     _stroke_is_visible,
 )
-from detection.layers import _layer_hint, _layer_strong_prior
+from detection.layers import LAYER_CLASS_KEYWORDS, _layer_hint, _layer_strong_prior
 
 # ---------------------------------------------------------------------------
 # Window detection constants (cap-anchored model)
@@ -712,7 +712,7 @@ def detect_windows(paths: list[PathPrimitive], *,
     gates are paper-space (findings §4e).
     """
     gates = WindowGates.at(scale_factor)
-    win_keywords = ["window", "wind", "glaz", "glazing"]
+    win_keywords = LAYER_CLASS_KEYWORDS["window"]
     recs = _line_records(paths)
     cap_recs = [r for r in recs
                 if WINDOW_CAP_MIN_LEN_PX <= r["len"] <= WINDOW_CAP_MAX_LEN_PX]

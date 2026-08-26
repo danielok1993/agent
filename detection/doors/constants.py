@@ -1,6 +1,7 @@
 from __future__ import annotations
 import re
 from dataclasses import dataclass
+from detection.layers import LAYER_CLASS_KEYWORDS
 
 # ---------------------------------------------------------------------------
 # Door detection constants
@@ -66,7 +67,7 @@ DOOR_CURVE_CHAIN_ENDPOINT_TOL_PX = 1.0
 # by _is_arc_like). 2+ means the chain is genuinely fragmented across
 # multiple Beziers.
 DOOR_CURVE_CHAIN_MIN_CURVES = 2
-DOOR_LAYER_KEYWORDS         = ["door", "a-door"]
+DOOR_LAYER_KEYWORDS         = LAYER_CLASS_KEYWORDS["door"]
 DOOR_ASSEMBLY_CONNECT_TOL_PX = 15.0
 DOOR_LEAF_RADIUS_RATIO_TOL   = 0.20
 DOOR_FALLBACK_CONFIDENCE     = 0.35
