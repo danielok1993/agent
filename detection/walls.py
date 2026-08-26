@@ -296,7 +296,12 @@ WALL_STAIR_PITCH_TOL_FRAC    = 0.35  # |pitch - median| / median; s13's cut
 WALL_STAIR_END_TOL_PX        = 4.0   # a tread's extent lies within the
                                      # reference tread's extent +/- this
 WALL_STAIR_MIN_LEN_FRAC      = 0.5   # ... and covers this much of it (treads
-                                     # clipped by the section cut are shorter)
+                                     # clipped by the section cut are shorter;
+                                     # s03 1:50: 61.5px against 97px siblings —
+                                     # a tread stopping mid-flight on a long
+                                     # oblique same-pen line is itself the
+                                     # cut evidence, even when it is the only
+                                     # one the cut clips)
 WALL_STAIR_TRANSVERSE_ANGLE  = 8.0   # degrees off the treads to count as a
                                      # transverse (cut/arrow/nosing) line; s17's
                                      # zigzag cuts run 12-15deg off the treads
@@ -304,6 +309,11 @@ WALL_STAIR_CROSS_MARGIN_PX   = 2.0   # proper crossing: the crossed face and
                                      # the crosser each extend past the
                                      # intersection by this on both sides
 WALL_STAIR_TOUCH_PX          = 2.0   # endpoint contact / zone-inside tolerance
+WALL_STAIR_BREAK_GAP_PX      = 24.0  # a break line's two collinear halves lie
+                                     # this close end-to-end across the zigzag
+                                     # jog (s03: 11.6px; the jog pieces are
+                                     # under WALL_FACE_MIN_LEN_PX, so ~2 faces'
+                                     # worth of gap is the ceiling)
 WALL_STAIR_TEXT_NEAR_PX      = 12.0  # UP/DN text within this of the arrow
 WALL_STAIR_TEXT_TOKENS       = frozenset({"UP", "DN", "DOWN"})
 WALL_STAIR_FAN_MIN_ANGLE     = 10.0  # degrees between two winders of a fan
@@ -2499,6 +2509,17 @@ def _demote_stair_faces(
                 transverse: list[int] = []
                 evidence = False
                 ref_angle = _line_angle_deg(ref.p1, ref.p2)
+
+                def _clipped_on(f, g):
+                    """An endpoint of tread f lies on g strictly inside the
+                    reference tread's extent (past the end tolerance)."""
+                    for p in (f.p1, f.p2):
+                        if _point_to_segment_distance(p, g.p1, g.p2) > touch:
+                            continue
+                        s = p[0] * ux + p[1] * uy
+                        if rlo + WALL_STAIR_END_TOL_PX < s < rhi - WALL_STAIR_END_TOL_PX:
+                            return True
+                    return False
                 for j, g in cand:
                     if j in tread_idx or not _inside(g, wide):
                         continue
@@ -2515,7 +2536,24 @@ def _demote_stair_faces(
                     # orange "to be removed" ticks over a 5-line cavity
                     # wall) is not a stair arrow.
                     same_pen = g.pen == ref.pen
-                    if same_pen and (n_cross >= 1 or (oblique and n_end >= 2)):
+                    # A cut that clips only ONE tread (s03 1:50 plan: the
+                    # zigzag break line enters the flight beside the first
+                    # tread and leaves at the wall, so only that tread
+                    # stops on it, 61.5px against 97px siblings) still
+                    # reads as a cut when the tread stops in the INTERIOR
+                    # of the flight on a long oblique line: a wall face
+                    # stops at a perpendicular jamb cap, and a hatch stroke
+                    # meets a face's end only at the band's corner — i.e.
+                    # at the run's extent, never inside it. Long: a hatch
+                    # stroke is capped at WALL_HATCH_MAX_LEN_PX.
+                    clipped = (
+                        oblique
+                        and _line_length(g.p1, g.p2) > gates.WALL_HATCH_MAX_LEN_PX
+                        and any(_clipped_on(f, g) for f in tread_faces)
+                    )
+                    if same_pen and (
+                        n_cross >= 1 or (oblique and n_end >= 2) or clipped
+                    ):
                         evidence = True
                         transverse.append(j)
                     elif n_touch >= 2 or n_cross >= 1:
@@ -2589,6 +2627,7 @@ def _demote_stair_faces(
     # pairs with them (a short partition stub alongside the flight). The
     # arrow and the nosing edge of one flight are parallel at wall spacing;
     # neither anchors the other.
+    cuts: set[int] = set()             # oblique transverse members (the cuts)
     for tread_idx, transverse in runs:
         zone = None
         for i in tread_idx:
@@ -2597,6 +2636,8 @@ def _demote_stair_faces(
             if not _anchored(j, faces[j]):
                 members.add(j)
                 zone = _union(zone, _fbox(faces[j]))
+                if 8.0 <= (_line_angle_deg(faces[j].p1, faces[j].p2) % 90.0) <= 82.0:
+                    cuts.add(j)
         zones.append(zone)
 
     # --- 2. stair arrows -----------------------------------------------------
@@ -2728,12 +2769,39 @@ def _demote_stair_faces(
             _distance(a, b) <= touch for a in (f.p1, f.p2) for b in (g.p1, g.p2)
         )
 
+    def _continues_cut(c, f):
+        """f is the far half of a BREAK LINE whose near half c is a cut:
+        same line (parallel, within touch perpendicular), nearest ends
+        within the zigzag jog. The jog itself is drawn as pieces under
+        the face floor, so the halves never touch (s03 1:50: halves
+        58.6/58.9px on one line, 0.12px offset, 11.6px apart across an
+        8.6/17/8.7px zigzag; the far half lay outside the flight bbox and
+        notched the merged room as a strong lone face)."""
+        if c.pen != f.pen or not _parallel(c, f):
+            return False
+        if _perpendicular_spacing(c.p1, c.p2, f.p1, f.p2) > touch:
+            return False
+        return any(
+            _distance(a, b) <= WALL_STAIR_BREAK_GAP_PX
+            for a in (c.p1, c.p2) for b in (f.p1, f.p2)
+        )
+
     provisional.clear()
     changed = True
     while changed:
         changed = False
         for i, f in cand:
-            if i in members or not any(_inside(f, z) for z in merged_zones):
+            if i in members:
+                continue
+            if any(_continues_cut(faces[c], f) for c in cuts) and not _anchored(i, f):
+                members.add(i)
+                cuts.add(i)
+                merged_zones = [_union(z, _fbox(f)) if _bboxes_overlap(
+                    _bbox_expanded(_fbox(f), WALL_STAIR_BREAK_GAP_PX), z) else z
+                    for z in merged_zones]
+                changed = True
+                continue
+            if not any(_inside(f, z) for z in merged_zones):
                 continue
             if any(_continues(faces[m], f) for m in members) or not _anchored(i, f):
                 members.add(i)

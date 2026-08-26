@@ -100,8 +100,8 @@
     "semantic_hash": ""
   },
   "detection/walls.py": {
-    "mtime": 1787752316.4751334,
-    "ast_hash": "5cf277026c223721d6858b72f0d6d951",
+    "mtime": 1787753925.2763784,
+    "ast_hash": "ecb5fb9cd08e1ab5edec5c6d77fef96f",
     "semantic_hash": ""
   },
   "detection/windows.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1787751981.1174562,
-    "ast_hash": "cd97204833090375aef814c6ae80b5a9",
+    "mtime": 1787754262.1669192,
+    "ast_hash": "4e138dcec8d579bd684a4ca9e5c48cf6",
     "semantic_hash": ""
   },
   "README.md": {
@@ -260,8 +260,8 @@
     "semantic_hash": ""
   },
   "tests/test_room_detection.py": {
-    "mtime": 1787751880.0799713,
-    "ast_hash": "79dcc0dcae3214a21e6e094f9debb433",
+    "mtime": 1787753152.8423173,
+    "ast_hash": "15b379df434c25c815a39c5c977c07d2",
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {

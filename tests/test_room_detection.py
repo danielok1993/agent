@@ -1336,6 +1336,59 @@ class TestStairFurniture(unittest.TestCase):
         )
         self.assertFalse(poly.contains(ShapelyPoint(500, 204)))
 
+    def test_cut_clipping_one_tread_mid_flight_is_evidence(self):
+        # s03 1:50 plan, stair beside room_0017: a four-tread flight whose
+        # zigzag break line clips only the FIRST tread — the tread stops
+        # mid-flight ON the cut (61.5px against 97px siblings) and the cut
+        # crosses nothing. Under the ">= 2 treads end on it" rule the run
+        # had no evidence, the treads stayed strong lone barriers and the
+        # stair foot came out as its own room. A tread stopping in the
+        # interior of the flight on a long oblique same-pen line is a
+        # clipped tread: walls stop at perpendicular jamb caps, and a hatch
+        # stroke meets a face's end only at the band's corner.
+        treads = [vline(100 + i, 440 + 15 * i, 108, 200) for i in range(1, 4)]
+        treads.append(vline(100, 440, 150, 200))          # clipped
+        cut = [path(110, [(448, 120), (421, 221)])]       # through (440,150)
+        partition = wall_band_h(120, 400, 592, 200)
+        paths = rect_room(0, 100, 100, 600, 400) + treads + cut + partition
+        room, poly = self._one_room_containing(
+            paths, [(462, 150), (477, 150), (492, 150), (447, 185)]
+        )
+        self.assertFalse(poly.contains(ShapelyPoint(500, 204)))
+
+    def test_break_line_lower_half_across_the_zigzag_is_stair_ink(self):
+        # s03 1:50 plan: the cut is a BREAK LINE — two collinear oblique
+        # pieces joined by a zigzag jog (8.6/17/8.7px pieces, under the
+        # face floor, so they are not faces). The upper half clips the
+        # first tread and is stair ink; the lower half sits 11.6px past it
+        # along the same line, outside the flight bbox, and stayed a strong
+        # lone barrier notching the merged room. A same-pen oblique face
+        # continuing a cut member collinearly across a jog is the cut.
+        treads = [vline(100 + i, 440 + 15 * i, 108, 200) for i in range(1, 4)]
+        treads.append(vline(100, 440, 150, 200))          # clipped
+        upper = [path(110, [(452, 105), (436, 165)])]     # through (440,150)
+        # jog pieces (too short to be faces) then the collinear lower half
+        jog = [path(111, [(436, 165), (432, 163)]), path(112, [(432, 163), (434, 171)])]
+        lower = [path(113, [(433, 176), (421, 221)])]     # 11px gap, same line
+        partition = wall_band_h(120, 400, 592, 200)
+        paths = rect_room(0, 100, 100, 600, 400) + treads + upper + jog + lower + partition
+        room, poly = self._one_room_containing(
+            paths, [(462, 150), (477, 150), (492, 150), (447, 185), (426, 188)]
+        )
+        self.assertFalse(poly.contains(ShapelyPoint(500, 204)))
+
+    def test_oblique_line_at_a_face_corner_is_not_a_cut(self):
+        # The same four parallel lines full-length, with a long oblique
+        # same-pen line meeting the first line's END corner: a hatch stroke
+        # or mitre at a wall end, not a section cut — the end lies at the
+        # run's extent, not inside it. Cavity wall: rooms split.
+        lines = [vline(100 + i, 440 + 15 * i, 108, 200) for i in range(4)]
+        corner = [path(110, [(440, 108), (410, 200)])]
+        partition = wall_band_h(120, 400, 592, 200)
+        paths = rect_room(0, 100, 100, 600, 400) + lines + corner + partition
+        rooms = rooms_for(paths)
+        self.assertEqual(len(rooms), 2, [r.bbox for r in rooms])
+
     def test_tread_split_by_text_mask_qualifies_on_aggregate_length(self):
         # A tread cut in two by a text mask arrives as two touching
         # fragments, each under half the reference length. Their UNION

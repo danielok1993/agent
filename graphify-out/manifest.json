@@ -100,8 +100,8 @@
     "semantic_hash": ""
   },
   "detection/walls.py": {
-    "mtime": 1787753925.2763784,
-    "ast_hash": "ecb5fb9cd08e1ab5edec5c6d77fef96f",
+    "mtime": 1787756554.9863386,
+    "ast_hash": "206b34df84d5868e0037c67a5b065b39",
     "semantic_hash": ""
   },
   "detection/windows.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1787754262.1669192,
-    "ast_hash": "4e138dcec8d579bd684a4ca9e5c48cf6",
+    "mtime": 1787756565.3133485,
+    "ast_hash": "b1ed4971b3f4aaa8560fc6e295977fd7",
     "semantic_hash": ""
   },
   "README.md": {
@@ -260,8 +260,8 @@
     "semantic_hash": ""
   },
   "tests/test_room_detection.py": {
-    "mtime": 1787753152.8423173,
-    "ast_hash": "15b379df434c25c815a39c5c977c07d2",
+    "mtime": 1787756532.7358124,
+    "ast_hash": "7769822ec72ba853dc6d91ea8aa31ed3",
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
@@ -440,7 +440,7 @@
     "semantic_hash": ""
   },
   "fixtures/MANIFEST.json": {
-    "mtime": 1787750987.0437589,
+    "mtime": 1787757854.9083931,
     "ast_hash": "484b355717add2612768232df1a42192",
     "semantic_hash": ""
   },
@@ -665,8 +665,8 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s03.json": {
-    "mtime": 1787751120.3404922,
-    "ast_hash": "0d3c2e93a6ba9490278729be63cef4d4",
+    "mtime": 1787757854.9094563,
+    "ast_hash": "2e813bd820cb9cdc88a26cf25e489b1d",
     "semantic_hash": ""
   },
   "tests/ground_truth/s04.json": {
