@@ -199,6 +199,16 @@ class OpenVTests(unittest.TestCase):
         # The bbox spans the opening down to the far jamb.
         self.assertGreater(folds[0].bbox[3], 1010.0)
 
+    def test_open_v_corridor_dots_are_not_crossers(self):
+        # Zero-length `l` dots (CAD point marks) scattered in the opening
+        # corridor are not linework crossing it: the corridor-clear count
+        # must ignore them, or three stipple dots reject a real bifold.
+        dots = [line(20 + i, (391.0, 990.0 + 8.0 * i), (391.0, 990.0 + 8.0 * i))
+                for i in range(3)]
+        folds = folding_of(detect(self._v_leaves() + self._jambs() + dots))
+        self.assertEqual(len(folds), 1)
+        self.assertEqual(folds[0].evidence["fold_style"], "open_v")
+
     def test_unanchored_v_rejected(self):
         # No wall-line jamb ends at either tip: chance oblique joinery.
         self.assertEqual(folding_of(detect(self._v_leaves())), [])

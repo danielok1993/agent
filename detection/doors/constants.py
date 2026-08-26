@@ -122,6 +122,8 @@ DOOR_LEAF_COMPANION_OVERLAP    = 0.50   # min projected overlap (vs companion le
 # 1,100–1,500 px away otherwise qualified on the perpendicular test alone
 # (see _find_leaf_companion_lines). Real leaf edges measure >= the leaf's
 # own length x DOOR_LEAF_COMPANION_OVERLAP (>= ~17 px on the corpus).
+# geometry._is_line_path now rejects degenerate lines for EVERY proximity
+# consumer (LINE_MIN_LEN_PX); this stays as the companion rule's own floor.
 DOOR_LEAF_COMPANION_MIN_LEN_PX = 1e-6
 DOOR_ASSEMBLY_LINE_LEAF_BASE   = 0.60   # one slot below the 0.65 rect-leaf base
 DOOR_ARC_FALLBACK_MAX          = 0.45   # cap so arc_fallback stays under OFFLINE_MIN_CONFIDENCE["door"] = 0.55

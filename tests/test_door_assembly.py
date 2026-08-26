@@ -910,6 +910,16 @@ class DoorV2OpeningCheckTests(unittest.TestCase):
         result = _check_opening_clear([(0.0, 0.0), (80.0, 0.0)], [sill], {99})
         self.assertEqual("clear", result)
 
+    def test_opening_check_zero_length_dot_in_bridge_interior_is_clear(self):
+        # CAD point marks / stipple dots arrive as zero-length `l` items
+        # (thousands per sheet on s05/s11/s12/s15/s16, 406 on s02). One
+        # lying in the swing is not a sill: nothing is drawn through the
+        # opening. Before the shared _is_line_path length gate it satisfied
+        # the proximity test alone and flipped the door to "obstructed".
+        dot = line(99, (40.0, 0.5), (40.0, 0.5))
+        result = _check_opening_clear([(0.0, 0.0), (80.0, 0.0)], [dot], set())
+        self.assertEqual("clear", result)
+
     def test_opening_check_unknown_for_empty_endpoints(self):
         result = _check_opening_clear([], [], set())
         self.assertEqual("unknown", result)

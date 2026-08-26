@@ -38,10 +38,32 @@ def _point_in_bbox(point: tuple[float, float], bbox: BBox) -> bool:
     return bbox[0] <= point[0] <= bbox[2] and bbox[1] <= point[1] <= bbox[3]
 
 
+# A line must have length to be linework. CAD exports scatter zero-length
+# `l` items across the page -- point marks, stipple/vegetation dots, degenerate
+# hatch remnants -- on 17 of the 20 corpus sheets (s15 8,715, s12 4,786, s11
+# 4,082, s05 4,006, s16 3,996, s17 1,385, s02 406; s01 none). Such a dot has
+# no direction and no interval, so every rule that takes lines by PROXIMITY
+# alone (a companion parallel to a leaf, a crosser in an opening corridor, an
+# obstruction in the swing's bridge) admits it on the distance test with the
+# geometric test silently skipped (measured on s11/s16: dots 1,100-1,500 px
+# away joined door components as leaf companions and two doors sharing a dot
+# were deduped to one). Real linework on the corpus is >= 2 px in every
+# consumer's own gate; the floor only rejects the degenerate case.
+LINE_MIN_LEN_PX = 1e-6
+
+
 def _is_line_path(path: PathPrimitive) -> tuple[bool, tuple[float, float], tuple[float, float]]:
+    """Whether ``path`` is a usable straight line, with its endpoints.
+
+    The single gate every proximity-based line consumer goes through: a
+    zero-length ``l`` item (see LINE_MIN_LEN_PX) is never a line.
+    """
     if path.item_type != "l" or len(path.points) < 2:
         return False, (0, 0), (0, 0)
-    return True, path.points[0], path.points[-1]
+    p1, p2 = path.points[0], path.points[-1]
+    if _line_length(p1, p2) < LINE_MIN_LEN_PX:
+        return False, (0, 0), (0, 0)
+    return True, p1, p2
 
 
 # Two pen colours closer than this per channel are the same pen: PyMuPDF hands
