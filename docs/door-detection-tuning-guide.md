@@ -155,7 +155,7 @@ Same architectural pattern as §3.7, but each half is drawn as ONE native cubic 
 
 `_detect_curve_arc_double_partners` (heuristics.py, runs at the end of `_collect_door_swings` after all three sources are collected) closes the gap. It looks for pairs of `curve_arc` swings — each single-Bezier, each carrying `arc_endpoints = [pts[0], pts[3]]` — that:
 - have matching radii within `DOOR_LEAF_RADIUS_RATIO_TOL` (0.20),
-- share one endpoint within `DOOR_CURVE_ARC_SHARED_HINGE_TOL_PX` (3 px),
+- share one endpoint within `max(DOOR_CURVE_ARC_SHARED_HINGE_TOL_PX (3 px), DOOR_CURVE_ARC_SHARED_HINGE_TOL_FRAC (0.15) × min radius)` — the tips need not coincide: CAD door blocks draw the closed leaves with a meeting-stile clearance, so the tips stop short of each other (measured: s06's living-room pair 3.64 px at r=49.9 = 0.073 r, s13 2.54 px at r=36.4 = 0.070 r, every other corpus pair ≤ 0.25 px; the nearest unrelated antiparallel pairs are two singles back-to-back across a partition on s05/s12 at 0.38 r and a door beside a shower-cubicle door on s07 at 0.50 r),
 - exhibit a >`DOOR_POLYLINE_CHAIN_DELTA_DEG` (45°) **walk-direction tangent break** across the shared endpoint.
 
 When matched, both swings get `double_arc_partner_paths` stamped on them (cross-pointing — each carries the other's `component_path_indices`). Everything downstream then behaves identically to a polyline-arc split: the per-half `opening_check` becomes `"deferred_to_merge"` so the bridge-crossing-the-other-half issue doesn't penalise either confidence, and `_merge_double_door_assemblies`' garden-pass match (§3.7 logic) consumes both candidates and emits one `assembly_type="double_swing"`, `swing_layout="garden"` composite.
@@ -293,6 +293,7 @@ All in `heuristics.py`. Grouped by stage. Defaults are the *current* values afte
 |---|---|---|
 | `DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS` | 4 | Each half must be a viable arc on its own; matches `DOOR_POLYLINE_MIN_SEGMENTS` so each split half can clear the downstream `segment_count` check. A 3+11 split would fail anyway on the 3-seg side. |
 | `DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS` | 3 | Each half must show curvature (≥3 distinct 15° bins). Rules out the failure mode where one "half" is actually an axis-aligned cap ≥4 segs long — that side has just 1 angle bin and the existing chain trimmer is the right tool for it. |
+| `DOOR_CURVE_ARC_SHARED_HINGE_TOL_FRAC` | 0.15 | Radius-relative widening of the hinge tolerance (`max(3 px, 0.15 × min radius)`): a pair's closed tips stop a meeting-stile clearance short of each other, and the clearance scales with the leaf. True pairs measure ≤ 0.073 r (s06 3.64 px / r 49.9, s13 2.54 / 36.4), unrelated antiparallel pairs ≥ 0.38 r (s05/s12 back-to-back singles 15.8 px / r 41.9; s07 door + shower door 21.3 / 42.6) — 2× above / 2.5× below. |
 | `DOOR_CURVE_ARC_SHARED_HINGE_TOL_PX` | 3.0 | Used by the §3.8 curve_arc partner pass — max distance between one endpoint of each arc to count as "the same hinge". Tighter than the 15 px arc-to-leaf pairing tolerance because the inputs are CAD-precise Bezier endpoints (not loose snap matches). Raising risks falsely partnering unrelated nearby arcs. |
 
 ### 4.6 Chained native curves (curve_arc_chain)
@@ -313,6 +314,7 @@ All in `heuristics.py`. Grouped by stage. Defaults are the *current* values afte
 | `DOOR_LEAF_LINE_ENDPOINT_TOL_PX` | 5.0 | Snap distance from leaf line's endpoint to arc's natural endpoint. |
 | `DOOR_LEAF_COMPANION_PERP_PX` | 5.0 | Max perpendicular distance between a "leaf line" and a companion line forming the panel's other edge. |
 | `DOOR_LEAF_COMPANION_OVERLAP` | 0.50 | Min projected overlap fraction for a companion line. |
+| `DOOR_LEAF_COMPANION_MIN_LEN_PX` | 1e-6 | A companion must have length. Zero-length `l` items (CAD point marks / stipple dots — s15 8,715, s12 4,786, s11 4,082, s16 3,996 per sheet) have no interval to overlap the leaf with, and used to qualify on the perpendicular test alone: any dot within 5 px of the leaf's INFINITE axis line joined the door's `component_path_indices` (s11: dots 1,100–1,500 px away). Two doors parked on one wall line then shared the dots and `_dedupe_door_components` retired the lower-confidence one as a duplicate — s11 lost the upper halves of both garden pairs plus a single, s16 lost 3 doors the same way. |
 | `DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX` | 3.0 | Snap tolerance for the linework-leaf clean-loop / subgraph detector. |
 | `DOOR_LINEWORK_LEAF_MIN_SEGMENTS` | 4 | A closed leaf rectangle is exactly 4 segs. |
 | `DOOR_LINEWORK_LEAF_MAX_SEGMENTS` | 8 | Caps split-side rectangles (a rectangle with each side drawn as 2 short lines = 8 segs). |

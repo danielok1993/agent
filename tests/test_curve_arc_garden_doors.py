@@ -151,6 +151,45 @@ class CurveArcGardenDoorTests(unittest.TestCase):
             f"halves should be consumed by the merge, got {len(single_line)} single_line_leaf",
         )
 
+    def _stacked_pair(self, gap: float):
+        """The s06 topology: two single-Bezier halves whose closed tips stop
+        ``gap`` px short of each other (the meeting-stile clearance the CAD
+        block draws between the leaves) instead of sharing one endpoint."""
+        upper = _quarter_arc_bezier(0, hinge=(100, 100),
+                                     free_end=(200, 100), sweep_end=(100, 200))
+        lower = _quarter_arc_bezier(1, hinge=(100, 300 + gap),
+                                     free_end=(200, 300 + gap),
+                                     sweep_end=(100, 200 + gap))
+        upper_leaf = _line(2, (100, 100), (200, 100))
+        lower_leaf = _line(3, (100, 300 + gap), (200, 300 + gap))
+        candidates = detect_doors([upper, lower, upper_leaf, lower_leaf], [])
+        return [c for c in candidates if c.entity_type == "door"
+                and c.evidence.get("method") == "door_assembly"]
+
+    def test_tips_with_meeting_stile_clearance_still_merge(self) -> None:
+        # s06's living-room pair: r=49.9, tips 3.64 px apart (0.073 r);
+        # s13's r=36.4, 2.54 px (0.070 r). Here r=100, gap 8 px (0.08 r).
+        doors = self._stacked_pair(gap=8.0)
+        double_swings = [c for c in doors
+                         if c.evidence.get("assembly_type") == "double_swing"
+                         and c.evidence.get("swing_layout") == "garden"]
+        self.assertEqual(1, len(double_swings),
+                         [(c.candidate_id, c.evidence.get("assembly_type")) for c in doors])
+        x0, y0, x1, y1 = double_swings[0].bbox
+        self.assertAlmostEqual(y0, 100.0, delta=1.0)
+        self.assertAlmostEqual(y1, 308.0, delta=1.0)
+
+    def test_back_to_back_singles_across_a_wall_stay_separate(self) -> None:
+        # s05's two swing doors either side of a partition: equal radii,
+        # antiparallel tips 15.8 px apart at r=41.9 (0.38 r); s07's door
+        # beside a shower-cubicle door 21.3 px at r=42.6 (0.50 r). Here
+        # r=100, gap 40 px (0.40 r): two singles, no double.
+        doors = self._stacked_pair(gap=40.0)
+        self.assertEqual(0, len([c for c in doors
+                                 if c.evidence.get("assembly_type") == "double_swing"]))
+        self.assertEqual(2, len([c for c in doors
+                                 if c.evidence.get("assembly_type") == "single_line_leaf"]))
+
     def test_smooth_s_curve_continuation_not_treated_as_garden(self) -> None:
         """Two arcs sharing an endpoint with continuous tangent (smooth
         S-curve) must NOT be paired as a garden door. The tangent break

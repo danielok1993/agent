@@ -7,7 +7,8 @@ from detection.layers import _layer_hint, _layer_hint_from_layer
 from detection.doors.models import _DoorLeaf, _DoorSwing
 from detection.doors.arcs import _arc_corners
 from detection.doors.constants import (
-    DOOR_LAYER_KEYWORDS, DOOR_LEAF_ASPECT_MIN, DOOR_LEAF_COMPANION_OVERLAP,
+    DOOR_LAYER_KEYWORDS, DOOR_LEAF_ASPECT_MIN, DOOR_LEAF_COMPANION_MIN_LEN_PX,
+    DOOR_LEAF_COMPANION_OVERLAP,
     DOOR_LEAF_COMPANION_PERP_PX, DOOR_LEAF_CYCLE_PARALLEL_TOL_DEG, DOOR_LEAF_CYCLE_PERPENDICULAR_TOL_DEG,
     DOOR_LEAF_LINE_AXIS_TOL_DEG, DOOR_LEAF_LINE_LENGTH_TOL,
     DOOR_LINEWORK_LEAF_COMPONENT_MAX_SEGMENTS, DOOR_LINEWORK_LEAF_ENDPOINT_TOL_PX,
@@ -530,10 +531,21 @@ def _find_leaf_companion_lines(
         d_q2 = abs((q2[0] - p1[0]) * nx + (q2[1] - p1[1]) * ny)
         if max(d_q1, d_q2) > DOOR_LEAF_COMPANION_PERP_PX:
             continue
+        cand_len = _line_length(q1, q2)
+        if cand_len <= DOOR_LEAF_COMPANION_MIN_LEN_PX:
+            # A zero-length stroke is never a panel edge. CAD exports scatter
+            # degenerate `l` items (point marks, stipple dots — s11 carries
+            # thousands), and with no length the overlap test below cannot
+            # bind them to the leaf's interval: every dot within
+            # DOOR_LEAF_COMPANION_PERP_PX of the leaf's infinite axis line
+            # used to qualify — measured on s11, dots 1,100–1,500 px away
+            # joined both garden pairs' upper halves, and because a second
+            # door parked on the same wall line collected the same dots,
+            # _dedupe_door_components retired the upper halves as duplicates.
+            continue
         cand_interval = _projected_interval(q1, q2, ux, uy, p1)
         overlap = _interval_overlap(ref_interval, cand_interval)
-        cand_len = _line_length(q1, q2)
-        if cand_len > 0 and overlap / cand_len < DOOR_LEAF_COMPANION_OVERLAP:
+        if overlap / cand_len < DOOR_LEAF_COMPANION_OVERLAP:
             continue
         companions.add(path.path_index)
     return companions

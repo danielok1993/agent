@@ -8,7 +8,8 @@ from detection.geometry import _bbox_expanded, _bbox_height, _bbox_width, _bboxe
 from detection.layers import _layer_hint, _layer_hint_from_layer
 from detection.doors.models import _DoorSwing
 from detection.doors.constants import (
-    DOOR_BBOX_ASPECT_MAX, DOOR_BBOX_ASPECT_MIN, DOOR_CURVE_ARC_SHARED_HINGE_TOL_PX,
+    DOOR_BBOX_ASPECT_MAX, DOOR_BBOX_ASPECT_MIN, DOOR_CURVE_ARC_SHARED_HINGE_TOL_FRAC,
+    DOOR_CURVE_ARC_SHARED_HINGE_TOL_PX,
     DOOR_CURVE_CHAIN_ENDPOINT_TOL_PX, DOOR_CURVE_CHAIN_MIN_CURVES,
     DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS, DOOR_DOUBLE_ARC_MIN_HALF_SEGMENTS,
     DOOR_LAYER_KEYWORDS, DOOR_LEAF_RADIUS_RATIO_TOL,
@@ -925,10 +926,17 @@ def _detect_curve_arc_double_partners(
 
         # Find a single shared endpoint. arc_endpoints == [points[0], points[-1]],
         # so a_endpoint_idx in {0, 1} maps to Bezier points[0] vs points[3].
+        # The tips may stop a meeting-stile clearance short of each other
+        # (s06: 3.64 px at r=49.9), so the tolerance grows with the radius —
+        # see DOOR_CURVE_ARC_SHARED_HINGE_TOL_FRAC for the measured margins.
+        hinge_tol = max(
+            DOOR_CURVE_ARC_SHARED_HINGE_TOL_PX,
+            DOOR_CURVE_ARC_SHARED_HINGE_TOL_FRAC * min(ri, rj),
+        )
         shared: tuple[int, int] | None = None
         for ai, ea in enumerate(si.arc_endpoints):
             for bi, eb in enumerate(sj.arc_endpoints):
-                if math.hypot(ea[0] - eb[0], ea[1] - eb[1]) <= DOOR_CURVE_ARC_SHARED_HINGE_TOL_PX:
+                if math.hypot(ea[0] - eb[0], ea[1] - eb[1]) <= hinge_tol:
                     shared = (ai, bi)
                     break
             if shared is not None:

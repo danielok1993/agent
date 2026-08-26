@@ -481,6 +481,45 @@ class SingleLineLeafTests(unittest.TestCase):
         self.assertAlmostEqual(expected, door.confidence, places=3)
 
 
+class DegenerateCompanionTests(unittest.TestCase):
+    """A zero-length stroke is never a leaf edge (s11's double doors).
+
+    CAD exports scatter zero-length `l` items (point marks, stipple dots —
+    s11 has 1,000s of them). `_find_leaf_companion_lines` accepts a
+    companion when >= DOOR_LEAF_COMPANION_OVERLAP of ITS OWN length projects
+    onto the leaf interval; a degenerate line has no length, so the overlap
+    test used to be skipped and any dot within DOOR_LEAF_COMPANION_PERP_PX
+    of the leaf's infinite axis line — 1,500 px away on s11 — joined the
+    door's component. Two doors parked on the same wall line then shared
+    that dot and `_dedupe_door_components` retired the lower-confidence one
+    as a duplicate: on s11 the upper halves of both garden pairs vanished.
+    """
+
+    @staticmethod
+    def _door(start_idx: int, dx: float) -> list[PathPrimitive]:
+        arc = quarter_arc_lines(start_idx)
+        arc = [
+            path(a.path_index, "l", [(x + dx, y) for x, y in a.points])
+            for a in arc
+        ]
+        leaf = line(start_idx + 20, (80.0 + dx, 0.0), (160.0 + dx, 0.0))
+        return arc + [leaf]
+
+    def test_zero_length_dot_on_leaf_axis_is_not_a_companion(self) -> None:
+        # Two identical swing doors 400 px apart, leaves collinear along y=0,
+        # and one zero-length dot on that axis a further 800 px out.
+        dot = path(500, "l", [(1000.0, 2.0), (1000.0, 2.0)])
+        paths = self._door(0, 0.0) + self._door(100, 400.0) + [dot]
+
+        doors = detect_doors(paths, [])
+
+        assemblies = [d for d in doors if d.evidence.get("method") == "door_assembly"]
+        self.assertEqual(2, len(assemblies))
+        for door in assemblies:
+            self.assertNotIn(500, door.evidence["leaf_companion_path_indices"])
+            self.assertNotIn(500, door.evidence["component_path_indices"])
+
+
 class DoorEvidencePropagationTests(unittest.TestCase):
     """Verify Step 4 — door evidence keys land in Entity.attributes in offline mode."""
 

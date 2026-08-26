@@ -58,6 +58,19 @@ DOOR_DOUBLE_ARC_MIN_HALF_ANGLE_BINS  = 3   # each half must have curvature (not 
 # curve endpoints, not loose leaf-to-arc snaps; 3 px keeps unrelated nearby
 # arcs from being falsely partnered.
 DOOR_CURVE_ARC_SHARED_HINGE_TOL_PX = 3.0
+# ...but a pair of single-Bezier halves need not SHARE the tip: CAD door
+# blocks draw the two closed leaves with a meeting-stile clearance, so the
+# tips stop short of each other. Measured on the corpus (every antiparallel
+# equal-radius curve_arc pair, nearest endpoints): true pairs 0.0–0.25 px on
+# s02/s03/s08/s15/s17, 2.54 px at r=36.4 on s13 (0.070 r) and 3.64 px at
+# r=49.9 on s06 (0.073 r); the nearest UNRELATED pairs are two singles
+# back-to-back across a partition on s05/s12 at 15.8 px, r=41.9 (0.38 r) and
+# a door beside a shower-cubicle door on s07 at 21.3 px, r=42.6 (0.50 r).
+# The clearance scales with the leaf (a ~60 mm stile gap at any drawing
+# scale), so the gate is a fraction of the smaller radius: 0.15 sits 2x
+# above the true class and 2.5x below the false one. The 3 px floor keeps
+# the original tolerance for tiny arcs.
+DOOR_CURVE_ARC_SHARED_HINGE_TOL_FRAC = 0.15
 # Endpoint snap tolerance for chaining native (`c`) Bezier curves into a
 # single logical arc. PDF curves emitted by CAD tools have machine-precise
 # endpoints; 1.0 px is generous.
@@ -104,6 +117,12 @@ DOOR_LEAF_LINE_LENGTH_TOL      = 0.20
 DOOR_LEAF_LINE_AXIS_TOL_DEG    = 8.0
 DOOR_LEAF_COMPANION_PERP_PX    = 5.0    # max perpendicular distance for a parallel companion line
 DOOR_LEAF_COMPANION_OVERLAP    = 0.50   # min projected overlap (vs companion length) to count
+# A companion must have length: a zero-length `l` item (CAD point mark /
+# stipple dot) has no interval to overlap the leaf with, and s11's dots
+# 1,100–1,500 px away otherwise qualified on the perpendicular test alone
+# (see _find_leaf_companion_lines). Real leaf edges measure >= the leaf's
+# own length x DOOR_LEAF_COMPANION_OVERLAP (>= ~17 px on the corpus).
+DOOR_LEAF_COMPANION_MIN_LEN_PX = 1e-6
 DOOR_ASSEMBLY_LINE_LEAF_BASE   = 0.60   # one slot below the 0.65 rect-leaf base
 DOOR_ARC_FALLBACK_MAX          = 0.45   # cap so arc_fallback stays under OFFLINE_MIN_CONFIDENCE["door"] = 0.55
 
