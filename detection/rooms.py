@@ -52,6 +52,30 @@ ROOM_MIN_AREA_PX2           = 2500.0  # 50x50 px — smallest plausible closet a
 ROOM_MAX_PAGE_AREA_FRAC     = 0.45    # components bigger than this are the sheet frame
 ROOM_HOLE_AREA_FRAC_MAX     = 0.20    # mostly-hole components are frame-minus-building rings
 ROOM_WALL_DILATE_PX         = 2.0     # wall-solid dilation; seals sub-4px face cracks
+ROOM_RING_MITRE_LIMIT       = 2.0     # mitre cap for fill-ring dilation (D). Exporters
+                                      # triangulate fills, so a wall band arrives as
+                                      # two right triangles (s03: 184/184 wall-fill
+                                      # rings are triangles; s18: 936/1380 rings
+                                      # spike; s02: 7 fill + 15 white rings) and each
+                                      # ring is dilated on its own. Shapely's default
+                                      # mitre limit (5) lets the join at a 4.8° acute
+                                      # vertex run 10px past the ring — a tab in the
+                                      # room outline beside every band end and jamb
+                                      # nib (s03 corridor room_0014: 8x3.7px tabs at
+                                      # 3732,1782). Mitre ratio is 1/sin(θ/2): 1.41 at
+                                      # a right angle, 2.0 at 60°, 2.61 at 45°, so
+                                      # vertices of 60° and wider keep their sharp
+                                      # mitre and anything sharper bevels, overshooting
+                                      # by at most the 2px dilation. A thin band's
+                                      # triangles split each rectangle corner into
+                                      # ~5° + ~85°, so the wide half still mitres the
+                                      # band's dilated corner; only a near-square fill
+                                      # (45°/45° split) bevels both halves, leaving a
+                                      # <=2px corner chamfer. This CAPS the spike;
+                                      # walls._fill_ring_components unions seam-sharing
+                                      # rings back into their band first, so a band
+                                      # dilates as a rectangle and only unshared
+                                      # slivers (s18) still reach the bevel.
 ROOM_LINE_BARRIER_PX        = 2.0     # half-width of thin line barriers — kept EQUAL
                                       # to ROOM_WALL_DILATE_PX so a face's thin
                                       # buffer and its pair's dilated solid put the
@@ -863,6 +887,49 @@ def _is_wall_recess(comp, wall_segments, opening_boxes, text_spans) -> bool:
     return False
 
 
+def _accept_jamb_rings(
+    rings, material_parts, doors, windows, door_zone_bounds, stroke_gate,
+    is_wall_pen,
+) -> list[Polygon]:
+    """Dilated polygons of the stroked rings that are jamb blocks.
+
+    Gates: penned at or above the lone-barrier stroke gate in a wall pen
+    (fixture symbols are drawn lighter / in another colour), not lying
+    fully inside a door zone (the open leaf and threshold share the
+    small-closed-outline signature), and — the positional evidence —
+    touching both drawn wall material and a confident opening's bbox. No
+    proximity: a block one pixel short of the band is not a jamb.
+    """
+    if not rings:
+        return []
+    openings = [
+        box(*c.bbox) for c in doors if c.confidence >= ROOM_OPENING_MIN_CONFIDENCE
+    ] + [box(*c.bbox) for c in windows]
+    if not openings or not material_parts:
+        return []
+    material = unary_union(material_parts)
+    opening_union = unary_union(openings)
+    accepted: list[Polygon] = []
+    for r in rings:
+        if r.stroke_width < stroke_gate or not is_wall_pen(r.pen):
+            continue
+        rx0, ry0, rx1, ry1 = r.poly.bounds
+        if any(
+            zx0 <= rx0 and rx1 <= zx1 and zy0 <= ry0 and ry1 <= zy1
+            for zx0, zy0, zx1, zy1 in door_zone_bounds
+        ):
+            continue
+        probe = r.poly.buffer(ROOM_LINE_BARRIER_PX)
+        if not (probe.intersects(material) and probe.intersects(opening_union)):
+            continue
+        accepted.append(
+            r.poly.buffer(
+                ROOM_WALL_DILATE_PX, join_style=2, mitre_limit=ROOM_RING_MITRE_LIMIT,
+            )
+        )
+    return accepted
+
+
 def _free_space_components(page, barriers) -> list[Polygon]:
     """Free-space polygons of the page, morphologically opened.
 
@@ -1013,7 +1080,9 @@ def detect_rooms(
     # Wall-rated fill polygons are drawn wall area: they seal corner posts,
     # jamb stubs and band interiors that face pairing cannot represent.
     solid_parts += [
-        poly.buffer(ROOM_WALL_DILATE_PX, join_style=2)
+        poly.buffer(
+            ROOM_WALL_DILATE_PX, join_style=2, mitre_limit=ROOM_RING_MITRE_LIMIT
+        )
         for poly in network.fill_polygons
     ]
     # Thin barriers are ALLOWLISTED wall evidence, not all linework: a face
@@ -1164,10 +1233,26 @@ def detect_rooms(
         )
         white_walls = _accept_white_walls(white_bands, anchor)
         solid_parts += [
-            r.poly.buffer(ROOM_WALL_DILATE_PX, join_style=2)
+            r.poly.buffer(
+                ROOM_WALL_DILATE_PX, join_style=2,
+                mitre_limit=ROOM_RING_MITRE_LIMIT,
+            )
             for r in white_walls
         ]
         solid_parts += _bridge_white_runs(white_walls, gates=wall_gates)
+
+    # Jamb nibs / door-stop blocks drawn as small closed STROKED outlines
+    # in the wall pen (s03: 12x5px L-shapes with a rebate beside
+    # door_0007/door_0019, every edge under the face floor) are wall
+    # material when they sit where a jamb sits — touching drawn wall
+    # material AND an opening's bbox. A fixture box of the same shape
+    # (socket, cistern, tile) floats in the room or hugs a wall without an
+    # opening; a ring fully inside a door zone is leaf/threshold ink.
+    if network.stroked_rings:
+        solid_parts += _accept_jamb_rings(
+            network.stroked_rings, solid_parts + line_parts, doors, windows,
+            door_zone_bounds, stroke_gate, _is_wall_pen,
+        )
 
     solids = unary_union(solid_parts)
     wall_material = unary_union([solids] + line_parts)

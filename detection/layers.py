@@ -36,6 +36,35 @@ LAYER_CLASS_KEYWORDS: dict[str, list[str]] = {
 }
 
 
+# Layers whose NAME says the ink is annotation, not building: section
+# callouts, dimension chains, text. The corpus's only such layers (census
+# 2026-08-26, six layered sheets) are "Symbols_Dynamic Callouts" on s04/s08
+# — 1,057 paths, 21 stroked lines, among them a page-wide 1.19px section
+# callout (the wall pen's width) that paired over a short subspan with a
+# parallel wall face and chopped s04's rooms 0000/0001/0003 at y=767.
+# Tokens are exact (the same tokenizer as the class hints) and only
+# corpus-proven ones veto: "text" is NOT one — s15's "TEXT" layer is
+# mis-filed building linework (155 black 1.0px lines, 60 of them >= 100px,
+# up to 1,360px) and vetoing it lost 17 of the sheet's 20 rooms and 3
+# doors; "symbol" is not one ("Symbols_…" carries the callouts only by
+# prefix), nor "section" (a section drawing's walls may live on such a
+# layer); "dimension" is kept as the layer-name form of the dimension-chain
+# exclusion (no corpus layer carries it, so it is zero-effect today). A
+# layer that also names an element class ("Wall Dimensions") is a grouping
+# layer and is left alone, mirroring the exclusivity rule of the positive
+# hints.
+LAYER_ANNOTATION_KEYWORDS: list[str] = ["callout", "dimension"]
+
+
+def _layer_annotation_veto(layer: str | None) -> bool:
+    """True when the layer name marks its ink as annotation (callouts,
+    dimensions, text) and names no element class."""
+    tokens = _layer_tokens(layer)
+    if not tokens or _layer_classes(tokens):
+        return False
+    return any(kw in tokens for kw in LAYER_ANNOTATION_KEYWORDS)
+
+
 def _layer_tokens(layer: str | None) -> set[str]:
     if not layer:
         return set()

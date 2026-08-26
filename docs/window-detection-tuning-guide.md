@@ -52,7 +52,17 @@ Two extensions make this a window under the same cap-anchored pairing:
 1. **Block caps** (`_block_cap_records`) — a `re`/`qu` whose long side is
    cap-length, thickness ≤ `WINDOW_BLOCK_CAP_MAX_THICK_PX` and aspect ≥
    `WINDOW_BLOCK_CAP_MIN_ASPECT` is reduced to its long axis (midpoints of its
-   short edges, order/rotation-free) and joins the cap pool. The aspect gate
+   short edges, order/rotation-free) and joins the cap pool. A SQUAT block
+   (aspect below that, down to ~1.0 — the crosshatch/insulation-box range)
+   joins too, flagged `squat`, but pairs only when at least
+   `WINDOW_SQUAT_CAP_MIN_PANES` (3) panes terminate on it and never bridges a
+   mullion chain: s04's BATHROOM 01 outer-wall window draws its head and sill
+   as 9.8×7.1px `qu` blocks (aspect 1.38) with three 4.9px-pitch panes running
+   exactly between them, while a hatched wall reads as 2 panes (its faces) and
+   a hatch box never has a repeated-pitch band ending on it — aspect alone
+   cannot separate the two (corpus census 2026-08-26: squat blocks on 14
+   sheets, 91 on s14, 30 on s05; the full sweep added exactly one window,
+   s04's, and no other entity changed). For bar-shaped caps the aspect gate
    keeps square-ish crosshatch/insulation boxes out; the cross gate
    (`WINDOW_BLOCK_CAP_CROSS_RATIO`) drops blocks with an X drawn through them —
    a crossed box is a post/column symbol (the 5-1133 bathroom shower-screen
@@ -201,6 +211,7 @@ Neither alone is sufficient; together they give 4/4 windows, 0 false positives.
 | `WINDOW_MAX_WIDTH_PX` | 280.0 | 5-1133 W8 (three-light frame) is 268 px; caps out long wall/decoration runs. |
 | `WINDOW_BLOCK_CAP_MAX_THICK_PX` | 8.0 | Bar thickness for a `re`/`qu` block cap (W8 end caps 6.0, mullions 5.5). |
 | `WINDOW_BLOCK_CAP_MIN_ASPECT` | 1.8 | Long/short side of a block cap; square crosshatch/insulation boxes (~1.0–1.4) never enter the cap pool. |
+| `WINDOW_SQUAT_CAP_MIN_PANES` | 3 | A block under the bar aspect (squat, the hatch-box range) pairs only when this many panes terminate on it (s04 outer-wall window: 9.8×7.1px blocks, three 4.9px-pitch panes); squat blocks never bridge mullion chains. |
 | `WINDOW_BLOCK_CAP_CROSS_RATIO` | 0.75 | A line ≥ this fraction of the block's diagonal with both endpoints inside it is an X stroke → the block is a crossed post/column symbol, not a jamb (killed the 5-1133 shower-screen candidate at the source). |
 | `WINDOW_MULLION_GAP_MAX_PX` | 14.0 | Max glazing-segment gap a mullion block may bridge (W8 gaps are 11.5 px). |
 | `WINDOW_GLAZING_THICKNESS_PX` | 16.0 | Max perp-spread of the glazing band. Window A ≈ 14 px. |

@@ -9,6 +9,7 @@ from shapely.geometry import Point as ShapelyPoint, box as shapely_box
 
 from models import PathPrimitive
 from detection import WallNetwork, detect_wall_network
+from detection.rooms import detect_rooms
 from detection.walls import (
     WALL_GATES_UNSCALED,
     WALL_JOINERY_BRIDGE_GAP_PX,
@@ -1026,6 +1027,44 @@ class TestPenGates(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestAnnotationLayerVeto(unittest.TestCase):
+    """Linework on an annotation-named layer (section callouts, dimension
+    and text layers) is never wall evidence, whatever its pen: on s04 a
+    page-wide cyan section callout line (layer "Symbols_Dynamic Callouts",
+    1.19px — the wall pen's width) paired over a short subspan with a
+    parallel wall face, took full-length barrier rights and chopped rooms
+    0000/0001/0003 at y=767."""
+
+    def _room_with_crossing(self, layer):
+        paths = rect_room(0, 100, 100, 600, 400)
+        # Page-wide line at wall pen, on `layer`, crossing the room, plus a
+        # short parallel stub 10px away that it would pair with.
+        paths.append(hline(8, 20, 900, 250, layer=layer))
+        paths.append(hline(9, 300, 340, 260))
+        return paths
+
+    def test_callout_layer_line_never_pairs_or_barriers(self):
+        paths = self._room_with_crossing("Symbols_Dynamic Callouts")
+        net = detect_wall_network(paths, [])
+        self.assertNotIn(8, net.paired_face_indices())
+        self.assertFalse(any(8 in f.indices for f in net.faces))
+        rooms = detect_rooms(net, [], [], 1000.0, 800.0, [])
+        self.assertEqual(len(rooms), 1)
+        self.assertAlmostEqual(rooms[0].bbox[3], 390.0, delta=2.5)
+
+    def test_unlayered_line_still_pairs(self):
+        # Control: the same geometry without the layer keeps its rights.
+        paths = self._room_with_crossing(None)
+        net = detect_wall_network(paths, [])
+        self.assertIn(8, net.paired_face_indices())
+
+    def test_wall_layer_and_grouping_layer_stay_eligible(self):
+        for layer in ("RR_Walls", "Wall Dimensions", "TEXT"):
+            paths = self._room_with_crossing(layer)
+            net = detect_wall_network(paths, [])
+            self.assertIn(8, net.paired_face_indices(), layer)
 
 
 class TestFarSidePairs(unittest.TestCase):

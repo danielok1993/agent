@@ -31,7 +31,9 @@ from detection.geometry import (
     _projected_interval,
     _segments_min_distance,
 )
-from detection.layers import LAYER_CLASS_KEYWORDS, _layer_hint_from_layer
+from detection.layers import (
+    LAYER_CLASS_KEYWORDS, _layer_annotation_veto, _layer_hint_from_layer,
+)
 
 # ---------------------------------------------------------------------------
 # Wall-network constants
@@ -483,6 +485,87 @@ class _FillRing:
         )
 
 
+@dataclass
+class _StrokedRing:
+    """A small closed STROKED (fill-less) outline in one pen — a jamb-nib /
+    door-stop block candidate. Collected here, accepted in rooms.py where
+    wall material and opening geometry are both known."""
+    poly: Polygon
+    stroke_width: float                 # min across members
+    pen: tuple | None
+    indices: set[int]
+
+
+def _collect_stroked_rings(
+    paths: list[PathPrimitive],
+    excluded: frozenset[int] | set[int],
+    *, gates: WallGates,
+) -> list[_StrokedRing]:
+    """Closed fill-less outlines no larger than one wall thickness a side.
+
+    A doorway leaves a JAMB NIB beside each hinge — the last piece of wall,
+    often drawn with its door-stop rebate as a closed 4-8 segment outline
+    in the wall pen (s03: 12x5.3px and 12x9px L-shapes, paths 15805-15816,
+    every edge under WALL_FACE_MIN_LEN_PX), or as a lone stroked `re`/`qu`.
+    Such a block has no faces and no fill, so the room outline bulged over
+    it to the door plug. The same signature draws small fixture symbols
+    (sockets, tiles, cistern boxes), so collection is shape-only; rooms.py
+    accepts a ring as wall only when it is penned like the walls AND
+    touches both drawn wall material and an opening's bbox — a jamb block
+    sits between the band end and the doorway, a fixture box does not.
+    """
+    cap = gates.WALL_MAX_THICKNESS_PX
+    rings: list[_StrokedRing] = []
+
+    def account(pts, idxs: set[int], width: float, pen) -> None:
+        if len(pts) < 3 or idxs & set(excluded):
+            return
+        poly = Polygon(pts)
+        if not poly.is_valid or poly.area < 4.0:
+            return
+        x0, y0, x1, y1 = poly.bounds
+        if max(x1 - x0, y1 - y0) > cap:
+            return
+        rings.append(_StrokedRing(poly=poly, stroke_width=width, pen=pen, indices=idxs))
+
+    chain_pen = None
+    chain_pts: list[tuple[float, float]] = []
+    chain_idx: set[int] = set()
+    chain_w = 0.0
+
+    def flush() -> None:
+        nonlocal chain_pen, chain_pts, chain_idx, chain_w
+        if (
+            chain_pts and 4 <= len(chain_pts) - 1 <= 8
+            and _distance(chain_pts[0], chain_pts[-1]) <= 2.0
+        ):
+            account(chain_pts[:-1], set(chain_idx), chain_w, chain_pen)
+        chain_pen, chain_pts, chain_idx, chain_w = None, [], set(), 0.0
+
+    for p in paths:
+        stroked = p.fill is None and p.stroke_width > 0 and len(p.points) >= 2
+        if stroked and p.item_type == "l":
+            pen = _pen_key(p.color)
+            a, b = p.points[0], p.points[-1]
+            if chain_pts and chain_pen == pen and _distance(chain_pts[-1], a) <= 1.0:
+                chain_pts.append(b)
+                chain_idx.add(p.path_index)
+                chain_w = min(chain_w, p.stroke_width)
+                continue
+            flush()
+            chain_pen, chain_pts = pen, [a, b]
+            chain_idx, chain_w = {p.path_index}, p.stroke_width
+            continue
+        flush()
+        if stroked and p.item_type in ("re", "qu") and len(p.points) == 4:
+            pts = p.points
+            if p.item_type == "qu":
+                pts = [pts[0], pts[1], pts[3], pts[2]]
+            account(list(pts), {p.path_index}, p.stroke_width, _pen_key(p.color))
+    flush()
+    return rings
+
+
 def _collect_fill_rings(paths: list[PathPrimitive]) -> list[_FillRing]:
     """Chain consecutive same-fill `l` items (plus filled re/qu) into rings.
 
@@ -832,6 +915,10 @@ class WallNetwork:
     # Hollow-wall candidates (white band _FillRings, text-pruned); accepted
     # against opening-aware wall material by rooms.py via _accept_white_walls.
     white_bands: list = field(default_factory=list)
+    # Small closed stroked outlines (jamb-nib / door-stop block candidates):
+    # rooms.py accepts the ones penned like walls that touch both wall
+    # material and an opening bbox (_accept_jamb_rings).
+    stroked_rings: list = field(default_factory=list)
 
     def is_empty(self) -> bool:
         return len(self.segments) < WALL_NETWORK_MIN_SEGMENTS
@@ -1001,7 +1088,47 @@ def _wall_layer_hint(layer: str | None) -> bool:
 def _fill_seam_indices(
     rings: list[_FillRing], paths: list[PathPrimitive]
 ) -> set[int]:
-    """Path indices of fill-ring edges that are SEAMS, not outline.
+    """Path indices of fill-ring seams — see _fill_seams."""
+    return _fill_seams(rings, paths)[0]
+
+
+def _fill_ring_components(
+    n_rings: int, adjacency: list[tuple[int, int]], members: set[int]
+) -> list[list[int]]:
+    """Group ring ids (restricted to `members`) connected by shared seams.
+
+    Exporters triangulate fills, so a wall band is two (or more) rings that
+    share their joint edges; each dilated on its own, the acute
+    triangulation vertices bevel or spike (ROOM_RING_MITRE_LIMIT caps the
+    spike but leaves a <= 2px bevel). Unioning a seam-connected group
+    restores the polygon the exporter split — a rectangle band dilates
+    like a rectangle. Only SEAM-sharing rings group (the same-fill,
+    fill-on-both-sides test); merely touching same-fill rings do not, so
+    an abutting fixture block never merges into a wall band.
+    """
+    parent = list(range(n_rings))
+
+    def find(i: int) -> int:
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    for a, b in adjacency:
+        if a in members and b in members:
+            parent[find(a)] = find(b)
+    groups: dict[int, list[int]] = {}
+    for i in sorted(members):
+        groups.setdefault(find(i), []).append(i)
+    return list(groups.values())
+
+
+def _fill_seams(
+    rings: list[_FillRing], paths: list[PathPrimitive]
+) -> tuple[set[int], list[tuple[int, int]]]:
+    """(seam path indices, ring-id pairs sharing a seam).
+
+    Path indices of fill-ring edges that are SEAMS, not outline.
 
     A filled area's visible boundary is the outline of the whole fill.
     Exporters triangulate fills, and PyMuPDF chains each triangle into its
@@ -1035,6 +1162,7 @@ def _fill_seam_indices(
             ))))
             edges.setdefault(key, []).append((ri, pi))
     seams: set[int] = set()
+    adjacency: list[tuple[int, int]] = []
     for members in edges.values():
         ring_ids = {ri for ri, _ in members}
         if len(ring_ids) < 2:
@@ -1051,7 +1179,9 @@ def _fill_seam_indices(
             union.contains(Point(mx + s * nx, my + s * ny)) for s in (1.0, -1.0)
         ):
             seams.update(pi for _, pi in members)
-    return seams
+            ids = sorted(ring_ids)
+            adjacency.extend((ids[0], other) for other in ids[1:])
+    return seams, adjacency
 
 
 def _collect_wall_faces(
@@ -2832,17 +2962,25 @@ def detect_wall_network(
     # Dimension-chain lines (oblique end ticks on both endpoints) are
     # annotation in wall-strength pens — excluded from face collection
     # entirely, alongside the door open-leaf ink.
+    # So is anything drawn on an annotation-named layer (section callouts,
+    # dimension/text layers): vetoed BEFORE pairing, never in
+    # _is_barrier_face alone, because a paired callout would still create
+    # segments, enter the stroke reference and launder its partner into
+    # wall evidence (s04's page-wide 1.19px section callout).
     excluded = frozenset(exclude_path_indices or ()) | frozenset(
         _dimension_line_indices(paths, gates=gates)
+    ) | frozenset(
+        p.path_index for p in paths if _layer_annotation_veto(p.layer)
     )
     rings = _collect_fill_rings(paths)
     fill_is_wall = _rate_fill_classes(rings, gates=gates)
     # Marker rings (arrowheads) and fill seams (the shared edges of
     # triangulated / abutting same-fill pieces, fill on both sides) share
     # the wall pen but are never outline: neither may become a face.
+    seam_indices, seam_adjacency = _fill_seams(rings, paths)
     marker_indices = {
         i for r in rings if r.is_marker() for i in r.indices
-    } | _fill_seam_indices(rings, paths)
+    } | seam_indices
     faces, bands = _collect_wall_faces(
         paths, fill_is_wall, marker_indices, excluded, gates=gates
     )
@@ -3083,12 +3221,21 @@ def detect_wall_network(
     # edges never became faces. Oversized blobs (shaded zones) stay
     # outline-only; marker rings (arrowheads in the wall pen) are annotation
     # and must not stamp notches into the free space.
-    fill_polygons = [
-        r.poly for r in rings
+    wall_ring_ids = {
+        i for i, r in enumerate(rings)
         if fill_is_wall.get(r.key, False)
         and r.short <= gates.WALL_FILL_BLOCK_MAX_SIDE_PX
         and not r.is_marker()
-    ]
+    }
+    # Seam-connected rings (the exporter's triangulation of one band) are
+    # unioned back into that band so the room stage dilates a rectangle,
+    # not two acute triangles (s03: 184/184 wall-fill rings are triangles).
+    fill_polygons = []
+    for group in _fill_ring_components(len(rings), seam_adjacency, wall_ring_ids):
+        merged = unary_union([rings[i].poly for i in group]) if len(group) > 1 else rings[group[0]].poly
+        fill_polygons.extend(
+            g for g in getattr(merged, "geoms", [merged]) if not g.is_empty
+        )
 
     # Hollow (white) walls and joinery runs are only CANDIDATES here: shape
     # and text content prune the masks, but walls vs cabinet fronts is
@@ -3097,7 +3244,9 @@ def detect_wall_network(
     # called from rooms.py, where hollow runs interrupted by windows still
     # anchor on the bboxes).
     white_bands = _white_wall_candidates(rings, text_spans or [], gates=gates)
+    stroked_rings = _collect_stroked_rings(paths, excluded, gates=gates)
     return WallNetwork(
         segments=segments, merged=merged, faces=face_lines,
         fill_polygons=fill_polygons, white_bands=white_bands,
+        stroked_rings=stroked_rings,
     )

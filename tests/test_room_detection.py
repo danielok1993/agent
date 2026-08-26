@@ -495,6 +495,121 @@ class TestBarrierAllowlist(unittest.TestCase):
         self.assertAlmostEqual(rooms[0].evidence["area_px2"], base_area, delta=20.0)
 
 
+class TestTriangulatedFillRings(unittest.TestCase):
+    """Exporters triangulate fills: a wall band arrives as two right
+    triangles sharing the diagonal. Each ring is buffered on its own, and a
+    mitre join at a triangle's acute vertex runs out to the mitre limit —
+    a 10px spike past the band end — so the room edge beside a jamb nib or
+    band end stood 8-10px off the wall (s03 corridor room_0014)."""
+
+    WALLS = (
+        fill_ring(0, 100, 100, 400, 108, fill=(0.7, 0.7, 0.7))
+        + fill_ring(4, 100, 292, 400, 300, fill=(0.7, 0.7, 0.7))
+        + fill_ring(8, 100, 100, 108, 300, fill=(0.7, 0.7, 0.7))
+        + fill_ring(12, 392, 100, 400, 300, fill=(0.7, 0.7, 0.7))
+    )
+
+    @staticmethod
+    def _tri(start_idx, pts, fill=(0.7, 0.7, 0.7)):
+        pts = list(pts) + [pts[0]]
+        return [
+            path(start_idx + i, [pts[i], pts[i + 1]], stroke_width=0.0, fill=fill)
+            for i in range(3)
+        ]
+
+    def test_triangle_pair_band_matches_rectangle_exactly(self):
+        # Seam-sharing triangles are unioned into their band before
+        # dilation, so the room outline is the same as for one rectangle
+        # ring — no bevel residue at the acute vertices.
+        rect = fill_ring(16, 108, 196, 300, 208, fill=(0.7, 0.7, 0.7))
+        tris = (
+            self._tri(16, [(108, 196), (300, 196), (300, 208)])
+            + self._tri(19, [(300, 208), (108, 208), (108, 196)])
+        )
+        ref = ShapelyPolygon(rooms_for(self.WALLS + rect)[0].evidence["polygon"])
+        got = ShapelyPolygon(rooms_for(self.WALLS + tris)[0].evidence["polygon"])
+        self.assertLessEqual(ref.symmetric_difference(got).area, 1.0)
+
+    def test_triangle_pair_acute_spike_is_capped(self):
+        # A 12px partition band 108..300 x 196..208 ending mid-room, once as
+        # one rectangle ring, once as the exporter's two triangles.
+        rect = fill_ring(16, 108, 196, 300, 208, fill=(0.7, 0.7, 0.7))
+        tris = (
+            self._tri(16, [(108, 196), (300, 196), (300, 208)])
+            # Second ring starts off the first ring's close point so the
+            # chainer opens a new ring (as the exporter's winding does).
+            + self._tri(19, [(300, 208), (108, 208), (108, 196)])
+        )
+        ref = rooms_for(self.WALLS + rect)
+        got = rooms_for(self.WALLS + tris)
+        self.assertEqual(len(ref), 1)
+        self.assertEqual(len(got), 1)
+        room = ShapelyPolygon(got[0].evidence["polygon"])
+        # Band end at x=300 + 2px barrier standoff: 305 is room floor.
+        # The spike sits at the acute vertex (300, 208): an 8x3.5px tab to
+        # x=310 before the fix. 306,209 is room floor; 305,198 too.
+        self.assertTrue(room.contains(ShapelyPoint(306.0, 209.0)))
+        self.assertTrue(room.contains(ShapelyPoint(305.0, 198.0)))
+        self.assertAlmostEqual(
+            got[0].evidence["area_px2"], ref[0].evidence["area_px2"], delta=20.0
+        )
+
+
+def stroked_ring_path(start_idx, pts, stroke_width=1.5):
+    """Closed stroked (fill-less) polyline exploded into chained `l` items."""
+    pts = list(pts) + [pts[0]]
+    return [
+        path(start_idx + i, [pts[i], pts[i + 1]], stroke_width=stroke_width)
+        for i in range(len(pts) - 1)
+    ]
+
+
+class TestJambNibRings(unittest.TestCase):
+    """s03 corridor room_0014: the jamb nibs beside door_0007/door_0019 are
+    closed STROKED wall-pen outlines (12x5px L-shapes with a door-stop
+    rebate, paths 15805-15816) whose every edge is under the 11px face
+    floor, so they were no barrier at all and the corridor edge bulged
+    over them to the door plug (x=3749 instead of the nib face at 3740)."""
+
+    def _plan(self, nibs=True, where="jamb"):
+        # 500x300 room split by a vertical band at x=340 with a doorway
+        # y 214..286; the door swings into the right room.
+        paths = rect_room(0, 100, 100, 600, 400)
+        paths += wall_band_v(8, 340, 100, 214) + wall_band_v(10, 340, 286, 400)
+        if nibs:
+            if where == "jamb":
+                top = [(340, 214), (356, 214), (356, 220), (348, 220), (348, 217), (340, 217)]
+                bot = [(340, 286), (356, 286), (356, 280), (348, 280), (348, 283), (340, 283)]
+            else:  # a same-sized stroked box floating mid-room
+                top = [(200, 214), (216, 214), (216, 220), (208, 220), (208, 217), (200, 217)]
+                bot = [(200, 286), (216, 286), (216, 280), (208, 280), (208, 283), (200, 283)]
+            paths += stroked_ring_path(20, top) + stroked_ring_path(26, bot)
+        # Jamb blocks 16px deep (a nib one wall-thickness wide beside the
+        # 8px band); the door bbox starts at their far face.
+        door = door_candidate((356.0, 220.0, 416.0, 280.0), confidence=0.9)
+        return paths, [door]
+
+    def test_nibs_at_the_jambs_are_wall(self):
+        paths, doors = self._plan()
+        rooms = rooms_for(paths, doors=doors)
+        self.assertEqual(len(rooms), 2)
+        polys = [ShapelyPolygon(r.evidence["polygon"]) for r in rooms]
+        # Inside the top nib, outside the door plug: wall, in no room.
+        # (the nib's 16px band-side edge is itself a face; probe the
+        # sub-floor rebate side of the L, 5px inside it)
+        self.assertFalse(any(p.contains(ShapelyPoint(344.0, 219.0)) for p in polys))
+        self.assertFalse(any(p.contains(ShapelyPoint(344.0, 281.0)) for p in polys))
+        # The doorway itself stays room floor up to the plug.
+        self.assertTrue(any(p.contains(ShapelyPoint(344.0, 250.0)) for p in polys))
+
+    def test_floating_boxes_are_not_wall(self):
+        base, doors = self._plan(nibs=False)
+        boxed, _ = self._plan(where="floating")
+        a = sum(r.evidence["area_px2"] for r in rooms_for(base, doors=doors))
+        b = sum(r.evidence["area_px2"] for r in rooms_for(boxed, doors=doors))
+        self.assertAlmostEqual(a, b, delta=5.0)
+
+
 class TestPhantomDoorSeals(unittest.TestCase):
     """Fallback-tier door candidates (label boxes, symbol clutter — kept
     only for Gemini arbitration) must not reshape room outlines: no

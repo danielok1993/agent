@@ -415,6 +415,37 @@ def framed_triple_window(base: int):
     ]
 
 
+def squat_cap_window(base: int):
+    """s04 BATHROOM 01 outer-wall window (paths 60-65, 0.56px A-DETL): the
+    opening box, three 4.9px-pitch panes (x 1439.1/1444.0/1448.9) running
+    exactly between two 9.8x7.1px qu head/sill blocks — aspect 1.38, inside
+    the crosshatch-box range the bar aspect gate rejects."""
+    return [
+        quad(base + 0, 1426.8, 737.7, 1461.2, 840.5),       # opening box
+        vline(base + 1, 744.8, 833.4, 1448.9),
+        quad(base + 2, 1439.1, 833.4, 1448.9, 840.5),       # sill block
+        quad(base + 3, 1439.1, 737.7, 1448.9, 744.8),       # head block
+        vline(base + 4, 744.8, 833.4, 1444.0),
+        vline(base + 5, 744.8, 833.4, 1439.1),
+    ]
+
+
+class TestSquatBlockCaps(unittest.TestCase):
+    """A squat frame block (aspect 1.0-1.8, the crosshatch-box range) is a
+    jamb only when >= 3 panes terminate on it — the repeated-pitch signature
+    that square hatch boxes never carry."""
+
+    def test_three_panes_on_squat_blocks_detect(self):
+        wins = detect_windows(squat_cap_window(600))
+        self.assertEqual(len(wins), 1, [tuple(round(v) for v in c.bbox) for c in wins])
+        self.assertEqual(wins[0].evidence["glazing_lines"], 3)
+        self.assertTrue(_covers(wins[0].bbox, 1444.0, 790.0))
+
+    def test_two_panes_on_squat_blocks_do_not(self):
+        paths = [p for p in squat_cap_window(600) if p.path_index != 604]
+        self.assertEqual(len(detect_windows(paths)), 0)
+
+
 class TestFramedMultiLightWindow(unittest.TestCase):
     """5-1133 W8 topology: block caps (qu jambs/mullions) + mullion-bridged
     center glazing. Labeled as one window (W8), so it must detect as one."""

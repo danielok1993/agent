@@ -257,6 +257,49 @@ class PocketLeafTests(unittest.TestCase):
         self.assertEqual(sliding_of(detect(paths, swings=[swing])), [])
 
 
+class StrokedPocketLeafTests(unittest.TestCase):
+    """s04 door_0014: a pocket door drawn as a bare stroked qu (4.7x92px,
+    0.56px) half inside its split pocket wall (flank gaps 1.1/1.2px),
+    protruding 45% into the doorway; the pier cap one panel length out of
+    the pocket mouth is the far jamb (90px vs 91.7px panel)."""
+
+    def _pocket(self, gap=1.2, far_jamb=True, white=False):
+        length, thickness = 92.0, 4.7
+        cx, cy = 300.0, 400.0                      # vertical panel, y 354..446
+        paths = list(white_ring(0, (cx, cy), length, thickness, 90.0)) if white else [
+            qu_panel(0, (cx, cy), length, thickness, 90.0)
+        ]
+        lat = thickness / 2 + gap
+        # Pocket faces: y 400..560 on both sides (cover 0.5 of the panel,
+        # pocket mouth at y=400, protrusion toward -y).
+        paths.append(line(10, (cx - lat, 400.0), (cx - lat, 560.0)))
+        paths.append(line(11, (cx + lat, 400.0), (cx + lat, 560.0)))
+        if far_jamb:
+            # Pier cap crossing the corridor 90px out of the mouth.
+            paths.append(line(12, (cx - 9.0, 310.0), (cx + 9.0, 310.0), sw=1.19))
+        return paths
+
+    def test_tight_stroked_pocket_detected_with_corridor(self):
+        sliding = sliding_of(detect(self._pocket()))
+        self.assertEqual(len(sliding), 1)
+        d = sliding[0]
+        self.assertEqual(d.evidence["slide_style"], "pocket_leaf")
+        self.assertAlmostEqual(d.evidence["opening_span_px"], 90.0, delta=1.5)
+        # bbox spans panel + doorway: from the far jamb (310) to the panel tip (446).
+        self.assertAlmostEqual(d.bbox[1], 310.0, delta=2.0)
+        self.assertAlmostEqual(d.bbox[3], 446.0, delta=2.0)
+
+    def test_loose_stroked_pocket_rejected(self):
+        # 3px clearance is a white-ring joinery tier gap, not a bare stroked one.
+        self.assertEqual(sliding_of(detect(self._pocket(gap=3.0))), [])
+
+    def test_no_far_jamb_keeps_panel_bbox(self):
+        sliding = sliding_of(detect(self._pocket(far_jamb=False)))
+        self.assertEqual(len(sliding), 1)
+        self.assertNotIn("opening_span_px", sliding[0].evidence)
+        self.assertAlmostEqual(sliding[0].bbox[1], 354.0, delta=2.0)
+
+
 def stroked_ring(start_idx, x0, y0, x1, y1):
     """A closed 4-segment stroked (fill-less) rectangle of `l` items."""
     return [

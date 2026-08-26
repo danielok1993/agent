@@ -133,7 +133,19 @@ WINDOW_INTERIOR_OBLIQUE_MAX = 2    # lines between the panes parallel to neither
 # dashes can never chain into phantom glazing.
 WINDOW_BLOCK_CAP_MAX_THICK_PX = 8.0   # bar thickness (W8 end caps 6.0, mullions 5.5)
 WINDOW_BLOCK_CAP_MIN_ASPECT   = 1.8   # long/short side; square crosshatch/insulation
-                                      # boxes (~1.0-1.4) never become caps
+                                      # boxes (~1.0-1.4) never become BAR caps
+WINDOW_SQUAT_CAP_MIN_PANES    = 3     # a SQUAT block (aspect < 1.8, the crosshatch-box
+                                      # range) is a jamb only when this many panes
+                                      # terminate on it: s04's outer-wall window draws
+                                      # its head/sill as 9.8x7.1px qu blocks (aspect
+                                      # 1.38) with three 4.9px-pitch panes running
+                                      # exactly between them — the repeated-pitch
+                                      # signature a hatch box never carries (a hatched
+                                      # wall reads as 2 panes, its faces). Squat blocks
+                                      # never bridge mullion chains. Corpus census
+                                      # 2026-08-26: squat blocks (len 3-36, thick <= 8)
+                                      # exist on 14 sheets (s02 28, s05 30, s12 24,
+                                      # s14 91); the sweep is the false-class measure.
 WINDOW_MULLION_GAP_MAX_PX     = 14.0  # max glazing-segment gap a mullion may bridge
                                       # (W8 gaps are 11.5px)
 WINDOW_BLOCK_CAP_CROSS_RATIO  = 0.75  # a line >= this fraction of the block's diagonal
@@ -263,12 +275,11 @@ def _block_cap_records(paths: list[PathPrimitive]) -> list[dict]:
             continue
         if thick < 1e-6 or thick > WINDOW_BLOCK_CAP_MAX_THICK_PX:
             continue
-        if length / thick < WINDOW_BLOCK_CAP_MIN_ASPECT:
-            continue
         if crossed(p, math.hypot(length, thick)):
             continue
         recs.append({"path": p, "a": a, "b": b, "len": length,
-                     "angle": _line_angle_deg(a, b), "block": True})
+                     "angle": _line_angle_deg(a, b), "block": True,
+                     "squat": length / thick < WINDOW_BLOCK_CAP_MIN_ASPECT})
     return recs
 
 
@@ -324,6 +335,7 @@ def _cap_record(r: dict, ux: float, uy: float, vx: float, vy: float) -> dict:
     mid = ((r["a"][0] + r["b"][0]) / 2, (r["a"][1] + r["b"][1]) / 2)
     return {"idx": r["path"].path_index, "path": r["path"], "len": r["len"],
             "block": r.get("block", False),
+            "squat": r.get("squat", False),
             "perp": _project_onto_axis(mid, (0.0, 0.0), ux, uy),
             "span": _projected_interval(r["a"], r["b"], vx, vy, (0.0, 0.0))}
 
@@ -342,7 +354,7 @@ def _merge_mullion_chains(glaze_pool: list[dict], caps: list[dict]) -> list[dict
     and bbox account for them. ``len`` is the summed coverage, which also lets
     _dedupe_by_perp prefer the chain over its own members.
     """
-    blocks = [c for c in caps if c.get("block")]
+    blocks = [c for c in caps if c.get("block") and not c.get("squat")]
     if not blocks or not glaze_pool:
         return glaze_pool
     pool = sorted(glaze_pool, key=lambda g: (g["perp"], g["span"][0]))
@@ -737,6 +749,8 @@ def detect_windows(paths: list[PathPrimitive], *,
             cap_len = (c1["len"] + c2["len"]) / 2
             if len(band) < 3 and cap_len < WINDOW_TWO_LINE_MIN_CAP_PX:
                 continue  # ambiguous thin-wall / fixture sliver, not a window
+            if (c1.get("squat") or c2.get("squat")) and len(band) < WINDOW_SQUAT_CAP_MIN_PANES:
+                continue  # squat block = hatch box unless a 3-pane band ends on it
             band_gap = band[-1]["perp"] - band[0]["perp"]
             if len(band) < 3 and band_gap < WINDOW_TIGHT_PAIR_GAP_PX:
                 margin = min(

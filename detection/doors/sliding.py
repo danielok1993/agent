@@ -339,15 +339,18 @@ def _pocket_leaf_match(
     panel: _SlidePanel,
     line_paths: list[PathPrimitive],
     *, gates: DoorGates,
-) -> dict | None:
-    """pocket_leaf pattern: a white panel flanked on both sides by wall faces
-    over part of its length, protruding into clear space at one end."""
+) -> tuple[dict, list[tuple[float, float]] | None] | None:
+    """pocket_leaf pattern: a panel flanked on both sides by wall faces over
+    part of its length, protruding into clear space at one end. Returns
+    (metrics, opening corridor corners or None) or None."""
     own = set(panel.path_indices)
     half_len = panel.length / 2
     half_th = panel.thickness / 2
 
     sides: dict[int, list[tuple[float, float]]] = {1: [], -1: []}
+    side_gap: dict[int, float] = {}
     crosser_lines: list[tuple[tuple[float, float], tuple[float, float]]] = []
+    all_lines: list[tuple[tuple[float, float], tuple[float, float]]] = []
     for path in line_paths:
         if path.path_index in own:
             continue
@@ -360,6 +363,7 @@ def _pocket_leaf_match(
         angle = _line_angle_deg(p1, p2)
         t1, d1 = _axial_offsets(panel, p1)
         t2, d2 = _axial_offsets(panel, p2)
+        all_lines.append(((t1, d1), (t2, d2)))
         if _angle_diff_mod180(angle, panel.axis_deg) > DOOR_SLIDE_AXIS_TOL_DEG:
             if _angle_diff_mod180(angle, panel.axis_deg) > 30.0:
                 crosser_lines.append(((t1, d1), (t2, d2)))
@@ -376,7 +380,9 @@ def _pocket_leaf_match(
         lo, hi = max(lo, -half_len), min(hi, half_len)
         if hi - lo < DOOR_SLIDE_FLANK_SIDE_MIN_FRAC * panel.length:
             continue
-        sides[1 if lat > 0 else -1].append((lo, hi))
+        side = 1 if lat > 0 else -1
+        sides[side].append((lo, hi))
+        side_gap[side] = min(side_gap.get(side, gap), gap)
     if not sides[1] or not sides[-1]:
         return None
 
@@ -421,12 +427,68 @@ def _pocket_leaf_match(
     if crossers > DOOR_SLIDE_ZONE_MAX_CROSSERS:
         return None
 
-    return {
+    metrics = {
         "flank_frac": round(flank_frac, 3),
+        "flank_gap_max_px": round(max(side_gap.values()), 2),
         "protrusion_px": round(protrusion, 2),
         "protrusion_frac": round(protrusion / panel.length, 3),
         "zone_crossers": crossers,
     }
+
+    # Far jamb under the slide law: the doorway a pocket leaf serves runs one
+    # panel length out of the pocket mouth (the leaf covers it exactly when
+    # drawn shut), so the jamb closing the opening — a line ENDING in the
+    # corridor or CROSSING it (a pier's end cap spans the whole band, so its
+    # endpoints lie outside the leaf's corridor) — sits ~one length away.
+    # Found, the corridor joins the emitted bbox so the room stage can plug
+    # the doorway the half-drawn leaf never covers (s04 door_0014: panel
+    # 91.7px, pier cap 90px out of the mouth; the slide arrow's 45° tick
+    # inside the corridor is the one tolerated crosser). Not found (the
+    # opening meets another wall obliquely, no jamb drawn), the bbox stays
+    # the panel's own, as before.
+    mouth, opening_dir = (
+        (cover_hi, 1.0) if protrusion_hi >= protrusion_lo else (cover_lo, -1.0)
+    )
+    lat_lim = half_th + max(side_gap.values()) + 1.0
+    best: tuple[float, float] | None = None
+    for (t1, d1), (t2, d2) in all_lines:
+        at: list[float] = [t for t, d in ((t1, d1), (t2, d2)) if abs(d) <= lat_lim]
+        if (d1 < 0.0) != (d2 < 0.0) and abs(d2 - d1) > 1e-6:
+            at.append(t1 + (t2 - t1) * (-d1) / (d2 - d1))
+        for t in at:
+            dist = (t - mouth) * opening_dir
+            if dist < half_len + 2.0:
+                continue  # inside the panel's own extent
+            dev = abs(dist - panel.length) / panel.length
+            if dev <= DOOR_SLIDE_PARK_SPAN_RATIO_TOL and (best is None or dev < best[1]):
+                best = (dist, dev)
+    corridor: list[tuple[float, float]] | None = None
+    if best is not None:
+        span, dev = best
+        far = mouth + opening_dir * span
+        o_lo, o_hi = sorted((mouth, far))
+        corridor_crossers = 0
+        for (t1, d1), (t2, d2) in crosser_lines:
+            if max(t1, t2) < o_lo + 1.0 or min(t1, t2) > o_hi - 1.0:
+                continue
+            if min(abs(d1), abs(d2)) > zone_half_width:
+                continue
+            corridor_crossers += 1
+        if corridor_crossers <= DOOR_SLIDE_ZONE_MAX_CROSSERS:
+            theta = math.radians(panel.axis_deg)
+            ux, uy = math.cos(theta), math.sin(theta)
+            corridor = [
+                (panel.center[0] + t * ux - d * uy, panel.center[1] + t * uy + d * ux)
+                for t in (mouth, far)
+                for d in (half_th + side_gap[1], -(half_th + side_gap[-1]))
+            ]
+            metrics.update({
+                "opening_span_px": round(span, 1),
+                "span_ratio_dev": round(dev, 3),
+                "corridor_crossers": corridor_crossers,
+                "opening_bbox": [round(v, 1) for v in _corners_bbox(corridor)],
+            })
+    return metrics, corridor
 
 
 def _parked_leaf_match(
@@ -656,17 +718,25 @@ def _detect_sliding_doors(
         candidates.append(mint("leaf_pair", [panel_a, panel_b], metrics))
 
     for panel in panels:
-        if panel.consumed or not panel.white:
+        if panel.consumed:
             continue
         # An open hinged leaf lying against a wall face can mimic a pocketed
         # panel; a leaf attached to a swing arc is the swing's business.
         if any(_bboxes_overlap(panel.bbox, swing.bbox) for swing in swings):
             continue
-        metrics = _pocket_leaf_match(panel, line_paths, gates=gates)
-        if metrics is None:
+        match = _pocket_leaf_match(panel, line_paths, gates=gates)
+        if match is None:
+            continue
+        metrics, corridor = match
+        # A bare stroked/qu panel (no white joinery ring) qualifies only when
+        # the cavity hugs it on both sides (DOOR_SLIDE_POCKET_TIGHT_GAP_PX).
+        if (
+            not panel.white
+            and metrics["flank_gap_max_px"] > gates.DOOR_SLIDE_POCKET_TIGHT_GAP_PX
+        ):
             continue
         panel.consumed = True
-        candidates.append(mint("pocket_leaf", [panel], metrics))
+        candidates.append(mint("pocket_leaf", [panel], metrics, corridor))
 
     for panel in panels:
         if panel.consumed:

@@ -177,6 +177,15 @@ DOOR_SLIDE_OVERLAP_MIN_FRAC       = 0.20  # axial overlap of the pair (collinear
 DOOR_SLIDE_OVERLAP_MAX_FRAC       = 0.90  # duplicated symbols measure 1.0; wall plies 0.94
 DOOR_SLIDE_FLANK_GAP_MIN_PX       = 0.5   # flank face just outside the panel edge...
 DOOR_SLIDE_FLANK_GAP_MAX_PX       = 12.0  # ...but within a pocket cavity's width (GD9 gaps: 2.9-6.1)
+DOOR_SLIDE_POCKET_TIGHT_GAP_PX    = 2.5   # a BARE stroked/qu panel (no white ring) is a
+                                          # pocket leaf only when BOTH flank gaps are this
+                                          # tight — the pocket cavity hugging the leaf: s04
+                                          # door_0014 measures 1.1/1.2px (4.7x92px qu, 0.56px,
+                                          # 54% inside its split pocket wall). White-ring
+                                          # panels keep the 12px cavity allowance (GD9
+                                          # 2.9-6.1). An open hinged leaf against a wall is
+                                          # flanked on ONE side only, and nothing but a
+                                          # cavity draws two faces ~1px off a leaf's edges.
 DOOR_SLIDE_FLANK_LINE_MIN_LEN_FRAC = 0.4  # a flank face is a wall line, not a tick (× panel length)
 DOOR_SLIDE_FLANK_SIDE_MIN_FRAC    = 0.25  # each side must cover this much of the panel axially
 DOOR_SLIDE_FLANK_MIN_FRAC         = 0.35  # both-sides (pocketed) coverage: GD9 measures 0.74;
@@ -301,6 +310,7 @@ class DoorGates:
     DOOR_SLIDE_PANEL_MAX_THICKNESS_PX: float
     DOOR_SLIDE_FLANK_GAP_MIN_PX: float
     DOOR_SLIDE_FLANK_GAP_MAX_PX: float
+    DOOR_SLIDE_POCKET_TIGHT_GAP_PX: float
     DOOR_SLIDE_PARK_GAP_MAX_PX: float
     DOOR_SLIDE_PARK_BAND_MIN_TH_PX: float
     DOOR_SLIDE_PARK_BAND_MAX_TH_PX: float
@@ -340,6 +350,7 @@ class DoorGates:
             DOOR_SLIDE_PANEL_MAX_THICKNESS_PX=DOOR_SLIDE_PANEL_MAX_THICKNESS_PX * factor,
             DOOR_SLIDE_FLANK_GAP_MIN_PX=DOOR_SLIDE_FLANK_GAP_MIN_PX * factor,
             DOOR_SLIDE_FLANK_GAP_MAX_PX=DOOR_SLIDE_FLANK_GAP_MAX_PX * factor,
+            DOOR_SLIDE_POCKET_TIGHT_GAP_PX=DOOR_SLIDE_POCKET_TIGHT_GAP_PX * factor,
             DOOR_SLIDE_PARK_GAP_MAX_PX=DOOR_SLIDE_PARK_GAP_MAX_PX * factor,
             # Wall-band thickness — the same quantity WALL_MIN/MAX_THICKNESS_PX
             # already carries as W in WallGates.
