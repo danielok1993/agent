@@ -158,6 +158,10 @@ WALL_WEAK_MIN_RUN_PX         = 30.0  # min weak-pair centerline length: shorter
                                      # sits between openings whose seals cover it
 WALL_WEAK_MATERIAL_MIN_MARKS = 4     # short stubs (corner posts) still need a real X-block
 WALL_WEAK_MATERIAL_MIN_SPAN  = 0.5   # marks must spread along the band, not clump at one end
+WALL_RECT_MIN_ASPECT         = 2.0   # stroked-rectangle candidate prefilter (long/short):
+                                     # NOT a wall discriminator — the s03 infill is 2.5, a
+                                     # window frame 2.4, a door leaf 18 — only the material
+                                     # gate decides; this just skips square symbol boxes
 WALL_WEAK_MATERIAL_PER_100PX = 3.0   # min diagonal marks per 100px of band length
 WALL_WEAK_MATERIAL_EDGE_PX   = 2.5   # marks this close to a band face don't count: a
                                      # dimension tick's midpoint lies ON the dimension
@@ -1141,6 +1145,77 @@ def _collect_weak_faces(
             pen=_pen_key(p.color),
         ))
     return weak
+
+
+def _collect_stroked_rect_weak_faces(
+    paths: list[PathPrimitive],
+    exclude_indices: frozenset[int] | set[int] = frozenset(),
+    *, gates: WallGates = WALL_GATES_UNSCALED,
+) -> list[_Seg]:
+    """Virtual long edges of stroked, UNFILLED `re`/`qu` items — weak tier only.
+
+    A wall segment is sometimes drawn as one closed box (a window infill, a
+    pier, a new-wall stub) that the exporter emits as a single rectangle
+    operator rather than four `l` items; face collection reads only `l`
+    items (and FILLED rectangles as bands), so such a box contributes no
+    faces at all (measured on s03: the 83x33px infill left of window_0011,
+    a 1.5px `qu` in the wall pen hatched at 0.25px, never paired and two
+    bedrooms merged through it). But the same geometry is also how beds,
+    baths, basins, shower trays, radiator casings and door LEAVES are drawn
+    (5x90px `re` items on s17/s20), and exploding every stroked rectangle
+    into strong faces fenced ~40 fixtures into phantom rooms across the
+    corpus and lost five real rooms — thickness and aspect do not separate
+    the classes (target 33px/2.5 vs a window frame 18px/2.4 vs the 36px cap).
+
+    The convention: a stroked atomic rectangle may represent a wall band
+    when its opposite long edges lie at wall spacing AND the enclosed band
+    carries distributed wall material. So the two long edges enter the
+    material-gated WEAK tier (stroked=False, original pen and path index
+    kept): they pair only through _band_has_wall_material, never gain
+    lone-face barrier rights, and stay out of the stroke reference — a
+    hollow box (a leaf, a bed) pairs with nothing. Short ends are omitted:
+    a pair's wall solid is flat-capped, so the ends are implicit once the
+    long edges pair (s03's explicit `l` closures, paths 15854/20330, are
+    extra evidence, not the reason), and a short end abutting a stair tread
+    otherwise fuses into the
+    tread's rung and disqualifies it. The shape gates here are a candidate
+    prefilter, not evidence: short side within the wall-thickness range,
+    long side a face length, aspect >= WALL_RECT_MIN_ASPECT.
+    """
+    out: list[_Seg] = []
+    for p in paths:
+        if p.path_index in exclude_indices:
+            continue
+        if p.item_type not in ("re", "qu") or len(p.points) != 4:
+            continue
+        if p.fill is not None or p.stroke_width < WALL_MIN_STROKE_WIDTH_PX:
+            continue
+        if _is_dashed(p.dashes):
+            continue
+        pts = p.points
+        if p.item_type == "qu":
+            # PyMuPDF quads are (ul, ur, ll, lr) — reorder to a sequential ring.
+            pts = [pts[0], pts[1], pts[3], pts[2]]
+        d01 = _line_length(pts[0], pts[1])
+        d12 = _line_length(pts[1], pts[2])
+        short, long_ = min(d01, d12), max(d01, d12)
+        if short < 1e-6 or long_ < gates.WALL_FACE_MIN_LEN_PX:
+            continue
+        if not (gates.WALL_MIN_THICKNESS_PX <= short <= gates.WALL_MAX_THICKNESS_PX):
+            continue
+        if long_ / short < WALL_RECT_MIN_ASPECT:
+            continue
+        if d01 >= d12:
+            long_edges = [(pts[0], pts[1]), (pts[2], pts[3])]
+        else:
+            long_edges = [(pts[1], pts[2]), (pts[3], pts[0])]
+        for a, b in long_edges:
+            out.append(_Seg(
+                p1=a, p2=b, layer=p.layer, layer_hint=_wall_layer_hint(p.layer),
+                indices={p.path_index}, stroked=False, stroke_width=0.0,
+                pen=_pen_key(p.color),
+            ))
+    return out
 
 
 def _dimension_line_indices(
@@ -2749,7 +2824,8 @@ def detect_wall_network(
     # gate runs on the raw pairs, before centerline merging, so a weak pair
     # can never ride in on a strong run's coattails.
     weak_merged = _merge_collinear_segs(
-        _collect_weak_faces(paths, excluded, gates=gates),
+        _collect_weak_faces(paths, excluded, gates=gates)
+        + _collect_stroked_rect_weak_faces(paths, excluded, gates=gates),
         gap_px=WALL_FACE_MERGE_GAP_PX, gates=gates,
     ) + demoted + lattice_faces + light_faces + _merge_collinear_segs(
         stair_faces, gap_px=WALL_FACE_MERGE_GAP_PX, gates=gates

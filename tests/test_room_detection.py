@@ -116,6 +116,68 @@ class TestClosedRooms(unittest.TestCase):
         self.assertAlmostEqual(left.bbox[2], 338.0, delta=2.0)
         self.assertAlmostEqual(right.bbox[0], 350.0, delta=2.0)
 
+    def _quad_box(self, idx, x0, y0, x1, y1, **kw):
+        # PyMuPDF quad point order: (ul, ur, ll, lr).
+        return path(idx, [(x0, y0), (x1, y0), (x0, y1), (x1, y1)],
+                    item_type="qu", **kw)
+
+    def _hatch_h(self, start_idx, x0, x1, y0, y1, pitch=6.0):
+        # 45-degree hatch strokes filling a horizontal band (short obliques
+        # spanning the band, as CAD exports draw a new-wall infill).
+        out = []
+        h = y1 - y0
+        x = x0
+        i = start_idx
+        while x + h <= x1:
+            out.append(path(i, [(x, y1), (x + h, y0)], stroke_width=0.25))
+            x += pitch
+            i += 1
+        return out
+
+    def test_hatched_stroked_quad_divider_splits_room(self):
+        # A wall segment drawn as one closed rectangle (the PDF `re`/`qu`
+        # operator, unfilled) with hatch inside — s03's window infill, a
+        # 1.5px `qu` outline 83x33px hatched at 0.25px. Its long edges are
+        # virtual WEAK faces: they pair only on the material between them.
+        paths = rect_room(0, 100, 100, 600, 500)
+        paths += wall_band_h(8, 100, 350, 300)               # left half: faces
+        paths.append(self._quad_box(10, 350, 300, 592, 308))  # right half: quad
+        paths += self._hatch_h(11, 350, 592, 300, 308)
+        rooms = rooms_for(paths)
+        self.assertEqual(len(rooms), 2)
+        top, bottom = sorted(rooms, key=lambda r: r.bbox[1])
+        self.assertAlmostEqual(top.bbox[3], 298.0, delta=2.0)
+        self.assertAlmostEqual(bottom.bbox[1], 310.0, delta=2.0)
+
+    def test_hollow_stroked_quad_is_not_a_wall(self):
+        # The same box with NOTHING between its edges — a door leaf (5x90px
+        # `re` on s17/s20) or a fixture outline — must not split the room.
+        # No door candidate is passed, so it is the material gate, not the
+        # open-leaf exclusion, that keeps the leaf out of the network.
+        paths = rect_room(0, 100, 100, 600, 500)
+        paths += wall_band_h(8, 100, 350, 300)
+        paths.append(self._quad_box(10, 350, 300, 592, 308))
+        self.assertEqual(len(rooms_for(paths)), 1)
+        # A leaf standing open across the room, hinged on the divider: it
+        # must contribute no wall segment at all (the room count alone
+        # would not prove that — the leaf reaches no enclosing wall).
+        paths.append(self._quad_box(20, 200, 308, 205, 398))
+        network = detect_wall_network(paths, [])
+        self.assertFalse(
+            any(20 in seg.face_path_indices for seg in network.segments)
+        )
+        self.assertEqual(len(rooms_for(paths)), 1)
+
+    def test_unhatched_furniture_quad_is_not_a_room(self):
+        # A bed / bath drawn as a stroked rectangle inside the room: no
+        # material, no faces with barrier rights — the room stays whole.
+        paths = rect_room(0, 100, 100, 600, 500)
+        paths.append(self._quad_box(10, 200, 200, 300, 400))   # 100x200 bed
+        paths.append(self._quad_box(11, 400, 200, 430, 300))   # 30x100 tray
+        rooms = rooms_for(paths)
+        self.assertEqual(len(rooms), 1)
+        self.assertAlmostEqual(rooms[0].evidence["area_px2"], 480 * 380, delta=1200)
+
     def test_hairline_hatched_partition_splits_room(self):
         # New partition walls are often drawn in the joinery pen (0.45px)
         # with hatch/blocking between the faces; the material-backed weak

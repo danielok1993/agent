@@ -217,5 +217,22 @@
   "215": "TestThickMaterialPairs",
   "216": "TestRoomGatesConstruction",
   "217": "TestComponentFiltering",
-  "218": "_is_light_pen"
+  "218": "_is_light_pen",
+  "219": "test_ground_truth_hygiene.py",
+  "220": "test_takeoff_quantities.py",
+  "221": "load_truth",
+  "222": "PruneUnreadPageOutputTests",
+  "223": "test_add_sheet.py",
+  "224": "render_page_svg",
+  "225": "HygieneRuleTests",
+  "226": "add_sheet.py",
+  "227": "FitCircle3PtTests",
+  "228": "TestSlidingScaleBehavior",
+  "229": "TestFoldingScaleBehavior",
+  "230": "client.py",
+  "231": "_dedupe_openings",
+  "232": "OpenLeafExclusionTests",
+  "233": "TestBatchNeverPrompts",
+  "234": "TestCrossWindowToleranceUnscaled",
+  "235": "SentinelIdentityTests"
 }
