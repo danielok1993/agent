@@ -214,5 +214,8 @@
   "212": "TestWindowSpanOvershootRetune",
   "213": "TestRenderPageSvg",
   "214": "TestMinWidthNegativeControl",
-  "215": "TestThickMaterialPairs"
+  "215": "TestThickMaterialPairs",
+  "216": "TestRoomGatesConstruction",
+  "217": "TestComponentFiltering",
+  "218": "_is_light_pen"
 }
