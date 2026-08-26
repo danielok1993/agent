@@ -201,10 +201,18 @@
   "199": "_is_light_pen",
   "200": "_dedupe_openings",
   "201": "File structure",
+  "202": "SplitDoubleArcTests",
+  "203": "_scan_striped_runs",
   "204": "PruneUnreadPageOutputTests",
   "205": "parse_answer",
   "206": "check_corpus",
   "207": "TestExtractImagesInstances",
   "208": "TestWindowExteriorSide",
-  "212": "TestWindowSpanOvershootRetune"
+  "209": "TestFarSidePairs",
+  "210": "TestSpanFilterIsLoadBearing",
+  "211": "MainExceptionIsolationTests",
+  "212": "TestWindowSpanOvershootRetune",
+  "213": "TestRenderPageSvg",
+  "214": "TestMinWidthNegativeControl",
+  "215": "TestThickMaterialPairs"
 }
