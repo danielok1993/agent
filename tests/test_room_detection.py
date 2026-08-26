@@ -1270,6 +1270,44 @@ class TestStairFurniture(unittest.TestCase):
         self.assertTrue(poly.contains(ShapelyPoint(492, 150)))
         self.assertAlmostEqual(left.bbox[2], 498.0, delta=2.0)
 
+    def test_collinear_piece_abutting_last_tread_does_not_unseat_it(self):
+        # s03 FF (measured under the rejected strong-edge variant of
+        # ab888ab): the last tread (path 1132, 48.5px) abutted end-to-end
+        # the 17.7px short edge of a window-frame box on the same axis.
+        # Fusing the two into one rung made a 66px envelope against 51px
+        # siblings, the tread failed the end-tolerance test, dropped out of
+        # the run and stayed a STRONG face that fenced the flight off the
+        # landing. Members qualify on their OWN interval: the tread is
+        # stair ink, the collinear piece is not.
+        # The cut crosses the first three treads only (s03's cut 1350
+        # spans x 1143-1161 of a flight ending at 1190), so the zone does
+        # not reach the last tread and nothing rescues it if it drops.
+        treads = [vline(100 + i, 440 + 15 * i, 108, 200) for i in range(4)]
+        cut = [path(110, [(430, 120), (475, 165)])]
+        partition = wall_band_h(120, 400, 592, 200)
+        # An 18px same-pen piece continuing the last tread's line past the
+        # partition it lands on (a frame edge, a skirting, a wall face).
+        piece = [vline(111, 485, 200, 218)]
+        paths = rect_room(0, 100, 100, 600, 400) + treads + cut + partition + piece
+        room, poly = self._one_room_containing(
+            paths, [(447, 150), (462, 150), (477, 150), (492, 150), (540, 150)]
+        )
+        self.assertFalse(poly.contains(ShapelyPoint(500, 204)))
+
+    def test_tread_split_by_text_mask_qualifies_on_aggregate_length(self):
+        # A tread cut in two by a text mask arrives as two touching
+        # fragments, each under half the reference length. Their UNION
+        # covers the reference, so the tread still qualifies (a per-
+        # fragment length floor would drop it and re-fence the flight).
+        treads = [vline(100 + i, 440 + 15 * i, 108, 200) for i in range(3)]
+        treads += [vline(103, 485, 108, 150), vline(104, 485, 152, 200)]
+        cut = [path(110, [(430, 120), (475, 165)])]
+        partition = wall_band_h(120, 400, 592, 200)
+        paths = rect_room(0, 100, 100, 600, 400) + treads + cut + partition
+        self._one_room_containing(
+            paths, [(447, 150), (462, 150), (477, 150), (492, 150), (540, 150)]
+        )
+
 
 def triangulated_fill_band_v(start_idx, x0, y0, x1, y1, fill=(0.5, 0.5, 0.5)):
     """A filled wall band exported as two triangles (CAD fill triangulation).

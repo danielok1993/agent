@@ -1176,9 +1176,10 @@ def _collect_stroked_rect_weak_faces(
     hollow box (a leaf, a bed) pairs with nothing. Short ends are omitted:
     a pair's wall solid is flat-capped, so the ends are implicit once the
     long edges pair (s03's explicit `l` closures, paths 15854/20330, are
-    extra evidence, not the reason), and a short end abutting a stair tread
-    otherwise fuses into the
-    tread's rung and disqualifies it. The shape gates here are a candidate
+    extra evidence, not the reason; and before _demote_stair_faces
+    qualified rung members on their own intervals, a short end abutting a
+    stair tread fused into the tread's rung and disqualified it). The
+    shape gates here are a candidate
     prefilter, not evidence: short side within the wall-thickness range,
     long side a face length, aspect >= WALL_RECT_MIN_ASPECT.
     """
@@ -2354,10 +2355,14 @@ def _demote_stair_faces(
                         break
                 if merged_into is not None:
                     merged_into["members"].append(i)
+                    merged_into["ivals"].append((i, lo, hi))
                     merged_into["lo"] = min(merged_into["lo"], lo)
                     merged_into["hi"] = max(merged_into["hi"], hi)
                 else:
-                    rungs.append({"off": off, "lo": lo, "hi": hi, "members": [i]})
+                    rungs.append({
+                        "off": off, "lo": lo, "hi": hi,
+                        "members": [i], "ivals": [(i, lo, hi)],
+                    })
             # Chain rungs at tread pitch with overlapping extents. Every
             # open chain is a candidate predecessor (rungs at one offset with
             # disjoint extents each carry their own chain), so an unrelated
@@ -2392,12 +2397,45 @@ def _demote_stair_faces(
                 ref_row = by_len[len(by_len) // 2]
                 rlo, rhi = ref_row["lo"], ref_row["hi"]
                 rlen = rhi - rlo
-                tread_rungs = [
-                    r for r in chain
-                    if r["lo"] >= rlo - WALL_STAIR_END_TOL_PX
-                    and r["hi"] <= rhi + WALL_STAIR_END_TOL_PX
-                    and (r["hi"] - r["lo"]) >= WALL_STAIR_MIN_LEN_FRAC * rlen
-                ]
+                # Members qualify on their OWN interval, never the fused
+                # rung envelope: a same-pen piece abutting a tread end-to-
+                # end on the same axis (a window-frame edge, a skirting, a
+                # wall face) fuses into the rung and used to push its
+                # envelope past the end tolerance, so the TREAD dropped out
+                # of the run and stayed a strong face fencing the flight
+                # (s03 FF: tread 1132, 48.5px, plus a 17.7px frame edge =
+                # 66px against 51px siblings). Now the in-extent members
+                # are the tread and the overshooting piece stays strong on
+                # its own merits. Length is the UNION of the in-extent
+                # members, so a tread split by a text mask into fragments
+                # each under half the reference still qualifies.
+                tread_rungs = []
+                for r in chain:
+                    inside = [
+                        (i, lo, hi) for i, lo, hi in r["ivals"]
+                        if lo >= rlo - WALL_STAIR_END_TOL_PX
+                        and hi <= rhi + WALL_STAIR_END_TOL_PX
+                    ]
+                    if not inside:
+                        continue
+                    covered, cur_lo, cur_hi = 0.0, None, None
+                    for _, lo, hi in sorted(inside, key=lambda t: t[1]):
+                        if cur_hi is None or lo > cur_hi:
+                            if cur_hi is not None:
+                                covered += cur_hi - cur_lo
+                            cur_lo, cur_hi = lo, hi
+                        else:
+                            cur_hi = max(cur_hi, hi)
+                    covered += cur_hi - cur_lo
+                    if covered < WALL_STAIR_MIN_LEN_FRAC * rlen:
+                        continue
+                    tread_rungs.append({
+                        "off": r["off"],
+                        "lo": min(lo for _, lo, _ in inside),
+                        "hi": max(hi for _, _, hi in inside),
+                        "members": [i for i, _, _ in inside],
+                        "ivals": inside,
+                    })
                 if len(tread_rungs) < WALL_STAIR_MIN_TREADS:
                     continue
                 # Consistent pitch: split the chain wherever a gap strays
