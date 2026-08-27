@@ -111,6 +111,34 @@ WALL_DIM_TICK_STRADDLE_MIN_PX = 1.0  # both tick ends clear the line by this
 WALL_DIM_ARROW_ANGLE_MIN    = 5.0    # barb-vs-line angle window
 WALL_DIM_ARROW_ANGLE_MAX    = 45.0
 
+# VECTOR TEXT: sheets whose labels are drawn as stick-font glyphs — every
+# letter a cluster of short `l` strokes, no text span at all (s06/s11/s16/
+# s20/s13; s06 has 8 spans and 24k glyph strokes). The strokes share the
+# wall pen (s06: 0.75px, the wall reference itself) and at 1:100 a 9.5-12px
+# glyph stem clears the scaled 5.5px face floor; the parallel stems of an
+# H/N/"IL" even pair at 6-10px spacing into mini bands, and the room outline
+# is forced around the word wherever the cluster chains to a plug or wall
+# (s06 BATH & TOILET / LANDING). The convention: wall linework is CONNECTED —
+# a nib meets its band, hatch meets its faces, treads meet the stringer —
+# while glyph ink is freestanding and comes in an aligned ROW of
+# glyph-sized components (common cap/base line, gaps under one glyph
+# height). One freestanding glyph-sized box is a pier/pattern cell, never a
+# row (s01's hob rings and sink bowls, s17's trees and RWP symbols do form
+# rows and are excluded too: fixture symbols, never wall). Paper-space:
+# text height is a drafting convention (measured 8.7-29px across the corpus,
+# 2.5mm = 14.8px), not a world length.
+WALL_TEXT_GLYPH_MAX_PX      = 30.0  # 5mm text: nothing larger is a glyph, and
+                                    # touching anything larger disqualifies
+WALL_TEXT_GLYPH_MIN_PX      = 4.0   # a glyph has extent across the line (a
+                                    # dash row has none)
+WALL_TEXT_TOUCH_PX          = 0.6   # stroke-to-stroke contact tolerance
+WALL_TEXT_ALIGN_TOL_PX      = 1.5   # cap OR base line agreement along a row
+WALL_TEXT_MIN_GLYPHS        = 3     # row length
+WALL_TEXT_MIN_MULTI_STROKE  = 2     # members drawn with >= 2 strokes (hatch
+                                    # strokes are single)
+WALL_TEXT_ANGLE_DIVERSITY   = 20.0  # degrees between some two strokes of the
+                                    # row (a loose hatch row is one angle)
+
 WALL_BACKGROUND_FILL_MIN    = 0.97  # every channel at/above this = page background;
                                     # unstroked white shapes are text masks and
                                     # counter tops, never wall material
@@ -1182,6 +1210,166 @@ def _fill_seams(
             ids = sorted(ring_ids)
             adjacency.extend((ids[0], other) for other in ids[1:])
     return seams, adjacency
+
+
+def _vector_text_indices(paths: list[PathPrimitive]) -> set[int]:
+    """Path indices of stick-font glyph strokes: annotation, never faces.
+
+    A glyph is a connected component of touching same-pen stroked `l`
+    items no larger than WALL_TEXT_GLYPH_MAX_PX a side that touches NO
+    larger linework (wall ink is connected: a nib meets its band, a hatch
+    stroke its faces, a tread its stringer). A text line is a row of >=
+    WALL_TEXT_MIN_GLYPHS glyphs sharing a cap or base line (either axis —
+    s20 is rotated) with gaps under one glyph height, of which >=
+    WALL_TEXT_MIN_MULTI_STROKE are multi-stroke and whose strokes span >=
+    WALL_TEXT_ANGLE_DIVERSITY. A lone hatched pier box is one component,
+    never a row; a loose row of parallel hatch strokes has neither multi-
+    stroke members nor angle diversity.
+    """
+    from shapely.strtree import STRtree
+    from shapely.geometry import box as _box
+
+    gmax, touch = WALL_TEXT_GLYPH_MAX_PX, WALL_TEXT_TOUCH_PX
+    big = []
+    pieces: list[tuple] = []          # (index, a, b, length, pen)
+    for p in paths:
+        b = p.bbox
+        if max(b[2] - b[0], b[3] - b[1]) > gmax:
+            if p.item_type == "l" and len(p.points) >= 2:
+                big.append(LineString([p.points[0], p.points[-1]]))
+            else:
+                big.append(_box(*b).exterior)
+            continue
+        if (
+            p.item_type != "l" or len(p.points) < 2 or p.stroke_width <= 0
+            or p.fill is not None or p.color is None
+        ):
+            continue
+        a, c = p.points[0], p.points[-1]
+        length = _line_length(a, c)
+        if length <= 0:
+            continue
+        pieces.append((p.path_index, a, c, length, _pen_key(p.color)))
+    if len(pieces) < WALL_TEXT_MIN_GLYPHS:
+        return set()
+
+    parent = list(range(len(pieces)))
+
+    def _find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    grid: dict[tuple[int, int], list[int]] = {}
+    for i, (_, a, c, _, _) in enumerate(pieces):
+        for gx in range(int(min(a[0], c[0]) // gmax), int(max(a[0], c[0]) // gmax) + 1):
+            for gy in range(int(min(a[1], c[1]) // gmax), int(max(a[1], c[1]) // gmax) + 1):
+                grid.setdefault((gx, gy), []).append(i)
+    for members in grid.values():
+        for ii in range(len(members)):
+            i = members[ii]
+            _, ai, bi, _, pi = pieces[i]
+            for jj in range(ii + 1, len(members)):
+                j = members[jj]
+                _, aj, bj, _, pj = pieces[j]
+                if pi != pj or _find(i) == _find(j):
+                    continue
+                if (
+                    min(ai[0], bi[0]) - touch > max(aj[0], bj[0])
+                    or min(aj[0], bj[0]) - touch > max(ai[0], bi[0])
+                    or min(ai[1], bi[1]) - touch > max(aj[1], bj[1])
+                    or min(aj[1], bj[1]) - touch > max(ai[1], bi[1])
+                ):
+                    continue
+                if LineString([ai, bi]).distance(LineString([aj, bj])) <= touch:
+                    parent[_find(i)] = _find(j)
+
+    comps: dict[int, list[int]] = {}
+    for i in range(len(pieces)):
+        comps.setdefault(_find(i), []).append(i)
+    tree = STRtree(big) if big else None
+    glyphs: list[dict] = []
+    for members in comps.values():
+        xs = [v for m in members for v in (pieces[m][1][0], pieces[m][2][0])]
+        ys = [v for m in members for v in (pieces[m][1][1], pieces[m][2][1])]
+        x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+        if max(x1 - x0, y1 - y0) > gmax or max(x1 - x0, y1 - y0) < WALL_TEXT_GLYPH_MIN_PX:
+            continue
+        if tree is not None and any(
+            big[k].distance(seg) <= touch
+            for m in members
+            for seg in (LineString([pieces[m][1], pieces[m][2]]),)
+            for k in tree.query(seg.buffer(touch))
+        ):
+            continue
+        glyphs.append({
+            "bbox": (x0, y0, x1, y1), "members": members,
+            "pen": pieces[members[0]][4],
+            "angles": [_line_angle_deg(pieces[m][1], pieces[m][2]) for m in members],
+        })
+    if len(glyphs) < WALL_TEXT_MIN_GLYPHS:
+        return set()
+
+    def _aligned(g, k, axis) -> bool:
+        bg, bk = g["bbox"], k["bbox"]
+        if axis == 0:
+            (a0, a1, q0, q1), (c0, c1, r0, r1) = (bg[0], bg[2], bg[1], bg[3]), (bk[0], bk[2], bk[1], bk[3])
+        else:
+            (a0, a1, q0, q1), (c0, c1, r0, r1) = (bg[1], bg[3], bg[0], bg[2]), (bk[1], bk[3], bk[0], bk[2])
+        hg, hk = q1 - q0, r1 - r0
+        if min(hg, hk) < WALL_TEXT_GLYPH_MIN_PX or not 0.5 <= hg / hk <= 2.0:
+            return False
+        if (
+            abs(q0 - r0) > WALL_TEXT_ALIGN_TOL_PX
+            and abs(q1 - r1) > WALL_TEXT_ALIGN_TOL_PX
+        ):
+            return False
+        return max(c0 - a1, a0 - c1) <= max(hg, hk)
+
+    gparent = list(range(len(glyphs)))
+
+    def _gfind(i):
+        while gparent[i] != i:
+            gparent[i] = gparent[gparent[i]]
+            i = gparent[i]
+        return i
+
+    cell = 2 * gmax
+    ggrid: dict[tuple[int, int], list[int]] = {}
+    for i, g in enumerate(glyphs):
+        b = g["bbox"]
+        ggrid.setdefault((int(b[0] // cell), int(b[1] // cell)), []).append(i)
+    for (gx, gy), members in ggrid.items():
+        neigh = [
+            m for dx in (-1, 0, 1) for dy in (-1, 0, 1)
+            for m in ggrid.get((gx + dx, gy + dy), ())
+        ]
+        for i in members:
+            for j in neigh:
+                if j <= i or glyphs[i]["pen"] != glyphs[j]["pen"]:
+                    continue
+                if _aligned(glyphs[i], glyphs[j], 0) or _aligned(glyphs[i], glyphs[j], 1):
+                    ri, rj = _gfind(i), _gfind(j)
+                    if ri != rj:
+                        gparent[ri] = rj
+
+    rows: dict[int, list[int]] = {}
+    for i in range(len(glyphs)):
+        rows.setdefault(_gfind(i), []).append(i)
+    out: set[int] = set()
+    for members in rows.values():
+        if len(members) < WALL_TEXT_MIN_GLYPHS:
+            continue
+        gs = [glyphs[m] for m in members]
+        if sum(1 for g in gs if len(g["members"]) >= 2) < WALL_TEXT_MIN_MULTI_STROKE:
+            continue
+        angles = [a for g in gs for a in g["angles"]]
+        if not any(_angle_diff_mod180(a, angles[0]) >= WALL_TEXT_ANGLE_DIVERSITY for a in angles):
+            continue
+        for g in gs:
+            out.update(pieces[m][0] for m in g["members"])
+    return out
 
 
 def _collect_wall_faces(
@@ -2967,9 +3155,12 @@ def detect_wall_network(
     # _is_barrier_face alone, because a paired callout would still create
     # segments, enter the stroke reference and launder its partner into
     # wall evidence (s04's page-wide 1.19px section callout).
+    # Stick-font text (s06/s11/s16/s20 draw every label as glyph strokes in
+    # the wall pen, no text span) is vetoed the same way: freestanding
+    # glyph rows are never wall ink (_vector_text_indices).
     excluded = frozenset(exclude_path_indices or ()) | frozenset(
         _dimension_line_indices(paths, gates=gates)
-    ) | frozenset(
+    ) | frozenset(_vector_text_indices(paths)) | frozenset(
         p.path_index for p in paths if _layer_annotation_veto(p.layer)
     )
     rings = _collect_fill_rings(paths)

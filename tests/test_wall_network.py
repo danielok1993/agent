@@ -1133,3 +1133,68 @@ class TestFarSidePairs(unittest.TestCase):
         self.assertFalse(counter[0].stroked)
         wall = [f for f in network.faces if 4 in f.indices]
         self.assertTrue(wall and all(f.stroked for f in wall))
+
+
+class TestVectorTextExclusion(unittest.TestCase):
+    """Stick-font text drawn as line strokes (s06/s11/s16/s20: no text
+    spans, every label is a cluster of short `l` items in the wall pen)
+    must never enter face collection: at 1:100 the glyph stems clear the
+    scaled face floor and the parallel stems of an H pair at wall-like
+    spacing into a mini band, notching the room outline around the word
+    (s06 BATH & TOILET / LANDING)."""
+
+    @staticmethod
+    def _word(start_idx, x, y, **kw):
+        """'HITL' in 14px stick glyphs, cap line y, baseline y + 14."""
+        h = 14.0
+        return [
+            vline(start_idx, x, y, y + h, **kw),                    # H
+            vline(start_idx + 1, x + 6, y, y + h, **kw),
+            hline(start_idx + 2, x, x + 6, y + 7, **kw),
+            vline(start_idx + 3, x + 14, y, y + h, **kw),           # I
+            hline(start_idx + 4, x + 20, x + 30, y, **kw),          # T
+            vline(start_idx + 5, x + 25, y, y + h, **kw),
+            vline(start_idx + 6, x + 36, y, y + h, **kw),           # L
+            hline(start_idx + 7, x + 36, x + 44, y + h, **kw),
+        ]
+
+    def test_glyph_row_inside_room_never_becomes_faces(self):
+        word = self._word(50, 200, 200)
+        paths = rect_room(0, 100, 100, 400, 400) + word
+        network = detect_wall_network(paths)
+        face_idx = {i for f in network.faces for i in f.indices}
+        self.assertFalse(face_idx & {p.path_index for p in word})
+        # The room walls themselves are untouched.
+        self.assertEqual(len(network.paired_face_indices() & set(range(8))), 8)
+
+    def test_glyph_row_touching_wall_linework_is_not_text(self):
+        # The same strokes standing ON a wall face (jamb nibs, end caps)
+        # are connected wall ink, not freestanding glyphs.
+        word = self._word(50, 200, 108)      # tops land on the inner face y=108
+        paths = rect_room(0, 100, 100, 400, 400) + word
+        network = detect_wall_network(paths)
+        face_idx = {i for f in network.faces for i in f.indices}
+        self.assertTrue(face_idx & {p.path_index for p in word})
+
+    def test_lone_pier_and_parallel_stroke_row_are_not_text(self):
+        from detection.walls import _vector_text_indices
+        # A freestanding hatched pier box: one glyph-sized component, no row.
+        pier = [
+            hline(50, 200, 220, 200), hline(51, 200, 220, 216),
+            vline(52, 200, 200, 216), vline(53, 220, 200, 216),
+            path(54, [(200.0, 216.0), (216.0, 200.0)]),
+            path(55, [(204.0, 216.0), (220.0, 200.0)]),
+        ]
+        self.assertEqual(_vector_text_indices(pier), set())
+        # Three mutually parallel single strokes at glyph spacing (loose
+        # hatch) have no multi-stroke member and no angle diversity.
+        strokes = [
+            path(60 + k, [(200.0 + 8 * k, 200.0), (208.0 + 8 * k, 214.0)])
+            for k in range(3)
+        ]
+        self.assertEqual(_vector_text_indices(strokes), set())
+        # The real word is recognised on its own.
+        word = self._word(70, 200, 200)
+        self.assertEqual(
+            _vector_text_indices(word), {p.path_index for p in word}
+        )
