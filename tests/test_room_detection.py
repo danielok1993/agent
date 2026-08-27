@@ -209,6 +209,70 @@ class TestClosedRooms(unittest.TestCase):
         rooms = rooms_for(paths)
         self.assertEqual(len(rooms), 1)
 
+    def _hairline_hatched_band_h(self, start_idx, x0, x1, y, thickness=14.0):
+        # s02's partition convention: two joinery-pen faces with hatch
+        # between them (the material-backed weak pair).
+        prims = [
+            hline(start_idx, x0, x1, y, stroke_width=0.45),
+            hline(start_idx + 1, x0, x1, y + thickness, stroke_width=0.45),
+        ]
+        idx = start_idx + 2
+        for x in range(int(x0) + 4, int(x1) - int(thickness) - 4, 8):
+            prims.append(path(
+                idx, [(x, y + thickness - 1), (x + thickness - 2, y + 1)],
+                stroke_width=0.3,
+            ))
+            idx += 1
+        return prims
+
+    def test_joinery_front_collinear_with_hatched_bands_does_not_fence(self):
+        # s02's "coats" cupboard: a built-in wardrobe recessed off the HALL,
+        # closed on three sides by real walls and drawn OPEN to the hall
+        # along its front — a 3px pair of joinery-pen lines with nothing
+        # between them, collinear with the top faces of the hatched
+        # partitions either side (the merge chains them into one 500px
+        # face that pairs over only its two ends). The paired ends seal
+        # through their segments; the plain run between them bounds no
+        # material and must not fence the cupboard out of the hall.
+        paths = rect_room(0, 100, 100, 600, 500)
+        paths += self._hairline_hatched_band_h(20, 100, 200, 300)     # left band
+        paths += self._hairline_hatched_band_h(60, 500, 600, 300)     # right band
+        # Cupboard box: strong side and back walls, joinery front on top.
+        paths += wall_band_v(100, 192, 300, 400)
+        paths += wall_band_v(102, 500, 300, 400)
+        paths += wall_band_h(104, 192, 508, 392)
+        paths += [
+            hline(110, 200, 500, 300, stroke_width=0.45),
+            hline(111, 200, 500, 303, stroke_width=0.45),
+        ]
+        rooms = rooms_for(paths)
+        # Hall (with the cupboard pocket) + the space below the bands.
+        self.assertEqual(len(rooms), 2)
+        hall = min(rooms, key=lambda r: r.bbox[1])
+        self.assertAlmostEqual(hall.bbox[3], 390.0, delta=2.0)   # reaches the cupboard back
+        self.assertAlmostEqual(hall.bbox[1], 110.0, delta=2.0)
+
+    def test_sliding_threshold_collinear_with_hatched_bands_still_seals(self):
+        # Same geometry with a confident sliding door standing on the front
+        # line (s02 GD5: a 120px panel in a 200px structural opening, the
+        # hairline track drawn across the whole opening): the line is the
+        # door's in-plane evidence and keeps its run to the jambs, so the
+        # pocket stays a room of its own.
+        paths = rect_room(0, 100, 100, 600, 500)
+        paths += self._hairline_hatched_band_h(20, 100, 200, 300)
+        paths += self._hairline_hatched_band_h(60, 500, 600, 300)
+        paths += wall_band_v(100, 192, 300, 400)
+        paths += wall_band_v(102, 500, 300, 400)
+        paths += wall_band_h(104, 192, 508, 392)
+        paths += [
+            hline(110, 200, 500, 300, stroke_width=0.45),
+            hline(111, 200, 500, 303, stroke_width=0.45),
+        ]
+        door = door_candidate((300, 298, 420, 306), confidence=0.65)
+        door.evidence["assembly_type"] = "sliding"
+        rooms = rooms_for(paths, doors=[door])
+        self.assertEqual(len(rooms), 3)
+
     def test_non_closing_linework_yields_no_room(self):
         # U-shape (3 walls) + an unrelated floating wall: the open side merges
         # the interior with the page-border component.

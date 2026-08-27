@@ -136,10 +136,16 @@ ROOM_PAIRED_FACE_MIN_FRAC   = 0.5     # a STROKED face penned under the barrier 
                                       # earned: segments covering >= this fraction of
                                       # the face run. Noise measures <= 0.36, real
                                       # sub-gate paired faces >= 0.71 (both PDFs).
-                                      # UNSTROKED paired faces are exempt — material-
-                                      # backed hairline partitions are real walls with
-                                      # legitimately partial pairing (0.13-0.36 where
-                                      # openings/text ate the partner face)
+                                      # UNSTROKED paired faces short of it are CLIPPED
+                                      # rather than dropped (_backed_extent): material-
+                                      # backed hairline partitions pair legitimately
+                                      # over 0.13-0.36 where openings ate the partner
+                                      # face (s02's sliding-door tracks GD5/GD9), and
+                                      # keep the run beside hatch or under a confident
+                                      # door — but the plain remainder of a merged
+                                      # hairline run is joinery (s02's "coats" cupboard
+                                      # front: 210px of free-space run between two
+                                      # wall skins, no marks, no door) and seals nothing
 ROOM_WALL_PEN_MIN_FRAC      = 0.15    # a lone stroked face's pen COLOR must carry
                                       # at least this fraction of the network's
                                       # paired-face length to grant lone-barrier
@@ -1195,69 +1201,151 @@ def detect_rooms(
     for s in network.segments:
         for pi in s.face_path_indices:
             seg_by_path.setdefault(pi, []).append(s)
+    # Doors that may carry a weak face's run across their opening as a
+    # track/threshold line (_backed_extent): the plug-seal tier, never a
+    # fallback-tier phantom.
+    threshold_door_boxes = [
+        box(*c.bbox)
+        for c in doors if c.confidence >= ROOM_OPENING_MIN_CONFIDENCE
+    ]
 
-    def _paired_extent_frac(f):
-        """Fraction of the face run covered by its own segments' bands."""
+    def _paired_extent(f):
+        """(fraction, bands): how much of the face run its own segments'
+        bands cover, and the bands themselves (None when nothing paired)."""
         own = {id(s): s for pi in f.indices for s in seg_by_path.get(pi, ())}
         if not own:
-            return 0.0
+            return 0.0, None
         line = LineString([f.p1, f.p2])
         if line.length <= 0:
-            return 1.0
+            return 1.0, None
         bands = unary_union([
             LineString([s.p1, s.p2]).buffer(
                 s.thickness_px / 2.0 + ROOM_WALL_DILATE_PX
             )
             for s in own.values()
         ])
-        return line.intersection(bands).length / line.length
+        return line.intersection(bands).length / line.length, bands
 
-    def _is_barrier_face(f, gates):
+    def _backed_extent(f, bands, gates):
+        """The face run where it bounds wall material: its own bands, the
+        sub-runs walls.py found hatch/blocking beside (backed_spans), and
+        any remaining piece a confident door stands on — a sliding/garage
+        door drawn closed is a panel plus its track or threshold line
+        across the whole structural opening, and that line is the door's
+        in-plane evidence the plug shadows (s02 GD5: 120px panel, 200px
+        opening; the 74px of track beyond the panel is what seals the
+        doorway). A plain remainder with neither — the joinery front of a
+        built-in cupboard chained by the collinear merge onto the
+        plaster-skin lines of the hatched bands either side (s02 "coats":
+        369px face, paired 0.38, 210px of free-space run between the ends,
+        no door) — seals nothing. Intervals are kept in 1-D along the face
+        (px from p1): shapely's line-line difference does not subtract
+        interpolated collinear pieces.
+        """
+        line = LineString([f.p1, f.p2])
+        length = line.length
+        if length <= 0:
+            return None
+        ux = (f.p2[0] - f.p1[0]) / length
+        uy = (f.p2[1] - f.p1[1]) / length
+
+        def _t(pt):
+            return (pt[0] - f.p1[0]) * ux + (pt[1] - f.p1[1]) * uy
+
+        kept: list[tuple[float, float]] = []
+        if bands is not None:
+            hit = line.intersection(bands)
+            for piece in getattr(hit, "geoms", [hit]):
+                if piece.is_empty or piece.geom_type != "LineString":
+                    continue
+                ts = sorted(_t(c) for c in piece.coords)
+                kept.append((ts[0], ts[-1]))
+        kept.extend((t0, t1) for t0, t1 in f.backed_spans if t1 > t0)
+        kept.sort()
+        merged: list[list[float]] = []
+        for t0, t1 in kept:
+            if merged and t0 <= merged[-1][1]:
+                merged[-1][1] = max(merged[-1][1], t1)
+            else:
+                merged.append([t0, t1])
+        # The remainder: gaps between kept intervals. A piece a confident
+        # door overlaps along the run (and lies within the plug-tail reach
+        # of across it — the track is in the wall plane, the bbox is the
+        # panel) is that door's threshold and is kept whole.
+        edges = [0.0] + [t for iv in merged for t in iv] + [length]
+        for i in range(0, len(edges), 2):
+            t0, t1 = edges[i], edges[i + 1]
+            if t1 - t0 <= 1e-6:
+                continue
+            piece = LineString([line.interpolate(t0), line.interpolate(t1)])
+            for b in threshold_door_boxes:
+                bt = [_t(c) for c in b.exterior.coords]
+                if min(bt) < t1 and max(bt) > t0 and \
+                        piece.distance(b) <= gates.ROOM_OPENING_SEAL_PX:
+                    merged.append([t0, t1])
+                    break
+        if not merged:
+            return None
+        return unary_union([
+            LineString([line.interpolate(t0), line.interpolate(t1)])
+            for t0, t1 in merged if t1 - t0 > 1e-6
+        ])
+
+    def _barrier_extent(f, gates):
+        """The part of a face that seals as a thin barrier (a shapely line
+        geometry), or None when the face has no barrier rights."""
+        line = LineString([f.p1, f.p2])
         if _in_door_zone(f.p1, f.p2):
-            return False
+            return None
         if (
             _line_length(f.p1, f.p2) <= gates.WALL_HATCH_MAX_LEN_PX
             and _is_diagonal_hatch_angle(_line_angle_deg(f.p1, f.p2))
             and not f.wall_fill
         ):
-            return False
+            return None
         if f.wall_fill or f.layer_hint:
-            return True
+            return line
         if f.material_backed:
             # A hatched band's lone drawn face: its own same-pen hatch is the
             # wall evidence (the partner face may be a jamb stub or a dashed
             # over-line, so neither pairing nor the lone pen gate can see it).
-            return True
+            return line
         if f.indices & paired_indices:
             # Same-pen furniture pairing (pillow rectangles, cabinet boxes)
             # grants no barrier rights — mirrors the segment filter above.
             if f.stroked and not _is_wall_pen(f.pen):
-                return False
+                return None
+            if f.stroked and f.stroke_width >= stroke_gate:
+                return line
             # Pairing is index-granular: a face qualifies even when one tiny
-            # sliver of it paired. Unstroked faces (material-backed hairline
-            # partitions, fill outlines) keep that privilege — pairing plus
-            # material IS their wall evidence. A stroked face penned under
-            # the barrier gate (tile/paving pen) must instead earn full-
-            # length status: its segments — which already seal as solids —
-            # covering most of the run (ROOM_PAIRED_FACE_MIN_FRAC).
-            if not f.stroked or f.stroke_width >= stroke_gate:
-                return True
-            return _paired_extent_frac(f) >= ROOM_PAIRED_FACE_MIN_FRAC
-        return (
-            f.stroked and f.stroke_width >= stroke_gate
-            and _is_wall_pen(f.pen)
-        )
+            # sliver of it paired, so a sub-gate face must earn full-length
+            # status: its segments — which already seal as solids — covering
+            # most of the run (ROOM_PAIRED_FACE_MIN_FRAC). A stroked face
+            # (tile/paving pen) that falls short gets nothing. An UNSTROKED
+            # face (material-backed hairline partition, fill outline) that
+            # falls short keeps the run where it bounds wall material — its
+            # bands, and the spans hatch lies beside (the partner face an
+            # opening or text mask ate) — and loses the plain remainder.
+            frac, bands = _paired_extent(f)
+            if frac >= ROOM_PAIRED_FACE_MIN_FRAC:
+                return line
+            if f.stroked:
+                return None
+            return _backed_extent(f, bands, gates)
+        if f.stroked and f.stroke_width >= stroke_gate and _is_wall_pen(f.pen):
+            return line
+        return None
 
     # Square caps: a barrier face's buffer extends half-width past its drawn
     # ends, meeting the perpendicular face or wall solid it butts against
     # flush instead of leaving a pen-width notch at every barrier-tier
     # transition corner (the notches survive the free-space opening — filling
     # them would be extensive — and simplification slants the steps).
-    line_parts = [
-        LineString([f.p1, f.p2]).buffer(ROOM_LINE_BARRIER_PX, cap_style=3)
-        for f in network.faces
-        if _is_barrier_face(f, gates)
-    ]
+    line_parts = []
+    for f in network.faces:
+        extent = _barrier_extent(f, gates)
+        if extent is not None and not extent.is_empty:
+            line_parts.append(extent.buffer(ROOM_LINE_BARRIER_PX, cap_style=3))
 
     # Hollow (white) walls and joinery runs: accept the candidate rings that
     # attach to wall material INCLUDING door/window bboxes — hollow runs are

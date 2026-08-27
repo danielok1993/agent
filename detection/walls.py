@@ -925,6 +925,12 @@ class WallFace:
     pen: tuple | None = None            # quantized stroke color (None for fill
                                         # outlines/bands) — rooms' lone-barrier
                                         # gate checks it against the wall pens
+    # Weak (hairline/light-pen) faces only: sub-runs of the face, as
+    # (t0, t1) px along p1->p2, beside which drawn wall material lies within
+    # one band thickness on either flank (_face_material_spans). Rooms clip
+    # a partially paired weak face's barrier to its own bands plus these —
+    # the plain remainder of a merged hairline run is joinery, not wall.
+    backed_spans: tuple[tuple[float, float], ...] = ()
 
 
 @dataclass
@@ -1775,6 +1781,75 @@ def _face_is_material_backed(
     if len(ts) < (length / 100.0) * gates.WALL_WEAK_MATERIAL_PER_100PX:
         return False
     return (max(ts) - min(ts)) >= WALL_WEAK_MATERIAL_MIN_SPAN * length
+
+
+def _face_material_spans(
+    f: _Seg, marks: list[tuple], *, gates: WallGates = WALL_GATES_UNSCALED,
+) -> tuple[tuple[float, float], ...]:
+    """Sub-runs of a weak face beside which wall material is drawn.
+
+    A hairline face bounds wall only where a hatched/blocked band lies
+    against it. The collinear merge chains every same-line hairline piece
+    into one face, and s02's joinery pen draws BOTH the plaster-skin line
+    3px outside each hatched band AND the front of the built-in cupboard
+    between two such bands — one 369px face that pairs over its two ends
+    (0.38) and runs 210px through free space between them. Diagonal marks
+    (hatch, blocking X's) whose midpoint lies within half a band thickness
+    of the face — on either flank, so the s02 skin whose hatch ends 3px
+    away still counts — are clustered along the run at hatch gaps
+    (WALL_HATCH_MAX_LEN_PX); a cluster of >= WALL_WEAK_MATERIAL_MIN_MARKS
+    marks at the weak-pair density is material, and its extent (padded by
+    the same gap) is a backed span. Measured on s02: the cupboard front's
+    230px unpaired run carries 4 marks in two dimension-tick pairs 158px
+    apart (1.7/100px) — no cluster; the hatched bands either side carry a
+    mark every 4px.
+    """
+    length = _line_length(f.p1, f.p2)
+    if length < 1e-6:
+        return ()
+    ux = (f.p2[0] - f.p1[0]) / length
+    uy = (f.p2[1] - f.p1[1]) / length
+    axis_angle = _line_angle_deg(f.p1, f.p2)
+    reach = gates.WALL_MAX_THICKNESS_PX / 2.0
+    ts: list[float] = []
+    for (mx, my), angle, *_ in marks:
+        t = (mx - f.p1[0]) * ux + (my - f.p1[1]) * uy
+        if not (-1.0 <= t <= length + 1.0):
+            continue
+        off = abs((mx - f.p1[0]) * -uy + (my - f.p1[1]) * ux)
+        # A dimension tick is centred ON its line (both ends off it); hatch
+        # midpoints sit inside the band, at least half its width away —
+        # the band gate's own edge margin. s02's "600" ticks straddle the
+        # cupboard front 48px from each band's last stroke and otherwise
+        # joined the clusters, carrying the backed span into the mouth.
+        if off <= WALL_WEAK_MATERIAL_EDGE_PX or off > reach:
+            continue
+        d = _angle_diff_mod180(angle, axis_angle)
+        if WALL_WEAK_MATERIAL_ANGLE_MIN <= d <= WALL_WEAK_MATERIAL_ANGLE_MAX:
+            ts.append(t)
+    if len(ts) < WALL_WEAK_MATERIAL_MIN_MARKS:
+        return ()
+    ts.sort()
+    gap = gates.WALL_HATCH_MAX_LEN_PX
+    spans: list[tuple[float, float]] = []
+    start = 0
+    for i in range(1, len(ts) + 1):
+        if i == len(ts) or ts[i] - ts[i - 1] > gap:
+            cluster = ts[start:i]
+            start = i
+            if len(cluster) < WALL_WEAK_MATERIAL_MIN_MARKS:
+                continue
+            run = max(cluster[-1] - cluster[0], 1.0)
+            if len(cluster) < (run / 100.0) * gates.WALL_WEAK_MATERIAL_PER_100PX:
+                continue
+            # The band ends one pitch past its last stroke: pad by the
+            # cluster's own median pitch, never the cluster gap.
+            steps = sorted(b - a for a, b in zip(cluster, cluster[1:]))
+            pitch = steps[len(steps) // 2]
+            spans.append((
+                max(0.0, cluster[0] - pitch), min(length, cluster[-1] + pitch),
+            ))
+    return tuple(spans)
 
 
 def _claims_interior_pair(c: _Seg, kept: list[_Seg]) -> bool:
@@ -3388,6 +3463,7 @@ def detect_wall_network(
     # wall_stroke_reference: hundreds of hairline members must not drag the
     # relative pen-weight gate down to fixture territory.
     weak_faces_kept = [f for f in weak_merged if f.indices & weak_paired]
+    weak_kept_ids = {id(f) for f in weak_faces_kept}
     strong_ids = {id(f) for f in merged_faces}
     face_lines = [
         WallFace(
@@ -3404,6 +3480,10 @@ def detect_wall_network(
                 and _face_is_material_backed(f, marks, gates=gates)
             ),
             pen=f.pen,
+            backed_spans=(
+                _face_material_spans(f, marks, gates=gates)
+                if id(f) in weak_kept_ids else ()
+            ),
         )
         for f in merged_faces + weak_faces_kept + bands
     ]
