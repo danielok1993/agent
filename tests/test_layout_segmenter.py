@@ -184,6 +184,71 @@ class TestShortInkGutter(unittest.TestCase):
         self.assertEqual(self._leaves(self._two_blobs()), cut(page(self._two_blobs())))
 
 
+class TestOverhangGutter(unittest.TestCase):
+    """Tier 4: a band that only OVERHANGING long ink enters — every long
+    crosser terminates inside it, nothing runs through, the pieces do not
+    chain across, and an empty sub-run of SEGMENT_OVERHANG_MIN_GAP_PX
+    survives — is a gutter. Measured: s13's elevations sit over its plans
+    with a 112px band that three verticals end inside (y 487/488/564,
+    20px clear below the deepest); s17's front elevation's ground line
+    (drawn 4x) starts 18px into the 64px band its plan's lines end 3px
+    into (15px clear). A plan interior never qualifies — its exterior walls
+    run through any band across it (s01: two through lines in the only
+    candidate band; s02: no candidate band at all).
+    """
+
+    def _line_v(self, idx, x, y0, y1):
+        return PathPrimitive(
+            path_index=idx, item_type="l", bbox=(x, y0, x, y1),
+            color=(0.0, 0.0, 0.0), fill=None, stroke_width=1.0, dashes="",
+            layer=None, points=[(x, y0), (x, y1)],
+        )
+
+    def _two_blobs(self):
+        # 60px band between y=200 and y=260.
+        return block(0, 100, 100, 300, 200) + block(1000, 100, 260, 300, 360)
+
+    def _leaves(self, paths):
+        pd = page(paths)
+        full = build_ink_map(pd, bin_px=BIN)
+        long_ink = build_ink_map(pd, bin_px=BIN, min_path_len=SEGMENT_SHORT_INK_PX)
+        out = []
+        _xy_cut(full, 0, full.rows, 0, full.cols, max(1, 20 // BIN),
+                set(), set(), 0, out, long_ink=long_ink, overhang_ink=long_ink)
+        return [(c0 * BIN, r0 * BIN, c1 * BIN, r1 * BIN) for r0, r1, c0, c1 in out]
+
+    def test_overhang_from_one_side_only_splits(self):
+        # A line hanging 44px down from the top blob: 16px clear below it,
+        # under the 20px tier-1 gutter floor, above the 12px tier-4 floor.
+        paths = self._two_blobs() + [self._line_v(5000, 200, 184, 244)]
+        self.assertEqual(len(self._leaves(paths)), 2)
+
+    def test_overhangs_from_both_sides_without_overlap_split(self):
+        paths = self._two_blobs() + [self._line_v(5000, 160, 184, 224),
+                                     self._line_v(5001, 240, 240, 276)]
+        self.assertEqual(len(self._leaves(paths)), 2)
+
+    def test_overhangs_from_both_sides_that_meet_do_not_split(self):
+        # Same x: the two overhangs touch at y=228 and chain across the band.
+        paths = self._two_blobs() + [self._line_v(5000, 200, 184, 228),
+                                     self._line_v(5001, 200, 228, 276)]
+        self.assertEqual(len(self._leaves(paths)), 1)
+
+    def test_through_running_line_blocks(self):
+        paths = self._two_blobs() + [self._line_v(5000, 200, 184, 276)]
+        self.assertEqual(len(self._leaves(paths)), 1)
+
+    def test_short_pieces_forming_a_through_run_block(self):
+        pieces = [self._line_v(5000 + i, 200, 196 + i * 10, 204 + i * 10) for i in range(7)]
+        self.assertEqual(len(self._leaves(self._two_blobs() + pieces)), 1)
+
+    def test_clear_sub_run_narrower_than_the_floor_does_not_split(self):
+        # Overhangs leave only 8px clear (y 224-232): under the 12px floor.
+        paths = self._two_blobs() + [self._line_v(5000, 160, 184, 224),
+                                     self._line_v(5001, 240, 232, 276)]
+        self.assertEqual(len(self._leaves(paths)), 1)
+
+
 class TestSegmentPage(unittest.TestCase):
     def _page_with_caption(self, caption_gap, caption_h):
         paths = block(0, 100, 100, 300, 300)

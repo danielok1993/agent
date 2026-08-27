@@ -8,7 +8,8 @@ from layout.clips import clip_cut_positions
 from layout.constants import (
     CAPTION_MAX_GAP_PX, CAPTION_MAX_H_PX, CAPTION_MIN_OVERLAP_FRAC,
     SEGMENT_BIN_PX, SEGMENT_MAX_DEPTH, SEGMENT_MIN_GUTTER_PX,
-    SEGMENT_MIN_REGION_SIDE_PX, SEGMENT_SHORT_INK_PX,
+    SEGMENT_MIN_REGION_SIDE_PX, SEGMENT_OVERHANG_MAX_BINS,
+    SEGMENT_OVERHANG_MIN_GAP_PX, SEGMENT_SHORT_INK_PX,
 )
 from layout.occupancy import InkMap, build_ink_map
 
@@ -129,6 +130,76 @@ def _short_ink_gutter(
     return None
 
 
+def _sparse_bands(profile: list[int], offset: int, k: int, min_bins: int) -> list[tuple[int, int]]:
+    """Internal runs of >= min_bins profile entries each <= k, widest first."""
+    out: list[tuple[int, int]] = []
+    i, n = 0, len(profile)
+    while i < n:
+        if profile[i] <= k:
+            j = i
+            while j < n and profile[j] <= k:
+                j += 1
+            if j - i >= min_bins and i > 0 and j < n:
+                out.append((offset + i, offset + j))
+            i = j
+        else:
+            i += 1
+    out.sort(key=lambda g: g[1] - g[0], reverse=True)
+    return out
+
+
+def _widest_zero_run(profile: list[int], offset: int) -> Optional[tuple[int, int]]:
+    """Widest run of zeros anywhere in the profile, edges included."""
+    best: Optional[tuple[int, int]] = None
+    i, n = 0, len(profile)
+    while i < n:
+        if profile[i] == 0:
+            j = i
+            while j < n and profile[j] == 0:
+                j += 1
+            if best is None or (j - i) > (best[1] - best[0]):
+                best = (offset + i, offset + j)
+            i = j
+        else:
+            i += 1
+    return best
+
+
+def _overhang_gutter(
+    ink: InkMap, long_ink: InkMap, overhang_ink: InkMap,
+    r0: int, r1: int, c0: int, c1: int, min_bins: int,
+) -> Optional[tuple[str, int]]:
+    """Tier 4: the widest band sparse on the paths-only long map
+    (overhang_ink — a caption in the band must not disqualify it) that
+    nothing chains across on the full map (ink — a through line, short
+    pieces forming one, overhangs from both sides that meet) and that keeps
+    a sub-run of SEGMENT_OVERHANG_MIN_GAP_PX empty on the text+long map
+    (long_ink — short annotation pieces do not count, exactly as in tier 3,
+    but a caption or a long line does, so neither is ever sliced). Returns
+    ("row"|"col", cut bin) or None."""
+    gap_bins = max(1, SEGMENT_OVERHANG_MIN_GAP_PX // ink.bin_px)
+    cands: list[tuple[str, tuple[int, int]]] = []
+    for g in _sparse_bands(_row_profile(overhang_ink, r0, r1, c0, c1), r0,
+                           SEGMENT_OVERHANG_MAX_BINS, min_bins):
+        cands.append(("row", g))
+    for g in _sparse_bands(_col_profile(overhang_ink, r0, r1, c0, c1), c0,
+                           SEGMENT_OVERHANG_MAX_BINS, min_bins):
+        cands.append(("col", g))
+    cands.sort(key=lambda t: t[1][1] - t[1][0], reverse=True)
+    for axis, (g0, g1) in cands:
+        if axis == "row":
+            if _chains_across(ink, g0, g1, c0, c1, "row"):
+                continue
+            run = _widest_zero_run(_row_profile(long_ink, g0, g1, c0, c1), g0)
+        else:
+            if _chains_across(ink, r0, r1, g0, g1, "col"):
+                continue
+            run = _widest_zero_run(_col_profile(long_ink, r0, r1, g0, g1), g0)
+        if run is not None and run[1] - run[0] >= gap_bins:
+            return axis, (run[0] + run[1]) // 2
+    return None
+
+
 def _xy_cut(
     ink: InkMap,
     r0: int, r1: int, c0: int, c1: int,
@@ -138,6 +209,7 @@ def _xy_cut(
     depth: int,
     out: list[tuple[int, int, int, int]],
     long_ink: InkMap | None = None,
+    overhang_ink: InkMap | None = None,
 ) -> None:
     rows = _row_profile(ink, r0, r1, c0, c1)
     r0, r1 = _trim(rows, r0)
@@ -160,24 +232,24 @@ def _xy_cut(
     if height_r or height_c:
         if height_r >= height_c:
             m = (gap_r[0] + gap_r[1]) // 2
-            _xy_cut(ink, r0, m, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
-            _xy_cut(ink, m, r1, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
+            _xy_cut(ink, r0, m, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink, overhang_ink)
+            _xy_cut(ink, m, r1, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink, overhang_ink)
         else:
             m = (gap_c[0] + gap_c[1]) // 2
-            _xy_cut(ink, r0, r1, c0, m, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
-            _xy_cut(ink, r0, r1, m, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
+            _xy_cut(ink, r0, r1, c0, m, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink, overhang_ink)
+            _xy_cut(ink, r0, r1, m, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink, overhang_ink)
         return
 
     m = _clip_cut(rows, r0, cut_rows, c0, c1)
     if m is not None:
-        _xy_cut(ink, r0, m, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
-        _xy_cut(ink, m, r1, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
+        _xy_cut(ink, r0, m, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink, overhang_ink)
+        _xy_cut(ink, m, r1, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink, overhang_ink)
         return
 
     m = _clip_cut(cols, c0, cut_cols, r0, r1)
     if m is not None:
-        _xy_cut(ink, r0, r1, c0, m, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
-        _xy_cut(ink, r0, r1, m, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
+        _xy_cut(ink, r0, r1, c0, m, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink, overhang_ink)
+        _xy_cut(ink, r0, r1, m, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink, overhang_ink)
         return
 
     # Tier 3: a band only short annotation ink crosses (SEGMENT_SHORT_INK_PX).
@@ -188,11 +260,27 @@ def _xy_cut(
         if hit is not None:
             axis, m = hit
             if axis == "row":
-                _xy_cut(ink, r0, m, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
-                _xy_cut(ink, m, r1, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
+                _xy_cut(ink, r0, m, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink, overhang_ink)
+                _xy_cut(ink, m, r1, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink, overhang_ink)
             else:
-                _xy_cut(ink, r0, r1, c0, m, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
-                _xy_cut(ink, r0, r1, m, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
+                _xy_cut(ink, r0, r1, c0, m, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink, overhang_ink)
+                _xy_cut(ink, r0, r1, m, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink, overhang_ink)
+            return
+
+        # Tier 4: a band only overhanging long ink enters
+        # (SEGMENT_OVERHANG_MIN_GAP_PX) — after tier 3 so a band short ink
+        # alone crosses is cut at its full width first.
+        hit = None
+        if overhang_ink is not None:
+            hit = _overhang_gutter(ink, long_ink, overhang_ink, r0, r1, c0, c1, min_bins)
+        if hit is not None:
+            axis, m = hit
+            if axis == "row":
+                _xy_cut(ink, r0, m, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink, overhang_ink)
+                _xy_cut(ink, m, r1, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink, overhang_ink)
+            else:
+                _xy_cut(ink, r0, r1, c0, m, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink, overhang_ink)
+                _xy_cut(ink, r0, r1, m, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink, overhang_ink)
             return
 
     out.append((r0, r1, c0, c1))
@@ -337,9 +425,11 @@ def _boxes_from_cut(
     cut_rows: set[tuple[int, int, int]],
     cut_cols: set[tuple[int, int, int]],
     long_ink: InkMap | None = None,
+    overhang_ink: InkMap | None = None,
 ) -> list[BBox]:
     leaves: list[tuple[int, int, int, int]] = []
-    _xy_cut(ink, 0, ink.rows, 0, ink.cols, min_bins, cut_rows, cut_cols, 0, leaves, long_ink)
+    _xy_cut(ink, 0, ink.rows, 0, ink.cols, min_bins, cut_rows, cut_cols, 0,
+            leaves, long_ink, overhang_ink)
     boxes = [
         (float(c0 * ink.bin_px), float(r0 * ink.bin_px),
          float(c1 * ink.bin_px), float(r1 * ink.bin_px))
@@ -377,7 +467,16 @@ def segment_page(page_data: PageData, clip_rects: list[BBox] | None = None) -> l
 
     long_ink = build_ink_map(page_data, bin_px=SEGMENT_BIN_PX,
                              min_path_len=SEGMENT_SHORT_INK_PX)
-    boxes = _boxes_from_cut(page_data, ink, min_bins, cut_rows, cut_cols, long_ink)
+    # Tier 4 reads a PATHS-ONLY long map: text is never a drawing's edge, and
+    # the caption lying in the band between an elevation and the plan below
+    # it (s13, s17) would otherwise disqualify the band as sparse. The full
+    # map keeps text for the chain check and for the empty sub-run the cut
+    # goes through, so a caption is never sliced.
+    overhang_ink = build_ink_map(page_data, bin_px=SEGMENT_BIN_PX,
+                                 include_text=False,
+                                 min_path_len=SEGMENT_SHORT_INK_PX)
+    boxes = _boxes_from_cut(page_data, ink, min_bins, cut_rows, cut_cols,
+                            long_ink, overhang_ink)
     source = "whitespace+clip" if clip_rects else "whitespace"
 
     # Tier 2: a page the cut could not split at all gets one retry with text
@@ -397,7 +496,7 @@ def segment_page(page_data: PageData, clip_rects: list[BBox] | None = None) -> l
                                    include_text=False,
                                    min_path_len=SEGMENT_SHORT_INK_PX)
         retry = _boxes_from_cut(page_data, retry_ink, min_bins, cut_rows,
-                                cut_cols, retry_long)
+                                cut_cols, retry_long, retry_long)
         if len(retry) >= 2:
             boxes = _attach_text_spans(page_data, retry)
             source = "paths-only+clip" if clip_rects else "paths-only"

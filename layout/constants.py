@@ -64,3 +64,19 @@ FRAME_CORNER_TOL_PX = 2.0
 # ink in its gutters; on s17 59-181 arrowhead/glyph pieces per gutter, all
 # 1-15px, while its 'to be removed' ticks measure 19px and stay blockers.
 SEGMENT_SHORT_INK_PX = 16.0
+
+# Tier-4 gutters: a band that only OVERHANGING long ink enters. A drawing's
+# extent/ground lines routinely hang past its body into the gap beside the
+# next drawing (measured: s13's elevations end three verticals 15-92px into
+# the 112px band above its plans; s17's front-elevation ground line, drawn
+# 4x, starts 18px into the 64px band its plan's lines end 3px into). The band
+# may hold at most SEGMENT_OVERHANG_MAX_BINS inked bins per profile line
+# (candidate pruning only), nothing may chain across it on the full map — a
+# through-running line, short pieces forming one, or overhangs from both
+# sides that meet — and a fully-empty sub-run of SEGMENT_OVERHANG_MIN_GAP_PX
+# must survive (3 bins at 4px; 12px is the width the tier-1 sweep measured
+# as split-equivalent to 20px on every reference sheet). A plan interior
+# never qualifies: its exterior walls run through any band across it (s01:
+# two through lines in the only candidate band; s02: no candidate band).
+SEGMENT_OVERHANG_MAX_BINS = 6
+SEGMENT_OVERHANG_MIN_GAP_PX = 12
