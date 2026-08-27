@@ -2,6 +2,7 @@
 import unittest
 
 from models import PageData, PathPrimitive, TextSpan, Region
+from layout.constants import SEGMENT_SHORT_INK_PX
 from layout.occupancy import build_ink_map
 from layout.segmenter import (
     _trim, _widest_gap, _clip_cut, _xy_cut,
@@ -126,6 +127,61 @@ class TestXYCut(unittest.TestCase):
         self.assertTrue(all(b[2] <= 200 or b[0] >= 200 for b in boxes))
         self.assertTrue(any(b[0] >= 200 for b in boxes))
         self.assertIn((248, 40, 364, 200), boxes)
+
+
+class TestShortInkGutter(unittest.TestCase):
+    """Tier 3: a band that only SHORT annotation ink crosses is still a gutter.
+
+    Leader arrowheads (1-3px pieces), dimension ticks, dashed dimension lines
+    drawn as 6px pieces and vector-text glyph strokes bridge otherwise-clean
+    gutters — measured on s12: 7 crossing paths at x 2112-2136 (an arrowhead)
+    and 6px dashes at x=624 were the only ink in its gutters, and the sheet
+    never split; on s17 59-181 arrowhead/glyph pieces per gutter. The full
+    ink map keeps every primitive (trimming, tier-1 gutters and leaf boxes
+    are unchanged); only the tier-3 search consults the long-ink map, and a
+    band is rejected when its short ink chains across it — a dashed wall
+    drawn as touching pieces is still a wall.
+    """
+
+    def _tick(self, idx, x, y, length=8.0):
+        return PathPrimitive(
+            path_index=idx, item_type="l", bbox=(x, y, x, y + length),
+            color=(0.0, 0.0, 0.0), fill=None, stroke_width=1.0, dashes="",
+            layer=None, points=[(x, y), (x, y + length)],
+        )
+
+    def _two_blobs(self):
+        # Two blobs, 40px vertical gutter between y=200 and y=240.
+        return block(0, 100, 100, 300, 200) + block(1000, 100, 240, 300, 340)
+
+    def _leaves(self, paths):
+        pd = page(paths)
+        full = build_ink_map(pd, bin_px=BIN)
+        long_ink = build_ink_map(pd, bin_px=BIN, min_path_len=SEGMENT_SHORT_INK_PX)
+        out = []
+        _xy_cut(full, 0, full.rows, 0, full.cols, max(1, 20 // BIN),
+                set(), set(), 0, out, long_ink=long_ink)
+        return [(c0 * BIN, r0 * BIN, c1 * BIN, r1 * BIN) for r0, r1, c0, c1 in out]
+
+    def test_lone_short_tick_does_not_block_the_gutter(self):
+        paths = self._two_blobs() + [self._tick(5000, 200, 216)]
+        self.assertEqual(len(self._leaves(paths)), 2)
+
+    def test_without_the_long_map_the_tick_blocks(self):
+        paths = self._two_blobs() + [self._tick(5000, 200, 216)]
+        self.assertEqual(len(cut(page(paths))), 1)
+
+    def test_chain_of_short_pieces_across_the_band_blocks(self):
+        # 8px dashes at 2px gaps from the top blob to the bottom blob.
+        dashes = [self._tick(5000 + i, 200, 196 + i * 10) for i in range(6)]
+        self.assertEqual(len(self._leaves(self._two_blobs() + dashes)), 1)
+
+    def test_long_crossing_line_blocks(self):
+        line = self._tick(5000, 200, 190, length=60.0)
+        self.assertEqual(len(self._leaves(self._two_blobs() + [line])), 1)
+
+    def test_fully_empty_gutter_result_is_unchanged(self):
+        self.assertEqual(self._leaves(self._two_blobs()), cut(page(self._two_blobs())))
 
 
 class TestSegmentPage(unittest.TestCase):

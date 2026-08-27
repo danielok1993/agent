@@ -54,3 +54,13 @@ CLIP_MAX_PAGE_FRAC = 0.80
 # them. Three corners, not two: a drawing box hugging one border shares two.
 FRAME_NESTED_MIN_CORNERS = 3
 FRAME_CORNER_TOL_PX = 2.0
+
+# Tier-3 gutters: a primitive whose total drawn length is at most this is
+# annotation ink — a leader arrowhead (1-3px pieces), a dimension tick, a
+# dash of a dimension line drawn as pieces, a vector-text glyph stroke — and
+# a band that only such ink crosses is still a gutter, unless the pieces
+# chain across it (see segmenter._short_ink_gutter). Measured on s12: an
+# arrowhead's 7 pieces at x 2112-2136 and 6px dashes at x=624 were the only
+# ink in its gutters; on s17 59-181 arrowhead/glyph pieces per gutter, all
+# 1-15px, while its 'to be removed' ticks measure 19px and stay blockers.
+SEGMENT_SHORT_INK_PX = 16.0

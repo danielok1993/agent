@@ -1,6 +1,7 @@
 """Binary ink occupancy map over a page, used to find whitespace gutters."""
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 from models import PageData, PathPrimitive
@@ -90,10 +91,24 @@ def nested_frame_indices(
     return out
 
 
+def path_length(p: PathPrimitive) -> float:
+    """Total drawn length: the polyline through the points, closed for re/qu."""
+    pts = p.points
+    if len(pts) < 2:
+        return 0.0
+    if p.item_type == "qu" and len(pts) == 4:
+        pts = [pts[0], pts[1], pts[3], pts[2]]
+    total = sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(pts, pts[1:]))
+    if p.item_type in ("re", "qu") and len(pts) >= 3:
+        total += math.hypot(pts[0][0] - pts[-1][0], pts[0][1] - pts[-1][1])
+    return total
+
+
 def build_ink_map(
     page_data: PageData,
     bin_px: int = SEGMENT_BIN_PX,
     include_text: bool = True,
+    min_path_len: float = 0.0,
 ) -> InkMap:
     cols = int(page_data.width_px / bin_px) + 1
     rows = int(page_data.height_px / bin_px) + 1
@@ -116,6 +131,11 @@ def build_ink_map(
         if is_page_spanning(p, page_data.width_px, page_data.height_px):
             continue
         if p.path_index in nested:
+            continue
+        # min_path_len > 0 builds the LONG-ink map for tier-3 gutters
+        # (segmenter._short_ink_gutter): annotation pieces up to that length
+        # are left out so a band they alone cross reads as empty.
+        if min_path_len > 0.0 and path_length(p) <= min_path_len:
             continue
         pts = p.points
         # A `qu` item's points arrive in PyMuPDF Quad order — [ul, ur, ll,

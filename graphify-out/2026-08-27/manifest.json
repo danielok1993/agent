@@ -100,7 +100,7 @@
     "semantic_hash": ""
   },
   "detection/walls.py": {
-    "mtime": 1787830322.4643517,
+    "mtime": 1787840089.8101416,
     "ast_hash": "e21bcfa120f1ae1bab3140219a29ca1e",
     "semantic_hash": ""
   },
@@ -115,7 +115,7 @@
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "extraction/extractor.py": {
-    "mtime": 1786026207.4372206,
+    "mtime": 1787840089.8119109,
     "ast_hash": "e52ff877e81aac18177fd7abff9f3022",
     "semantic_hash": ""
   },
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1787831798.8182917,
-    "ast_hash": "d5772da3cebe5d0d070600e18532a371",
+    "mtime": 1787840750.5408092,
+    "ast_hash": "fd7f0c56ca4a175a7ebc01acc8ed5f9f",
     "semantic_hash": ""
   },
   "README.md": {
@@ -310,8 +310,8 @@
     "semantic_hash": ""
   },
   "layout/constants.py": {
-    "mtime": 1786026207.4375608,
-    "ast_hash": "7d95981ee94054de27fe54f31ef5b447",
+    "mtime": 1787840672.0462942,
+    "ast_hash": "2c0b7d29ab7460933f842901b995c281",
     "semantic_hash": ""
   },
   "layout/filter.py": {
@@ -320,8 +320,8 @@
     "semantic_hash": ""
   },
   "layout/occupancy.py": {
-    "mtime": 1787002915.6751926,
-    "ast_hash": "c1ae389b12c5f369d93ce065a58665d5",
+    "mtime": 1787840748.715094,
+    "ast_hash": "81f369560447bc2290aef7b186e85a2d",
     "semantic_hash": ""
   },
   "layout/segmenter.py": {
@@ -345,8 +345,8 @@
     "semantic_hash": ""
   },
   "tests/test_layout_occupancy.py": {
-    "mtime": 1787002915.6760147,
-    "ast_hash": "2f8a9976ee7274d9b30fffce0174ad53",
+    "mtime": 1787840643.9674232,
+    "ast_hash": "f244a354f5b96d9502db09a3b600ae91",
     "semantic_hash": ""
   },
   "tests/test_layout_segmenter.py": {
@@ -815,7 +815,7 @@
     "semantic_hash": ""
   },
   "docs/scale-normalization-findings.md": {
-    "mtime": 1787174983.8394082,
+    "mtime": 1787840089.811403,
     "ast_hash": "f139b3230865ae67f0297b8f834bd3e7",
     "semantic_hash": ""
   },

@@ -8,7 +8,7 @@ from layout.clips import clip_cut_positions
 from layout.constants import (
     CAPTION_MAX_GAP_PX, CAPTION_MAX_H_PX, CAPTION_MIN_OVERLAP_FRAC,
     SEGMENT_BIN_PX, SEGMENT_MAX_DEPTH, SEGMENT_MIN_GUTTER_PX,
-    SEGMENT_MIN_REGION_SIDE_PX,
+    SEGMENT_MIN_REGION_SIDE_PX, SEGMENT_SHORT_INK_PX,
 )
 from layout.occupancy import InkMap, build_ink_map
 
@@ -73,6 +73,62 @@ def _clip_cut(
     return None
 
 
+def _chains_across(ink: InkMap, r0: int, r1: int, c0: int, c1: int, axis: str) -> bool:
+    """True when an 8-connected component of inked bins inside the band
+    touches both of the band's edges — a chain of short pieces (a dashed
+    wall drawn as touching dashes, a run of hatch) that still crosses it.
+    `axis` is "row" for a horizontal band (edges r0 and r1-1) and "col" for
+    a vertical one (edges c0 and c1-1)."""
+    seen: set[tuple[int, int]] = set()
+    for r in range(r0, r1):
+        row = ink.bins[r]
+        for c in range(c0, c1):
+            if not row[c] or (r, c) in seen:
+                continue
+            stack = [(r, c)]
+            seen.add((r, c))
+            lo = hi = r if axis == "row" else c
+            while stack:
+                rr, cc = stack.pop()
+                v = rr if axis == "row" else cc
+                lo, hi = min(lo, v), max(hi, v)
+                for dr in (-1, 0, 1):
+                    for dc in (-1, 0, 1):
+                        nr, nc = rr + dr, cc + dc
+                        if r0 <= nr < r1 and c0 <= nc < c1 and ink.bins[nr][nc] \
+                                and (nr, nc) not in seen:
+                            seen.add((nr, nc))
+                            stack.append((nr, nc))
+            first, last = (r0, r1 - 1) if axis == "row" else (c0, c1 - 1)
+            if lo == first and hi == last:
+                return True
+    return False
+
+
+def _short_ink_gutter(
+    ink: InkMap, long_ink: InkMap,
+    r0: int, r1: int, c0: int, c1: int, min_bins: int,
+) -> Optional[tuple[str, int]]:
+    """Tier 3: the widest band empty on the LONG-ink map whose short ink does
+    not chain across it. Returns ("row"|"col", cut bin) or None."""
+    gap_r = _widest_gap(_row_profile(long_ink, r0, r1, c0, c1), r0, min_bins)
+    gap_c = _widest_gap(_col_profile(long_ink, r0, r1, c0, c1), c0, min_bins)
+    cands = []
+    if gap_r is not None:
+        cands.append(("row", gap_r))
+    if gap_c is not None:
+        cands.append(("col", gap_c))
+    cands.sort(key=lambda t: t[1][1] - t[1][0], reverse=True)
+    for axis, (g0, g1) in cands:
+        blocked = (
+            _chains_across(ink, g0, g1, c0, c1, "row") if axis == "row"
+            else _chains_across(ink, r0, r1, g0, g1, "col")
+        )
+        if not blocked:
+            return axis, (g0 + g1) // 2
+    return None
+
+
 def _xy_cut(
     ink: InkMap,
     r0: int, r1: int, c0: int, c1: int,
@@ -81,6 +137,7 @@ def _xy_cut(
     cut_cols: set[tuple[int, int, int]],
     depth: int,
     out: list[tuple[int, int, int, int]],
+    long_ink: InkMap | None = None,
 ) -> None:
     rows = _row_profile(ink, r0, r1, c0, c1)
     r0, r1 = _trim(rows, r0)
@@ -103,25 +160,40 @@ def _xy_cut(
     if height_r or height_c:
         if height_r >= height_c:
             m = (gap_r[0] + gap_r[1]) // 2
-            _xy_cut(ink, r0, m, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out)
-            _xy_cut(ink, m, r1, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out)
+            _xy_cut(ink, r0, m, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
+            _xy_cut(ink, m, r1, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
         else:
             m = (gap_c[0] + gap_c[1]) // 2
-            _xy_cut(ink, r0, r1, c0, m, min_bins, cut_rows, cut_cols, depth + 1, out)
-            _xy_cut(ink, r0, r1, m, c1, min_bins, cut_rows, cut_cols, depth + 1, out)
+            _xy_cut(ink, r0, r1, c0, m, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
+            _xy_cut(ink, r0, r1, m, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
         return
 
     m = _clip_cut(rows, r0, cut_rows, c0, c1)
     if m is not None:
-        _xy_cut(ink, r0, m, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out)
-        _xy_cut(ink, m, r1, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out)
+        _xy_cut(ink, r0, m, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
+        _xy_cut(ink, m, r1, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
         return
 
     m = _clip_cut(cols, c0, cut_cols, r0, r1)
     if m is not None:
-        _xy_cut(ink, r0, r1, c0, m, min_bins, cut_rows, cut_cols, depth + 1, out)
-        _xy_cut(ink, r0, r1, m, c1, min_bins, cut_rows, cut_cols, depth + 1, out)
+        _xy_cut(ink, r0, r1, c0, m, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
+        _xy_cut(ink, r0, r1, m, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
         return
+
+    # Tier 3: a band only short annotation ink crosses (SEGMENT_SHORT_INK_PX).
+    # Last resort so every cell a real gutter or a clip edge can split is
+    # split exactly as before.
+    if long_ink is not None:
+        hit = _short_ink_gutter(ink, long_ink, r0, r1, c0, c1, min_bins)
+        if hit is not None:
+            axis, m = hit
+            if axis == "row":
+                _xy_cut(ink, r0, m, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
+                _xy_cut(ink, m, r1, c0, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
+            else:
+                _xy_cut(ink, r0, r1, c0, m, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
+                _xy_cut(ink, r0, r1, m, c1, min_bins, cut_rows, cut_cols, depth + 1, out, long_ink)
+            return
 
     out.append((r0, r1, c0, c1))
 
@@ -264,9 +336,10 @@ def _boxes_from_cut(
     min_bins: int,
     cut_rows: set[tuple[int, int, int]],
     cut_cols: set[tuple[int, int, int]],
+    long_ink: InkMap | None = None,
 ) -> list[BBox]:
     leaves: list[tuple[int, int, int, int]] = []
-    _xy_cut(ink, 0, ink.rows, 0, ink.cols, min_bins, cut_rows, cut_cols, 0, leaves)
+    _xy_cut(ink, 0, ink.rows, 0, ink.cols, min_bins, cut_rows, cut_cols, 0, leaves, long_ink)
     boxes = [
         (float(c0 * ink.bin_px), float(r0 * ink.bin_px),
          float(c1 * ink.bin_px), float(r1 * ink.bin_px))
@@ -302,7 +375,9 @@ def segment_page(page_data: PageData, clip_rects: list[BBox] | None = None) -> l
     min_bins = max(1, SEGMENT_MIN_GUTTER_PX // ink.bin_px)
     cut_rows, cut_cols = clip_cut_positions(clip_rects or [], ink.bin_px)
 
-    boxes = _boxes_from_cut(page_data, ink, min_bins, cut_rows, cut_cols)
+    long_ink = build_ink_map(page_data, bin_px=SEGMENT_BIN_PX,
+                             min_path_len=SEGMENT_SHORT_INK_PX)
+    boxes = _boxes_from_cut(page_data, ink, min_bins, cut_rows, cut_cols, long_ink)
     source = "whitespace+clip" if clip_rects else "whitespace"
 
     # Tier 2: a page the cut could not split at all gets one retry with text
@@ -318,7 +393,11 @@ def segment_page(page_data: PageData, clip_rects: list[BBox] | None = None) -> l
     if len(boxes) <= 1 and page_data.text_spans:
         retry_ink = build_ink_map(page_data, bin_px=SEGMENT_BIN_PX,
                                   include_text=False)
-        retry = _boxes_from_cut(page_data, retry_ink, min_bins, cut_rows, cut_cols)
+        retry_long = build_ink_map(page_data, bin_px=SEGMENT_BIN_PX,
+                                   include_text=False,
+                                   min_path_len=SEGMENT_SHORT_INK_PX)
+        retry = _boxes_from_cut(page_data, retry_ink, min_bins, cut_rows,
+                                cut_cols, retry_long)
         if len(retry) >= 2:
             boxes = _attach_text_spans(page_data, retry)
             source = "paths-only+clip" if clip_rects else "paths-only"
