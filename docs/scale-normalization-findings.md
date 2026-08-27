@@ -270,6 +270,7 @@ artifacts" — that is a new decision, not a reopening of this table.
 | WALL_MIN_THICKNESS_PX | W | thinnest partition; floor scaled value at 1px (design §4) |
 | WALL_MAX_THICKNESS_PX | W | heavy blockwork band (~305mm at 1:50) |
 | WALL_THICK_MATERIAL_MAX_PX | W | 400mm band at 1:50 |
+| WALL_THROUGH_HATCH_MAX_PX | W | 540mm band at 1:50; the through-hatch tier's spacing cap (added 2026-08-27, branch fix/s05-no-rooms-windows: s05's 475mm external wall at 1:100 is 28px = 56px at identity) |
 | WALL_PARALLEL_ANGLE_TOL | D | angle |
 | WALL_BAND_MIN_ASPECT | D | ratio |
 | WALL_PAIR_MIN_OVERLAP_PX | W | coincidence floor on face overlap |

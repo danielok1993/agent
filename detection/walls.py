@@ -65,6 +65,26 @@ WALL_THICK_MATERIAL_MAX_PX  = 48.0  # locally thickened masonry (chimney breast 
                                     # faces carries drawn wall material — an
                                     # unpaired pier encloses its hatch as a
                                     # free-space pocket = phantom room
+WALL_THROUGH_HATCH_MAX_PX   = 64.0  # a band hatched THROUGH — diagonal strokes
+                                    # ending on BOTH faces, clipped to the band
+                                    # by the hatch tool — is cut material at any
+                                    # thickness up to this (a 1:50 540mm band).
+                                    # Strong-face pairs spaced between
+                                    # WALL_THICK_MATERIAL_MAX_PX and this form
+                                    # ONLY on through-hatch (_band_has_through_
+                                    # hatch): measured on s05 (1:100, f=0.5),
+                                    # the first-floor left external wall is a
+                                    # 28px band (~475mm; 56px at identity) of
+                                    # 104 strokes at 135°, each 39px = 28 × √2,
+                                    # at 6.2px pitch — past the scaled 24px
+                                    # thick cap, its interior was fenced as a
+                                    # 24×468px phantom room. The sheet's other
+                                    # bands top out at 17.8px; corpus bands at
+                                    # identity reach 39px (s01). A floor pattern
+                                    # or fixture hatch is clipped to its own
+                                    # boundary, never to two wall-pen faces at
+                                    # wall spacing — hatch stopping short of the
+                                    # faces is not through-hatch.
 WALL_PARALLEL_ANGLE_TOL     = 4.0   # degrees, matches WINDOW_ANGLE_TOL_DEG
 WALL_BAND_MIN_ASPECT        = 3.0   # filled rect must be band-like, not a fixture block
 WALL_PAIR_MIN_OVERLAP_PX    = 12.0  # shorter face-pair overlap is coincidence
@@ -381,6 +401,7 @@ class WallGates:
     WALL_MIN_THICKNESS_PX: float
     WALL_MAX_THICKNESS_PX: float
     WALL_THICK_MATERIAL_MAX_PX: float
+    WALL_THROUGH_HATCH_MAX_PX: float
     WALL_PAIR_MIN_OVERLAP_PX: float
     WALL_FILL_CLASS_MIN_INK_PX: float
     WALL_FILL_BLOCK_MAX_SIDE_PX: float
@@ -400,6 +421,7 @@ class WallGates:
             WALL_MIN_THICKNESS_PX=max(1.0, WALL_MIN_THICKNESS_PX * factor),
             WALL_MAX_THICKNESS_PX=WALL_MAX_THICKNESS_PX * factor,
             WALL_THICK_MATERIAL_MAX_PX=WALL_THICK_MATERIAL_MAX_PX * factor,
+            WALL_THROUGH_HATCH_MAX_PX=WALL_THROUGH_HATCH_MAX_PX * factor,
             WALL_PAIR_MIN_OVERLAP_PX=WALL_PAIR_MIN_OVERLAP_PX * factor,
             WALL_FILL_CLASS_MIN_INK_PX=WALL_FILL_CLASS_MIN_INK_PX * factor,
             WALL_FILL_BLOCK_MAX_SIDE_PX=WALL_FILL_BLOCK_MAX_SIDE_PX * factor,
@@ -425,6 +447,7 @@ class WallGates:
         # Programming-error asserts (never factor-dependent in [0.25, 4]).
         assert self.WALL_MIN_THICKNESS_PX < self.WALL_MAX_THICKNESS_PX
         assert self.WALL_MAX_THICKNESS_PX < self.WALL_THICK_MATERIAL_MAX_PX
+        assert self.WALL_THICK_MATERIAL_MAX_PX < self.WALL_THROUGH_HATCH_MAX_PX
 
 
 WALL_GATES_UNSCALED = WallGates.at(1.0)
@@ -1103,6 +1126,9 @@ class _Seg:
     thick: bool = False                 # pair spacing beyond WALL_MAX_THICKNESS_PX
                                         # (thickened pier tier); only material-
                                         # backed pairs survive
+    through: bool = False               # thick pair spaced beyond
+                                        # WALL_THICK_MATERIAL_MAX_PX too; survives
+                                        # only on through-hatch
     pen: tuple | None = None            # quantized stroke color; None = wildcard
                                         # (fill outlines, filled bands, centerlines)
 
@@ -1656,6 +1682,7 @@ def _dimension_line_indices(
 
 def _collect_material_marks(
     paths: list[PathPrimitive], *, gates: WallGates = WALL_GATES_UNSCALED,
+    max_len: float | None = None,
 ) -> list[tuple[tuple[float, float], float]]:
     """(midpoint, angle) of every short solid stroke, gathered once per page.
 
@@ -1678,7 +1705,8 @@ def _collect_material_marks(
         if _is_dashed(p.dashes):
             continue
         a, b = p.points[0], p.points[-1]
-        if not (2.0 <= _line_length(a, b) <= gates.WALL_HATCH_MAX_LEN_PX):
+        cap = gates.WALL_HATCH_MAX_LEN_PX if max_len is None else max_len
+        if not (2.0 <= _line_length(a, b) <= cap):
             continue
         mid = ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
         angle = _line_angle_deg(a, b)
@@ -1727,6 +1755,69 @@ def _band_has_wall_material(
             continue
         d = _angle_diff_mod180(angle, axis_angle)
         if WALL_WEAK_MATERIAL_ANGLE_MIN <= d <= WALL_WEAK_MATERIAL_ANGLE_MAX:
+            ts.append(t)
+    if len(ts) < WALL_WEAK_MATERIAL_MIN_MARKS:
+        return False
+    if len(ts) < (length / 100.0) * gates.WALL_WEAK_MATERIAL_PER_100PX:
+        return False
+    return (max(ts) - min(ts)) >= WALL_WEAK_MATERIAL_MIN_SPAN * length
+
+
+def _band_has_through_hatch(
+    c: _Seg, marks: list[tuple], *, gates: WallGates = WALL_GATES_UNSCALED,
+) -> bool:
+    """True when the band is hatched THROUGH: diagonal strokes whose two
+    endpoints land on OPPOSITE faces (within WALL_WEAK_MATERIAL_EDGE_PX of
+    ±thickness/2), dense and spread like _band_has_wall_material demands.
+
+    The gate for pairs spaced beyond WALL_THICK_MATERIAL_MAX_PX (see
+    WALL_THROUGH_HATCH_MAX_PX): a hatch tool clips its strokes to the region
+    it fills, so strokes ending on both faces prove the faces bound one
+    filled region — cut material in plan. Hatch clipped to some other
+    boundary (a floor pattern, a fixture) stops short of at least one face.
+    """
+    length = _line_length(c.p1, c.p2)
+    if length < 1e-6:
+        return False
+    ux = (c.p2[0] - c.p1[0]) / length
+    uy = (c.p2[1] - c.p1[1]) / length
+    axis_angle = _line_angle_deg(c.p1, c.p2)
+    half = c.thickness / 2.0
+    tol = WALL_WEAK_MATERIAL_EDGE_PX
+
+    def perp(pt):
+        return (pt[0] - c.p1[0]) * -uy + (pt[1] - c.p1[1]) * ux
+
+    ts: list[float] = []
+    for (mx, my), angle, a, b, _pen in marks:
+        t = (mx - c.p1[0]) * ux + (my - c.p1[1]) * uy
+        if not (-1.0 <= t <= length + 1.0):
+            continue
+        d = _angle_diff_mod180(angle, axis_angle)
+        if not (WALL_WEAK_MATERIAL_ANGLE_MIN <= d <= WALL_WEAK_MATERIAL_ANGLE_MAX):
+            continue
+        # Each endpoint lands on a boundary of the filled region: one of
+        # the two faces, or the run's END line (a perpendicular return
+        # clips the strokes at a corner — the first band-width of a run
+        # beside a corner is covered by strokes ending on the return, and
+        # without them a short corner run fails the spread test; measured
+        # on s05: 21.7px of spread over a 44px run, gate 22). The two
+        # endpoints must sit on DIFFERENT boundaries, at least one a face.
+        sa, sb = perp(a), perp(b)
+        ta = (a[0] - c.p1[0]) * ux + (a[1] - c.p1[1]) * uy
+        tb = (b[0] - c.p1[0]) * ux + (b[1] - c.p1[1]) * uy
+
+        def boundary(sp, tp):
+            if abs(sp - half) <= tol:
+                return "hi"
+            if abs(sp + half) <= tol:
+                return "lo"
+            if abs(sp) < half and (abs(tp) <= tol or abs(tp - length) <= tol):
+                return "end"
+            return None
+
+        ba, bb = boundary(sa, ta), boundary(sb, tb)
+        if ba and bb and ba != bb:
             ts.append(t)
     if len(ts) < WALL_WEAK_MATERIAL_MIN_MARKS:
         return False
@@ -2429,9 +2520,10 @@ def _pair_faces_to_centerlines(
                 if spacing < gates.WALL_MIN_THICKNESS_PX:
                     continue
                 thick = spacing > gates.WALL_MAX_THICKNESS_PX
+                through = spacing > gates.WALL_THICK_MATERIAL_MAX_PX
                 if thick and (
                     not thick_tier
-                    or spacing > gates.WALL_THICK_MATERIAL_MAX_PX
+                    or spacing > gates.WALL_THROUGH_HATCH_MAX_PX
                     # Pier faces are drawn in the wall pen; the demoted
                     # tiers (hairline, lattice, light-pen, tile) keep their
                     # tuned <=36px envelope.
@@ -2462,6 +2554,7 @@ def _pair_faces_to_centerlines(
                     wall_fill=fi.wall_fill or fj.wall_fill,
                     weak=fi.weak or fj.weak,
                     thick=thick,
+                    through=through,
                 ))
     return centerlines
 
@@ -3357,6 +3450,13 @@ def detect_wall_network(
         f.weak = True
 
     marks = _collect_material_marks(paths, gates=gates)
+    # Through-hatch strokes span the band's diagonal, past the ordinary
+    # hatch length cap; collected separately so the ordinary material gates
+    # keep their tuned mark population.
+    through_marks = _collect_material_marks(
+        paths, gates=gates,
+        max_len=gates.WALL_THROUGH_HATCH_MAX_PX * math.sqrt(2.0) + 2.0,
+    )
     centerlines = _pair_faces_to_centerlines(
         merged_faces + weak_merged, thick_tier=True, gates=gates,
     )
@@ -3369,7 +3469,11 @@ def detect_wall_network(
             c for c in centerlines
             if not (c.weak or c.thick) or (
                 _line_length(c.p1, c.p2) >= gates.WALL_WEAK_MIN_RUN_PX
-                and _band_has_wall_material(c, marks, gates=gates)
+                and (
+                    _band_has_through_hatch(c, through_marks, gates=gates)
+                    if c.through else
+                    _band_has_wall_material(c, marks, gates=gates)
+                )
             )
         ]
         # Second pass over the material-kept pairs: an over-wide weak pair

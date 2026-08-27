@@ -5,6 +5,9 @@ import fitz  # PyMuPDF
 from models import BBox, PathPrimitive, TextSpan, ImageRef, PageData
 
 SCALE = 150 / 72  # PDF points → pixels at 150 DPI
+# The pen a PDF line width of 0 denotes: one device pixel of the 150-DPI
+# frame every downstream coordinate lives in (see extract_paths).
+ZERO_WIDTH_STROKE_PX = 1.0
 
 # Page classification thresholds
 PAGE_VECTOR_RICH_PATH_MIN = 50
@@ -125,6 +128,18 @@ def extract_paths(page: fitz.Page, scale: "float | fitz.Matrix | Transform" = SC
         color = _color_tuple(d.get("color"))
         fill = _color_tuple(d.get("fill"))
         stroke_width = float(d.get("width", 0) or 0) * stroke_scale
+        if stroke_width == 0.0 and color is not None:
+            # PDF 32000-1 §8.4.3.2: line width 0 is "the thinnest line that
+            # can be rendered at device resolution: 1 device pixel wide" — a
+            # pen, not the absence of one. Some CAD exporters plot EVERY
+            # lineweight this way (s05: 12,958 stroked drawings, s12: 17,168,
+            # all at width 0), giving a single-pen sheet whose 150-DPI render
+            # shows 1px linework. Recorded as 0.0 that pen sat under every
+            # stroke gate at once (walls.py: strong >= 0.5, hairline > 0) and
+            # s05 yielded no wall faces, hence no rooms. In this pixel space
+            # the device pixel is 1.0 px. Fill-only paths (no stroke colour)
+            # have no pen and keep 0.0 — their outline is a fill boundary.
+            stroke_width = ZERO_WIDTH_STROKE_PX
         dashes = str(d.get("dashes", "") or "")
         layer = d.get("layer")
 
