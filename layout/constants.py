@@ -19,8 +19,18 @@ SEGMENT_MIN_GUTTER_PX = 20
 # without it a single border line makes every gutter impossible.
 SEGMENT_SPAN_FRAC = 0.90
 
-# Backstop against pathological recursion.
-SEGMENT_MAX_DEPTH = 6
+# Backstop against pathological recursion — the minimum MEASURED recursion
+# budget, not proof that the cap exceeds everything a real sheet needs. A
+# leaf emitted at the backstop is whatever was left when the recursion
+# stopped, mixed by construction on a busy sheet: at 6, s17's first-floor
+# plan and front elevation came out as one leaf although the elevation's
+# own clip edge (x=1948) and the tier-4 gutter (x=1940) both split that
+# cell when reached — 142 leaves across the corpus were backstop-emitted.
+# At 7 (measured 2026-08-27) s17 splits exactly [1948,960,2808,1640] /
+# [1276,1164,1936,1644] and nine sheets change, all title-block, notes and
+# legend subdivisions plus s13's elevation row; 8 adds no s17 benefit and
+# only more churn (s11 17 vs 15 leaves, s15 11 vs 9).
+SEGMENT_MAX_DEPTH = 7
 
 # Below this on either side a region cannot be a drawing.
 SEGMENT_MIN_REGION_SIDE_PX = 60

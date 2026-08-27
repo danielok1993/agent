@@ -56,7 +56,8 @@ class TestGoldenSegmentation(unittest.TestCase):
 
 class TestSpanFilterIsLoadBearing(unittest.TestCase):
     """This sheet carries full-page border rules. With the span filter applied
-    the ink map has no page-spanning rows and the sheet splits into 13 regions.
+    the ink map has no page-spanning rows and the sheet splits into 15 regions
+    (13 at SEGMENT_MAX_DEPTH 6; two title-block leaves subdivide at 7).
     The counterfactual — 0 regions with the filter disabled — was measured on
     2026-07-28 but cannot be asserted here: build_ink_map applies the filter
     unconditionally, and adding a production parameter purely for this test
@@ -79,7 +80,7 @@ class TestSpanFilterIsLoadBearing(unittest.TestCase):
     def test_sheet_splits_into_many_regions_with_the_filter(self):
         page_data = self._page_data()
         regions = segment_page(page_data)
-        self.assertEqual(len(regions), 13)
+        self.assertEqual(len(regions), 15)
 
     def test_ink_map_has_no_page_spanning_rows(self):
         page_data = self._page_data()
@@ -98,9 +99,10 @@ class TestS15PathsOnlyRetry(unittest.TestCase):
     regions). The paths-only retry splits it into 8 regions with full path
     coverage."""
 
-    def test_s15_splits_into_eight_regions_via_retry(self):
+    def test_s15_splits_into_nine_regions_via_retry(self):
+        # 8 at SEGMENT_MAX_DEPTH 6; a notes leaf subdivides at 7 (2026-08-27).
         _, regions = segment(self, "s15")
-        self.assertEqual(len(regions), 8)
+        self.assertEqual(len(regions), 9)
         self.assertTrue(all(r.source == "paths-only" for r in regions))
 
     def test_s15_every_path_stays_assigned(self):
@@ -126,3 +128,34 @@ class TestS15PathsOnlyRetry(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestS17PlanElevationSeparation(unittest.TestCase):
+    """Load-bearing golden for SEGMENT_MAX_DEPTH = 7: at 6 the first-floor
+    plan and the front elevation of s17 came out as one leaf
+    [1276,960,2808,1644] (the recursion budget ran out before the cell was
+    ever offered to the clip edge or the tier-4 gutter that split it)."""
+
+    ELEVATION = (1948.0, 960.0, 2808.0, 1640.0)
+    PLAN = (1276.0, 1164.0, 1936.0, 1644.0)
+    # Centres of the plan's westmost and eastmost confirmed doors (ground
+    # truth s17: bboxes [1418,1323,1465,1370] and [1635,1328,1682,1375]) —
+    # both must stay in the plan leaf, so the plan is not cut.
+    PLAN_ANCHORS = ((1441.5, 1346.5), (1658.5, 1351.5))
+
+    def _leaf_at(self, regions, x, y):
+        for r in regions:
+            if r.bbox[0] <= x <= r.bbox[2] and r.bbox[1] <= y <= r.bbox[3]:
+                return tuple(r.bbox)
+        return None
+
+    def test_plan_and_elevation_are_separate_leaves(self):
+        _, regions = segment(self, "s17")
+        boxes = {tuple(r.bbox) for r in regions}
+        self.assertIn(self.ELEVATION, boxes)
+        self.assertIn(self.PLAN, boxes)
+
+    def test_plan_anchors_share_one_leaf(self):
+        _, regions = segment(self, "s17")
+        leaves = {self._leaf_at(regions, x, y) for x, y in self.PLAN_ANCHORS}
+        self.assertEqual(leaves, {self.PLAN})
