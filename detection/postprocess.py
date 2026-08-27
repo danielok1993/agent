@@ -320,6 +320,28 @@ CROSS_DOOR_FALLBACK_EXPAND_PX = 8.0 # veto reach of a fallback-tier door. Measur
                                     # kills overlap its ink at <=6px dilation (the recess
                                     # column at (999,890) is the farthest); W8 stays
                                     # clear up to ~17px. 8px sits between with margin.
+CROSS_DOOR_WALL_RUN_TOL_PX = 4.0    # frozen P: a window standing BEYOND a swing door's
+                                    # hinge-side jamb, IN the door's wall plane, is not
+                                    # door ink — it is joinery drawn in the same wall run,
+                                    # and the dilation must not reach it. The wall plane
+                                    # is a hinge edge of the bbox (rooms._swing_hinge_edges);
+                                    # the window's glazing band must contain that edge's
+                                    # line within this tolerance, run parallel to it, and
+                                    # its undilated bbox must not overlap the door's.
+                                    # Measured on s10: door_0009's hinge edge x=229 lies
+                                    # exactly on the hall window's inner pane (217-229 x
+                                    # 788-864, 4px above the jamb); the 20px dilation
+                                    # covered 21% of the 12x76px band and killed the only
+                                    # seal of that wall run (hall + kitchen leaked to the
+                                    # page exterior). The false class never matches: s01
+                                    # door_0015's flanking phantoms (garden pair, no
+                                    # derivable hinge) run perpendicular to the wall or
+                                    # lie 51px off its plane at the parked leaves' tips;
+                                    # door-ink phantoms inside the footprint overlap the
+                                    # raw bbox (cover 0.19-1.0). Corpus census 2026-08-27:
+                                    # the exemption fires on six windows (s10, s11, s16,
+                                    # s17, s18 — each a 2-3 line frame in the wall band
+                                    # beside a door's hinge jamb), no other veto changes.
 
 
 @dataclass(frozen=True)
@@ -386,32 +408,83 @@ def _resolve_door_window_conflicts(
     called directly by tests.
     """
     gates = CrossGates.at(scale_factor)
+    doors = [c for c in candidates if c.entity_type == "door"]
     door_bboxes = [
-        _bbox_expanded(
-            c.bbox,
-            gates.CROSS_DOOR_EXPAND_PX if c.confidence >= CROSS_DOOR_MIN_CONFIDENCE
-            else gates.CROSS_DOOR_FALLBACK_EXPAND_PX,
+        (
+            c,
+            _bbox_expanded(
+                c.bbox,
+                gates.CROSS_DOOR_EXPAND_PX if c.confidence >= CROSS_DOOR_MIN_CONFIDENCE
+                else gates.CROSS_DOOR_FALLBACK_EXPAND_PX,
+            ),
         )
-        for c in candidates if c.entity_type == "door"
+        for c in doors
     ]
     if not door_bboxes:
         return candidates
 
-    def sits_on_door(win: BBox) -> bool:
-        win_area = _bbox_area(win)
+    def sits_on_door(win: Candidate) -> bool:
+        wb = win.bbox
+        win_area = _bbox_area(wb)
         if win_area <= 0:
             return False
-        for db in door_bboxes:
-            ix = max(0.0, min(win[2], db[2]) - max(win[0], db[0]))
-            iy = max(0.0, min(win[3], db[3]) - max(win[1], db[1]))
-            if ix * iy >= CROSS_DOOR_MIN_WINDOW_COVER * win_area:
-                return True
+        for door, db in door_bboxes:
+            ix = max(0.0, min(wb[2], db[2]) - max(wb[0], db[0]))
+            iy = max(0.0, min(wb[3], db[3]) - max(wb[1], db[1]))
+            if ix * iy < CROSS_DOOR_MIN_WINDOW_COVER * win_area:
+                continue
+            if _window_in_door_wall_run(win, door):
+                continue  # joinery beyond the hinge jamb, not door ink
+            return True
         return False
 
     return [
         c for c in candidates
-        if c.entity_type != "window" or not sits_on_door(c.bbox)
+        if c.entity_type != "window" or not sits_on_door(c)
     ]
+
+
+def _window_in_door_wall_run(win: Candidate, door: Candidate) -> bool:
+    """True when ``win`` stands beyond ``door``'s hinge-side jamb in the door's
+    own wall plane — a window drawn in the same wall run, never door ink.
+
+    Door ink that reads as glazing (leaf edges, the swing's parallel
+    linework) lies inside the door's footprint, so it overlaps the raw bbox;
+    the dilation exists to catch the ink spilling a few px past it. A window
+    whose undilated bbox is clear of the door's, whose glazing runs parallel
+    to a hinge edge, and whose band contains that edge's line (within
+    CROSS_DOOR_WALL_RUN_TOL_PX) is joinery standing in the wall band the
+    doorway interrupts (s10: the hall window 4px above door_0009's jamb).
+    Doors without a derivable hinge (pairs, sliding, fallback tiers) keep the
+    plain veto.
+    """
+    from detection.rooms import _swing_hinge_edges  # rooms imports walls, never this module
+
+    hinge_edges = _swing_hinge_edges(door)
+    if not hinge_edges:
+        return False
+    ori = win.evidence.get("orientation")
+    wx0, wy0, wx1, wy1 = win.bbox
+    x0, y0, x1, y1 = door.bbox
+    tol = CROSS_DOOR_WALL_RUN_TOL_PX
+    # Undilated bboxes must be clear of each other: beyond the jamb, not on
+    # the leaf.
+    if min(wx1, x1) - max(wx0, x0) > 0 and min(wy1, y1) - max(wy0, y0) > 0:
+        return False
+    for edge in hinge_edges:
+        if edge in (0, 1):
+            if ori != "horizontal":
+                continue
+            line = y0 if edge == 0 else y1
+            if wy0 - tol <= line <= wy1 + tol and (wx1 <= x0 + tol or wx0 >= x1 - tol):
+                return True
+        else:
+            if ori != "vertical":
+                continue
+            line = x0 if edge == 2 else x1
+            if wx0 - tol <= line <= wx1 + tol and (wy1 <= y0 + tol or wy0 >= y1 - tol):
+                return True
+    return False
 
 
 # NOTE: there is deliberately no "drop windows that look like wall linework"

@@ -601,6 +601,56 @@ class TestDoorWindowExclusion(unittest.TestCase):
         self.assertNotIn(win, _resolve_door_window_conflicts([win, fallback]))
 
 
+    # --- window in the door's wall run, beyond the hinge-side jamb ----------
+    # s10 door_0009 (single_line_leaf, 0.67): hinge at the bottom-left corner,
+    # doorway along the left edge x=229; the hall window (217-229 x 788-864)
+    # stands 4px above the jamb in the same 35.5px wall band.
+    _S10_DOOR = dict(
+        bbox=(228.99932861328128, 868.0035909016927, 326.4991760253906, 968.0079345703126),
+        evidence={
+            "assembly_type": "single_line_leaf",
+            "opening_line": [[228.99932861328128, 868.0035909016927],
+                             [326.4991760253906, 967.5079345703126]],
+            "leaf_bbox": [228.99932861328128, 967.0079345703126,
+                          326.4991760253906, 968.0079345703126],
+        },
+    )
+
+    def test_window_beyond_hinge_jamb_in_wall_run_kept(self):
+        """A door's veto exists for door ink read as glazing, and that ink lies
+        inside the door's footprint. A thin window standing beyond the
+        hinge-side jamb in the door's own wall plane is joinery drawn in the
+        same wall run: s10's hall window is 12x76px, so the 20px dilation of
+        door_0009 below its sill covered 21% of it (raw bbox overlap 0) and
+        the window, the only seal of that wall run, was lost — the hall and
+        kitchen leaked to the page exterior."""
+        win = Candidate("window_0000", "window",
+                        (217.0, 788.0, 229.0, 864.0), 0.67, {"orientation": "vertical"})
+        door = Candidate("door_0009", "door", self._S10_DOOR["bbox"], 0.67,
+                         dict(self._S10_DOOR["evidence"]))
+        self.assertIn(win, _resolve_door_window_conflicts([win, door]))
+
+    def test_window_beyond_non_hinge_edge_still_vetoed(self):
+        """The same window mirrored to the door's open-tip side (right edge,
+        x=326) lies beside the swing square, not in the wall plane: door ink."""
+        win = Candidate("window_0000", "window",
+                        (326.0, 788.0, 338.0, 864.0), 0.67, {"orientation": "vertical"})
+        door = Candidate("door_0009", "door", self._S10_DOOR["bbox"], 0.67,
+                         dict(self._S10_DOOR["evidence"]))
+        self.assertNotIn(win, _resolve_door_window_conflicts([win, door]))
+
+    def test_window_parallel_to_hinge_edge_but_off_plane_vetoed(self):
+        """s01 door_0015 (garden pair, no derivable hinge) flanked by 29x3px
+        'windows' at the parked leaves' tips (y 407-410, wall plane y=356):
+        parallel to the wall but 51px off it — door ink, still vetoed."""
+        win = Candidate("window_0000", "window",
+                        (278.0, 407.0, 307.0, 410.0), 0.67, {"orientation": "horizontal"})
+        door = Candidate("door_0015", "door", (310.0, 356.0, 420.0, 410.0), 0.65,
+                         {"assembly_type": "double_swing", "swing_layout": "garden",
+                          "opening_line": [[419.25, 355.75], [310.5, 355.75]]})
+        self.assertNotIn(win, _resolve_door_window_conflicts([win, door]))
+
+
 class TestFloorPlansRegression(unittest.TestCase):
     """End-to-end regression: floor-plans.pdf must yield exactly the four
     ground-truth windows and none of the documented false positives."""

@@ -185,6 +185,25 @@ dilation merely grazes a window corner is not a conflict. Door detection is
 reliable; this is the primary false-positive filter and **does not depend on
 walls**.
 
+One exemption (`_window_in_door_wall_run`, `CROSS_DOOR_WALL_RUN_TOL_PX` 4 px):
+the door ink that reads as glazing lies *inside* the door's footprint, so a
+window whose **undilated** bbox is clear of the door's, whose glazing runs
+parallel to one of the door's **hinge edges** (`rooms._swing_hinge_edges` —
+the wall plane passes through the hinge) and whose band contains that edge's
+line within the tolerance is joinery standing in the same wall run beyond the
+jamb, and the dilation must not reach it. Measured on s10: the hall window
+(217–229 × 788–864, three panes at 6 px pitch in a 12 px frame) stands 4 px
+above door_0009's hinge jamb, whose edge x=229 lies exactly on the inner pane;
+the 20 px dilation covered 21 % of the 12×76 px band and killed the wall run's
+only seal, so the hall and kitchen leaked to the page exterior and detected no
+room. The false class never matches: s01 door_0015's four flanking phantoms
+(garden pair, no derivable hinge) run perpendicular to the wall or lie 51 px
+off its plane at the parked leaves' tips, and every door-ink phantom inside a
+footprint overlaps the raw bbox (cover 0.19–1.0). Corpus census 2026-08-27 at
+each sheet's scale factor: the exemption fires on six windows — s10, s11 (WC
+window under the utility door's jamb), s16, s17, s18 — each a 2–3 line frame
+in the wall band beside a swing door's hinge jamb, and no other veto changes.
+
 ## 3. Why both filters are needed (floor-plans.pdf)
 
 23 raw cluster+cap candidates reduce to the 4 real windows via two orthogonal cuts:
@@ -354,7 +373,9 @@ floor-plans tight pair, window_0022 wide pair at cap end).
 | Narrow 2-pane window with small caps | Not detected | The §4 2-pane jamb gate (`cap ≥ 12 px`) rejects these as wall/fixture slivers. A real one would need ≥3 panes or bigger caps to surface. |
 | Framed multi-light windows (`re`/`qu` block caps + mullions) | **Handled (v2.1, §1b)** | 5-1133 W8. Block caps must be bar-shaped (aspect ≥ 1.8); a mullion-segmented center line re-joins only across a block-occupied gap. |
 | Mullions drawn as short cap LINES (not blocks) | Not handled | Chain bridging requires a block — a line-bridged merge would also chain dashed linework / dimension ticks. Needs ground truth before relaxing. |
-| Windows on a door (e.g. sidelight) | Suppressed | Door-overlap exclusion drops a window materially covered by a door. Unobserved as a real case. |
+| Windows on a door (e.g. sidelight) | Suppressed | Door-overlap exclusion drops a window materially covered by a door. Unobserved as a real case. A window BESIDE a swing door in the same wall run (beyond the hinge jamb, in the wall plane) is exempt — §2. |
+| Square corner-post block caps (bay frames: 12×12 px `re` at each corner of a 12 px frame, s10 lounge bay) | Not detected | `WINDOW_BLOCK_CAP_MAX_THICK_PX` 8 excludes the block; the frame's centre pane also stops on the block's inner face, 6 px short of its centre line (> `WINDOW_SPAN_COVER_TOL_PX`). |
+| Corner glazing with no jamb at the shared corner (s10 porch: two frames meeting at a mitred corner, each ended by the other's rails) | Not detected | Each frame has one block cap; its other end is the perpendicular frame's 200 px rails, far over `WINDOW_CAP_MAX_LEN_PX`. |
 | Diagonal / bay windows | Not handled | Detector is axis-aligned only. |
 
 ## 7. How to verify a change won't regress
