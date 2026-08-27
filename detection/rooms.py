@@ -32,6 +32,7 @@ import math
 from dataclasses import dataclass
 
 from shapely.geometry import LineString, Point, Polygon, box
+from shapely.affinity import translate
 from shapely.ops import unary_union
 
 from models import BBox, Candidate, TextSpan
@@ -52,6 +53,32 @@ ROOM_MIN_AREA_PX2           = 2500.0  # 50x50 px — smallest plausible closet a
 ROOM_MAX_PAGE_AREA_FRAC     = 0.45    # components bigger than this are the sheet frame
 ROOM_HOLE_AREA_FRAC_MAX     = 0.20    # mostly-hole components are frame-minus-building rings
 ROOM_WALL_DILATE_PX         = 2.0     # wall-solid dilation; seals sub-4px face cracks
+ROOM_LINING_IN_BAND_FRAC    = 0.80    # a stroked ring beside a confident opening is a
+                                      # DOOR LINING — wall material — when it is the
+                                      # wall band's own continuation: shifted one
+                                      # ring-length along the band axis away from the
+                                      # opening, at least this fraction of it lands on
+                                      # drawn wall material (D). Linings are joinery,
+                                      # drawn in the joinery pen (s04: 12.4x14.5px `qu`
+                                      # rings in a 0.56px grey pen against a 1.19px
+                                      # wall pen, ratio 0.47), so the wall-pen gate the
+                                      # jamb-nib rule uses can never admit them; the
+                                      # position — sandwiched IN the band between the
+                                      # jamb face and the leaf — is the evidence. A
+                                      # fixture box hugging a wall's room-side face
+                                      # beside a door shifts along the wall onto room
+                                      # floor (0 cover); one sandwiched between a door
+                                      # and a perpendicular return wall shifts INTO that
+                                      # wall but fails the across-span check below.
+ROOM_LINING_SPAN_TOL_PX     = 4.0     # slack on the across-band span check: at the
+                                      # shifted position the material's span across the
+                                      # band axis must not exceed the ring's own depth
+                                      # by more than the two 2px dilations plus this
+                                      # (P) — the lining fills the band's full depth
+                                      # (s04: 14.5px ring in a 14.5px band, dilated
+                                      # solid span 18.5 <= 14.5 + 4 + 4), while a
+                                      # perpendicular wall the shift lands in spans its
+                                      # whole length across the probe.
 ROOM_RING_MITRE_LIMIT       = 2.0     # mitre cap for fill-ring dilation (D). Exporters
                                       # triangulate fills, so a wall band arrives as
                                       # two right triangles (s03: 184/184 wall-fill
@@ -887,6 +914,59 @@ def _is_wall_recess(comp, wall_segments, opening_boxes, text_spans) -> bool:
     return False
 
 
+def _is_door_lining(poly: Polygon, material, openings: list[Polygon]) -> bool:
+    """A stroked ring that continues the wall band up to an opening's bbox.
+
+    A door LINING (frame block) is drawn as a small closed outline in the
+    joinery pen, standing IN the wall band between the jamb face and the
+    leaf: the structural opening is the leaf plus a lining each side (s04
+    door_0002: 112px opening, 90px arc, 12.4px linings). It fails the
+    wall-pen gate by construction, so it is admitted on position alone:
+    the opening's bbox lies beside the ring along one axis (overlapping it
+    across), and shifting the ring one ring-length along that axis AWAY
+    from the opening lands it on drawn wall material whose across-axis
+    span there matches the ring's own depth — the band the ring continues.
+    A fixture box against a wall's room-side face beside a door shifts
+    onto room floor; one wedged between a door and a perpendicular return
+    wall shifts into that wall, but the wall spans the whole across probe.
+    """
+    rx0, ry0, rx1, ry1 = poly.bounds
+    w, h = rx1 - rx0, ry1 - ry0
+    if w <= 0 or h <= 0:
+        return False
+    for ob in openings:
+        ox0, oy0, ox1, oy1 = ob.bounds
+        y_ov = min(oy1, ry1) - max(oy0, ry0)
+        x_ov = min(ox1, rx1) - max(ox0, rx0)
+        # The opening's across-range must reach the ring: a swing bbox
+        # spans the band when the hinge sits on the far face (s04) and
+        # merely abuts it when the hinge sits on the near face.
+        options = []
+        if y_ov >= -ROOM_LINE_BARRIER_PX:
+            options.append((abs(ox0 - rx1), (-w, 0.0), h))   # opening right
+            options.append((abs(ox1 - rx0), (w, 0.0), h))    # opening left
+        if x_ov >= -ROOM_LINE_BARRIER_PX:
+            options.append((abs(oy0 - ry1), (0.0, -h), w))   # opening below
+            options.append((abs(oy1 - ry0), (0.0, h), w))    # opening above
+        if not options:
+            continue
+        gap, (dx, dy), across = min(options, key=lambda t: t[0])
+        if gap > ROOM_LINE_BARRIER_PX:
+            continue
+        shifted = translate(poly, dx, dy)
+        if shifted.intersection(material).area < ROOM_LINING_IN_BAND_FRAC * shifted.area:
+            continue
+        c = shifted.centroid
+        reach = across + 2.0 * ROOM_WALL_DILATE_PX + ROOM_LINING_SPAN_TOL_PX
+        if dx:
+            probe = LineString([(c.x, c.y - reach), (c.x, c.y + reach)])
+        else:
+            probe = LineString([(c.x - reach, c.y), (c.x + reach, c.y)])
+        if probe.intersection(material).length <= reach:
+            return True
+    return False
+
+
 def _accept_jamb_rings(
     rings, material_parts, doors, windows, door_zone_bounds, stroke_gate,
     is_wall_pen,
@@ -911,8 +991,6 @@ def _accept_jamb_rings(
     opening_union = unary_union(openings)
     accepted: list[Polygon] = []
     for r in rings:
-        if r.stroke_width < stroke_gate or not is_wall_pen(r.pen):
-            continue
         rx0, ry0, rx1, ry1 = r.poly.bounds
         if any(
             zx0 <= rx0 and rx1 <= zx1 and zy0 <= ry0 and ry1 <= zy1
@@ -921,6 +999,11 @@ def _accept_jamb_rings(
             continue
         probe = r.poly.buffer(ROOM_LINE_BARRIER_PX)
         if not (probe.intersects(material) and probe.intersects(opening_union)):
+            continue
+        # Jamb nib: wall-penned. Door lining: joinery-penned, admitted on
+        # position alone — it continues the band up to the opening.
+        wall_penned = r.stroke_width >= stroke_gate and is_wall_pen(r.pen)
+        if not wall_penned and not _is_door_lining(r.poly, material, openings):
             continue
         accepted.append(
             r.poly.buffer(

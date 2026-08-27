@@ -1603,3 +1603,64 @@ class TestWallRecess(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def stroked_box_path(idx, x0, y0, x1, y1, stroke_width=0.56):
+    """A lone stroked, unfilled `qu` item — a joinery-pen box."""
+    # PyMuPDF quad order (ul, ur, ll, lr), as extract_paths emits it.
+    return path(idx, [(x0, y0), (x1, y0), (x0, y1), (x1, y1)], item_type="qu",
+                stroke_width=stroke_width, color=(0.5, 0.5, 0.5))
+
+
+class TestDoorLiningRings(unittest.TestCase):
+    """s04 BATHROOM 01 (room_0000, door_0002): the structural opening is
+    112px wide for a 90px leaf, and the 22px difference is two DOOR-LINING
+    blocks drawn as stroked `qu` rings (12.4x14.5px, 0.56px grey pen on a
+    detail layer, paths 950/951) sitting IN the wall band between each jamb
+    face and the leaf bbox edge. Penned under the wall gate they were no
+    material, the 12px plug extension reached 1px into the jamb (anchor
+    coverage 3/7 = 0.43 < 0.5), no plug qualified, and the dilated-bbox
+    fallback fenced the swing square out of the room."""
+
+    def _plan(self, linings=True, fixture=False):
+        # 500x300 room split by a 14px horizontal band at y=250 with a
+        # 112px structural opening x 260..372; the swing square sits above.
+        paths = rect_room(0, 100, 100, 600, 400, thickness=14)
+        paths += wall_band_h(8, 100, 260, 250, thickness=14)
+        paths += wall_band_h(10, 372, 600, 250, thickness=14)
+        if linings:
+            paths.append(stroked_box_path(20, 260, 250, 272, 264))
+            paths.append(stroked_box_path(21, 360, 250, 372, 264))
+        if fixture:
+            # Same-sized joinery box hugging the band's room-side face,
+            # touching the leaf bbox corner: outside the band plane.
+            paths.append(stroked_box_path(22, 360, 236, 372, 250))
+        door = door_candidate((272.0, 160.0, 360.0, 250.0), confidence=0.9)
+        return paths, [door]
+
+    def _top_room(self, rooms):
+        return max(
+            (ShapelyPolygon(r.evidence["polygon"]) for r in rooms),
+            key=lambda p: p.centroid.y < 250,
+        )
+
+    def test_lining_blocks_anchor_the_doorway_plug(self):
+        paths, doors = self._plan()
+        rooms = rooms_for(paths, doors=doors)
+        self.assertEqual(len(rooms), 2)
+        top = self._top_room(rooms)
+        # The swing square is room floor right down to the wall plane.
+        self.assertTrue(top.contains(ShapelyPoint(316.0, 240.0)))
+        self.assertTrue(top.contains(ShapelyPoint(280.0, 242.0)))
+        # The lining blocks themselves are wall, in no room.
+        self.assertFalse(top.contains(ShapelyPoint(266.0, 257.0)))
+        self.assertFalse(top.contains(ShapelyPoint(366.0, 257.0)))
+
+    def test_fixture_box_beside_the_door_is_not_wall(self):
+        base, doors = self._plan()
+        boxed, _ = self._plan(fixture=True)
+        a = sorted(r.evidence["area_px2"] for r in rooms_for(base, doors=doors))
+        b = sorted(r.evidence["area_px2"] for r in rooms_for(boxed, doors=doors))
+        self.assertEqual(len(a), 2)
+        for x, y in zip(a, b):
+            self.assertAlmostEqual(x, y, delta=5.0)

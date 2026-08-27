@@ -224,10 +224,6 @@
   "222": "PruneUnreadPageOutputTests",
   "223": "TestFoldingScaleBehavior",
   "224": "TestFarSidePairs",
-  "225": "split_pdf_dicts",
   "226": "TestMinWidthNegativeControl",
-  "227": "TestThickMaterialPairs",
-  "228": "TestRenderPageSvg",
-  "229": "TestComponentFiltering",
-  "230": "TestBatchNeverPrompts"
+  "227": "TestThickMaterialPairs"
 }

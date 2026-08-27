@@ -45,7 +45,7 @@
     "semantic_hash": ""
   },
   "detection/doors/constants.py": {
-    "mtime": 1787784280.9308467,
+    "mtime": 1787781123.4080505,
     "ast_hash": "cdec5cfe100fd2ff0c46e8a158cda7ed",
     "semantic_hash": ""
   },
@@ -80,7 +80,7 @@
     "semantic_hash": "bc690722884b4a0c6c532e3a530c6992"
   },
   "detection/layers.py": {
-    "mtime": 1787784280.9328954,
+    "mtime": 1787778995.3769631,
     "ast_hash": "a3a08f721f2f76fc1d26edda85af25bc",
     "semantic_hash": ""
   },
@@ -100,12 +100,12 @@
     "semantic_hash": ""
   },
   "detection/walls.py": {
-    "mtime": 1787784280.9336298,
+    "mtime": 1787782751.6322308,
     "ast_hash": "95404a8b31dc223c5b5df47453dcf243",
     "semantic_hash": ""
   },
   "detection/windows.py": {
-    "mtime": 1787784280.9348567,
+    "mtime": 1787780518.1442478,
     "ast_hash": "e2784699dc2f3b77181b6c00f74e325d",
     "semantic_hash": ""
   },
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1787785754.0444608,
-    "ast_hash": "705d7678f3aa785c829e83f1efceb0fe",
+    "mtime": 1787783006.8929808,
+    "ast_hash": "5a0819d8993183e0d909613e1aeeb002",
     "semantic_hash": ""
   },
   "README.md": {
@@ -200,7 +200,7 @@
     "semantic_hash": ""
   },
   "docs/door-detection-tuning-guide.md": {
-    "mtime": 1787784280.9353163,
+    "mtime": 1787781365.9584255,
     "ast_hash": "6f104d36296a66c861957333656b7a4b",
     "semantic_hash": ""
   },
@@ -235,12 +235,12 @@
     "semantic_hash": ""
   },
   "tests/test_window_detection.py": {
-    "mtime": 1787784281.001808,
+    "mtime": 1787780517.9965463,
     "ast_hash": "8955b4dc18ca3e649082e3ac7c01a69d",
     "semantic_hash": ""
   },
   "docs/window-detection-tuning-guide.md": {
-    "mtime": 1787784280.9356387,
+    "mtime": 1787780795.3289084,
     "ast_hash": "366e36a4c369e342df2b6d4b324c78d9",
     "semantic_hash": ""
   },
@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "detection/rooms.py": {
-    "mtime": 1787786037.5337744,
-    "ast_hash": "9ac2704a0c840e6137b4ab2c9f6331c3",
+    "mtime": 1787783019.3634,
+    "ast_hash": "c4114c37d7c66df719f3b0317af6c157",
     "semantic_hash": ""
   },
   "tests/test_cross_validate.py": {
@@ -260,12 +260,12 @@
     "semantic_hash": ""
   },
   "tests/test_room_detection.py": {
-    "mtime": 1787785600.2460291,
-    "ast_hash": "25b9f57c08a0399b7a8e7fe8895cb13d",
+    "mtime": 1787782728.8994966,
+    "ast_hash": "2ea58533ee346abc662d0f89d820a567",
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
-    "mtime": 1787784281.0005999,
+    "mtime": 1787778925.1695616,
     "ast_hash": "a994cef1aa1d89ef6fd32aa6e9116275",
     "semantic_hash": ""
   },
@@ -280,12 +280,12 @@
     "semantic_hash": ""
   },
   "detection/doors/sliding.py": {
-    "mtime": 1787784280.9311113,
+    "mtime": 1787781123.4085286,
     "ast_hash": "2029c9f07d36c59711f470b511483a45",
     "semantic_hash": ""
   },
   "tests/test_sliding_doors.py": {
-    "mtime": 1787784280.999297,
+    "mtime": 1787781075.3209913,
     "ast_hash": "ad5f20fd7586af1a6ca78b160054ddcf",
     "semantic_hash": ""
   },
@@ -670,7 +670,7 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s04.json": {
-    "mtime": 1787784280.9978137,
+    "mtime": 1787782171.1448915,
     "ast_hash": "b40130a27da33ce938953999df52e0b2",
     "semantic_hash": ""
   },
