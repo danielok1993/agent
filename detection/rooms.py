@@ -732,9 +732,64 @@ def _door_plugs(
         spine = LineString(
             [edge_line.interpolate(pos_a), edge_line.interpolate(pos_b)]
         )
+        # The plug is the wall band continued across the doorway, so it
+        # takes the band's cross-section, not the bbox edge's. Fit its
+        # across-extent to the (already dilated) wall material at the
+        # anchor samples it touches — the intersection over those samples,
+        # so the plug stays connected to material at BOTH ends; a
+        # perpendicular wall crossing one tail spans the whole probe and
+        # constrains nothing, the jamb nib at the other end does. Never
+        # wider than the legacy ±half-width (only ever shrinks), never
+        # thinner than a line barrier. Without the fit a hinge-edge lying
+        # on a band's inner face — where a swing leaf hinges — put the
+        # plug's room-side edge half-width (5px) into the room against the
+        # wall's own 2px standoff: a 3px step at every such doorway that
+        # ROOM_SIMPLIFY_TOL_PX redrew as a slant over the whole room edge
+        # (s03 BATHROOM room_0008: right edge 1183.8 at the door, 1186.7
+        # below it, simplified to a 110px lean).
+        half = gates.ROOM_PLUG_HALF_WIDTH_PX
+        nx, ny = -uy, ux
+        lo, hi = -half, half
+        ends = (
+            [i for i in range(n)
+             if touch[i] and pos_a <= i * step <= pos_a + win * step],
+            [i for i in range(n)
+             if touch[i] and pos_b - win * step <= i * step <= pos_b],
+        )
+        for anchor_idx in ends:
+            # Widest cross-section among this end's anchor samples: the
+            # band body. A sample at the jamb's very end meets only a face
+            # buffer's 4px sliver, and taking the narrowest (or the
+            # intersection of all) would collapse the plug onto it.
+            best: tuple[float, float] | None = None
+            for i in anchor_idx:
+                pt = edge_line.interpolate(i * step)
+                probe = LineString([
+                    (pt.x + nx * -half, pt.y + ny * -half),
+                    (pt.x + nx * half, pt.y + ny * half),
+                ])
+                hit = probe.intersection(wall_material)
+                if hit.is_empty:
+                    continue
+                bx0, by0, bx1, by1 = hit.bounds
+                offs = [
+                    (cx - pt.x) * nx + (cy - pt.y) * ny
+                    for cx, cy in ((bx0, by0), (bx1, by1), (bx0, by1), (bx1, by0))
+                ]
+                cand = (min(offs), max(offs))
+                if best is None or cand[1] - cand[0] > best[1] - best[0]:
+                    best = cand
+            if best is not None:
+                lo, hi = max(lo, best[0]), min(hi, best[1])
+        min_w = 2.0 * ROOM_LINE_BARRIER_PX
+        if hi - lo < min_w:
+            # Anchors disagree (or a corner graze): fall back to the full
+            # band rather than a sliver that might not bridge them.
+            lo, hi = -half, half
+        centre = (lo + hi) / 2.0
+        spine = translate(spine, nx * centre, ny * centre)
         plugs.append(
-            (spine.buffer(gates.ROOM_PLUG_HALF_WIDTH_PX, cap_style=2),
-             kind, edge_idx)
+            (spine.buffer((hi - lo) / 2.0, cap_style=2), kind, edge_idx)
         )
     return plugs
 

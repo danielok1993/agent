@@ -988,6 +988,26 @@ class TestPlugTailTrim(unittest.TestCase):
         self.assertLess(x1, 292.0)      # untrimmed tail ended at 294
         self.assertGreater(x1, 285.0)   # still overlaps the right jamb
 
+    def test_plug_fits_the_jamb_cross_section(self):
+        # s03 door_0003: the hinge-edge bbox side lies ON the inner face of
+        # a 6px band (dilated material x 298..308 here, faces 300/306), so
+        # the plug centred on the edge with the 5px half-width stood 3px
+        # proud of the wall's own 2px standoff — a step at every doorway
+        # that simplify redrew as a slant across the whole room edge. The
+        # plug must take the jamb's cross-section: room side flush with
+        # the dilated material (298), never 295.
+        jambs = unary_union([
+            shapely_box(298, 50, 308, 100),
+            shapely_box(298, 150, 308, 200),
+        ])
+        plugs = _door_plugs((250.0, 100.0, 300.0, 150.0), jambs)
+        self.assertEqual([(k, e) for _, k, e in plugs], [("interrupted", 3)])
+        x0, y0, x1, y1 = plugs[0][0].bounds
+        self.assertAlmostEqual(x0, 298.0, delta=0.3)
+        self.assertLessEqual(x1, 305.0 + 0.3)
+        self.assertLess(y0, 100.0)      # tails still reach into both jambs
+        self.assertGreater(y1, 150.0)
+
     def test_tail_kept_on_through_material(self):
         # A band running the full extended edge supports both tails: the
         # plug keeps its whole reach (the drawn-through-plane case).
