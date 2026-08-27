@@ -43,3 +43,14 @@ CLIP_MIN_INK_FRAC = 0.05
 # A clip covering this much of the page is the whole-sheet clip, not a drawing.
 # Measured whole-sheet clips at 88-97%.
 CLIP_MAX_PAGE_FRAC = 0.80
+
+# Nested sheet furniture: an unfilled rectangle with at least this many of
+# its corners lying within FRAME_CORNER_TOL_PX of the page frame's boundary
+# (a page-spanning rect's edges, or a page-spanning rule) is a drawing frame
+# or title-block partition, never drawing content, and must not block a
+# gutter. Measured on s06: the inner frame [63.6,106.5]-[2132.1,1395.0] has
+# three corners 0.00px off the outer frame and is 0.86 of the page wide —
+# under SEGMENT_SPAN_FRAC — and it glued the elevations to the plans below
+# them. Three corners, not two: a drawing box hugging one border shares two.
+FRAME_NESTED_MIN_CORNERS = 3
+FRAME_CORNER_TOL_PX = 2.0

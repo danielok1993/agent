@@ -4,7 +4,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from models import PageData, PathPrimitive
-from layout.constants import SEGMENT_BIN_PX, SEGMENT_SPAN_FRAC
+from layout.constants import (
+    FRAME_CORNER_TOL_PX, FRAME_NESTED_MIN_CORNERS, SEGMENT_BIN_PX,
+    SEGMENT_SPAN_FRAC,
+)
 
 
 @dataclass
@@ -31,6 +34,62 @@ def is_page_spanning(
     )
 
 
+def _is_unfilled_rect(p: PathPrimitive) -> bool:
+    return p.item_type in ("re", "qu") and p.fill is None and len(p.points) == 4
+
+
+def nested_frame_indices(
+    page_data: PageData,
+    tol: float = FRAME_CORNER_TOL_PX,
+    min_corners: int = FRAME_NESTED_MIN_CORNERS,
+) -> set[int]:
+    """Path indices of nested sheet furniture: unfilled rectangles with at
+    least min_corners corners on the page frame's boundary.
+
+    The page frame is what is_page_spanning already treats as furniture — a
+    page-spanning unfilled rectangle contributes its four edges, a
+    page-spanning rule contributes itself. A drawing frame or title-block
+    partition is drawn against that frame, so three of its corners land on
+    it (the fourth is where the partition turns inward); a drawing box that
+    merely hugs one border shares two corners and stays content. See
+    FRAME_NESTED_MIN_CORNERS for the s06 measurement. One level only — no
+    propagation from nested furniture to further rectangles or free lines.
+    """
+    w, h = page_data.width_px, page_data.height_px
+    segs: list[tuple[float, float, float, float]] = []
+    for p in page_data.paths:
+        if not is_page_spanning(p, w, h) or p.fill is not None:
+            continue
+        x0, y0, x1, y1 = p.bbox
+        if p.item_type in ("re", "qu"):
+            segs += [(x0, y0, x1, y0), (x0, y1, x1, y1), (x0, y0, x0, y1), (x1, y0, x1, y1)]
+        elif p.item_type == "l" and len(p.points) >= 2:
+            (a, b), (c, d) = p.points[0], p.points[-1]
+            segs.append((a, b, c, d))
+    if not segs:
+        return set()
+
+    def on_boundary(x: float, y: float) -> bool:
+        for a, b, c, d in segs:
+            if abs(a - c) <= tol:        # vertical
+                if abs(x - a) <= tol and min(b, d) - tol <= y <= max(b, d) + tol:
+                    return True
+            elif abs(b - d) <= tol:      # horizontal
+                if abs(y - b) <= tol and min(a, c) - tol <= x <= max(a, c) + tol:
+                    return True
+        return False
+
+    out: set[int] = set()
+    for p in page_data.paths:
+        if not _is_unfilled_rect(p) or is_page_spanning(p, w, h):
+            continue
+        x0, y0, x1, y1 = p.bbox
+        corners = ((x0, y0), (x1, y0), (x0, y1), (x1, y1))
+        if sum(on_boundary(x, y) for x, y in corners) >= min_corners:
+            out.add(p.path_index)
+    return out
+
+
 def build_ink_map(
     page_data: PageData,
     bin_px: int = SEGMENT_BIN_PX,
@@ -52,10 +111,23 @@ def build_ink_map(
             t = i / steps
             plot(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t)
 
+    nested = nested_frame_indices(page_data)
     for p in page_data.paths:
         if is_page_spanning(p, page_data.width_px, page_data.height_px):
             continue
+        if p.path_index in nested:
+            continue
         pts = p.points
+        # A `qu` item's points arrive in PyMuPDF Quad order — [ul, ur, ll,
+        # lr] — not perimeter order; the perimeter is [0, 1, 3, 2] for every
+        # quad, skewed ones included (detection/walls.py reorders the same
+        # way before ring-building). Joined sequentially, a quad inked two
+        # DIAGONALS across its interior instead of its top and bottom edges:
+        # measured on s06, the 2344x1544px drawing frame (path 4849) drew two
+        # page-wide diagonals through every drawing on the sheet, and its
+        # elevations and plans never split at their gutters.
+        if p.item_type == "qu" and len(pts) == 4:
+            pts = [pts[0], pts[1], pts[3], pts[2]]
         if len(pts) >= 2:
             for a, b in zip(pts, pts[1:]):
                 segment(a, b)
