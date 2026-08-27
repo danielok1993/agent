@@ -212,18 +212,9 @@
   "210": "TestExtractPageFrame",
   "211": "unbound_scale_lines",
   "212": "TestExtractImagesInstances",
-  "213": "_prune_arc_spurs",
   "214": "test_batch_extract.py",
-  "215": "app.py",
   "216": "TestSpanFilterIsLoadBearing",
-  "217": "_spanning_glazing",
-  "218": "_is_light_pen",
   "219": "line",
-  "220": "viewport_bbox_to_px",
   "221": "ParkedLeafTests",
-  "222": "PruneUnreadPageOutputTests",
-  "223": "TestFoldingScaleBehavior",
-  "224": "TestFarSidePairs",
-  "226": "TestMinWidthNegativeControl",
-  "227": "TestThickMaterialPairs"
+  "222": "PruneUnreadPageOutputTests"
 }
