@@ -83,6 +83,50 @@ blocks) ride in `used_idxs`, so the band-interior clutter gate does not count
 the frame's structure against itself; foreign quads still count. Evidence
 carries `lights` (chain member count, 3 for W8).
 
+### 1c. Bay / corner frames — the square corner post (s10 lounge)
+
+A glazed frame that turns a corner is closed at that end not by a jamb but by
+the SQUARE block standing where the two perpendicular bands meet:
+
+```
+    ┌──────────────────── rail ─────────────╴█
+    │ post ╶───────────── centre ───────────╴█    ← the frame going right
+    ├──┬───────────────── rail ─────────────╴█
+    │  │
+    │  │  ← the frame going down shares the same post
+```
+
+Two facts follow from that drawing, and both had to be read for the frame to
+detect (measured on s10's lounge bay, three frames around one bay: the two
+short returns and the long face):
+
+1. **The post's side is the band depth.** The band's two outer rails ARE the
+   post's faces, so a square block is a corner post exactly when its side
+   equals the depth of the band ending on it (s10: 11.75 px against 11.75 px,
+   difference 0.00 on all four posts). So a square `re`/`qu` is admitted to the
+   cap pool above `WINDOW_BLOCK_CAP_MAX_THICK_PX` when it is square within
+   `WINDOW_CORNER_POST_MAX_ASPECT`, and its pairing is then gated on
+   `WINDOW_CORNER_POST_DEPTH_TOL_PX` against the band it closed. A hatch or
+   fixture box standing at a band's end carries no such identity, and the
+   post is squat by aspect, so the 3-pane `WINDOW_SQUAT_CAP_MIN_PANES` rule
+   applies on top of it. A square has no long axis — which of the two the
+   midpoint reduction picks is an artefact of the exporter's point order — so
+   a post enters the pool as BOTH of its axes; it genuinely caps both frames.
+2. **Glass stops at the jamb's FACE.** A line cap has no thickness, so its face
+   is its axis and `WINDOW_SPAN_COVER_TOL_PX` measures from there; a block cap's
+   inner face stands half the block's thickness inside it. s10's centre pane
+   runs post face to bar-jamb face and so falls 5.875 px short of the 11.75 px
+   post's centre line — past the 4 px cover tolerance from the axis, exactly on
+   it from the face — leaving a 2-pane band that then failed the 12 px 2-pane
+   jamb gate. `_spanning_glazing` therefore offsets each cap's cover bound by
+   that cap's own half-thickness.
+
+Corpus census 2026-08-28 (square `re`/`qu`, side 8–16 px — the class the
+thickness relaxation admits): 68 on nine sheets (s02 19, s17 11, s18 10, s04 9,
+s15 7, s08 5, s10 4, s14 2, s01 1). The full sweep over both rules changed
+exactly two entities on the corpus — s10's two bay returns — and no room,
+door or window anywhere else, in shape or verdict.
+
 ## 2. Pipeline shape
 
 `detect_windows(paths)` (geometry only, no wall/door dependency):
@@ -126,7 +170,9 @@ carries `lights` (chain member count, 3 for W8).
    the gap (`_spanning_glazing`).
 3. **`_spanning_glazing`** — collect glazing lines whose perp sits within the
    caps' combined facing extent (`WINDOW_SPAN_PERP_TOL_PX`) and whose run-span
-   covers the gap (reaches within `WINDOW_SPAN_COVER_TOL_PX` of each cap) without
+   covers the gap (reaches within `WINDOW_SPAN_COVER_TOL_PX` of each cap's FACE —
+   its axis for a line cap, half a block's thickness inside it for a block cap,
+   §1c) without
    overshooting it by more than `WINDOW_SPAN_OVERSHOOT_PX` (this rejects long
    wall lines that merely cross the gap). De-dupe collinear duplicates by perp
    (`WINDOW_GLAZING_DISTINCT_EPS`), then take the tightest **band** via
@@ -231,6 +277,8 @@ Neither alone is sufficient; together they give 4/4 windows, 0 false positives.
 | `WINDOW_BLOCK_CAP_MAX_THICK_PX` | 8.0 | Bar thickness for a `re`/`qu` block cap (W8 end caps 6.0, mullions 5.5). |
 | `WINDOW_BLOCK_CAP_MIN_ASPECT` | 1.8 | Long/short side of a block cap; square crosshatch/insulation boxes (~1.0–1.4) never enter the cap pool. |
 | `WINDOW_SQUAT_CAP_MIN_PANES` | 3 | A block under the bar aspect (squat, the hatch-box range) pairs only when this many panes terminate on it (s04 outer-wall window: 9.8×7.1px blocks, three 4.9px-pitch panes); squat blocks never bridge mullion chains. |
+| `WINDOW_CORNER_POST_MAX_ASPECT` | 1.2 | A block over the bar thickness may still be a jamb as a bay/corner frame's SQUARE corner post (§1c). Two-sided and tight — a post is square by construction; s10's four lounge-bay posts are 11.75×11.75 px, aspect 1.000. It enters the pool as both of its axes and is squat, so the 3-pane rule applies. |
+| `WINDOW_CORNER_POST_DEPTH_TOL_PX` | 2.0 | …and its side must EQUAL the depth of the band that ends on it — the band's rails are the post's own faces (s10: 11.75 vs 11.75, difference 0.00 ×4). This is what a hatch/fixture box at a band's end never carries; 2 px absorbs pen rounding. Corpus census of square `re`/`qu` at side 8–16 px: 68 on nine sheets. |
 | `WINDOW_BLOCK_CAP_CROSS_RATIO` | 0.75 | A line ≥ this fraction of the block's diagonal with both endpoints inside it is an X stroke → the block is a crossed post/column symbol, not a jamb (killed the 5-1133 shower-screen candidate at the source). |
 | `WINDOW_MULLION_GAP_MAX_PX` | 14.0 | Max glazing-segment gap a mullion block may bridge (W8 gaps are 11.5 px). |
 | `WINDOW_GLAZING_THICKNESS_PX` | 16.0 | Max perp-spread of the glazing band. Window A ≈ 14 px. |
@@ -240,7 +288,7 @@ Neither alone is sufficient; together they give 4/4 windows, 0 false positives.
 | `WINDOW_TWO_LINE_MIN_CAP_PX` | 12.0 | A 2-pane opening needs real jamb caps (~20–30 px) to outrank a thin wall / fixture sliver. **Small-cap windows must show ≥3 panes** (the bonus). |
 | `WINDOW_TIGHT_PAIR_GAP_PX` | 2.75 | 2-pane bands tighter than this face the interior test (§2 4c). True tight pairs: floor-plans 1.75–2.0 px; doubled-edge FPs: 1.6–2.5 px (ranges overlap → gap alone can't separate). Pairs ≥ this are real (5-1133 window_0022 3.5 px, floor-plans 3.25/3.3 px). |
 | `WINDOW_TIGHT_PAIR_JAMB_MARGIN_PX` | 1.5 | A tight pair must run interior to BOTH caps with this much jamb beyond the band on BOTH sides. True: 4.3–8.6 px; box/step-corner FPs: ≤ 0.0 px in every orientation frame (the cap terminates ON the outer stroke). |
-| `WINDOW_SPAN_COVER_TOL_PX` | 4.0 | A glazing line may fall short of each cap by this and still "span" the gap. |
+| `WINDOW_SPAN_COVER_TOL_PX` | 4.0 | A glazing line may fall short of each cap's FACE by this and still "span" the gap. A line cap's face is its axis; a block cap's is half its thickness inside it, because glass stops at the jamb face (s10's bay centre pane: 5.875 px short of the 11.75 px post's axis, 0.0 short of its face — §1c). |
 | `WINDOW_SPAN_OVERSHOOT_PX` | 11.0 | …and run at most this far PAST each cap. Confirmed windows' overshoot tails reach 10.50 px (corpus-measured 2026-08-13); the s12/s18/s20 phantom families sit at 11.75–11.98; **walls run hundreds past** — this is what stops long wall lines being read as glazing (and inflating bboxes). |
 | `WINDOW_SPAN_PERP_TOL_PX` | 2.0 | Glazing perp may sit this far outside the cap facing-extent. |
 | `WINDOW_INTERIOR_BAND_PAD_PX` | 1.5 | Widen the pane band by this (per side, along v) before scanning, so a rail drawn a hair outside the band still bounds the hatch. |
@@ -374,8 +422,9 @@ floor-plans tight pair, window_0022 wide pair at cap end).
 | Framed multi-light windows (`re`/`qu` block caps + mullions) | **Handled (v2.1, §1b)** | 5-1133 W8. Block caps must be bar-shaped (aspect ≥ 1.8); a mullion-segmented center line re-joins only across a block-occupied gap. |
 | Mullions drawn as short cap LINES (not blocks) | Not handled | Chain bridging requires a block — a line-bridged merge would also chain dashed linework / dimension ticks. Needs ground truth before relaxing. |
 | Windows on a door (e.g. sidelight) | Suppressed | Door-overlap exclusion drops a window materially covered by a door. Unobserved as a real case. A window BESIDE a swing door in the same wall run (beyond the hinge jamb, in the wall plane) is exempt — §2. |
-| Square corner-post block caps (bay frames: 12×12 px `re` at each corner of a 12 px frame, s10 lounge bay) | Not detected | `WINDOW_BLOCK_CAP_MAX_THICK_PX` 8 excludes the block; the frame's centre pane also stops on the block's inner face, 6 px short of its centre line (> `WINDOW_SPAN_COVER_TOL_PX`). |
-| Corner glazing with no jamb at the shared corner (s10 porch: two frames meeting at a mitred corner, each ended by the other's rails) | Not detected | Each frame has one block cap; its other end is the perpendicular frame's 200 px rails, far over `WINDOW_CAP_MAX_LEN_PX`. |
+| Square corner-post block caps (bay frames: 12×12 px `re` at each corner of a 12 px frame, s10 lounge bay) | **Handled (§1c)** | A square block over the bar thickness is a corner post when its side equals the band depth it closes; pane cover is measured from each cap's face. Detects s10's two bay returns. |
+| A bay's LONG face (s10 lounge, 299.5 px post-centre to post-centre = 2.54 m at 1:50) | Not detected | Over `WINDOW_MAX_WIDTH_PX` 280, which is what caps long wall/decoration runs pairing as glazing. The two short returns of the same bay detect (§1c); raising the gate needs its own ground truth. |
+| Corner glazing with no jamb at the shared corner (s10 porch: two frames meeting at a mitred corner, each ended by the other's rails) | Not detected | Each frame has one block cap; its other end is the perpendicular frame's 200 px rails, far over `WINDOW_CAP_MAX_LEN_PX`. Unlike the lounge bay (§1c) there is no corner post to read — the rails mitre directly, so the cap would have to be synthesized from the crossing band. |
 | Diagonal / bay windows | Not handled | Detector is axis-aligned only. |
 
 ## 7. How to verify a change won't regress

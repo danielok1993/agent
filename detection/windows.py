@@ -148,6 +148,26 @@ WINDOW_SQUAT_CAP_MIN_PANES    = 3     # a SQUAT block (aspect < 1.8, the crossha
                                       # s14 91); the sweep is the false-class measure.
 WINDOW_MULLION_GAP_MAX_PX     = 14.0  # max glazing-segment gap a mullion may bridge
                                       # (W8 gaps are 11.5px)
+WINDOW_CORNER_POST_MAX_ASPECT  = 1.2   # a block THICKER than a bar cap may still be a
+                                      # jamb when it is a CORNER POST: the square block
+                                      # a bay/corner frame draws where two perpendicular
+                                      # glazing bands meet. Square by construction (both
+                                      # sides are the band depth), so the aspect gate is
+                                      # two-sided and tight; measured on s10's lounge bay
+                                      # the four posts are 11.75x11.75px, aspect 1.000.
+WINDOW_CORNER_POST_DEPTH_TOL_PX = 2.0 # ...and its side must EQUAL the depth of the band
+                                      # that ends on it, because the band's two rails ARE
+                                      # the post's faces (s10: post side 11.75px vs band
+                                      # depth 11.75px, difference 0.00 on all four). That
+                                      # identity is what a hatch/fixture box standing at a
+                                      # band's end never carries; 2px absorbs pen rounding.
+                                      # The post is squat by aspect, so the 3-pane
+                                      # WINDOW_SQUAT_CAP_MIN_PANES rule applies on top.
+                                      # Its outer size is bounded by the band-depth match
+                                      # itself (<= WINDOW_GLAZING_THICKNESS_PX). Corpus
+                                      # census 2026-08-28 of square re/qu with side 8-16px:
+                                      # 68 on 9 sheets (s02 19, s17 11, s18 10, s04 9,
+                                      # s15 7, s08 5, s10 4, s14 2, s01 1).
 WINDOW_BLOCK_CAP_CROSS_RATIO  = 0.75  # a line >= this fraction of the block's diagonal
                                       # with both endpoints inside its bbox is an X
                                       # stroke: the block is a crossed post/column
@@ -273,13 +293,38 @@ def _block_cap_records(paths: list[PathPrimitive]) -> list[dict]:
         length = _line_length(a, b)
         if not (WINDOW_CAP_MIN_LEN_PX <= length <= WINDOW_CAP_MAX_LEN_PX):
             continue
-        if thick < 1e-6 or thick > WINDOW_BLOCK_CAP_MAX_THICK_PX:
+        if thick < 1e-6:
+            continue
+        square = (length / thick <= WINDOW_CORNER_POST_MAX_ASPECT
+                  and thick / length <= WINDOW_CORNER_POST_MAX_ASPECT)
+        if thick > WINDOW_BLOCK_CAP_MAX_THICK_PX and not square:
             continue
         if crossed(p, math.hypot(length, thick)):
             continue
-        recs.append({"path": p, "a": a, "b": b, "len": length,
-                     "angle": _line_angle_deg(a, b), "block": True,
-                     "squat": length / thick < WINDOW_BLOCK_CAP_MIN_ASPECT})
+        rec = {"path": p, "a": a, "b": b, "len": length,
+               "angle": _line_angle_deg(a, b), "block": True,
+               "half": thick / 2.0, "post": square,
+               "squat": length / thick < WINDOW_BLOCK_CAP_MIN_ASPECT}
+        recs.append(rec)
+        if square:
+            # A square has no long axis, and a corner post genuinely caps BOTH
+            # of the perpendicular frames that meet on it — which of the two the
+            # midpoint reduction happens to pick is an artefact of the exporter's
+            # point order. Emit the cross axis too. Its two edges are whichever
+            # pairing of {i,j} with {k,l} is shorter (edges beat diagonals).
+            if (_line_length(pts[i], pts[k]) + _line_length(pts[j], pts[l])
+                    <= _line_length(pts[i], pts[l]) + _line_length(pts[j], pts[k])):
+                m, n = (i, k), (j, l)
+            else:
+                m, n = (i, l), (j, k)
+            a2 = ((pts[m[0]][0] + pts[m[1]][0]) / 2, (pts[m[0]][1] + pts[m[1]][1]) / 2)
+            b2 = ((pts[n[0]][0] + pts[n[1]][0]) / 2, (pts[n[0]][1] + pts[n[1]][1]) / 2)
+            cross_len = _line_length(a2, b2)
+            if (WINDOW_CAP_MIN_LEN_PX <= cross_len <= WINDOW_CAP_MAX_LEN_PX
+                    and cross_len > 1e-6):
+                recs.append({"path": p, "a": a2, "b": b2, "len": cross_len,
+                             "angle": _line_angle_deg(a2, b2), "block": True,
+                             "half": length / 2.0, "post": True, "squat": True})
     return recs
 
 
@@ -336,6 +381,10 @@ def _cap_record(r: dict, ux: float, uy: float, vx: float, vy: float) -> dict:
     return {"idx": r["path"].path_index, "path": r["path"], "len": r["len"],
             "block": r.get("block", False),
             "squat": r.get("squat", False),
+            "post": r.get("post", False),
+            # Half the jamb's own thickness: a line cap has none, a block cap's
+            # inner FACE stands this far from the axis the block reduces to.
+            "half": r.get("half", 0.0),
             "perp": _project_onto_axis(mid, (0.0, 0.0), ux, uy),
             "span": _projected_interval(r["a"], r["b"], vx, vy, (0.0, 0.0))}
 
@@ -438,9 +487,9 @@ def _tight_band(records: list[dict]) -> list[dict]:
     return best
 
 
-# Bin width for the glazing index below. Not a tunable: it is exactly the width
-# of the window _spanning_glazing tests span-starts against, so a query always
-# touches at most two bins.
+# Bin width for the glazing index below. Not a tunable: it is the width of the
+# window _spanning_glazing tests span-starts against for a line cap, so a query
+# touches two bins (three when a block cap's face offset widens the window).
 _GLAZE_U_BIN_PX = WINDOW_SPAN_OVERSHOOT_PX + WINDOW_SPAN_COVER_TOL_PX
 
 
@@ -491,9 +540,15 @@ def _spanning_glazing(glaze_index: tuple[dict[int, tuple[list[float], list[int]]
     index, pool = glaze_index
     ext_lo = min(c1["span"][0], c2["span"][0]) - WINDOW_SPAN_PERP_TOL_PX
     ext_hi = max(c1["span"][1], c2["span"][1]) + WINDOW_SPAN_PERP_TOL_PX
+    # Glass stops at the JAMB'S FACE. A line cap has no thickness, so its face is
+    # its axis; a block cap's inner face stands half the block's thickness inside
+    # it, and a pane ending there is not falling short of the opening. Measured on
+    # s10's lounge bay: the centre pane runs corner-post face to bar-jamb face,
+    # 5.875px short of the 11.75px post's centre line — past WINDOW_SPAN_COVER_TOL_PX
+    # from the axis, exactly on it from the face.
     s1_lo = c1["perp"] - WINDOW_SPAN_OVERSHOOT_PX
-    s1_hi = c1["perp"] + WINDOW_SPAN_COVER_TOL_PX
-    s2_lo = c2["perp"] - WINDOW_SPAN_COVER_TOL_PX
+    s1_hi = c1["perp"] + c1.get("half", 0.0) + WINDOW_SPAN_COVER_TOL_PX
+    s2_lo = c2["perp"] - c2.get("half", 0.0) - WINDOW_SPAN_COVER_TOL_PX
     s2_hi = c2["perp"] + WINDOW_SPAN_OVERSHOOT_PX
     hits: list[int] = []
     for b in range(int(s1_lo // _GLAZE_U_BIN_PX), int(s1_hi // _GLAZE_U_BIN_PX) + 1):
@@ -592,6 +647,16 @@ def _find_openings(cap_pool: list[dict],
         band = _spanning_glazing(glaze_index, c1, c2)
         if len(band) < WINDOW_MIN_GLAZING_LINES:
             continue
+        # A corner post is the square where two perpendicular glazing bands meet,
+        # so the band's outer rails are the post's own faces and its side EQUALS
+        # the band depth. A hatch or fixture box standing at a band's end carries
+        # no such identity.
+        posts = [c for c in (c1, c2) if c.get("post")]
+        if posts:
+            depth = band[-1]["perp"] - band[0]["perp"]
+            if any(abs(2.0 * c.get("half", 0.0) - depth) > WINDOW_CORNER_POST_DEPTH_TOL_PX
+                   for c in posts):
+                continue
         openings.append({"c1": c1, "c2": c2, "glaze": band, "width": width})
     return openings
 

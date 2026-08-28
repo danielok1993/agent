@@ -446,6 +446,46 @@ class TestSquatBlockCaps(unittest.TestCase):
         self.assertEqual(len(detect_windows(paths)), 0)
 
 
+def bay_corner_post_window(base: int, *, band_depth: float = 11.75):
+    """s10 lounge bay, top frame (paths 11651/11653/11658/11659/11661).
+
+    A bay turns the corner: the frame's outer end is closed by a SQUARE corner
+    post whose side is the frame's own band depth (the two rails are the post's
+    faces), and its inner end by an ordinary bar jamb where it meets the wall.
+    The centre pane runs post FACE to jamb FACE, so it stops 5.875px short of
+    the post's centre line.
+    """
+    y0, y1 = 385.75, 385.75 + band_depth
+    return [
+        hline(base + 0, 149.5, 208.5, y0),                    # outer rail
+        hline(base + 1, 149.5, 208.5, y1),                    # inner rail
+        quad(base + 2, 149.5, 385.75, 161.25, 397.5),         # square corner post
+        quad(base + 3, 202.75, 385.75, 208.5, 397.5),         # bar jamb at the wall
+        hline(base + 4, 161.25, 202.75, (y0 + y1) / 2),       # centre pane
+    ]
+
+
+class TestBayCornerPostCaps(unittest.TestCase):
+    """A square block thicker than a bar cap is a jamb only as a CORNER POST:
+    its side must equal the depth of the glazing band that ends on it, and the
+    3-pane squat rule still applies."""
+
+    def test_corner_post_frame_detected(self):
+        wins = detect_windows(bay_corner_post_window(700))
+        self.assertEqual(len(wins), 1, [tuple(round(v) for v in c.bbox) for c in wins])
+        self.assertEqual(wins[0].evidence["glazing_lines"], 3)
+        self.assertTrue(_covers(wins[0].bbox, 180.0, 391.5))
+
+    def test_post_side_must_match_the_band_depth(self):
+        # Same square block, but the band it closes is only 6px deep — the block
+        # is a hatch/fixture box standing at the band's end, not its corner post.
+        self.assertEqual(detect_windows(bay_corner_post_window(700, band_depth=6.0)), [])
+
+    def test_two_panes_on_a_corner_post_do_not(self):
+        paths = [p for p in bay_corner_post_window(700) if p.path_index != 704]
+        self.assertEqual(detect_windows(paths), [])
+
+
 class TestFramedMultiLightWindow(unittest.TestCase):
     """5-1133 W8 topology: block caps (qu jambs/mullions) + mullion-bridged
     center glazing. Labeled as one window (W8), so it must detect as one."""
