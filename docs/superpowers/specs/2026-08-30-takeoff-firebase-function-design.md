@@ -225,8 +225,16 @@ global 10.
 
 2 GiB matches their heaviest precedent (`generateEstimatePdf`), and is right for
 a second reason: `/tmp` on Cloud Functions is a **tmpfs**, so the output tree is
-charged against memory. The function uploads and deletes each page's tree before
-processing the next, rather than accumulating.
+charged against memory.
+
+`run_extract` writes `summary.json` / `warnings.json` only after every page
+finishes (`pipeline.py:855,874`), so the tree cannot be uploaded and freed
+page-by-page without modifying it — and modifying it would put the deployed
+detector on a different code path from the CLI the corpus validates. Peak tmpfs
+is therefore the whole run: ~7 MB/page standard (~42 MB for a six-page set),
+~28 MB/page under `debug: true` (~170 MB). Both sit well inside 2 GiB. The tree
+is deleted after upload, and the source PDFs are deleted as soon as extraction
+returns.
 
 ### Dependencies
 
@@ -251,8 +259,11 @@ not cross into `us-central1`. The function's service account needs
 `scale/store.py:35-37` imports `from regression import corpus` and
 `regression.ground_truth`. `regression/` therefore cannot be in the ignore list
 or the stored-scale tier crashes on import. It is pure Python and small, so it
-ships. Confirm at implementation time that `regression/corpus.py` does not read
-`fixtures/MANIFEST.json` at import time, since `fixtures/` is excluded.
+ships.
+
+Excluding `fixtures/` is safe: `regression/corpus.py` does no import-time I/O,
+and `load_manifest()` already returns an empty corpus when `MANIFEST.json` is
+absent (`regression/corpus.py:19-23`).
 
 ## Execution flow
 
@@ -266,8 +277,8 @@ ships. Confirm at implementation time that `regression/corpus.py` does not read
    (the same trust boundary as `attachment-download.ts:93`), download to `/tmp`.
 6. `run_extract(pdf_path, page_indices=all, out_parent=<tmp>, write_svg=True,
    allow_scale_prompt=False, debug=req.debug)`.
-7. Per page: skip if `regions.json` holds no `floor_plan` region; else upload
-   the artefact set, then **delete that page's tree** before the next page.
+7. Per page in the finished tree: skip if `regions.json` holds no `floor_plan`
+   region; else upload the artefact set. Delete the whole tree afterwards.
 8. Assemble sheets with unique ids, `source_file_id` and `label`.
 9. Write `status: 'awaiting_review'`, `document`, `error: null`. Return.
 
