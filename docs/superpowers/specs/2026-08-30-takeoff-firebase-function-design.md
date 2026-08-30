@@ -106,9 +106,10 @@ That is the entire input. Deliberately **not** in the request:
   sheets: TakeoffSheetJson[],          // the snake_case takeoff.json shape
   artifacts: {
     prefix: string,                    // customers/{c}/takeoffs/{t}/
-    bySheet: { [sheetId]: { svg, takeoff, render, overlay, ... } }
+    bySheet: { [sheetId]: { svg, takeoff, render, overlay, ... } },
+    run: { [sourceFileId]: { "summary.json": path, "warnings.json": path } }
   },
-  run: { startedAt, finishedAt, pagesProcessed, pagesSkipped, warnings }
+  run: { startedAt, finishedAt, pagesMeasured, pagesSkipped, warnings }
 }
 ```
 

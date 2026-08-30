@@ -15,7 +15,7 @@ Local Python CLI POC for architectural PDF extraction. The research question is 
 ```bash
 # Setup
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt -r requirements-dev.txt
 
 # Inspect — terminal summary, no Gemini, no files written
 python app.py inspect path/to/drawing.pdf [--pages 1,3-5]

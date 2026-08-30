@@ -1,6 +1,11 @@
 
 __pycache__/
 
+# Firebase's Python build creates venv/ in the source directory, which with
+# source: "." is the repo root. .venv/ is the local development environment.
+venv/
+.venv/
+
 outputs/
 
 .DS_Store

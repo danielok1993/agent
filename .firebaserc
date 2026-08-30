@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "rivet-mind-dev",
+    "dev": "rivet-mind-dev",
+    "qa": "nestimate-qa",
+    "prod": "nestimate-app"
+  }
+}

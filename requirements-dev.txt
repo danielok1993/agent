@@ -1,0 +1,7 @@
+# Developer-only dependencies. NOT installed by Firebase Functions, which
+# reads requirements.txt alone — so tools/ can keep dependencies the
+# deployed function must not carry.
+#
+# Install with:  pip install -r requirements.txt -r requirements-dev.txt
+
+InquirerPy>=0.3.4

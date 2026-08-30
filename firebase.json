@@ -1,0 +1,28 @@
+{
+  "functions": [
+    {
+      "source": ".",
+      "codebase": "takeoff",
+      "runtime": "python313",
+      "ignore": [
+        "tests",
+        "fixtures",
+        "outputs",
+        "graphify-out",
+        "docs",
+        "plans",
+        "tools",
+        "venv",
+        ".venv",
+        ".git",
+        ".claude",
+        ".superpowers",
+        ".regions_cache",
+        ".room_labels_cache",
+        ".scale_cache",
+        "**/__pycache__",
+        "**/*.pyc"
+      ]
+    }
+  ]
+}

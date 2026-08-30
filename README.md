@@ -27,7 +27,7 @@ source .venv/bin/activate          # macOS / Linux
 # .venv\Scripts\activate           # Windows PowerShell
 
 # Install dependencies
-pip install -r requirements.txt
+pip install -r requirements.txt -r requirements-dev.txt
 ```
 
 To leave the environment later, run `deactivate`.
