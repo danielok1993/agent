@@ -10,6 +10,8 @@ from models import ScaleInfo
 from scale.units import (
     MM_PER_PT,
     PAPER_SPACE_MAX_DENOMINATOR,
+    STANDARD_SCALES,
+    SUPPLIABLE_SCALES,
     canonical_denominators,
     cluster_denominators,
     denominator_from_c,
@@ -114,6 +116,48 @@ class TestScaleInfoDefaults(unittest.TestCase):
     def test_paper_space_threshold_excludes_one_to_one(self):
         self.assertLess(1.0, PAPER_SPACE_MAX_DENOMINATOR)
         self.assertGreater(20.0, PAPER_SPACE_MAX_DENOMINATOR)
+
+
+class TestSuppliableScales(unittest.TestCase):
+    """The closed set a user may supply for a sheet nobody could scale.
+
+    Both properties are load-bearing and neither is obvious from the tuple
+    itself, so they are asserted rather than trusted.
+    """
+
+    def test_every_suppliable_scale_snaps_to_itself(self):
+        # A member that failed to snap would arrive with nominal=None, and
+        # _gate_denominator abstains on those — the re-run would detect at
+        # identity, which is the bug this whole feature removes.
+        for denominator in SUPPLIABLE_SCALES:
+            with self.subTest(denominator=denominator):
+                self.assertEqual(snap_to_standard(denominator), denominator)
+
+    def test_every_suppliable_scale_is_inside_the_detection_domain(self):
+        from scale.factor import (
+            DETECTION_FACTOR_MAX, DETECTION_FACTOR_MIN,
+            DETECTION_REFERENCE_DENOMINATOR,
+        )
+        for denominator in SUPPLIABLE_SCALES:
+            factor = DETECTION_REFERENCE_DENOMINATOR / denominator
+            with self.subTest(denominator=denominator):
+                self.assertGreaterEqual(factor, DETECTION_FACTOR_MIN)
+                self.assertLessEqual(factor, DETECTION_FACTOR_MAX)
+
+    def test_no_standard_scale_inside_the_domain_is_missing(self):
+        # Guards the other direction: a standard scale that would work but is
+        # not offered is a scale the user cannot enter.
+        from scale.factor import (
+            DETECTION_FACTOR_MAX, DETECTION_FACTOR_MIN,
+            DETECTION_REFERENCE_DENOMINATOR,
+        )
+        eligible = {
+            float(s) for s in STANDARD_SCALES
+            if DETECTION_FACTOR_MIN
+            <= DETECTION_REFERENCE_DENOMINATOR / s
+            <= DETECTION_FACTOR_MAX
+        }
+        self.assertEqual(eligible, set(SUPPLIABLE_SCALES))
 
 
 if __name__ == "__main__":
