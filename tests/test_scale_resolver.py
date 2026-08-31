@@ -435,5 +435,113 @@ class TestResolvePageScales(unittest.TestCase):
         self.assertTrue(all(w["page_number"] == 1 for w in result.warnings))
 
 
+class TestSuppliedFallback(unittest.TestCase):
+    """The bottom tier: a scale the user supplied for a sheet that states none."""
+
+    def blank_page(self, spans=()):
+        return PageData(page_number=1, width_px=200.0, height_px=200.0,
+                        text_spans=list(spans))
+
+    def test_fallback_resolves_a_region_nothing_else_could(self):
+        result = resolve_page_scales(
+            page_data=self.blank_page(),
+            regions=[region("region_0000", (0.0, 0.0, 100.0, 100.0))],
+            viewports=[], stored=[], fallback=100.0)
+        info = result.by_region["region_0000"]
+        self.assertEqual(info.denominator, 100.0)
+        self.assertEqual(info.source, "user")
+        # nominal is what lets _gate_denominator scale the detection gates.
+        self.assertEqual(info.nominal, 100.0)
+
+    def test_fallback_does_not_displace_a_viewport(self):
+        result = resolve_page_scales(
+            page_data=self.blank_page(),
+            regions=[region("region_0000", (0.0, 0.0, 100.0, 100.0))],
+            viewports=[viewport(50.0, (0.0, 0.0, 200.0, 200.0))],
+            stored=[], fallback=100.0)
+        self.assertEqual(result.by_region["region_0000"].denominator, 50.0)
+        self.assertEqual(result.by_region["region_0000"].source, "viewport")
+
+    def test_fallback_does_not_displace_a_stored_entry(self):
+        result = resolve_page_scales(
+            page_data=self.blank_page(),
+            regions=[region("region_0000", (0.0, 0.0, 100.0, 100.0))],
+            viewports=[], fallback=200.0,
+            stored=[StoredScale((0.0, 0.0, 100.0, 100.0), "1:20")])
+        self.assertEqual(result.by_region["region_0000"].denominator, 20.0)
+
+    def test_fallback_does_not_displace_a_sole_text_candidate(self):
+        page = self.blank_page([span("1:50@A3", (900.0, 900.0, 950.0, 910.0))])
+        result = resolve_page_scales(
+            page_data=page,
+            regions=[region("region_0000", (0.0, 0.0, 100.0, 100.0))],
+            viewports=[], stored=[], fallback=200.0)
+        self.assertEqual(result.by_region["region_0000"].denominator, 50.0)
+
+    def test_fallback_resolves_a_region_two_captions_made_ambiguous(self):
+        # The span sits INSIDE the region, so both printed scales bind to it
+        # and the resolver sets `ambiguous` — it refuses to pick the nearer.
+        # The fallback is deliberately not gated on that flag: the user is
+        # exactly the tiebreaker the resolver was declining to be.
+        #
+        # The span must be inside (or just below) the region to reach that
+        # branch. A caption off to the side fails the horizontal-overlap test
+        # in _caption_distance, leaves `ambiguous` False, and exercises the
+        # multiple-unbound path instead — a different branch that happens to
+        # produce the same answer.
+        page = self.blank_page([span("1:50  & 1:100", (10.0, 50.0, 60.0, 60.0))])
+        result = resolve_page_scales(
+            page_data=page,
+            regions=[region("region_0000", (0.0, 0.0, 100.0, 100.0))],
+            viewports=[], stored=[], fallback=200.0)
+        self.assertEqual(result.by_region["region_0000"].denominator, 200.0)
+        # The refusal is still recorded — the fallback answers it, it does not
+        # erase it.
+        self.assertIn("SCALE_MULTIPLE_UNBOUND",
+                      [w["warning_code"] for w in result.warnings])
+
+    def test_no_unresolved_warning_once_the_fallback_binds(self):
+        result = resolve_page_scales(
+            page_data=self.blank_page(),
+            regions=[region("region_0000", (0.0, 0.0, 100.0, 100.0))],
+            viewports=[], stored=[], fallback=100.0)
+        self.assertNotIn("SCALE_UNRESOLVED",
+                         [w["warning_code"] for w in result.warnings])
+
+    def test_the_fallback_becomes_the_page_scale(self):
+        # Without this the re-run writes scale.page: null, rivet-mind's
+        # parseTakeoffDocument drops the sheet, and the takeoff fails exactly
+        # as it did before the user answered.
+        result = resolve_page_scales(
+            page_data=self.blank_page(),
+            regions=[region("region_0000", (0.0, 0.0, 100.0, 100.0))],
+            viewports=[], stored=[], fallback=100.0)
+        self.assertIsNotNone(result.page_scale)
+        self.assertEqual(result.page_scale.denominator, 100.0)
+
+    def test_the_fallback_is_not_the_page_scale_when_another_tier_resolved_one(self):
+        # s17's shape: several scales stated, one binds geometrically and one
+        # region is left over. The sheet has no single scale, and publishing
+        # the user's number as the page's would be wrong for most of it.
+        page = self.blank_page([span("1:50  & 1:100", (900.0, 900.0, 950.0, 910.0))])
+        result = resolve_page_scales(
+            page_data=page,
+            regions=[region("region_0000", (0.0, 0.0, 100.0, 100.0)),
+                     region("region_0001", (300.0, 300.0, 400.0, 400.0))],
+            viewports=[viewport(50.0, (0.0, 0.0, 200.0, 200.0))],
+            stored=[], fallback=200.0)
+        self.assertEqual(result.by_region["region_0000"].source, "viewport")
+        self.assertEqual(result.by_region["region_0001"].denominator, 200.0)
+        self.assertIsNone(result.page_scale)
+
+    def test_no_fallback_leaves_the_region_unresolved_as_before(self):
+        result = resolve_page_scales(
+            page_data=self.blank_page(),
+            regions=[region("region_0000", (0.0, 0.0, 100.0, 100.0))],
+            viewports=[], stored=[])
+        self.assertEqual(result.by_region["region_0000"].source, "unresolved")
+        self.assertIsNone(result.page_scale)
+
+
 if __name__ == "__main__":
     unittest.main()
