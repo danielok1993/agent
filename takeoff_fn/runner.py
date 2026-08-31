@@ -49,6 +49,26 @@ def _document(sheet_list: list[dict]) -> dict:
     }
 
 
+def sheet_is_scaled(sheet: dict) -> bool:
+    """Whether anything on this sheet resolved a drawing scale.
+
+    Two ways to qualify, because they are genuinely different sheets: a page
+    scale (one scale stated for the whole sheet), or a room measured against
+    its own region's scale (a multi-scale sheet has no page scale and is
+    perfectly measurable).
+
+    Total over a payload read off disk — a malformed block answers False
+    rather than raising, so one bad page cannot fail a run that measured.
+    """
+    scale = sheet.get("scale")
+    if isinstance(scale, dict):
+        page = scale.get("page")
+        if isinstance(page, dict) and page.get("denominator") is not None:
+            return True
+    return any(isinstance(room, dict) and room.get("mm_per_px") is not None
+               for room in sheet.get("rooms") or [])
+
+
 def _measure_source(source, out_parent: str, prefix: str,
                     request: TakeoffRequest, bucket, extract_fn, page_count_fn,
                     all_sheets: list[dict], all_artifacts: dict[str, dict],
@@ -76,6 +96,7 @@ def _measure_source(source, out_parent: str, prefix: str,
         # Without this, an unresolvable scale blocks on input() inside a
         # Cloud Function until the timeout kills the instance.
         allow_scale_prompt=False,
+        fallback_denominator=request.scale_denominator,
         ceiling_height=None,
         door_height=None,
         window_height=None,
@@ -189,9 +210,25 @@ def run_measurement(request: TakeoffRequest, *, db, bucket,
                 "No floor plan was found in any source drawing")
 
         document = _document(all_sheets)
-        records.mark_awaiting_review(
-            db, request.takeoff_id,
-            json.dumps(document, default=str), finished_at)
+        document_json = json.dumps(document, default=str)
+
+        # Two terminal states, not one. A run where NOTHING resolved a scale
+        # has measured only geometry — detection ran at identity factor, so
+        # even the rooms it found are suspect — and rivet-mind's parse
+        # boundary drops every one of those sheets. Reporting that as
+        # awaiting_review promises a review that cannot happen; the client
+        # then fails the record itself, blaming the drawing.
+        #
+        # A PARTIALLY unscaled run stays awaiting_review: the scaled pages are
+        # reviewable, and blocking them on a question about the others would
+        # cost more than the unscaled pages are worth. run.json records what
+        # was skipped.
+        if any(sheet_is_scaled(sheet) for sheet in all_sheets):
+            records.mark_awaiting_review(
+                db, request.takeoff_id, document_json, finished_at)
+        else:
+            records.mark_awaiting_scale(
+                db, request.takeoff_id, document_json, finished_at)
 
         return RunResult(sheets=all_sheets,
                          artifacts={"prefix": prefix,

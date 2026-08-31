@@ -25,6 +25,11 @@ STALE_PROCESSING_SECONDS = 1800
 
 STATUS_PROCESSING = "processing"
 STATUS_AWAITING_REVIEW = "awaiting_review"
+# Measured, but no page on the run resolved a drawing scale, so there is
+# nothing a reviewer can act on until someone supplies one. Not a failure:
+# the drawings are fine and the artefacts are uploaded — the run is waiting
+# on a person, exactly as awaiting_review is.
+STATUS_AWAITING_SCALE = "awaiting_scale"
 STATUS_FAILED = "failed"
 STATUS_APPROVED = "approved"
 
