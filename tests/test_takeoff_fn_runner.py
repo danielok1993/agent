@@ -577,6 +577,21 @@ class TestTerminalStatus(RunnerTestCase):
         self.assertIn("document", db.doc.updates[-1])
         self.assertIsNone(db.doc.updates[-1]["error"])
 
+    def test_a_wholly_unscaled_run_given_a_scale_reaches_awaiting_review(self):
+        # A page with no floor_plan region at all (scanned sheet, failed
+        # Gemini classify/parse) gives the fallback tier nothing to bind, so
+        # a supplied scale is inert and the run still resolves nothing. It
+        # must not park at awaiting_scale again — that would ask the same
+        # question forever. The client's existing effect fails it honestly.
+        self.request = TakeoffRequest(
+            "t1", "cus-1", "uid-1", debug=False, scale_denominator=100.0)
+        db = FakeDb(_record([self.URL]))
+        self.run_it(db, FakeBucket(self.OBJECT), _make_extract(
+            {1: (["floor_plan"], _unscaled_takeoff(1))}))
+
+        self.assertEqual(db.doc.updates[-1]["status"],
+                         config.STATUS_AWAITING_REVIEW)
+
     def test_a_partially_scaled_run_still_reaches_awaiting_review(self):
         # One page scaled, one not. The scaled page is reviewable, so the
         # takeoff is not blocked on a question about the other.

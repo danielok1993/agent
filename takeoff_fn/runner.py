@@ -223,7 +223,24 @@ def run_measurement(request: TakeoffRequest, *, db, bucket,
         # reviewable, and blocking them on a question about the others would
         # cost more than the unscaled pages are worth. run.json records what
         # was skipped.
-        if any(sheet_is_scaled(sheet) for sheet in all_sheets):
+        #
+        # A run that was already GIVEN a scale and still resolved nothing is
+        # a third case, and it must not park either. The fallback tier only
+        # fires inside resolve_page_scales' per-region loop, and only
+        # promotes to page_scale when it bound at least one region — a page
+        # with no floor_plan region at all (a scanned sheet, a failed Gemini
+        # classify or parse) offers the fallback nothing to bind, so a
+        # supplied denominator is silently inert on it. Parking again would
+        # ask the same question forever: the re-run resolves nothing for the
+        # same reason it did the first time. Never park twice on a question
+        # the user has already answered — fail honestly instead, exactly as
+        # this takeoff would have failed before this feature existed, via
+        # the client's existing effect. The alternative, widening the
+        # promotion guard to publish page_scale from zero bound regions,
+        # would manufacture a "reviewable" sheet with no rooms on it, which
+        # is worse than an honest failure.
+        if (any(sheet_is_scaled(sheet) for sheet in all_sheets)
+                or request.scale_denominator is not None):
             records.mark_awaiting_review(
                 db, request.takeoff_id, document_json, finished_at)
         else:
