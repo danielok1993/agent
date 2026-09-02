@@ -88,6 +88,34 @@ WALL_THROUGH_HATCH_MAX_PX   = 64.0  # a band hatched THROUGH — diagonal stroke
 WALL_PARALLEL_ANGLE_TOL     = 4.0   # degrees, matches WINDOW_ANGLE_TOL_DEG
 WALL_BAND_MIN_ASPECT        = 3.0   # filled rect must be band-like, not a fixture block
 WALL_PAIR_MIN_OVERLAP_PX    = 12.0  # shorter face-pair overlap is coincidence
+WALL_PAIR_TAPER_MAX_FRAC    = 0.5   # a face pair's spacing may change by at most
+    # this fraction of itself between the two ends of the overlap
+    # (dimensionless). A wall's two faces are drawn parallel — one band, one
+    # thickness — so a real pair's spacing is the same at both ends: on the
+    # corpus (2026-09-02) every surviving real pair measures <= 0.30, the
+    # widest being s03's tapering rear boundary wall at 0.24-0.27 (15.4 ->
+    # 11.7px over 142px), then s17 0.30, s18 0.20, s01 0.16, s02 0.11, the
+    # rest <= 0.07. A stroke crossing the band corner to corner — the single
+    # diagonal of a brick-hatch cell, drawn in the wall pen (s03
+    # EXISTING_BRICKWORK, s04/s08 RR_Wall Hatches, s20) — lies inside
+    # WALL_PARALLEL_ANGLE_TOL of both faces (an aspect-15 cell: 3.9 deg) yet
+    # its spacing to either runs from the band's full width to ZERO: ratio
+    # 1.0 on all four sheets (s03 0 -> 14.8px at 1:50 and 0 -> 7.5px at
+    # 1:100, s04 0 -> 5.3, s08 0 -> 21.3, s20 0 -> 12). _perpendicular_spacing
+    # samples ONE endpoint (fj.p1), which for a long merged face may lie
+    # hundreds of px past the cell where the chord's line has drifted well
+    # beyond the band: s03's 219px chord read 29px against the 992px far
+    # face (first endpoint 650px away) and the centerline landed 14.5px on
+    # the ROOM side of the chord, its solid fencing a 15-29px strip off the
+    # bottom-right corner of BEDROOM rooms 0005 and 0013 (the far-side rule
+    # could not catch it: the phantom band overlapped the wall's grey fill
+    # by 0.24, past WALL_FAR_SIDE_FILL_COVER_MAX). Interpolating the spacing
+    # at both ends of the overlap and rejecting a change over half of itself
+    # leaves ~2x margin to each class. The only other corpus pairs above the
+    # gate are 12px stubs at 1px spacing on the vector-text sheets s11/s16
+    # (glyph strokes, 0.67) — not walls either. Chords pairing with the
+    # NEXT cell's face (s04/s20, 0.30-0.49) stay: those centerlines lie
+    # inside the wall band and are harmless.
 WALL_CENTERLINE_MERGE_GAP_PX = 8.0  # dedupe centerlines produced by multiple partner pairs
 WALL_JUNCTION_SNAP_PX       = 8.0   # endpoint-to-intersection reach beyond partner thickness/2
 WALL_JUNCTION_MIN_ANGLE_DEG = 10.0  # below this, line intersections are unstable (collinear-merge territory)
@@ -2536,8 +2564,31 @@ def _pair_faces_to_centerlines(
                 if hi - lo < gates.WALL_PAIR_MIN_OVERLAP_PX:
                     continue
 
-                # Midline: offset half the spacing from fi's line toward fj.
+                # One band, one thickness: `spacing` above is sampled at
+                # fj.p1, which is the pair's spacing everywhere only when
+                # the faces are truly parallel. Inside the angle tolerance a
+                # chord across the band (a brick-hatch cell's diagonal) reads
+                # whatever the divergence is at that one point — possibly
+                # hundreds of px past the overlap — and its centerline lands
+                # on the wrong side. Interpolate fj's signed offset from fi's
+                # line at both ends of the overlap; a wall pair's spacing
+                # stays put, a chord's runs to zero (WALL_PAIR_TAPER_MAX_FRAC).
                 nx, ny = -uy, ux
+                s1 = (fj.p1[0] - fi.p1[0]) * nx + (fj.p1[1] - fi.p1[1]) * ny
+                s2 = (fj.p2[0] - fi.p1[0]) * nx + (fj.p2[1] - fi.p1[1]) * ny
+                t1 = _project_onto_axis(fj.p1, fi.p1, ux, uy)
+                t2 = _project_onto_axis(fj.p2, fi.p1, ux, uy)
+                if abs(t2 - t1) > 1e-9:
+                    s_lo = s1 + (s2 - s1) * (lo - t1) / (t2 - t1)
+                    s_hi = s1 + (s2 - s1) * (hi - t1) / (t2 - t1)
+                else:
+                    s_lo = s_hi = s1
+                if abs(s_lo - s_hi) > WALL_PAIR_TAPER_MAX_FRAC * max(
+                    abs(s_lo), abs(s_hi), 1e-9
+                ):
+                    continue
+
+                # Midline: offset half the spacing from fi's line toward fj.
                 side = (fj.p1[0] - fi.p1[0]) * nx + (fj.p1[1] - fi.p1[1]) * ny
                 off = spacing / 2.0 if side >= 0 else -spacing / 2.0
                 c1 = (fi.p1[0] + ux * lo + nx * off, fi.p1[1] + uy * lo + ny * off)

@@ -274,6 +274,7 @@ artifacts" — that is a new decision, not a reopening of this table.
 | WALL_PARALLEL_ANGLE_TOL | D | angle |
 | WALL_BAND_MIN_ASPECT | D | ratio |
 | WALL_PAIR_MIN_OVERLAP_PX | W | coincidence floor on face overlap |
+| WALL_PAIR_TAPER_MAX_FRAC | D | ratio — a pair's spacing change across its overlap over its spacing; a chord across the band scores 1.0 at any scale, a real pair <= 0.30 (added 2026-09-02, branch fix/s03-bedroom-corner-notch) |
 | WALL_CENTERLINE_MERGE_GAP_PX | P | measured 2026-08-12: no corpus signal (small tolerance, not a hatch/geometry quantity); conservative default, unchanged behavior at every f; revisit if 1:100 sweep shows artifacts |
 | WALL_JUNCTION_SNAP_PX | P | measured 2026-08-12: no corpus signal; conservative default (§4b); revisit if 1:100 sweep shows artifacts |
 | WALL_JUNCTION_MIN_ANGLE_DEG | D | angle |
