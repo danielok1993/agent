@@ -233,7 +233,7 @@ def draw_overlay(
         conf_str = f"{entity.confidence:.2f}"
         label_str = f"{entity.entity_id} {conf_str}"
         if entity.label:
-            label_str = f"{entity.label} ({conf_str})"
+            label_str = f"{entity.entity_id} {entity.label} ({conf_str})"
         polygon = entity.attributes.get("polygon")
         if polygon and len(polygon) >= 3:
             _draw_entity_polygon(overlay, draw, polygon, color, label_str, font=font)
