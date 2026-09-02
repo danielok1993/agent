@@ -6683,5 +6683,20 @@
     "mtime": 1788339246.5521595,
     "ast_hash": "998c59f9d2db205c1302cabfc168a18b",
     "semantic_hash": ""
+  },
+  "tools/compare_room_shapes.py": {
+    "mtime": 1788346110.234777,
+    "ast_hash": "9377e24658245fda28da3f8a719da399",
+    "semantic_hash": ""
+  },
+  "tools/probe_pair_taper.py": {
+    "mtime": 1788346095.3395545,
+    "ast_hash": "c7a24e03e4310de03ab0173423c0a77b",
+    "semantic_hash": ""
+  },
+  "docs/hatch-cell-chords-handoff.md": {
+    "mtime": 1788346158.2935636,
+    "ast_hash": "aa8e1ccf8963a27c397a3788497b3d42",
+    "semantic_hash": ""
   }
 }
