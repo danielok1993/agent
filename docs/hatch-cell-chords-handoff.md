@@ -42,6 +42,25 @@ changes by more than half of itself (real pairs ≤ 0.30 corpus-wide, chords
 
 ### R1. Hatch-cell chords are still wall FACES (the proper fix)
 
+> **Resolution (2026-09-02, branch `fix/hatch-cell-chord-faces`):** the
+> premise below is wrong — none of these strokes is a hatch cell. Dumping
+> the primitives around each "chord" shows the shared diagonal of two
+> same-fill triangles: the exporter triangulated the wall's FILL polygon
+> (the layers `EXISTING_BRICKWORK` / `RR_Wall Hatches` hold the fill, not a
+> hatch) and attached the fill colour as a width-0 stroke, recorded at
+> 1.0px. `_fill_seams` already finds them; the gap was that the seam veto
+> only stripped the `wall_fill` flag, so a self-coloured seam stayed a
+> STROKED face (s03 248, s04 50/50, s08 48/48, s12 116, s17 128). Seams
+> now join the pre-pairing exclusion set beside `_dimension_line_indices`.
+> A geometric chord probe (endpoints on two opposite corners of a
+> same-pen box, aspect ≥ 2) matched ZERO strokes on s03/s04/s08/s20 and
+> only the 0.3/0.45px blocking X's on s02 — there is no stroked-chord
+> class on the corpus to key a rule on. s20's chord is a different gap:
+> its two triangles chain into one six-edge ring that revisits its start,
+> shapely rejects it, and the seam goes unseen (see the CLAUDE.md seam
+> sentence for the measured blast radius of splitting such chains — the
+> next iteration, not this one).
+
 The taper gate stops the chord pairing with its own cell's faces, but the
 chord still enters face collection as a strong 1.0px face and still pairs
 with the NEXT cell's face at a ratio under the gate:

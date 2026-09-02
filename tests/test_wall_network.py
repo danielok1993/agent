@@ -121,6 +121,39 @@ class TestFaceCollection(unittest.TestCase):
         _, bands = _collect_wall_faces([block])
         self.assertEqual(len(bands), 0)
 
+    def test_stroked_fill_seam_is_not_a_face(self):
+        # A filled band exported as two triangles that BOTH carry the shared
+        # diagonal, every edge stroked in the fill's own colour at width 0
+        # (recorded as 1.0px): the seam is found by _fill_seams, but the
+        # 1.0px stroke otherwise admits it as a STROKED face regardless.
+        paths = triangulated_band_h(0, 100, 400, 100, thickness=14.0)
+        faces, _ = _collect_wall_faces(paths)
+        seam = {1, 5}
+        for f in faces:
+            self.assertFalse(f.indices & seam, f)
+        self.assertEqual(len(faces), 4)
+
+
+def triangulated_band_h(start_idx, x0, x1, y, thickness=14.0,
+                        fill=(0.6, 0.6, 0.6), stroke_width=1.0):
+    """A filled wall band the exporter triangulated into two rings that
+    each carry the shared diagonal (s03 EXISTING_BRICKWORK, s04/s08
+    RR_Wall Hatches, s12, s17): six `l` items with the fill colour, and —
+    the corpus signature — a self-coloured width-0 stroke recorded at
+    1.0px. Triangle 2 starts where triangle 1 does NOT end, so the two
+    chains close separately. Indices start_idx+1 and start_idx+5 are the
+    seam."""
+    y1 = y + thickness
+    kw = dict(fill=fill, color=fill, stroke_width=stroke_width)
+    return [
+        path(start_idx, [(x0, y), (x1, y)], **kw),
+        path(start_idx + 1, [(x1, y), (x0, y1)], **kw),      # seam
+        path(start_idx + 2, [(x0, y1), (x0, y)], **kw),
+        path(start_idx + 3, [(x1, y), (x1, y1)], **kw),
+        path(start_idx + 4, [(x1, y1), (x0, y1)], **kw),
+        path(start_idx + 5, [(x0, y1), (x1, y)], **kw),      # seam
+    ]
+
 
 class TestCenterlines(unittest.TestCase):
     def test_parallel_pair_gives_one_centerline(self):
@@ -168,10 +201,12 @@ class TestCenterlines(unittest.TestCase):
 
     def test_brick_cell_diagonal_does_not_pair_into_the_room(self):
         # A vertical band (near face x=300 over 100-320, far face x=314 a
-        # long run to 700) whose brick-hatch cell is drawn as the box plus
-        # ONE corner-to-corner diagonal in the same pen (s03
-        # EXISTING_BRICKWORK): 14px over 220px = 3.6 deg, inside
-        # WALL_PARALLEL_ANGLE_TOL, so the chord is "parallel" to both faces
+        # long run to 700) with ONE stroked corner-to-corner diagonal in
+        # the same pen (the corpus strokes this was modelled on turned out
+        # to be fill seams — s03 EXISTING_BRICKWORK is the wall FILL — and
+        # are excluded upstream since 2026-09-02; this keeps the taper gate
+        # honest for a genuinely stroked chord): 14px over 220px = 3.6 deg,
+        # inside WALL_PARALLEL_ANGLE_TOL, so the chord is "parallel" to both faces
         # — but its spacing to either runs from the band's full width to
         # zero. Sampled at the far face's first endpoint (380px past the
         # cell, where the chord's line has crossed 24px beyond the face) it
@@ -194,6 +229,30 @@ class TestCenterlines(unittest.TestCase):
             for x in (seg.p1[0], seg.p2[0]):
                 self.assertGreaterEqual(x, 300.0 - 0.5, seg)
                 self.assertLessEqual(x, 314.0 + 0.5, seg)
+        self.assertTrue(any(
+            abs(seg.thickness_px - 14.0) < 0.5 for seg in network.segments
+        ))
+
+    def test_self_coloured_fill_seam_never_reaches_the_network(self):
+        # The corpus form of the "hatch-cell chord": a filled band's
+        # triangulation seam with a self-coloured 1.0px stroke (s04 RR_Wall
+        # Hatches: 50/50 seams became stroked faces; s03 248, s08 48, s12
+        # 116, s17 128). Lying within WALL_PARALLEL_ANGLE_TOL of the band's
+        # own faces (14px over 300px = 2.7 deg) it pairs with the NEXT cell's
+        # face or merges collinearly into a run, and it sits in the paired
+        # stroke reference. The seam rule's veto must cover every face tier,
+        # not just the wall_fill flag. The drawn faces (black 1.5px, as s04's
+        # RR_Walls lines over its fill) still pair at the band thickness.
+        paths = triangulated_band_h(0, 100, 400, 100, thickness=14.0) + [
+            hline(6, 100, 400, 100),
+            hline(7, 100, 400, 114),
+        ]
+        network = detect_wall_network(paths)
+        seam = {1, 5}
+        for f in network.faces:
+            self.assertFalse(set(f.indices) & seam, f)
+        for seg in network.segments:
+            self.assertFalse(set(seg.face_path_indices) & seam, seg)
         self.assertTrue(any(
             abs(seg.thickness_px - 14.0) < 0.5 for seg in network.segments
         ))
