@@ -9,11 +9,20 @@ rooms 0005/0013.
 **Status of R1 (updated 2026-09-02, later the same day):** done on
 `fix/hatch-cell-chord-faces` as a SEAM fix, not a chord rule — `9e86031`
 (code + tests + prose) plus the tools/handoff commit after it; the user
-merges. The "chords" were fill seams (see the R1 resolution note below). The
-open residue is now **Gap B** (the chain split), spelled out in the prompt at
-the end. Working tree also carries the user's own uncommitted
-`extraction/renderer.py` change (overlay labels now print the entity id in
-front of the room name) — leave it alone.
+merges. The "chords" were fill seams (see the R1 resolution note below).
+**Status of Gap B (2026-09-02, branch `fix/fill-chain-start-revisit`):** done —
+`_collect_fill_rings` closes a ring at an EXACT return to its start vertex
+(`WALL_FILL_CHAIN_REVISIT_TOL_PX`) and opens the next chain there; the CLAUDE.md
+seam sentence carries the rule and the corpus measurement. Sweep: every
+verdict line identical to baseline except s18's recorded false-positive
+room_0009 (gone — an incidental win: the pocket was never fenced, the 8px
+opening severed it, and recovered glyph patches reshaped the re-dilation) and
+s03 room_0007 (a 2×4px mitre spike from a recovered sub-2px sliver triangle,
+126 px² after simplification). Two residues surfaced, both pre-existing and
+both queued below: **Gap C**, the seam probe leaves any fill thinner than 2px
+so sliver triangles never seam-unite; **Gap D**, s18's black fill class is
+rated wall on the strength of vector-text GLYPH OUTLINES (1,328 of its 1,633
+rings are ≥ 8-vertex rings inside 16px), which enter the barrier area.
 
 ## Read these first (in order)
 
@@ -144,7 +153,19 @@ spending a session on it; it may be known.
 - Attribution without `git stash` (the stash is shared across worktrees):
   `git diff detection/walls.py > x.diff && git checkout -- detection/walls.py`,
   sweep the sheet, `python tools/compare_sweeps.py sNN --snapshot`,
-  `git apply x.diff`.
+  `git apply x.diff`. Or, without touching the working tree at all:
+  `git worktree add --detach <scratchpad>/base_tree main`, run a scratch
+  script that `sys.path.insert(0, <tree>)`s before importing `detection`
+  (the PDF and its caches stay under the main checkout's `fixtures/`), and
+  `git worktree remove --force` it afterwards — this is how the s03 corridor
+  edge was diffed barrier-by-barrier between the two code states (Gap B).
+- A barrier-level diff beats reasoning: monkeypatch
+  `detection.rooms._free_space_components` to capture `barriers`, the raw
+  `page.difference(barriers)` pieces and the opened components inside a probe
+  box, run `detection.run_heuristics` in both trees, and diff the WKTs with
+  shapely (`base.difference(fix)` / `fix.difference(base)`). It found s18
+  room_0009 was never fenced (one page-sized raw piece in both states) and
+  s03's 8 px² mitre spike in one pass each.
 - Room labels are cached per page keyed on EVERY room polygon
   (`gemini/room_label_cache.py`), so any outline change on a sheet drops its
   cached names until a Gemini-enabled `python app.py extract fixtures/sheets/<sheet>.pdf`
@@ -165,55 +186,87 @@ spending a session on it; it may be known.
   after the first `sNN  door …` line is the verdict report, and a post-fix
   report byte-identical to the baseline's (`diff`) means no verdict moved.
 
-## Prompt for the next agent (Gap B — the chain split)
+## Prompt for the next agent (Gap C — the seam probe distance)
 
-The R1 prompt that used to sit here was executed on 2026-09-02 (see the R1
-resolution note and `9e86031`). The next iteration is Gap B:
+The Gap B prompt that used to sit here was executed on 2026-09-02 (see the
+Gap B status note at the top). Gap B's measured residue on s03 is Gap C:
 
-> Use `/fix-detection`. Branch from `main` after `fix/hatch-cell-chord-faces`
-> is merged (or from that branch if it is not). Read the CLAUDE.md "Room
-> detection" seam sentence — from "and fill SEAMS never become faces" through
-> its "Known gap" clause — then `docs/hatch-cell-chords-handoff.md` (R1's
-> resolution note and this prompt), `_collect_fill_rings`, `_fill_seams`,
-> `_fill_ring_components` and `_FillRing.is_marker` in `detection/walls.py`.
-> Do Gap B only: a fill chain that returns EXACTLY to its own start vertex
-> and then continues is two rings drawn back to back, not one — an exporter
-> emits triangle 2 from triangle 1's start vertex, the six-edge chain
-> revisits its start, shapely rejects the self-touching polygon,
-> `_collect_fill_rings` drops both triangles and the seam is never found,
-> so s20's chord (552,2892)-(730,2881) is still an unstroked wall-fill
-> face. Close the ring at the exact return and start a new chain there.
-> Measure FIRST with `python tools/probe_fill_seams.py sNN --list` on s20,
-> s04, s08, s14, s18, s13, s11, s16 and s03: the split must touch zero rings
-> that are valid today (it does on every sheet measured), and the recovered
-> sub-rings per fill class are the blast radius — s20 19 grey wall-band
-> chains → 38 rings of which 14 are marker-flagged (12×12 jamb stubs and
-> 3–9×12 slivers split into ≤ 24px triangles that `is_marker` then treats
-> as arrowheads: no barrier area, no wall-fill face rights, while their
-> fill-only edges ARE faces today — watch for s20 room leaks at those
-> stubs, and note `_fill_ring_components` unions seam-connected rings only
-> AFTER the marker exclusion, so a triangulated stub cannot be rescued by
-> the union as coded; if the sweep shows that leak, testing `is_marker` on
-> the seam-united polygon rather than each triangle is the candidate rule,
-> measured on the corpus's marker population before you write it); s04/s08
-> 140/144 red (1,0,0) 0.63×29.5px demolition slivers → 280/288 band-shaped
-> rings that would make red a RATED class (today unrated, permissive) —
-> their edges are already `RR_Walls`-hinted 1.0px faces, so measure what
-> the 280 new barrier polygons change; s18 399 chains → 239 black
-> band-shaped rings; s14 77 → 113 (73 markers); s11/s16 4 → 22 marker
-> rings; s13 2 → 4. Pin the topology with a synthetic test in
-> `tests/test_wall_network.py` next to `triangulated_band_h`: a fill-only
-> (stroke 0, colour None) six-edge bow-tie chain whose second triangle
-> starts at the first's start vertex → two rings from `_collect_fill_rings`,
-> the diagonal in `_fill_seam_indices`, no face on it in
-> `detect_wall_network`, and the band's faces still pair at its thickness;
-> prove the test fails on the reverted code. Sweep the corpus in background
-> sheet groups against `compare_sweeps` snapshots of the unmodified tree,
-> run `tools/compare_room_shapes.py` on every sheet, render
+> Use `/fix-detection`. Branch from `main` after `fix/fill-chain-start-revisit`
+> is merged. Read the CLAUDE.md "Room detection" seam sentence — from "and
+> fill SEAMS never become faces" through its "Known gaps" clause — then
+> `docs/hatch-cell-chords-handoff.md` (the Gap B status note and this
+> prompt), `_fill_seams`, `_fill_ring_components` and `_collect_fill_rings`
+> in `detection/walls.py`, and the `ROOM_RING_MITRE_LIMIT` dilation of
+> `fill_polygons` in `detection/rooms.py`. Do Gap C only: `_fill_seams`
+> proves a coincident edge is a seam by testing fill on both sides at 1px
+> either side of the edge midpoint, and a 1px probe leaves any fill thinner
+> than 2px, so the two triangles of a sub-2px sliver never seam-unite and
+> each dilates alone — a sliver triangle's 0.36° tip then runs its mitre to
+> the `ROOM_RING_MITRE_LIMIT` (2.0) cap, 4px past the vertex and 2px past
+> the band's own 2px standoff (measured 2026-09-02 on s03 room_0007: the
+> Gap-B-recovered triangle, paths 284–286, of the 0.75px-tall grey sliver
+> under the bathroom's bottom band, x 1075–1195, y 1127.92–1128.67, tip at
+> (1194.67,1128.67), dilates to x=1198.68 and bites a 2×4px notch, 8 px²,
+> at [1196.67,1126.68]–[1198.67,1130.67] out of the corridor corner, which
+> `ROOM_SIMPLIFY_TOL_PX` redraws as a wedge on the already-slanted
+> plug/band edge — 126 px² symmetric difference; its twin 281–283, a valid
+> ring before Gap B, points its tip into the left wall band and never
+> showed). The convention: a seam has fill on both sides at ANY distance,
+> so the probe must stay inside the fill it tests — sample at the smaller of
+> 1px and a fraction of the thinnest sharing ring's `short` (its
+> equivalent-rectangle side; 0.75px for the sliver; a point exactly ON a
+> ring boundary is not `contains`, so the fraction must leave a margin —
+> measure it, don't pick it). Measure FIRST with a scratch script over
+> `_fill_seams`' candidate edges (same fill, same rounded endpoints, ≥ 2
+> distinct rings) on s03, s04, s08, s18, s14, s02, s12 and s17: how many
+> candidates fail today's probe and pass the scaled one, per fill class and
+> ring thickness; confirm every recovered seam has fill on both sides at
+> the new distance while an overdrawn duplicate (fill on one side only)
+> still fails at any distance. s04/s08's 140/144 red 0.63×29.5px sliver
+> pairs are the bulk — today their 29.5px diagonals at 1.2° are
+> `RR_Walls`-hinted wall-fill faces and would become excluded seams, and
+> their 280/288 triangles would union into 140/144 slivers, so `fill_polygons`
+> on s04 falls from 291 — and s18's 1,633 black rings hold sub-2px pieces
+> too (measure how many). Pin the topology with a synthetic test in
+> `tests/test_wall_network.py` beside `fan_triangulated_band_h`: a
+> 0.75px-tall fill-only sliver fan-triangulated into two rings, hugging the
+> inner face of a `rect_room` band → the diagonal in `_fill_seam_indices`,
+> `fill_polygons` a single rectangle of area width × 0.75, and through
+> `detect_rooms` no room vertex past the band's 2px standoff at the sliver's
+> tip; prove the test fails on the reverted code (the tip vertex lands 2px
+> into the room). Sweep the corpus in background sheet groups against
+> `compare_sweeps` snapshots of the unmodified tree, run
+> `tools/compare_room_shapes.py` on every sheet, render
 > `tools/room_shape_crop.py` for every SHAPE line (after `compare_sweeps`,
-> which wipes `outputs/compare/<slug>/`), reseed the room-label cache of
-> any sheet whose outlines changed, and stop at the report with the net
-> phantom count. The corpus baseline is red on the same 11 sheets (R3) —
-> attribute by revert + re-sweep, never by assuming. Do not touch R2, and
-> do not add a stroked-chord rule: the chord probe found no such class on
-> the corpus.
+> which wipes `outputs/compare/<slug>/`), reseed the room-label cache of any
+> sheet whose outlines changed, and stop at the report with the net phantom
+> count — s03 room_0007 must return to its pre-Gap-B outline (the remaining
+> slant from the door_0003 plug at x=1193.8 to the 1196.7 standoff is the
+> separate plug-growth residue in the CLAUDE.md plug sentence; leave it).
+> The corpus baseline is red on the same 11 sheets (R3) — attribute by
+> revert + re-sweep (or a detached worktree of `main`, see Tooling), never
+> by assuming. Do not touch R2, do not add a stroked-chord rule, and do not
+> start Gap D in the same branch.
+
+## Queued after it (Gap D — glyph-outline fill rings)
+
+s18 draws its notes as FILLED glyph outlines (n ≥ 8 vertices inside 16px;
+1,332 of its 1,633 fill rings), and `_rate_fill_classes` reads each one as a
+band because a glyph's long perimeter against its small area gives a long,
+thin equivalent rectangle — so the black class is rated wall by text, and
+every glyph ring enters `wall_ring_ids` and the barrier area. That is how
+room_0009 was fenced: a pocket between the parking-bay kerb line and a text
+column, never wall evidence (raw free space is one page-sized piece), severed
+by the 8px opening, and dissolved by Gap B only because 28 recovered glyph
+patches reshaped the eroded core's mitred re-dilation (`_free_space_components`
+re-dilates the WHOLE eroded multipolygon, so eroded cores CAN re-merge despite
+its docstring). The candidate rule is the fill analogue of
+`_vector_text_indices`: a glyph ring is small, many-vertexed, freestanding
+(touches no larger fill or linework) and sits in a row of like rings sharing a
+base line at gaps under one glyph height; exclude such rings from the class
+rating, `wall_ring_ids` and wall-fill face qualification. Measure the corpus
+glyph-ring population per sheet first (s18 1,332; s14 has 32 "other"
+many-vertex rings at 23×12px; s11/s16 draw their text as STROKES, not fills,
+so they are unaffected) and confirm no jamb stub or corner post is
+many-vertexed. Expect s18 to change most; watch for phantoms that the glyph
+barriers were accidentally suppressing.
