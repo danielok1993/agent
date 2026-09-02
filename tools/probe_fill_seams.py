@@ -7,16 +7,21 @@ Gap A (closed 2026-09-02): a seam carrying the fill's own colour as a width-0
 stroke (recorded 1.0px) entered `_collect_wall_faces` as a STROKED face. This
 reports how many seams would still do so — expected 0 everywhere now.
 
-Gap B (open): `_collect_fill_rings` chains consecutive same-fill edges into
-one ring, so an exporter that starts triangle 2 at triangle 1's start vertex
-yields a six-edge chain that REVISITS its start; shapely rejects the
-self-touching polygon, both triangles are dropped and the seam is never found
-(s20: 19 grey wall-band chains, its chord among them). This reports, per
-sheet, the chains that revisit their start EXACTLY (within EXACT_TOL), whether
-any ring valid today would be touched by splitting there (must be 0), and the
-sub-rings a split would recover by fill class — with band-shaped and marker
+Gap B (closed 2026-09-02, `WALL_FILL_CHAIN_REVISIT_TOL_PX`): `_collect_fill_rings`
+chained consecutive same-fill edges into one ring, so an exporter that starts
+triangle 2 at triangle 1's start vertex yielded a six-edge chain that REVISITS
+its start; shapely rejected the self-touching polygon, both triangles were
+dropped and the seam was never found (s20: 19 grey wall-band chains, its chord
+among them). The ring now closes at the exact return. This still reports, per
+sheet, the chains that revisit their start EXACTLY (within EXACT_TOL, the
+same tolerance as the code), whether any ring valid under the OLD chaining
+would be touched by splitting there (0 on every sheet measured), and the
+sub-rings the split recovers by fill class — with band-shaped and marker
 (`_FillRing.is_marker`) counts, because a recovered 12x12 jamb stub splits
 into two <= 24px triangles that the marker rule then treats as arrowheads.
+The Gap B replay below is the old chaining, so the numbers stay comparable
+with the 2026-09-02 measurement (s20 19 chains -> 38 rings, s04/s08 140/144
+-> 280/288, s18 328 -> 239 band-shaped, s14 77 -> 113, s03 7 -> 11).
 
 Usage:
     python tools/probe_fill_seams.py s20 [--list]

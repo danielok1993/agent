@@ -217,6 +217,28 @@ WALL_MARKER_MAX_SIDE_PX     = 24.0  # leader/dimension arrowheads are ~2-4mm
                                     # in the wall pen; rings this small with a
                                     # triangle or concave-dart outline are
                                     # annotation glyphs, never material
+WALL_FILL_CHAIN_REVISIT_TOL_PX = 0.01  # a fill chain that lands back ON its own
+                                    # start vertex mid-way is one ring closing
+                                    # and the next opening from that vertex —
+                                    # a fan's second triangle (s20: triangle 2
+                                    # starts at triangle 1's start) or the
+                                    # neighbouring cell's first (s03: the
+                                    # 16.5px cell beside the band opens on the
+                                    # vertex the band's triangle closed on) —
+                                    # never one polygon: shapely rejects the
+                                    # self-touching ring and both pieces were
+                                    # lost. EXACT, not the 2px closing
+                                    # tolerance: the exporter re-emits the
+                                    # shared vertex bit-for-bit, while a valid
+                                    # ring may legitimately pass within 2px of
+                                    # its start mid-way (a narrow notch) and
+                                    # must not be split there. Measured
+                                    # 2026-09-02: 0 valid rings touched on 13
+                                    # sheets; recovered s20 19 chains -> 38
+                                    # grey band rings, s04/s08 140/144 ->
+                                    # 280/288 red slivers, s18 328 -> 434 black
+                                    # rings (253 of them glyph outlines), s14
+                                    # 77 -> 108, s03 7 -> 11
 
 WALL_HATCH_MIN_SEGMENTS     = 5
 WALL_HATCH_MIN_RATIO        = 0.45
@@ -657,6 +679,16 @@ def _collect_fill_rings(paths: list[PathPrimitive]) -> list[_FillRing]:
     are consecutive primitives whose endpoints chain; any break in fill color
     or continuity closes the current chain. Background (white) rings are
     collected too — their shape decides mask vs hollow wall later.
+
+    A chain that returns EXACTLY to its own start vertex and then continues
+    is two rings drawn back to back, not one: an exporter that triangulates
+    a fill as a fan emits triangle 2 from triangle 1's start vertex (or the
+    next cell's triangle from the vertex this one closed on), so the six
+    edges chain into one self-touching polygon shapely rejects, and both
+    triangles — and the seam between them — used to be lost (s20's grey
+    wall bands, s04/s08's red demolition slivers, s18's black bands; see
+    WALL_FILL_CHAIN_REVISIT_TOL_PX). The ring closes at the return and the
+    next chain starts there.
     """
     rings: list[_FillRing] = []
 
@@ -693,6 +725,14 @@ def _collect_fill_rings(paths: list[PathPrimitive]) -> list[_FillRing]:
             if chain_key == key and chain_pts and _distance(chain_pts[-1], a) <= 1.0:
                 chain_pts.append(b)
                 chain_idx.add(p.path_index)
+                if (
+                    len(chain_pts) >= 4
+                    and _distance(chain_pts[0], b) <= WALL_FILL_CHAIN_REVISIT_TOL_PX
+                ):
+                    # Back on the start vertex: this ring is closed, the
+                    # next one (if any) opens here with the same fill.
+                    account(key, chain_pts[:-1], chain_idx)
+                    chain_pts, chain_idx = [b], set()
                 continue
             flush()
             chain_key, chain_pts = key, [a, b]

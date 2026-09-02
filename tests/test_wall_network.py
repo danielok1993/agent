@@ -18,8 +18,10 @@ from detection.walls import (
     _FillRing,
     _bridge_white_runs,
     _Seg,
+    _collect_fill_rings,
     _collect_wall_faces,
     _equivalent_sides,
+    _fill_seam_indices,
     _is_dashed,
     _merge_collinear_segs,
 )
@@ -155,6 +157,28 @@ def triangulated_band_h(start_idx, x0, x1, y, thickness=14.0,
     ]
 
 
+def fan_triangulated_band_h(start_idx, x0, x1, y, thickness=14.0,
+                            fill=(0.6, 0.6, 0.6)):
+    """The same band triangulated as a FAN: triangle 2 starts at triangle
+    1's start vertex, so the exporter's six fill-only `l` items (stroke 0,
+    no stroke colour — s20's 19 grey wall-band chains, s04/s08's red
+    demolition slivers, s18's black bands) chain into ONE six-edge chain
+    that revisits its start after edge 3 and continues. Indices start_idx+2
+    and start_idx+3 are the seam (the band's diagonal, drawn once per
+    triangle)."""
+    y1 = y + thickness
+    a, b, c, d = (x0, y), (x1, y), (x1, y1), (x0, y1)
+    kw = dict(fill=fill, color=None, stroke_width=0.0)
+    return [
+        path(start_idx, [a, b], **kw),
+        path(start_idx + 1, [b, c], **kw),
+        path(start_idx + 2, [c, a], **kw),      # seam — closes triangle 1 at A
+        path(start_idx + 3, [a, c], **kw),      # seam — triangle 2 opens at A
+        path(start_idx + 4, [c, d], **kw),
+        path(start_idx + 5, [d, a], **kw),
+    ]
+
+
 class TestCenterlines(unittest.TestCase):
     def test_parallel_pair_gives_one_centerline(self):
         paths = wall_band_h(0, 100, 300, 100, thickness=8.0)
@@ -256,6 +280,34 @@ class TestCenterlines(unittest.TestCase):
         self.assertTrue(any(
             abs(seg.thickness_px - 14.0) < 0.5 for seg in network.segments
         ))
+
+    def test_fan_triangulated_band_splits_at_the_exact_return(self):
+        # A fill chain that returns EXACTLY to its own start vertex and then
+        # continues is two rings drawn back to back, not one: shapely
+        # rejects the self-touching six-edge polygon, so _collect_fill_rings
+        # used to drop BOTH triangles, the seam was never found, and the
+        # band's diagonal stayed an unstroked wall-fill face (the permissive
+        # unrated-class rule) — s20's chord (552,2892)-(730,2881) in a 12px
+        # grey band, 3.8 deg off its faces, paired with the next band's face
+        # at a 0.49 taper ratio. Closing the ring at the exact return and
+        # starting a new chain there recovers both triangles: the seam is
+        # found, no face lies on it, the drawn faces still pair at the band
+        # thickness, and the seam-united polygon is the rectangle itself.
+        paths = fan_triangulated_band_h(0, 100, 400, 100, thickness=14.0)
+        rings = _collect_fill_rings(paths)
+        self.assertEqual(len(rings), 2)
+        seam = _fill_seam_indices(rings, paths)
+        self.assertEqual(seam, {2, 3})
+        network = detect_wall_network(paths)
+        for f in network.faces:
+            self.assertFalse(set(f.indices) & seam, f)
+        for seg in network.segments:
+            self.assertFalse(set(seg.face_path_indices) & seam, seg)
+        self.assertTrue(any(
+            abs(seg.thickness_px - 14.0) < 0.5 for seg in network.segments
+        ))
+        self.assertEqual(len(network.fill_polygons), 1)
+        self.assertAlmostEqual(network.fill_polygons[0].area, 300 * 14, delta=1.0)
 
     def test_tapering_wall_still_pairs(self):
         # A boundary wall drawn converging (s03's rear wall: 15.4 -> 11.7px
