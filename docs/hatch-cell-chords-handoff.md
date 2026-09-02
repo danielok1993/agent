@@ -34,7 +34,9 @@ room_0014 are byte-for-byte back on their pre-Gap-B outlines, and three s03
 rooms move toward their walls — room_0013 (+1,466 px²) because a jamb stub's
 strip-stack joint edge had been a wall-fill face that the collinear merge
 (R2's single-endpoint offset test) hung the whole 416px band face on, 3.8px
-into the room. Gap D is next; R2 remains open and now has a measured instance.
+into the room. The next prompt (below) is that merged-run anchor — R2's
+function, a measured instance; Gap D and the candidate-key conflation queue
+after it.
 
 ## Read these first (in order)
 
@@ -260,6 +262,86 @@ Gap B's measured residue on s03 was Gap C:
 > revert + re-sweep (or a detached worktree of `main`, see Tooling), never
 > by assuming. Do not touch R2, do not add a stroked-chord rule, and do not
 > start Gap D in the same branch.
+
+## Prompt for the next agent (the merged run's anchor line — R2's function)
+
+Gap C's sweep surfaced this with numbers: s03 room_0013 (1:100 BEDROOM) was
+missing a 386×3.8px strip along its bottom band because `_merge_collinear_segs`
+put the whole 416px band face on a 12px jamb-stub edge's line. The stub edge
+is a seam now, which is why the strip came back — but the merge behaviour that
+placed the run is untouched and any short face 1–4px off a long one, earlier
+in path order, does the same thing.
+
+> Use `/fix-detection`. Branch from `main` after `fix/fill-seam-probe-sliver`
+> is merged. Read the CLAUDE.md "Room detection" seam sentence's room_0013
+> clause (from "room_0013 (BEDROOM) gains a 386×3.8px strip"), the R2 section
+> and the Gap C status note of `docs/hatch-cell-chords-handoff.md`, and
+> `_merge_collinear_segs` in `detection/walls.py` (line ~2451): the run's line
+> is the SEED member's line — `run.p1/p2 = a.p1 + u·t` over the members'
+> projections, `a` being the first unused segment in list (= path) order — a
+> member joins when its offset from that line, measured at `b.p1` ONLY, is
+> within `COLLINEAR_OFFSET_TOL` (4px), and nothing re-fits the line once the
+> members are in. Measured 2026-09-02 on s03: the band's 12px jamb stub at
+> x 3741.67–3753.67 is drawn as a stack of strips whose joint edge at
+> y=1778.42 (paths 15116/15148, before Gap C a 1.0px wall-fill face) came
+> first in path order, so it seeded the run; the band's 416px top face at
+> y=1782.17 (path 15154) joined at offset 3.75 and was projected onto the
+> stub's line — the merged face sat 3.8px into the room, the band pair
+> measured 15.5px against its drawn 11.75, and its solid fenced the strip
+> (the tree before Gap C; `tools/compare_room_shapes.py s03` shows the strip
+> returning). The convention: a stub is evidence of a line's EXTENT, never of
+> its POSITION — the run lies on its longest member's line (or the
+> length-weighted least-squares line through the members; measure which one
+> the corpus wants, they differ only when two long members disagree), and a
+> member's offset is tested at BOTH its endpoints so an angled chord inside
+> `COLLINEAR_ANGLE_TOL` (3°) cannot join on one end (the s03 1:100 left-wall
+> chord (1244,857)-(1252,1080) at 2.26°, R2's original instance). Measure
+> FIRST with a scratch script re-walking the merge on s01, s02, s03, s04,
+> s08, s12, s14, s17, s18 and s20: for every merged run with ≥ 2 members, the
+> seed's length against the longest member's, the perpendicular displacement
+> between the seed's line and the longest member's / length-weighted line,
+> and each member's offset at both endpoints (max |Δ| between them is the
+> angled population); count runs whose displacement exceeds 1px with a seed
+> shorter than half the longest member (room_0013's: 12px seed, 416px
+> member, 3.75px), whether those runs reach `network.faces` or a paired
+> segment, and confirm on s01/s02 that same-band members differ by ≤ 0.3px
+> (the redundancy-collapse measurement in the CLAUDE.md prose) so the
+> anchor change moves nothing there. Ship the ANCHOR change in this branch;
+> if the both-ends measurement shows angled members surviving inside the
+> tolerance, ship the both-ends offset test as a SEPARATE branch — bundled
+> REVIEW deltas are unattributable. Pin the topology with a synthetic test
+> in `tests/test_wall_network.py` beside `test_long_face_pairs_with_multiple_stubs`:
+> a 12px stub face 3.75px off a 400px face, the stub FIRST in path order,
+> both in the wall pen → the merged face lies on the long face's line, and
+> through `detect_rooms` (a `rect_room` whose one band carries the stub on
+> its room side) the room edge sits at the long face's standoff; prove the
+> test fails on the reverted code (the run at the stub's offset, the room
+> edge 3.75px high). Sweep the corpus in background sheet groups against
+> `compare_sweeps` snapshots of the unmodified tree; run
+> `tools/compare_room_shapes.py` on every sheet AND a polygon diff of every
+> room between the two trees (the shape tool prints only IoU < 0.995 — s03
+> room_0008's 44 px² and room_0015's 134 px² moves never printed under Gap
+> C; a `sys.path`-switched `run_heuristics` dump per tree, as in the Tooling
+> section, sees them all); render `tools/room_shape_crop.py` for every
+> changed room after `compare_sweeps`; reseed the room-label cache of any
+> sheet whose outlines changed; stop at the report with the net phantom
+> count. The corpus baseline is red on the same 11 sheets (71 returned-FP
+> lines) — attribute by revert + re-sweep or a detached worktree of `main`,
+> never by assuming. Do not start Gap D or the candidate-key conflation in
+> the same branch.
+
+## Queued after it (the candidate-key conflation in `_fill_seams`)
+
+`_fill_seams` keys candidate edges by their INTEGER-rounded endpoints, so a
+ring thinner than 1px whose two long edges round to the same y shares one key
+between its diagonal and both long edges (and their twins), and `members[0]`
+— path order — decides which edge geometry is probed: a long edge probes
+one-sided and the sliver stays un-united. Measured 2026-09-02: 9 of s04's 70
+twice-drawn red slivers and 9 of s08's 72 (61/63 diagonals recovered of
+70/72); no room changed on either sheet, so this is telemetry, not a symptom.
+Candidate rule: probe every distinct member geometry under a key (a seam if
+ANY passes), or key on the edge's own midpoint/angle rather than rounded
+endpoints. Measure the conflated-key population corpus-wide before touching it.
 
 ## Queued after it (Gap D — glyph-outline fill rings)
 
