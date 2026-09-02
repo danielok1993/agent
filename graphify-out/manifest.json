@@ -100,8 +100,8 @@
     "semantic_hash": ""
   },
   "detection/walls.py": {
-    "mtime": 1788357158.1314545,
-    "ast_hash": "844ee5555f4ca1805ac6d3b4d5324964",
+    "mtime": 1788367731.3035495,
+    "ast_hash": "695220e14594b5cc79ccedd90831fa5c",
     "semantic_hash": ""
   },
   "detection/windows.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1788357741.7615945,
-    "ast_hash": "24723178332fe975894d7891fca66d32",
+    "mtime": 1788369302.3859124,
+    "ast_hash": "21deba1874b31df0053ace0e6235297b",
     "semantic_hash": ""
   },
   "README.md": {
@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
-    "mtime": 1788357098.474152,
-    "ast_hash": "0eba680cec0a9689fd368ad16620c90f",
+    "mtime": 1788367613.4160404,
+    "ast_hash": "dda72d08d8ec4fb8cbaea9caea2129a0",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-07-03-batch-extraction-design.md": {
@@ -810,8 +810,8 @@
     "semantic_hash": ""
   },
   "docs/scale-normalization-findings.md": {
-    "mtime": 1788346571.7183344,
-    "ast_hash": "0c9d2d119e88b36483ebf81614c2d570",
+    "mtime": 1788368011.3148947,
+    "ast_hash": "411fcb322ba936d9039a7a32f9704557",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-08-12-scale-aware-wall-room-gates.md": {
@@ -1085,8 +1085,8 @@
     "semantic_hash": ""
   },
   ".claude/skills/fix-detection/references/file-map.md": {
-    "mtime": 1787953295.3947165,
-    "ast_hash": "e2aac043160be25c6cb7cbaf56a5a7ab",
+    "mtime": 1788364560.194006,
+    "ast_hash": "6aab4fcd675f836ae066b7a9272e956b",
     "semantic_hash": ""
   },
   ".claude/skills/fix-detection/references/report-template.md": {
@@ -1235,8 +1235,8 @@
     "semantic_hash": ""
   },
   "docs/hatch-cell-chords-handoff.md": {
-    "mtime": 1788358126.666095,
-    "ast_hash": "fcd02b41fc9b7224e31c0fa3b2e0af1b",
+    "mtime": 1788371210.3232524,
+    "ast_hash": "768d90975a7c9b0b1ab1ae3e4efce522",
     "semantic_hash": ""
   },
   "tools/probe_fill_seams.py": {
@@ -1245,8 +1245,28 @@
     "semantic_hash": ""
   },
   "tools/room_shape_crop.py": {
-    "mtime": 1788348983.1298027,
-    "ast_hash": "7692064a1450ca1005e75ee2a39f8f73",
+    "mtime": 1788364455.3201854,
+    "ast_hash": "b425a402f63e33080baa9d7e46900193",
+    "semantic_hash": ""
+  },
+  "tools/_corpus_page.py": {
+    "mtime": 1788364324.5405347,
+    "ast_hash": "9f56694ba11c3c8d3c90e3f04bdadcb8",
+    "semantic_hash": ""
+  },
+  "tools/diff_room_polygons.py": {
+    "mtime": 1788364432.6462412,
+    "ast_hash": "e064992a4e5affb6ac758bd7b5560a00",
+    "semantic_hash": ""
+  },
+  "tools/diff_wall_network.py": {
+    "mtime": 1788364412.493745,
+    "ast_hash": "ba17c73a275f31455e5dac5c76846ab5",
+    "semantic_hash": ""
+  },
+  "tools/probe_merge_anchor.py": {
+    "mtime": 1788368076.7762616,
+    "ast_hash": "e50b7a78b42b9eaca94cbe3c7e0d878b",
     "semantic_hash": ""
   }
 }
