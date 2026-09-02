@@ -23,6 +23,18 @@ both queued below: **Gap C**, the seam probe leaves any fill thinner than 2px
 so sliver triangles never seam-unite; **Gap D**, s18's black fill class is
 rated wall on the strength of vector-text GLYPH OUTLINES (1,328 of its 1,633
 rings are ≥ 8-vertex rings inside 16px), which enter the barrier area.
+**Status of Gap C (2026-09-02, branch `fix/fill-seam-probe-sliver`):** done —
+`_fill_seams` probes at the smaller of `WALL_FILL_SEAM_PROBE_PX` (1px) and
+`WALL_FILL_SEAM_PROBE_FRAC` (0.5) of the thinnest sharing ring's `short`; the
+fraction was measured, not picked (clearance at a sliver triangle's seam
+midpoint is 0.98–1.07 × `short` corpus-wide, so half keeps a 2× margin). The
+CLAUDE.md seam sentence carries the rule, the per-sheet recovery counts and the
+telemetry. Sweep verdict-identical on all 20 sheets; s03 room_0007 and
+room_0014 are byte-for-byte back on their pre-Gap-B outlines, and three s03
+rooms move toward their walls — room_0013 (+1,466 px²) because a jamb stub's
+strip-stack joint edge had been a wall-fill face that the collinear merge
+(R2's single-endpoint offset test) hung the whole 416px band face on, 3.8px
+into the room. Gap D is next; R2 remains open and now has a measured instance.
 
 ## Read these first (in order)
 
@@ -186,10 +198,11 @@ spending a session on it; it may be known.
   after the first `sNN  door …` line is the verdict report, and a post-fix
   report byte-identical to the baseline's (`diff`) means no verdict moved.
 
-## Prompt for the next agent (Gap C — the seam probe distance)
+## Prompt that was executed for Gap C (the seam probe distance)
 
-The Gap B prompt that used to sit here was executed on 2026-09-02 (see the
-Gap B status note at the top). Gap B's measured residue on s03 is Gap C:
+Executed on 2026-09-02 (see the Gap C status note at the top); kept for the
+record of what was asked. The next agent's prompt is the Gap D sketch below.
+Gap B's measured residue on s03 was Gap C:
 
 > Use `/fix-detection`. Branch from `main` after `fix/fill-chain-start-revisit`
 > is merged. Read the CLAUDE.md "Room detection" seam sentence — from "and

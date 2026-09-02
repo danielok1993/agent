@@ -5,7 +5,9 @@ each helper builds atomic primitives directly in 150-DPI pixel space.
 """
 import unittest
 
-from shapely.geometry import Point as ShapelyPoint, box as shapely_box
+from shapely.geometry import (
+    Point as ShapelyPoint, Polygon as ShapelyPolygon, box as shapely_box,
+)
 
 from models import PathPrimitive
 from detection import WallNetwork, detect_wall_network
@@ -308,6 +310,43 @@ class TestCenterlines(unittest.TestCase):
         ))
         self.assertEqual(len(network.fill_polygons), 1)
         self.assertAlmostEqual(network.fill_polygons[0].area, 300 * 14, delta=1.0)
+
+    def test_sub_2px_sliver_seam_unites_and_never_spikes_into_the_room(self):
+        # _fill_seams proved a seam by testing for fill 1px either side of
+        # the edge midpoint, and a 1px probe leaves any fill thinner than
+        # 2px: a 0.75px-tall sliver's two triangles (short 0.375 each —
+        # a triangle's equivalent-rectangle side is its inradius, half the
+        # sliver) never seam-united and each dilated ALONE, so the 0.36 deg
+        # tip ran its mitre to the ROOM_RING_MITRE_LIMIT cap, 4px past the
+        # vertex and 2px past the band's own 2px standoff (s03 room_0007:
+        # the grey sliver under the bathroom's bottom band, paths 284-286,
+        # bit a 2x4px notch out of the corridor corner). The probe now
+        # stays inside the fill it tests (WALL_FILL_SEAM_PROBE_FRAC of the
+        # thinnest sharing ring's short). Topology: an outer room; a
+        # partition band 108..300 x 200..208 in its left half ending at a
+        # thin stroked line x=300 whose 2px buffer bounds the corridor at
+        # x=302; the sliver hugs the band's underside with its tip at the
+        # band end (300, 208.75), exactly as on s03.
+        paths = rect_room(0, 100, 100, 500, 400) + [
+            hline(8, 108, 300, 200), hline(9, 108, 300, 208),
+            vline(10, 300, 108, 392),
+        ] + fan_triangulated_band_h(11, 108, 300, 208, thickness=0.75)
+        rings = _collect_fill_rings(paths)
+        self.assertEqual(len(rings), 2)
+        self.assertLess(max(r.short for r in rings), 0.5)
+        self.assertEqual(_fill_seam_indices(rings, paths), {13, 14})
+        network = detect_wall_network(paths)
+        self.assertEqual(len(network.fill_polygons), 1)
+        self.assertAlmostEqual(network.fill_polygons[0].area, 192 * 0.75, delta=0.5)
+        rooms = detect_rooms(network, [], [], 1000.0, 800.0, [])
+        corridor = next(r for r in rooms if abs(r.bbox[0] - 302.0) < 0.5)
+        poly = ShapelyPolygon(corridor.evidence["polygon"])
+        # No corridor vertex past the standoff beside the tip (the spike
+        # put one at x=304), and 1px inside the standoff is corridor floor.
+        for x, y in poly.exterior.coords:
+            if abs(y - 208.75) < 8.0:
+                self.assertLessEqual(x, 302.01, (x, y))
+        self.assertTrue(poly.contains(ShapelyPoint(303.0, 208.75)))
 
     def test_tapering_wall_still_pairs(self):
         # A boundary wall drawn converging (s03's rear wall: 15.4 -> 11.7px
