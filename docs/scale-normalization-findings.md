@@ -275,6 +275,8 @@ artifacts" — that is a new decision, not a reopening of this table.
 | WALL_BAND_MIN_ASPECT | D | ratio |
 | WALL_PAIR_MIN_OVERLAP_PX | W | coincidence floor on face overlap |
 | WALL_PAIR_TAPER_MAX_FRAC | D | ratio — a pair's spacing change across its overlap over its spacing; a chord across the band scores 1.0 at any scale, a real pair <= 0.30 (added 2026-09-02, branch fix/s03-bedroom-corner-notch) |
+| WALL_ANCHOR_SUPPORT_REACH_PX | W | one door opening (1000mm at 1:50 = 118px) — how far along its axis a merged face run's candidate member lines are corroborated by collinear strong ink before the run is placed on one of them (added 2026-09-02, branch fix/collinear-merge-anchor-line: s01's 19px jamb nib is corroborated only by the face continuing its line past a 59px doorway, a 921mm opening at its 1:92 world detected at identity, so reaches of 0/50 hang it on a stair stringer; page-wide, every window's board/stub line on one wall shares an offset and outvotes the face — s17's cavity-wall inner face 1939 vs 1116; 100–120 hold every known case with the widest margins) |
+| WALL_ANCHOR_LINE_TOL_PX | P | same-drawn-line jitter (≤ 0.3px on s02; s01's 45° hatch chains straddling COLLINEAR_OFFSET_TOL sit at 3.9–4.1) — paper-space rounding, never scaled |
 | WALL_CENTERLINE_MERGE_GAP_PX | P | measured 2026-08-12: no corpus signal (small tolerance, not a hatch/geometry quantity); conservative default, unchanged behavior at every f; revisit if 1:100 sweep shows artifacts |
 | WALL_JUNCTION_SNAP_PX | P | measured 2026-08-12: no corpus signal; conservative default (§4b); revisit if 1:100 sweep shows artifacts |
 | WALL_JUNCTION_MIN_ANGLE_DEG | D | angle |
