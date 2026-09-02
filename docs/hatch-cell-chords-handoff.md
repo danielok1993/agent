@@ -37,6 +37,25 @@ strip-stack joint edge had been a wall-fill face that the collinear merge
 into the room. The next prompt (below) is that merged-run anchor — R2's
 function, a measured instance; Gap D and the candidate-key conflation queue
 after it.
+**Status of the anchor (2026-09-02, branch `fix/collinear-merge-anchor-line`,
+uncommitted, DECISION PENDING):** now implemented as "the run lies on the
+member line the DRAWN INK agrees with" — the collinear-support vote
+(`_support_anchor`, `WALL_ANCHOR_SUPPORT_REACH_PX` 120px W-class = one door
+opening, `WALL_ANCHOR_LINE_TOL_PX` 0.3px, ties → longest member) with
+membership untouched (re-projection after the passes converge, direction
+kept), pinned by four tests in `tests/test_wall_network.py` (the two
+longest-member tests still pass — a 400px face is its own support — plus the
+68px-face / 142px-board-line pair at network and room level, which fail on
+the longest-member code at 102.25 / 110.25), prose in the CLAUDE.md seam
+sentence and a W row in `docs/scale-normalization-findings.md` §4. Swept
+against MAIN: no confirmed entity lost, the same 71 pre-existing returned
+FPs, 91 outlines move, s03 room_0013/0016 return EXACTLY to main's polygons,
+net REVIEW +5 (s17: real SH/WC + two window-reveal slivers — the third,
+room_0036, and the returned s18 legend-box FP of the longest-member form are
+gone; s18: the ramp strip; s15: a NEW dash-row pocket, the vote's own
+limitation). See "Outcome of the collinear-support anchor" below. The
+longest-member form's history (three rejected variants) stays in "Outcome of
+the anchor iteration".
 
 ## Read these first (in order)
 
@@ -199,6 +218,35 @@ spending a session on it; it may be known.
 - Sweep attribution shortcut: keep each background group's log; the section
   after the first `sNN  door …` line is the verdict report, and a post-fix
   report byte-identical to the baseline's (`diff`) means no verdict moved.
+- `python tools/probe_merge_anchor.py sNN [--support] [--list] [--json f]`
+  (added with the anchor iteration) — every merged run's seed vs anchor
+  (longest member), the displacement the anchor rule applies, each member's
+  offset at both ends (the angled population), and with `--support` the
+  strong-ink support of every distinct member line at reaches 0/50/100/200/
+  page beyond the run — the measurement behind the collinear-support anchor.
+  Uses the `trace` hook on `_merge_collinear_segs`.
+- `python tools/diff_wall_network.py sNN X0 Y0 X1 Y1 [--base REF|--base-dir D]`
+  and `… sNN --idx N [N …]` — faces / segments / fill polygons / white rings
+  inside a probe box in the WORKING tree vs a detached worktree of `main`
+  (or any ref), each built in its own interpreter, with the one-sided
+  differences listed; `--idx` says where given path indices end up in each
+  tree (lattice in/kept/out, network.faces, segments). This is the
+  barrier-level diff — use it before reading verdict lines. CAVEAT (found
+  2026-09-02 on the support-anchor iteration): the default base — a temp
+  `git worktree` of main with no `fixtures/sheets` symlink — ran s18 at
+  f=1.000 (522 faces) against the working tree's f=0.500 (1,827), so its
+  one-sided lists were a scale artefact ("the ramp face split"; main's merge
+  on identical inputs gives the branch's three runs). Pass `--base-dir` a
+  worktree that has `fixtures/sheets` symlinked (the baseline-sweep worktree)
+  and check the `f=` in both headers before reading the lists.
+- `python tools/diff_room_polygons.py [sNN …] [--min px2]` — EVERY room whose
+  polygon changed between the snapshot and the latest sweep (compare_room_shapes
+  prints only IoU < 0.995), plus added/removed/moved entities of every type.
+- `tools/room_shape_crop.py` now matches the counterpart by IoU (ids shift
+  between runs), takes `--after ID` to name it, and `--only before|after` for
+  a REMOVED / ADDED room.
+- `tools/_corpus_page.py` — the shared offline loader (extract → cached
+  regions → scales → doors → open-leaf exclusion) the new probes use.
 
 ## Prompt that was executed for Gap C (the seam probe distance)
 
@@ -329,6 +377,311 @@ in path order, does the same thing.
 > lines) — attribute by revert + re-sweep or a detached worktree of `main`,
 > never by assuming. Do not start Gap D or the candidate-key conflation in
 > the same branch.
+
+## Outcome of the anchor iteration (2026-09-02, `fix/collinear-merge-anchor-line`)
+
+Measured first (scratch re-walk of the merge on s01–s04, s08, s12, s14, s17,
+s18, s20; 4,223 merged runs with ≥ 2 members, instrumented copy validated
+byte-for-byte against the real function on every sheet):
+
+- Seed ≠ longest member in 1,276 runs; displacement between the seed's line
+  and the longest member's > 1px in 92 runs with the seed under half the
+  longest's length — 61 in the strong-face merge, 52 reaching
+  `network.faces`, 41 a paired segment. Per sheet: s01 1, s02 6 (+14 weak),
+  s03 7 (+2 weak, +1 centerline), s04 4, s08 3, s12 1, s14 1 (+6 weak),
+  s17 15 (+3 weak), s18 21 (+1 weak, +1 stair, +3 centerline), s20 2.
+- Least-squares vs longest-member line: they differ by p90 1.3–2.0px on the
+  face merges of every sheet (stubs pull the LSQ line off the drawn face), so
+  the longest member was chosen; the LSQ line lies on no drawn line.
+- "Same-band members ≤ 0.3px" does NOT hold for faces: s01 356/391 face runs
+  have a member > 0.3px off the longest (its 45° hatch chains at the 4.05px
+  pitch straddling the 4px tolerance, 3.91/4.09); s02 36/255, s03 55/145.
+  It holds for the centerline merge on s02 (max 0.13px), not s01 (2 runs at
+  1.5px). So the anchor change MOVES rooms on both reference sheets.
+- Angled population (offset at p1 within tolerance, at p2 outside): 197
+  members, 164 of them s01's hatch strokes that never reach faces; 9 reach
+  faces or a segment (s02 idx 1856, a 1,398px fill face 5px off over its
+  length; s17 idx 19123, 106px weak, 5px; s18 idx 124570, 156px, 6px). The
+  both-ends test is warranted but small — its own branch.
+
+Shipped form and its sweep: see the status note at the top. Pictures and
+diffs: `outputs/compare/anchor-line-report/` (crops per room, sweep reports,
+`room_polygon_diff.txt`, and the two rejected variants' polygon diffs).
+
+What follows from it, each its own iteration:
+
+1. **The anchor should be the member line with the most collinear ink
+   support, not the longest member.** s03 room_0013's top band: the run
+   {15467 (68px face at y=1236.42), 20337 (141.8px window-board line at
+   1238.67)} — the face is collinear with 15464/15850 (96.7px), the fill
+   outline 15021/15027 (82.7px) and 15033 (108.7px) at 1236.42, ~440px of
+   support against 141.8; the longest-member rule moved the edge 2.25px into
+   the room. s01's jamb nib {2448 (19.25px at 1142.5), 3065 (32.75px stringer
+   at 1139.75)}: 2449 (215.7px) continues 1142.5 across the doorway. The
+   underlying flaw is the 4px offset tolerance admitting distinct parallel
+   lines into one run at all; measure the support-vote before choosing.
+2. **`WALL_MAX_THICKNESS_PX` vs a 37px cavity wall (s17).** The 1.75px band
+   outer face 2171.92 / inner 2208.92 = 37.0px, paired only because the inner
+   face was hung 1.5px off on a stub (35.5). With the true face it is over the
+   cap, the thick tier wants hatch the cavity does not have, and the 21px
+   pocket between each window's seal and the inner face line becomes a room
+   (rooms 0015/0034/0036, ~3.1k px²). The blind-window rule
+   (`ROOM_BLIND_WINDOW_MAX_AREA_PX2`) did not drop them — check how
+   `window_openings` is counted for a pocket that only touches the seal's
+   standoff.
+3. **`_demote_lattice_faces` is direction-sensitive.** Reversing p1/p2 on
+   runs whose LINE did not move (the rejected variant) newly demoted 57 faces
+   on s18, among them the 1.75px wall belts at y 800–843 and 1271–1292
+   (x 1841–2578), and 5 confirmed rooms merged away; with direction kept, 15
+   non-wall faces. Rung grouping/walking should not depend on which face is
+   the angle group's reference (walls.py ~2247–2264).
+4. **Both-ends offset test** (R2 proper) — the 9 network-reaching angled
+   members above.
+
+## Prompt for the next agent (the collinear-support anchor)
+
+> Use `/fix-detection`. Continue on branch `fix/collinear-merge-anchor-line`
+> — it holds UNCOMMITTED work in `detection/walls.py`
+> (`_merge_collinear_segs`, plus its `trace` hook), `tests/test_wall_network.py`
+> (two anchor tests beside `test_long_face_pairs_with_multiple_stubs`),
+> CLAUDE.md (the seam sentence's anchor clause), `docs/hatch-cell-chords-handoff.md`
+> (status note + "Outcome of the anchor iteration") and the promoted probes
+> `tools/probe_merge_anchor.py`, `tools/diff_wall_network.py`,
+> `tools/diff_room_polygons.py`, `tools/_corpus_page.py` and the extended
+> `tools/room_shape_crop.py`; read those diffs first, then the R2 section, the
+> Outcome section and the "Tooling that exists now" entries for the probes. The shipped form places a merged run
+> on its LONGEST member's line, with membership untouched (re-projection after
+> the passes converge, run direction kept — both are load-bearing: seeding
+> longest-first or re-anchoring between passes fused s01's 5.75px jamb nib
+> with a stair stringer, and taking the anchor's direction flipped
+> `_demote_lattice_faces` on s18 and lost 5 confirmed rooms). It swept with no
+> confirmed entity lost but is NOT a win: net phantoms +5 and two edges move
+> the wrong way, because the longest member is not always the wall face —
+> s03 room_0013's TOP band merges the 68px face 15467 (y=1236.42) with the
+> 141.8px window-board line 20337 (y=1238.67); the face has ~440px of collinear
+> ink at 1236.42 (15464/15850 96.7px, the fill outline 15021/15027 82.7px,
+> 15033 108.7px, the demoted piece 20311 83px) and the board line has none, yet
+> the room edge moved 2.25px INTO the room (−877 px²; room_0016 −878 the same
+> way). s01's nib {2448 19.25px at 1142.5, 3065 32.75px stringer at 1139.75}:
+> 2449 (215.7px) continues 1142.5 across the 59px doorway. The convention: a
+> run lies on the member line the DRAWN INK agrees with — the member whose
+> line carries the most collinear face length on the page, not the longest
+> member and not the first in path order. Measure FIRST with
+> `python tools/probe_merge_anchor.py sNN --support --list --json …` on the
+> same ten sheets (s01–s04, s08, s12, s14, s17, s18, s20; it reads the
+> `trace` hook of `_merge_collinear_segs`, so it sees the real membership):
+> for every run whose member lines disagree by > 0.3px (1,276 runs have seed
+> ≠ longest; the 0.3px is s02's same-line jitter, the hatch-chain population
+> on s01 sits at 3.9–4.1) it scores each candidate member line's support =
+> total length of strong stroked faces plus wall-fill outline faces (never
+> weak/hairline pieces — a window board can be a hairline) lying within
+> 0.3px of that line, for reaches of the run's extent ± 0, 50, 100, 200px
+> and the whole page (on s01 the support winner differs from the longest
+> member in 6 / 10 / 18 / 30 / 83 of 356 scored runs); tabulate from the
+> JSON which reach makes the support winner agree with the drawn face on
+> the known cases (s03 room_0013
+> top band → 1236.42; s03 room_0013 bottom band, Gap C's case, → the 416px
+> face; s01 nib → 1142.5; s17's inner face → 2208.92; s01 WETROOM top edge and
+> s03 room_0000 left edge → the faces the longest-member form already chose)
+> and how often the support winner differs from the longest member across the
+> corpus; beware that on a rectilinear plan every window on one wall puts its
+> board line at the same offset, so a page-wide vote counts all of them — the
+> table decides the reach, not a guess. Then replace the longest-member choice
+> with the support winner (ties → longest), keep the after-convergence
+> re-projection and the direction rule, keep both existing tests (they must
+> still pass: a 400px face is its own support) and add one beside them: a
+> 68px face at y=100 merged with a 142px parallel line at y=102.25, plus a
+> 100px collinear piece of the face beyond a 60px gap, both in the wall pen →
+> the run lies at y=100, and through `detect_rooms` the room edge sits at the
+> face's standoff; prove it fails on the longest-member code (run at 102.25).
+> Sweep against `compare_sweeps` snapshots of MAIN (not of this branch; the
+> baseline is red on the same 11 sheets, 71 returned-FP lines, attribute by
+> revert + re-sweep, never by assuming), in four background groups (s18; s16
+> s11 s15; s01–s07; the rest — a foreground full sweep exceeds the tool
+> limit), diff the verdict reports section-wise, run
+> `tools/compare_room_shapes.py` AND `tools/diff_room_polygons.py` on every
+> sheet (the shape tool prints only IoU < 0.995; the polygon diff is the
+> only thing that saw s03's 44 px² and 134 px² moves), render before|after
+> crops with `tools/room_shape_crop.py` (it matches the counterpart by IoU;
+> `--only after` for an ADDED room), and when a room merges or a phantom
+> appears, run `tools/diff_wall_network.py sNN X0 Y0 X1 Y1` (working tree vs
+> `main`) or `… --idx N` before reading verdict lines — that diff, not the
+> report, found every mechanism this iteration. Expect
+> and REPORT, do not fix: s17's three window-reveal slivers (rooms
+> 0015/0034/0036) persist under any correct anchor because the true cavity
+> band is 37.0px, over `WALL_MAX_THICKNESS_PX` — the cap / blind-window
+> counting is its own iteration; check whether s18's ramp strip (room_0000)
+> and the legend box at (2126,2532) still appear once small hairline runs sit
+> on their support lines. Reseed the room-label cache of every sheet whose
+> outlines changed (`python app.py extract fixtures/sheets/<sheet>.pdf --out
+> <dir> --ceiling-height 2.4 < /dev/null`; there is no `timeout` command on
+> this Mac). Stop at the report with the net phantom count and the per-room
+> verdicts; do not commit, do not start the both-ends test, the lattice
+> direction sensitivity, Gap D or the candidate-key conflation in the same
+> branch.
+
+## Outcome of the collinear-support anchor (2026-09-02, same branch)
+
+Measured first (`tools/probe_merge_anchor.py --support --json`, ten sheets,
+reaches 0/50/100/120/150/200/page, unfiltered and pen-compatible support;
+tabulation in the CLAUDE.md seam sentence):
+
+| known case | must land on | 0 | 50 | 100 | 120 | 150 | 200 | page |
+|---|---|---|---|---|---|---|---|---|
+| s03 room_0013 top band {15467, 20337} | 1236.42 (face) | ✓ 360 vs 142 | ✓ | ✓ 661 | ✓ | ✓ | ✓ | ✓ 1177 |
+| s03 room_0016 top band {15474, 15476, 15855} | 2186.17 | ✓ 593 vs 176 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s01 jamb nib {2448, 3065} | 1142.5 | ✗ 19 vs 33 | ✗ | ✓ 235 vs 33 | ✓ | ✓ | ✓ | ✓ 445 |
+| s01 WETROOM top edge {331, 941} | 917.75 | ✓ 186 vs 20 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s03 room_0000 left edge {12, 130, 136} | 646.42 | ✓ 462 vs 33 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| s17 inner face {11815, 11817, 11825} | 2208.92 | ✓ 566 vs 346 | ✓ 566 vs 439 | ✓ | ✓ | ✓ 566 vs 530 | ✓ 566 vs 530 | ✗ 1116 vs 1939 |
+| corpus: winner ≠ longest (reaching a segment) | | 101 (42) | 219 (53) | 253 (66) | 294 (69) | 313 (75) | 357 (86) | 581 (137) |
+
+100–200 hold every case; 150/200 thin s17's margin to 1.07× and add a
+714-vs-713 coin flip on a doubled s17 line (1547,2377)-(1547,2207); the pen
+filter moves ~14 of 253 overturns and no known case. 120px = a 1000mm door
+opening at 1:50 (118px) — s01's 921mm doorway is 59px only because its world
+is 1:92 detected at identity — so the reach is W-class.
+
+Shipped: `_support_anchor` (walls.py, before `_merge_collinear_segs`), the
+`support=` parameter (the page's strong faces for the strong/weak/stair
+merges, `[]` for centerlines), `WallGates.WALL_ANCHOR_SUPPORT_REACH_PX`. The
+probe's per-run winner at 120px equals the shipped anchor on every scored run
+of s03 and s17 (0 mismatches).
+
+Sweep against MAIN (four background groups; `outputs/regress_baseline/` is
+now main at `eacefe8`): verdict reports byte-identical on s01–s07 and
+otherwise differ only by the five REVIEW rooms; 71 returned FPs before and
+after; 0 lost. `tools/diff_room_polygons.py`: 91 outlines changed, 5 added,
+0 removed; s06/s07/s09/s10/s13/s14/s19 IDENTICAL. Room-label caches reseeded
+for the 13 sheets that moved (s01–s05, s08, s11, s12, s15–s18, s20).
+
+Per-room verdicts (crops in `outputs/compare/<slug>/page_01_shape_*.png`):
+
+- s17 room_0022 SH/WC (146×233px, 0.90) — REAL, split off the landing
+  (room_0020 → 0026 −35k px²). Win pending the user's verdict; its
+  bottom-right swing square is still fenced out.
+- s17 rooms 0015 (148×21) and 0034 (21×147), ~3.1k px² — window-reveal
+  slivers, PHANTOM, expected: the cavity wall's true inner face is 37.0px
+  from the outer one, over `WALL_MAX_THICKNESS_PX`; room_0036 of the
+  longest-member form no longer appears.
+- s18 room_0000 (67×475, 0.69) — the external ramp between its balustrades,
+  PHANTOM (circulation, not a room; the user's call). Same as the
+  longest-member form; the returned legend-box FP at (2126,2532) is gone.
+  Mechanism (`diff_wall_network.py s18 --idx 1508 2984 3169 --base-dir
+  <main worktree>`): its bottom seal, the 70.7px landing edge across the ramp
+  at y=990.23, has identical geometry in both trees but is `[lattice out]`
+  on main and `[lattice kept]` on the branch — a neighbouring rung of the
+  balustrades' striped field moved by the vote and broke the equal-pitch
+  chain. `_demote_lattice_faces` is sensitive to sub-px rung positions as it
+  is to run direction (item 3).
+- s15 room_0016 (132×43, 0.675) — PHANTOM, NEW, the vote's own limitation:
+  s15 draws dashed boundary lines as separate 14.8px strokes in a 2.0px pen
+  (paths 52384–52542), each admitted as a strong face; a 59px wall face
+  (5465/5467, 3.0px, y=1529.42) merged with three of them at 1531.17 and ~20
+  collinear dashes within reach (~300px) outvoted its 59px, so it moved
+  1.75px onto the dash row's line and the pocket between the two dash rows
+  sealed. Five neighbouring rooms (0012–0015) also grew 3.5px because the
+  970px band face {3912, 41704} moved from 1494.17 onto 41704's line at
+  1497.67 — onto the drawn wall line (crop of room_0014), a correct move.
+
+Net: +5 REVIEW rooms vs main, of which 1 real, 2 expected slivers (cap
+iteration), 1 ramp (user's call), 1 new phantom (dash rows). Against the
+longest-member form: −1 sliver, −1 returned FP, +1 dash-row phantom, and the
+two wrong-way edges (s03 room_0013/0016) fixed.
+
+What follows, each its own iteration:
+
+1. **Drawn dash rows are not faces.** A collinear row of ≥ 3 equal short
+   pieces at equal gaps (s15: 14.8px strokes at 7.3px gaps, 2.0px pen) is a
+   dashed line the exporter emitted as strokes — annotation, never a wall
+   face. Recognise it beside `_dimension_line_indices` (a pre-pairing
+   exclusion), which also removes it from the vote. Measure on s15 how many
+   rows exist and on s01/s02 that no wall face is a row.
+2. **`WALL_MAX_THICKNESS_PX` vs the 37px cavity wall** (s17 slivers) — as
+   before.
+3. **Lattice direction sensitivity**, the both-ends test — as before.
+4. `tools/diff_wall_network.py`'s default base tree runs without the
+   fixtures symlink (s18 at f=1.0 there) — pass `--base-dir`.
+
+## Prompt for the next agent (the s17 window-reveal slivers)
+
+> Use `/fix-detection`. Branch from `main` (the collinear-support anchor is
+> merged). Target: s17 rooms 0015 and 0034 — two 21px-deep, ~3.1k px²
+> phantom pockets (bboxes [3434,2186]–[3582,2207] and
+> [1548,2766]–[1569,2913], conf 0.85) lying INSIDE the 1.75px-pen cavity wall
+> whose outer face is y=2171.92 and inner face 2208.92 (37.0px; the third
+> sliver of the longest-member form, room_0036, no longer appears). Read
+> "Outcome of the collinear-support anchor" and the CLAUDE.md seam sentence
+> first, then measure before proposing anything — three mechanisms stack
+> here and the fix must be the generic one, not a cap nudge: (1) the band is
+> over `WALL_MAX_THICKNESS_PX` (36px at f=1.0; s17 runs at identity), so its
+> two faces no longer pair and no solid seals the cavity — the thick tier
+> (36–48px) wants `_band_has_wall_material` hatch between the faces and
+> `_claims_interior_pair`, and a cavity wall drawn leaf/cavity/leaf carries
+> its insulation hatch only at the jambs (measure the band's marks per 100px
+> with `_collect_material_marks`, and whether the LEAVES pair at leaf
+> thickness inside it); (2) no window is detected on either pocket — the
+> glazing lines above room_0015 (the crop
+> `outputs/compare/support-anchor-report/s17_page_01_shape_room_0015_zoom.png`)
+> are strong faces that form the pocket's outer edge, and the nearest window
+> entity, window_0008 at [3101,2179]–[3191,2209], is 240px away — so
+> `window_count` is 0 and the blind-window rule never sees a window; (3)
+> both pockets carry `door_openings: 1` although the nearest door entity is
+> 170px+ away (door_0026 [3287,2379]–[3377,2470]; door_0033 for room_0034):
+> the rejected door candidate at [3594,2190]–[3696,2196] (102×6px, final
+> conf 0) sits 12px from room_0015's end and its `ROOM_OPENING_SEAL_PX` plug
+> tail reaches the pocket, so `door_count` is 1 and BOTH the blind-window
+> drop and `_is_wall_recess` (door_count == 0 required) are vetoed. Confirm
+> (3) by monkeypatching `_free_space_components` to capture the `door_geoms`
+> within `ROOM_CONTACT_TOL_PX` of each pocket and the confidence detect_rooms
+> saw for that candidate — detect_rooms consumes candidates before the
+> offline floor, so a candidate the pipeline rejects can still seal. The
+> drawing convention to key on: a door-less, window-less pocket lying
+> ENTIRELY inside a wall band's thickness — between the band's outer-line
+> ink (glazing, sill) and its inner face, at most one band deep, no text —
+> is wall material, never floor (the recess rule's premise, extended from
+> "in the band's plane" to "inside the band"); and an opening the pipeline
+> rejects should not count as an opening for those two drops. Measure the
+> candidate rule on the true class (every real window-bearing room on
+> s01/s02 is ≥ 17k px² and carries a confident door; s01 has real blind
+> window-less rooms at 3.3–8.5k px² that must stay) and on the corpus's other
+> cavity walls (s02's leaf/cavity/leaf party wall). Write the synthetic
+> test first (a 37px band drawn as two 1.75px leaves with hatch only at the
+> jambs, a window's glazing lines inside it, no door: the pocket must not be
+> a room), prove it fails on main, then sweep against `compare_sweeps`
+> snapshots of MAIN in four background groups (s18; s16 s11 s15; s01–s07;
+> the rest), diff the verdict reports section-wise, run
+> `tools/diff_room_polygons.py` on every sheet, crop with
+> `tools/room_shape_crop.py`, and for any room that merges or appears run
+> `tools/diff_wall_network.py … --base-dir <fixtures-linked worktree>` —
+> NOT the default temp base, which loses the stored scale (s18 ran at
+> f=1.0 there). Reseed the room-label cache of every sheet whose outlines
+> change. Stop at the report with the net phantom count and per-room
+> verdicts; do not commit; do not touch the dash rows, the lattice
+> direction sensitivity, the both-ends test, Gap D or the candidate-key
+> conflation in the same branch.
+
+## Queued after it (drawn dash rows — s15 room_0016)
+
+The vote's own limitation, one iteration after the slivers: s15 draws its
+dashed boundary/demolition lines as SEPARATE 14.8px strokes at ~7.3px gaps in
+a 2.0px pen with an empty dash attribute (paths 52384–52542 around
+[263,1484]–[1514,1531]; `_is_dashed` never sees them), each above
+`WALL_FACE_MIN_LEN_PX` and therefore a strong face. A 59px wall face
+(5465/5467, 3.0px, y=1529.42) merged with three dashes at 1531.17, ~20
+collinear dashes within one reach (~300px) outvoted its 59px, the face moved
+1.75px onto the dash row and the 132×43px pocket between the two dash rows
+(room_0016, 0.675) sealed. The convention: a collinear row of ≥ 3 near-equal
+short pieces at near-equal gaps no longer than a piece is a DRAWN DASHED LINE
+— annotation, never a wall face (a wall face interrupted by text masks is
+pieces of unequal length at one or two gaps; a row of jamb nibs is never
+collinear). Recognise it beside `_dimension_line_indices` as a pre-pairing
+exclusion (which also removes it from the vote and from face collection);
+measure on s15 how many rows exist and what they annotate, on s01/s02 that
+no wall face is such a row, and on s18/s20 (vector-text sheets) that glyph
+strokes are not caught twice. Expect s15 rooms 0012–0015 to keep their
++3.5px (that move was the 970px band face {3912, 41704} landing on its drawn
+line) and room_0016 to vanish.
 
 ## Queued after it (the candidate-key conflation in `_fill_seams`)
 

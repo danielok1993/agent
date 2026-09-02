@@ -471,6 +471,35 @@ WALL_JOINERY_BRIDGE_GAP_PX      = 80.0  # max open span between accepted white
 COLLINEAR_ANGLE_TOL    = 3.0   # degrees
 COLLINEAR_OFFSET_TOL   = 4.0   # px perpendicular distance between lines
 
+# Where a merged run LIES once its members are in (see _merge_collinear_segs):
+# on the member line carrying the most collinear strong ink — stroked faces
+# at a real pen width and wall-fill outlines, never hairline/weak pieces (a
+# window board can be a hairline) — within WALL_ANCHOR_LINE_TOL_PX of the
+# line, counted over the run's extent plus WALL_ANCHOR_SUPPORT_REACH_PX along
+# its axis on each side; ties go to the longest member.
+WALL_ANCHOR_LINE_TOL_PX = 0.3    # same drawn line: s02's same-line jitter is
+                                 # <= 0.3px, s01's 45-degree hatch chains that
+                                 # straddle COLLINEAR_OFFSET_TOL sit at 3.9-4.1
+                                 # (paper-space rounding, never scaled)
+WALL_ANCHOR_SUPPORT_REACH_PX = 120.0  # one door opening (1000mm at 1:50 =
+                                 # 118px): the widest routine interruption of
+                                 # a face that the SAME face continues past.
+                                 # Measured 2026-09-02 on s01-s04/s08/s12/s14/
+                                 # s17/s18/s20 at reaches 0/50/100/120/150/200/
+                                 # page: s01's jamb nib (19px at y=1142.5 merged
+                                 # with a 33px stair stringer at 1139.75) is
+                                 # corroborated only by the 216px face that
+                                 # continues its line past a 59px doorway (a
+                                 # 921mm opening at its 1:92 world), so 0/50
+                                 # place it on the stringer; page-wide, every
+                                 # window's board/stub line on one wall shares
+                                 # an offset and outvotes the face (s17's
+                                 # cavity-wall inner face: 1939 vs 1116 at
+                                 # page reach against 439 vs 566 at 100-120);
+                                 # 150/200 thin that margin to 530 vs 566 and
+                                 # add a 714-vs-713 coin flip on a doubled s17
+                                 # line. World-space (a doorway), scaled.
+
 
 @dataclass(frozen=True)
 class WallGates:
@@ -496,6 +525,7 @@ class WallGates:
     WALL_HATCH_MAX_LEN_PX: float
     WALL_WEAK_MATERIAL_PER_100PX: float
     COLLINEAR_OFFSET_TOL: float
+    WALL_ANCHOR_SUPPORT_REACH_PX: float
 
     @classmethod
     def at(cls, factor: float) -> "WallGates":
@@ -527,6 +557,8 @@ class WallGates:
             # own face spacing can fall at/under it and the two faces fuse
             # into one line, which then can never pair.
             COLLINEAR_OFFSET_TOL=COLLINEAR_OFFSET_TOL * factor,
+            # One door opening — a world-space interruption of a face.
+            WALL_ANCHOR_SUPPORT_REACH_PX=WALL_ANCHOR_SUPPORT_REACH_PX * factor,
         )
 
     def __post_init__(self):
@@ -2448,14 +2480,85 @@ def _covered_length(r: dict, span: list[tuple[float, float]]) -> float:
     )
 
 
+def _strong_ink(segs: list[_Seg]) -> list[_Seg]:
+    """The ink that votes on a merged run's line: stroked faces at a real
+    pen width and wall-fill outlines — never weak/hairline pieces."""
+    return [s for s in segs if (s.stroked and s.stroke_width > 0) or s.wall_fill]
+
+
+def _support_anchor(
+    run: _Seg, members: list[_Seg], support: list[_Seg], reach: float,
+) -> _Seg:
+    """The member whose line the drawn ink agrees with — the one carrying the
+    most collinear strong-ink length within WALL_ANCHOR_LINE_TOL_PX of its
+    line and within `reach` of the run's extent along its axis; ties go to
+    the longest member. See _merge_collinear_segs."""
+    dx, dy = run.p2[0] - run.p1[0], run.p2[1] - run.p1[1]
+    length = math.hypot(dx, dy)
+    ux, uy = dx / length, dy / length
+    nx, ny = -uy, ux
+    ordered = sorted(members, key=lambda m: -_line_length(m.p1, m.p2))
+    # Distinct member lines, each represented by its longest member.
+    reps: list[tuple[_Seg, float]] = []
+    for m in ordered:
+        mx = 0.5 * (m.p1[0] + m.p2[0]) - run.p1[0]
+        my = 0.5 * (m.p1[1] + m.p2[1]) - run.p1[1]
+        off = mx * nx + my * ny
+        if all(abs(off - o) > WALL_ANCHOR_LINE_TOL_PX for _, o in reps):
+            reps.append((m, off))
+    if len(reps) < 2:
+        return ordered[0]
+    t_lo, t_hi = -reach, length + reach
+    # Strong ink within reach of the run along its axis.
+    nearby: list[tuple[tuple[float, float], tuple[float, float], float]] = []
+    for s in support:
+        t1 = (s.p1[0] - run.p1[0]) * ux + (s.p1[1] - run.p1[1]) * uy
+        t2 = (s.p2[0] - run.p1[0]) * ux + (s.p2[1] - run.p1[1]) * uy
+        if max(t1, t2) < t_lo or min(t1, t2) > t_hi:
+            continue
+        nearby.append((s.p1, s.p2, _line_length(s.p1, s.p2)))
+    best, best_key = ordered[0], None
+    for rep, _ in reps:
+        rl = _line_length(rep.p1, rep.p2)
+        rnx = -(rep.p2[1] - rep.p1[1]) / rl
+        rny = (rep.p2[0] - rep.p1[0]) / rl
+        total = 0.0
+        for p1, p2, sl in nearby:
+            if abs((p1[0] - rep.p1[0]) * rnx + (p1[1] - rep.p1[1]) * rny) > WALL_ANCHOR_LINE_TOL_PX:
+                continue
+            if abs((p2[0] - rep.p1[0]) * rnx + (p2[1] - rep.p1[1]) * rny) > WALL_ANCHOR_LINE_TOL_PX:
+                continue
+            total += sl
+        key = (total, rl)
+        if best_key is None or key > best_key:
+            best, best_key = rep, key
+    return best
+
+
 def _merge_collinear_segs(
     segs: list[_Seg], gap_px: float, *, gates: WallGates = WALL_GATES_UNSCALED,
+    support: list[_Seg] | None = None,
+    trace: list[tuple[_Seg, _Seg, _Seg, list[_Seg]]] | None = None,
 ) -> list[_Seg]:
     """Merge segments lying on the same infinite line into runs.
 
     Bridges gaps up to gap_px; keeps the max thickness, unions path indices,
     and ORs layer hints across merged members. wall_fill carries over only
     when fill-outline members cover >= WALL_FILL_MERGE_MIN_FRAC of the run.
+
+    `support` is the strong ink that votes on where a merged run lies (see
+    below); None means the call's own strong members (_strong_ink(segs)).
+    detect_wall_network passes the page's strong faces to every face merge
+    — a hairline run is placed by the strong ink it continues, never by
+    other hairlines — and nothing to the centerline merge, whose runs keep
+    the longest member (a centerline is derived from faces already placed,
+    and no face lies on one).
+
+    `trace`, when given, receives one (run, seed, anchor, members) tuple per
+    output run: the original segment whose line decided membership, the
+    original member the run is placed on, and every original segment merged
+    into it — tools/probe_merge_anchor.py's view of the merge; detection
+    never passes it.
 
     gates.COLLINEAR_OFFSET_TOL gates the same "is this the same drawn line"
     world-space judgment as WALL_MIN_THICKNESS_PX: at f=1.0 the 4.0px offset
@@ -2466,10 +2569,70 @@ def _merge_collinear_segs(
     8px-at-1:50 band shrinks to 4px at f=0.5, exactly the unscaled
     tolerance, and the two faces merged into a single line with zero
     centerlines recovered.
+
+    The run LIES ON THE MEMBER LINE THE DRAWN INK AGREES WITH. Membership is
+    decided against the seed (the first unused segment in path order)
+    exactly as before, but once the members are in, the run is re-projected
+    onto the line of the ORIGINAL member whose line carries the most
+    collinear strong ink — stroked faces and wall-fill outlines within
+    WALL_ANCHOR_LINE_TOL_PX of it, over the run's extent plus
+    gates.WALL_ANCHOR_SUPPORT_REACH_PX (one door opening) on each side;
+    ties go to the longest member (_support_anchor). A stub is evidence of
+    a line's EXTENT, never of its POSITION — projecting onto the seed's line
+    hung a band's whole face on whichever short piece came first in path
+    order: s03's 12px jamb-stub joint edge, 3.75px inside the 1:100 BEDROOM
+    band's face, seeded the run and the 416px face joined onto ITS line, so
+    the merged face sat 3.8px into the room, the pair measured 15.5px against
+    its drawn 11.75 and the solid fenced a 386x3.8px strip (room_0013).
+    Measured 2026-09-02 over 4,223 merged runs on ten sheets (s01–s04, s08,
+    s12, s14, s17, s18, s20): 92 runs lay more than 1px off their longest
+    member on a seed under half its length — 61 in the strong-face merge, 52
+    reaching network.faces and 41 a paired segment. The length-weighted
+    least-squares line is not the anchor: the stubs pull it 0.3–2px off the
+    drawn face in most of those runs, so it lies on no drawn line at all.
+    Nor is the LONGEST member: a window's board line is drawn parallel to
+    the face a couple of px into the room and spans the whole window, so it
+    outweighs the face piece beside it that it merges with, while only the
+    face's line continues past the opening — s03 room_0013's top band
+    merged the 68px face at y=1236.42 with the 141.8px board line at
+    1238.67 and the longest-member anchor moved the room edge 2.25px INTO
+    the room (-877 px^2; room_0016 -878 the same way), although the face's
+    line carries ~360px of collinear strong ink inside the run's extent and
+    ~660px within a door opening of it against the board's own 142. The
+    reach matters at both ends: s01's jamb nib (19px at 1142.5 merged with a
+    33px stair stringer at 1139.75) is corroborated only by the 216px face
+    continuing its line past a 59px doorway, so reaches of 0/50 place it on
+    the stringer, while page-wide every window's board/stub line on one
+    wall shares an offset and outvotes the face (s17's cavity-wall inner
+    face 2208.92: 1939 vs 1116 page-wide against 439 vs 566 within 120px).
+    Measured over the same ten sheets: the support winner differs from the
+    longest member in 294 merged runs at 120px (69 reaching a paired
+    segment, 44 of those by more than 1px) against 253/66 at 100px and
+    581/137 page-wide. Membership is deliberately NOT re-decided against the
+    anchor's line — neither by seeding longest-first nor by re-anchoring
+    between passes: the offset tolerance is transitive, and a piece lying
+    BETWEEN two faces of a thin wall — s01's stair stringer, end to end with
+    a 5.75px jamb nib's face at mid-thickness, 2.75px off one face and 3.0px
+    off the other — then anchors the run and the other face joins it on the
+    next pass, fusing both faces into one line that can never pair
+    (measured: the door plug beside it lost its anchor and the swing square
+    was fenced out of the landing). So the passes run exactly as before, on
+    the seed's line, and every run is placed on its anchor only once they
+    have converged, keeping its own direction (_demote_lattice_faces is
+    sensitive to p1/p2 order: taking the anchor's sense flipped 57 faces
+    on s18 and lost 5 confirmed rooms).
     """
     if not segs:
         return []
 
+    if support is None:
+        support = _strong_ink(segs)
+    # The original members of each run — the candidates for the line the
+    # run is placed on once merging has converged.
+    leaves: dict[int, list[_Seg]] = {id(s): [s] for s in segs}
+    run_pts_of: dict[int, list[tuple[float, float]]] = {}
+    tracing = trace is not None
+    seed_of: dict[int, _Seg] = {id(s): s for s in segs} if tracing else {}
     merged = list(segs)
     changed = True
     while changed:
@@ -2496,6 +2659,9 @@ def _merge_collinear_segs(
                 wall_fill=a.wall_fill, pen=a.pen,
             )
             fill_len = length_a if a.wall_fill else 0.0
+            leaves[id(run)] = list(leaves[id(a)])
+            if tracing:
+                seed_of[id(run)] = seed_of[id(a)]
 
             for j, b in enumerate(merged):
                 if j <= i or used[j]:
@@ -2561,6 +2727,7 @@ def _merge_collinear_segs(
                     run.pen = b.pen
                 if b.layer and not run.layer:
                     run.layer = b.layer
+                leaves[id(run)].extend(leaves[id(b)])
                 used[j] = True
                 changed = True
 
@@ -2568,6 +2735,7 @@ def _merge_collinear_segs(
             t_lo, t_hi = min(ts), max(ts)
             run.p1 = (a.p1[0] + ux * t_lo, a.p1[1] + uy * t_lo)
             run.p2 = (a.p1[0] + ux * t_hi, a.p1[1] + uy * t_hi)
+            run_pts_of[id(run)] = run_pts
             # Fill evidence spans the merged run only when the fill-outline
             # members cover most of it (see WALL_FILL_MERGE_MIN_FRAC): the
             # pen rule above keeps annotation ink from laundering into wall
@@ -2582,6 +2750,34 @@ def _merge_collinear_segs(
             used[i] = True
 
         merged = out
+
+    # Place every merged run on the member line the drawn ink agrees with
+    # (see docstring), keeping the run's own direction — members are drawn
+    # either way round, and the anchor's sense must not flip p1/p2 on a run
+    # whose line does not move. A run that never merged is unchanged.
+    anchor: dict[int, _Seg] = {}
+    reach = gates.WALL_ANCHOR_SUPPORT_REACH_PX
+    for run in merged:
+        pts = run_pts_of.get(id(run))
+        if pts is None:
+            anchor[id(run)] = run
+            continue
+        best = _support_anchor(run, leaves[id(run)], support, reach)
+        anchor[id(run)] = best
+        best_len = _line_length(best.p1, best.p2)
+        ax, ay = best.p1
+        bux = (best.p2[0] - ax) / best_len
+        buy = (best.p2[1] - ay) / best_len
+        if bux * (run.p2[0] - run.p1[0]) + buy * (run.p2[1] - run.p1[1]) < 0:
+            bux, buy = -bux, -buy
+        ts = [_project_onto_axis(p, best.p1, bux, buy) for p in pts]
+        t_lo, t_hi = min(ts), max(ts)
+        run.p1 = (ax + bux * t_lo, ay + buy * t_lo)
+        run.p2 = (ax + bux * t_hi, ay + buy * t_hi)
+
+    if tracing:
+        for run in merged:
+            trace.append((run, seed_of[id(run)], anchor[id(run)], leaves[id(run)]))
 
     return merged
 
@@ -3511,8 +3707,13 @@ def detect_wall_network(
     for f in stair_faces:
         f.stroked = False
         f.stroke_width = 0.0
+    # The ink that votes on where every merged face run lies (see
+    # _merge_collinear_segs): the page's strong faces and fill outlines,
+    # shared by the strong, weak and stair merges.
+    anchor_support = _strong_ink(faces)
     merged_faces = _merge_collinear_segs(
-        faces, gap_px=WALL_FACE_MERGE_GAP_PX, gates=gates
+        faces, gap_px=WALL_FACE_MERGE_GAP_PX, gates=gates,
+        support=anchor_support,
     )
 
     # Striped fields (paving bonds, tile fields, stair treads, roof tiling,
@@ -3599,9 +3800,10 @@ def detect_wall_network(
     weak_merged = _merge_collinear_segs(
         _collect_weak_faces(paths, excluded, gates=gates)
         + _collect_stroked_rect_weak_faces(paths, excluded, gates=gates),
-        gap_px=WALL_FACE_MERGE_GAP_PX, gates=gates,
+        gap_px=WALL_FACE_MERGE_GAP_PX, gates=gates, support=anchor_support,
     ) + demoted + lattice_faces + light_faces + _merge_collinear_segs(
-        stair_faces, gap_px=WALL_FACE_MERGE_GAP_PX, gates=gates
+        stair_faces, gap_px=WALL_FACE_MERGE_GAP_PX, gates=gates,
+        support=anchor_support,
     )
     for f in weak_merged:
         f.weak = True
@@ -3692,8 +3894,12 @@ def detect_wall_network(
             weak_paired |= c.indices
 
     centerlines += bands
+    # No ink votes here: a centerline is derived from faces the vote has
+    # already placed, and no face lies on one — merged centerline runs keep
+    # the longest member.
     centerlines = _merge_collinear_segs(
         centerlines, gap_px=WALL_CENTERLINE_MERGE_GAP_PX, gates=gates,
+        support=[],
     )
     centerlines = _collapse_redundant_centerlines(centerlines)
     centerlines = [c for c in centerlines if _line_length(c.p1, c.p2) >= 1.0]

@@ -6,7 +6,8 @@ each helper builds atomic primitives directly in 150-DPI pixel space.
 import unittest
 
 from shapely.geometry import (
-    Point as ShapelyPoint, Polygon as ShapelyPolygon, box as shapely_box,
+    LineString as ShapelyLineString, Point as ShapelyPoint,
+    Polygon as ShapelyPolygon, box as shapely_box,
 )
 
 from models import PathPrimitive
@@ -224,6 +225,107 @@ class TestCenterlines(unittest.TestCase):
         self.assertAlmostEqual(spans[0][1], 250.0, delta=1.0)
         self.assertAlmostEqual(spans[1][0], 310.0, delta=1.0)
         self.assertAlmostEqual(spans[1][1], 500.0, delta=1.0)
+
+    def test_merged_run_lies_on_its_longest_member_not_the_seed(self):
+        # A stub is evidence of a line's EXTENT, never of its POSITION.
+        # _merge_collinear_segs seeded every run with the FIRST unused
+        # segment in path order and projected every later member onto that
+        # seed's line, so a 12px jamb-stub edge drawn 3.75px off a band's
+        # face (inside COLLINEAR_OFFSET_TOL) and earlier in path order
+        # dragged the band's whole 400px face onto the stub's line (s03
+        # room_0013: the 12px strip-stack joint at y=1778.42, paths
+        # 15116/15148, seeded the run and the 416px band face at y=1782.17
+        # joined at offset 3.75 — the merged face sat 3.8px into the room,
+        # the pair measured 15.5px against its drawn 11.75, and the solid
+        # fenced a 386x3.8px strip out of the BEDROOM; corpus-wide, 92 runs
+        # on ten sheets hung a run more than 1px off its longest member on
+        # a seed under half its length, 41 of them reaching a paired
+        # segment). The run now lies on its LONGEST member's line.
+        paths = [
+            hline(0, 100, 112, 103.75),      # the stub, first in path order
+            hline(1, 100, 500, 100),          # the 400px face
+        ]
+        network = detect_wall_network(paths)
+        face = next(f for f in network.faces if 1 in f.indices)
+        self.assertIn(0, face.indices)       # the stub still joins the run
+        self.assertAlmostEqual(face.p1[1], 100.0, delta=0.01)
+        self.assertAlmostEqual(face.p2[1], 100.0, delta=0.01)
+        self.assertAlmostEqual(min(face.p1[0], face.p2[0]), 100.0, delta=0.01)
+        self.assertAlmostEqual(max(face.p1[0], face.p2[0]), 500.0, delta=0.01)
+
+    def test_stub_on_the_room_side_of_a_band_keeps_the_room_edge_at_the_face(self):
+        # The same topology through detect_rooms: a closed room whose top
+        # band carries a 12px stub 3.75px inside its room-side face, first
+        # in path order. The merged inner face must stay ON the drawn face
+        # (y=108) so the band pairs at its drawn 8px and the room's top
+        # edge sits at the face's 2px standoff (y=110) — on the seed-line
+        # anchor the inner face moved to y=111.75, the band measured 11.75
+        # and the room edge stood 3.75px high across its whole width.
+        paths = [hline(0, 108, 120, 111.75)] + rect_room(1, 100, 100, 500, 400)
+        network = detect_wall_network(paths)
+        top = next(f for f in network.faces if 2 in f.indices)
+        self.assertAlmostEqual(top.p1[1], 108.0, delta=0.01)
+        self.assertAlmostEqual(top.p2[1], 108.0, delta=0.01)
+        rooms = detect_rooms(network, [], [], 1000.0, 800.0, [])
+        self.assertEqual(len(rooms), 1)
+        poly = ShapelyPolygon(rooms[0].evidence["polygon"])
+        self.assertAlmostEqual(poly.bounds[1], 110.0, delta=0.05)
+        self.assertAlmostEqual(poly.area, (492 - 108 - 4) * (392 - 108 - 4), delta=2.0)
+
+    def test_merged_run_lies_on_the_member_line_the_drawn_ink_agrees_with(self):
+        # The longest member is not always the wall face. A window's board
+        # line is drawn parallel to the face a couple of px into the room
+        # and spans the whole window, so it is LONGER than the face piece
+        # beside it that it merges with — yet the face's line continues past
+        # the opening while the board's stops at its jambs (s03 room_0013's
+        # top band: the 68px face at y=1236.42 merged with the 141.8px board
+        # line at 1238.67; the face's line carries ~360px of collinear
+        # strong ink inside the run's extent and ~660px within one door
+        # opening of it, the board's line only itself, and the longest-member
+        # anchor moved the room edge 2.25px INTO the room, -877 px^2). The
+        # run lies on the member line with the most collinear strong-ink
+        # support within WALL_ANCHOR_SUPPORT_REACH_PX of its extent — the
+        # face's 68px plus its 100px continuation beyond a 60px opening
+        # (168) beats the board's 142 — so the run sits at y=100 and spans
+        # only the merged members; the continuation is not bridged.
+        paths = [
+            hline(0, 100, 168, 100),          # the 68px face piece
+            hline(1, 100, 242, 102.25),       # the 142px board line, 2.25px in
+            hline(2, 302, 402, 100),          # the face continues past the opening
+        ]
+        network = detect_wall_network(paths)
+        run = next(f for f in network.faces if {0, 1} <= set(f.indices))
+        self.assertNotIn(2, run.indices)
+        self.assertAlmostEqual(run.p1[1], 100.0, delta=0.01)
+        self.assertAlmostEqual(run.p2[1], 100.0, delta=0.01)
+        self.assertAlmostEqual(min(run.p1[0], run.p2[0]), 100.0, delta=0.01)
+        self.assertAlmostEqual(max(run.p1[0], run.p2[0]), 242.0, delta=0.01)
+
+    def test_window_board_line_does_not_pull_the_room_edge_into_the_room(self):
+        # The same topology through detect_rooms: a closed room whose top
+        # band's inner face (y=108) is a 68px piece beside a 142px board line
+        # at 110.25, with the face continuing 60px further along. The merged
+        # inner face must stay on the drawn face so the band pairs at its
+        # drawn 8px and the room's top edge over the board line sits at the
+        # face's 2px standoff (y=110) — on the longest-member anchor the
+        # inner face moved to 110.25, the band measured 10.25 and the edge
+        # stood 2.25px into the room across the board line's whole span.
+        paths = [
+            hline(0, 100, 500, 100),          # outer face
+            hline(1, 100, 168, 108),          # inner face piece
+            hline(2, 100, 242, 110.25),       # board line, 2.25px into the room
+            hline(3, 302, 500, 108),          # inner face continues past the gap
+        ] + wall_band_h(4, 100, 500, 392) + wall_band_v(6, 100, 100, 400) \
+          + wall_band_v(8, 492, 100, 400)
+        network = detect_wall_network(paths)
+        top = next(f for f in network.faces if {1, 2} <= set(f.indices))
+        self.assertAlmostEqual(top.p1[1], 108.0, delta=0.01)
+        self.assertAlmostEqual(top.p2[1], 108.0, delta=0.01)
+        rooms = detect_rooms(network, [], [], 1000.0, 800.0, [])
+        self.assertEqual(len(rooms), 1)
+        poly = ShapelyPolygon(rooms[0].evidence["polygon"])
+        cut = poly.intersection(ShapelyLineString([(150, 0), (150, 800)]))
+        self.assertAlmostEqual(cut.bounds[1], 110.0, delta=0.05)
 
     def test_brick_cell_diagonal_does_not_pair_into_the_room(self):
         # A vertical band (near face x=300 over 100-320, far face x=314 a
