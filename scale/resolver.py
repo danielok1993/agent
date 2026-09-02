@@ -161,17 +161,39 @@ def _stored_info(entry: str) -> Optional[ScaleInfo]:
                      nominal=snap_to_standard(found[0]))
 
 
+def _fallback_info(denominator: float) -> ScaleInfo:
+    """A scale the user supplied for the whole run, as a ladder entry.
+
+    `source="user"` is load-bearing twice over, and both are wanted:
+    takeoff/scale.py's is_verified trusts "user" outright, and
+    scale/factor.py's _gate_denominator takes the nominal from any source —
+    so the re-run's detection gates are scaled by 50/D rather than running at
+    identity, which is the only reason re-running beats rescaling in the
+    client.
+    """
+    return ScaleInfo(denominator=denominator, source="user",
+                     raw=f"1:{denominator:g}",
+                     nominal=snap_to_standard(denominator))
+
+
 def resolve_page_scales(
     page_data: PageData,
     regions: list[Region],
     viewports: list[ScaleInfo],
     stored: list[StoredScale],
+    fallback: Optional[float] = None,
     pdf_path: Optional[str] = None,
     crop_fn: Optional[Callable[[Region], Optional[str]]] = None,
     allow_prompt: bool = False,
     suspend_display: Optional[Callable[[], ContextManager]] = None,
 ) -> PageScales:
-    """Resolve a scale for every floor-plan region on one page."""
+    """Resolve a scale for every floor-plan region on one page.
+
+    `fallback` is a scale the user supplied for a sheet the ladder could not
+    read. It is consulted last, so it can never displace a stored entry, a
+    viewport, a caption, or a sole page-level candidate — it only fills what
+    would otherwise be unresolved.
+    """
     result = PageScales()
     page_number = page_data.page_number
 
@@ -201,6 +223,8 @@ def resolve_page_scales(
     # 1:500 and 1:1250 at once, and picking any of them for summary.json
     # would publish a number that is wrong for most of the sheet.
     result.page_scale = sole_candidate
+
+    fallback_info = None if fallback is None else _fallback_info(fallback)
 
     floor_plans = [r for r in regions if r.region_type == "floor_plan"]
     unresolved: list[str] = []
@@ -243,6 +267,13 @@ def resolve_page_scales(
             warn("SCALE_MULTIPLE_UNBOUND", "warning",
                  f"Page {page_number}: {len(distinct)} scales found on the sheet "
                  f"and none binds to {region.region_id}")
+
+        # The bottom tier. Deliberately NOT gated on `ambiguous`: two printed
+        # scales both reaching one plan is exactly the case the resolver
+        # refuses to guess at, and the user supplying a number is the
+        # tiebreaker it was refusing on behalf of.
+        if info is None and fallback_info is not None:
+            info = fallback_info
 
         if info is None and allow_prompt and can_prompt():
             # Rendered on demand, not looked up. region_crops/ is written only
@@ -290,6 +321,25 @@ def resolve_page_scales(
         warn("SCALE_MULTIPLE_UNBOUND", "warning",
              f"Page {page_number}: {len(distinct)} scales found on the sheet "
              f"but no floor plan region to bind them to")
+
+    # The supplied scale is the PAGE's scale when it is the only one governing
+    # the sheet. page_scale is what document.py publishes as `scale.page`, and
+    # what rivet-mind reads as `scaleDenominator`; left None, a re-run that
+    # resolved every room would still have its sheet dropped at that parse
+    # boundary and fail identically to the run that prompted the question.
+    #
+    # Narrow by design. Where some other tier resolved a region, the sheet
+    # states more than one scale and has none "as a whole" — the same reason
+    # sole_candidate is only ever a SINGLE distinct denominator.
+    # Identity, not `source == "user"`: a stored entry is also sourced "user",
+    # and this must mean "the object we just built", nothing else.
+    resolved = list(result.by_region.values())
+    if (fallback_info is not None
+            and result.page_scale is None
+            and any(entry is fallback_info for entry in resolved)
+            and all(entry is fallback_info or entry.denominator is None
+                    for entry in resolved)):
+        result.page_scale = fallback_info
 
     if unresolved:
         warn("SCALE_UNRESOLVED", "warning",

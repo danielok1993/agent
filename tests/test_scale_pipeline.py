@@ -122,5 +122,22 @@ class TestSummaryDetectionSurvivesSkipDetection(unittest.TestCase):
         self.assertEqual(detection["source"], "floor_plan_regions")
 
 
+class TestFallbackDenominatorIsThreaded(unittest.TestCase):
+    def test_run_extract_passes_its_fallback_to_the_resolver(self):
+        import inspect
+        import pipeline
+
+        signature = inspect.signature(pipeline.run_extract)
+        self.assertIn("fallback_denominator", signature.parameters)
+        self.assertIsNone(
+            signature.parameters["fallback_denominator"].default)
+
+        # The call site must forward it, not accept and drop it. Read the
+        # source rather than running a whole extraction: this is a wiring
+        # assertion, and a full run needs a PDF, Gemini and several seconds.
+        source = inspect.getsource(pipeline.run_extract)
+        self.assertIn("fallback=fallback_denominator", source)
+
+
 if __name__ == "__main__":
     unittest.main()

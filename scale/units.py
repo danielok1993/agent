@@ -19,6 +19,23 @@ PAPER_SPACE_MAX_DENOMINATOR = 1.5
 # inside tolerance wins, and the bands never overlap at 2%.
 STANDARD_SCALES = (1, 20, 25, 50, 100, 200, 500, 1000, 1250, 2500)
 
+# The scales a user may supply for a sheet whose scale nobody could read.
+# STANDARD_SCALES restricted to the band scale/factor.py's detection gates are
+# calibrated for: a factor of 50/D must land inside [0.25, 4.0]. 1:1 is paper
+# space, and 1:500 upward are site plans, where the drafting convention itself
+# changes and the factor would be clamped back to identity.
+#
+# Every member snaps to itself, so a supplied scale always reaches
+# _gate_denominator as a nominal and always drives the gates. A value that
+# failed to snap would leave the re-run detecting at identity — the exact
+# failure the whole scale-input feature exists to remove.
+#
+# Stated here rather than derived from factor.py's constants because
+# scale/factor.py imports scale/resolver.py, and the resolver needs this.
+# tests/test_scale_units.py pins it against those constants in both
+# directions, so a change to either end is caught.
+SUPPLIABLE_SCALES = (20.0, 25.0, 50.0, 100.0, 200.0)
+
 SNAP_TOLERANCE = 0.02
 
 # Two readings of the same drawing closer than this are the same scale written

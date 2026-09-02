@@ -5,7 +5,7 @@ from models import Region, ScaleInfo
 from scale.factor import (
     DETECTION_FACTOR_MAX, DETECTION_FACTOR_MIN, DetectionScale, detection_scale,
 )
-from scale.resolver import PageScales
+from scale.resolver import PageScales, _fallback_info
 
 
 def region(rid, region_type="floor_plan", path_count=100):
@@ -182,6 +182,29 @@ class TestDetectionScale(unittest.TestCase):
                    region("region_0001", path_count=500)]
         ds = detection_scale(ps, regions, page_number=1)
         self.assertEqual(ds.denominator, 50.0)   # tie -> less aggressive scaling
+
+
+class TestSuppliedScaleDrivesTheGates(unittest.TestCase):
+    def test_every_suppliable_scale_yields_its_own_factor(self):
+        from scale.units import SUPPLIABLE_SCALES
+
+        for denominator in SUPPLIABLE_SCALES:
+            with self.subTest(denominator=denominator):
+                ps = PageScales(
+                    by_region={"region_0000": _fallback_info(denominator)})
+                ds = detection_scale(ps, [region("region_0000")],
+                                     page_number=1)
+                self.assertAlmostEqual(ds.factor, 50.0 / denominator)
+                self.assertEqual(ds.source, "floor_plan_regions")
+                self.assertEqual(ds.denominator, denominator)
+
+    def test_a_supplied_scale_raises_no_measured_only_warning(self):
+        # SCALE_FACTOR_MEASURED_ONLY means "resolved, but the gates ignored
+        # it" — the identity-factor outcome the re-run exists to avoid. Its
+        # presence here would mean the whole re-run is pointless.
+        ps = PageScales(by_region={"region_0000": _fallback_info(100.0)})
+        ds = detection_scale(ps, [region("region_0000")], page_number=1)
+        self.assertEqual([w["warning_code"] for w in ds.warnings], [])
 
 
 if __name__ == "__main__":

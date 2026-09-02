@@ -136,6 +136,14 @@ class TestStatusTransitions(unittest.TestCase):
             "document": '{"schemaVersion":1}',
             "error": None, "updatedAt": NOW}])
 
+    def test_mark_awaiting_scale_writes_the_document_and_clears_error(self):
+        db = FakeDb(_record_data())
+        records.mark_awaiting_scale(db, "t1", '{"schemaVersion":1}', NOW)
+        self.assertEqual(db.doc.updates, [{
+            "status": config.STATUS_AWAITING_SCALE,
+            "document": '{"schemaVersion":1}',
+            "error": None, "updatedAt": NOW}])
+
     def test_mark_failed_writes_the_message(self):
         db = FakeDb(_record_data())
         records.mark_failed(db, "t1", "boom", NOW)

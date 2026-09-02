@@ -119,6 +119,22 @@ def mark_awaiting_review(db, takeoff_id: str, document_json: str,
     })
 
 
+def mark_awaiting_scale(db, takeoff_id: str, document_json: str,
+                        now_epoch_ms: int) -> None:
+    """Measured, but nothing on the run carried a readable scale.
+
+    The document is still written: the page artefacts are already in Storage
+    and the scale prompt needs the plan SVG to show the user what they are
+    being asked about.
+    """
+    _doc(db, takeoff_id).update({
+        "status": config.STATUS_AWAITING_SCALE,
+        "document": document_json,
+        "error": None,
+        "updatedAt": now_epoch_ms,
+    })
+
+
 def mark_failed(db, takeoff_id: str, message: str, now_epoch_ms: int) -> None:
     _doc(db, takeoff_id).update({
         "status": config.STATUS_FAILED,
