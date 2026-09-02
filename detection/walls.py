@@ -95,13 +95,18 @@ WALL_PAIR_TAPER_MAX_FRAC    = 0.5   # a face pair's spacing may change by at mos
     # corpus (2026-09-02) every surviving real pair measures <= 0.30, the
     # widest being s03's tapering rear boundary wall at 0.24-0.27 (15.4 ->
     # 11.7px over 142px), then s17 0.30, s18 0.20, s01 0.16, s02 0.11, the
-    # rest <= 0.07. A stroke crossing the band corner to corner — the single
-    # diagonal of a brick-hatch cell, drawn in the wall pen (s03
-    # EXISTING_BRICKWORK, s04/s08 RR_Wall Hatches, s20) — lies inside
+    # rest <= 0.07. A stroke crossing the band corner to corner lies inside
     # WALL_PARALLEL_ANGLE_TOL of both faces (an aspect-15 cell: 3.9 deg) yet
     # its spacing to either runs from the band's full width to ZERO: ratio
-    # 1.0 on all four sheets (s03 0 -> 14.8px at 1:50 and 0 -> 7.5px at
-    # 1:100, s04 0 -> 5.3, s08 0 -> 21.3, s20 0 -> 12). _perpendicular_spacing
+    # 1.0 on all four sheets it was measured on (s03 0 -> 14.8px at 1:50
+    # and 0 -> 7.5px at 1:100, s04 0 -> 5.3, s08 0 -> 21.3, s20 0 -> 12).
+    # Those corpus strokes were later identified (2026-09-02) as the
+    # triangulation SEAMS of filled wall bands — a self-coloured width-0
+    # stroke on the shared diagonal (s03 EXISTING_BRICKWORK, s04/s08
+    # RR_Wall Hatches carry the wall FILL, not hatch) — and seams are now
+    # excluded before pairing (_fill_seams joins the exclusion set in
+    # detect_wall_network); this gate stays as the geometric defence for
+    # any genuinely stroked chord. _perpendicular_spacing
     # samples ONE endpoint (fj.p1), which for a long merged face may lie
     # hundreds of px past the cell where the chord's line has drifted well
     # beyond the band: s03's 219px chord read 29px against the 992px far
@@ -1446,9 +1451,14 @@ def _collect_wall_faces(
     if fill_is_wall is None:
         rings = _collect_fill_rings(paths)
         fill_is_wall = _rate_fill_classes(rings, gates=gates)
+        seams = _fill_seam_indices(rings, paths)
         marker_indices = {
             i for r in rings if r.is_marker() for i in r.indices
-        } | _fill_seam_indices(rings, paths)
+        } | seams
+        # A seam is never a face of any tier — not even a stroked one
+        # (detect_wall_network folds seams into its exclusion set the same
+        # way; see the note there).
+        exclude_indices = frozenset(exclude_indices) | frozenset(seams)
 
     def _wall_fill(p: PathPrimitive) -> bool:
         # Background (white) fills are masks or hollow walls — hollow walls
@@ -3377,17 +3387,29 @@ def detect_wall_network(
     # Stick-font text (s06/s11/s16/s20 draw every label as glyph strokes in
     # the wall pen, no text span) is vetoed the same way: freestanding
     # glyph rows are never wall ink (_vector_text_indices).
+    # And so are FILL SEAMS — the shared edges of triangulated / abutting
+    # same-fill pieces, fill on both sides (_fill_seams). No pen ever shows
+    # such an edge, yet the exporter attaches the fill's own colour to it
+    # as a width-0 stroke, which the extractor records at 1.0px
+    # (ZERO_WIDTH_STROKE_PX); vetoing the seam's wall_fill flag alone
+    # (marker_indices below) left it a STROKED face — a "chord" across the
+    # band within WALL_PARALLEL_ANGLE_TOL of both faces that pairs with the
+    # next cell's face and merges collinearly into a run (measured
+    # 2026-09-02: s03 248, s04 50/50, s08 48/48, s12 116, s17 128 seams
+    # were stroked faces; s01 has no fill rings and s02's 48 seams are
+    # fill-only, so the reference sheets carry no such face).
+    rings = _collect_fill_rings(paths)
+    seam_indices, seam_adjacency = _fill_seams(rings, paths)
     excluded = frozenset(exclude_path_indices or ()) | frozenset(
         _dimension_line_indices(paths, gates=gates)
     ) | frozenset(_vector_text_indices(paths)) | frozenset(
         p.path_index for p in paths if _layer_annotation_veto(p.layer)
-    )
-    rings = _collect_fill_rings(paths)
+    ) | frozenset(seam_indices)
     fill_is_wall = _rate_fill_classes(rings, gates=gates)
-    # Marker rings (arrowheads) and fill seams (the shared edges of
-    # triangulated / abutting same-fill pieces, fill on both sides) share
-    # the wall pen but are never outline: neither may become a face.
-    seam_indices, seam_adjacency = _fill_seams(rings, paths)
+    # Marker rings (arrowheads) share the wall pen but are never outline:
+    # their edges may not qualify as wall-fill faces. Seams ride in the
+    # same set for the standalone _collect_wall_faces path; here they are
+    # already excluded outright above.
     marker_indices = {
         i for r in rings if r.is_marker() for i in r.indices
     } | seam_indices
