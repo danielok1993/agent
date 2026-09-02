@@ -166,6 +166,51 @@ class TestCenterlines(unittest.TestCase):
         self.assertAlmostEqual(spans[1][0], 310.0, delta=1.0)
         self.assertAlmostEqual(spans[1][1], 500.0, delta=1.0)
 
+    def test_brick_cell_diagonal_does_not_pair_into_the_room(self):
+        # A vertical band (near face x=300 over 100-320, far face x=314 a
+        # long run to 700) whose brick-hatch cell is drawn as the box plus
+        # ONE corner-to-corner diagonal in the same pen (s03
+        # EXISTING_BRICKWORK): 14px over 220px = 3.6 deg, inside
+        # WALL_PARALLEL_ANGLE_TOL, so the chord is "parallel" to both faces
+        # — but its spacing to either runs from the band's full width to
+        # zero. Sampled at the far face's first endpoint (380px past the
+        # cell, where the chord's line has crossed 24px beyond the face) it
+        # pairs at 24px and the centerline lands 12px INTO the room, its
+        # solid 26px (s03 rooms 0005/0013: a 15-29px strip fenced off the
+        # bottom-right corner). The chord must lead the pair (its angle
+        # bucket precedes the verticals'), and the band is filled — as on
+        # s03, whose grey wall fill under a quarter of the phantom band
+        # kept it clear of the far-side rule.
+        paths = [
+            vline(0, 300, 100, 320),
+            path(1, [(314, 700), (314, 100)]),
+            path(2, [(300, 100), (314, 320)]),
+            path(3, [(300, 100), (314, 100), (314, 700), (300, 700)],
+                 item_type="re", stroke_width=0.0, fill=(0.5, 0.5, 0.5)),
+        ]
+        network = detect_wall_network(paths)
+        self.assertTrue(network.segments)
+        for seg in network.segments:
+            for x in (seg.p1[0], seg.p2[0]):
+                self.assertGreaterEqual(x, 300.0 - 0.5, seg)
+                self.assertLessEqual(x, 314.0 + 0.5, seg)
+        self.assertTrue(any(
+            abs(seg.thickness_px - 14.0) < 0.5 for seg in network.segments
+        ))
+
+    def test_tapering_wall_still_pairs(self):
+        # A boundary wall drawn converging (s03's rear wall: 15.4 -> 11.7px
+        # over 142px, a quarter of its spacing) is one band, not a chord:
+        # the pair must survive the taper gate.
+        paths = [
+            hline(0, 100, 400, 100),
+            path(1, [(100, 116), (400, 112)]),
+        ]
+        network = detect_wall_network(paths)
+        self.assertEqual(len(network.segments), 1)
+        self.assertGreaterEqual(network.segments[0].thickness_px, 11.0)
+        self.assertLessEqual(network.segments[0].thickness_px, 17.0)
+
 
 def weak_hatched_band_h(start_idx, x0, x1, y, thickness=14.0, pen=0.45,
                         hatch_step=20, hatch_pen=0.3):
