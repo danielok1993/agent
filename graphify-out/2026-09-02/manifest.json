@@ -100,8 +100,8 @@
     "semantic_hash": ""
   },
   "detection/walls.py": {
-    "mtime": 1788348499.1574256,
-    "ast_hash": "16626b60f87e4e920191404097e2be47",
+    "mtime": 1788352012.0003333,
+    "ast_hash": "eb09873191948cd3d48206906f0865c8",
     "semantic_hash": ""
   },
   "detection/windows.py": {
@@ -125,7 +125,7 @@
     "semantic_hash": ""
   },
   "extraction/renderer.py": {
-    "mtime": 1788346573.3073475,
+    "mtime": 1788348984.233893,
     "ast_hash": "d9a8ea99898c757b2e9f8eaf7cd4c1a2",
     "semantic_hash": ""
   },
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1788348045.3980205,
-    "ast_hash": "7dc67acd19cdf1d7a908eb9c5e78fdd6",
+    "mtime": 1788355428.3810904,
+    "ast_hash": "67546cc2ddb0e139615481444f66f4ee",
     "semantic_hash": ""
   },
   "README.md": {
@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
-    "mtime": 1788348071.8669767,
-    "ast_hash": "040e0b5b0a11cf7459eacf8d711205a8",
+    "mtime": 1788349337.8322816,
+    "ast_hash": "ef5e8d88e333058fc8d9f12d41d6f9af",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-07-03-batch-extraction-design.md": {
@@ -1235,17 +1235,17 @@
     "semantic_hash": ""
   },
   "docs/hatch-cell-chords-handoff.md": {
-    "mtime": 1788348900.9261336,
-    "ast_hash": "b382a9969a51513f7af03ef6334646af",
+    "mtime": 1788355502.8945582,
+    "ast_hash": "1741d7820b2169f0b5ce293a66302c44",
     "semantic_hash": ""
   },
   "tools/probe_fill_seams.py": {
-    "mtime": 1788348801.3031886,
-    "ast_hash": "59bfa3551a1e9ba72bfac620f477a737",
+    "mtime": 1788350958.5922124,
+    "ast_hash": "6cd137180846b179337c74d40413ae24",
     "semantic_hash": ""
   },
   "tools/room_shape_crop.py": {
-    "mtime": 1788348815.5874672,
+    "mtime": 1788348983.1298027,
     "ast_hash": "7692064a1450ca1005e75ee2a39f8f73",
     "semantic_hash": ""
   }

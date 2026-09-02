@@ -100,8 +100,8 @@
     "semantic_hash": ""
   },
   "detection/walls.py": {
-    "mtime": 1788352012.0003333,
-    "ast_hash": "eb09873191948cd3d48206906f0865c8",
+    "mtime": 1788357158.1314545,
+    "ast_hash": "844ee5555f4ca1805ac6d3b4d5324964",
     "semantic_hash": ""
   },
   "detection/windows.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1788355428.3810904,
-    "ast_hash": "67546cc2ddb0e139615481444f66f4ee",
+    "mtime": 1788357741.7615945,
+    "ast_hash": "24723178332fe975894d7891fca66d32",
     "semantic_hash": ""
   },
   "README.md": {
@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
-    "mtime": 1788349337.8322816,
-    "ast_hash": "ef5e8d88e333058fc8d9f12d41d6f9af",
+    "mtime": 1788357098.474152,
+    "ast_hash": "0eba680cec0a9689fd368ad16620c90f",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-07-03-batch-extraction-design.md": {
@@ -1235,12 +1235,12 @@
     "semantic_hash": ""
   },
   "docs/hatch-cell-chords-handoff.md": {
-    "mtime": 1788355502.8945582,
-    "ast_hash": "1741d7820b2169f0b5ce293a66302c44",
+    "mtime": 1788358126.666095,
+    "ast_hash": "fcd02b41fc9b7224e31c0fa3b2e0af1b",
     "semantic_hash": ""
   },
   "tools/probe_fill_seams.py": {
-    "mtime": 1788350958.5922124,
+    "mtime": 1788355552.6251488,
     "ast_hash": "6cd137180846b179337c74d40413ae24",
     "semantic_hash": ""
   },
