@@ -4,8 +4,14 @@
 rooms 0005/0013.
 **For:** the next agent picking up the residue of that fix, in a fresh session.
 **Status of the fix:** committed on `fix/s03-bedroom-corner-notch` —
-`a239176` (code + test + prose) and `2a0869e` (graphify-out). Not merged to
-`main`; the user merges. Working tree also carries the user's own uncommitted
+`a239176` (code + test + prose) and `2a0869e` (graphify-out); merged to
+`main` as `0de608b`.
+**Status of R1 (updated 2026-09-02, later the same day):** done on
+`fix/hatch-cell-chord-faces` as a SEAM fix, not a chord rule — `9e86031`
+(code + tests + prose) plus the tools/handoff commit after it; the user
+merges. The "chords" were fill seams (see the R1 resolution note below). The
+open residue is now **Gap B** (the chain split), spelled out in the prompt at
+the end. Working tree also carries the user's own uncommitted
 `extraction/renderer.py` change (overlay labels now print the entity id in
 front of the room name) — leave it alone.
 
@@ -143,20 +149,71 @@ spending a session on it; it may be known.
   (`gemini/room_label_cache.py`), so any outline change on a sheet drops its
   cached names until a Gemini-enabled `python app.py extract fixtures/sheets/<sheet>.pdf`
   reseeds `fixtures/sheets/.room_labels_cache/`. Done on 2026-09-02 for s03,
-  s04, s08, s16 after this fix; do it again for any sheet R1/R2 reshapes.
+  s04, s08, s16 after the taper fix and for s03, s12 after the seam fix; do it
+  again for any sheet Gap B / R2 reshapes.
+- `python tools/probe_fill_seams.py sNN [--list]` (added with the seam fix) —
+  Gap A count (seams still reaching face collection; 0 everywhere now) and the
+  Gap B population: fill chains that revisit their start EXACTLY, how many
+  VALID rings a split there would touch (0 on every measured sheet), and the
+  sub-rings a split would recover per fill class with band-shaped / marker
+  counts. Run it on a sheet before touching `_collect_fill_rings`.
+- `python tools/room_shape_crop.py sNN room_00NN` — the before|after picture
+  behind a `compare_room_shapes` SHAPE line (baseline red, latest green;
+  zoomed on the symmetric difference plus the whole room). Run it AFTER
+  `tools/compare_sweeps.py sNN` — that tool wipes `outputs/compare/<slug>/`.
+- Sweep attribution shortcut: keep each background group's log; the section
+  after the first `sNN  door …` line is the verdict report, and a post-fix
+  report byte-identical to the baseline's (`diff`) means no verdict moved.
 
-## Prompt for the next agent
+## Prompt for the next agent (Gap B — the chain split)
 
-> Use `/fix-detection`. Branch from `main` after `fix/s03-bedroom-corner-notch`
-> is merged (or from that branch if it is not). Read
-> `docs/hatch-cell-chords-handoff.md` and do R1 only: hatch-cell chord
-> strokes (a same-pen stroke joining two diagonally opposite corners of a
-> closed wall-thickness box) must never become wall faces — add a
-> pre-pairing exclusion beside `_dimension_line_indices` in
-> `detection/walls.py`, measure the matching strokes on s03, s04, s08, s20
-> and prove on s01/s02 that no wall linework matches, pin the topology with
-> a synthetic test in `tests/test_wall_network.py`, sweep the corpus in
-> background sheet groups against `compare_sweeps` snapshots, run
-> `tools/compare_room_shapes.py` on every sheet, and stop at the report. The
-> corpus baseline is already red on 11 sheets (R3) — attribute by revert +
-> re-sweep, never by assuming. Do not touch R2 in the same iteration.
+The R1 prompt that used to sit here was executed on 2026-09-02 (see the R1
+resolution note and `9e86031`). The next iteration is Gap B:
+
+> Use `/fix-detection`. Branch from `main` after `fix/hatch-cell-chord-faces`
+> is merged (or from that branch if it is not). Read the CLAUDE.md "Room
+> detection" seam sentence — from "and fill SEAMS never become faces" through
+> its "Known gap" clause — then `docs/hatch-cell-chords-handoff.md` (R1's
+> resolution note and this prompt), `_collect_fill_rings`, `_fill_seams`,
+> `_fill_ring_components` and `_FillRing.is_marker` in `detection/walls.py`.
+> Do Gap B only: a fill chain that returns EXACTLY to its own start vertex
+> and then continues is two rings drawn back to back, not one — an exporter
+> emits triangle 2 from triangle 1's start vertex, the six-edge chain
+> revisits its start, shapely rejects the self-touching polygon,
+> `_collect_fill_rings` drops both triangles and the seam is never found,
+> so s20's chord (552,2892)-(730,2881) is still an unstroked wall-fill
+> face. Close the ring at the exact return and start a new chain there.
+> Measure FIRST with `python tools/probe_fill_seams.py sNN --list` on s20,
+> s04, s08, s14, s18, s13, s11, s16 and s03: the split must touch zero rings
+> that are valid today (it does on every sheet measured), and the recovered
+> sub-rings per fill class are the blast radius — s20 19 grey wall-band
+> chains → 38 rings of which 14 are marker-flagged (12×12 jamb stubs and
+> 3–9×12 slivers split into ≤ 24px triangles that `is_marker` then treats
+> as arrowheads: no barrier area, no wall-fill face rights, while their
+> fill-only edges ARE faces today — watch for s20 room leaks at those
+> stubs, and note `_fill_ring_components` unions seam-connected rings only
+> AFTER the marker exclusion, so a triangulated stub cannot be rescued by
+> the union as coded; if the sweep shows that leak, testing `is_marker` on
+> the seam-united polygon rather than each triangle is the candidate rule,
+> measured on the corpus's marker population before you write it); s04/s08
+> 140/144 red (1,0,0) 0.63×29.5px demolition slivers → 280/288 band-shaped
+> rings that would make red a RATED class (today unrated, permissive) —
+> their edges are already `RR_Walls`-hinted 1.0px faces, so measure what
+> the 280 new barrier polygons change; s18 399 chains → 239 black
+> band-shaped rings; s14 77 → 113 (73 markers); s11/s16 4 → 22 marker
+> rings; s13 2 → 4. Pin the topology with a synthetic test in
+> `tests/test_wall_network.py` next to `triangulated_band_h`: a fill-only
+> (stroke 0, colour None) six-edge bow-tie chain whose second triangle
+> starts at the first's start vertex → two rings from `_collect_fill_rings`,
+> the diagonal in `_fill_seam_indices`, no face on it in
+> `detect_wall_network`, and the band's faces still pair at its thickness;
+> prove the test fails on the reverted code. Sweep the corpus in background
+> sheet groups against `compare_sweeps` snapshots of the unmodified tree,
+> run `tools/compare_room_shapes.py` on every sheet, render
+> `tools/room_shape_crop.py` for every SHAPE line (after `compare_sweeps`,
+> which wipes `outputs/compare/<slug>/`), reseed the room-label cache of
+> any sheet whose outlines changed, and stop at the report with the net
+> phantom count. The corpus baseline is red on the same 11 sheets (R3) —
+> attribute by revert + re-sweep, never by assuming. Do not touch R2, and
+> do not add a stroked-chord rule: the chord probe found no such class on
+> the corpus.
