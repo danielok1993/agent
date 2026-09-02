@@ -239,6 +239,37 @@ WALL_FILL_CHAIN_REVISIT_TOL_PX = 0.01  # a fill chain that lands back ON its own
                                     # 280/288 red slivers, s18 328 -> 434 black
                                     # rings (253 of them glyph outlines), s14
                                     # 77 -> 108, s03 7 -> 11
+WALL_FILL_SEAM_PROBE_PX     = 1.0   # _fill_seams proves a coincident edge is a
+                                    # seam by finding fill this far either side
+                                    # of its midpoint (P: a sub-pen probe) ...
+WALL_FILL_SEAM_PROBE_FRAC   = 0.5   # ... or this fraction of the thinnest
+                                    # sharing ring's equivalent-rectangle short
+                                    # side, whichever is smaller (D). A seam has
+                                    # fill on both sides at ANY distance, so the
+                                    # probe must stay inside the fill it tests:
+                                    # at 1px it left every ring thinner than
+                                    # 2px, and a sub-2px sliver's two triangles
+                                    # never seam-united — each dilated alone
+                                    # and the acute tip's mitre ran to the
+                                    # ROOM_RING_MITRE_LIMIT cap, 2px past the
+                                    # band's own standoff (s03 room_0007). A
+                                    # thin triangle's short IS its inradius,
+                                    # and the clearance at its hypotenuse's
+                                    # midpoint measures 0.98-1.07 x short on
+                                    # every corpus sliver (s03 0.375px halves
+                                    # of a 0.75px sliver, s04/s08 0.312 of
+                                    # 0.63px, s12 0.625, s17 0.62-0.80, s14
+                                    # 0.25-0.87; measured 2026-09-02), so a
+                                    # probe AT short lands on the boundary
+                                    # (not `contains`) and half of it keeps a
+                                    # 2x margin. Recovers s03 19/19, s04 61/61,
+                                    # s08 63/63, s12 5/5, s17 80/80, s14 32/36
+                                    # two-sided candidates that failed at 1px;
+                                    # loses none on those sheets or s02, and
+                                    # on s18 only 5 accidental "seams" between
+                                    # glyph-outline bars 0.47px apart that the
+                                    # 1px probe reached across. Rings >= 2px
+                                    # short keep the 1px probe unchanged.
 
 WALL_HATCH_MIN_SEGMENTS     = 5
 WALL_HATCH_MIN_RATIO        = 0.45
@@ -1281,6 +1312,14 @@ def _fill_seams(
     fill test decides: an overdrawn ring (the same rectangle drawn twice)
     duplicates every edge yet keeps its outline, because those edges have
     fill on one side only.
+
+    The probe stays INSIDE the fill it tests: it samples at the smaller of
+    WALL_FILL_SEAM_PROBE_PX and WALL_FILL_SEAM_PROBE_FRAC of the thinnest
+    sharing ring's `short`. A fixed 1px probe left every ring thinner than
+    2px, so a sub-2px sliver's triangles (short = the triangle's inradius,
+    half the sliver) never seam-united and each dilated alone — the acute
+    tip's capped mitre bit a 2x4px notch out of s03's corridor room_0007.
+    A duplicate still fails at any distance: its empty side stays empty.
     """
     path_by_index = {p.path_index: p for p in paths}
     edges: dict[tuple, list[tuple[int, int]]] = {}
@@ -1308,8 +1347,13 @@ def _fill_seams(
         nx, ny = -(by - ay) / length, (bx - ax) / length
         mx, my = (ax + bx) / 2.0, (ay + by) / 2.0
         union = unary_union([rings[ri].poly for ri in ring_ids])
+        probe = min(
+            WALL_FILL_SEAM_PROBE_PX,
+            WALL_FILL_SEAM_PROBE_FRAC * min(rings[ri].short for ri in ring_ids),
+        )
         if all(
-            union.contains(Point(mx + s * nx, my + s * ny)) for s in (1.0, -1.0)
+            union.contains(Point(mx + s * nx, my + s * ny))
+            for s in (probe, -probe)
         ):
             seams.update(pi for _, pi in members)
             ids = sorted(ring_ids)
