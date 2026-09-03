@@ -723,6 +723,13 @@ every verdict report byte-identical except s17, where REVIEW rooms 0015 and
 FPs before and after, 0 lost, REVIEW 7 → 5. `tools/diff_room_polygons.py`:
 19 sheets IDENTICAL, s17 2 removed / 0 changed. Net: −2 phantoms, +0.
 
+**Ordering decision (user, 2026-09-03): the W-gate recalibration goes
+FIRST** — `docs/w-gate-recalibration-handoff.md`, "Status 2026-09-03" and its
+prompt. Every item below except the dash rows is a threshold rule on a
+W-class constant calibrated at identity on s01's 1:92.2 ink, and would be
+tuned twice otherwise. The s17 SH/WC verdict (`python tools/review.py s17`)
+is independent and can be recorded any time.
+
 Knife-edges found, each its own iteration:
 
 - Synthetic fixture: with the glazing line at 105.9 (5.9/5.85px from the

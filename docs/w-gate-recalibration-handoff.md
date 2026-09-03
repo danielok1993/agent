@@ -7,6 +7,9 @@
 denominators no longer drive detection-gate scaling (identity factor, source
 `"measured"`, warning `SCALE_FACTOR_MEASURED_ONLY`). This handoff describes the
 debt that fix routes around, not a bug in it.
+**Status 2026-09-03:** the recalibration is the NEXT detection iteration, ahead
+of the queue in `docs/hatch-cell-chords-handoff.md` — see "Status 2026-09-03"
+and the fresh-context prompt at the end of this file.
 
 ## Read these first (in order)
 
@@ -126,3 +129,151 @@ a real sheet with a genuine non-standard viewport scale that detects badly.
   WallGates and RoomGates) — change the module constant, not a copy.
 - s13 (viewport 1:136.4, factor 0.367) is pinned by its truth file; any
   reference change must keep it green.
+
+## Status 2026-09-03 — this is the next iteration (user decision)
+
+The user chose to do the recalibration BEFORE the rest of the detection
+queue (`docs/hatch-cell-chords-handoff.md`: dash rows, the band pockets one
+band deeper than the cap, the lattice knife-edges, Gap D), because those
+are threshold rules on W-class constants and would otherwise be tuned twice.
+What has changed since this handoff was written:
+
+- **Sweep state.** Main is at `b5d293b`. s01 sweeps door 11/11, room 12/12,
+  window 4/4 (green); s02 15/15 doors, 11/11 rooms, 11/11 windows; s13
+  12/12 / 11/11 / 11/11. The pre-existing returned-FP debt is **71** lines
+  over 11 sheets (s04, s05, s08, s11, s12, s14, s15, s16, s17, s18, s20), not
+  the 103 above — count it, don't eyeball. A full `python tools/regress.py`
+  now exceeds the 10-minute foreground tool limit: run four background
+  groups (s18; s16 s11 s15; s01–s07; the rest) against
+  `tools/compare_sweeps.py sNN --snapshot` baselines of main, ~2 min
+  wall-clock, then diff the reports section-wise.
+- **More W constants exist now**, every one calibrated at identity on the
+  same half-false premise. Scaled fields today: `WallGates`
+  (`WALL_FACE_MIN_LEN_PX` — now 11, not 24; `WALL_MIN_THICKNESS_PX`,
+  `WALL_MAX_THICKNESS_PX`, `WALL_THICK_MATERIAL_MAX_PX`,
+  `WALL_THROUGH_HATCH_MAX_PX` 64 — new, measured on s05 at 1:100,
+  `WALL_PAIR_MIN_OVERLAP_PX`, `WALL_FILL_CLASS_MIN_INK_PX`,
+  `WALL_FILL_BLOCK_MAX_SIDE_PX`, `WALL_WEAK_MIN_RUN_PX`,
+  `WALL_JOINERY_BRIDGE_GAP_PX`, `WALL_HATCH_MAX_LEN_PX`,
+  `COLLINEAR_OFFSET_TOL`, `WALL_ANCHOR_SUPPORT_REACH_PX` 120 — new, "one
+  door opening", justified on s01's 59px doorway *at identity*), `RoomGates`
+  (`ROOM_MIN_AREA_PX2` ×f², `ROOM_BLIND_WINDOW_MAX_AREA_PX2` ×f²,
+  `ROOM_OPENING_SEAL_PX`, `ROOM_PLUG_ANCHOR_WIN_PX`, `ROOM_PLUG_HALF_WIDTH_PX`,
+  `ROOM_FOLD_STACK_NEAR_PX`, `ROOM_FOLD_JAMB_MIN_LEN_PX`, plus the two
+  walls-owned caps), and `DoorGates` / `WindowGates` / `CrossGates` (findings
+  §4d/§4e). Rules shipped since August that sit directly on these caps: the
+  thick/through pairing tiers, the collinear-support anchor reach, the
+  blind-window drop and today's `_is_band_pocket`
+  (`WALL_MAX_THICKNESS_PX`) and `ROOM_ENTRANCE_MIN_CONFIDENCE` (D-class).
+- **A concrete instance of the blur** to open the census with:
+  `ROOM_BLIND_WINDOW_MAX_AREA_PX2` 10,000 px² was justified as "every real
+  window-bearing room on both reference PDFs is ≥ 17k px²". At 1:50 a px² is
+  71.7 mm², so 10k px² = 0.72 m² and 17k = 1.22 m²; at s01's 1:92.2 a px² is
+  243.8 mm², so the same 10k px² = 2.44 m² and s01's 17k rooms are 4.1 m².
+  Likewise `WALL_MAX_THICKNESS_PX` 36 is 305 mm at 1:50 but 562 mm on s01,
+  which is how s01's 25px = 390 mm party wall passes at identity.
+- **Tooling that did not exist in August**: `tools/_corpus_page.py`
+  (`load_detection_pages(slug)` — the region-filtered page data, door
+  exclusion set and detection factor per page, exactly as `regress.py` sees
+  them; NOTE its `scale_factor` for s01 is 1.0 by the measured-only rule, so
+  the census must convert with the TRUE denominator from
+  `tests/ground_truth/sNN.json` `scales` / the viewport, not with that
+  factor), `tools/diff_wall_network.py … --base-dir <fixtures-linked
+  worktree>` (barrier-level attribution; the default temp base loses the
+  stored scale), `tools/diff_room_polygons.py` (every moved polygon,
+  corpus-wide), `tools/room_shape_crop.py`, `tools/probe_merge_anchor.py`,
+  `tools/probe_pair_taper.py`, `tools/probe_fill_seams.py`. For room-stage
+  questions, a scratch probe that monkeypatches
+  `rooms._free_space_components` and `rooms._restrict_swing_plugs`
+  reproduces `detect_rooms`' door geometries exactly (used 2026-09-03).
+- **Environment traps** (each cost a cycle): macOS has no `timeout`; the
+  venv lacks `InquirerPy`/`prompt_toolkit` (two test modules error at import,
+  pre-existing); `tests.test_takeoff_fn_equivalence` fails on main
+  (field='warnings', `TAKEOFF_REGIONS_UNCLASSIFIED` in the function arm only)
+  and is not a branch signal; a room-label reseed needs
+  `gcloud auth application-default login` first and an expired credential
+  surfaces only as `ROOM_LABEL_FAILED` in `warnings.json` with exit code 0;
+  never `git stash` (shared across worktrees).
+
+### Prompt for the next agent (fresh context)
+
+> Use `/fix-detection` for its discipline — topic branch from `main`,
+> `compare_sweeps --snapshot` baselines of main for all 20 slugs, four
+> background sweep groups (s18; s16 s11 s15; s01–s07; the rest), verdict
+> reports diffed section-wise, `tools/diff_room_polygons.py` on every sheet,
+> one checkpoint per iteration — but the task is the **W-gate
+> recalibration** of `docs/w-gate-recalibration-handoff.md`, not a
+> single-symptom fix, and the deliverable of the FIRST checkpoint is a
+> measurement table, not code. Read that handoff in full (its "Status
+> 2026-09-03" section last), then `docs/scale-normalization-findings.md`
+> §1–§4b, §4f and §5, `scale/factor.py::_gate_denominator` with
+> `tests/test_scale_factor.py`, the CLAUDE.md paragraphs "Room detection"
+> and "Wall/room world-space gates", and `docs/regression-testing-guide.md`
+> §9, §10, §12, §13. The premise to fix: every W-class constant was tuned at
+> factor 1.0 as if s01 and s02 were both 1:50, but s01's world ink is 1:92.2
+> (31 dimension strings within ±0.5 %; its paper conventions — 1.5px wall
+> pen, 4.05px hatch pitch — are standard), so the W references mix 1:50-px
+> and 1:92.2-px measurements and their world meanings are accurate only to
+> ~1.8×; the shipped `SCALE_FACTOR_MEASURED_ONLY` rule keeps s01 at identity
+> precisely because scaling the gates by 50/92.2 puts s01's own calibration
+> features outside them (six independent gates break at once — the table in
+> the handoff). NEVER revert s01's truth scale to 1:50; 1:92.2 is metrically
+> verified and the takeoff depends on it.
+>
+> **Iteration 1 — the census (stop after it).** For every scaled field of
+> `WallGates`, `RoomGates`, `DoorGates`, `WindowGates` and `CrossGates`
+> (the `.at()` bodies are the authoritative list; the handoff's status
+> section enumerates the walls/rooms ones), find the defining features its
+> rationale names — the constant's comment, the CLAUDE.md room paragraph,
+> the door/window tuning guides and findings §4b ("measured on floor-plans"
+> = s01, "on 5-1133" = s02) — and MEASURE them again on the real sheets,
+> converting to world millimetres at each sheet's TRUE scale: 0.16933 mm/px
+> × the denominator from `tests/ground_truth/sNN.json` `scales` or the
+> viewport (s01 92.2, s02 50, s03 50/100 mixed, s05 100, s13 136.4, s17
+> 50/100 mixed, ink-dominant plan), NOT `_corpus_page.load_detection_pages`'
+> `scale_factor`, which is 1.0 for s01 by the measured-only rule. For each
+> gate measure BOTH sides of its discrimination — the wall-class quantity it
+> admits and the noise-class quantity it excludes (furniture pairs, hatch,
+> dimension ticks, fixture boxes, tile grids — the rationales name them
+> too) — on s01 and s02 at least and on every other sheet the rationale
+> cites. Reuse the handoff's ablation method (pickle the region-filtered
+> `PageData`, wrap `WallGates.at`/`RoomGates.at`/`DoorGates.at` with
+> `dataclasses.replace` to scale one field subset, run the stage-5 chain by
+> hand, score by type + IoU ≥ 0.5 against the f=1 baseline) and the probe
+> tools listed in the status section. Deliver ONE table: constant · class
+> (W / ×f² / ÷f) · current value at 1:50 · defining features with sheet ·
+> world range of the true class at true scales · world range of the false
+> class · headroom today at f=1.0, 0.5, 0.367 and at s01's 0.542 · proposed
+> reference at 1:50 (= mm ÷ 8.47) with the margin it leaves · whether the
+> constant needs to move at all (the handoff suspects gate headroom masks
+> most of them at the standard factors). Open with the two instances already
+> worked out (`ROOM_BLIND_WINDOW_MAX_AREA_PX2`, `WALL_MAX_THICKNESS_PX`) and
+> with the six gates that broke at 0.542. Where a margin comes out under
+> ~1.5× the discriminator is wrong, not the number — say so in the row.
+> Report the table and STOP for the user's verdict on the reference values;
+> change no constant before it.
+>
+> **Iteration 2+ (after the go-ahead).** Move constants in small groups,
+> each pinned first by a synthetic test in the fast tier (helpers in
+> `tests/test_wall_network.py`, `tests/test_room_detection.py`,
+> `tests/test_scale_gates.py`; prove each test bites by reverting), then a
+> full-corpus sweep per group against the main snapshots: zero LOST
+> confirmed entities, the 71 pre-existing returned FPs unchanged (count
+> them), every new REVIEW line given your own verdict from
+> `page_NN_changes.png` and `room_shape_crop.py`, and
+> `tools/diff_wall_network.py … --base-dir <fixtures-linked worktree of
+> main>` for any room that merges or appears. s13 (viewport 1:136.4, f=0.367)
+> and the 1:100 sheets (s05, s03/s17's 1:100 plans) are the sheets the
+> references actually change; s01/s02 at f=1.0 must not move. Reseed the
+> room-label cache of every sheet whose outlines change
+> (`python app.py extract fixtures/sheets/<pdf> --out <scratch>
+> --ceiling-height 2.4 < /dev/null`, after `gcloud auth
+> application-default login`). Then, as its own iteration, revisit
+> `_gate_denominator` so that s01 runs at f = 0.542 with its 11 doors, 12
+> rooms and 4 windows intact, and only then retire `SCALE_FACTOR_MEASURED_ONLY`
+> or narrow it. Finish by updating findings §4's rows (new values +
+> provenance), its §4f closing paragraph, the CLAUDE.md gate paragraph and
+> this handoff's outcome section. Do not commit, do not edit
+> `tests/ground_truth/*.json` or `fixtures/MANIFEST.json`, do not bundle the
+> dash rows, the deeper band pockets, the lattice knife-edges or Gap D into
+> this branch, and stop at every report with the numbers.
