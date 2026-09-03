@@ -1685,6 +1685,124 @@ class TestWallRecess(unittest.TestCase):
         self.assertEqual(len(rooms), 2)
 
 
+class TestBandPocket(unittest.TestCase):
+    """A window reveal in a cavity wall (s17 rooms 0015/0034): the wall is
+    drawn as four lines — outer face, outer leaf's inner face, inner leaf's
+    outer face, inner face (11.75 / 12 / 13.25px leaf-cavity-leaf, 37px in
+    all, over WALL_MAX_THICKNESS_PX) — with hatch only at the jambs. At the
+    window the two middle lines stop, the glazing line runs mid-leaf in the
+    continuous outer leaf, and the reveal between the outer leaf's inner
+    face and the wall's inner face comes out as a 21px-deep free-space
+    pocket that survives the 8px opening. It lies INSIDE the wall's
+    thickness — both long edges on wall faces at wall spacing — so it is
+    wall material, never floor."""
+
+    OUTER, OUTER_IN, INNER_OUT, INNER = 100.0, 111.75, 123.75, 137.0
+    REVEAL = 280.0   # the window runs from here to the wall's end — the
+                     # inner pair resumes on ONE side only, as beside s17
+                     # room_0015 (the next window's reveal adjoins it), so the
+                     # collinear-gap recess rule cannot see the pocket
+
+    def _cavity_plan(self):
+        x0, x1 = 100.0, 600.0
+        r0 = self.REVEAL
+        paths = [
+            hline(0, x0, x1, self.OUTER),                          # outer face
+            hline(1, x0, x1, self.OUTER_IN),                       # outer leaf, inner face
+            hline(2, x0, r0, self.INNER_OUT),                      # inner leaf, outer face,
+                                                                   #   stops at the reveal
+            hline(3, x0, x1, self.INNER),                          # inner face / board line
+            hline(4, r0, x1 - 8.0, 105.25),                        # glazing, mid outer leaf
+                                                                   #   (s17's 5.25px offset)
+        ]
+        idx = 5
+        # Cavity-closer hatch at the jambs only — a cavity wall carries no
+        # hatch along its run (s17: 0 diagonal marks in the 37px band).
+        for xj in (r0 - 10.0, x1 - 24.0):
+            for k in range(2):
+                xs = xj + 4.0 * k
+                paths.append(path(idx, [(xs, self.INNER), (xs + 8.0, self.OUTER_IN)],
+                                  stroke_width=0.25))
+                idx += 1
+        paths += wall_band_v(idx, x0, self.OUTER, 400.0)
+        idx += 2
+        paths += wall_band_v(idx, x1 - 8.0, self.OUTER, 400.0)
+        idx += 2
+        paths += wall_band_h(idx, x0, x1, 392.0)
+        return paths
+
+    def _pocket(self, rooms):
+        return [r for r in rooms if r.bbox[3] < self.INNER]
+
+    def test_reveal_pocket_is_not_a_room(self):
+        rooms = rooms_for(self._cavity_plan())
+        self.assertEqual(len(rooms), 1, [r.bbox for r in rooms])
+        self.assertAlmostEqual(rooms[0].bbox[1], self.INNER + 2.0, delta=2.0)
+
+    def test_rejected_door_plug_does_not_enter_the_pocket(self):
+        # s17 door_0039: a 0.48 single_line_leaf candidate — under the
+        # offline door floor, so the pipeline rejects it — lies IN the
+        # reveal; its full-cover plugs hug the reveal's faces and their
+        # tails fence the pocket beside it, which then counts a door. A door
+        # the pipeline rejects is not an entrance: the pocket stays wall.
+        door = door_candidate((492.0, 118.0, 580.0, 126.0), confidence=0.48)
+        rooms = rooms_for(self._cavity_plan(), doors=[door])
+        self.assertEqual(len(rooms), 1, [r.bbox for r in rooms])
+
+    def test_labelled_pocket_stays(self):
+        # A named space is a space whatever its shape.
+        rooms = rooms_for(
+            self._cavity_plan(),
+            text_spans=[text_span("DUCT", (360.0, 118.0, 400.0, 130.0))],
+        )
+        self.assertEqual(len(self._pocket(rooms)), 1, [r.bbox for r in rooms])
+
+    def test_space_wider_than_a_wall_stays(self):
+        # The true class: a door-less, window-less, unlabelled strip WIDER
+        # than WALL_MAX_THICKNESS_PX between two wall faces is floor (s11
+        # room_0018, a 19px-wide storage cupboard at f=0.5 — 21.75px face
+        # spacing against the scaled 18px cap — is confirmed).
+        paths = rect_room(0, 100, 100, 600, 500) + wall_band_h(8, 100, 600, 160)
+        rooms = rooms_for(paths)
+        self.assertEqual(len(rooms), 2, [r.bbox for r in rooms])
+        strip = min(rooms, key=lambda r: r.bbox[1])
+        self.assertAlmostEqual(strip.bbox[3] - strip.bbox[1], 48.0, delta=2.0)
+
+
+class TestRejectedDoorIsNotAnEntrance(unittest.TestCase):
+    """detect_rooms consumes candidates before the offline floor, so a door
+    the pipeline itself rejects (< ROOM_BBOX_SEAL_MIN_CONFIDENCE, the floor's
+    mirror) can still seal through an evidence-bearing plug — and used to
+    count as an entrance, vetoing the blind-window and wall-recess drops
+    (s17 room_0034: a 0.35 arc_fallback sliver's full-cover plugs)."""
+
+    def closet(self):
+        # 100..180 box, ~3.6k px2 inside, a 20px doorway gap in the top band.
+        return (
+            wall_band_h(0, 100, 130, 100) + wall_band_h(2, 150, 180, 100)
+            + wall_band_h(4, 100, 180, 172)
+            + wall_band_v(6, 100, 100, 180) + wall_band_v(8, 172, 100, 180)
+        )
+
+    def window(self):
+        return Candidate("window_0000", "window", (120, 171, 160, 181), 0.62,
+                         evidence={})
+
+    def test_rejected_door_does_not_veto_the_blind_window_drop(self):
+        # The door bbox's wall-plane edge sits mid-band, so its interrupted-
+        # run plug lies within ROOM_CONTACT_TOL_PX of the room boundary and
+        # is counted — as s17's rejected candidates were.
+        door = door_candidate((128, 104, 152, 148), confidence=0.48)
+        rooms = rooms_for(self.closet(), doors=[door], windows=[self.window()])
+        self.assertEqual(len(rooms), 0, [r.evidence for r in rooms])
+
+    def test_entered_closet_with_window_stays(self):
+        door = door_candidate((128, 104, 152, 148), confidence=0.67)
+        rooms = rooms_for(self.closet(), doors=[door], windows=[self.window()])
+        self.assertEqual(len(rooms), 1)
+        self.assertEqual(rooms[0].evidence["door_openings"], 1)
+
+
 if __name__ == "__main__":
     unittest.main()
 

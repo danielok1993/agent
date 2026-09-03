@@ -661,6 +661,93 @@ What follows, each its own iteration:
 > direction sensitivity, the both-ends test, Gap D or the candidate-key
 > conflation in the same branch.
 
+## Outcome of the s17 window-reveal slivers (2026-09-03, branch `fix/s17-cavity-wall-pockets`, not committed)
+
+Measured first (scratch probes over the corpus, replicating `run_heuristics`
+up to `detect_rooms` with `_free_space_components` / `_restrict_swing_plugs`
+captured; prototype rule evaluated on every emitted room of all 20 sheets):
+
+- The cavity wall is FOUR lines in the 1.5px pen — 2171.92 / 2183.67 /
+  2195.67 / 2208.92 — and every adjacent pair pairs as its own segment
+  (outer leaf 11.75, cavity 12.0, inner leaf 13.25); the 37px outer/inner
+  pair is over the cap and the band carries 0 diagonal marks (34 marks in
+  600px, none diagonal), so neither the thick nor the through tier could
+  pair it. At each window the two middle lines stop, the glazing runs
+  mid-leaf (2177.17, 5.25px in from the outer face) in the continuous outer
+  leaf, and the reveal between 2183.67 and 2208.92 — a 25.25px strong pair
+  that `_claims_far_side_pair` drops (the outer-leaf pair shares 2183.67 on
+  the far side, no fill/hatch in the band; its docstring's "an unhatched
+  cavity is a closed sliver the room stage erodes away" holds only under
+  2 × `ROOM_GAP_CLOSE_PX`) — is the 21px pocket.
+- Mechanism (3) confirmed: room_0015's only counted door is door_0039, a
+  0.48 `single_line_leaf` (in_wall) lying in the NEXT reveal (3594–3696),
+  whose full-cover plugs' 12px tails reach x=3581.7 and fence the pocket's
+  end (distance 0.00); room_0034's is door_0042, a 0.35 `arc_fallback`
+  1.4×44px sliver in the cavity whose four full plugs pass the in-wall gate
+  (distance 0.00). Both are under the 0.55 offline floor.
+- The collinear-gap recess rule already fits room_0034 once the door no
+  longer counts (its inner-leaf pair resumes on both sides of the window);
+  room_0015's inner pair resumes on the LEFT only — the next window's reveal
+  adjoins it across a 6px jamb block — so the recess rule cannot see it.
+
+Shipped (rooms.py only; the wall network is untouched):
+
+1. `ROOM_ENTRANCE_MIN_CONFIDENCE` (= `ROOM_BBOX_SEAL_MIN_CONFIDENCE`, the
+   offline floor's mirror): the blind-window drop, `_is_wall_recess` and the
+   new rule count ENTRANCES — seals of doors at/above the floor — while
+   `door_openings` and confidence still count every seal. Corpus-wide 16
+   rooms carry only sub-floor doors; none changes verdict (the nearest is
+   s17 room_0018, confirmed, 13.3k px² with a window and a 0.35 door, 1.33×
+   over the 10k blind cap).
+2. `_is_band_pocket` (`ROOM_BAND_POCKET_FACE_COVER_MIN` 0.65): both long
+   edges of the component's minimum rotated rectangle lie at the barrier
+   standoff along wall faces (barrier-face extents or segment flanks), and
+   the faces' spacing is ≤ `WALL_MAX_THICKNESS_PX` — two faces that could
+   have paired as one wall. Corpus-wide the signature matches exactly rooms
+   0015/0034. The narrowest confirmed room is s11 room_0018, a 19px-wide
+   "storage in utility" at f=0.5 whose faces sit 21.75px apart against the
+   scaled 18px cap (1.2×); every other confirmed room is ≥ 52px wide at
+   identity (s01 room_0003).
+
+Tests: `TestBandPocket` (the four-line cavity wall with a reveal running to
+the wall's end, glazing at s17's 5.25px offset, cavity-closer hatch at the
+jambs only; the rejected-door plug case; labelled pocket stays; a 48px strip
+stays) and `TestRejectedDoorIsNotAnEntrance` (closet with a 0.48 doorway
+plug + window is blind; at 0.67 it stays). All three failing tests fail on
+main for the right reason and pass with the fix; reverting the code fails
+them again.
+
+Sweep against MAIN (four background groups, snapshots of main at `b799874`):
+every verdict report byte-identical except s17, where REVIEW rooms 0015 and
+0034 are gone and the real SH/WC split (now room_0021) remains; 71 returned
+FPs before and after, 0 lost, REVIEW 7 → 5. `tools/diff_room_polygons.py`:
+19 sheets IDENTICAL, s17 2 removed / 0 changed. Net: −2 phantoms, +0.
+
+Knife-edges found, each its own iteration:
+
+- Synthetic fixture: with the glazing line at 105.9 (5.9/5.85px from the
+  outer leaf's faces) `_demote_lattice_faces` demoted the WHOLE cavity wall
+  (five rungs at "equal" pitch with tolerated 2×-pitch gaps), at 105.25
+  (s17's own 5.25/6.5 offsets) it did not — the lattice rule's equal-pitch
+  test is sensitive to a mid-leaf glazing line, the same knife-edge as its
+  direction/position sensitivity (item 3 above).
+- The 11 recorded-FP pockets on s11/s12/s16/s18 (door-less, textless, both
+  long edges on faces, 20–31.6px wide at f=0.5) are the same class one band
+  deeper — 1.2–2× the scaled cap, in the same width range as the confirmed
+  s11 storage cupboard (21.75) — so a rule reaching them needs a second
+  discriminator (e.g. a glazing/board line inside the adjacent band, or a
+  collinear wall segment running into the pocket's end).
+- `tests.test_takeoff_fn_equivalence` fails on main and on the branch alike
+  (field='warnings': `TAKEOFF_REGIONS_UNCLASSIFIED` in the function arm
+  only) — pre-existing, unrelated.
+
+Room-label cache: the s17 reseed (`python app.py extract … --ceiling-height
+2.4 < /dev/null`) first hit `ROOM_LABEL_FAILED` — "Reauthentication is
+needed. Please run `gcloud auth application-default login`" (an expired ADC
+surfaces only there, exit code 0) — and succeeded after the login: a new
+`.room_labels_cache/s17-…-7a6a5b8ea8e08349-v1.json` entry, 20 of 35 rooms
+named, and the offline sweep no longer warns `ROOM_LABEL_NO_GEMINI`.
+
 ## Queued after it (drawn dash rows — s15 room_0016)
 
 The vote's own limitation, one iteration after the slivers: s15 draws its

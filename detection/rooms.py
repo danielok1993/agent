@@ -29,6 +29,7 @@ evidence.
 from __future__ import annotations
 
 import math
+import warnings
 from dataclasses import dataclass
 
 from shapely.geometry import LineString, Point, Polygon, box
@@ -338,6 +339,64 @@ ROOM_RECESS_GAP_COVER_MIN   = 0.65    # a door-less, window-less, textless compo
                                       # text inside the component vetoes the rule.
 ROOM_RECESS_BACK_TOL_PX     = 1.5
 ROOM_RECESS_DEPTH_RATIO_MAX = 3.0
+
+ROOM_ENTRANCE_MIN_CONFIDENCE = ROOM_BBOX_SEAL_MIN_CONFIDENCE
+                                      # a door counts as an ENTRANCE — for the
+                                      # blind-window drop, the wall-recess and
+                                      # band-pocket rules, which all ask "can this
+                                      # space be entered?" — only when the pipeline
+                                      # itself stands behind it (the offline door
+                                      # floor's mirror, as for the bbox seal).
+                                      # detect_rooms consumes candidates BEFORE the
+                                      # floor, and a rejected candidate can still
+                                      # seal through an evidence-bearing plug whose
+                                      # tail touches a neighbouring pocket: on s17
+                                      # a 0.48 single_line_leaf in the next window's
+                                      # reveal (door_0039) and a 0.35 arc_fallback
+                                      # sliver in the cavity (door_0042) gave the
+                                      # two reveal pockets rooms 0015/0034 a
+                                      # door_count of 1 and vetoed both drops.
+                                      # Corpus-wide, 16 rooms carry only such doors;
+                                      # none is a closet-scale window pocket or a
+                                      # recess (s17 room_0018, confirmed, 13.3k px2
+                                      # with a window and a 0.35 door, is the
+                                      # nearest to the 10k blind cap). Confidence
+                                      # and door_openings still count every seal.
+ROOM_BAND_POCKET_FACE_COVER_MIN = 0.65  # a door-less, window-less, textless
+                                      # component lying INSIDE a wall band's
+                                      # thickness is the band's own material — a
+                                      # window reveal, a hollow cavity, a blocked
+                                      # opening — never floor: its two long edges
+                                      # lie on wall faces (at the barrier standoff,
+                                      # each face covering at least this much of
+                                      # the edge — real pockets measure 1.0; the
+                                      # slack mirrors ROOM_RECESS_GAP_COVER_MIN for
+                                      # a face a text mask interrupts) spaced at
+                                      # most WALL_MAX_THICKNESS_PX apart, i.e. two
+                                      # faces that could have paired as one wall.
+                                      # Rooms are wider than a wall by definition
+                                      # (the lattice rule's premise). Measured on
+                                      # s17: the 1.5px-pen cavity wall is drawn
+                                      # leaf/cavity/leaf (11.75/12/13.25px, 37px in
+                                      # all, over the cap, 0 diagonal marks in the
+                                      # band); at each window the two middle lines
+                                      # stop, the glazing runs mid-leaf in the
+                                      # continuous outer leaf, and the reveal
+                                      # between the outer leaf's inner face and the
+                                      # wall's inner face — 25.25px, a strong pair
+                                      # the far-side rule drops as "paired across
+                                      # free space" — came out as a 21px-deep 3.1k
+                                      # px2 pocket (rooms 0015/0034, 0.85). The
+                                      # collinear-gap recess rule sees 0034 (its
+                                      # inner pair resumes on both sides) but not
+                                      # 0015 (the next window's reveal adjoins it).
+                                      # Corpus-wide the signature matches exactly
+                                      # those two; the narrowest confirmed room
+                                      # otherwise is s11 room_0018, a 19px-wide
+                                      # storage cupboard at f=0.5 whose faces sit
+                                      # 21.75px apart against the scaled 18px cap
+                                      # (1.2x), and every other confirmed room is
+                                      # >= 52px wide at identity.
 
 
 @dataclass(frozen=True)
@@ -912,18 +971,26 @@ def _drop_window_exterior_sides(
     return [r for i, r in enumerate(rooms) if i not in drop]
 
 
-def _is_wall_recess(comp, wall_segments, opening_boxes, text_spans) -> bool:
-    """True when comp lies in a wall band's plane — see ROOM_RECESS_GAP_COVER_MIN.
-
-    Called only for components with no door/window opening. Text inside the
-    component (a room label, a dimension) marks a named space and vetoes the
-    verdict outright.
-    """
+def _contains_text(comp, text_spans) -> bool:
+    """A text span centred inside comp: a room label, a dimension — the
+    draughtsperson named the space, so it is a space whatever its shape."""
     for t in text_spans or ():
         cx = (t.bbox[0] + t.bbox[2]) / 2.0
         cy = (t.bbox[1] + t.bbox[3]) / 2.0
         if comp.contains(Point(cx, cy)):
-            return False
+            return True
+    return False
+
+
+def _is_wall_recess(comp, wall_segments, opening_boxes, text_spans) -> bool:
+    """True when comp lies in a wall band's plane — see ROOM_RECESS_GAP_COVER_MIN.
+
+    Called only for components with no entrance and no window. Text inside
+    the component (a room label, a dimension) marks a named space and vetoes
+    the verdict outright.
+    """
+    if _contains_text(comp, text_spans):
+        return False
     coords = list(comp.exterior.coords)
     for i, a in enumerate(wall_segments):
         len_a = _line_length(a.p1, a.p2)
@@ -973,6 +1040,75 @@ def _is_wall_recess(comp, wall_segments, opening_boxes, text_spans) -> bool:
             if abs(back + ROOM_WALL_DILATE_PX) <= ROOM_RECESS_BACK_TOL_PX:
                 return True
     return False
+
+
+def _edge_face_cover(edge, face_lines) -> float:
+    """How much of a component edge lies along a wall face: the largest
+    projected overlap fraction over the faces parallel to the edge whose
+    line sits at the barrier standoff (ROOM_LINE_BARRIER_PX, within
+    ROOM_RECESS_BACK_TOL_PX) from it. 0.0 when no face runs beside it."""
+    (ax, ay), (bx, by) = edge
+    length = math.hypot(bx - ax, by - ay)
+    if length < 1e-6:
+        return 0.0
+    ux, uy = (bx - ax) / length, (by - ay) / length
+    nx, ny = -uy, ux
+    mx, my = (ax + bx) / 2.0, (ay + by) / 2.0
+    angle = _line_angle_deg((ax, ay), (bx, by))
+    best = 0.0
+    for p1, p2 in face_lines:
+        if _angle_diff_mod180(angle, _line_angle_deg(p1, p2)) > WALL_PARALLEL_ANGLE_TOL:
+            continue
+        standoff = abs((p1[0] - mx) * nx + (p1[1] - my) * ny)
+        if abs(standoff - ROOM_LINE_BARRIER_PX) > ROOM_RECESS_BACK_TOL_PX:
+            continue
+        t1 = (p1[0] - ax) * ux + (p1[1] - ay) * uy
+        t2 = (p2[0] - ax) * ux + (p2[1] - ay) * uy
+        overlap = min(max(t1, t2), length) - max(min(t1, t2), 0.0)
+        best = max(best, overlap / length)
+    return best
+
+
+def _is_band_pocket(
+    comp, face_lines, text_spans, *, gates: RoomGates = ROOM_GATES_UNSCALED,
+) -> bool:
+    """True when comp lies INSIDE a wall band's thickness — see
+    ROOM_BAND_POCKET_FACE_COVER_MIN.
+
+    The recess rule's premise extended from "in the band's plane" to "inside
+    the band": both long edges of the component's minimum rotated rectangle
+    lie on wall faces (segment flanks or barrier faces) whose spacing is at
+    most WALL_MAX_THICKNESS_PX — two faces that could have paired as one
+    wall — so the free space between them is that wall's material (a window
+    reveal, a hollow cavity, a blocked opening), not floor. Called only for
+    components with no entrance and no window; text inside vetoes.
+    """
+    if _contains_text(comp, text_spans):
+        return False
+    with warnings.catch_warnings():
+        # GEOS's oriented envelope divides by zero on some hull edges of an
+        # irregular component and numpy reports it; the result is still a
+        # valid rectangle (or a degenerate geometry, rejected below).
+        warnings.simplefilter("ignore", RuntimeWarning)
+        rect = comp.minimum_rotated_rectangle
+    if rect.geom_type != "Polygon":
+        return False
+    c = list(rect.exterior.coords)[:4]
+    if len(c) < 4:
+        return False
+    edges = [(c[i], c[(i + 1) % 4]) for i in range(4)]
+    lens = [_line_length(a, b) for a, b in edges]
+    if lens[0] >= lens[1]:
+        long_edges, short = (edges[0], edges[2]), lens[1]
+    else:
+        long_edges, short = (edges[1], edges[3]), lens[0]
+    # Face spacing = pocket width + the standoff on each side.
+    if short + 2.0 * ROOM_LINE_BARRIER_PX > gates.WALL_MAX_THICKNESS_PX:
+        return False
+    return all(
+        _edge_face_cover(e, face_lines) >= ROOM_BAND_POCKET_FACE_COVER_MIN
+        for e in long_edges
+    )
 
 
 def _is_door_lining(poly: Polygon, material, openings: list[Polygon]) -> bool:
@@ -1396,11 +1532,20 @@ def detect_rooms(
     # flush instead of leaving a pen-width notch at every barrier-tier
     # transition corner (the notches survive the free-space opening — filling
     # them would be extensive — and simplification slants the steps).
+    # face_lines: the wall faces a free-space component can lie along —
+    # every barrier face's sealing extent, plus (below) both flanks of every
+    # paired segment — what _is_band_pocket reads a band's thickness off.
     line_parts = []
+    face_lines: list[tuple[tuple[float, float], tuple[float, float]]] = []
     for f in network.faces:
         extent = _barrier_extent(f, gates)
         if extent is not None and not extent.is_empty:
             line_parts.append(extent.buffer(ROOM_LINE_BARRIER_PX, cap_style=3))
+            for piece in getattr(extent, "geoms", [extent]):
+                if piece.geom_type == "LineString" and len(piece.coords) >= 2:
+                    face_lines.append(
+                        (tuple(piece.coords[0]), tuple(piece.coords[-1]))
+                    )
 
     # Hollow (white) walls and joinery runs: accept the candidate rings that
     # attach to wall material INCLUDING door/window bboxes — hollow runs are
@@ -1556,13 +1701,27 @@ def detect_rooms(
             if gap_plug is not None:
                 plugs = plugs + [(gap_plug, "chain_gap", None)]
         if plugs:
-            door_barriers.append(unary_union([p for p, _, _ in plugs]))
+            door_barriers.append((c.confidence, unary_union([p for p, _, _ in plugs])))
         elif c.confidence >= ROOM_BBOX_SEAL_MIN_CONFIDENCE:
-            door_barriers.append(
-                box(*c.bbox).buffer(gates.ROOM_OPENING_SEAL_PX, join_style=2)
-            )
+            door_barriers.append((
+                c.confidence,
+                box(*c.bbox).buffer(gates.ROOM_OPENING_SEAL_PX, join_style=2),
+            ))
     window_barriers = [_window_seal(c, gates=gates) for c in windows]
-    opening_parts = door_barriers + window_barriers
+    opening_parts = [g for _, g in door_barriers] + window_barriers
+
+    for s in wall_segments:
+        length = _line_length(s.p1, s.p2)
+        if length < 1e-6:
+            continue
+        nx = -(s.p2[1] - s.p1[1]) / length
+        ny = (s.p2[0] - s.p1[0]) / length
+        half = s.thickness_px / 2.0
+        for sign in (1.0, -1.0):
+            face_lines.append((
+                (s.p1[0] + sign * nx * half, s.p1[1] + sign * ny * half),
+                (s.p2[0] + sign * nx * half, s.p2[1] + sign * ny * half),
+            ))
 
     # Drafting-gap sealing happens on the free-space side, inside
     # _free_space_components: buffering this union (one huge polygon with a
@@ -1577,7 +1736,14 @@ def detect_rooms(
     # plug sits exactly where the wall is interrupted.
     contact_ref = unary_union([solids] + opening_parts)
     opening_boxes = [box(*c.bbox) for c in doors] + [box(*c.bbox) for c in windows]
-    door_geoms = door_barriers
+    door_geoms = [g for _, g in door_barriers]
+    # Entrances: the seals of doors the pipeline stands behind. A rejected
+    # candidate's plug still seals (its profile is its own evidence) and
+    # still counts toward door_openings / confidence, but cannot vouch that
+    # a pocket is entered (ROOM_ENTRANCE_MIN_CONFIDENCE).
+    entrance_geoms = [
+        g for conf, g in door_barriers if conf >= ROOM_ENTRANCE_MIN_CONFIDENCE
+    ]
     window_geoms = window_barriers
     opening_union = unary_union(opening_parts) if opening_parts else None
     masses = _building_masses(solids, opening_union)
@@ -1644,6 +1810,9 @@ def detect_rooms(
         door_count = sum(
             1 for g in door_geoms if g.distance(boundary) <= ROOM_CONTACT_TOL_PX
         )
+        entrance_count = sum(
+            1 for g in entrance_geoms if g.distance(boundary) <= ROOM_CONTACT_TOL_PX
+        )
         window_count = sum(
             1 for g in window_geoms if g.distance(boundary) <= ROOM_CONTACT_TOL_PX
         )
@@ -1655,17 +1824,19 @@ def detect_rooms(
         # Blind-window pocket: reachable only through its window = the
         # exterior side of that window, not a room (see the constant).
         if (
-            door_count == 0 and window_count > 0
+            entrance_count == 0 and window_count > 0
             and comp.area < gates.ROOM_BLIND_WINDOW_MAX_AREA_PX2
         ):
             continue
-        # Wall recess: a door-less, window-less, unlabelled pocket lying in
-        # a band's plane is the wall's own material (chimney breast, pier).
-        if (
-            door_count == 0 and window_count == 0
-            and _is_wall_recess(comp, wall_segments, opening_boxes, text_spans)
-        ):
-            continue
+        if entrance_count == 0 and window_count == 0:
+            # Wall recess: an unentered, window-less, unlabelled pocket lying
+            # in a band's plane is the wall's own material (chimney breast,
+            # pier) — and one lying INSIDE a band's thickness, between two
+            # faces at wall spacing, is the band itself (a window reveal).
+            if _is_wall_recess(comp, wall_segments, opening_boxes, text_spans):
+                continue
+            if _is_band_pocket(exterior, face_lines, text_spans, gates=gates):
+                continue
         rooms.append((exterior, {
             "contact": contact,
             "door_count": door_count,
