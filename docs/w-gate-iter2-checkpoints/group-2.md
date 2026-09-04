@@ -40,9 +40,11 @@ the main worktree:
 - s02 room_0008 (WC, IoU 0.862, −4,670 px², `g2_s02_cap40_wc_notched.png`):
   a new segment (1070.66,703)–(1070.49,839) th 38.25 — the WC's 1.5 px wall
   face (paths 5031/5037/5038) paired with a hairline basin edge (5743–5745)
-  38.25 px away, and the band passed the material gate on the dashed
-  section line's diagonal dashes. It needs all three of cap ≥ 38.25, floor
-  ≤ 9 and density ≤ 2.7: reverting any one restores the WC.
+  38.25 px away, and the band passed the material gate on two 13 px corner X
+  symbols — one at each end of the 146 px band, 4 marks = 2.75/100 px (NOT the
+  dashed section line, as first written here; corrected by iteration 3 step 1,
+  which measured the marks). It needs all three of cap ≥ 38.25, floor ≤ 9 and
+  density ≤ 2.7: reverting any one restores the WC.
 - s01 room_0001 (kitchen, IoU 0.990, −1,397 px²): the kitchen units are
   38.5 px deep (600 mm at its true 1:92.2 — 70 px at a real 1:50). Their
   side stubs (paths 3183/3184, 14.2 px) paired at th 38.5 and their 38.5 px
@@ -50,7 +52,8 @@ the main worktree:
 - Intermediate caps: s01 and s02 hold at 37 and 38 and break at 39; s16
   room_0006 breaks at 38 (IoU 0.862); s17's wins need ≥ 37.0. Thresholds
   0.25 px apart — no value in 36–40 is a reference. Prerequisites: a
-  mark-class rule (section-line dashes and cupboard X's are not hatch) and
+  far-side density rule (shipped in iteration 3 step 1 as
+  `_claims_far_side_sparse`; the mark-shape statistics could not separate) and
   s01's true-scale factor.
 
 **`WALL_FACE_MIN_LEN_PX` 9.** With the cap back at 36: s01 room_0003's right

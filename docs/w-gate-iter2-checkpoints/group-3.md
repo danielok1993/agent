@@ -134,7 +134,7 @@ stays.** s01 at its true factor does not keep its 12 rooms. Next iteration,
 as the brief foresaw: a short-piece material rule for the thick tier (a
 hatched band's piece between two openings inherits the band's material
 verdict), plus a swing-side veto for hinge-less doors (the seal), and the
-mark-class rule (section-line dashes / cupboard X's ≠ hatch) that gates the
-36–40 px cap. None of them invented here.
+far-side density rule that gates the 36–40 px cap (shipped in iteration 3
+step 1 as `_claims_far_side_sparse`; the mark-shape idea was refuted there). None of them invented here.
 
 Full ablation log: `final_s01mode.txt` beside this report.
