@@ -311,7 +311,7 @@ per-band hatch-mark cap (at f=0.5 a 56 cap is 28 px, where s05's wall pairs).
 
 | constant | census | shipped | why |
 |---|---|---|---|
-| `WALL_MAX_THICKNESS_PX` | 36 → 40 | **36** | 40 removed five recorded phantoms (s17's four 35 px reveal strips in its 37 px = 313 mm cavity walls; s16's striped block) but the 36–40 px band holds fixtures at wall spacing: s02's WC wall face × hairline basin edge at 38.25 px over section-line dashes (notched the WC 14 %), s01's 38.5 px kitchen units (600 mm at 1:92.2) pairing and lattice-demoting (hob fenced), +1 phantom each on s11/s15/s18. Thresholds 37.0 / 38.25 / 38.5 — spacing is not the discriminator |
+| `WALL_MAX_THICKNESS_PX` | 36 → 40 | **36** | 40 removed five recorded phantoms (s17's four 35 px reveal strips in its 37 px = 313 mm cavity walls; s16's striped block) but the 36–40 px band holds fixtures at wall spacing: s02's WC wall face × hairline basin edge at 38.25 px over two 13 px corner X symbols (notched the WC 14 %; cleared by iteration 3's far-side density rule), s01's 38.5 px kitchen units (600 mm at 1:92.2) pairing and lattice-demoting (hob fenced), +1 phantom each on s11/s15/s18. Thresholds 37.0 / 38.25 / 38.5 — spacing is not the discriminator |
 | `WALL_FACE_MIN_LEN_PX` | 11 → 9 | **11** | a band's 45° hatch is T√2 long: s01's 7 px partitions hatch at 9.9 px and the band-end strokes paired (room_0003 edge jogged 4 px; s02 −55 px²); s18 worktop run fenced (−1 FP, +1 phantom) |
 | `WALL_WEAK_MATERIAL_PER_100PX` | 3.0 → 2.2 | **2.2** | inert on the corpus at entity and polygon level |
 | `ROOM_OPENING_SEAL_PX` | 12 → 15 | **12** | no value above 12 is safe: the tail touch reach is SEAL + `ROOM_PLUG_HALF_WIDTH_PX`, and a hinge-less door's swing-side edge within it of two walls becomes an interrupted plug — s15 lost two door swings at 14, s02's BEDROOM 2 was notched around a section marker at 15, s01 room_0005 moved at 13–14 |
@@ -321,7 +321,7 @@ The pattern: every census margin under ~1.25× on the *discriminator* (its ⚠
 rows) broke on the sweep the moment the number moved — always by admitting a
 drawn fixture the one-field ablation could not see because another gate had
 been holding it out. The three reverts each name the prerequisite rule:
-a mark-class rule (section-line dashes, cupboard X's ≠ hatch), a swing-side
+the far-side density rule (shipped, iteration 3 step 1), a swing-side
 veto for hinge-less doors, and s01's true-scale factor (its 9.9 px hatch
 strokes and 38.5 px kitchen units are 1:92.2 quantities detected at
 identity).
@@ -473,3 +473,139 @@ material rule, the hinge-less swing-side veto, the mark-class rule.
 > if a rule costs a confirmed entity or returns an FP, revert it, report why,
 > and STOP. End every checkpoint report with the numbers: lost, returned FPs,
 > new REVIEW lines with your verdicts, net phantom delta, and what is next.
+
+## Outcome — iteration 3, step 1 (2026-09-04, branch `fix/section-line-dashes-not-hatch`)
+
+The "mark-class rule" premise was refuted by measurement: the s02 WC
+phantom's material is two 13 px corner X symbols at the band's ends (the
+section line's dashes are PDF-dashed strokes and never become marks), and
+six mark-shape statistics all overlap real bands. What separates it is the
+material density RATIO to the hatched wall sharing its far-side face: real
+weak pairs ≥ 1.0×, the phantom 0.11×. Shipped as `_claims_far_side_sparse` /
+`WALL_FAR_SIDE_DENSITY_RATIO` 0.33 with pins; sweep byte-identical to the
+iteration-2 tree. Cap 40 retried in the harness on top of it: s02 fixed,
+s17 −4 and s16 −1 recorded phantoms, but s01's 38.5 px kitchen units still
+pair and the s11 recess box, s15 annotation pocket and s18 tree strip return
+— two of the brief's three shipping conditions fail, so the cap stays 36.
+Report: `docs/w-gate-iter3-checkpoints/step-1.md`. Next: step 2 (hinge-less
+swing-side veto, then the seal retry), step 3 (short-piece material rule,
+s01mode, `_gate_denominator`).
+
+### Prompt for the next agent (iteration 3, step 2 onward — fresh context)
+
+> Use `/fix-detection` for its discipline (topic branch; `compare_sweeps
+> --snapshot` baselines of the tree you start from for all 20 slugs; four
+> background sweep groups — s18; s16 s11 s15; s01–s07; the rest — a full
+> `regress.py` exceeds the 10-minute foreground limit; verdict reports diffed
+> section-wise; `tools/diff_room_polygons.py` on every sheet after EVERY
+> sweep and a `tools/room_shape_crop.py` crop of every room whose IoU moved
+> under 0.99 — verdict-identical is not clean, most of this work's reverts
+> were caught only by polygon diffs). Read first, in this order:
+> `docs/w-gate-iter3-checkpoints/step-1.md`,
+> `docs/w-gate-iter2-checkpoints/group-2.md` (the seal section and its
+> pictures), the "Outcome" sections at the end of
+> `docs/w-gate-recalibration-handoff.md`, the CLAUDE.md paragraphs "Room
+> detection" and "Wall/room world-space gates", `detection/rooms.py::
+> _door_plugs` and `_restrict_swing_plugs` with their docstrings, and
+> `docs/regression-testing-guide.md` §9 §10 §12 §13.
+>
+> Where the tree is: main is `f5682fc`; iteration 2 is committed on
+> `recal/w-gate-iter2` (b8aaa0f…376059a); iteration 3 step 1 (the far-side
+> density rule, `_claims_far_side_sparse`) lives on
+> `fix/section-line-dashes-not-hatch`, committed or merged by the user by the
+> time you read this — check `git log --all --oneline | head` and `grep -n
+> _claims_far_side_sparse detection/walls.py`; branch from the tip that has
+> it. The corpus state on that tree: 71 returned FPs, 0 LOST, 5 unreviewed
+> (`grep -c "FALSE POSITIVE RETURNED"`), byte-identical to main's verdicts;
+> polygons differ from main only on s11 room_0003 (+144 px²), s13 (plugs
+> 0.16 px wider) and s01 door_0012's bbox. Constants as of step 1:
+> WALL_MAX_THICKNESS 36, WALL_FACE_MIN_LEN 11, ROOM_OPENING_SEAL 12,
+> WALL_WEAK_MATERIAL_PER_100PX 2.2, CROSS_WALL_EXPAND 24, CROSS_DOOR_EXPAND
+> 16, WALL_THICK_MATERIAL_MAX 56, WALL_THROUGH_HATCH_MAX 72, the per-band
+> mark cap `_mark_len_cap`, ROOM_PLUG_HALF_WIDTH floored at 2.0,
+> WALL_FAR_SIDE_DENSITY_RATIO 0.33.
+>
+> Tooling in `tools/census_scratch/` (cache/abl gitignored, rebuilt on first
+> use): `harness.py` (exact stage-5 chain with `overrides(mult=…)` /
+> `overrides(absolute=…)`), `attrib_rooms.py <slug> FIELD=MULT…` (rooms whose
+> polygon differs from the baseline snapshot per single-field override),
+> `attrib_delta.py` (rooms that appear/vanish per override), `attrib.py`
+> (does a target bbox survive), `collinear_probe.py`, `probe_exemption.py`,
+> `ablate.py s01 s01mode`. `tools/diff_wall_network.py sNN X0 Y0 X1 Y1
+> --base-dir <worktree of the start tree with fixtures/sheets symlinked>` for
+> barrier-level attribution. Attribute every change to ONE rule or constant
+> before deciding; the sweep stays the arbiter.
+>
+> **Step 2 — hinge-less swing-side veto (rooms), then the seal retry.**
+> Mechanism, measured in iteration 2: `_door_plugs` extends each bbox edge by
+> ROOM_OPENING_SEAL_PX and calls an edge "interrupted" when its end windows
+> TOUCH wall material within ROOM_PLUG_HALF_WIDTH_PX (5) and the middle is
+> empty, so any edge whose ends fall within SEAL + 5 px of two walls
+> qualifies; `_restrict_swing_plugs` holds SINGLE swing doors to their hinge
+> edges, but a door with no derivable hinge (`_swing_hinge_edges` empty:
+> pairs, arc-only, fallback tiers) keeps every edge, including its swing
+> side. At seal 15 (harness: `attrib_rooms.py s15 ROOM_OPENING_SEAL_PX=1.25`,
+> same for s02, s01, s04) this fenced s15's top-door swings out of rooms
+> 0023/0024 (symdiff at [849,1638]–[937,1736] and [941,1638]–[1267,2272],
+> −5.4k px² each; also rooms 0019/0020 at [849,1620]–[937,1631] and
+> [941,1621]–[1009,1631] — the "810mm door set" at the top of the corridor
+> and lounge), notched s02's BEDROOM 2 around its "A" section-marker bar (a
+> fallback door detected on the bar; symdiff [1128,282]–[1144,372]), moved
+> s01 room_0005 at 13–14, and — the improvement to regain — cleaned s04
+> room_0002 (+10,345 px², the bedroom's bottom-left notch) and rooms
+> 0001/0004. Pictures: `docs/w-gate-iter2-checkpoints/g2_s15_seal15_*.png`,
+> `g2_s02_seal15_section_marker_notch.png`, `g2_s04_seal15_bedroom_improved.png`.
+> Two synthetic fixtures already sit just outside the reach
+> (`tests/test_room_detection.py`: the closet in
+> TestRejectedDoorIsNotAnEntrance at 28 px clearance, the white-ring symbol
+> in TestPhantomDoorSeals at 26 px) — move them back to 20 px as the pins
+> once the veto exists. Find the drawing-convention difference and measure
+> it on s15/s02/s04 AND s01/s02's real doorways before coding; the
+> hypothesis to test first: a doorway edge's anchors are the two ends of the
+> SAME wall run (material collinear with the edge — jamb nibs in the edge's
+> own line), whereas a swing-side edge's anchors are two DIFFERENT walls it
+> meets perpendicularly (material crossing the edge line at its ends, none
+> along it). Then, only if the veto alone sweeps green (verdicts and
+> polygons identical), retry ROOM_OPENING_SEAL 12 → 15 in the same
+> checkpoint: expected s04 room_0002 +10k px², s02/s15/s01 unchanged, s03's
+> two recorded FP rooms still out (they return at 18). If the seal still
+> moves s01 or s02, it stays 12 and you report why.
+>
+> **Step 3 — short-piece material rule (thick tier), then `_gate_denominator`.**
+> At f=0.542 s01's 21–25 px hatched walls pass the thick tier but their 36 px
+> pieces between openings carry 3 marks and fail the ≥4-marks/span gates
+> (`_band_has_wall_material`), leaking 4 of 12 rooms; make such a piece
+> inherit the material verdict of the collinear band it continues. Then
+> `python tools/census_scratch/ablate.py s01 s01mode` (log:
+> `docs/w-gate-iter2-checkpoints/final_s01mode.txt` is the reference: doors
+> 11/11, windows 4/4, rooms 8/12, 18 phantoms today; solo culprits
+> WALL_MAX_THICKNESS and ROOM_OPENING_SEAL). If s01 at 0.542 keeps 11 doors,
+> 12 rooms and 4 windows, narrow `scale/factor.py::_gate_denominator` so a
+> user-stored non-nominal denominator drives the gates, update
+> `tests/test_scale_factor.py`, retire or narrow `SCALE_FACTOR_MEASURED_ONLY`
+> with the sweep as proof, then re-try WALL_MAX_THICKNESS 40 (blocked today
+> by s01's 38.5 px kitchen units and the s11/s15/s18 pockets — see step-1.md).
+>
+> Every step: synthetic test first (must fail without the rule), harness
+> pre-check on the named sheets, full sweep, polygon diff with crops,
+> verdicts on every new REVIEW line, room-label reseed of every sheet whose
+> outlines changed (`gcloud auth application-default login` first; an
+> expired credential shows only as ROOM_LABEL_FAILED in warnings.json with
+> exit 0; reseed with `python app.py extract fixtures/sheets/<pdf> --out
+> <scratch> --ceiling-height 2.4 < /dev/null`), prose (constant comment,
+> CLAUDE.md room paragraph, findings §4, this handoff's outcome section), a
+> checkpoint report in the fix-detection template with before|after pictures
+> under `docs/w-gate-iter3-checkpoints/`, and STOP at the checkpoint for the
+> user's decision. Rules: do not commit (the user commits); do not edit
+> `tests/ground_truth/*.json` or `fixtures/MANIFEST.json`; never revert
+> s01's truth scale (1:92.2); do not bundle the dash rows, deeper band
+> pockets, lattice knife-edges or Gap D; never `git stash`; macOS has no
+> `timeout`; the venv lacks InquirerPy and `tests.test_takeoff_fn_equivalence`
+> can fail on main — neither is a branch signal; s01 and s02 at f=1.0 must
+> not change (entity set AND polygons); if a rule costs a confirmed entity or
+> returns an FP, revert it, report why, and STOP. End every report with the
+> numbers: lost, returned FPs, new REVIEW lines with your verdicts, net
+> phantom delta, and what is next. Housekeeping the user still owns: the
+> iteration-2 PNG crops are untracked and one
+> (`g2_s04_seal15_bedroom_improved.png`) shows a street address printed on
+> the drawing — it must never be committed.

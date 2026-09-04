@@ -550,6 +550,55 @@ class TestWeakFacePairs(unittest.TestCase):
         network = detect_wall_network(paths)
         self.assertEqual(len(network.segments), 0)
 
+    def _hatched_wall_and_room_line(self, filler):
+        # A hatched 12px wall (strong faces y=100/112, 45-degree hatch at 4px
+        # pitch: 25 marks/100px) and a hairline room-side line 30px below its
+        # inner face (a basin edge, a tile line) over x 100..240. `filler`
+        # supplies whatever lies between the inner face and the line.
+        paths = [hline(0, 100, 240, 100), hline(1, 100, 240, 112)]
+        i = 2
+        for x in range(104, 228, 4):
+            paths.append(path(i, [(x, 111.0), (x + 10.0, 101.0)], stroke_width=0.3))
+            i += 1
+        paths.append(hline(i, 100, 240, 142, stroke_width=0.45))
+        return paths + filler(i + 1)
+
+    def test_far_side_sparse_band_is_the_room(self):
+        # s02's WC (W-gate iteration 3, 2026-09-04): the wall face paired at
+        # 38.25px with a hairline basin edge, and the band passed the material
+        # gate on two 13px corner X symbols — 4 marks over 146px = 2.75/100px,
+        # over the 2.2 floor — against the wall's own 25/100px. A wall's
+        # material lies on one side of each face; the hatched side is the
+        # wall, the side holding two symbols is the room. Here the phantom
+        # band is 30px (under the plain cap) so the mechanism shows at any
+        # cap: two X's at the band's ends, 2.86/100px.
+        def xs(i):
+            out = []
+            for cx in (106.0, 234.0):
+                out.append(path(i, [(cx - 3.0, 121.0), (cx + 3.0, 133.0)], stroke_width=0.3))
+                out.append(path(i + 1, [(cx + 3.0, 121.0), (cx - 3.0, 133.0)], stroke_width=0.3))
+                i += 2
+            return out
+        network = detect_wall_network(
+            self._hatched_wall_and_room_line(xs) + rect_room(500, 700, 100, 1000, 400)
+        )
+        self.assertTrue(any(abs(s.thickness_px - 12.0) < 0.5 for s in network.segments))
+        self.assertFalse(any(abs(s.thickness_px - 30.0) < 0.5 for s in network.segments))
+
+    def test_far_side_band_with_wall_density_stays(self):
+        # The same geometry with the 30px band hatched like the wall (4px
+        # pitch, 25/100px): a second hatched leaf sharing the face is wall.
+        def hatch(i):
+            out = []
+            for x in range(104, 226, 4):
+                out.append(path(i, [(x, 140.0), (x + 26.0, 114.0)], stroke_width=0.3))
+                i += 1
+            return out
+        network = detect_wall_network(
+            self._hatched_wall_and_room_line(hatch) + rect_room(500, 700, 100, 1000, 400)
+        )
+        self.assertTrue(any(abs(s.thickness_px - 30.0) < 0.5 for s in network.segments))
+
     def test_sparse_marks_do_not_qualify(self):
         # Glazing-strip analog: a long hairline pair with a few scattered
         # diagonal ticks stays out (density below WALL_WEAK_MATERIAL_PER_100PX).

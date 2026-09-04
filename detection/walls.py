@@ -98,9 +98,10 @@ WALL_MAX_THICKNESS_PX       = 36.0  # heavy exterior/party walls: 305mm at 1:50.
                                     # is full of drawn fixtures at wall spacing
                                     # that only MATERIAL can tell apart: s02's WC
                                     # wall face paired at 38.25px with a hairline
-                                    # basin edge over the dashed section line's
-                                    # diagonal dashes (weak tier, needs the 9px
-                                    # face floor and the 2.2/100px density too)
+                                    # basin edge over two 13px corner X symbols,
+                                    # 4 marks/146px = 2.75/100 (weak tier, needs
+                                    # the 9px face floor and the 2.2/100px density
+                                    # too; now caught by _claims_far_side_sparse)
                                     # and notched the WC 14%; s01's kitchen units
                                     # are 38.5px deep (600mm at 1:92.2) — their
                                     # side stubs paired and their rows demoted as
@@ -111,10 +112,13 @@ WALL_MAX_THICKNESS_PX       = 36.0  # heavy exterior/party walls: 305mm at 1:50.
                                     # thresholds sit within 0.25px of each other
                                     # (s17 wins at >= 37.0, s02/s01 break at
                                     # 38.25/38.5), so no value in the band is a
-                                    # reference. Kept at 36 until a mark-class
-                                    # rule (section-line dashes and cupboard X's
-                                    # are not hatch) and s01's true-scale factor
-                                    # land; must stay < WALL_THICK_MATERIAL_MAX_PX.
+                                    # reference. The far-side density rule
+                                    # (iteration 3 step 1) clears s02's WC at 40,
+                                    # but s01's units still pair and the s11/s15/
+                                    # s18 pockets return, so 36 holds until s01's
+                                    # true-scale factor and rules for those
+                                    # pockets land; must stay <
+                                    # WALL_THICK_MATERIAL_MAX_PX.
                                     # Corridors are far wider.
 WALL_THICK_MATERIAL_MAX_PX  = 56.0  # locally thickened masonry (chimney breast /
                                     # pier: floor-plans' bedroom pier bulges its
@@ -438,6 +442,32 @@ WALL_WEAK_MATERIAL_EDGE_PX   = 2.5   # marks this close to a band face don't cou
                                      # gate, chopping the kitchen in two at y=365.
 WALL_WEAK_MATERIAL_ANGLE_MIN = 20.0  # stroke-vs-band-axis window; wide enough for the
 WALL_WEAK_MATERIAL_ANGLE_MAX = 70.0  # ~25deg/~65deg diagonals of oblong blocking rects
+WALL_FAR_SIDE_DENSITY_RATIO  = 0.33  # a material-gated (weak/thick) pair that shares a
+                                     # face with a kept strong pair lying on the FAR
+                                     # side of that face is the room, not a second
+                                     # wall, when its own marks are sparser than this
+                                     # fraction of that wall's: a wall's material lies
+                                     # on one side of each face, and the hatched side
+                                     # is the wall. Measured 2026-09-04 (W-gate
+                                     # iteration 3) over every corpus weak/thick pair
+                                     # sharing a far-side face with a hatched strong
+                                     # pair: s02 4.2/4.7x, s01 8.0x, s15 10.4x, s18
+                                     # 1.0/1.0x, s03 1.41/1.5x, s05 1.56x — never
+                                     # under 1.0 — while the phantom this catches
+                                     # (s02's WC wall face paired at 38.25px with a
+                                     # hairline basin edge, its "material" two 13px
+                                     # corner X symbols: 4 marks/146px = 2.75/100
+                                     # against the wall's own 25/100) sits at 0.11x.
+                                     # 0.33 leaves 3x each way. Only a HATCHED far
+                                     # wall claims (density 0 says nothing), and only
+                                     # a meaningfully tighter one, as in
+                                     # _claims_far_side_pair. Dimensionless. The
+                                     # mark-shape statistics measured first — distinct
+                                     # positions, gaps, face-spanning fraction, area
+                                     # coverage, length/thickness, X size — all
+                                     # overlap real bands (stipple, insulation dots,
+                                     # inset hatch, 2-block partitions) and could not
+                                     # separate this at 1.5x.
 WALL_WEAK_CLAIM_MARGIN_PX    = 2.0   # a weak pair is dropped when a KEPT, meaningfully
                                      # tighter (by >= 2x this) parallel pair lies inside
                                      # its band over the same span: the material between
@@ -2046,6 +2076,24 @@ def _band_has_wall_material(
     length = _line_length(c.p1, c.p2)
     if length < 1e-6:
         return False
+    ts = _band_material_ts(c, marks, gates=gates)
+    if len(ts) < WALL_WEAK_MATERIAL_MIN_MARKS:
+        return False
+    if len(ts) < (length / 100.0) * gates.WALL_WEAK_MATERIAL_PER_100PX:
+        return False
+    return (max(ts) - min(ts)) >= WALL_WEAK_MATERIAL_MIN_SPAN * length
+
+
+def _band_material_ts(
+    c: _Seg, marks: list[tuple], *, gates: WallGates = WALL_GATES_UNSCALED,
+) -> list[float]:
+    """Axial positions of the marks _band_has_wall_material would count for
+    c — the band-interior, diagonal, cap-filtered selection — so the same
+    selection can also be compared between two bands (_claims_far_side_sparse).
+    """
+    length = _line_length(c.p1, c.p2)
+    if length < 1e-6:
+        return []
     ux = (c.p2[0] - c.p1[0]) / length
     uy = (c.p2[1] - c.p1[1]) / length
     axis_angle = _line_angle_deg(c.p1, c.p2)
@@ -2077,11 +2125,7 @@ def _band_has_wall_material(
         d = _angle_diff_mod180(angle, axis_angle)
         if WALL_WEAK_MATERIAL_ANGLE_MIN <= d <= WALL_WEAK_MATERIAL_ANGLE_MAX:
             ts.append(t)
-    if len(ts) < WALL_WEAK_MATERIAL_MIN_MARKS:
-        return False
-    if len(ts) < (length / 100.0) * gates.WALL_WEAK_MATERIAL_PER_100PX:
-        return False
-    return (max(ts) - min(ts)) >= WALL_WEAK_MATERIAL_MIN_SPAN * length
+    return ts
 
 
 def _band_has_through_hatch(
@@ -2385,6 +2429,61 @@ def _claims_far_side_pair(
         if _band_has_wall_material(c, marks, gates=gates):
             return False
         return True
+    return False
+
+
+def _claims_far_side_sparse(
+    c: _Seg, kept: list[_Seg], marks: list,
+    *, gates: WallGates = WALL_GATES_UNSCALED,
+) -> bool:
+    """True when material-gated c shares a face with a kept, tighter strong
+    pair on the FAR side of that face and carries markedly sparser material
+    than that wall (WALL_FAR_SIDE_DENSITY_RATIO).
+
+    _claims_far_side_pair exempts any band with material; a weak/thick pair
+    passed the material gate by definition, so for it the question is whose
+    material the shared face belongs to. A wall's hatch lies on one side of
+    each face: when the far side is hatched at wall density and this side
+    holds a few symbols (s02's WC: two 13px corner X's, 2.75/100px, against
+    the wall's 25/100px), this side is the room. Same geometry as
+    _claims_far_side_pair: shared face index, d meaningfully tighter, d's
+    band centred beyond c's face, overlap >= WALL_WEAK_CLAIM_OVERLAP_FRAC.
+    """
+    length = _line_length(c.p1, c.p2)
+    if length < 1e-6 or not c.indices:
+        return False
+    ux = (c.p2[0] - c.p1[0]) / length
+    uy = (c.p2[1] - c.p1[1]) / length
+    hc = c.thickness / 2.0
+    dens_c: float | None = None
+    for d in kept:
+        if d is c or d.weak or d.thick or not (c.indices & d.indices):
+            continue
+        if d.thickness > c.thickness - 2.0 * WALL_WEAK_CLAIM_MARGIN_PX:
+            continue
+        if _angle_diff_mod180(
+            _line_angle_deg(c.p1, c.p2), _line_angle_deg(d.p1, d.p2)
+        ) > WALL_PARALLEL_ANGLE_TOL:
+            continue
+        mx = (d.p1[0] + d.p2[0]) / 2.0 - c.p1[0]
+        my = (d.p1[1] + d.p2[1]) / 2.0 - c.p1[1]
+        if abs(mx * -uy + my * ux) < hc - 1.0:
+            continue
+        t1 = (d.p1[0] - c.p1[0]) * ux + (d.p1[1] - c.p1[1]) * uy
+        t2 = (d.p2[0] - c.p1[0]) * ux + (d.p2[1] - c.p1[1]) * uy
+        overlap = min(max(t1, t2), length) - max(min(t1, t2), 0.0)
+        if overlap < WALL_WEAK_CLAIM_OVERLAP_FRAC * length:
+            continue
+        d_len = _line_length(d.p1, d.p2)
+        if d_len < 1e-6:
+            continue
+        dens_d = len(_band_material_ts(d, marks, gates=gates)) / (d_len / 100.0)
+        if dens_d <= 0.0:
+            continue
+        if dens_c is None:
+            dens_c = len(_band_material_ts(c, marks, gates=gates)) / (length / 100.0)
+        if dens_c < WALL_FAR_SIDE_DENSITY_RATIO * dens_d:
+            return True
     return False
 
 
@@ -4025,6 +4124,17 @@ def detect_wall_network(
             c for c in material_kept
             if not (c.weak or c.thick)
             or not _claims_interior_pair(c, material_kept)
+        ]
+        # Third pass: a material-gated pair sharing a face with a hatched
+        # strong pair on the FAR side of that face, with markedly sparser
+        # material of its own, is the room beside that wall — the weak-tier
+        # analogue of _claims_far_side_pair, which exempts any band with
+        # material (see WALL_FAR_SIDE_DENSITY_RATIO).
+        strong_kept = [c for c in centerlines if not (c.weak or c.thick)]
+        centerlines = [
+            c for c in centerlines
+            if not (c.weak or c.thick)
+            or not _claims_far_side_sparse(c, strong_kept, marks, gates=gates)
         ]
     # A strong pair can also be a wall face paired across the ROOM: the
     # partner is furniture/joinery drawn in the wall pen (counter fronts,
