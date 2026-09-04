@@ -81,7 +81,12 @@ cap 36: 13 → s01 room_0005 IoU 0.957; 14 → s15 rooms 0019/0020/0023/0024
 "A" section-marker bar (`g2_s02_seal15_section_marker_notch.png`). Only 15
 also cleaned s04's bedroom (+10,345 px², `g2_s04_seal15_bedroom_improved.png`)
 — an improvement lost with the revert. Prerequisite: a swing-side veto for
-hinge-less doors.
+hinge-less doors. (CORRECTED by iteration 3 step 2, which measured each site:
+none of these is a hinge-less swing-side plug — s15 is a dash-row barrier
+crossing the doorway plane, s02 a fallback door's plug tails overshooting the
+bar they shadow, s01 the plug cross-section fit flipping, and the s04
+improvement a corner door lining the lining rule rejected, fixed at seal 12
+— see `docs/w-gate-iter3-checkpoints/step-2.md`.)
 
 ## Fixtures moved (all documented in the tests)
 

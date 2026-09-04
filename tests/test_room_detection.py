@@ -944,13 +944,15 @@ class TestPlugSealReach(unittest.TestCase):
     """ROOM_OPENING_SEAL_PX stays 12px (102mm at 1:50). The W-gate census
     (2026-09-04) proposed 15 — the jamb gap beyond a swing bbox at true
     scales is s01 8px = 125mm (1:92.2), s17 8px = 135mm, s05/s07 6px at
-    f=0.5 = 102mm — and iteration 2 tried it: a tail TOUCHES material within
-    ROOM_PLUG_HALF_WIDTH_PX of its end, so any bbox edge whose ends lie
-    within SEAL + 5px of two walls reads as an interrupted run, swing sides
-    of hinge-less doors included (s15 lost two door swings at 14, s02 was
-    notched around a section marker at 15). Measured on this fixture, an
-    interrupted plug seals a jamb gap of at most SEAL - 1px (11 at 12, 13 at
-    14, 15 at 15): an 11px gap must seal, 13 must not."""
+    f=0.5 = 102mm — and iteration 2 tried it; iteration 3 step 2 measured
+    what broke: s15's corridor door lost its doorway plug at 14 because a
+    dash-row barrier crossing the doorway plane flips the mid-window count
+    2/10 -> 3/11 with the sampling phase (bbox stamp, two swings fenced),
+    and s02 was notched around a section-marker bar at 15 because a
+    fallback door's full-cover plug tails overshoot the bar by 4.8px and
+    pinch the neck to the wall (see ROOM_OPENING_SEAL_PX). Measured on this
+    fixture, an interrupted plug seals a jamb gap of at most SEAL - 1px (11
+    at 12, 13 at 14, 15 at 15): an 11px gap must seal, 13 must not."""
 
     BBOX = (200.0, 100.0, 270.0, 150.0)   # top edge y=100 lies in the band
 
@@ -1911,6 +1913,67 @@ class TestDoorLiningRings(unittest.TestCase):
     def test_fixture_box_beside_the_door_is_not_wall(self):
         base, doors = self._plan()
         boxed, _ = self._plan(fixture=True)
+        a = sorted(r.evidence["area_px2"] for r in rooms_for(base, doors=doors))
+        b = sorted(r.evidence["area_px2"] for r in rooms_for(boxed, doors=doors))
+        self.assertEqual(len(a), 2)
+        for x, y in zip(a, b):
+            self.assertAlmostEqual(x, y, delta=5.0)
+
+    # --- the jamb at a wall CORNER (s04 door_0001, MASTER BEDROOM) -------
+    #
+    # The divider between BATHROOM 02 and the bedroom (14.2px, x 1854-1868)
+    # meets the bathroom's bottom band at the door's top jamb, so the top
+    # lining (path 949, 14.2x12.4px) stands at a corner: shifted one
+    # ring-length up it lands in the PERPENDICULAR band, whose 31.3px
+    # across-span fails the 22.2px band-width probe, while the bottom
+    # lining (path 946) shifts onto the divider (18.2px span) and is
+    # accepted. With the top jamb 12.4px past the leaf bbox the doorway
+    # plug's anchor coverage was 3/7 and the dilated bbox fenced the swing
+    # square out of the bedroom (-10,345 px2). Beyond the far jamb the
+    # divider resumes with the ring's own cross-section, and that is where a
+    # corner lining finds the band it continues.
+
+    def _corner_plan(self, corner_lining=True, fixture=False):
+        # 500x300 room, thickness 14 (top band y 100..114); a vertical
+        # divider x 300..314 from y=226 down; the 112px opening runs from
+        # the top band's face (114) to the divider's end (226), so the top
+        # jamb IS the corner with the top band. Linings 12.4px deep at both
+        # jambs, an 88px leaf bbox spanning the band from its far face and
+        # abutting each lining within the 2px barrier tolerance (s04: 0.2px).
+        paths = rect_room(0, 100, 100, 600, 400, thickness=14)
+        paths += wall_band_v(8, 300, 226, 400, thickness=14)
+        if corner_lining:
+            paths.append(stroked_box_path(20, 300, 114, 314, 126.4))
+        paths.append(stroked_box_path(21, 300, 213.6, 314, 226))
+        if fixture:
+            # Same-sized joinery box wedged between the door's top-left
+            # corner and the top band, on the ROOM side of the divider's
+            # face: it shifts INTO the top band like the lining does, but
+            # beyond the far jamb its across-range is room floor.
+            paths.append(stroked_box_path(22, 314, 114, 328, 126.4))
+        door = door_candidate((300.0, 126.0, 390.0, 214.0), confidence=0.9)
+        return paths, [door]
+
+    def _right_room(self, rooms):
+        return max(
+            (ShapelyPolygon(r.evidence["polygon"]) for r in rooms),
+            key=lambda p: p.centroid.x,
+        )
+
+    def test_corner_lining_anchors_the_doorway_plug(self):
+        paths, doors = self._corner_plan()
+        rooms = rooms_for(paths, doors=doors)
+        self.assertEqual(len(rooms), 2)
+        right = self._right_room(rooms)
+        # The swing square is bedroom floor right up to the divider's face.
+        self.assertTrue(right.contains(ShapelyPoint(350.0, 170.0)))
+        self.assertTrue(right.contains(ShapelyPoint(320.0, 170.0)))
+        # The corner lining itself is wall, in no room.
+        self.assertFalse(right.contains(ShapelyPoint(307.0, 120.0)))
+
+    def test_fixture_box_at_the_corner_is_not_wall(self):
+        base, doors = self._corner_plan()
+        boxed, _ = self._corner_plan(fixture=True)
         a = sorted(r.evidence["area_px2"] for r in rooms_for(base, doors=doors))
         b = sorted(r.evidence["area_px2"] for r in rooms_for(boxed, doors=doors))
         self.assertEqual(len(a), 2)

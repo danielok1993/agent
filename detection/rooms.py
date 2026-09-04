@@ -210,22 +210,38 @@ ROOM_OPENING_SEAL_PX        = 12.0    # bbox-edge extension when building door p
                                       # 6px at f=0.5 = 102mm — exactly the scaled 6px
                                       # tail, zero headroom. The W-gate census
                                       # (2026-09-04) proposed 15 and iteration 2 TRIED
-                                      # it: no value above 12 is safe, because a tail
-                                      # TOUCHES material within ROOM_PLUG_HALF_WIDTH_PX
-                                      # of its end, so a bbox edge whose ends lie within
-                                      # SEAL + 5px of two walls qualifies as an
-                                      # interrupted run — and for a door with no
-                                      # derivable hinge edge that includes its SWING
-                                      # side: at 14 s15's lounge and corridor lose
-                                      # their door swings (rooms 0023/0024, -5.4k px2
-                                      # each) and s01 room_0005 moves, at 15 s02's
+                                      # it: no value above 12 is safe. Iteration 3
+                                      # step 2 measured WHY, per site (the swing-side
+                                      # mechanism first written here was wrong — no
+                                      # hinge-less door's swing edge qualifies on the
+                                      # corpus at 12 or 15): at 14 s15's corridor door
+                                      # door_0013 — a hinged door — LOSES its doorway
+                                      # plug because the dashed "steel ridge beam"
+                                      # line (a row of 14.8px strokes in a 2.0px pen,
+                                      # each a strong barrier face) crosses the
+                                      # doorway plane at its centre and the mid-window
+                                      # in-plane count flips 2/10 -> 3/11 > 0.25 with
+                                      # the sampling phase, so the 0.67 door falls to
+                                      # the dilated-bbox stamp (rooms 0023/0024, -5.4k
+                                      # px2 each) — the dash-row class; at 15 s02's
                                       # BEDROOM 2 is notched around the "A" section
-                                      # marker bar (a fallback door on it); only 15
-                                      # also cleaned s04's bedroom outline (+10k px2).
-                                      # s03 returns two recorded FP rooms at 18. A
-                                      # swing-side veto for hinge-less doors is the
-                                      # prerequisite for moving this. An interrupted
-                                      # plug seals a jamb gap of at most SEAL - 1px
+                                      # marker bar because the 0.35 fallback door on it
+                                      # carries full-cover plugs along the bar (a
+                                      # filled ring, an island in the room) whose
+                                      # tails end at the last sample within the 5px
+                                      # touch tolerance, 4.8px PAST the bar at each
+                                      # end, narrowing the 20.5px neck to the wall to
+                                      # 15.7px, under the 16px free-space pinch; at
+                                      # 13-14 s01 room_0005 moves 6px because door_0002's
+                                      # plug cross-section fit flips 4 -> 10px as the
+                                      # anchor sample set shifts. And the s04 bedroom
+                                      # "improvement" at 15 was a corner door LINING
+                                      # the lining rule rejected (_is_door_lining, now
+                                      # handled at 12). s03 returns two recorded FP
+                                      # rooms at 18. Prerequisites for moving this:
+                                      # the dash rows and a tail that ends AT the
+                                      # material it shadows. An interrupted plug seals
+                                      # a jamb gap of at most SEAL - 1px
                                       # (tests/test_room_detection.py::TestPlugSealReach).
 ROOM_PLUG_NEAR_PX           = 8.0     # a bbox edge "hugs" wall material within this
                                       # distance; the swing bbox lands on the wall faces
@@ -1167,40 +1183,76 @@ def _is_door_lining(poly: Polygon, material, openings: list[Polygon]) -> bool:
     A fixture box against a wall's room-side face beside a door shifts
     onto room floor; one wedged between a door and a perpendicular return
     wall shifts into that wall, but the wall spans the whole across probe.
+
+    The band the ring continues is not always BEHIND it: a door hung at a
+    wall junction has its jamb at the corner, so the lining there shifts
+    into the perpendicular band, which spans the whole across probe exactly
+    like the return wall a wedged fixture shifts into (s04 door_0001, the
+    MASTER BEDROOM door, whose top jamb is the corner where the divider
+    meets BATHROOM 02's bottom band: the 14.2x12.4px lining, path 949,
+    shifted up lands in that band, 31.3px across against the 22.2px probe;
+    its twin at the bottom jamb, path 946, shifts onto the divider — 18.2px
+    — and is accepted; with the jamb 12.4px past the leaf bbox the doorway
+    plug's anchor coverage was 3/7 and the dilated bbox fenced the swing
+    square, -10,345 px2). A doorway is cut OUT of a wall, so the wall
+    resumes beyond the far jamb whatever happens at the near one: the ring
+    is a lining when the strip of its own across-range one to two ring
+    depths past the opening's far edge — past the far jamb's twin lining —
+    is that band, with the ring's own cross-section. The wedged fixture's
+    across-range lies on the room side of the wall plane, and beyond the
+    far jamb that strip is floor.
     """
     rx0, ry0, rx1, ry1 = poly.bounds
     w, h = rx1 - rx0, ry1 - ry0
     if w <= 0 or h <= 0:
         return False
+
+    def _in_band(probe_poly, across, along_x):
+        """probe_poly lies on drawn wall material whose span across the
+        ring's axis matches the ring's own depth — the band the ring
+        continues, not a wall running across the probe."""
+        if probe_poly.intersection(material).area < (
+            ROOM_LINING_IN_BAND_FRAC * probe_poly.area
+        ):
+            return False
+        c = probe_poly.centroid
+        reach = across + 2.0 * ROOM_WALL_DILATE_PX + ROOM_LINING_SPAN_TOL_PX
+        if along_x:
+            probe = LineString([(c.x, c.y - reach), (c.x, c.y + reach)])
+        else:
+            probe = LineString([(c.x - reach, c.y), (c.x + reach, c.y)])
+        return probe.intersection(material).length <= reach
+
     for ob in openings:
         ox0, oy0, ox1, oy1 = ob.bounds
         y_ov = min(oy1, ry1) - max(oy0, ry0)
         x_ov = min(ox1, rx1) - max(ox0, rx0)
         # The opening's across-range must reach the ring: a swing bbox
         # spans the band when the hinge sits on the far face (s04) and
-        # merely abuts it when the hinge sits on the near face.
+        # merely abuts it when the hinge sits on the near face. Each option
+        # carries the shift away from the opening and the strip of the
+        # ring's across-range one to two ring depths beyond the opening's
+        # far edge.
         options = []
         if y_ov >= -ROOM_LINE_BARRIER_PX:
-            options.append((abs(ox0 - rx1), (-w, 0.0), h))   # opening right
-            options.append((abs(ox1 - rx0), (w, 0.0), h))    # opening left
+            options.append((abs(ox0 - rx1), (-w, 0.0), h,
+                            box(ox1 + w, ry0, ox1 + 2.0 * w, ry1)))   # opening right
+            options.append((abs(ox1 - rx0), (w, 0.0), h,
+                            box(ox0 - 2.0 * w, ry0, ox0 - w, ry1)))   # opening left
         if x_ov >= -ROOM_LINE_BARRIER_PX:
-            options.append((abs(oy0 - ry1), (0.0, -h), w))   # opening below
-            options.append((abs(oy1 - ry0), (0.0, h), w))    # opening above
+            options.append((abs(oy0 - ry1), (0.0, -h), w,
+                            box(rx0, oy1 + h, rx1, oy1 + 2.0 * h)))   # opening below
+            options.append((abs(oy1 - ry0), (0.0, h), w,
+                            box(rx0, oy0 - 2.0 * h, rx1, oy0 - h)))   # opening above
         if not options:
             continue
-        gap, (dx, dy), across = min(options, key=lambda t: t[0])
+        gap, (dx, dy), across, far_strip = min(options, key=lambda t: t[0])
         if gap > ROOM_LINE_BARRIER_PX:
             continue
-        shifted = translate(poly, dx, dy)
-        if shifted.intersection(material).area < ROOM_LINING_IN_BAND_FRAC * shifted.area:
-            continue
-        c = shifted.centroid
-        reach = across + 2.0 * ROOM_WALL_DILATE_PX + ROOM_LINING_SPAN_TOL_PX
-        if dx:
-            probe = LineString([(c.x, c.y - reach), (c.x, c.y + reach)])
-        else:
-            probe = LineString([(c.x - reach, c.y), (c.x + reach, c.y)])
-        if probe.intersection(material).length <= reach:
+        along_x = bool(dx)
+        if _in_band(translate(poly, dx, dy), across, along_x):
+            return True
+        if _in_band(far_strip, across, along_x):
             return True
     return False
 
