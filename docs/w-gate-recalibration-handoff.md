@@ -1046,3 +1046,127 @@ rooms 0019/0020/0023/0024 still move at ≥ 14 (dash rows), s01 room_0005 at
 > `docs/w-gate-iter3-checkpoints/` and must never show a street address or
 > planning-portal id. End every report with the numbers: lost, returned FPs,
 > new REVIEW lines with your verdicts, net phantom delta, and what is next.
+
+## Outcome — iteration 3, step 6 (2026-09-05, branch `fix/dash-rows-not-faces`, built and measured, NOT shipped)
+
+Measured first (`tools/census_scratch/dash_rows.py`: every collinear
+same-pen row at gaps on all 20 sheets, both classes): a drawn dash line is a
+periodic row — s15's "steel ridge beam 1" is a 3.0px CHAIN-dash (74/14.8px
+pieces alternating at 14.8px gaps, CV 0.00), its 2.0px beam, boundary and
+drain rows 14.8/7.5, its beam-symbol flanges and unit boxes 1.0px 14.7/7.5
+and 7.5/3.7; s05/s12 draw 6/6 dotted lines, s07 7.5/3.8, s17 orange 14.8/7.5
+demolition lines, s18 chain 47/9.5, s20 chain 38/7.7 — gaps 3.7–15.0px at
+1:50 and 1:100 alike (paper-space). The true class, a wall face broken by
+openings, has THREE pieces at world opening widths on every sheet (s05 [165,
+27, 165] at 49px, s07 [106, 99, 106] at 21.3, s11 [35, 71, 34] at 35, s15
+[212, 198, 212] at 42.5, s03 [157, 201, 157] at 5.7); a dash row's end pieces
+are clipped to any length, so the pattern is read on the interior pieces.
+Built `_dash_row_indices` (pre-pairing exclusion beside the dimension chains
+and glyph strokes, so members neither fence nor vote in the collinear anchor;
+`WALL_DASH_*`, all P-class: ≥ 4 pieces, gaps equal within 1.5px/12% and
+≤ 18px, one interior length or two strictly alternating, end pieces ≤ one
+period). The first corpus sweep forced two discriminators: nearest-piece
+linking with a touching piece blocking the link plus a longest-dash ≤ 8 gaps
+cap (s17's face [92, 3.75, 348.5, 3.75, 5.5] at 2px tick gaps read as a chain
+and opened a confirmed corridor into the wall band), and a hatch-end
+exemption (s05's 475mm wall has its inner face drawn as a 6/6 dotted row on
+which its 104 through-hatch strokes end from one side at 23/100px; flagged, Bed
+1 and Bed 2 merged through the band). Final sweep vs the step-5 baseline: 16
+sheets polygon-identical (s01/s02 untouched at seals 12 and 14 beyond the
+pre-existing s01 moves), returned FPs 71 → 67 (s15 −4), the s15 room_0016
+dash-fenced pocket gone, s17/s18 +2.9k px² regained, no free space lost
+outside s15's recorded-FP hall (−321 px² unsimplified, a 35px pair the
+removed 9px flange pair had held out), s15 at seal 14 now equal to seal 12
+(the step-2 door_0013 mechanism was the beam) — **and 10 confirmed rooms
+LOST**: nine s15 cells fenced by the ridge beam (lounge 88|500, vestibule
+88|77), the "existing steel beam" symbol and "steel beam 2" row (the kitchen
+zone in five) and the page-long drain run at x=263 (the garage in three),
+plus s07's closet behind a dashed double line 8px apart. Per the run's rule
+the tree is reverted; the rule lives in
+`docs/w-gate-iter3-checkpoints/step-6-dash-rows.patch` (applies clean; 8 of
+its 11 tests fail on the baseline code). New REVIEW rooms: s15's garage
+(real) and a 160×77px hall slice held by a 3-piece chain fragment (phantom,
+n < 4 — a text-mask join rule is the next discriminator). Net phantoms −4.
+Report: `docs/w-gate-iter3-checkpoints/step-6.md` (12 PNGs beside it).
+
+### Prompt for the next agent (after the user's step-6 decision — fresh context)
+
+> Use `/fix-detection` for its discipline (topic branch from the tip that
+> carries steps 2, 3 and 5 — `git log --all --oneline | head`; if the user
+> has applied and committed `docs/w-gate-iter3-checkpoints/step-6-dash-
+> rows.patch`, branch from that; `compare_sweeps --snapshot` baselines of
+> that tree for all 20 slugs, re-swept first in four background groups —
+> s18; s16 s11 s15; s01–s07; the rest; verdict reports diffed section-wise;
+> `tools/diff_room_polygons.py` after EVERY sweep, `tools/room_shape_crop.py`
+> crops of every room whose IoU moved under 0.99, and a scratch UNSIMPLIFIED
+> polygon diff whenever any room loses area). Read first:
+> `docs/w-gate-iter3-checkpoints/step-6.md` (the dash-row rule, its two
+> discriminators, the ten lost rooms and the decision), `step-5.md`,
+> `step-3.md`, `step-2.md`, this handoff's iteration-3 outcome sections, the
+> CLAUDE.md paragraphs "Room detection" and "Wall/room world-space gates",
+> `detection/rooms.py::_door_plugs` / `_clip_plug_tails`, and
+> `docs/regression-testing-guide.md` §9 §10 §12 §13.
+>
+> **The step-6 decision comes first.** (a) If the user applied the patch:
+> the sweep has ten LOST lines until they re-review s15 and s07
+> (`tools/review.py s15` / `s07` records verdicts on the new REVIEW rooms —
+> the garage and the hall slice — and the stale confirmed cells must be
+> retired by the user's own hand edit of `tests/ground_truth/s15.json` /
+> `s07.json`; you never edit those); reseed labels on s07/s15/s17/s18; the
+> remaining residue is the 3-piece chain fragment fencing the hall slice —
+> a text-mask join (rows on one line either side of a text span are one row)
+> is its own iteration. (b) If they rejected it, dash rows stay walls and
+> s15's seal-14 blocker (the ridge beam across door_0013's doorway plane)
+> stays.
+>
+> **Step 7 — `ROOM_OPENING_SEAL_PX` 12 → 15 retry**: with step 5 in, s02 is
+> identical at 13/14/15; with the dash rule in, s15 is identical at 14.
+> Blockers left: s01 room_0005 at 13–14 (the plug-fit fallback "anchors
+> disagree → full envelope", its own knife-edge) and two unmeasured
+> pre-existing moves at 14–15 — s01 room_0003 (IoU 0.985) and s04 room_0001
+> (0.987) — measure both with `tools/census_scratch/probe_box.py` before
+> deciding; s03's two recorded FP rooms must stay out (they return at 18).
+> s01's hall door needs 125 mm of reach (8 px at 1:92.2); 15 at 1:50 is 127
+> mm. Synthetic test first, harness pre-check on s01/s02/s03/s04/s15 at the
+> candidate seal, full sweep, polygon diffs, crops, verdicts, reseed, prose,
+> checkpoint `step-7.md`, and STOP.
+>
+> Then, only with the user's decision on s01's three stair-split confirmed
+> rooms ((1090,699)–(1142,876), (466,920)–(521,1056), (1033,925)–(1142,1134),
+> step-3.md): narrow `_gate_denominator` (s01 at 0.542 must keep 11 doors, 4
+> windows and every remaining confirmed room), then step 4
+> (`WALL_MAX_THICKNESS_PX` 36 → 40: the s11 recess box, s15 annotation pocket
+> and s18 tree strip must stay out; expected −5 recorded phantoms on
+> s16/s17). Also queued, each its own iteration: the dash-row text-mask join;
+> re-calibrating the fallback in-wall gate on tail-less plugs; deeper band
+> pockets / the recess class; Gap D of `docs/hatch-cell-chords-handoff.md`; a
+> jamb-scale floor for lining rings; the lattice knife-edges; an
+> open-arrowhead stair recognizer.
+>
+> Rules for the whole run: do not commit (the user commits); do not edit
+> `tests/ground_truth/*.json` or `fixtures/MANIFEST.json`; never revert
+> s01's truth scale (1:92.2); never `git stash`; macOS has no `timeout`; the
+> venv lacks InquirerPy; s01 and s02 at f=1.0 must not change (entity set
+> AND polygons) until `_gate_denominator` deliberately moves s01 — report
+> any move as a decision; if a rule costs a confirmed entity or returns an
+> FP, revert it, report why, and STOP; PNG crops go under
+> `docs/w-gate-iter3-checkpoints/` and must never show a street address or
+> planning-portal id. End every report with the numbers: lost, returned
+> FPs, new REVIEW lines with your verdicts, net phantom delta, and what is
+> next.
+
+### Step-6 decision (2026-09-05, same day)
+
+The user looked at the before|after ("s15 looks good"; the split cells had
+been confirmed as CHUNKS of one room) and asked for the ten verdicts to be
+retired. Done: `step-6-dash-rows.patch` applied to the tree (11 tests
+green), the ten `confirmed` entries removed by hand from
+`tests/ground_truth/s15.json` (nine `partial` chunks) and `s07.json` (the
+closet) via `regression.ground_truth.dump_truth` (61-line deletion, hygiene
+test green), labels reseeded on s07/s15/s17/s18 (warning counts back to
+baseline, no `ROOM_LABEL_*`), re-sweep of those four sheets: s07 6/6, s15
+11/11, s17 24/24, s18 14/14 — **0 LOST, 67 returned FPs, 6 REVIEW** corpus-
+wide (s15's garage and hall slice still await `tools/review.py s15`). The
+next-agent prompt above applies with branch (a): step 7 next, s15 no longer
+blocks seal 14. Caution for step 7: the confirmed vestibule
+[848.7,1549.4,936.7,1630.8] matches the merged 169px vestibule at IoU 0.52.

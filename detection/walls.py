@@ -296,6 +296,67 @@ WALL_TEXT_MIN_MULTI_STROKE  = 2     # members drawn with >= 2 strokes (hatch
 WALL_TEXT_ANGLE_DIVERSITY   = 20.0  # degrees between some two strokes of the
                                     # row (a loose hatch row is one angle)
 
+# DRAWN DASH LINES: a dashed line TYPE — beam-over and boundary lines,
+# section lines, demolition and "line of wall over" — that the exporter
+# explodes into one solid `l` piece per dash. Each piece in the wall pen
+# clears the face floor and became a strong lone barrier face; the 8px
+# free-space opening then sealed the slots between them and the row fenced
+# like a wall. Measured 2026-09-04 (tools/census_scratch/dash_rows.py, every
+# collinear same-pen row at gaps on all 20 sheets): s15's "steel ridge
+# beam 1" — a 3.0px CHAIN-dash, 74/14.8px pieces alternating at 14.8px gaps
+# — split the lounge and the hall along the beam and crossed door_0013's
+# doorway plane; its 2.0px 14.8/7.5 rows fenced the room_0016 pocket and
+# outvoted a real 59px face in the collinear-anchor vote; s07's 7.5/3.8
+# rows pair into "walls" 18px apart, s12's red 11.8/11.8 and s17's orange
+# 14.8/7.5 rows are demolition lines, s05/s12 draw 6/6 dotted lines. The
+# convention: a dash row is ONE line — same pen, every gap EQUAL and SHORT
+# (a paper-space drafting convention, 3.7-15px across the corpus at 1:50
+# and 1:100 alike), pieces of one length (plain) or two strictly
+# alternating (chain / dash-dot), and its clipped END dashes never longer
+# than one period (s15's rows start with 18.0 or 36.7px pieces). Wall
+# linework is never periodic: a face broken by text masks has gaps of
+# unequal length; a face broken by openings has THREE pieces at world
+# opening widths (s05 [165, 27, 165] at 49px, s07 [106, 99, 106] at 21px,
+# s11 [35, 71, 34] at 35px, s15 [212, 198, 212] at 42.5px, s03 [157, 201,
+# 157] at 5.7px — every such row on the corpus has exactly three pieces);
+# a wall drawn in touching pieces (s06) has no gaps at all. Members leave
+# face collection with the dimension chains and glyph strokes (every tier,
+# and so the anchor vote); material marks are collected separately and are
+# untouched — an axis-parallel dash is never diagonal to its band.
+WALL_DASH_MIN_PIECES        = 4     # a plain row needs two equal interior
+                                    # pieces (n >= 4), a chain row three
+                                    # alternating (n >= 5); every
+                                    # opening-broken wall face measures 3
+WALL_DASH_GAP_MAX_PX        = 18.0  # 3mm paper: the longest dash gap on the
+                                    # corpus is 15.0 (s15's chain lines), the
+                                    # shortest opening gap in a 3-piece wall
+                                    # row 21.3 (s07, 1:100)
+WALL_DASH_GAP_MIN_PX        = 0.5   # a real gap; touching pieces are one line
+WALL_DASH_GAP_TOL_PX        = 1.5   # gap equality: this or WALL_DASH_TOL_FRAC
+WALL_DASH_TOL_FRAC          = 0.12  # of the median, whichever is larger
+                                    # (measured gaps jitter <= 0.3px; a 7.8
+                                    # in a 6.0 row is a phase reset and
+                                    # splits the row, both halves qualify)
+WALL_DASH_LINE_TOL_PX       = 0.6   # pieces of one line share its offset
+WALL_DASH_ANGLE_TOL         = 0.5   # degrees between consecutive pieces
+WALL_DASH_MAX_DASH_GAP_RATIO = 8.0  # longest piece class <= this many gaps:
+                                    # standard line types keep it within ~5
+                                    # (dashed 12/3, chain 24/6/0.5; s15 74/
+                                    # 14.8, s20 38/7.7, s18 47/9.5, s02's
+                                    # hairline 78/11.5 = 6.8), while a wall
+                                    # face between 2px-gapped tick stubs is
+                                    # 100+ (s17: 348px at 2.0)
+WALL_DASH_HATCH_END_TOL_PX  = 1.5   # a hatch stroke ENDS on the row when its
+                                    # endpoint lies this close to the line —
+                                    # the dotted FACE of a hatched band (s05:
+                                    # 104 through-hatch ends on a 6/6 row at
+                                    # 23/100px, one side); the density gate is
+                                    # the weak tier's (WALL_WEAK_MATERIAL_*)
+WALL_DASH_HATCH_SIDE_FRAC   = 0.8   # ...and the ending strokes lie on ONE side
+                                    # (a wall's material lies on one side of
+                                    # each face; hatch clipped around a line
+                                    # drawn OVER it would end from both)
+
 WALL_BACKGROUND_FILL_MIN    = 0.97  # every channel at/above this = page background;
                                     # unstroked white shapes are text masks and
                                     # counter tops, never wall material
@@ -1709,6 +1770,219 @@ def _vector_text_indices(paths: list[PathPrimitive]) -> set[int]:
             continue
         for g in gs:
             out.update(pieces[m][0] for m in g["members"])
+    return out
+
+
+def _dash_row_indices(
+    paths: list[PathPrimitive], marks: list[tuple] | None = None,
+    *, gates: WallGates = WALL_GATES_UNSCALED,
+) -> set[int]:
+    """Path indices of drawn dash lines: annotation, never faces.
+
+    A dashed line type is exported as one solid `l` piece per dash, and
+    every piece in the wall pen became a strong lone barrier face (see the
+    WALL_DASH_* block). A row is a chain of same-pen solid pieces on one
+    line (WALL_DASH_LINE_TOL_PX across, WALL_DASH_ANGLE_TOL between
+    consecutive pieces), each linked to the NEAREST piece following it —
+    never across an intervening one — at a real, short gap
+    (WALL_DASH_GAP_MIN_PX < gap <= WALL_DASH_GAP_MAX_PX); a piece that
+    touches or overlaps the next is a solid continuation and links to
+    nothing (measured on s17: a 92px wall face followed by a 3.75px tick
+    at gap 0 and a 348px face 6px on — linking past the tick read [92,
+    3.75, 348, 3.75, 5.5] as a chain-dash and opened a confirmed corridor
+    into the external wall band). A chain is split wherever a gap departs
+    from its median (a text mask, a phase reset) or closes. A sub-row of
+    >= WALL_DASH_MIN_PIECES is a dash line when its INTERIOR pieces come in
+    one length (plain; two or more) or two strictly alternating lengths
+    (chain / dash-dot; three or more), no piece class longer than
+    WALL_DASH_MAX_DASH_GAP_RATIO gaps (every standard line type keeps its
+    longest dash within ~5 gaps; a wall face between tick stubs is 100+).
+    Its end pieces are the clipped dashes where the line starts and stops
+    and are flagged only when no longer than one period (the long class
+    plus the gap): a wall face the dash line abuts on its own line keeps
+    its rights. And a row that hatch strokes END on — `marks` (from
+    _collect_material_marks) with an endpoint on the row's line within its
+    extent, oblique to it, predominantly from one side, at the weak-tier
+    material density — is the FACE of a hatched band drawn dotted, never a
+    dash line: s05's 475mm external wall has its inner face drawn as a 6/6
+    dotted row on which its 104 through-hatch strokes end, and flagging it
+    merged Bed 1 and Bed 2 through the wall band. A beam line crossing a
+    hatched band is crossed by the hatch, which ends on the band's own
+    faces.
+    """
+    pieces: list[tuple] = []          # (idx, a, b, length, pen, ux, uy)
+    for p in paths:
+        if p.item_type != "l" or len(p.points) < 2 or p.stroke_width <= 0:
+            continue
+        if p.color is None or p.fill is not None or _is_dashed(p.dashes):
+            continue
+        a, b = p.points[0], p.points[-1]
+        length = _line_length(a, b)
+        if length < 2.0:
+            continue
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        if ux < 0 or (abs(ux) < 1e-9 and uy < 0):
+            ux, uy, a, b = -ux, -uy, b, a
+        pieces.append((
+            p.path_index, a, b, length,
+            (_pen_key(p.color), round(p.stroke_width, 2)), ux, uy,
+        ))
+    n = len(pieces)
+    if n < WALL_DASH_MIN_PIECES:
+        return set()
+
+    cell = WALL_DASH_GAP_MAX_PX + 1.0
+    grid: dict[tuple[int, int], list[int]] = {}
+    for i, pc in enumerate(pieces):
+        a = pc[1]
+        grid.setdefault((int(a[0] // cell), int(a[1] // cell)), []).append(i)
+    parent = list(range(n))
+
+    def _find(i: int) -> int:
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    sin_tol = math.sin(math.radians(WALL_DASH_ANGLE_TOL))
+    for i, (_, ai, bi, _, pen_i, ux, uy) in enumerate(pieces):
+        cx, cy = int(bi[0] // cell), int(bi[1] // cell)
+        best_j, best_gap = -1, None
+        for gx in (cx - 1, cx, cx + 1):
+            for gy in (cy - 1, cy, cy + 1):
+                for j in grid.get((gx, gy), ()):
+                    if j == i:
+                        continue
+                    _, aj, bj, _, pen_j, vx, vy = pieces[j]
+                    if pen_j != pen_i or abs(ux * vy - uy * vx) > sin_tol:
+                        continue
+                    # An overdrawn duplicate is the same piece, not a neighbour.
+                    if (
+                        _distance(aj, ai) <= WALL_DASH_LINE_TOL_PX
+                        and _distance(bj, bi) <= WALL_DASH_LINE_TOL_PX
+                    ):
+                        continue
+                    gap = (aj[0] - bi[0]) * ux + (aj[1] - bi[1]) * uy
+                    if gap > WALL_DASH_GAP_MAX_PX:
+                        continue
+                    # A piece ending at or before this one's end is a
+                    # predecessor, not a follower.
+                    if (bj[0] - bi[0]) * ux + (bj[1] - bi[1]) * uy <= WALL_DASH_GAP_MIN_PX:
+                        continue
+                    off_a = abs((aj[0] - ai[0]) * -uy + (aj[1] - ai[1]) * ux)
+                    off_b = abs((bj[0] - ai[0]) * -uy + (bj[1] - ai[1]) * ux)
+                    if max(off_a, off_b) > WALL_DASH_LINE_TOL_PX:
+                        continue
+                    if best_gap is None or gap < best_gap:
+                        best_j, best_gap = j, gap
+        # The nearest following piece decides: touching or overlapping it,
+        # the line runs on solid; a short gap to it is a dash slot.
+        if best_j >= 0 and WALL_DASH_GAP_MIN_PX < best_gap:
+            ri, rj = _find(i), _find(best_j)
+            if ri != rj:
+                parent[ri] = rj
+
+    comps: dict[int, list[int]] = {}
+    for i in range(n):
+        comps.setdefault(_find(i), []).append(i)
+
+    def _classes(lens: list[float]) -> tuple[list[float], list[int]]:
+        centers: list[float] = []
+        labels: list[int] = []
+        for length in lens:
+            for k, c in enumerate(centers):
+                if abs(length - c) <= max(WALL_DASH_GAP_TOL_PX, WALL_DASH_TOL_FRAC * c):
+                    labels.append(k)
+                    break
+            else:
+                centers.append(length)
+                labels.append(len(centers) - 1)
+        return centers, labels
+
+    def _hatch_ends_on(a0, ux, uy, t_lo, t_hi, angle) -> bool:
+        """Hatch strokes clipped to this row: their endpoints lie on its
+        line within its extent, oblique to it, mostly from one side, at the
+        weak-tier density (a dotted face of a hatched band)."""
+        if not marks:
+            return False
+        nx, ny = -uy, ux
+        tol = WALL_DASH_HATCH_END_TOL_PX
+        sides = [0, 0]
+        for (mx, my), mang, ma, mb, _ in marks:
+            d = _angle_diff_mod180(mang, angle)
+            if not (WALL_WEAK_MATERIAL_ANGLE_MIN <= d <= WALL_WEAK_MATERIAL_ANGLE_MAX):
+                continue
+            hit = False
+            for pt in (ma, mb):
+                off = (pt[0] - a0[0]) * nx + (pt[1] - a0[1]) * ny
+                t = (pt[0] - a0[0]) * ux + (pt[1] - a0[1]) * uy
+                if abs(off) <= tol and t_lo - tol <= t <= t_hi + tol:
+                    hit = True
+                    break
+            if not hit:
+                continue
+            side = (mx - a0[0]) * nx + (my - a0[1]) * ny
+            sides[0 if side < 0 else 1] += 1
+        count = sides[0] + sides[1]
+        length = max(t_hi - t_lo, 1e-6)
+        return (
+            count >= WALL_WEAK_MATERIAL_MIN_MARKS
+            and count / (length / 100.0) >= gates.WALL_WEAK_MATERIAL_PER_100PX
+            and max(sides) >= WALL_DASH_HATCH_SIDE_FRAC * count
+        )
+
+    out: set[int] = set()
+    for members in comps.values():
+        if len(members) < WALL_DASH_MIN_PIECES:
+            continue
+        _, a0, _, _, _, ux, uy = pieces[members[0]]
+
+        def _t(pt):
+            return (pt[0] - a0[0]) * ux + (pt[1] - a0[1]) * uy
+
+        ordered = sorted(members, key=lambda m: _t(pieces[m][1]))
+        gaps = [
+            _t(pieces[ordered[k + 1]][1]) - _t(pieces[ordered[k]][2])
+            for k in range(len(ordered) - 1)
+        ]
+        srt = sorted(gaps)
+        gm = srt[len(srt) // 2] if len(srt) % 2 else 0.5 * (srt[len(srt) // 2 - 1] + srt[len(srt) // 2])
+        tol = max(WALL_DASH_GAP_TOL_PX, WALL_DASH_TOL_FRAC * gm)
+        rows: list[list[int]] = []
+        cur = [ordered[0]]
+        for k, g in enumerate(gaps):
+            if g > WALL_DASH_GAP_MIN_PX and abs(g - gm) <= tol:
+                cur.append(ordered[k + 1])
+            else:
+                rows.append(cur)
+                cur = [ordered[k + 1]]
+        rows.append(cur)
+        angle = _line_angle_deg(a0, (a0[0] + ux, a0[1] + uy))
+        for row in rows:
+            if len(row) < WALL_DASH_MIN_PIECES:
+                continue
+            lens = [pieces[m][3] for m in row]
+            centers, labels = _classes(lens[1:-1])
+            if len(centers) == 1:
+                pass
+            elif len(centers) == 2 and len(labels) >= 3 and all(
+                labels[k] != labels[k + 1] for k in range(len(labels) - 1)
+            ):
+                pass
+            else:
+                continue
+            if max(centers) > WALL_DASH_MAX_DASH_GAP_RATIO * gm:
+                continue
+            t_lo = _t(pieces[row[0]][1])
+            t_hi = _t(pieces[row[-1]][2])
+            if _hatch_ends_on(a0, ux, uy, t_lo, t_hi, angle):
+                continue
+            period = max(centers) + gm
+            last = len(row) - 1
+            for k, m in enumerate(row):
+                if k in (0, last) and lens[k] > period + tol:
+                    continue
+                out.add(pieces[m][0])
     return out
 
 
@@ -3967,11 +4241,30 @@ def detect_wall_network(
     # 2026-09-02: s03 248, s04 50/50, s08 48/48, s12 116, s17 128 seams
     # were stroked faces; s01 has no fill rings and s02's 48 seams are
     # fill-only, so the reference sheets carry no such face).
+    # And DRAWN DASH LINES (_dash_row_indices): a dashed line type exported
+    # as one solid piece per dash — beam-over, boundary, section and
+    # demolition lines — whose pieces in the wall pen were strong lone
+    # barrier faces that fenced like a wall (s15's "steel ridge beam" split
+    # the lounge) and outvoted real faces in the collinear-anchor vote; a
+    # periodic row of equal short gaps is one drawn line, never wall ink.
     rings = _collect_fill_rings(paths)
     seam_indices, seam_adjacency = _fill_seams(rings, paths)
+    # Material marks are collected ONCE, up to the through-hatch diagonal
+    # (the longest stroke any band the network can pair may be hatched
+    # with); every material gate then filters them to the band under test
+    # with _mark_len_cap, so a thin band still sees only short hatch while
+    # a thick-tier band sees its own T*sqrt(2) strokes. The tuples carry
+    # their endpoints for exactly this — and for the dash-row recogniser,
+    # which reads where hatch strokes END.
+    marks = _collect_material_marks(
+        paths, gates=gates,
+        max_len=gates.WALL_THROUGH_HATCH_MAX_PX * math.sqrt(2.0) + 2.0,
+    )
     excluded = frozenset(exclude_path_indices or ()) | frozenset(
         _dimension_line_indices(paths, gates=gates)
     ) | frozenset(_vector_text_indices(paths)) | frozenset(
+        _dash_row_indices(paths, marks, gates=gates)
+    ) | frozenset(
         p.path_index for p in paths if _layer_annotation_veto(p.layer)
     ) | frozenset(seam_indices)
     fill_is_wall = _rate_fill_classes(rings, gates=gates)
@@ -4097,16 +4390,8 @@ def detect_wall_network(
     for f in weak_merged:
         f.weak = True
 
-    # Material marks are collected ONCE, up to the through-hatch diagonal
-    # (the longest stroke any band the network can pair may be hatched
-    # with); every material gate then filters them to the band under test
-    # with _mark_len_cap, so a thin band still sees only short hatch while
-    # a thick-tier band sees its own T*sqrt(2) strokes. The tuples carry
-    # their endpoints for exactly this.
-    marks = _collect_material_marks(
-        paths, gates=gates,
-        max_len=gates.WALL_THROUGH_HATCH_MAX_PX * math.sqrt(2.0) + 2.0,
-    )
+    # The material marks collected above (once, at the through diagonal)
+    # serve every band gate from here on.
     through_marks = marks
     centerlines = _pair_faces_to_centerlines(
         merged_faces + weak_merged, thick_tier=True, gates=gates,

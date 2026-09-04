@@ -1708,3 +1708,189 @@ class TestVectorTextExclusion(unittest.TestCase):
         self.assertEqual(
             _vector_text_indices(word), {p.path_index for p in word}
         )
+
+
+class TestDashRowExclusion(unittest.TestCase):
+    """A DRAWN DASH LINE — one line its line type exploded into a periodic
+    row of short pieces at equal, short gaps (s15's beam and boundary lines:
+    14.8px dashes at 7.5px gaps in a 2.0px pen; its "steel ridge beam" is a
+    74/14.8 chain-dash at 14.8px gaps in a 3.0px pen) — is annotation, never
+    a wall face and never a collinear-anchor vote. Wall linework is never
+    periodic: a face broken by text masks has gaps of unequal length, one
+    broken by openings has gaps at world opening widths and only ever three
+    pieces (s05 [165, 27, 165] at 49px, s07 [106, 99, 106] at 21px, s03 [157,
+    201, 157] at 5.7px), and a wall drawn in touching pieces (s06) has no
+    gaps at all."""
+
+    @staticmethod
+    def _dash_row_v(start_idx, x, y0, y1, dash=14.8, gap=7.5, **kw):
+        out, y, k = [], y0, 0
+        while y + dash <= y1 + 1e-6:
+            out.append(vline(start_idx + k, x, y, y + dash, **kw))
+            y += dash + gap
+            k += 1
+        return out
+
+    @staticmethod
+    def _chain_row_v(start_idx, x, y0, y1, long=74.0, short=14.8, gap=14.8,
+                     **kw):
+        out, y, k = [], y0, 0
+        while True:
+            piece = long if k % 2 == 0 else short
+            if y + piece > y1 + 1e-6:
+                break
+            out.append(vline(start_idx + k, x, y, y + piece, **kw))
+            y += piece + gap
+            k += 1
+        return out
+
+    def test_plain_dash_row_never_becomes_faces(self):
+        row = self._dash_row_v(50, 250, 108, 592, stroke_width=2.0)
+        self.assertGreaterEqual(len(row), 20)
+        paths = rect_room(0, 100, 100, 400, 600) + row
+        network = detect_wall_network(paths)
+        face_idx = {i for f in network.faces for i in f.indices}
+        self.assertFalse(face_idx & {p.path_index for p in row})
+        self.assertEqual(len(network.paired_face_indices() & set(range(8))), 8)
+
+    def test_chain_dash_row_never_becomes_faces(self):
+        row = self._chain_row_v(50, 250, 108, 592, stroke_width=3.0)
+        self.assertGreaterEqual(len(row), 5)
+        paths = rect_room(0, 100, 100, 400, 600) + row
+        network = detect_wall_network(paths)
+        face_idx = {i for f in network.faces for i in f.indices}
+        self.assertFalse(face_idx & {p.path_index for p in row})
+
+    def test_dash_row_is_not_a_collinear_anchor_vote(self):
+        # s15 room_0016: a real 59px wall face (paths 5465/5467, 3.0px)
+        # merged with the three dash pieces its extent overlaps, 1.75px
+        # off its line, and the ~20 more within the anchor reach outvoted
+        # it, moving the face onto the dash row's line and sealing a
+        # 132x43px pocket. The face keeps its own line.
+        row = self._dash_row_v(50, 251.75, 100, 592, stroke_width=2.0)
+        face = vline(200, 250.0, 300, 359)          # the real face, on its own line
+        partner = vline(201, 258.0, 300, 359)       # pairs with it (8px band)
+        paths = rect_room(0, 100, 100, 400, 600) + row + [face, partner]
+        network = detect_wall_network(paths)
+        run = next(f for f in network.faces if 200 in f.indices)
+        self.assertAlmostEqual(run.p1[0], 250.0, delta=0.05)
+        self.assertAlmostEqual(run.p2[0], 250.0, delta=0.05)
+
+    def test_wall_face_broken_by_openings_keeps_face_rights(self):
+        # s05's left external wall: [165, 27, 165] at 49px window gaps —
+        # three pieces, world-space gaps; and a face split by three equal
+        # windows, four equal piers at equal gaps, gaps at opening width.
+        three = [
+            vline(50, 250, 100, 265), vline(51, 250, 314, 341),
+            vline(52, 250, 390, 555),
+        ]
+        four = [vline(60 + k, 350, 100 + k * 142, 200 + k * 142) for k in range(4)]
+        paths = (
+            three + [vline(53, 258, 100, 555)]
+            + four + [vline(64, 358, 100, 626)]
+        )
+        network = detect_wall_network(paths)
+        paired = network.paired_face_indices()
+        self.assertTrue({50, 51, 52} <= paired)
+        self.assertTrue({60, 61, 62, 63} <= paired)
+
+    def test_wall_in_touching_pieces_is_one_line(self):
+        # s06 draws walls as equal pieces end to end: no gap, no dash row.
+        pieces = [vline(50 + k, 250, 100 + 40 * k, 140 + 40 * k) for k in range(8)]
+        paths = pieces + [vline(70, 258, 100, 420)]
+        network = detect_wall_network(paths)
+        self.assertTrue(set(range(50, 58)) <= network.paired_face_indices())
+
+    def test_dash_row_indices_directly(self):
+        from detection.walls import _dash_row_indices
+        row = self._dash_row_v(50, 250, 100, 400, stroke_width=2.0)
+        self.assertEqual(_dash_row_indices(row), {p.path_index for p in row})
+        chain = self._chain_row_v(50, 250, 100, 600, stroke_width=3.0)
+        self.assertEqual(_dash_row_indices(chain), {p.path_index for p in chain})
+        # Three pieces never qualify (a wall with two symmetric openings).
+        self.assertEqual(_dash_row_indices(row[:3]), set())
+        # Unequal gaps (a face broken by text masks) never qualify.
+        broken = [
+            vline(50, 250, 100, 180), vline(51, 250, 210, 290),
+            vline(52, 250, 300, 380), vline(53, 250, 430, 510),
+        ]
+        self.assertEqual(_dash_row_indices(broken), set())
+        # Equal gaps at opening width (four piers, three windows) never do.
+        piers = [vline(60 + k, 350, 100 + k * 142, 200 + k * 142) for k in range(4)]
+        self.assertEqual(_dash_row_indices(piers), set())
+
+
+class TestDashRowDiscriminators(unittest.TestCase):
+    """The two classes the corpus sweep exposed on the first cut of the
+    rule: a wall face between tick stubs (s17) and the dotted face of a
+    hatched band (s05)."""
+
+    _dash_row_v = staticmethod(TestDashRowExclusion._dash_row_v)
+    _chain_row_v = staticmethod(TestDashRowExclusion._chain_row_v)
+
+    @staticmethod
+    def _through_hatch_v(start_idx, x0, x1, y0, y1, pitch=3.1, **kw):
+        """135-degree strokes from face x0 to face x1, clipped to the band."""
+        out, k, t, y = [], 0, x1 - x0, y0
+        while y + t <= y1 + 1e-6:
+            out.append(path(start_idx + k, [(x0, y + t), (x1, y)], **kw))
+            y += pitch
+            k += 1
+        return out
+
+    @staticmethod
+    def _through_hatch_h(start_idx, x0, x1, y0, y1, pitch=3.1, **kw):
+        out, k, t, x = [], 0, y1 - y0, x0
+        while x + t <= x1 + 1e-6:
+            out.append(path(start_idx + k, [(x, y1), (x + t, y0)], **kw))
+            x += pitch
+            k += 1
+        return out
+
+    def test_face_with_tick_stubs_is_not_a_dash_row(self):
+        from detection.walls import _dash_row_indices
+        # s17 y=3062.67: [92, 3.75, 348.5, 3.75, 5.5] at gaps [0, 2.25, 2, 0].
+        # Linking past the touching tick read it as a chain-dash.
+        pieces = [
+            hline(50, 887.17, 979.17, 300), hline(51, 979.17, 982.92, 300),
+            hline(52, 985.17, 1333.67, 300), hline(53, 1335.67, 1339.42, 300),
+            hline(54, 1339.42, 1344.92, 300),
+        ]
+        self.assertEqual(_dash_row_indices(pieces), set())
+        network = detect_wall_network(pieces + [hline(60, 887, 1345, 308)])
+        self.assertTrue({50, 52} <= network.paired_face_indices())
+
+    def test_dotted_face_of_a_hatched_band_keeps_face_rights(self):
+        from detection.walls import _collect_material_marks, _dash_row_indices
+        # s05: the external wall's inner face is a dotted row on which the
+        # band's through-hatch strokes end (one side, 23 ends per 100px).
+        outer = vline(10, 100, 100, 560)
+        dots = self._dash_row_v(50, 128, 100, 560, dash=12.0, gap=12.0)
+        hatch = self._through_hatch_v(200, 100, 128, 100, 560, stroke_width=0.5)
+        paths = [outer] + dots + hatch
+        marks = _collect_material_marks(paths, max_len=72 * 2 ** 0.5 + 2)
+        self.assertEqual(_dash_row_indices(paths, marks), set())
+        # Without the hatch the same row IS a dash line.
+        self.assertEqual(
+            _dash_row_indices([outer] + dots), {p.path_index for p in dots}
+        )
+        network = detect_wall_network(paths)
+        self.assertTrue({p.path_index for p in dots} & network.paired_face_indices())
+
+    def test_dash_row_crossing_hatched_bands_is_still_flagged(self):
+        from detection.walls import _dash_row_indices, _collect_material_marks
+        # s15's ridge beam runs from the top band's inner face to the
+        # bottom band's; the hatch of both bands ends on the bands' own
+        # faces, not on the row.
+        room = rect_room(0, 100, 100, 400, 600, thickness=14)
+        hatch = (
+            self._through_hatch_h(300, 100, 400, 100, 114, stroke_width=0.5)
+            + self._through_hatch_h(500, 100, 400, 586, 600, stroke_width=0.5)
+        )
+        row = self._chain_row_v(50, 250, 114, 586, stroke_width=3.0)
+        paths = room + hatch + row
+        marks = _collect_material_marks(paths, max_len=72 * 2 ** 0.5 + 2)
+        self.assertEqual(_dash_row_indices(paths, marks), {p.path_index for p in row})
+        network = detect_wall_network(paths)
+        face_idx = {i for f in network.faces for i in f.indices}
+        self.assertFalse(face_idx & {p.path_index for p in row})

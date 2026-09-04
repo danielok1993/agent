@@ -2031,3 +2031,33 @@ class TestDoorLiningRings(unittest.TestCase):
         self.assertEqual(len(a), 2)
         for x, y in zip(a, b):
             self.assertAlmostEqual(x, y, delta=5.0)
+
+
+class TestDashRowBarriers(unittest.TestCase):
+    """s15: the "steel ridge beam" line — a dashed line drawn as a row of
+    14.8px pieces at 7.5px gaps in the wall pen — ran through the lounge
+    from band to band; every piece was a strong lone barrier face, the 8px
+    free-space opening sealed the 3.5px slots between them, and the lounge
+    came out as two rooms split along a beam that is overhead annotation.
+    A wall drawn in touching pieces (s06) still splits its rooms."""
+
+    @staticmethod
+    def _dash_row_v(start_idx, x, y0, y1, dash=14.8, gap=7.5, **kw):
+        out, y, k = [], y0, 0
+        while y + dash <= y1 + 1e-6:
+            out.append(vline(start_idx + k, x, y, y + dash, **kw))
+            y += dash + gap
+            k += 1
+        return out
+
+    def test_room_is_not_split_by_a_beam_line(self):
+        row = self._dash_row_v(50, 350, 108, 392, stroke_width=2.0)
+        rooms = rooms_for(rect_room(0, 100, 100, 600, 400) + row)
+        self.assertEqual(len(rooms), 1)
+        self.assertAlmostEqual(rooms[0].bbox[2] - rooms[0].bbox[0], 480, delta=4)
+
+    def test_wall_in_touching_pieces_still_splits(self):
+        left = [vline(50 + k, 340, 100 + 50 * k, 150 + 50 * k) for k in range(6)]
+        right = [vline(60 + k, 348, 100 + 50 * k, 150 + 50 * k) for k in range(6)]
+        rooms = rooms_for(rect_room(0, 100, 100, 600, 400) + left + right)
+        self.assertEqual(len(rooms), 2)
