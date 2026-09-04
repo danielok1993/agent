@@ -100,8 +100,8 @@
     "semantic_hash": ""
   },
   "detection/walls.py": {
-    "mtime": 1788515576.7711635,
-    "ast_hash": "3bf4c21302e94808bf590cdd4f9121cc",
+    "mtime": 1788520616.559742,
+    "ast_hash": "3df25b25efccd22658f090e8e9fc0c50",
     "semantic_hash": ""
   },
   "detection/windows.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1788518225.6211357,
-    "ast_hash": "50c0556d542bb867f3fa6bcbb535e3a0",
+    "mtime": 1788520639.7364948,
+    "ast_hash": "2121ae785be09ebcba0a7fefa1525a9c",
     "semantic_hash": ""
   },
   "README.md": {
@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "detection/rooms.py": {
-    "mtime": 1788518240.7446237,
-    "ast_hash": "e6acd244cc8a8d282b7f3441e52ba542",
+    "mtime": 1788523356.4989579,
+    "ast_hash": "aa076cb19fd1eaec2c5446c0a1b37023",
     "semantic_hash": ""
   },
   "tests/test_cross_validate.py": {
@@ -260,8 +260,8 @@
     "semantic_hash": ""
   },
   "tests/test_room_detection.py": {
-    "mtime": 1788518246.525291,
-    "ast_hash": "c3a1c8a9896f18421b1a4a09a5187e3b",
+    "mtime": 1788523359.4565902,
+    "ast_hash": "90331c61e7ffbb2c0bc70ff052479beb",
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
@@ -810,8 +810,8 @@
     "semantic_hash": ""
   },
   "docs/scale-normalization-findings.md": {
-    "mtime": 1788518295.4368315,
-    "ast_hash": "77b82b3fd5cb51daa7c000dd83f4af53",
+    "mtime": 1788520632.1837845,
+    "ast_hash": "b5493f2bd1ea4fb65da104b6c9e54ede",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-08-12-scale-aware-wall-room-gates.md": {
@@ -1045,8 +1045,8 @@
     "semantic_hash": ""
   },
   "docs/w-gate-recalibration-handoff.md": {
-    "mtime": 1788518580.07806,
-    "ast_hash": "fa66ad068932cc1634585c67fbb92763",
+    "mtime": 1788520609.8110495,
+    "ast_hash": "ca63d2b9481558777630606ef3fb5a6b",
     "semantic_hash": ""
   },
   "takeoff/document.py": {
@@ -1427,6 +1427,86 @@
   "docs/w-gate-iter3-checkpoints/step2_s15_door_0013_dash_row_mid_cover_12_vs_14.png": {
     "mtime": 1788518162.597198,
     "ast_hash": "3b10edf388e8d55add20c4add6d262fb",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/probe_box.py": {
+    "mtime": 1788523125.5372374,
+    "ast_hash": "a32961366818ecafe2f33e359b84ac4b",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/probe_plugs.py": {
+    "mtime": 1788519049.160974,
+    "ast_hash": "6cbe49a8c027df671b0f425630508377",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/probe_survey.py": {
+    "mtime": 1788519049.167394,
+    "ast_hash": "2b4a895e005bf71d1a6c897cc73284b4",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/probe_tails.py": {
+    "mtime": 1788523133.7707868,
+    "ast_hash": "8480f2fd7c28e8029423bdf2070d3e61",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step-2.md": {
+    "mtime": 1788518681.1228745,
+    "ast_hash": "5dd4d596da60a13ed4e62b5b1af39194",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step-3.md": {
+    "mtime": 1788520557.2075238,
+    "ast_hash": "a41022d2b9093d1600caf8378c038c22",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step3_s01_flight_1051_identity_vs_0542.png": {
+    "mtime": 1788520431.5692112,
+    "ast_hash": "88839b2b8f435e2d08dd6efa9a2a99d5",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step3_s01_flight_877_arrow_pairs_identity_vs_0542.png": {
+    "mtime": 1788520431.5660875,
+    "ast_hash": "cc98fc04c467d6d31fb795844e0f0e57",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step3_s01_hall_corner_jamb_block_identity_vs_0542.png": {
+    "mtime": 1788520431.5758364,
+    "ast_hash": "719fdef46cf5a7c6b562b8f2b4a7d4a4",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step3_s01_landing_rooms_0_3_identity_vs_0542.png": {
+    "mtime": 1788520431.5728068,
+    "ast_hash": "fb3e7090119e2b03b3aab97967547044",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step5_s01_room_0004_hall_stub_before_after.png": {
+    "mtime": 1788523497.7836351,
+    "ast_hash": "9b90c1f9248b67a5a81dac085eb168cc",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step5_s02_bar_seal15_before_after.png": {
+    "mtime": 1788523497.7704973,
+    "ast_hash": "d231f9f7bfbd6bc8a5cf4f43c1f9b775",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step5_s02_room_0000_stub_before_after.png": {
+    "mtime": 1788523497.7868764,
+    "ast_hash": "1b5b0b337fc268537d36549ee46fa1d0",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step5_s15_room_0008_stub_slant_before_after.png": {
+    "mtime": 1788523497.777655,
+    "ast_hash": "a751d3ba4c55ceb463435ece721ae5ae",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step5_s15_room_0024_door_set_slant_before_after.png": {
+    "mtime": 1788523497.7807379,
+    "ast_hash": "ccbd61ff23edcb93be5ce2d6d29981fa",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step5_s17_room_0027_corridor_stub_slant_before_after.png": {
+    "mtime": 1788523497.7745082,
+    "ast_hash": "197623c84e09d42d77a79b14537b8439",
     "semantic_hash": ""
   }
 }
