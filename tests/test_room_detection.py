@@ -15,8 +15,9 @@ from shapely.ops import unary_union
 from models import Candidate, PathPrimitive, TextSpan
 from detection import detect_wall_network
 from detection.rooms import (
-    ROOM_GAP_CLOSE_PX, _door_plugs, _open_leaf_edges, _restrict_swing_plugs,
-    _sliding_end_edges, _swing_hinge_edges, _window_seal, detect_rooms,
+    ROOM_GAP_CLOSE_PX, _clip_plug_tails, _door_plugs, _open_leaf_edges,
+    _restrict_swing_plugs, _sliding_end_edges, _swing_hinge_edges,
+    _window_seal, detect_rooms,
 )
 
 PAGE_W, PAGE_H = 1000.0, 800.0
@@ -950,7 +951,8 @@ class TestPlugSealReach(unittest.TestCase):
     2/10 -> 3/11 with the sampling phase (bbox stamp, two swings fenced),
     and s02 was notched around a section-marker bar at 15 because a
     fallback door's full-cover plug tails overshoot the bar by 4.8px and
-    pinch the neck to the wall (see ROOM_OPENING_SEAL_PX). Measured on this
+    pinch the neck to the wall (see ROOM_OPENING_SEAL_PX; fixed by
+    _clip_plug_tails in step 5 — TestPlugTailTrim). Measured on this
     fixture, an interrupted plug seals a jamb gap of at most SEAL - 1px (11
     at 12, 13 at 14, 15 at 15): an 11px gap must seal, 13 must not."""
 
@@ -1056,6 +1058,56 @@ class TestPlugTailTrim(unittest.TestCase):
         x0, _, x1, _ = plugs[0][0].bounds
         self.assertAlmostEqual(x0, 188.0, delta=0.1)
         self.assertAlmostEqual(x1, 294.0, delta=0.1)
+
+    def test_tail_ends_at_the_material_it_touches(self):
+        # W-gate iteration 3 step 5 (s02 door_0050, the 0.35 fallback door
+        # on the "A" section-marker bar): a full-cover plug shadowing an
+        # ISLAND — here a 12px bar drawn as a wall pair, dilated material
+        # x 198..214, y 138..202 — whose ends lie inside the tail's reach.
+        # "Touching" is a distance test, so the farthest touching sample
+        # sat up to ROOM_PLUG_HALF_WIDTH_PX past the bar's end (the sample
+        # 4px above y=138 touches; the plug ran 134..206). The tail exists
+        # to reach the material it touches and ends where that material
+        # ends: every plug stays inside the bar. The clip is a separate
+        # step after the plugs are classified (_clip_plug_tails), so the
+        # fallback tier's in-wall gate keeps the population it was
+        # calibrated on.
+        bar = shapely_box(198, 138, 214, 202)
+        bbox = (200.0, 146.0, 212.0, 194.0)
+        raw = _door_plugs(bbox, bar)
+        self.assertTrue(raw)
+        self.assertEqual({k for _, k, _ in raw}, {"full"})
+        self.assertTrue(any(p.bounds[1] < 138.0 - 0.1 for p, _, _ in raw),
+                        "fixture no longer exercises the overshoot")
+        plugs = _clip_plug_tails(bbox, raw, bar)
+        self.assertEqual([(k, e) for _, k, e in plugs], [(k, e) for _, k, e in raw])
+        for plug, _, edge in plugs:
+            x0, y0, x1, y1 = plug.bounds
+            self.assertGreaterEqual(y0, 138.0 - 0.1, f"edge {edge} tail past the bar's top")
+            self.assertLessEqual(y1, 202.0 + 0.1, f"edge {edge} tail past the bar's bottom")
+            self.assertGreaterEqual(x0, 198.0 - 0.1, f"edge {edge}")
+            self.assertLessEqual(x1, 214.0 + 0.1, f"edge {edge}")
+
+    def test_tail_past_a_bar_end_does_not_pinch_the_neck(self):
+        # The same bar as an island in a room, 18px below the top band's
+        # dilated face (neck 120..138, over the 16px free-space pinch), with
+        # the fallback door detected on it. Untrimmed, the two long-edge
+        # plugs ran 4px past the bar's top, the neck fell to 14px, the
+        # opening severed it and the outline wrapped the bar column out of
+        # the room (s02 BEDROOM 2 at seal 15). With the tails ending at the
+        # bar, the neck is room floor.
+        paths = (
+            rect_room(0, 100, 110, 400, 310)
+            + wall_band_v(8, 200, 140, 200, thickness=12)
+        )
+        door = door_candidate((200.0, 146.0, 212.0, 194.0), confidence=0.35)
+        rooms = rooms_for(paths, doors=[door])
+        self.assertEqual(len(rooms), 1)
+        outline = ShapelyPolygon(rooms[0].evidence["polygon"])
+        self.assertTrue(
+            outline.contains(ShapelyPoint(206, 129)),
+            "the neck between the bar and the wall was fenced out",
+        )
 
 
 class TestJambNib(unittest.TestCase):

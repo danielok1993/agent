@@ -238,10 +238,13 @@ ROOM_OPENING_SEAL_PX        = 12.0    # bbox-edge extension when building door p
                                       # "improvement" at 15 was a corner door LINING
                                       # the lining rule rejected (_is_door_lining, now
                                       # handled at 12). s03 returns two recorded FP
-                                      # rooms at 18. Prerequisites for moving this:
-                                      # the dash rows and a tail that ends AT the
-                                      # material it shadows. An interrupted plug seals
-                                      # a jamb gap of at most SEAL - 1px
+                                      # rooms at 18. Step 5 ended the tails AT the
+                                      # material they touch (_clip_plug_tails): with
+                                      # it s02 is identical to its baseline at 13, 14
+                                      # and 15. What still blocks a move: the dash
+                                      # rows (s15 at >= 14) and s01's fit flip at
+                                      # 13-14. An interrupted plug seals a jamb gap of
+                                      # at most SEAL - 1px
                                       # (tests/test_room_detection.py::TestPlugSealReach).
 ROOM_PLUG_NEAR_PX           = 8.0     # a bbox edge "hugs" wall material within this
                                       # distance; the swing bbox lands on the wall faces
@@ -712,6 +715,102 @@ def _restrict_swing_plugs(candidate, plugs):
     return kept or plugs
 
 
+def _tail_material_end(corner, ux, uy, reach, half, wall_material) -> float:
+    """How far, along (ux, uy) from corner, the material a plug tail touches runs.
+
+    The envelope is the tail's spine buffered by the plug half-width with
+    round caps — exactly the region a tail sample can touch within
+    ROOM_PLUG_HALF_WIDTH_PX — and the answer is the farthest axial position
+    of wall material inside it, clipped to [0, reach]: material continuing
+    past the reach returns reach, an envelope holding none returns 0.
+    """
+    far = (corner[0] + ux * reach, corner[1] + uy * reach)
+    hit = LineString([corner, far]).buffer(half).intersection(wall_material)
+    end = 0.0
+    stack = [hit]
+    while stack:
+        g = stack.pop()
+        if g.is_empty:
+            continue
+        if hasattr(g, "geoms"):
+            stack.extend(g.geoms)
+            continue
+        coords = g.exterior.coords if hasattr(g, "exterior") else g.coords
+        for cx, cy in coords:
+            end = max(end, (cx - corner[0]) * ux + (cy - corner[1]) * uy)
+    return min(end, reach)
+
+
+def _clip_plug_tails(
+    bbox, plugs, wall_material, *, gates: RoomGates = ROOM_GATES_UNSCALED,
+):
+    """End each bbox-edge plug's tails AT the material they touch.
+
+    _door_plugs trims a tail back to the farthest profile SAMPLE touching
+    wall material, and "touching" is a distance test, so the tail still
+    runs up to ROOM_PLUG_HALF_WIDTH_PX past the END of the material it
+    touches — a plug-width stub stamped into the free space beyond an
+    island or a band end. Measured on s02 door_0050, the 0.35 fallback
+    door on the "A" section-marker bar (a filled ring islanded in BEDROOM
+    2): at seal 15 its two full-cover plugs ran 4.8px past each end of
+    the bar, narrowing the 20.5px neck to the wall under the 16px
+    free-space pinch, and the outline wrapped the bar column (W-gate
+    iteration 3 step 2); at seal 12 the sample phase happened to miss the
+    bar, while 45 of s15's 52 band-end tails and all 6 of s01's overshoot
+    1–4.4px, each a stub or a stub-induced slant on a room edge. The
+    convention: a tail exists to reach the jamb the bbox stopped short
+    of, and it ends where the material it touches ends, never beyond it —
+    material continuing past the tail's reach keeps the whole tail,
+    material ending inside the reach ends the tail there
+    (_tail_material_end, on the tail's own touch envelope).
+
+    Applied AFTER the caller has classified the plug (kind, hinge
+    restriction, the fallback tier's in-wall fraction) on the geometry
+    _door_plugs returns: clipping the out-of-material stubs off a plug
+    raises its in-material fraction, and gating on the clipped plug let
+    57 more fallback-tier plugs through on s15 (263 -> 320), seven of
+    them cutting 8–38 px2 notches into rooms 0006/0010/0014/0020/0021 and
+    s17 rooms 0022/0026 — the in-wall gate was calibrated with the tails
+    in its denominator (phantoms ~0.77, on-plane 0.84+), so it keeps
+    them. Each plug is cut to the slab between its two material ends
+    along the edge line; the cross-section and lateral position from the
+    jamb fit are untouched. Plugs without an edge index (the folding
+    chain-gap plug) pass through.
+    """
+    if not plugs:
+        return plugs
+    x0, y0, x1, y1 = bbox
+    edges = [
+        ((x0, y0), (x1, y0)),
+        ((x0, y1), (x1, y1)),
+        ((x0, y0), (x0, y1)),
+        ((x1, y0), (x1, y1)),
+    ]
+    reach = gates.ROOM_OPENING_SEAL_PX
+    half = gates.ROOM_PLUG_HALF_WIDTH_PX
+    out = []
+    for poly, kind, edge_idx in plugs:
+        if edge_idx is None or not (0 <= edge_idx < 4):
+            out.append((poly, kind, edge_idx))
+            continue
+        p, q = edges[edge_idx]
+        length = math.hypot(q[0] - p[0], q[1] - p[1])
+        if length < 1e-6:
+            out.append((poly, kind, edge_idx))
+            continue
+        ux = (q[0] - p[0]) / length
+        uy = (q[1] - p[1]) / length
+        end_a = _tail_material_end(p, -ux, -uy, reach, half, wall_material)
+        end_b = _tail_material_end(q, ux, uy, reach, half, wall_material)
+        slab = LineString([
+            (p[0] - ux * end_a, p[1] - uy * end_a),
+            (q[0] + ux * end_b, q[1] + uy * end_b),
+        ]).buffer(2.0 * half + 2.0, cap_style=2)
+        clipped = poly.intersection(slab)
+        out.append((poly if clipped.is_empty else clipped, kind, edge_idx))
+    return out
+
+
 def _door_plugs(
     bbox, wall_material, skip_edges=frozenset(),
     *, gates: RoomGates = ROOM_GATES_UNSCALED,
@@ -737,7 +836,9 @@ def _door_plugs(
     edge; the caller falls back to the dilated bbox. A qualified plug's
     end extensions are trimmed back to the farthest sample touching wall
     material, so a tail reaches INTO its jamb but never floats past it
-    into room floor.
+    into room floor; the caller then ends each tail AT the material it
+    touches with _clip_plug_tails, after classifying the plug on the
+    sample-trimmed geometry this function returns.
 
     Each plug is returned tagged with the profile that qualified it
     ("interrupted" / "full") so the caller can hold fallback-tier doors'
@@ -845,6 +946,9 @@ def _door_plugs(
             if touch[i]:
                 pos_b = max(i * step, ext_len - gates.ROOM_OPENING_SEAL_PX)
                 break
+        # A tail that still runs PAST the end of the material it touches
+        # (the touch test reaches half a plug width beyond it) is cut back
+        # by _clip_plug_tails once the caller has classified the plug.
         spine = LineString(
             [edge_line.interpolate(pos_a), edge_line.interpolate(pos_b)]
         )
@@ -1757,6 +1861,7 @@ def detect_rooms(
         # through the hinge, so far-edge plugs only ever fence the swing
         # square out of its room.
         leaf_edges = _open_leaf_edges(c, gates=gates) | _sliding_end_edges(c)
+        plug_material = local
         plugs = _restrict_swing_plugs(
             c, _door_plugs(c.bbox, local, skip_edges=leaf_edges, gates=gates)
         )
@@ -1778,10 +1883,15 @@ def detect_rooms(
                 if zx0 <= rx0 and rx1 <= zx1 and zy0 <= ry0 and ry1 <= zy1
             ]
             if leaves:
+                plug_material = unary_union([local] + leaves)
                 plugs = _restrict_swing_plugs(c, _door_plugs(
-                    c.bbox, unary_union([local] + leaves),
+                    c.bbox, plug_material,
                     skip_edges=leaf_edges, gates=gates,
                 ))
+        # Every plug is classified by now; end its tails at the material
+        # they touch (an island's end, a band end) rather than up to a
+        # plug half-width past it.
+        plugs = _clip_plug_tails(c.bbox, plugs, plug_material, gates=gates)
         # A folding chain parked at its jamb never spans its own doorway, so
         # bbox-edge plugs cannot seal the opening plane — recover it via the
         # span law (gap between wall ends == total leaf run) and plug across.

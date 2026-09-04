@@ -902,3 +902,147 @@ Report: `docs/w-gate-iter3-checkpoints/step-3.md` (four PNGs beside it).
 > never show a street address or planning-portal id. End every report with
 > the numbers: lost, returned FPs, new REVIEW lines with your verdicts, net
 > phantom delta, and what is next.
+
+## Outcome — iteration 3, step 5 (2026-09-04, branch `fix/plug-tail-ends-at-material`)
+
+The tail overshoot was measured before coding (`tools/census_scratch/
+probe_tails.py`, every kept plug's two tails on s02/s01/s15/s04 at seals 12
+and 15, classed by what the tail's touch envelope holds): no tail INTO
+material that continues past its reach ever overshoots, and every overshoot
+is a band-end or nib tail — s02 3 tails at 12 / 47 at 15 (door_0050's four
+bar tails 4.8 px), s01 7 / 5, s15 45 / 134, s04 1 / 5, all 0.6–5.0 px. The
+brief's "inert at seal 12" expectation was wrong: s02's bar is missed at 12
+only by sample phase, and s01/s15/s04 carry the same stubs at 12. Shipped
+`_clip_plug_tails` / `_tail_material_end`: after `_door_plugs` trims a tail
+to its farthest touching sample, the plug is cut to the slab between its two
+material ends along the edge line (material continuing past the reach keeps
+the whole tail, material ending inside it ends the tail there). The first
+cut, inside `_door_plugs`, was NOT inert in a second way: the fallback
+tier's in-wall gate (`ROOM_PLUG_IN_WALL_FRAC`) was calibrated with the tails
+in its denominator, and gating on clipped plugs let 57 more fallback plugs
+through on s15 (263 → 320), seven cutting 8–38 px² notches (unsimplified
+polygons, s15 rooms 0006/0010/0014/0020/0021, s17 0022/0026). The clip now
+runs after the plug is classified; with it no room loses any unsimplified
+area. Pins: `TestPlugTailTrim.test_tail_ends_at_the_material_it_touches` and
+`test_tail_past_a_bar_end_does_not_pinch_the_neck` (both fail without the
+rule). Sweep vs the step-3 baseline: verdict lines byte-identical (0 LOST,
+71 returned FPs, 5 REVIEW); 22 room polygons on s01/s02/s03/s11/s15/s17
+gain 6–742 px² each (+3,377 px²; s17 room_0027's 467 px corridor edge no
+longer leans on a 3.8 px stub; s01 +70 px² over three rooms and s02 +12 over
+one, at f = 1.0 — the user's call), nothing added, removed or lost; labels
+reseeded on the seven sheets whose outlines moved (s03's had been missing at
+baseline and are back). Harness at seals 13/14/15 with the rule: s02
+identical to its baseline at all three (the seal-15 notch is gone); s15
+rooms 0019/0020/0023/0024 still move at ≥ 14 (dash rows), s01 room_0005 at
+13–14 (fit flip), and two pre-existing unmeasured moves — s01 room_0003 at
+14–15 (0.985), s04 room_0001 at 14–15 (0.987). Report:
+`docs/w-gate-iter3-checkpoints/step-5.md` (six PNGs beside it). Next: step 6
+(dash rows), then step 7 (the seal retry).
+
+### Prompt for the next agent (iteration 3, step 6 onward — fresh context)
+
+> Use `/fix-detection` for its discipline (topic branch from the tip that
+> carries steps 2, 3 and 5 — `git log --all --oneline | head`; if the user
+> has not merged `fix/plug-tail-ends-at-material` into main yet, branch from
+> it; `compare_sweeps --snapshot` baselines of that tree for all 20 slugs,
+> re-swept first — never trust whatever sits in `outputs/regress/`; four
+> background sweep groups — s18; s16 s11 s15; s01–s07; the rest — a full
+> `regress.py` exceeds the 10-minute foreground limit; verdict reports diffed
+> section-wise; `tools/diff_room_polygons.py` on every sheet after EVERY
+> sweep and a `tools/room_shape_crop.py` crop of every room whose IoU moved
+> under 0.99 — verdict-identical is not clean; and a scratch UNSIMPLIFIED
+> polygon diff (`ROOM_SIMPLIFY_TOL_PX` = 0, the rule toggled by monkeypatch)
+> whenever any room LOSES area, because a barrier rule that only removes
+> barrier cannot lose free space — step 5 found the fallback in-wall gate
+> moving that way). Read first, in this order:
+> `docs/w-gate-iter3-checkpoints/step-5.md` (the tail clip, the in-wall-gate
+> lesson, the residual seal-13/14/15 sites), `step-3.md`, `step-2.md`,
+> `step-1.md`, `docs/w-gate-iter2-checkpoints/group-2.md`, this handoff's
+> iteration-3 outcome sections, the CLAUDE.md paragraphs "Room detection"
+> (the `_door_plugs` / `_clip_plug_tails` sentences, the lattice and
+> dash-row context) and "Wall/room world-space gates",
+> `detection/walls.py::_collect_wall_faces`, `_merge_collinear_segs` and
+> `_support_anchor` with their docstrings, `detection/rooms.py::_door_plugs`
+> and `_clip_plug_tails`, and `docs/regression-testing-guide.md` §9 §10 §12
+> §13.
+>
+> Tree state: main `ee0f52f` + `fix/hingeless-swing-side-veto` (d0a4376)
+> + `fix/short-piece-material-inherit` (be5509e) + `fix/plug-tail-ends-at-
+> material` (the clip). Corpus: 71 returned FPs, 0 LOST, 5 unreviewed;
+> polygons differ from `ee0f52f` on s04 rooms 0002/0004 (step 2) and on 22
+> rooms of s01/s02/s03/s11/s15/s17 (step 5, all gains). Constants unchanged
+> since step 2 (WALL_MAX_THICKNESS 36, ROOM_OPENING_SEAL 12, …).
+>
+> Tooling: `tools/census_scratch/` as before (`harness.py`,
+> `attrib_rooms.py`, `probe_plugs.py`, `probe_box.py` — now applies the
+> clip, `probe_survey.py`, `probe_tails.py [--no-clip]`, `ablate.py s01
+> s01mode`), `tools/diff_wall_network.py` with `--base-dir`. Attribute every
+> change to ONE rule or constant before deciding; the sweep stays the
+> arbiter. Reseed rooms' labels on every sheet whose outlines changed
+> (`gcloud auth application-default print-access-token` first; `python
+> app.py extract fixtures/sheets/<pdf> --out <scratch> --ceiling-height 2.4
+> < /dev/null` writes a timestamped run under `--out`; the cache is keyed on
+> room geometry, so reseed AFTER the final geometry and re-sweep to check the
+> warning count returns to the baseline's).
+>
+> **Step 6 — dash rows.** s15's "steel ridge beam" line is a row of 14.8 px
+> strokes in a 2.0 px pen, each a strong barrier face: it splits the corridor
+> from the lounge and crosses door_0013's doorway plane at x≈938, flipping
+> the mid-window in-plane count 2/10 → 3/11 at seal 14 (step-2.md,
+> `step2_s15_door_0013_dash_row_mid_cover_12_vs_14.png`); it is also the
+> collinear-anchor vote that sealed s15 room_0016 in the anchor-line
+> iteration. Convention to test: a collinear row of equal short pieces at
+> equal gaps is a DRAWN DASH LINE — never a barrier face and never a
+> collinear-anchor vote — whereas a wall drawn in touching pieces (s06's
+> dashed walls, `_chains_across` in layout) chains with no gaps. Measure
+> first, with the harness, on s15 AND on s01/s02: every collinear row of ≥ N
+> same-pen pieces of equal length at equal gaps (pitch, length CV, gap/length
+> ratio, pen), both classes — annotation dash rows (section lines, beam
+> lines, boundary lines, "line of wall over") and real wall faces broken by
+> text masks or by dimension ticks (which are gaps of UNEQUAL length). Check
+> `tests/ground_truth/s15.json` BEFORE touching it — rooms 0023/0024 may be
+> confirmed as split by that row, in which case the split is a LOST line and
+> the user decides. Synthetic test first, harness pre-check on s15/s01/s02
+> at seals 12 and 14, full sweep, polygon diff (simplified AND unsimplified
+> when anything loses area), crops, verdicts, reseed, prose (the constant
+> comment, CLAUDE.md room paragraph, findings §4, this handoff), checkpoint
+> `docs/w-gate-iter3-checkpoints/step-6.md` with before|after pictures, and
+> STOP.
+>
+> **Step 7 — `ROOM_OPENING_SEAL_PX` 12 → 15 retry**, only after 6: with
+> step 5 in, s02 is already identical at 13/14/15; expected blockers left are
+> s01 room_0005 at 13–14 (the plug-fit fallback "anchors disagree → full
+> envelope", its own knife-edge) and two unmeasured pre-existing moves at
+> 14–15 — s01 room_0003 (IoU 0.985) and s04 room_0001 (0.987) — measure
+> both with `probe_box.py` before deciding; s03's two recorded FP rooms must
+> stay out (they return at 18). s01's hall door needs 125 mm of reach (8 px
+> at 1:92.2); 15 at 1:50 is 127 mm.
+>
+> **Then, and only with the user's decision**: s01's three stair-split
+> confirmed rooms ((1090,699)–(1142,876), (466,920)–(521,1056),
+> (1033,925)–(1142,1134)) are held apart at identity by stair-arrow phantom
+> bands under the 36 px cap; at the true factor they merge (step-3.md).
+> Re-reviewing them is the user's call (`tools/review.py s01` after a
+> true-factor sweep on a throwaway branch). After that decision and step 7,
+> narrow `_gate_denominator` (s01 at 0.542 must keep 11 doors, 4 windows and
+> every remaining confirmed room), then step 4 (`WALL_MAX_THICKNESS_PX`
+> 36 → 40: the s11 recess box, s15 annotation pocket and s18 tree strip must
+> stay out; expected −5 recorded phantoms on s16/s17).
+>
+> Also queued, each its own iteration: re-calibrating the fallback in-wall
+> gate on tail-less plugs (step 5 kept it on the sample-trimmed plug so its
+> 0.77/0.84 margin holds); deeper band pockets / the recess class; Gap D of
+> `docs/hatch-cell-chords-handoff.md`; a jamb-scale floor for lining rings;
+> the lattice knife-edges; an open-arrowhead stair recognizer.
+>
+> Rules for the whole run: do not commit (the user commits); do not edit
+> `tests/ground_truth/*.json` or `fixtures/MANIFEST.json`; never revert
+> s01's truth scale (1:92.2); never `git stash`; macOS has no `timeout`;
+> the venv lacks InquirerPy; s01 and s02 at f=1.0 must not change (entity
+> set AND polygons) until `_gate_denominator` deliberately moves s01 — step
+> 5 moved them by +70 / +12 px² and reported it as a decision, do the same
+> if a rule touches them; if a rule costs a confirmed entity or returns an
+> FP, revert it, report why, and STOP; PNG crops go under
+> `docs/w-gate-iter3-checkpoints/` and must never show a street address or
+> planning-portal id. End every report with the numbers: lost, returned FPs,
+> new REVIEW lines with your verdicts, net phantom delta, and what is next.

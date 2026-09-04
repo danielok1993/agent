@@ -80,6 +80,8 @@ for call in calls:
         plugs = [(p, k, e) for p, k, e in plugs
                  if k == "interrupted"
                  or p.intersection(call["mat"]).area >= rooms.ROOM_PLUG_IN_WALL_FRAC * p.area]
+    if hasattr(rooms, "_clip_plug_tails"):        # step 5: tails end at material
+        plugs = rooms._clip_plug_tails(c.bbox, plugs, call["mat"], gates=gates)
     g = gap_by_id.get(c.candidate_id)
     if g is not None:
         plugs.append((g, "chain_gap", None))
