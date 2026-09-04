@@ -45,8 +45,8 @@
     "semantic_hash": ""
   },
   "detection/doors/constants.py": {
-    "mtime": 1788507015.4424548,
-    "ast_hash": "f2261d20672acf2fb93851b64d959e24",
+    "mtime": 1787953295.3979893,
+    "ast_hash": "cdec5cfe100fd2ff0c46e8a158cda7ed",
     "semantic_hash": ""
   },
   "detection/doors/detect.py": {
@@ -90,8 +90,8 @@
     "semantic_hash": ""
   },
   "detection/postprocess.py": {
-    "mtime": 1788508617.3956246,
-    "ast_hash": "99325a7307951d1383dc599cd652b0f8",
+    "mtime": 1787953295.3994734,
+    "ast_hash": "1e6bf547493f1c69abf2f1c6a5873ef7",
     "semantic_hash": ""
   },
   "detection/schedules.py": {
@@ -100,13 +100,13 @@
     "semantic_hash": ""
   },
   "detection/walls.py": {
-    "mtime": 1788510969.3395026,
-    "ast_hash": "51ba9d4c93135019e95e4192310f1230",
+    "mtime": 1788371250.6569211,
+    "ast_hash": "695220e14594b5cc79ccedd90831fa5c",
     "semantic_hash": ""
   },
   "detection/windows.py": {
-    "mtime": 1788507011.0026896,
-    "ast_hash": "b54b36e96a1e575de6490fe211c1bcd0",
+    "mtime": 1787956030.9191763,
+    "ast_hash": "39f174dd34741314a3bb8ba95a6ae27a",
     "semantic_hash": ""
   },
   "extraction/__init__.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1788511265.0519438,
-    "ast_hash": "1a1b052a9f515ef4d21d5696a321e3a3",
+    "mtime": 1788429564.0914488,
+    "ast_hash": "b5a9855266eb8349480b1ae6e8499db0",
     "semantic_hash": ""
   },
   "README.md": {
@@ -200,8 +200,8 @@
     "semantic_hash": ""
   },
   "docs/door-detection-tuning-guide.md": {
-    "mtime": 1788507575.2398393,
-    "ast_hash": "782ab5c59a8c52daa1d0017ddc8654cb",
+    "mtime": 1787953295.4036503,
+    "ast_hash": "6f104d36296a66c861957333656b7a4b",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-06-16-polyline-arc-spur-pruning.md": {
@@ -235,13 +235,13 @@
     "semantic_hash": ""
   },
   "tests/test_window_detection.py": {
-    "mtime": 1788507761.8158755,
-    "ast_hash": "1d0fa73252e54e49a55c5d60a1c1f1e1",
+    "mtime": 1787956030.955838,
+    "ast_hash": "5834e375eceb13d0d4060ffaa2b91d31",
     "semantic_hash": ""
   },
   "docs/window-detection-tuning-guide.md": {
-    "mtime": 1788507990.766619,
-    "ast_hash": "73fe429c3a734939942f1fb080ca9895",
+    "mtime": 1787956030.919688,
+    "ast_hash": "5f4c562ba311d44eb45d0cc9a657d338",
     "semantic_hash": ""
   },
   "batch_extract.py": {
@@ -250,23 +250,23 @@
     "semantic_hash": ""
   },
   "detection/rooms.py": {
-    "mtime": 1788511305.166096,
-    "ast_hash": "b8043800bb5bb18a897176668a3be39e",
+    "mtime": 1788429604.8290465,
+    "ast_hash": "68ea1264c986aa84884ca724cd9958d2",
     "semantic_hash": ""
   },
   "tests/test_cross_validate.py": {
-    "mtime": 1788508513.6671703,
-    "ast_hash": "a784ee5b7778c5d2e4a7be25340ff823",
+    "mtime": 1787953295.6425364,
+    "ast_hash": "e9308a012891f82f1ff80c6252da8179",
     "semantic_hash": ""
   },
   "tests/test_room_detection.py": {
-    "mtime": 1788509982.111797,
-    "ast_hash": "750206b976c3b432f478bdfeb68295a7",
+    "mtime": 1788429104.3143127,
+    "ast_hash": "bbe517baabd235b2036f9b80badb3499",
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
-    "mtime": 1788510987.3256981,
-    "ast_hash": "ec2a8a3aab259f456908b1252eda6868",
+    "mtime": 1788371250.6842544,
+    "ast_hash": "dda72d08d8ec4fb8cbaea9caea2129a0",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-07-03-batch-extraction-design.md": {
@@ -290,8 +290,8 @@
     "semantic_hash": ""
   },
   "tests/test_folding_doors.py": {
-    "mtime": 1788506965.2924778,
-    "ast_hash": "9b3b0c6467be876b2d38a2015146d47d",
+    "mtime": 1787953295.6436079,
+    "ast_hash": "d1093cd798a19a1ff6cfcc31286b6a96",
     "semantic_hash": ""
   },
   "layout/__init__.py": {
@@ -810,8 +810,8 @@
     "semantic_hash": ""
   },
   "docs/scale-normalization-findings.md": {
-    "mtime": 1788511663.307355,
-    "ast_hash": "cd778dc2c2cab1994f161e36a3b6ac58",
+    "mtime": 1788371250.658286,
+    "ast_hash": "411fcb322ba936d9039a7a32f9704557",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-08-12-scale-aware-wall-room-gates.md": {
@@ -825,8 +825,8 @@
     "semantic_hash": ""
   },
   "tests/test_scale_gates.py": {
-    "mtime": 1788511649.0324945,
-    "ast_hash": "d98e90118b477c963841b0c0808c6337",
+    "mtime": 1787953295.6469436,
+    "ast_hash": "df494e98a534f79e2bbe6cd2f969ed75",
     "semantic_hash": ""
   },
   "tests/test_scale_door_endtoend.py": {
@@ -835,8 +835,8 @@
     "semantic_hash": ""
   },
   "tests/test_scale_door_gates.py": {
-    "mtime": 1788508521.8537822,
-    "ast_hash": "f4a37f2359652c660610c9cc46ab754e",
+    "mtime": 1787953295.6466525,
+    "ast_hash": "1d4560e6ef8ec656ff486467bd91c480",
     "semantic_hash": ""
   },
   "docs/scale-baseline-comparison-2026-08-12.md": {
@@ -855,8 +855,8 @@
     "semantic_hash": ""
   },
   "tests/test_scale_window_gates.py": {
-    "mtime": 1788506944.2312603,
-    "ast_hash": "5f54c7f973ee4450643312722d87590c",
+    "mtime": 1787953295.648097,
+    "ast_hash": "c39f6d6656af9621dcdc27fdc40aafd8",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-08-13-scale-aware-window-gates.md": {
@@ -940,7 +940,7 @@
     "semantic_hash": ""
   },
   "takeoff/openings.py": {
-    "mtime": 1788509988.8462162,
+    "mtime": 1787953295.6393595,
     "ast_hash": "286cf9ad029f5d97e928bea9a03a2f22",
     "semantic_hash": ""
   },
@@ -965,8 +965,8 @@
     "semantic_hash": ""
   },
   "tests/test_takeoff_openings.py": {
-    "mtime": 1788509987.3587852,
-    "ast_hash": "2dbddd92915f69b9d89f91db82d9dd25",
+    "mtime": 1787953295.648751,
+    "ast_hash": "d1c53471c72925dd2886071bd2601823",
     "semantic_hash": ""
   },
   "tests/test_takeoff_pipeline.py": {
@@ -1045,8 +1045,8 @@
     "semantic_hash": ""
   },
   "docs/w-gate-recalibration-handoff.md": {
-    "mtime": 1788511690.2158945,
-    "ast_hash": "014112b1091117ffa1cfc6f38a701cfd",
+    "mtime": 1787953295.408209,
+    "ast_hash": "12598b8fa35dfbc00e45b929694e4903",
     "semantic_hash": ""
   },
   "takeoff/document.py": {
@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "tests/test_through_hatch_band.py": {
-    "mtime": 1788510609.364671,
-    "ast_hash": "c342dc105304acb6efc2b8dd6e056177",
+    "mtime": 1787953295.6494,
+    "ast_hash": "7ece523e39ad6004e02bcffae0dcc7b7",
     "semantic_hash": ""
   },
   "tests/test_zero_width_strokes.py": {
@@ -1235,8 +1235,8 @@
     "semantic_hash": ""
   },
   "docs/hatch-cell-chords-handoff.md": {
-    "mtime": 1788445539.1251194,
-    "ast_hash": "14b987f7af7a0a1c3eb1c25b915ac0ab",
+    "mtime": 1788433491.1522763,
+    "ast_hash": "9a29553d8d320e6cdff5bdc766d460e8",
     "semantic_hash": ""
   },
   "tools/probe_fill_seams.py": {
@@ -1267,111 +1267,6 @@
   "tools/probe_merge_anchor.py": {
     "mtime": 1788371250.6849954,
     "ast_hash": "e50b7a78b42b9eaca94cbe3c7e0d878b",
-    "semantic_hash": ""
-  },
-  "tools/census_scratch/ablate.py": {
-    "mtime": 1788479552.9489954,
-    "ast_hash": "bd1b3d2842f2bc88c2100dc0240033ca",
-    "semantic_hash": ""
-  },
-  "tools/census_scratch/analyze.py": {
-    "mtime": 1788479552.949886,
-    "ast_hash": "5ecf45063d70fa2ff72ce5da9f8d50b9",
-    "semantic_hash": ""
-  },
-  "tools/census_scratch/harness.py": {
-    "mtime": 1788479552.9475193,
-    "ast_hash": "0005bac57e8773af3ad9ecd6a6cd0bdc",
-    "semantic_hash": ""
-  },
-  "tools/census_scratch/mult_summary.py": {
-    "mtime": 1788479552.950586,
-    "ast_hash": "1c43208c63f5bf9ae1c5fa1e2781c46f",
-    "semantic_hash": ""
-  },
-  "tools/census_scratch/populations.py": {
-    "mtime": 1788479552.9483092,
-    "ast_hash": "42b40967ec325d9208e92836dfaaf24f",
-    "semantic_hash": ""
-  },
-  "docs/w-gate-census-2026-09-04.md": {
-    "mtime": 1788511667.7125173,
-    "ast_hash": "c16d8fbc3a09ee58b8be2c23d20ea5de",
-    "semantic_hash": ""
-  },
-  "docs/w-gate-iter2-checkpoints/group-1.md": {
-    "mtime": 1788508179.4487376,
-    "ast_hash": "6ade4f841135815caf125d0390a30597",
-    "semantic_hash": ""
-  },
-  "docs/w-gate-iter2-checkpoints/group-2.md": {
-    "mtime": 1788510398.0007563,
-    "ast_hash": "93d06b44a8be563f3c12aa133e47932f",
-    "semantic_hash": ""
-  },
-  "docs/w-gate-iter2-checkpoints/g1_s01_door_0012_before_after.png": {
-    "mtime": 1788508104.0860217,
-    "ast_hash": "628ff370fab25b4378ef998f3cc6cae1",
-    "semantic_hash": ""
-  },
-  "docs/w-gate-iter2-checkpoints/g1_s18_door_lining_10_vs_16.png": {
-    "mtime": 1788508104.2635207,
-    "ast_hash": "debd4a12beba2c676fac247812e90433",
-    "semantic_hash": ""
-  },
-  "docs/w-gate-iter2-checkpoints/g2_s01_face9_hatch_jog.png": {
-    "mtime": 1788510305.925947,
-    "ast_hash": "1081f3717cbbb168d980439cb3c17d16",
-    "semantic_hash": ""
-  },
-  "docs/w-gate-iter2-checkpoints/g2_s02_cap40_wc_notched.png": {
-    "mtime": 1788510292.5940259,
-    "ast_hash": "1683740f692c2317a43e46ce7e45a381",
-    "semantic_hash": ""
-  },
-  "docs/w-gate-iter2-checkpoints/g2_s02_seal15_section_marker_notch.png": {
-    "mtime": 1788510305.9194078,
-    "ast_hash": "1a5f7f5629f130a5592bec558f675f19",
-    "semantic_hash": ""
-  },
-  "docs/w-gate-iter2-checkpoints/g2_s04_seal15_bedroom_improved.png": {
-    "mtime": 1788510305.9225957,
-    "ast_hash": "91031bdcab0ade9ef38ebb5c0d400950",
-    "semantic_hash": ""
-  },
-  "docs/w-gate-iter2-checkpoints/g2_s15_seal15_corridor_swing_fenced.png": {
-    "mtime": 1788510305.9318645,
-    "ast_hash": "cfc25b8e8f071c210e6f7e45db0d9ad5",
-    "semantic_hash": ""
-  },
-  "docs/w-gate-iter2-checkpoints/g2_s15_seal15_lounge_swing_fenced.png": {
-    "mtime": 1788510305.9167638,
-    "ast_hash": "8d9c8860f90601b781bf59ec59f8a835",
-    "semantic_hash": ""
-  },
-  "docs/w-gate-iter2-checkpoints/g2_s17_cap40_four_reveal_strips_removed.png": {
-    "mtime": 1788510292.5906038,
-    "ast_hash": "50e902bad3748fb58e6dc7be175b3ddf",
-    "semantic_hash": ""
-  },
-  "docs/w-gate-iter2-checkpoints/g2_s18_face9_worktop_run.png": {
-    "mtime": 1788510305.9290407,
-    "ast_hash": "3f948d4abb748961adc807795b1a3453",
-    "semantic_hash": ""
-  },
-  "docs/w-gate-iter2-checkpoints/g3a_s11_porch_notches_gone.png": {
-    "mtime": 1788511645.0169256,
-    "ast_hash": "7be47ff8efd02cd843a2421d2ab31873",
-    "semantic_hash": ""
-  },
-  "docs/w-gate-iter2-checkpoints/g3a_s13_bedroom_edge.png": {
-    "mtime": 1788511645.019475,
-    "ast_hash": "c99bc5c5b42a3604053eeecfbf15c80c",
-    "semantic_hash": ""
-  },
-  "docs/w-gate-iter2-checkpoints/g3a_s17_stair_fenced_without_through_condition.png": {
-    "mtime": 1788511645.0140302,
-    "ast_hash": "6b36251091b4536f36d018f92468e137",
     "semantic_hash": ""
   }
 }
