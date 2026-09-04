@@ -306,11 +306,11 @@ class TestCrossGates(unittest.TestCase):
     def test_geometric_gates_scale(self):
         from detection.postprocess import CrossGates
         g = CrossGates.at(0.5)
-        self.assertAlmostEqual(g.CROSS_WALL_EXPAND_PX, 10.0)
+        self.assertAlmostEqual(g.CROSS_WALL_EXPAND_PX, 12.0)
         self.assertAlmostEqual(g.CROSS_OPENING_ENDPOINT_TOL_PX, 6.0)
         self.assertAlmostEqual(g.CROSS_WALL_RUNS_THROUGH_MARGIN_PX, 6.0)
         self.assertAlmostEqual(g.CROSS_WALL_RUNS_THROUGH_BAND_PX, 4.0)
-        self.assertAlmostEqual(g.CROSS_DOOR_EXPAND_PX, 10.0)
+        self.assertAlmostEqual(g.CROSS_DOOR_EXPAND_PX, 8.0)
         self.assertAlmostEqual(g.CROSS_DOOR_FALLBACK_EXPAND_PX, 4.0)
 
     def test_confidence_penalties_have_no_field(self):
@@ -332,21 +332,23 @@ class TestCrossGates(unittest.TestCase):
 
     def test_door_window_veto_reach_scales(self):
         # A real door (>= CROSS_DOOR_MIN_CONFIDENCE) vetoes a window sitting
-        # 12px past its own bbox edge. At f=1.0 the 20px dilation reaches the
-        # window (suppressed); at f=0.5 the scaled 10px dilation falls 2px
-        # short (kept). This exercises the actual _resolve_door_window_conflicts
-        # matching logic, not just the CrossGates field math.
+        # 7px past its own bbox edge. At f=1.0 the 16px dilation reaches the
+        # window (9px over a 20px window = 45% cover, suppressed); at f=0.5
+        # the scaled 8px dilation reaches only 1px of it (5% cover, under the
+        # 10% rule, kept). This exercises the actual
+        # _resolve_door_window_conflicts matching logic, not just the
+        # CrossGates field math.
         from detection.postprocess import _resolve_door_window_conflicts
         from models import Candidate
 
         door = Candidate("door_0000", "door", (0.0, 0.0, 20.0, 20.0), 0.55, {})
-        win = Candidate("window_0000", "window", (32.0, 0.0, 52.0, 20.0), 0.7, {})
+        win = Candidate("window_0000", "window", (27.0, 0.0, 47.0, 20.0), 0.7, {})
 
         out_f1 = _resolve_door_window_conflicts([win, door], scale_factor=1.0)
-        self.assertNotIn(win, out_f1, "20px veto reach must cover the 12px gap at f=1.0")
+        self.assertNotIn(win, out_f1, "16px veto reach must cover the 7px gap at f=1.0")
 
         out_f05 = _resolve_door_window_conflicts([win, door], scale_factor=0.5)
-        self.assertIn(win, out_f05, "10px veto reach must fall short of the 12px gap at f=0.5")
+        self.assertIn(win, out_f05, "8px veto reach must stay under 10% cover at f=0.5")
 
     def test_door_window_conflicts_default_factor_equals_omitted(self):
         # The defaulted scalar preserves existing (pre-Task-8) call sites.

@@ -769,12 +769,18 @@ class TestPhantomDoorSeals(unittest.TestCase):
         # A phantom door detected on a white fixture symbol must not anchor
         # the symbol into the hollow-wall acceptance: pre-gate, the ring
         # became wall material, merged with the nearby band under gap
-        # closing, and carved a bay out of the room.
+        # closing, and carved a bay out of the room. The symbol's ends stay
+        # 26px from the top/bottom bands — past ROOM_OPENING_SEAL_PX +
+        # ROOM_PLUG_HALF_WIDTH_PX (20): a fallback door's edge running 6px
+        # along the side wall whose tails TOUCH both end walls reads as an
+        # interrupted run, the one profile the fallback tier keeps, and
+        # plugs an 11px bay off the room (the fixture sat at exactly 20px
+        # before the seal moved 12 -> 15).
         paths = rect_room(0, 100, 100, 400, 300) + fill_ring(
-            8, 116, 130, 128, 270, fill=(1.0, 1.0, 1.0)
+            8, 116, 136, 128, 264, fill=(1.0, 1.0, 1.0)
         )
         baseline = rooms_for(rect_room(0, 100, 100, 400, 300))
-        door = door_candidate((116, 130, 128, 270), confidence=0.35)
+        door = door_candidate((116, 136, 128, 264), confidence=0.35)
         rooms = rooms_for(paths, doors=[door])
         self.assertEqual(len(rooms), 1)
         self.assertAlmostEqual(
@@ -934,6 +940,36 @@ class TestGardenDoorSeals(unittest.TestCase):
         self.assertEqual(_door_plugs(self.BBOX, band, skip_edges=frozenset({0})), [])
 
 
+class TestPlugSealReach(unittest.TestCase):
+    """ROOM_OPENING_SEAL_PX stays 12px (102mm at 1:50). The W-gate census
+    (2026-09-04) proposed 15 — the jamb gap beyond a swing bbox at true
+    scales is s01 8px = 125mm (1:92.2), s17 8px = 135mm, s05/s07 6px at
+    f=0.5 = 102mm — and iteration 2 tried it: a tail TOUCHES material within
+    ROOM_PLUG_HALF_WIDTH_PX of its end, so any bbox edge whose ends lie
+    within SEAL + 5px of two walls reads as an interrupted run, swing sides
+    of hinge-less doors included (s15 lost two door swings at 14, s02 was
+    notched around a section marker at 15). Measured on this fixture, an
+    interrupted plug seals a jamb gap of at most SEAL - 1px (11 at 12, 13 at
+    14, 15 at 15): an 11px gap must seal, 13 must not."""
+
+    BBOX = (200.0, 100.0, 270.0, 150.0)   # top edge y=100 lies in the band
+
+    @staticmethod
+    def _jambs(gap):
+        return unary_union([
+            shapely_box(100, 96, 200 - gap, 104),
+            shapely_box(270 + gap, 96, 370, 104),
+        ])
+
+    def test_jamb_11px_past_the_bbox_is_sealed(self):
+        plugs = _door_plugs(self.BBOX, self._jambs(11.0))
+        self.assertIn(("interrupted", 0), [(k, e) for _, k, e in plugs])
+
+    def test_jamb_13px_past_the_bbox_is_not(self):
+        plugs = _door_plugs(self.BBOX, self._jambs(13.0))
+        self.assertNotIn(0, [e for _, _, e in plugs])
+
+
 class TestPlugTailTrim(unittest.TestCase):
     """Plug extensions end at their supporting material; slide ends veto.
 
@@ -1009,8 +1045,9 @@ class TestPlugTailTrim(unittest.TestCase):
         self.assertGreater(y1, 150.0)
 
     def test_tail_kept_on_through_material(self):
-        # A band running the full extended edge supports both tails: the
-        # plug keeps its whole reach (the drawn-through-plane case).
+        # A band running the full extended edge (ROOM_OPENING_SEAL_PX = 12
+        # past each bbox end) supports both tails: the plug keeps its whole
+        # reach (the drawn-through-plane case).
         band = shapely_box(188, 92, 294, 108)
         plugs = _door_plugs(self.BBOX, band)
         self.assertEqual([k for _, k, _ in plugs], ["full"])
@@ -1653,14 +1690,15 @@ class TestWallRecess(unittest.TestCase):
 
     def _plan(self):
         # 16px walls; the top band's inner face is interrupted by a 160px
-        # breast whose front lies 40px (2.5 bands) below the outer line —
-        # past WALL_MAX_THICKNESS_PX, so the front cannot pair with the
-        # outer line as a thick wall and the pocket comes out as free space.
+        # breast whose front lies 44px (2.75 bands) below the outer line —
+        # past WALL_MAX_THICKNESS_PX (36; 44 keeps clear of the 40 the W-gate
+        # census tried), so the front cannot pair with the outer line as a
+        # thick wall and the pocket comes out as free space.
         return (
             [hline(0, 100.0, 500.0, 100.0),
              hline(1, 100.0, 180.0, 116.0), hline(2, 340.0, 500.0, 116.0),
-             vline(3, 180.0, 116.0, 140.0), vline(4, 340.0, 116.0, 140.0),
-             hline(5, 180.0, 340.0, 140.0)]
+             vline(3, 180.0, 116.0, 144.0), vline(4, 340.0, 116.0, 144.0),
+             hline(5, 180.0, 340.0, 144.0)]
             + wall_band_h(6, 100.0, 500.0, 384.0, thickness=16.0)
             + wall_band_v(8, 100.0, 100.0, 400.0, thickness=16.0)
             + wall_band_v(10, 484.0, 100.0, 400.0, thickness=16.0)
@@ -1689,15 +1727,22 @@ class TestBandPocket(unittest.TestCase):
     """A window reveal in a cavity wall (s17 rooms 0015/0034): the wall is
     drawn as four lines — outer face, outer leaf's inner face, inner leaf's
     outer face, inner face (11.75 / 12 / 13.25px leaf-cavity-leaf, 37px in
-    all, over WALL_MAX_THICKNESS_PX) — with hatch only at the jambs. At the
-    window the two middle lines stop, the glazing line runs mid-leaf in the
-    continuous outer leaf, and the reveal between the outer leaf's inner
-    face and the wall's inner face comes out as a 21px-deep free-space
-    pocket that survives the 8px opening. It lies INSIDE the wall's
-    thickness — both long edges on wall faces at wall spacing — so it is
-    wall material, never floor."""
+    all, over the then-36px WALL_MAX_THICKNESS_PX) — with hatch only at the
+    jambs. At the window the two middle lines stop, the glazing line runs
+    mid-leaf in the continuous outer leaf, and the reveal between the outer
+    leaf's inner face and the wall's inner face comes out as a 21px-deep
+    free-space pocket that survives the 8px opening. It lies INSIDE the
+    wall's thickness — both long edges on wall faces at wall spacing — so it
+    is wall material, never floor.
 
-    OUTER, OUTER_IN, INNER_OUT, INNER = 100.0, 111.75, 123.75, 137.0
+    The fixture is drawn 44px in all (11.75 / 19 / 13.25) with a 32px
+    reveal — clear of the plain cap whatever the W-gate recalibration
+    settles on (40 was tried on 2026-09-04: s17's 37px outer and inner
+    faces then paired as one plain band and its reveals were solid before
+    the room stage saw them; reverted to 36 for the fixtures that band
+    admits)."""
+
+    OUTER, OUTER_IN, INNER_OUT, INNER = 100.0, 111.75, 130.75, 144.0
     REVEAL = 280.0   # the window runs from here to the wall's end — the
                      # inner pair resumes on ONE side only, as beside s17
                      # room_0015 (the next window's reveal adjoins it), so the
@@ -1777,27 +1822,32 @@ class TestRejectedDoorIsNotAnEntrance(unittest.TestCase):
     (s17 room_0034: a 0.35 arc_fallback sliver's full-cover plugs)."""
 
     def closet(self):
-        # 100..180 box, ~3.6k px2 inside, a 20px doorway gap in the top band.
+        # 100..196 box, ~4.5k px2 inside, a 20px doorway gap in the top band.
+        # The synthetic door carries no hinge evidence, so every bbox edge is
+        # plug-eligible; its swing-side edge ends must stay farther than
+        # ROOM_OPENING_SEAL_PX + ROOM_PLUG_HALF_WIDTH_PX (20px) from the side
+        # walls, or that edge reads as an interrupted run and plugs the
+        # closet in two (28px clearance here).
         return (
-            wall_band_h(0, 100, 130, 100) + wall_band_h(2, 150, 180, 100)
-            + wall_band_h(4, 100, 180, 172)
-            + wall_band_v(6, 100, 100, 180) + wall_band_v(8, 172, 100, 180)
+            wall_band_h(0, 100, 138, 100) + wall_band_h(2, 158, 196, 100)
+            + wall_band_h(4, 100, 196, 172)
+            + wall_band_v(6, 100, 100, 180) + wall_band_v(8, 188, 100, 180)
         )
 
     def window(self):
-        return Candidate("window_0000", "window", (120, 171, 160, 181), 0.62,
+        return Candidate("window_0000", "window", (128, 171, 168, 181), 0.62,
                          evidence={})
 
     def test_rejected_door_does_not_veto_the_blind_window_drop(self):
         # The door bbox's wall-plane edge sits mid-band, so its interrupted-
         # run plug lies within ROOM_CONTACT_TOL_PX of the room boundary and
         # is counted — as s17's rejected candidates were.
-        door = door_candidate((128, 104, 152, 148), confidence=0.48)
+        door = door_candidate((136, 104, 160, 148), confidence=0.48)
         rooms = rooms_for(self.closet(), doors=[door], windows=[self.window()])
         self.assertEqual(len(rooms), 0, [r.evidence for r in rooms])
 
     def test_entered_closet_with_window_stays(self):
-        door = door_candidate((128, 104, 152, 148), confidence=0.67)
+        door = door_candidate((136, 104, 160, 148), confidence=0.67)
         rooms = rooms_for(self.closet(), doors=[door], windows=[self.window()])
         self.assertEqual(len(rooms), 1)
         self.assertEqual(rooms[0].evidence["door_openings"], 1)

@@ -123,7 +123,8 @@ class TestAssignOpenings(unittest.TestCase):
         self.assertEqual(over, [])
 
     def test_reach_is_seal_only(self):
-        # corrected room (already +2 px); reach is 12 px more: 211 in, 213 out
+        # corrected room (already +2 px); reach is ROOM_OPENING_SEAL_PX (12)
+        # more: 211 in, 213 out
         rooms = {"room_a": box(0, 0, 300, 200)}
         assigned, _, over = assign_openings(rooms, [("d_in", "door", (100, 211, 160, 220))])
         self.assertEqual(assigned, {"room_a": ["d_in"]})

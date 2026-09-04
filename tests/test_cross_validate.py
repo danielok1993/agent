@@ -147,6 +147,38 @@ class TestDoorPenalties(unittest.TestCase):
         out = _cross_validate([d], network)
         self.assertEqual(out[0].confidence, 0.67)
 
+    def test_single_line_leaf_26px_from_centerline_is_in_wall(self):
+        # CROSS_WALL_EXPAND_PX is 24px — 203mm at 1:50 (W-gate census
+        # 2026-09-04, 20 -> 24). "Need" here is the distance from the door
+        # bbox to the nearest DETECTED wall corridor — a detection artefact
+        # (the network may end short of the jamb), not a built dimension.
+        # The tier this gate decides is single_line_leaf (the only one the
+        # no_wall penalty pushes under the offline floor): s01's needs 12px
+        # = 187mm at its true 1:92.2 (0.9x of the old 169mm), s18's 7.5px at
+        # f=0.5 = 127mm (lost at 0.67x = 6.7px), s10 47mm; s17 gains a
+        # phantom door only at 40px. 24 sits 1.08x over s01 and 1.67x under
+        # s17's break. The 8px wall's corridor reaches 4 + 24 = 28px from its
+        # centerline: a bbox 26px off is in_wall (no_wall at 20).
+        network = continuous_h_wall()
+        d = door(
+            bbox=(150.0, 130.0, 200.0, 184.0), conf=0.67,
+            method="door_assembly", assembly_type="single_line_leaf",
+            nearby_label=None,
+        )
+        out = _cross_validate([d], network)
+        self.assertEqual(out[0].confidence, 0.67)
+        self.assertNotEqual(out[0].evidence["wall_context"], "no_wall")
+
+    def test_single_line_leaf_30px_from_centerline_is_no_wall(self):
+        network = continuous_h_wall()
+        d = door(
+            bbox=(150.0, 134.0, 200.0, 188.0), conf=0.67,
+            method="door_assembly", assembly_type="single_line_leaf",
+            nearby_label=None,
+        )
+        out = _cross_validate([d], network)
+        self.assertEqual(out[0].evidence["wall_context"], "no_wall")
+
     def test_opening_line_on_centerline_context(self):
         network = h_wall_with_gap()
         d = door(

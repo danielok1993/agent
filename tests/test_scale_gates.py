@@ -58,7 +58,7 @@ class TestWallGatesConstruction(unittest.TestCase):
         self.assertEqual(g.WALL_HATCH_MAX_LEN_PX, WALL_HATCH_MAX_LEN_PX)
         self.assertEqual(
             g.WALL_WEAK_MATERIAL_PER_100PX, WALL_WEAK_MATERIAL_PER_100PX)
-        self.assertEqual(g.WALL_WEAK_MATERIAL_PER_100PX, 3.0)
+        self.assertEqual(g.WALL_WEAK_MATERIAL_PER_100PX, 2.2)
 
     def test_world_gates_scale_linearly(self):
         g = WallGates.at(0.5)
@@ -71,9 +71,9 @@ class TestWallGatesConstruction(unittest.TestCase):
         # at f=0.5, so the minimum must RISE, not shrink — divide, not
         # multiply. See docs/scale-normalization-findings.md §4 row.
         g = WallGates.at(0.5)
-        self.assertEqual(g.WALL_WEAK_MATERIAL_PER_100PX, 6.0)
+        self.assertAlmostEqual(g.WALL_WEAK_MATERIAL_PER_100PX, 4.4)
         g1 = WallGates.at(1.0)
-        self.assertEqual(g1.WALL_WEAK_MATERIAL_PER_100PX, 3.0)
+        self.assertEqual(g1.WALL_WEAK_MATERIAL_PER_100PX, 2.2)
 
     def test_min_thickness_floored_at_one_pixel(self):
         g = WallGates.at(0.25)   # 2.0 * 0.25 = 0.5 -> floored
@@ -115,6 +115,25 @@ class TestMergeCollinearOffsetScaling(unittest.TestCase):
         self.assertEqual(gates.COLLINEAR_OFFSET_TOL, 2.0)
         merged = _merge_collinear_segs(faces, gap_px=0.0, gates=gates)
         self.assertEqual(len(merged), 2)
+
+    def test_scaled_tolerance_stays_under_the_partition_ceiling(self):
+        # W-gate census 2026-09-04, row 13: the TRUE class of this tolerance
+        # is paper-space (s02's same-line pieces jitter 2.7-3.2px, s01's
+        # hatch chains straddle 3.9-4.1px at the same 4.05px pitch as s02),
+        # but its FALSE class is world-space — the two faces of the thinnest
+        # drawn partition must never fuse. Measured with the census harness
+        # on s18 (1:100, f=0.5): its 47mm partitions hold at a tolerance of
+        # 2.5px and fuse at 2.75 (confirmed room (2267,758)-(2511,802) lost),
+        # so the ceiling is 5.5 x f; both proposed paper forms — unscaled
+        # 4.0 and min(4.0, 6f) — exceed it (4.0 also loses the room and adds
+        # three phantoms on s18, one on s16), and the widest safe form,
+        # min(4.0, 5f), changes no corpus sheet and does not reach the
+        # 3.25px that cuts s01's phantoms at f=0.542. The tolerance stays
+        # 4.0 x f: 1.37x under the ceiling at every f, the paper true class
+        # honoured wherever f >= 0.68 (a 1:73 drawing).
+        self.assertEqual(WallGates.at(1.0).COLLINEAR_OFFSET_TOL, 4.0)
+        self.assertLess(WallGates.at(0.5).COLLINEAR_OFFSET_TOL, 2.75)
+        self.assertGreaterEqual(WallGates.at(0.5).COLLINEAR_OFFSET_TOL, 2.0)
 
     def test_offset_within_scaled_tolerance_still_merges(self):
         # Not every close pair at f=0.5 is a real wall: an offset genuinely
@@ -229,6 +248,19 @@ class TestRoomGatesConstruction(unittest.TestCase):
     def test_areas_scale_by_factor_squared(self):
         g = RoomGates.at(0.5)
         self.assertEqual(g.ROOM_MIN_AREA_PX2, ROOM_MIN_AREA_PX2 * 0.25)
+
+    def test_plug_half_width_floors_at_the_line_barrier_standoff(self):
+        # ROOM_PLUG_HALF_WIDTH_PX is world-space (half a wall band) with a
+        # paper floor at ROOM_LINE_BARRIER_PX (2.0): a plug thinner than the
+        # standoff every other barrier keeps cannot meet them flush. W-gate
+        # census 2026-09-04, row 19: at s13's f=0.367 the raw 1.84px sat
+        # under the standoff and its room (1040,999)-(1079,1085) survived
+        # only in [1.0, 1.25] of that value; a 3.0 floor loses it.
+        from detection.rooms import ROOM_LINE_BARRIER_PX, ROOM_PLUG_HALF_WIDTH_PX
+        self.assertEqual(RoomGates.at(1.0).ROOM_PLUG_HALF_WIDTH_PX, ROOM_PLUG_HALF_WIDTH_PX)
+        self.assertEqual(RoomGates.at(0.5).ROOM_PLUG_HALF_WIDTH_PX, 2.5)
+        self.assertEqual(RoomGates.at(0.367).ROOM_PLUG_HALF_WIDTH_PX, ROOM_LINE_BARRIER_PX)
+        self.assertEqual(RoomGates.at(0.25).ROOM_PLUG_HALF_WIDTH_PX, ROOM_LINE_BARRIER_PX)
 
     def test_wall_hatch_max_len_matches_wallgates_scaling(self):
         # RoomGates duplicates the walls-owned constant identically to

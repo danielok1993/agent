@@ -14,7 +14,21 @@ from detection.walls import WALL_PARALLEL_ANGLE_TOL, WallNetwork
 # Cross-element validation (soft: boost/penalize confidence)
 # ---------------------------------------------------------------------------
 
-CROSS_WALL_EXPAND_PX  = 20.0   # corridor reach beyond thickness/2 when checking containment
+CROSS_WALL_EXPAND_PX  = 24.0   # corridor reach beyond thickness/2 when checking
+                               # containment: 203mm at 1:50 (W-gate census
+                               # 2026-09-04, 20 -> 24). "Need" is the distance from
+                               # a door's bbox to the nearest DETECTED wall corridor —
+                               # a detection artefact (the network may end short of
+                               # the jamb, or a jamb nib may not pair), never a built
+                               # dimension. The only tier the gate decides is
+                               # single_line_leaf (the no_wall penalty pushes it under
+                               # the offline floor; other tiers survive it — s02 331mm,
+                               # s14 311): s01's needs 12px = 187mm at its true 1:92.2
+                               # (0.9x of the old 169mm reference, lost at f=0.542),
+                               # s18's 7.5px at f=0.5 = 127mm (lost at 0.67x = 6.7px),
+                               # s10 47mm; no confirmed FP door is no_wall, and s17
+                               # gains a phantom door only at 40px. 24 sits 1.08x over
+                               # s01 and 1.67x under s17's break.
 CROSS_NO_WALL_PENALTY = 0.08   # door/window has no wall nearby → penalty
 CROSS_NO_WALL_ASSEMBLY_DOOR_PENALTY = 0.04
 # Single-line-leaf is the weakest leaf evidence (a single anchored line vs. a
@@ -303,18 +317,39 @@ def _suppress(candidates: list[Candidate]) -> list[Candidate]:
 # Door / window cross-exclusion
 # ---------------------------------------------------------------------------
 
-CROSS_DOOR_EXPAND_PX = 20.0  # dilate REAL door bboxes before testing window overlap
+CROSS_DOOR_EXPAND_PX = 16.0  # dilate REAL door bboxes before testing window overlap:
+                             # 135mm at 1:50 (W-gate census iteration 2, 2026-09-04,
+                             # 20 -> 16). Two false classes must be vetoed: window
+                             # candidates read off a door's own leaf/swing ink, which
+                             # lie <= 2.8px from the door's bbox on s01 and at 0 on
+                             # s15 (mostly overlapping the raw bbox, cover 0.19-1.0)
+                             # and yield to any reach; and a DOOR LINING / jamb box
+                             # touching the door's hinge corner — s18 (f=0.5): a
+                             # 6x49px box (100mm at 1:100) whose bottom-right corner
+                             # is door_0271's top-left, so the dilation covers it
+                             # only diagonally and reaches the 10% cover rule at
+                             # 5.17px scaled = 10.3px at 1:50 (the census's 10px
+                             # proposal admitted it as a 0.75 window, and at 10px
+                             # the same box at identity scores 9.0%). The true
+                             # class: REAL windows stand 2-8px from a door on s10/
+                             # s11/s16/s17/s18 (s18 2.0, s11/s16 3.6, s10 4.0, s17
+                             # 7.7) and survive through the cover rule and the
+                             # hinge-jamb wall-run exemption below, while s03 loses
+                             # a real window at 25px. 16 sits 1.55x over the lining
+                             # and 1.56x under s03; 20 was 1.94x / 1.25x.
 CROSS_DOOR_MIN_WINDOW_COVER = 0.10  # door must cover this fraction of the window's area;
                                     # a mere dilated-corner graze does not suppress it
-CROSS_DOOR_MIN_CONFIDENCE = 0.40    # doors at/above this get the full 20px veto reach.
-                                    # Fallback-tier doors (DOOR_FALLBACK_CONFIDENCE 0.35 —
-                                    # label boxes, glazing mullions, sliding panels, kept
-                                    # only for Gemini arbitration) OFTEN ARE window-like
+CROSS_DOOR_MIN_CONFIDENCE = 0.40    # doors at/above this get the full veto reach
+                                    # (CROSS_DOOR_EXPAND_PX). Fallback-tier doors
+                                    # (DOOR_FALLBACK_CONFIDENCE 0.35 — label boxes,
+                                    # glazing mullions, sliding panels, kept only for
+                                    # Gemini arbitration) OFTEN ARE window-like
                                     # linework, so a window reading the same ink is
                                     # genuinely ambiguous and still yields to them — but
                                     # only near that ink (reduced dilation below), never
-                                    # 20px out: on 5-1133, mullion strips ending 10px
-                                    # above W8 projected their veto onto its band.
+                                    # a full reach out: on 5-1133, mullion strips ending
+                                    # 10px above W8 projected their then-20px veto onto
+                                    # its band.
 CROSS_DOOR_FALLBACK_EXPAND_PX = 8.0 # veto reach of a fallback-tier door. Measured on
                                     # 5-1133: the joinery FPs a fallback veto rightly
                                     # kills overlap its ink at <=6px dilation (the recess
@@ -330,10 +365,17 @@ CROSS_DOOR_WALL_RUN_TOL_PX = 4.0    # frozen P: a window standing BEYOND a swing
                                     # its undilated bbox must not overlap the door's.
                                     # Measured on s10: door_0009's hinge edge x=229 lies
                                     # exactly on the hall window's inner pane (217-229 x
-                                    # 788-864, 4px above the jamb); the 20px dilation
+                                    # 788-864, 4px above the jamb); the then-20px dilation
                                     # covered 21% of the 12x76px band and killed the only
                                     # seal of that wall run (hall + kitchen leaked to the
-                                    # page exterior). The false class never matches: s01
+                                    # page exterior). At the 16px reach (2026-09-04) the
+                                    # same dilation covers 15.8% of it (12x12 of 912), so
+                                    # the exemption still decides it, plus s17's window
+                                    # 7.75px past door_0029's jamb (12.5%) and s18's 2.0px
+                                    # past door_0003's (14.5% at f=0.5) — three windows
+                                    # corpus-wide, none at 10px (measured over s01/s02/
+                                    # s03/s10/s11/s15/s16/s17/s18). The false
+                                    # class never matches: s01
                                     # door_0015's flanking phantoms (garden pair, no
                                     # derivable hinge) run perpendicular to the wall or
                                     # lie 51px off its plane at the parked leaves' tips;
@@ -396,8 +438,8 @@ def _resolve_door_window_conflicts(
     Suppression requires the (dilated) door to cover at least
     CROSS_DOOR_MIN_WINDOW_COVER of the window's area — a distant door whose
     dilation merely grazes a window corner is not a conflict (5-1133 Window A).
-    Real doors (>= CROSS_DOOR_MIN_CONFIDENCE) veto with the full 20px reach;
-    fallback-tier doors veto only windows near their own ink
+    Real doors (>= CROSS_DOOR_MIN_CONFIDENCE) veto with the full reach
+    (CROSS_DOOR_EXPAND_PX); fallback-tier doors veto only windows near their own ink
     (CROSS_DOOR_FALLBACK_EXPAND_PX) — they are frequently glazing-mullion or
     sliding-panel linework, so a window built from the same ink yields to them,
     but their speculative bbox must not project onto separate glazing.

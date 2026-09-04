@@ -200,7 +200,33 @@ ROOM_SIMPLIFY_TOL_PX        = 2.0     # sub-pen-width polygon simplification
 ROOM_OPENING_SEAL_PX        = 12.0    # bbox-edge extension when building door plugs, and
                                       # bbox dilation on the plug fallback: bridges the
                                       # clearance between the swing bbox and the jambs so
-                                      # free space cannot leak around a detected door
+                                      # free space cannot leak around a detected door.
+                                      # 102mm at 1:50. The jamb gap beyond a swing bbox
+                                      # at true scales: s01 8px = 125mm (1:92.2 — this
+                                      # reference was set on it as if 1:50, so at
+                                      # f=0.542 the 6.5px tails stop 12px short of
+                                      # their jambs and a room leaks), s17 8px = 135mm
+                                      # (its 1:100 plan detected at identity), s05/s07
+                                      # 6px at f=0.5 = 102mm — exactly the scaled 6px
+                                      # tail, zero headroom. The W-gate census
+                                      # (2026-09-04) proposed 15 and iteration 2 TRIED
+                                      # it: no value above 12 is safe, because a tail
+                                      # TOUCHES material within ROOM_PLUG_HALF_WIDTH_PX
+                                      # of its end, so a bbox edge whose ends lie within
+                                      # SEAL + 5px of two walls qualifies as an
+                                      # interrupted run — and for a door with no
+                                      # derivable hinge edge that includes its SWING
+                                      # side: at 14 s15's lounge and corridor lose
+                                      # their door swings (rooms 0023/0024, -5.4k px2
+                                      # each) and s01 room_0005 moves, at 15 s02's
+                                      # BEDROOM 2 is notched around the "A" section
+                                      # marker bar (a fallback door on it); only 15
+                                      # also cleaned s04's bedroom outline (+10k px2).
+                                      # s03 returns two recorded FP rooms at 18. A
+                                      # swing-side veto for hinge-less doors is the
+                                      # prerequisite for moving this. An interrupted
+                                      # plug seals a jamb gap of at most SEAL - 1px
+                                      # (tests/test_room_detection.py::TestPlugSealReach).
 ROOM_PLUG_NEAR_PX           = 8.0     # a bbox edge "hugs" wall material within this
                                       # distance; the swing bbox lands on the wall faces
                                       # a few px off at most
@@ -218,7 +244,14 @@ ROOM_PLUG_ANCHOR_WIN_PX     = 24.0    # cap on the end-anchor window: a jamb is
                                       # so narrow doors are unaffected.
 ROOM_PLUG_HALF_WIDTH_PX     = 5.0     # half-thickness of the wall-plane plug band; thin
                                       # enough to stay out of the room, thick enough to
-                                      # overlap the wall band it stands in for
+                                      # overlap the wall band it stands in for. Scaled
+                                      # (half a wall band is world-space) but floored at
+                                      # ROOM_LINE_BARRIER_PX in RoomGates.at: the plug
+                                      # must never be thinner than the standoff every
+                                      # other barrier keeps (W-gate census 2026-09-04,
+                                      # row 19 — s13's 1.84px raw product was a
+                                      # knife-edge; the floor is 2.0, not 3.0, which
+                                      # loses s13's room at (1040,999)-(1079,1085)).
 ROOM_PLUG_END_COV_MIN       = 0.5     # min coverage of each end quarter: jambs (or the
                                       # wall the edge runs along) must anchor both ends
 ROOM_PLUG_MID_COV_MAX       = 0.25    # mid coverage below this = interrupted wall run
@@ -425,7 +458,15 @@ class RoomGates:
                 ROOM_BLIND_WINDOW_MAX_AREA_PX2 * factor * factor),
             ROOM_OPENING_SEAL_PX=ROOM_OPENING_SEAL_PX * factor,
             ROOM_PLUG_ANCHOR_WIN_PX=ROOM_PLUG_ANCHOR_WIN_PX * factor,
-            ROOM_PLUG_HALF_WIDTH_PX=ROOM_PLUG_HALF_WIDTH_PX * factor,
+            # World-space (half a wall band) with a PAPER floor at the line
+            # barrier standoff: a plug thinner than the 2px standoff every
+            # other barrier keeps cannot meet its neighbours flush. At s13's
+            # f=0.367 the raw product is 1.84px and the room at
+            # (1040,999)-(1079,1085) survived only in [1.0, 1.25] of that
+            # value (W-gate census 2026-09-04, row 19); the floor is the
+            # standoff itself, 2.0 — a 3.0 floor loses the room.
+            ROOM_PLUG_HALF_WIDTH_PX=max(
+                ROOM_PLUG_HALF_WIDTH_PX * factor, ROOM_LINE_BARRIER_PX),
             ROOM_FOLD_STACK_NEAR_PX=ROOM_FOLD_STACK_NEAR_PX * factor,
             ROOM_FOLD_JAMB_MIN_LEN_PX=ROOM_FOLD_JAMB_MIN_LEN_PX * factor,
             WALL_MAX_THICKNESS_PX=WALL_MAX_THICKNESS_PX * factor,
