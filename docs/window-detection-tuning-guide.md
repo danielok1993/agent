@@ -272,7 +272,7 @@ Neither alone is sufficient; together they give 4/4 windows, 0 false positives.
 | `WINDOW_CAP_MAX_LEN_PX` | 34.0 | Caps are short; longer perpendiculars are walls. 5-1133 Window B caps overshoot to 30 px. |
 | `WINDOW_CAP_LEN_RATIO` | 0.60 | The two caps must be of similar length. |
 | `WINDOW_CAP_ALIGN_OVERLAP` | 0.60 | Their perp-extents must overlap — truly facing, not two offset stubs. |
-| `WINDOW_MIN_WIDTH_PX` | 14.0 | Opening width (gap between caps). Smallest real ≈ 20 px (bonus). |
+| `WINDOW_MIN_WIDTH_PX` | 12.0 | Opening width (gap between caps): 102 mm at 1:50. Narrowest confirmed openings at true scales: s02 20.5 px = 174 mm, s16 11.6 px at f=0.5 = 196 mm, s03 17.2 px (1:100 plan at identity). Width separates nothing on the false side (s18's FP windows start at 16.4 px, the width of its real ones), so the floor only sits under the true class — 1.7× under s02 (W-gate census 2026-09-04; was 14). Smallest real ≈ 20 px (bonus). |
 | `WINDOW_MAX_WIDTH_PX` | 280.0 | 5-1133 W8 (three-light frame) is 268 px; caps out long wall/decoration runs. |
 | `WINDOW_BLOCK_CAP_MAX_THICK_PX` | 8.0 | Bar thickness for a `re`/`qu` block cap (W8 end caps 6.0, mullions 5.5). |
 | `WINDOW_BLOCK_CAP_MIN_ASPECT` | 1.8 | Long/short side of a block cap; square crosshatch/insulation boxes (~1.0–1.4) never enter the cap pool. |
@@ -300,9 +300,9 @@ Neither alone is sufficient; together they give 4/4 windows, 0 false positives.
 
 | Constant | Value | Rationale |
 |---|---|---|
-| `CROSS_DOOR_EXPAND_PX` | 20.0 | Dilate door bbox before testing window overlap. Matches `CROSS_WALL_EXPAND_PX`. |
+| `CROSS_DOOR_EXPAND_PX` | 16.0 | Dilate door bbox before testing window overlap: 135 mm at 1:50 (W-gate census 2026-09-04; was 20). Two false classes to veto: door-ink phantoms lie ≤ 2.8 px from their door (s01; 0 on s15) and yield to any reach; a 100 mm DOOR LINING box touching the door's hinge corner (s18, 6×49 px at f=0.5) is covered only diagonally and needs 10.3 px at 1:50 to reach the 10 % cover — the census's 10 px proposal let it through as a 0.75 window. True class: s03 loses a real window at 25 px. 16 is 1.55× over the lining, 1.56× under s03. |
 | `CROSS_DOOR_MIN_WINDOW_COVER` | 0.10 | Door must cover ≥10% of the window's area to suppress it. A dilated-corner graze from a distant door is **not** a conflict (was wrongly killing 5-1133 Window A). |
-| `CROSS_DOOR_MIN_CONFIDENCE` | 0.40 | Doors at/above this get the full 20 px veto reach. Fallback-tier doors (`DOOR_FALLBACK_CONFIDENCE` 0.35) often ARE window-like ink (glazing mullions, sliding panels, joinery slats), so a window reading the same ink still yields to them — but only near that ink, never 20 px out: on 5-1133, mullion strips ending 10 px above W8 projected their veto onto its band and killed it. |
+| `CROSS_DOOR_MIN_CONFIDENCE` | 0.40 | Doors at/above this get the full veto reach (`CROSS_DOOR_EXPAND_PX`). Fallback-tier doors (`DOOR_FALLBACK_CONFIDENCE` 0.35) often ARE window-like ink (glazing mullions, sliding panels, joinery slats), so a window reading the same ink still yields to them — but only near that ink, never a full reach out: on 5-1133, mullion strips ending 10 px above W8 projected their then-20 px veto onto its band and killed it. |
 | `CROSS_DOOR_FALLBACK_EXPAND_PX` | 8.0 | Veto reach of a fallback-tier door. Measured on 5-1133: the joinery FPs a fallback veto rightly kills — (1072,740) slats, (999,890) recess column — overlap its ink at ≤6 px dilation; W8 stays clear up to ~17 px. 8 px sits between with margin both ways. |
 
 Confidence: base `0.62`, `+0.05` per glazing pane beyond 2, `+layer_prior` (or

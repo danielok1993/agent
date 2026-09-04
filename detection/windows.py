@@ -37,7 +37,20 @@ WINDOW_CAP_MAX_LEN_PX       = 36.0   # caps are short; longer perpendiculars are
                                      # thickness ~34.7px (idx 6475/2301)
 WINDOW_CAP_LEN_RATIO        = 0.60   # the two caps must be of similar length
 WINDOW_CAP_ALIGN_OVERLAP    = 0.60   # their perp-extents must overlap (truly facing)
-WINDOW_MIN_WIDTH_PX         = 14.0   # opening width (gap between caps); bonus ~20px
+WINDOW_MIN_WIDTH_PX         = 12.0   # opening width (gap between caps); bonus ~20px.
+                                     # 102mm at 1:50 (W-gate census 2026-09-04,
+                                     # 14 -> 12): the narrowest confirmed openings
+                                     # at true scales are s02 20.5px = 174mm, s16
+                                     # 11.6px at f=0.5 = 196mm, s18 16.5px = 279mm
+                                     # and s03's 17.2px window on a 1:100 plan
+                                     # detected at identity (lost once the floor
+                                     # passed 17.5). Width separates nothing on
+                                     # the false side — s18's FP windows start at
+                                     # 16.4px, the width of its real ones — so
+                                     # the floor only has to sit UNDER the true
+                                     # class: 12 leaves 1.7x under s02 and 1.4x
+                                     # under s03 (14 left 1.46x / 1.23x). No
+                                     # corpus sheet changes between 0.5x and 1.0x.
 WINDOW_MAX_WIDTH_PX         = 280.0  # 5-1133 W8 (three-light frame) is 268px; caps
                                      # wall/decoration runs
 WINDOW_GLAZING_THICKNESS_PX = 16.0   # max perp-spread of the glazing band (Window A ~14px)

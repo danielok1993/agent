@@ -28,13 +28,13 @@ class TestWindowGates(unittest.TestCase):
 
     def test_scaling_at_half(self):
         g = WindowGates.at(0.5)
-        self.assertEqual(g.WINDOW_MIN_WIDTH_PX, 7.0)
+        self.assertEqual(g.WINDOW_MIN_WIDTH_PX, 6.0)
 
     def test_clamp_domain_bounds_construct(self):
         # The pipeline clamps f to [0.25, 4.0]; both bounds must construct
         # with the raw product (floor inert on the calibrated domain).
-        self.assertEqual(WindowGates.at(0.25).WINDOW_MIN_WIDTH_PX, 3.5)
-        self.assertEqual(WindowGates.at(4.0).WINDOW_MIN_WIDTH_PX, 56.0)
+        self.assertEqual(WindowGates.at(0.25).WINDOW_MIN_WIDTH_PX, 3.0)
+        self.assertEqual(WindowGates.at(4.0).WINDOW_MIN_WIDTH_PX, 48.0)
 
     def test_floor_engages_below_clamp_domain(self):
         # Backstop only: a sub-pixel width floor is never a window gate.
@@ -89,8 +89,8 @@ class TestMinWidthNegativeControl(unittest.TestCase):
 
     A faithful 1:100 export of a small window: opening width 10px (a 20px
     1:50 window shrunk), ink held at paper values — 3 panes at 2.5px gaps
-    (depth 5), 5px caps. Missed at f=1.0 (10 < 14), detected at f=0.5
-    (10 >= 7). Fails if the gates threading is removed.
+    (depth 5), 5px caps. Missed at f=1.0 (10 < 12), detected at f=0.5
+    (10 >= 6). Fails if the gates threading is removed.
     """
 
     def _fixture(self, deg=50):

@@ -270,7 +270,16 @@ DOOR_FOLD_LEAF_LINE_SEP_MAX_PX = 4.0   # 45° hatch at the corpus' tightest 5.7p
 DOOR_FOLD_LEAF_LINE_LEN_RATIO_MIN = 0.75  # the two edge lines of one leaf (measured 0.915 — the
                                           # inner edge is foreshortened at the hinge miter)
 DOOR_FOLD_LEAF_LINE_OVERLAP_MIN = 0.6  # axial overlap of the edge lines (× shorter length)
-DOOR_FOLD_JAMB_ANCHOR_TOL_PX   = 6.0   # jamb line endpoint to leaf tip (measured 3.4/3.6)
+DOOR_FOLD_JAMB_ANCHOR_TOL_PX   = 10.0  # jamb line endpoint to leaf tip: 85mm at 1:50.
+                                       # Its defining measurement, s01 door_0012's
+                                       # 3.4/3.6px offsets, is 53-56mm at s01's TRUE
+                                       # 1:92.2 — the one door constant whose old 1:50
+                                       # value (6px = 51mm) sat under s01's own world
+                                       # value, so scaling it by 50/92.2 (3.25px) lost
+                                       # the door (W-gate census 2026-09-04, 6 -> 10:
+                                       # 1.5x over 56mm; nothing else on s01 or s02
+                                       # matches up to 12px, and the corpus sweep is
+                                       # unchanged from 0.67x to 2.0x)
 DOOR_FOLD_JAMB_LINE_MIN_LEN_PX = 15.0  # a jamb anchor is a wall face, not a cap/tick
 DOOR_FOLD_JAMB_AXIS_TOL_DEG    = 15.0  # jamb faces run along the opening axis (measured 2.2°)
 DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX = 6.0  # lateral half-width of the opening corridor searched for

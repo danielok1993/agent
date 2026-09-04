@@ -588,12 +588,74 @@ class TestWindowTightPairInterior(unittest.TestCase):
         self.assertEqual(len(wins), 1, f"expected 1 window, got {len(wins)}")
 
 
+class TestMinWidthReference(unittest.TestCase):
+    """WINDOW_MIN_WIDTH_PX is 12px — 102mm at 1:50 (W-gate census
+    2026-09-04, iteration 2). The true class at true scales: the narrowest
+    confirmed openings are s02 20.5px = 174mm, s16 11.6px at f=0.5 = 196mm,
+    s18 16.5px = 279mm, and s03's 17.2px window on its 1:100 plan detected at
+    identity (lost once the floor passed 17.5). The false class does not
+    separate on width at all — s18's FP windows start at 16.4px, the width
+    of its real ones — so the floor only has to sit UNDER the true class:
+    12 leaves 1.7x under s02 and 1.4x under s03, where 14 left 1.46x / 1.23x.
+    A 13px opening (110mm; 3 panes, 5px caps — the s16 convention) must
+    detect at identity; 11px must still not."""
+
+    def _fixture(self, width):
+        x0, x1 = 400.0 - width / 2, 400.0 + width / 2
+        return [
+            hline(0, x0, x1, 397.5), hline(1, x0, x1, 400.0), hline(2, x0, x1, 402.5),
+            vline(3, 397.5, 402.5, x0), vline(4, 397.5, 402.5, x1),
+        ]
+
+    def test_13px_opening_detected_at_identity(self):
+        wins = detect_windows(self._fixture(13.0))
+        self.assertEqual(len(wins), 1, f"got {[c.bbox for c in wins]}")
+
+    def test_11px_opening_still_missed(self):
+        self.assertEqual(detect_windows(self._fixture(11.0)), [])
+
+
 class TestDoorWindowExclusion(unittest.TestCase):
     def _win(self, bbox: BBox) -> Candidate:
         return Candidate("window_0000", "window", bbox, 0.7, {})
 
     def _door(self, bbox: BBox) -> Candidate:
         return Candidate("door_0000", "door", bbox, 0.8, {})
+
+    # --- veto reach: CROSS_DOOR_EXPAND_PX 16px (135mm at 1:50) ------------
+    # W-gate census iteration 2, 2026-09-04 (20 -> 16). False classes: phantom
+    # windows read off door ink lie <= 2.8px from their door's bbox (s01; 0 on
+    # s15) and yield to any reach; a 100mm DOOR LINING box touching the door's
+    # hinge corner (s18, 6x49px at f=0.5) is covered only diagonally and needs
+    # 10.3px at 1:50 to reach the 10% cover rule — the census's 10px proposal
+    # admitted it as a 0.75 window. True class: real windows stand 2-8px from
+    # a door on s10/s11/s16/s17/s18 (s18 2.0, s11/s16 3.6, s10 4.0, s17 7.7)
+    # and survive through the cover rule and the hinge-jamb exemption; s03
+    # loses a real window at 25px. 16 is 1.55x over the lining, 1.56x under
+    # s03.
+
+    def test_door_lining_touching_door_corner_vetoed(self):
+        """s18's lining at identity scale: a 12x97.5px box whose bottom-right
+        corner is the door's top-left. 16px covers 12x16.5 of 1170 = 16.9%;
+        10px covered 9.0% and let it through."""
+        win = self._win((0.0, 0.0, 12.0, 97.5))
+        door = self._door((12.0, 97.5, 105.0, 277.0))
+        self.assertNotIn(win, _resolve_door_window_conflicts([win, door]))
+
+    def test_window_18px_from_door_kept(self):
+        """A window 18px past the door's edge is clear of both false classes:
+        joinery beside the door, kept at f=1.0 (20px reached 2px of it =
+        exactly the 10% cover and vetoed it)."""
+        win = self._win((38.0, 0.0, 58.0, 20.0))
+        door = self._door((0.0, 0.0, 20.0, 20.0))
+        self.assertIn(win, _resolve_door_window_conflicts([win, door]))
+
+    def test_window_7px_from_door_still_vetoed(self):
+        """Inside the reach (9px of the dilation over a 20px window = 45%
+        cover) the veto fires."""
+        win = self._win((27.0, 0.0, 47.0, 20.0))
+        door = self._door((0.0, 0.0, 20.0, 20.0))
+        self.assertNotIn(win, _resolve_door_window_conflicts([win, door]))
 
     def test_window_overlapping_door_dropped(self):
         win = self._win((1022.0, 1139.0, 1048.0, 1189.0))   # FP #18 door-leaf area
@@ -620,16 +682,21 @@ class TestDoorWindowExclusion(unittest.TestCase):
 
     def test_fallback_tier_door_has_reduced_veto_reach(self):
         """A DOOR_FALLBACK_CONFIDENCE (0.35) door often IS window-like ink
-        (glazing mullions, sliding panels), so its veto reach shrinks to near
-        its own linework instead of the full 20px dilation. 5-1133 W8 sat 10px
-        below mullion strips read as fallback doors; their 20px dilation
-        covered 11% of its band and killed it. The same geometry at
-        real-detection confidence keeps the full reach."""
+        (glazing mullions, sliding panels), so its veto reach (8px) stays
+        under the real tier's (16px). 5-1133 W8 sat 10px below mullion
+        strips read as fallback doors; their then-20px dilation covered 11%
+        of its band and killed it (at 16px the strip covers 5.5% — the
+        cover rule alone now keeps W8 from a real-tier strip too). A wide
+        real-tier door 8px above the band still vetoes it (8px of the 16px
+        dilation over the 268px band = 53% cover); the same door at fallback
+        confidence only touches it."""
         win = self._win((926.0, 267.0, 1194.0, 282.0))       # 5-1133 W8
         fallback = Candidate("door_0108", "door", (1110.0, 81.0, 1115.0, 257.0), 0.35, {})
         self.assertIn(win, _resolve_door_window_conflicts([win, fallback]))
-        real = Candidate("door_0108", "door", (1110.0, 81.0, 1115.0, 257.0), 0.55, {})
-        self.assertNotIn(win, _resolve_door_window_conflicts([win, real]))
+        wide_real = Candidate("door_0108", "door", (930.0, 81.0, 1190.0, 259.0), 0.55, {})
+        self.assertNotIn(win, _resolve_door_window_conflicts([win, wide_real]))
+        wide_fallback = Candidate("door_0108", "door", (930.0, 81.0, 1190.0, 259.0), 0.35, {})
+        self.assertIn(win, _resolve_door_window_conflicts([win, wide_fallback]))
 
     def test_fallback_door_still_vetoes_window_on_its_own_ink(self):
         """A window candidate sitting ON a fallback door's linework (5-1133:
@@ -660,10 +727,11 @@ class TestDoorWindowExclusion(unittest.TestCase):
         """A door's veto exists for door ink read as glazing, and that ink lies
         inside the door's footprint. A thin window standing beyond the
         hinge-side jamb in the door's own wall plane is joinery drawn in the
-        same wall run: s10's hall window is 12x76px, so the 20px dilation of
-        door_0009 below its sill covered 21% of it (raw bbox overlap 0) and
-        the window, the only seal of that wall run, was lost — the hall and
-        kitchen leaked to the page exterior."""
+        same wall run: s10's hall window is 12x76px, so the then-20px
+        dilation of door_0009 below its sill covered 21% of it (raw bbox
+        overlap 0) and the window, the only seal of that wall run, was lost —
+        the hall and kitchen leaked to the page exterior. At the 16px reach
+        the cover is 15.8% (12x12 of 912): still the exemption's call."""
         win = Candidate("window_0000", "window",
                         (217.0, 788.0, 229.0, 864.0), 0.67, {"orientation": "vertical"})
         door = Candidate("door_0009", "door", self._S10_DOOR["bbox"], 0.67,
@@ -672,7 +740,8 @@ class TestDoorWindowExclusion(unittest.TestCase):
 
     def test_window_beyond_non_hinge_edge_still_vetoed(self):
         """The same window mirrored to the door's open-tip side (right edge,
-        x=326) lies beside the swing square, not in the wall plane: door ink."""
+        x=326) lies beside the swing square, not in the wall plane: door
+        ink, 15.8% cover, no exemption."""
         win = Candidate("window_0000", "window",
                         (326.0, 788.0, 338.0, 864.0), 0.67, {"orientation": "vertical"})
         door = Candidate("door_0009", "door", self._S10_DOOR["bbox"], 0.67,

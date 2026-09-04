@@ -22,3 +22,7 @@ outputs/
 
 # Subagent-driven-development scratch (ledgers, briefs, review packages)
 .superpowers/
+
+# W-gate census harness scratch state (pickled pages, ablation logs)
+tools/census_scratch/cache/
+tools/census_scratch/abl/

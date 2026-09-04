@@ -209,6 +209,32 @@ class OpenVTests(unittest.TestCase):
         self.assertEqual(len(folds), 1)
         self.assertEqual(folds[0].evidence["fold_style"], "open_v")
 
+    def _jambs_offset(self, dy):
+        """The top jamb's face ends lifted dy px above the tip line: the
+        anchor-to-tip distance grows from 3.4/3.6 to hypot(3.4, dy)."""
+        return [
+            line(10, (387.5, 955.5 - dy), (387.5, 917.75)),
+            line(11, (394.5, 955.5 - dy), (394.5, 920.75)),
+            line(12, (394.5, 1018.25), (394.5, 1011.25)),
+        ]
+
+    def test_jamb_anchor_7px_off_tip_still_anchors(self):
+        # DOOR_FOLD_JAMB_ANCHOR_TOL_PX is 10px — 85mm at 1:50 (W-gate census
+        # 2026-09-04). Its defining measurement, s01 door_0012's 3.4/3.6px
+        # jamb-end-to-tip offsets, is 53-56mm at s01's true 1:92.2 — the ONE
+        # constant whose 1:50 value (6px = 51mm) sat under s01's world
+        # value, so scaling it by 50/92.2 (3.25px) lost the door. Nothing
+        # else matches up to 12px on s01 or s02. Jamb ends 6.9/7.0px off the
+        # tip (a 60mm offset at 1:50) must anchor.
+        folds = folding_of(detect(self._v_leaves() + self._jambs_offset(6.0)))
+        self.assertEqual(len(folds), 1)
+        self.assertEqual(folds[0].evidence["fold_style"], "open_v")
+
+    def test_jamb_anchor_12px_off_tip_rejected(self):
+        # Beyond the tolerance (11.5px lift -> 12.0/12.1px) no jamb anchors.
+        self.assertEqual(
+            folding_of(detect(self._v_leaves() + self._jambs_offset(11.5))), [])
+
     def test_unanchored_v_rejected(self):
         # No wall-line jamb ends at either tip: chance oblique joinery.
         self.assertEqual(folding_of(detect(self._v_leaves())), [])

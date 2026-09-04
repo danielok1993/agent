@@ -277,3 +277,199 @@ What has changed since this handoff was written:
 > `tests/ground_truth/*.json` or `fixtures/MANIFEST.json`, do not bundle the
 > dash rows, the deeper band pockets, the lattice knife-edges or Gap D into
 > this branch, and stop at every report with the numbers.
+
+## Outcome — iteration 2 (2026-09-04, branch `recal/w-gate-iter2`)
+
+Iteration 1 (the census, `docs/w-gate-census-2026-09-04.md`) changed no
+constant. Iteration 2 moves the references in three groups; each group is
+pinned by synthetic tests that fail at the old value, swept against
+`compare_sweeps --snapshot` baselines of main `f5682fc` (71 returned FPs,
+0 LOST, 5 unreviewed — reproduced before any change), and reported with
+before|after pictures. Checkpoint reports live in
+`docs/w-gate-iter2-checkpoints/`.
+
+### Group 1 — safe reference moves
+
+| constant | was | now | world @1:50 | margin true / false |
+|---|---|---|---|---|
+| `WINDOW_MIN_WIDTH_PX` | 14 | 12 | 102 mm | 1.7× under s02's 174 mm; false side does not separate on width |
+| `DOOR_FOLD_JAMB_ANCHOR_TOL_PX` | 6 | 10 | 85 mm | 1.5× over s01's 56 mm (true 1:92.2) |
+| `WALL_THROUGH_HATCH_MAX_PX` | 64 | 72 | 610 mm | 1.28× over s05's 475 mm wall; 1.13× under s01's first through-hatched fixture |
+| `CROSS_DOOR_EXPAND_PX` | 20 | **16** (census said 10) | 135 mm | 1.55× over s18's 100 mm door lining (needs 10.3 px); 1.56× under s03's window lost at 25 px |
+
+Corpus sweep of the final group: see the checkpoint report. The one
+surprise: the census's 10 px for `CROSS_DOOR_EXPAND_PX` uncovered a
+phantom window on s18 — a 100 mm door lining touching a door's hinge corner
+is covered only diagonally by the dilation and needs 10.3 px at 1:50 to reach
+the 10 % cover rule. One-field ablation could not see it because the lining
+was vetoed at every multiplier the census tried above 0.5×; it is the
+"discriminator has two false classes" case, and 16 is the value that leaves
+≥ 1.5× on both sides. `WALL_THICK_MATERIAL_MAX_PX` stays 48 until group 3's
+per-band hatch-mark cap (at f=0.5 a 56 cap is 28 px, where s05's wall pairs).
+
+### Group 2 — thin-margin moves (three of five tried and reverted)
+
+| constant | census | shipped | why |
+|---|---|---|---|
+| `WALL_MAX_THICKNESS_PX` | 36 → 40 | **36** | 40 removed five recorded phantoms (s17's four 35 px reveal strips in its 37 px = 313 mm cavity walls; s16's striped block) but the 36–40 px band holds fixtures at wall spacing: s02's WC wall face × hairline basin edge at 38.25 px over section-line dashes (notched the WC 14 %), s01's 38.5 px kitchen units (600 mm at 1:92.2) pairing and lattice-demoting (hob fenced), +1 phantom each on s11/s15/s18. Thresholds 37.0 / 38.25 / 38.5 — spacing is not the discriminator |
+| `WALL_FACE_MIN_LEN_PX` | 11 → 9 | **11** | a band's 45° hatch is T√2 long: s01's 7 px partitions hatch at 9.9 px and the band-end strokes paired (room_0003 edge jogged 4 px; s02 −55 px²); s18 worktop run fenced (−1 FP, +1 phantom) |
+| `WALL_WEAK_MATERIAL_PER_100PX` | 3.0 → 2.2 | **2.2** | inert on the corpus at entity and polygon level |
+| `ROOM_OPENING_SEAL_PX` | 12 → 15 | **12** | no value above 12 is safe: the tail touch reach is SEAL + `ROOM_PLUG_HALF_WIDTH_PX`, and a hinge-less door's swing-side edge within it of two walls becomes an interrupted plug — s15 lost two door swings at 14, s02's BEDROOM 2 was notched around a section marker at 15, s01 room_0005 moved at 13–14 |
+| `CROSS_WALL_EXPAND_PX` | 20 → 24 | **24** | inert on the corpus at entity and polygon level |
+
+The pattern: every census margin under ~1.25× on the *discriminator* (its ⚠
+rows) broke on the sweep the moment the number moved — always by admitting a
+drawn fixture the one-field ablation could not see because another gate had
+been holding it out. The three reverts each name the prerequisite rule:
+a mark-class rule (section-line dashes, cupboard X's ≠ hatch), a swing-side
+veto for hinge-less doors, and s01's true-scale factor (its 9.9 px hatch
+strokes and 38.5 px kitchen units are 1:92.2 quantities detected at
+identity).
+
+### Group 3 — class fixes
+
+**3a — per-band hatch-mark cap + `WALL_THICK_MATERIAL_MAX_PX` 48 → 56
+(shipped).** `_collect_material_marks` runs once at the through-hatch
+diagonal; `_band_has_wall_material` filters to `_mark_len_cap(T)` =
+max(`WALL_HATCH_MAX_LEN_PX`, T√2 + 2) and counts a mark longer than the
+page-wide cap only when both its ends lie on the band's faces (through-hatch).
+The first corpus sweep without that condition was verdict-identical but
+paired s17's stair stringers (48 px apart) on two arrowhead barbs and two
+cut lines — exactly the 4-mark floor, reachable only since Group 2 lowered
+the density to 2.2/100 px (at 3.0 a 141 px band needs 5) — and fenced the
+flight out of its hall (room_0006 −5.9k px², IoU 0.73). With the condition:
+verdicts identical to baseline, s05 9/9 rooms via the thick tier, two
+sub-1 % outline improvements (s11 porch +144 px², s13 bedroom +146 px²).
+`tests/test_through_hatch_band.py` now pins the tier above 56 with a 64 px
+band. The lone-face helpers and the stair/barrier ceilings keep 48.
+
+**3b — `COLLINEAR_OFFSET_TOL` as paper-with-ceiling (measured, no code
+change).** Harness on s11, s16, s13, s02, s03, s18 and s01 at 0.542 for the
+current 4f, unscaled 4.0 and min(4.0, 6f): the two paper forms both lose a
+confirmed s18 room (its 47 mm partitions at 1:100 hold at 2.5 px and fuse at
+2.75 → ceiling 5.5 × f; unscaled 4.0 also adds three phantoms on s18 and one
+on s16). The widest safe form, min(4.0, 5f), changes no sheet and does not
+reach the 3.25 px that cuts s01's phantoms 18 → 1 at 0.542 — and at 0.542
+s01 loses four rooms whatever the tolerance (the thick-tier short-piece
+issue). The value stays 4 × f, 1.37× under the ceiling; the findings row now
+reads "P true class, W ceiling, numerically W", pinned by
+`test_scaled_tolerance_stays_under_the_partition_ceiling`.
+
+**3c — `ROOM_PLUG_HALF_WIDTH_PX` paper floor (shipped).** `RoomGates.at`
+floors it at `ROOM_LINE_BARRIER_PX` (2.0), not 3.0 (which loses s13's room
+at (1040,999)–(1079,1085)). Corpus sweep: verdicts identical; s13's eleven
+rooms move by the 0.16 px plug growth (IoU ≥ 0.987).
+
+### Where this leaves `_gate_denominator` (the final iteration)
+
+See the Group 3 checkpoint report for the s01mode re-run on the final tree.
+
+s01mode on the final tree: f=0.542 keeps 11/11 doors and 4/4 windows, loses
+4/12 rooms with 18 phantoms; the solo culprits are now only
+`WALL_MAX_THICKNESS_PX` (the short-piece material issue the census predicted)
+and `ROOM_OPENING_SEAL_PX` (reverted in Group 2). `_gate_denominator` is
+unchanged; `SCALE_FACTOR_MEASURED_ONLY` stays. Next iteration: the short-piece
+material rule, the hinge-less swing-side veto, the mark-class rule.
+
+### Prompt for the next agent (iteration 3 — fresh context)
+
+> Use `/fix-detection` for its discipline (topic branch from `main`;
+> `compare_sweeps --snapshot` baselines of main for all 20 slugs; four
+> background sweep groups — s18; s16 s11 s15; s01–s07; the rest — because a
+> full `regress.py` exceeds the 10-minute foreground limit; verdict reports
+> diffed section-wise; `tools/diff_room_polygons.py` on every sheet after
+> EVERY sweep, and a `tools/room_shape_crop.py` crop of every room whose IoU
+> moved under 0.99 — a verdict-identical sweep is not a clean sweep, three of
+> iteration 2's reverts were caught only by polygon diffs). Read first, in
+> this order: `docs/w-gate-iter2-checkpoints/group-{1,2,3}.md` (what shipped,
+> what was tried and why it was reverted, with the measured false classes),
+> this handoff's "Outcome — iteration 2" section, the "move?" column of
+> `docs/w-gate-census-2026-09-04.md`, the CLAUDE.md paragraphs "Room
+> detection" and "Wall/room world-space gates", and
+> `docs/regression-testing-guide.md` §9 §10 §12 §13.
+>
+> Tooling you inherit in `tools/census_scratch/` (untracked cache/abl dirs
+> are rebuilt on first use): `harness.py` runs the exact stage-5 chain with
+> gate overrides (`overrides(mult=…)` / `overrides(absolute=…)`) and scores
+> against ground truth; `attrib.py <slug> x0 y0 x1 y1 FIELD=MULT[,FIELD=MULT]…`
+> reports whether a target bbox survives each single-field override;
+> `attrib_delta.py` lists rooms that appear/vanish per override;
+> `attrib_rooms.py` lists rooms whose polygon differs from the baseline
+> snapshot per override; `collinear_probe.py`, `probe_exemption.py`,
+> `ablate.py s01 s01mode`. Use them to attribute every change to ONE
+> constant or rule before deciding anything; the sweep stays the arbiter.
+> `tools/diff_wall_network.py sNN X0 Y0 X1 Y1 --base-dir <worktree of main
+> with fixtures/sheets symlinked>` for barrier-level attribution (the default
+> base loses the stored scale).
+>
+> State you start from: main carries iteration 2. Shipped: WINDOW_MIN_WIDTH
+> 12, DOOR_FOLD_JAMB_ANCHOR_TOL 10, WALL_THROUGH_HATCH_MAX 72, CROSS_DOOR_EXPAND
+> 16, WALL_WEAK_MATERIAL_PER_100PX 2.2, CROSS_WALL_EXPAND 24, the per-band
+> hatch-mark cap `_mark_len_cap` (long marks count only as through-hatch),
+> WALL_THICK_MATERIAL_MAX 56, ROOM_PLUG_HALF_WIDTH floored at 2.0. Tried and
+> reverted, each with its false class in the constant's comment:
+> WALL_MAX_THICKNESS 40, WALL_FACE_MIN_LEN 9, ROOM_OPENING_SEAL 15/14/13.
+> COLLINEAR_OFFSET_TOL stays 4f (s18's 47mm partitions fuse at 2.75px at
+> f=0.5). Corpus: 71 returned FPs, 0 LOST, 5 unreviewed — count them with
+> `grep -c "FALSE POSITIVE RETURNED"`. s01 at f=0.542 keeps 11 doors and 4
+> windows but loses 4/12 rooms; `_gate_denominator` is unchanged.
+>
+> Three iterations, in this order, ONE rule per iteration, each with its own
+> synthetic test (fails without the rule), harness pre-check on the named
+> sheets, full sweep, polygon diff with crops, verdicts on every new REVIEW
+> line, room-label reseed of every sheet whose outlines changed (`gcloud
+> auth application-default login` first; an expired credential shows only as
+> ROOM_LABEL_FAILED in warnings.json with exit 0), prose (constant comment,
+> CLAUDE.md room paragraph, findings §4, this handoff) and a checkpoint
+> report in the fix-detection template with before|after pictures:
+>
+> 1. **Mark-class rule** (walls, `_collect_material_marks` /
+>    `_band_has_wall_material`): a dashed section line's dashes and a
+>    cupboard's X diagonals are not hatch. Measured instance: s02's WC wall
+>    face paired at 38.25px with a hairline basin edge (paths 5743–5745) over
+>    the diagonal section line's dashes once the cap was 40 (needs cap ≥
+>    38.25, face floor ≤ 9, density ≤ 2.7). Find the drawing-convention
+>    difference (hatch is a regular-pitch field of parallel strokes; a
+>    section line is ONE collinear row of dashes; cupboard X's are two
+>    crossing diagonals per box) and measure it on s01/s02 and the sheet.
+>    Then retry WALL_MAX_THICKNESS 36 → 40 in the SAME sweep only if the
+>    rule alone is green: expected −5 recorded phantoms (s16 room at
+>    (2502,1563); s17 rooms at (929,2252), (3064,2331), (3065,2828),
+>    (931,2838)), and s01's kitchen units (38.5px = 600mm at 1:92.2, paths
+>    3183/3184/939/940/946) must NOT pair — if they do, the cap waits for
+>    s01's true-scale factor; also the 40-cap phantoms on s11 (wall-recess
+>    box (1030,1330)–(1123,1360)), s15 (annotation pocket
+>    (1480,698)–(1595,792)) and s18 (tree strip (156,724)–(197,827)) must
+>    stay out.
+> 2. **Hinge-less swing-side veto** (rooms, `_door_plugs` /
+>    `_restrict_swing_plugs`): a door with no derivable hinge edge must not
+>    get an interrupted plug along an edge that is its swing side. Measured:
+>    the tail touch reach is SEAL + ROOM_PLUG_HALF_WIDTH_PX, so any bbox edge
+>    whose ends lie within it of two walls qualifies; at seal 14 s15 rooms
+>    0023/0024 lost their top-door swings (−5.4k px² each), at 15 s02's
+>    BEDROOM 2 was notched around its "A" section-marker bar (a fallback
+>    door on it), at 13–14 s01 room_0005 moved. Synthetic pins already
+>    exist at 26–28px clearance in test_room_detection (the closet and
+>    white-ring fixtures). Then retry ROOM_OPENING_SEAL 12 → 15 in the same
+>    sweep only if the veto alone is green: expected s04 room_0002 +10k px²
+>    (the bedroom's notch), s02/s15/s01 unchanged, s03's two recorded FP
+>    rooms still out (they return at 18).
+> 3. **Short-piece material rule** (thick tier): a hatched band's piece
+>    between two openings (s01: 36px, 3 marks) fails the ≥4-marks/span gates
+>    and the room leaks at f=0.542; make such a piece inherit the material
+>    verdict of the collinear band it continues. Then re-run `ablate.py s01
+>    s01mode`; if s01 at 0.542 keeps 11 doors, 12 rooms and 4 windows, narrow
+>    `scale/factor.py::_gate_denominator` so a user-stored non-nominal
+>    denominator drives the gates, update `tests/test_scale_factor.py`, and
+>    retire or narrow `SCALE_FACTOR_MEASURED_ONLY` with the sweep as proof.
+>
+> Rules for the whole run: do not commit (the user commits); do not edit
+> `tests/ground_truth/*.json` or `fixtures/MANIFEST.json`; never revert
+> s01's truth scale (1:92.2 is metrically verified); do not bundle the dash
+> rows, deeper band pockets, lattice knife-edges or Gap D; never `git stash`;
+> macOS has no `timeout`; the venv lacks InquirerPy and
+> `tests.test_takeoff_fn_equivalence` fails on main — neither is a branch
+> signal; s01 and s02 at f=1.0 must not change (entity set AND polygons);
+> if a rule costs a confirmed entity or returns an FP, revert it, report why,
+> and STOP. End every checkpoint report with the numbers: lost, returned FPs,
+> new REVIEW lines with your verdicts, net phantom delta, and what is next.

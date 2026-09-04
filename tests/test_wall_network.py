@@ -17,6 +17,7 @@ from detection.walls import (
     WALL_GATES_UNSCALED,
     WALL_JOINERY_BRIDGE_GAP_PX,
     WALL_JOINERY_BRIDGE_SLACK_PX,
+    WALL_MAX_THICKNESS_PX,
     WALL_NETWORK_MIN_SEGMENTS,
     _FillRing,
     _bridge_white_runs,
@@ -95,6 +96,21 @@ class TestFaceCollection(unittest.TestCase):
     def test_dashed_lines_excluded(self):
         paths = [hline(0, 100, 300, 100), hline(1, 100, 300, 108, dashes="[ 3 ] 0")]
         faces, _ = _collect_wall_faces(paths)
+        self.assertEqual(len(faces), 1)
+
+    def test_ten_px_hatch_stroke_is_not_a_face(self):
+        # WALL_FACE_MIN_LEN_PX stays 11px. The W-gate census (2026-09-04)
+        # proposed 9 — the shortest paired faces sit ON the floor on every
+        # sheet (the 100mm jamb nib: s02 11.2px, s03 11.2, s14 11.0) — and
+        # iteration 2 tried it: a band's 45-degree hatch strokes are
+        # T*sqrt(2) long, so a 7px band's hatch is 9.9px and the band-END
+        # strokes (too few for the lattice rule) paired on s01 and s02.
+        # A 10px 45-degree stroke stays out; a 12px nib is a face.
+        faces, _ = _collect_wall_faces([path(0, [(100.0, 107.0), (107.0, 100.0)])])
+        self.assertEqual(faces, [])
+
+    def test_twelve_px_nib_is_a_face(self):
+        faces, _ = _collect_wall_faces([hline(0, 100, 112, 100)])
         self.assertEqual(len(faces), 1)
 
     def test_filled_band_yields_centerline(self):
@@ -503,6 +519,37 @@ class TestWeakFacePairs(unittest.TestCase):
         network = detect_wall_network(paths)
         self.assertEqual(len(network.segments), 0)
 
+    def test_material_at_2_7_per_100px_qualifies(self):
+        # WALL_WEAK_MATERIAL_PER_100PX is 2.2 marks/100px — 2.6/m at 1:50
+        # (W-gate census 2026-09-04, 3.0 -> 2.2). Real partition hatch at
+        # true scales: s02's thinnest OK band 3.4/100 = 4.1/m, s15/s17
+        # 4.4-4.6/m, s01 4.5/m — and s16's real hatched wall between two
+        # windows (crop-verified) measures 5.4/100 at f=0.5 = 3.2/m, which
+        # FAILED the scaled 6.0 gate. Noise: s02's glazing strip plus ticks
+        # 1.7/100 = 2.0/m, s04 1.4/m. 2.2 sits 1.23x under s16's wall and
+        # 1.3x over s02's strip. Eight spread marks over a 300px hairline
+        # band = 2.67/100 must pair; five (1.67, the glazing-strip class)
+        # must not.
+        paths = [
+            hline(0, 100, 400, 200, stroke_width=0.45),
+            hline(1, 100, 400, 214, stroke_width=0.45),
+        ]
+        for i, x in enumerate(range(115, 390, 37)):     # 8 marks, span 0.86
+            paths.append(path(10 + i, [(x, 213), (x + 12, 201)], stroke_width=0.3))
+        network = detect_wall_network(paths)
+        self.assertEqual(len(network.segments), 1)
+        self.assertAlmostEqual(network.segments[0].thickness_px, 14.0, delta=0.5)
+
+    def test_material_at_1_7_per_100px_does_not_qualify(self):
+        paths = [
+            hline(0, 100, 400, 200, stroke_width=0.45),
+            hline(1, 100, 400, 214, stroke_width=0.45),
+        ]
+        for i, x in enumerate(range(115, 390, 62)):     # 5 marks, span 0.83
+            paths.append(path(10 + i, [(x, 213), (x + 12, 201)], stroke_width=0.3))
+        network = detect_wall_network(paths)
+        self.assertEqual(len(network.segments), 0)
+
     def test_sparse_marks_do_not_qualify(self):
         # Glazing-strip analog: a long hairline pair with a few scattered
         # diagonal ticks stays out (density below WALL_WEAK_MATERIAL_PER_100PX).
@@ -638,18 +685,21 @@ class TestThickMaterialPairs(unittest.TestCase):
     """Pier tier: strong faces spaced past WALL_MAX_THICKNESS_PX pair only
     on drawn material between them (floor-plans' bedroom chimney breast:
     a 19px wall bulging to 39px, hatched inside — unpaired, the hatch
-    pocket survives free-space extraction as a phantom room)."""
+    pocket survives free-space extraction as a phantom room). The fixture
+    bulges to 44px — clear of the 36px plain cap whatever the W-gate
+    recalibration settles on for it (40 was tried and reverted,
+    2026-09-04)."""
 
     @staticmethod
     def _pier_paths(with_hatch):
         # Outer face x=100 full height; normal 20px band (inner x=120)
-        # interrupted by a pier bulging to x=140 over y 300-400.
+        # interrupted by a pier bulging to x=144 over y 300-400.
         paths = [
             vline(0, 100, 100, 500),
             vline(1, 120, 100, 300),
-            hline(2, 120, 140, 300),
-            vline(3, 140, 300, 400),
-            hline(4, 120, 140, 400),
+            hline(2, 120, 144, 300),
+            vline(3, 144, 300, 400),
+            hline(4, 120, 144, 400),
             vline(5, 120, 400, 500),
         ]
         if with_hatch:
@@ -658,17 +708,18 @@ class TestThickMaterialPairs(unittest.TestCase):
             # strong face, but always material marks).
             for i, y in enumerate(range(305, 395, 15)):
                 paths.append(path(
-                    10 + i, [(105, y), (135, y + 30)], stroke_width=0.3,
+                    10 + i, [(106, y), (136, y + 30)], stroke_width=0.3,
                 ))
         return paths
 
     def test_hatched_pier_pairs_past_normal_cap(self):
         network = detect_wall_network(self._pier_paths(with_hatch=True))
-        thick = [s for s in network.segments if s.thickness_px > 36.0]
+        thick = [s for s in network.segments
+                 if s.thickness_px > WALL_MAX_THICKNESS_PX]
         self.assertEqual(len(thick), 1)
         seg = thick[0]
-        self.assertAlmostEqual(seg.thickness_px, 40.0, delta=0.5)
-        self.assertAlmostEqual(seg.p1[0], 120.0, delta=0.5)
+        self.assertAlmostEqual(seg.thickness_px, 44.0, delta=0.5)
+        self.assertAlmostEqual(seg.p1[0], 122.0, delta=0.5)
         ys = sorted((seg.p1[1], seg.p2[1]))
         self.assertAlmostEqual(ys[0], 300.0, delta=2.0)
         self.assertAlmostEqual(ys[1], 400.0, delta=2.0)
@@ -677,7 +728,103 @@ class TestThickMaterialPairs(unittest.TestCase):
         # Same geometry, no material: a face beside a corridor of pier-like
         # width must not become a wall band.
         network = detect_wall_network(self._pier_paths(with_hatch=False))
-        self.assertFalse(any(s.thickness_px > 36.0 for s in network.segments))
+        self.assertFalse(any(s.thickness_px > WALL_MAX_THICKNESS_PX
+                             for s in network.segments))
+
+
+class TestPerBandMarkCap(unittest.TestCase):
+    """The material-mark length cap is per band (_mark_len_cap): the
+    page-wide WALL_HATCH_MAX_LEN_PX (48px) or the band's own 45-degree
+    diagonal T*sqrt(2) plus 2px of slack, whichever is larger. W-gate census
+    2026-09-04, row 11: hatch is clipped to the band it fills, so a
+    cap-thickness band's strokes are ~51px (s02 51.5, s20 50.2, s01 55.7,
+    s05 49.5 at f=0.5, s06 50.2) — 27-64% of in-band strokes exceeded the
+    fixed cap on s05/s06/s12/s13/s20 and no thick-tier band over 34px could
+    ever pass its own material gate."""
+
+    FILLER = rect_room(500, 700, 100, 1000, 400)
+
+    def test_forty_px_band_with_through_hatch_passes_thick_tier(self):
+        # 40px band (over the 36px plain cap, inside the thick tier) hatched
+        # face to face at 45 degrees: every stroke is 40*sqrt(2) = 56.6px,
+        # over the page-wide 48px cap, under the band's own 58.6px cap.
+        paths = [hline(0, 100, 400, 100), hline(1, 100, 400, 140)]
+        x, i = 108.0, 10
+        while x + 40.0 < 392.0:
+            paths.append(path(i, [(x, 140.0), (x + 40.0, 100.0)], stroke_width=0.3))
+            x += 6.0
+            i += 1
+        network = detect_wall_network(paths + self.FILLER)
+        self.assertTrue(
+            any(abs(s.thickness_px - 40.0) < 0.5 for s in network.segments),
+            "40px through-hatched band did not pair in the thick tier",
+        )
+
+    def test_long_oblique_stroke_is_not_material_for_thin_band(self):
+        # A 12px hairline band crossed by 59px 45-degree strokes (leader
+        # lines, a winder's risers): the band's cap is max(48, 12*sqrt(2)+2)
+        # = 48, so the strokes are not its material and it does not pair,
+        # dense and spread as they are (8 over 300px = 2.7/100px).
+        paths = [
+            hline(0, 100, 400, 200, stroke_width=0.45),
+            hline(1, 100, 400, 212, stroke_width=0.45),
+        ]
+        for i, x in enumerate(range(110, 390, 37)):
+            paths.append(path(10 + i, [(x, 227.0), (x + 41.7, 185.3)], stroke_width=0.3))
+        network = detect_wall_network(paths + self.FILLER)
+        self.assertFalse(
+            any(abs(s.thickness_px - 12.0) < 0.5 for s in network.segments)
+        )
+
+    def test_fifty_px_band_with_short_interior_hatch_pairs_in_thick_tier(self):
+        # WALL_THICK_MATERIAL_MAX_PX is 56px — 475mm at 1:50 (W-gate census
+        # 2026-09-04, 48 -> 56, moved only together with the per-band cap:
+        # at f=0.5 a 56 cap is 28px and s05's 475mm wall pairs at exactly
+        # 28px, so it falls from the THROUGH tier into the THICK tier, whose
+        # fixed 24px mark cap could not see its 39px strokes). True class:
+        # material-backed thick pairs at 377-400mm (s15, s20 47.2px = 1.01x
+        # under the old cap), s16 305-336, s05 475; the false class —
+        # hatched fixtures and floors — is gated by material. A 50px band
+        # filled with SHORT interior strokes (a coarse pattern, 30px at
+        # 45 degrees, none reaching a face) is not THROUGH-hatched and lands
+        # in the through tier at 48, where it fails; in the thick tier its
+        # interior marks are material.
+        paths = [hline(0, 100, 400, 100), hline(1, 100, 400, 150)]
+        x, i = 108.0, 10
+        while x + 21.0 < 392.0:
+            paths.append(path(i, [(x, 135.5), (x + 21.0, 114.5)], stroke_width=0.3))
+            x += 6.0
+            i += 1
+        network = detect_wall_network(paths + self.FILLER)
+        self.assertTrue(
+            any(abs(s.thickness_px - 50.0) < 0.5 for s in network.segments),
+            "50px band with short interior hatch did not pair in the thick tier",
+        )
+
+    def test_long_marks_count_only_face_to_face(self):
+        # s17 room_0006's stair flight: two stringers 48px apart, two 8px
+        # arrowhead barbs, a 54px cut line clipped stringer to stringer and
+        # a 49px one touching only one stringer. Four marks over 141px is
+        # exactly the material floor; a long stroke that is not through-
+        # hatch is a cut line, not material, so the flight stays furniture.
+        paths = [vline(0, 100, 100, 241), vline(1, 148, 100, 241)]
+        paths += [
+            path(10, [(118.0, 120.5), (124.0, 114.8)], stroke_width=1.0),   # barbs
+            path(11, [(124.0, 114.8), (130.0, 120.5)], stroke_width=1.0),
+            path(12, [(148.0, 206.0), (100.0, 233.0)], stroke_width=1.0),   # face to face
+            path(13, [(148.0, 205.9), (123.8, 248.2)], stroke_width=1.0),   # one face only
+        ]
+        network = detect_wall_network(paths + self.FILLER)
+        self.assertFalse(
+            any(abs(s.thickness_px - 48.0) < 0.5 for s in network.segments)
+        )
+        # With BOTH long strokes clipped face to face they are through-hatch
+        # and the four marks pair the band (the pin's negative control).
+        paths[-1] = path(13, [(148.0, 190.0), (100.0, 217.0)], stroke_width=1.0)
+        network = detect_wall_network(paths + self.FILLER)
+        self.assertTrue(
+            any(abs(s.thickness_px - 48.0) < 0.5 for s in network.segments)
+        )
 
 
 class TestNetworkAssembly(unittest.TestCase):
@@ -815,6 +962,23 @@ class TestFillClassRating(unittest.TestCase):
         network = detect_wall_network(paths)
         self.assertTrue(
             any(abs(s.thickness_px - 32.0) < 0.5 for s in network.segments)
+        )
+
+    def test_bare_band_at_38px_does_not_pair(self):
+        # WALL_MAX_THICKNESS_PX stays 36px (305mm at 1:50). The W-gate
+        # census (2026-09-04) proposed 40 and iteration 2 tried it: the
+        # 36-40px band holds drawn fixtures at wall spacing that spacing
+        # cannot separate from walls — s02's WC wall face paired at 38.25px
+        # with a hairline basin edge over the dashed section line's dashes
+        # and notched the WC 14%; s01's kitchen units are 38.5px deep (600mm
+        # at its true 1:92.2) and their side stubs paired — against s17's
+        # real 37px cavity wall, whose reveal phantoms it removed. A bare
+        # 38px pair is a corridor until a mark-class rule separates them.
+        paths = [hline(0, 100, 400, 100), hline(1, 100, 400, 138)]
+        paths += rect_room(500, 700, 100, 1000, 400)
+        network = detect_wall_network(paths)
+        self.assertFalse(
+            any(abs(s.thickness_px - 38.0) < 0.5 for s in network.segments)
         )
 
     def test_white_fill_outlines_are_not_faces(self):

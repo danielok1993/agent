@@ -52,23 +52,97 @@ WALL_FACE_MIN_LEN_PX        = 11.0  # min wall piece between adjacent openings:
                                     # ticks (7-13px) already overlap the floor
                                     # and are recognised by their own rule
                                     # (_dimension_line_indices), never by
-                                    # length.
+                                    # length. The W-gate census (2026-09-04)
+                                    # proposed 9 (76mm — the shortest PAIRED
+                                    # faces sit ON the floor on every sheet,
+                                    # 93-104mm at true scales, so at 11 the
+                                    # nominal 100mm nib IS the floor) and
+                                    # iteration 2 tried and reverted it: the
+                                    # false class it measured was AXIS-ALIGNED
+                                    # wall-pen strokes of 6-11px (s07 splits a
+                                    # room at 7.4), but a band's 45-degree hatch
+                                    # strokes are T*sqrt(2) long, so the hatch
+                                    # of a 7px band is 9.9px — between 9 and 11
+                                    # on BOTH reference sheets (s01's 7px
+                                    # partitions, 1.0px pen, e.g. paths 2914-
+                                    # 2925 at 10.1px): the lattice rule demotes
+                                    # a 5-deep run but the band-END strokes
+                                    # paired into a 7.95px diagonal segment and
+                                    # moved s01 room_0003's edge 4px (IoU 0.975),
+                                    # s02 room_0004 by 55 px2; on s18 the 4.5px
+                                    # scaled floor fenced a kitchen worktop run
+                                    # (5.9 x 0.53m) as a room while removing one
+                                    # recorded FP. At true 1:50 a 100mm band's
+                                    # hatch is 16.7px, so the 9.9px class is
+                                    # s01-at-identity (its world is 1:92.2);
+                                    # revisit with the true-scale factor.
 WALL_FACE_MERGE_GAP_PX      = 6.0   # drafting artifacts only; door/window openings stay open
 WALL_MIN_THICKNESS_PX       = 2.0   # thinnest partition at 150 DPI
-WALL_MAX_THICKNESS_PX       = 36.0  # heavy exterior/party walls (a 1:50 blockwork
-                                    # band runs ~32px); corridors are far wider
-WALL_THICK_MATERIAL_MAX_PX  = 48.0  # locally thickened masonry (chimney breast /
+WALL_MAX_THICKNESS_PX       = 36.0  # heavy exterior/party walls: 305mm at 1:50.
+                                    # The "~32px blockwork band" this was set on
+                                    # is s01's, i.e. 500mm at its TRUE 1:92.2;
+                                    # s01's real walls are 19.3px = 301mm and a
+                                    # 25px = 390mm hatched party wall (material
+                                    # tier). On 13 sheets the un-hatched
+                                    # strong-pair distribution ENDS at the cap,
+                                    # 300-305mm (s02 295, s03 301, s05 305, s07
+                                    # 301, s13 300, s15 305, s18 304, s20 301):
+                                    # the corpus's standard 300mm walls sit on it
+                                    # at 1.00-1.03x. The W-gate census
+                                    # (2026-09-04) proposed 40 and iteration 2
+                                    # TRIED it: it removed five recorded phantom
+                                    # rooms (s17's four 37px cavity-wall reveal
+                                    # strips — a real 313mm cavity wall at 1:50
+                                    # whose outer/inner faces then pair; s16's
+                                    # striped-block pocket) but the 36-40px band
+                                    # is full of drawn fixtures at wall spacing
+                                    # that only MATERIAL can tell apart: s02's WC
+                                    # wall face paired at 38.25px with a hairline
+                                    # basin edge over the dashed section line's
+                                    # diagonal dashes (weak tier, needs the 9px
+                                    # face floor and the 2.2/100px density too)
+                                    # and notched the WC 14%; s01's kitchen units
+                                    # are 38.5px deep (600mm at 1:92.2) — their
+                                    # side stubs paired and their rows demoted as
+                                    # a lattice, fencing the hob; s11 gained a
+                                    # wall-recess box, s15 an annotation pocket,
+                                    # s18 two phantoms (a tree-strip, a worktop
+                                    # run); s16's room_0006 breaks at 38. The
+                                    # thresholds sit within 0.25px of each other
+                                    # (s17 wins at >= 37.0, s02/s01 break at
+                                    # 38.25/38.5), so no value in the band is a
+                                    # reference. Kept at 36 until a mark-class
+                                    # rule (section-line dashes and cupboard X's
+                                    # are not hatch) and s01's true-scale factor
+                                    # land; must stay < WALL_THICK_MATERIAL_MAX_PX.
+                                    # Corridors are far wider.
+WALL_THICK_MATERIAL_MAX_PX  = 56.0  # locally thickened masonry (chimney breast /
                                     # pier: floor-plans' bedroom pier bulges its
-                                    # 19px wall to 39px; a 1:50 400mm band is
-                                    # ~47px). Strong-face pairs in the 36-48px
-                                    # gap form ONLY when the band between the
-                                    # faces carries drawn wall material — an
-                                    # unpaired pier encloses its hatch as a
-                                    # free-space pocket = phantom room
-WALL_THROUGH_HATCH_MAX_PX   = 64.0  # a band hatched THROUGH — diagonal strokes
+                                    # 19px wall to 39px — 613mm at its TRUE
+                                    # 1:92.2; a 1:50 400mm band is ~47px).
+                                    # Strong-face pairs in the 36-56px gap form
+                                    # ONLY when the band between the faces
+                                    # carries drawn wall material — an unpaired
+                                    # pier encloses its hatch as a free-space
+                                    # pocket = phantom room. 48 -> 56 (475mm)
+                                    # in the W-gate census (2026-09-04, row 4):
+                                    # the true class — material-backed thick
+                                    # pairs — reaches 377-400mm on s15 and s20
+                                    # (47.2-47.3px = 1.01x under 48), 305-336
+                                    # on s16 and 475 on s05; 56 leaves 1.19x
+                                    # over the 400mm walls. Moved only together
+                                    # with the per-band mark cap (_mark_len_cap):
+                                    # at f=0.5 this is 28px and s05's wall pairs
+                                    # at exactly 28, so it falls from the THROUGH
+                                    # tier into this one, whose fixed 24px mark
+                                    # cap could not see the wall's 39px strokes.
+                                    # The false class (hatched fixtures/floors
+                                    # from 349mm on s15, 495 on s02, 400+ on s20)
+                                    # is gated by material, never by this cap.
+WALL_THROUGH_HATCH_MAX_PX   = 72.0  # a band hatched THROUGH — diagonal strokes
                                     # ending on BOTH faces, clipped to the band
                                     # by the hatch tool — is cut material at any
-                                    # thickness up to this (a 1:50 540mm band).
+                                    # thickness up to this (a 1:50 610mm band).
                                     # Strong-face pairs spaced between
                                     # WALL_THICK_MATERIAL_MAX_PX and this form
                                     # ONLY on through-hatch (_band_has_through_
@@ -84,7 +158,18 @@ WALL_THROUGH_HATCH_MAX_PX   = 64.0  # a band hatched THROUGH — diagonal stroke
                                     # or fixture hatch is clipped to its own
                                     # boundary, never to two wall-pen faces at
                                     # wall spacing — hatch stopping short of the
-                                    # faces is not through-hatch.
+                                    # faces is not through-hatch. 64 -> 72 in
+                                    # the W-gate census (2026-09-04): s05's
+                                    # 475mm wall is the true class at 1.14x
+                                    # under 64 (at 0.8x the wall left the tier
+                                    # and its phantom returned), 1.28x under
+                                    # 72; the false class — through-hatched
+                                    # floors and fixtures — starts at 81.5px on
+                                    # s01 (1272mm at its true 1:92.2, detected
+                                    # at identity; 1.13x over 72), 66.5-68px on
+                                    # s05 at f=0.5 (1.13-1.15m) and 94px on
+                                    # s20. The corpus sweep is unchanged from
+                                    # 0.8x to 2.0x on every other sheet.
 WALL_PARALLEL_ANGLE_TOL     = 4.0   # degrees, matches WINDOW_ANGLE_TOL_DEG
 WALL_BAND_MIN_ASPECT        = 3.0   # filled rect must be band-like, not a fixture block
 WALL_PAIR_MIN_OVERLAP_PX    = 12.0  # shorter face-pair overlap is coincidence
@@ -277,7 +362,17 @@ WALL_HATCH_MAX_LEN_PX       = 48.0  # hatch strokes stay short; matches the 45px
                                     # in _wall_material_evidence plus slack. Hatch
                                     # stays IN the network (its face pairs thicken
                                     # wall solids) but is excluded from the rooms'
-                                    # thin line barriers (rooms.py).
+                                    # thin line barriers (rooms.py). Since the
+                                    # W-gate census (2026-09-04, row 11) this is
+                                    # the PAGE-WIDE floor of the material-mark
+                                    # length cap, not the cap itself: a band's
+                                    # own cap is max(this, T*sqrt(2) + 2) — see
+                                    # _mark_len_cap — because 45-degree hatch is
+                                    # clipped to the band and a cap-thickness
+                                    # band's strokes are 51px. It stays the
+                                    # winder/leader ceiling in _demote_stair_faces
+                                    # (s03's stair winder is 58.6px) and in rooms'
+                                    # _barrier_extent, where no band exists.
 
 # Sub-threshold ("weak") wall faces: working drawings often pen new partition
 # walls in the same hairline pen as fixtures and sanitary symbols (0.45px on
@@ -290,7 +385,9 @@ WALL_HATCH_MAX_LEN_PX       = 48.0  # hatch strokes stay short; matches the 45px
 # counts. Density is the discriminator against the other things that pair at
 # wall spacing: glazing strips and paving/steps linework measure <=2.6
 # marks/100px on the sample set while real partition hatch/blocking measures
-# >=4.8.
+# >=4.8 (those August figures predate the mark dedup and s01's 1:92.2 truth
+# scale; the W-gate census re-measured both classes at true scales, see
+# WALL_WEAK_MATERIAL_PER_100PX).
 WALL_WEAK_STROKE_RATIO       = 0.66  # faces penned below this fraction of the
                                      # paired-wall stroke reference are demoted to
                                      # weak (material-gated) even when they clear
@@ -311,7 +408,24 @@ WALL_RECT_MIN_ASPECT         = 2.0   # stroked-rectangle candidate prefilter (lo
                                      # NOT a wall discriminator — the s03 infill is 2.5, a
                                      # window frame 2.4, a door leaf 18 — only the material
                                      # gate decides; this just skips square symbol boxes
-WALL_WEAK_MATERIAL_PER_100PX = 3.0   # min diagonal marks per 100px of band length
+WALL_WEAK_MATERIAL_PER_100PX = 2.2   # min diagonal marks per 100px of band length:
+                                     # 2.6 marks/m at 1:50 (W-gate census 2026-09-04,
+                                     # 3.0 -> 2.2; scaled ÷f, so 4.4/100px at 1:100).
+                                     # Density follows the hatch pattern's pitch —
+                                     # a drafting choice — so both classes were
+                                     # re-measured at true scales: real partition
+                                     # bands that pass sit at 3.4/100 = 4.1/m (s02,
+                                     # 1.13x over the old gate), 4.4-4.6/m (s15/s17),
+                                     # 4.5/m (s01 at 1:92.2), and s16's real hatched
+                                     # wall between two windows (crop-verified)
+                                     # measures 5.4/100 at f=0.5 = 3.2/m, which the
+                                     # old scaled 6.0 REJECTED (0.9x). Noise: s02's
+                                     # glazing strip plus dimension ticks 1.7/100 =
+                                     # 2.0/m (passes at 1.5 — the floor of the
+                                     # window), s04 1.4/m. 2.2 sits 1.23x under
+                                     # s16's wall and 1.3x over s02's strip; the
+                                     # corpus sweep holds from 0.67x to 1.5x on s02
+                                     # (its 11 rooms; L3 at 0.67) and s11/s16.
 WALL_WEAK_MATERIAL_EDGE_PX   = 2.5   # marks this close to a band face don't count: a
                                      # dimension tick's midpoint lies ON the dimension
                                      # line it crosses, so when two dimension lines pair
@@ -1876,6 +1990,40 @@ def _collect_material_marks(
     return marks
 
 
+def _mark_len_cap(thickness: float, *, gates: WallGates) -> float:
+    """Longest stroke that can be a material mark for a band this thick.
+
+    Hatch is clipped to the band it fills, and 45-degree hatch across a band
+    of thickness T is T*sqrt(2) long — so a single page-wide length cap
+    (WALL_HATCH_MAX_LEN_PX, 48px: 45px plus slack, set on the 1:50 sample
+    set's thin partitions) cannot see the hatch of the very bands the
+    material tiers exist for: a cap-thickness band's strokes are 51px (s02
+    51.5, s20 50.2 p90, s01 55.7, s05 49.5 at f=0.5, s06 50.2, s13 35.7 at
+    f=0.367 — W-gate census 2026-09-04, row 11), 27-64% of in-band strokes
+    exceeded the cap on s05/s06/s12/s13/s20, and no thick-tier band over
+    34px could ever pass. The cap is therefore tied to the band under test:
+    the page-wide value, or the band's own diagonal plus 2px of slack —
+    which is exactly how _band_has_through_hatch already collects its
+    strokes. Thin bands keep the page-wide cap, so a 59px oblique stroke
+    crossing a 12px band (a leader, a winder riser) is never its material;
+    the page-wide value stays the winder/leader ceiling in
+    _demote_stair_faces and rooms' _barrier_extent, where no band exists.
+
+    A mark ADMITTED by the extension (longer than the page-wide cap) counts
+    only as through-hatch — both endpoints on the band's faces — because
+    that is the one convention that draws long strokes inside a band: a
+    hatch tool clips to the region it fills. A long stroke crossing a band
+    freely is a leader, a section cut or a stair arrow; measured on s17
+    (2026-09-04): a stair flight's two stringers 48px apart hold two 8px
+    arrowhead barbs, a 54px cut line clipped stringer to stringer and a 49px
+    one that touches one stringer only — four marks over 141px, exactly the
+    material floor — and the per-band cap alone paired them into a 48px
+    "wall" that fenced the flight out of its hall (room_0006 −5.9k px²,
+    IoU 0.73); with the through condition the one-face stroke drops out.
+    """
+    return max(gates.WALL_HATCH_MAX_LEN_PX, thickness * math.sqrt(2.0) + 2.0)
+
+
 def _band_has_wall_material(
     c: _Seg, marks: list[tuple[tuple[float, float], float]],
     *, gates: WallGates = WALL_GATES_UNSCALED,
@@ -1889,7 +2037,11 @@ def _band_has_wall_material(
     Marks hugging a face (within WALL_WEAK_MATERIAL_EDGE_PX) are annotation
     crossing that face — dimension ticks centred on their dimension line —
     not material between the faces; the interior floor keeps thin bands from
-    rejecting their own centred hatch.
+    rejecting their own centred hatch. Marks are collected page-wide up to
+    the through-hatch diagonal and filtered here to the band's own cap
+    (_mark_len_cap): a stroke longer than this band's diagonal plus slack
+    cannot be its hatch, and one longer than the page-wide cap counts only
+    when it runs face to face (through-hatch — see _mark_len_cap).
     """
     length = _line_length(c.p1, c.p2)
     if length < 1e-6:
@@ -1900,8 +2052,23 @@ def _band_has_wall_material(
     half = max(
         c.thickness / 2.0 - WALL_WEAK_MATERIAL_EDGE_PX, c.thickness * 0.25
     )
+    cap = _mark_len_cap(c.thickness, gates=gates)
+    face = c.thickness / 2.0
     ts: list[float] = []
-    for (mx, my), angle, *_ in marks:
+    for (mx, my), angle, *rest in marks:
+        if len(rest) >= 2:
+            mark_len = _line_length(rest[0], rest[1])
+            if mark_len > cap:
+                continue
+            if mark_len > gates.WALL_HATCH_MAX_LEN_PX:
+                # Long enough to be through-hatch only: both ends on faces.
+                on_faces = all(
+                    abs(abs((p[0] - c.p1[0]) * -uy + (p[1] - c.p1[1]) * ux) - face)
+                    <= WALL_WEAK_MATERIAL_EDGE_PX
+                    for p in (rest[0], rest[1])
+                )
+                if not on_faces:
+                    continue
         t = (mx - c.p1[0]) * ux + (my - c.p1[1]) * uy
         if not (-1.0 <= t <= length + 1.0):
             continue
@@ -2004,9 +2171,12 @@ def _face_is_material_backed(
     ux = (f.p2[0] - f.p1[0]) / length
     uy = (f.p2[1] - f.p1[1]) / length
     axis_angle = _line_angle_deg(f.p1, f.p2)
+    # No band here to test long strokes against, so a lone face keeps the
+    # page-wide mark cap (the marks are collected at the through cap).
+    cap = gates.WALL_HATCH_MAX_LEN_PX
     ts: list[float] = []
     for (mx, my), angle, a, b, pen in marks:
-        if pen != f.pen:
+        if pen != f.pen or _line_length(a, b) > cap:
             continue
         t = (mx - f.p1[0]) * ux + (my - f.p1[1]) * uy
         if not (-1.0 <= t <= length + 1.0):
@@ -2056,8 +2226,13 @@ def _face_material_spans(
     uy = (f.p2[1] - f.p1[1]) / length
     axis_angle = _line_angle_deg(f.p1, f.p2)
     reach = gates.WALL_MAX_THICKNESS_PX / 2.0
+    # No band to test long strokes against: the page-wide mark cap (the
+    # marks are collected at the through cap).
+    cap = gates.WALL_HATCH_MAX_LEN_PX
     ts: list[float] = []
-    for (mx, my), angle, *_ in marks:
+    for (mx, my), angle, *rest in marks:
+        if len(rest) >= 2 and _line_length(rest[0], rest[1]) > cap:
+            continue
         t = (mx - f.p1[0]) * ux + (my - f.p1[1]) * uy
         if not (-1.0 <= t <= length + 1.0):
             continue
@@ -3808,14 +3983,17 @@ def detect_wall_network(
     for f in weak_merged:
         f.weak = True
 
-    marks = _collect_material_marks(paths, gates=gates)
-    # Through-hatch strokes span the band's diagonal, past the ordinary
-    # hatch length cap; collected separately so the ordinary material gates
-    # keep their tuned mark population.
-    through_marks = _collect_material_marks(
+    # Material marks are collected ONCE, up to the through-hatch diagonal
+    # (the longest stroke any band the network can pair may be hatched
+    # with); every material gate then filters them to the band under test
+    # with _mark_len_cap, so a thin band still sees only short hatch while
+    # a thick-tier band sees its own T*sqrt(2) strokes. The tuples carry
+    # their endpoints for exactly this.
+    marks = _collect_material_marks(
         paths, gates=gates,
         max_len=gates.WALL_THROUGH_HATCH_MAX_PX * math.sqrt(2.0) + 2.0,
     )
+    through_marks = marks
     centerlines = _pair_faces_to_centerlines(
         merged_faces + weak_merged, thick_tier=True, gates=gates,
     )

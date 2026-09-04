@@ -395,7 +395,7 @@ These hardcoded in `_pair_door_assemblies` (heuristics.py:1833+, 1730+):
 | `DOOR_FOLD_LEAF_LINE_SEP_MIN_PX` / `_MAX_PX` | 0.8 / 4.0 | Double-line leaf separation (measured 1.9–2.5); 45° hatch at 5.7 px pitch = 4.03 sep. |
 | `DOOR_FOLD_LEAF_LINE_LEN_RATIO_MIN` | 0.75 | Edge lines of one leaf (measured 0.915 — hinge-miter foreshortening). |
 | `DOOR_FOLD_LEAF_LINE_OVERLAP_MIN` | 0.6 | Axial overlap of the edge lines, × shorter length. |
-| `DOOR_FOLD_JAMB_ANCHOR_TOL_PX` | 6.0 | Jamb line endpoint to leaf tip (measured 3.4/3.6). |
+| `DOOR_FOLD_JAMB_ANCHOR_TOL_PX` | 10.0 | Jamb line endpoint to leaf tip: 85 mm at 1:50. Measured 3.4/3.6 px on s01 door_0012 — 53–56 mm at s01's true 1:92.2, so the old 6.0 (51 mm) was under its own defining feature (W-gate census 2026-09-04). Nothing else matches up to 12 px on s01/s02. |
 | `DOOR_FOLD_JAMB_LINE_MIN_LEN_PX` | 15.0 | A jamb anchor is a wall face, not a cap/tick. |
 | `DOOR_FOLD_JAMB_AXIS_TOL_DEG` | 15.0 | Jamb faces run along the opening axis (measured 2.2°). |
 | `DOOR_FOLD_OPEN_CORRIDOR_HALF_W_PX` | 6.0 | Corridor half-width for far-jamb/crosser search (measured lateral offsets 1.2–1.8). |
