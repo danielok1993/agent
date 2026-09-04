@@ -119,6 +119,21 @@ WALL_MAX_THICKNESS_PX       = 36.0  # heavy exterior/party walls: 305mm at 1:50.
                                     # true-scale factor and rules for those
                                     # pockets land; must stay <
                                     # WALL_THICK_MATERIAL_MAX_PX.
+                                    # What the cap holds on s01 at its TRUE
+                                    # 0.542 (iteration 3 step 3, measured): no
+                                    # hatched wall — its stair ARROW lines. An
+                                    # open-headed arrow stroke with no UP/DN text
+                                    # is named by no stair recognizer, and the
+                                    # zone rule absorbs it only when no face lies
+                                    # at wall spacing (_demote_stair_faces::
+                                    # _paired_with, bounded by this cap): at 36 a
+                                    # partition face 35.2px away and the exterior
+                                    # face 28.3px away anchor it, and it pairs
+                                    # with both into strong bands that seal the
+                                    # flight (one passes material on the 7.2px
+                                    # partition's own hatch); at 19.5 it is stair
+                                    # ink and the flight opens. Three of s01's
+                                    # confirmed rooms are cut by those bands.
                                     # Corridors are far wider.
 WALL_THICK_MATERIAL_MAX_PX  = 56.0  # locally thickened masonry (chimney breast /
                                     # pier: floor-plans' bedroom pier bulges its

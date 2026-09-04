@@ -786,3 +786,119 @@ shadows.
 > street address or planning-portal id. End every report with the numbers:
 > lost, returned FPs, new REVIEW lines with your verdicts, net phantom
 > delta, and what is next.
+
+## Outcome — iteration 3, step 3 (2026-09-04, branch `fix/short-piece-material-inherit`, measurement only)
+
+The "short-piece material rule" premise was refuted by measurement, the
+third time in this iteration. Tapping `_band_has_wall_material` and the
+final pairing on s01 at f=0.542: 43 thick-tier gate calls, 12 pass, 31
+fail — 27 with ZERO marks (kitchen units, the bath box, the stair flights),
+3 corner end-blocks with 4–5 marks failing the span/min-run floors, and ONE
+piece with 3 marks — (160.5–196, 906.8), whose faces are the blue
+dimension-pen extension along the wall and whose collinear reference abuts
+it at 0.2 px with no opening between (inert). The brief's class — a failing
+piece collinear with a same-thickness hatched band with a door/window bbox
+in the gap — has 0 instances on s01 at 0.542 and 0 on s01/s02/s03/s05 at
+their own factors in the thick tier (s02 has one at 51.5 px with 0 marks;
+the weak tier would admit 5/13/8/0 pieces with 0–4 clumped marks). Nothing
+was built; no synthetic test; the tree's detection code is unchanged.
+
+What actually loses s01's four confirmed rooms at 0.542 (`leak_finder.py`,
+`probe_pairs_box.py`, `force_pair.py`, `plug_diff.py`, scratch): three are
+cut at identity by STAIR-FLIGHT phantom bands — the stair ARROW line (an
+open-headed 45.8 px stroke, no UP/DN text, so no recognizer names it) is
+anchored out of the stair zone by real wall faces 28–35 px away
+(`_demote_stair_faces::_paired_with` bounds partners by the scaled cap) and
+pairs with them into 28–35 px strong bands (one passes material on the
+neighbouring 7.2 px partition's own hatch) that seal the flights; at cap
+19.5 the arrow is absorbed as stair ink and the flights open. The truth
+notes on two of those rooms already say the cut is wrong ("needs to merge
+with the hallway above", "detects stairs as part of the room"). The fourth
+(the hall) is the seal: its door's top-edge plug reaches an 8 px = 125 mm
+jamb gap that 6.5 px cannot. `ablate.py s01 s01mode` is unchanged (8/12,
+18 phantoms); `_gate_denominator` is NOT narrowed; `SCALE_FACTOR_MEASURED_ONLY`
+stays. Sweep: the baseline of this tree, 0 LOST, 71 returned FPs, 5 REVIEW.
+Report: `docs/w-gate-iter3-checkpoints/step-3.md` (four PNGs beside it).
+
+### Prompt for the next agent (iteration 3, step 5 onward — fresh context)
+
+> Use `/fix-detection` for its discipline (topic branch from the tip that
+> carries steps 2 and 3 — `git log --all --oneline | head`; if the user has
+> not merged `fix/hingeless-swing-side-veto` / `fix/short-piece-material-inherit`
+> into main yet, branch from the later of them; `compare_sweeps --snapshot`
+> baselines of that tree for all 20 slugs, re-swept first — never trust
+> whatever sits in `outputs/regress/`; four background sweep groups — s18;
+> s16 s11 s15; s01–s07; the rest — a full `regress.py` exceeds the
+> 10-minute foreground limit; verdict reports diffed section-wise;
+> `tools/diff_room_polygons.py` on every sheet after EVERY sweep and a
+> `tools/room_shape_crop.py` crop of every room whose IoU moved under 0.99
+> — verdict-identical is not clean). Read first, in this order:
+> `docs/w-gate-iter3-checkpoints/step-3.md` (what holds s01 at its true
+> scale: stair-arrow phantom bands and the seal — the short-piece rule is
+> dead, do not resurrect it), `step-2.md` (the seal-15 sites, per
+> mechanism), `step-1.md`, `docs/w-gate-iter2-checkpoints/group-2.md`, this
+> handoff's iteration-3 outcome sections, the CLAUDE.md paragraphs "Room
+> detection" and "Wall/room world-space gates", `detection/rooms.py::
+> _door_plugs` (the tail trim and the cross-section fit) with its
+> docstring, and `docs/regression-testing-guide.md` §9 §10 §12 §13.
+>
+> Tree state: main `ee0f52f` + `fix/hingeless-swing-side-veto` (d0a4376,
+> the corner door lining) + `fix/short-piece-material-inherit` (prose and
+> PNGs only). Corpus: 71 returned FPs, 0 LOST, 5 unreviewed; polygons
+> differ from `ee0f52f` only on s04 rooms 0002/0004. Constants unchanged
+> since step 2 (WALL_MAX_THICKNESS 36, ROOM_OPENING_SEAL 12, …).
+>
+> Tooling: `tools/census_scratch/` as before (`harness.py`,
+> `attrib_rooms.py`, `probe_plugs.py`, `probe_box.py`, `probe_survey.py`,
+> `ablate.py s01 s01mode`), `tools/diff_wall_network.py` with `--base-dir`.
+> Attribute every change to ONE rule or constant before deciding; the sweep
+> stays the arbiter. Reseed rooms' labels on every sheet whose outlines
+> changed (`gcloud auth application-default print-access-token` first).
+>
+> **Step 5 — plug tails end AT the material they shadow.** `_door_plugs`
+> trims a qualified plug's `ROOM_OPENING_SEAL_PX` tails back to the farthest
+> profile sample still touching wall material within
+> `ROOM_PLUG_HALF_WIDTH_PX`; a tail therefore ends up to 5 px PAST the
+> material it shadows (s02 door_0050 on the "A" section-marker bar: plugs
+> 297.9–372.0 vs bar 302.7–367.2 at seal 15, 4.8 px overshoot each end,
+> narrowing the 20.5 px neck under the 16 px pinch — step-2.md). Measure
+> first on s02/s01/s15/s04 with `probe_box.py`: every kept plug's tail
+> overshoot beyond the material boundary at seal 12 and 15, both classes
+> (a tail into a jamb the arc stopped short of — must still bridge the
+> clearance gap — vs a tail past an island's end). The rule is inert at
+> seal 12 by expectation: the sweep must be verdict- AND polygon-identical.
+> Synthetic test first (fails without the trim), then the corpus.
+>
+> **Step 6 — dash rows** (s15's "steel ridge beam" row of 14.8 px strokes
+> in a 2.0 px pen): a collinear row of equal short pieces at equal gaps is a
+> DRAWN DASH LINE, never a barrier face and never a collinear-anchor vote.
+> Check `tests/ground_truth/s15.json` first — rooms 0023/0024 may be
+> confirmed as split by it.
+>
+> **Step 7 — `ROOM_OPENING_SEAL_PX` 12 → 15 retry**, only after 5 and 6:
+> expected s01/s02/s15 unchanged, s03's two recorded FP rooms still out
+> (they return at 18), s01 room_0005 at 13–14 is the plug-fit fallback.
+> s01's hall door needs 125 mm of reach (8 px at 1:92.2); 15 at 1:50 is
+> 127 mm — the value that lets s01 run at its true factor later.
+>
+> **Then, and only with the user's decision**: s01's three stair-split
+> confirmed rooms ((1090,699)–(1142,876), (466,920)–(521,1056),
+> (1033,925)–(1142,1134)) are held apart at identity by stair-arrow phantom
+> bands under the 36 px cap; at the true factor they merge. Re-reviewing
+> them is the user's call (`tools/review.py s01` after a sweep that shows
+> the merged rooms — which needs the true factor first, i.e. a temporary
+> `_gate_denominator` change on a throwaway branch to produce the REVIEW
+> lines). After that decision and step 7, narrow `_gate_denominator`
+> (s01 at 0.542 must keep 11 doors, 4 windows and every remaining
+> confirmed room), then step 4 (`WALL_MAX_THICKNESS_PX` 36 → 40).
+>
+> Rules for the whole run: do not commit (the user commits); do not edit
+> `tests/ground_truth/*.json` or `fixtures/MANIFEST.json`; never revert
+> s01's truth scale (1:92.2); never `git stash`; macOS has no `timeout`;
+> the venv lacks InquirerPy; s01 and s02 at f=1.0 must not change (entity
+> set AND polygons) until `_gate_denominator` deliberately moves s01; if a
+> rule costs a confirmed entity or returns an FP, revert it, report why,
+> and STOP; PNG crops go under `docs/w-gate-iter3-checkpoints/` and must
+> never show a street address or planning-portal id. End every report with
+> the numbers: lost, returned FPs, new REVIEW lines with your verdicts, net
+> phantom delta, and what is next.
