@@ -1,0 +1,99 @@
+records 2173
+
+A. kept interrupted plugs on >= 0.55 doors: 198 edges
+   anchored ends 396: on_run px median 20, p25 5, p10 0, min 0
+   ends whose on-line run <= the wall cap (crossing wall / nib only): 273 of 396
+   by sheet: {'s01': 18, 's02': 14, 's03': 34, 's04': 6, 's05': 8, 's06': 6, 's07': 9, 's08': 10, 's10': 30, 's11': 5, 's12': 4, 's13': 3, 's14': 10, 's15': 24, 's16': 5, 's17': 70, 's18': 5, 's20': 12}
+   examples (on_run, hug, jamb, cap, slug, id, edge, side):
+      (0.0, 26.0, 5.0, 36.0, 's01', 'door_0001', 3, 'a')
+      (0.0, 36.0, 0.0, 36.0, 's01', 'door_0003', 1, 'a')
+      (0.0, 22.0, 3.0, 36.0, 's01', 'door_0006', 3, 'a')
+      (0.0, 28.0, 8.0, 36.0, 's01', 'door_0002', 0, 'a')
+      (0.0, 35.0, 0.0, 36.0, 's01', 'door_0002', 3, 'b')
+      (0.0, 31.0, 5.0, 36.0, 's02', 'door_0006', 3, 'b')
+      (0.0, 21.0, 0.0, 36.0, 's02', 'door_0017', 0, 'a')
+      (0.0, 36.0, 0.0, 36.0, 's02', 'door_0017', 0, 'b')
+      (0.0, 35.0, 0.0, 36.0, 's02', 'door_0016', 2, 'a')
+      (0.0, 35.0, 0.0, 36.0, 's02', 'door_0016', 2, 'b')
+      (0.0, 28.0, 0.0, 18.0, 's07', 'door_0000', 0, 'a')
+      (0.0, 22.0, 6.0, 18.0, 's07', 'door_0000', 0, 'b')
+   ends with jamb > 0 px: 14; of them on_run > cap: 0
+      jamb=8px=125mm on_run=0 hug=28 cap=36.0 s01 door_0002 edge0 a
+      jamb=8px=68mm on_run=0 hug=17 cap=36.0 s17 door_0008 edge0 b
+      jamb=8px=135mm on_run=0 hug=14 cap=36.0 s17 door_0020 edge0 b
+      jamb=6px=102mm on_run=13 hug=22 cap=18.0 s05 door_0007 edge2 a
+      jamb=6px=102mm on_run=0 hug=22 cap=18.0 s07 door_0000 edge0 b
+      jamb=5px=78mm on_run=0 hug=26 cap=36.0 s01 door_0001 edge3 a
+      jamb=5px=42mm on_run=0 hug=31 cap=36.0 s02 door_0006 edge3 b
+      jamb=5px=42mm on_run=0 hug=31 cap=36.0 s14 door_0013 edge2 a
+      jamb=4px=68mm on_run=14 hug=24 cap=18.0 s18 door_0017 edge2 b
+      jamb=4px=68mm on_run=0 hug=20 cap=18.0 s18 door_0016 edge3 b
+      jamb=3px=47mm on_run=0 hug=22 cap=36.0 s01 door_0006 edge3 a
+      jamb=3px=51mm on_run=0 hug=21 cap=18.0 s18 door_0017 edge2 a
+      jamb=1px=8mm on_run=0 hug=30 cap=36.0 s10 door_0005 edge1 a
+      jamb=1px=17mm on_run=18 hug=27 cap=18.0 s11 door_0010 edge2 a
+
+B. extension candidates: an end whose jamb lies beyond the seal (unreached) within 60 px; other end reached (or also beyond)
+   62 ends
+   s02 door_0006 c0.68 single/None edge2 far raw=None kept=None side b jamb=22px=186mm on_run=0 hug=13 cap=36.0 other=reached(0.0)
+   s02 door_0096 c0.35 None/None edge0     raw=None kept=None side b jamb=17px=144mm on_run=0 hug=19 cap=36.0 other=none(None)
+   s02 door_0096 c0.35 None/None edge1     raw=None kept=None side b jamb=17px=144mm on_run=0 hug=19 cap=36.0 other=none(None)
+   s02 door_0116 c0.35 None/None edge1     raw=None kept=None side a jamb=17px=144mm on_run=0 hug=19 cap=36.0 other=none(None)
+   s03 door_0021 c0.35 None/None edge2     raw=None kept=None side a jamb=18px=305mm on_run=0 hug=18 cap=36.0 other=none(None)
+   s03 door_0021 c0.35 None/None edge3     raw=None kept=None side a jamb=18px=305mm on_run=0 hug=18 cap=36.0 other=none(None)
+   s04 door_0012 c0.27 None/None edge0     raw=None kept=None side b jamb=19px=161mm on_run=0 hug=17 cap=36.0 other=none(None)
+   s04 door_0012 c0.27 None/None edge1     raw=None kept=None side b jamb=19px=161mm on_run=0 hug=17 cap=36.0 other=none(None)
+   s05 door_0006 c0.72 single/None edge2 far raw=None kept=None side b jamb=14px=237mm on_run=5 hug=14 cap=18.0 other=none(None)
+   s06 door_0009 c0.67 single_line_leaf/None edge3 far raw=None kept=None side b jamb=12px=203mm on_run=7 hug=16 cap=18.0 other=none(None)
+   s07 door_0000 c0.67 single_line_leaf/None edge3 far raw=None kept=None side a jamb=13px=220mm on_run=6 hug=15 cap=18.0 other=none(None)
+   s07 door_0007 c0.27 None/None edge0     raw=None kept=None side a jamb=14px=237mm on_run=5 hug=14 cap=18.0 other=none(None)
+   s07 door_0007 c0.27 None/None edge1     raw=None kept=None side a jamb=14px=237mm on_run=5 hug=14 cap=18.0 other=none(None)
+   s07 door_0007 c0.27 None/None edge2     raw=None kept=None side a jamb=14px=237mm on_run=5 hug=14 cap=18.0 other=none(None)
+   s07 door_0007 c0.27 None/None edge3     raw=None kept=None side a jamb=14px=237mm on_run=5 hug=14 cap=18.0 other=none(None)
+   s07 door_0009 c0.27 None/None edge0     raw=None kept=None side a jamb=14px=237mm on_run=0 hug=14 cap=18.0 other=none(None)
+   s07 door_0009 c0.27 None/None edge1     raw=None kept=None side a jamb=14px=237mm on_run=0 hug=14 cap=18.0 other=none(None)
+   s07 door_0009 c0.27 None/None edge2     raw=None kept=None side b jamb=14px=237mm on_run=5 hug=14 cap=18.0 other=none(None)
+   s07 door_0009 c0.27 None/None edge3     raw=None kept=None side b jamb=14px=237mm on_run=5 hug=14 cap=18.0 other=none(None)
+   s07 door_0011 c0.27 None/None edge0     raw=None kept=None side b jamb=11px=186mm on_run=0 hug=17 cap=18.0 other=none(None)
+   s07 door_0011 c0.27 None/None edge1     raw=None kept=None side b jamb=11px=186mm on_run=0 hug=17 cap=18.0 other=none(None)
+   s07 door_0011 c0.27 None/None edge2     raw=None kept=None side b jamb=16px=271mm on_run=0 hug=12 cap=18.0 other=none(None)
+   s07 door_0011 c0.27 None/None edge3     raw=None kept=None side b jamb=16px=271mm on_run=0 hug=12 cap=18.0 other=none(None)
+   s07 door_0014 c0.27 None/None edge0     raw=None kept=None side a jamb=12px=203mm on_run=0 hug=16 cap=18.0 other=none(None)
+   s07 door_0014 c0.27 None/None edge1     raw=None kept=None side a jamb=12px=203mm on_run=0 hug=16 cap=18.0 other=none(None)
+   s10 door_0013 c0.67 single_line_leaf/None edge2 far raw=None kept=None side a jamb=17px=144mm on_run=0 hug=18 cap=36.0 other=reached(0.0)
+   s11 door_0001 c0.67 single_line_leaf/None edge3 far raw=None kept=None side a jamb=8px=135mm on_run=0 hug=20 cap=18.0 other=none(None)
+   s11 door_0008 c0.67 single_line_leaf/None edge2 far raw=None kept=None side a jamb=16px=271mm on_run=0 hug=12 cap=18.0 other=reached(0.0)
+   s11 door_0015 c0.67 single_line_leaf/None edge2 far raw=None kept=None side a jamb=13px=220mm on_run=0 hug=15 cap=18.0 other=none(None)
+   s11 door_0019 c0.35 None/None edge2     raw=None kept=None side b jamb=13px=220mm on_run=0 hug=15 cap=18.0 other=none(None)
+   s11 door_0019 c0.35 None/None edge3     raw=None kept=None side b jamb=13px=220mm on_run=0 hug=15 cap=18.0 other=none(None)
+   s12 door_0001 c0.72 single/None edge2 far raw=None kept=None side b jamb=14px=237mm on_run=0 hug=14 cap=18.0 other=none(None)
+   s13 door_0009 c0.67 single_line_leaf/None edge3 far raw=None kept=None side b jamb=8px=185mm on_run=9 hug=18 cap=13.2 other=none(None)
+   s14 door_0011 c0.72 single/None edge0 H   raw=None kept=None side a jamb=19px=161mm on_run=0 hug=17 cap=36.0 other=none(None)
+   s16 door_0002 c0.67 single_line_leaf/None edge0 far raw=None kept=None side b jamb=15px=254mm on_run=0 hug=13 cap=18.0 other=none(None)
+   s16 door_0005 c0.67 single_line_leaf/None edge3 far raw=None kept=None side a jamb=8px=135mm on_run=0 hug=20 cap=18.0 other=none(None)
+   s16 door_0017 c0.67 single_line_leaf/None edge2 far raw=None kept=None side a jamb=13px=220mm on_run=0 hug=15 cap=18.0 other=none(None)
+   s17 door_0036 c0.95 single/None edge3 far raw=None kept=None side a jamb=18px=152mm on_run=0 hug=18 cap=36.0 other=none(None)
+   s18 door_0001 c0.53 single/None edge3 far raw=None kept=None side a jamb=13px=220mm on_run=5 hug=14 cap=18.0 other=none(None)
+   s18 door_0015 c0.48 single_line_leaf/None edge0 far raw=None kept=None side a jamb=16px=271mm on_run=0 hug=12 cap=18.0 other=reached(0.0)
+   s18 door_0015 c0.48 single_line_leaf/None edge2 far raw=None kept=None side a jamb=16px=271mm on_run=0 hug=12 cap=18.0 other=reached(2.0)
+   s18 door_0016 c0.67 single_line_leaf/None edge2 far raw=None kept=None side b jamb=12px=203mm on_run=6 hug=16 cap=18.0 other=none(None)
+   s18 door_0018 c0.67 single_line_leaf/None edge2 far raw=None kept=None side b jamb=8px=135mm on_run=5 hug=14 cap=18.0 other=none(None)
+   s18 door_0018 c0.67 single_line_leaf/None edge3 H   raw=None kept=None side a jamb=11px=186mm on_run=5 hug=14 cap=18.0 other=reached(1.0)
+   s18 door_0025 c0.35 None/None edge3     raw=None kept=None side a jamb=12px=203mm on_run=0 hug=16 cap=18.0 other=none(None)
+   s18 door_0030 c0.25 None/None edge0     raw=full kept=full side b jamb=19px=322mm on_run=0 hug=8 cap=18.0 other=reached(0.0)
+   s18 door_0031 c0.25 None/None edge3     raw=full kept=full side b jamb=15px=254mm on_run=0 hug=13 cap=18.0 other=reached(0.0)
+   s18 door_0032 c0.27 None/None edge3     raw=None kept=None side b jamb=18px=305mm on_run=0 hug=10 cap=18.0 other=reached(0.0)
+   s18 door_0055 c0.27 None/None edge0     raw=None kept=None side a jamb=10px=169mm on_run=0 hug=17 cap=18.0 other=none(None)
+   s18 door_0055 c0.27 None/None edge1     raw=None kept=None side a jamb=10px=169mm on_run=0 hug=17 cap=18.0 other=none(None)
+   s18 door_0055 c0.27 None/None edge2     raw=None kept=None side b jamb=13px=220mm on_run=0 hug=15 cap=18.0 other=none(None)
+   s18 door_0158 c0.27 None/None edge0     raw=None kept=None side a jamb=12px=203mm on_run=5 hug=14 cap=18.0 other=beyond(12.0)
+   s18 door_0158 c0.27 None/None edge0     raw=None kept=None side b jamb=12px=203mm on_run=0 hug=15 cap=18.0 other=beyond(12.0)
+   s18 door_0158 c0.27 None/None edge1     raw=None kept=None side a jamb=12px=203mm on_run=5 hug=14 cap=18.0 other=beyond(12.0)
+   s18 door_0158 c0.27 None/None edge1     raw=None kept=None side b jamb=12px=203mm on_run=0 hug=15 cap=18.0 other=beyond(12.0)
+   s18 door_0179 c0.27 None/None edge0     raw=None kept=None side a jamb=15px=254mm on_run=4 hug=13 cap=18.0 other=beyond(16.0)
+   s18 door_0179 c0.27 None/None edge0     raw=None kept=None side b jamb=16px=271mm on_run=0 hug=12 cap=18.0 other=beyond(15.0)
+   s18 door_0179 c0.27 None/None edge1     raw=None kept=None side a jamb=15px=254mm on_run=4 hug=13 cap=18.0 other=beyond(16.0)
+   s18 door_0179 c0.27 None/None edge1     raw=None kept=None side b jamb=16px=271mm on_run=0 hug=12 cap=18.0 other=beyond(15.0)
+   s18 door_0239 c0.27 None/None edge3     raw=None kept=None side b jamb=9px=152mm on_run=0 hug=15 cap=18.0 other=none(None)
+   s18 door_0255 c0.27 None/None edge2     raw=full kept=full side a jamb=19px=322mm on_run=0 hug=9 cap=18.0 other=none(None)
+   s18 door_0269 c0.35 None/None edge0     raw=None kept=None side a jamb=16px=271mm on_run=0 hug=10 cap=18.0 other=reached(0.0)

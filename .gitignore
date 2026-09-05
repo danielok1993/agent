@@ -26,3 +26,4 @@ outputs/
 # W-gate census harness scratch state (pickled pages, ablation logs)
 tools/census_scratch/cache/
 tools/census_scratch/abl/
+tools/census_scratch/step9/*.jsonl

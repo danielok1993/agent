@@ -1407,3 +1407,259 @@ REVIEW** corpus-wide. Step 8 is committed on
 `fix/plane-restricted-fallback-stamp`. The next agent's prompt above
 applies as written from "Then, only with the user's decision on s01's
 three stair-split rooms".
+
+## Outcome — iteration 3, step 9 (2026-09-05, branch `recal/s01-true-factor`, measurement only — `_gate_denominator` NOT moved)
+
+Baseline re-swept in four background groups and snapshotted for all 20
+slugs: 0 LOST, 68 returned FPs, 0 REVIEW. s01 at f = 50/92.2 on this tree
+(harness): 11/11 doors, 4/4 windows, 8/12 rooms, 18 unreviewed — and the
+re-measurement the brief ordered shows THREE blockers, not one:
+
+1. **The hall IS the seal** — step 8 misread door_0002's RIGHT edge (the
+   open leaf's hinge edge on the CPD wall, interrupted at identity too) as
+   the doorway; the doorway is the TOP edge, whose latch jamb face sits
+   14.25 px = 222 mm (1:92.2) past the bbox corner. At 0.542 the 8.13 px
+   tail's first sample stops 4.1 px short of the material (touch 2.71) and
+   the start window covers 1/3; passing needs S ≥ 9.52 px = 17.6 at 1:50
+   (s03's FPs return at 18). Corpus census of 378 kept doorway ends in mm at
+   true scale: median 0, p90 34, the four largest are s01's swing doors
+   (187–219 mm), next s05 135 mm. Fix = a jamb-seeking tail (extend to the
+   nearest collinear wall face up to a world cap), its own iteration.
+2. **17 phantoms = the furniture pen crossing `ROOM_WALL_PEN_MIN_FRAC`**:
+   red carries 13.7 % of the paired stroked length at identity, 15.2 % at
+   0.542 (33 thin sofa/bed pairs th 2.5–4.8 appear) — all 17 (12 unit /
+   cushion cells, 2 slivers, 1 strip, 2 room splits) are fenced by red ink.
+   Every other multi-pen sheet sits at ≥ 34 % or ≤ 10.4 %. Discriminator
+   candidates: a wall pen's pairs carry hatch (red: 0 marks), or its longest
+   paired run is room-long (red 109 px vs black 497 / magenta 567). Its own
+   iteration.
+3. The three stair-split rooms — step 3/8's finding, the user's verdict.
+
+`ablate.py s01 s01mode` re-run on this tree confirms: the cap alone loses the
+three stair rooms (+ the living room by bbox), the seal alone the hall, and
+any one of four wall gates held at identity removes all 17 phantoms (an
+interaction, no discriminator). Report:
+`docs/w-gate-iter3-checkpoints/step-9.md` (2 PNGs beside it). No code, truth
+or manifest changed; labels not reseeded.
+
+### Prompt for the next agent (after the user's step-9 decisions — fresh context)
+
+> Use `/fix-detection` for its discipline (topic branch from
+> `recal/s01-true-factor` or its successor; `git log --all --oneline |
+> head`; re-sweep in four background groups and `compare_sweeps --snapshot`
+> all 20 slugs first; verdict reports diffed section-wise;
+> `tools/diff_room_polygons.py` after EVERY sweep, `tools/room_shape_crop.py`
+> for every room whose IoU moved under 0.99, a scratch UNSIMPLIFIED diff
+> whenever any room loses area; harness overrides as MULTIPLIERS). Read
+> first: `docs/w-gate-iter3-checkpoints/step-9.md`, `step-8.md`,
+> `step-3.md`, this handoff's iteration-3 outcome sections, the CLAUDE.md
+> paragraphs "Room detection" and "Wall/room world-space gates",
+> `docs/regression-testing-guide.md` §9 §10 §12 §13.
+>
+> With the user's decisions from step 9: (a) the JAMB-SEEKING TAIL — a
+> doorway plug's tail extends along the edge line to the nearest collinear
+> wall face (`network.faces` within `ROOM_PLUG_NEAR_PX` of the line, same
+> direction) up to a world cap; census first (`jamb_census.py`'s pattern:
+> every kept doorway end in mm at true scale, max 219 mm on s01, next
+> 135 mm; the non-qualifying ends with material further out — s01
+> door_0015 281 mm, door_0012 203, s10 door_0011 169, s14 door_0008 119, s02
+> door_0016 110, s03 door_0008 85 — are the cases to picture before and
+> after); proof = s01's hall sealed at 0.542 in the harness AND a corpus
+> sweep byte-identical at the current factors. (b) The WALL-PEN
+> DISCRIMINATOR — measure on every multi-pen sheet (s01/s02/s03/s04/s08/s17)
+> per pen: paired length share, hatched-band share, longest paired run;
+> state the convention, then build; proof = s01 at 0.542 in the harness
+> shows 0 red-fenced rooms AND the corpus is byte-identical. (c) Only then
+> narrow `_gate_denominator` (s01 keeps 11 doors, 4 windows, every remaining
+> confirmed room, no new phantom beyond the landing), then step 4
+> (`WALL_MAX_THICKNESS_PX` 36 → 40: the s11 recess box
+> (1030,1330)–(1123,1360), s15 annotation pocket (1480,698)–(1595,792) and
+> s18 tree strip (156,724)–(197,863) must stay out; expected −5 recorded
+> phantoms on s16/s17).
+>
+> Rules for the whole run are those of the step-8 prompt above (no commits,
+> no truth/manifest edits without a go for that entry, never revert s01's
+> truth scale, never `git stash`, no `timeout` on macOS, `.venv/bin/python`
+> by absolute path in background commands, s01/s02 at f = 1.0 unchanged until
+> the denominator deliberately moves s01, a lost confirmed entity or a
+> returned FP means revert + before|after + STOP, PNGs under
+> `docs/w-gate-iter3-checkpoints/` with no address, and every report ends
+> with lost / returned FPs / REVIEW lines with verdicts / net phantom delta /
+> next).
+
+### Step-9 decisions and the jamb-seek census (2026-09-05, same day)
+
+The user retired the three stair verdicts in principle (to be removed by
+hand once s01 runs at 0.542, the merged rooms re-reviewed then) and chose
+the jamb-seeking tail as the next iteration. Its census
+(`collinear_census.py`, every door edge end at the sheets' factors + s01 at
+0.542, the nearest collinear BARRIER face beyond the corner) refutes it as
+a standalone fix: a real doorway's collinear face begins at the corner
+(median 34 mm, 22 % have none), and at 0.542 the hall door's nearest one
+begins 546 mm out — the jamb block's unstroked bottom outline (path 331,
+3 px off the wall face) is merged into the face run at identity by
+`COLLINEAR_OFFSET_TOL` 4 and not at 2.17, and the block fails the
+thick-tier material gate — while the false class (s17 door_0020: a
+partition face 520 mm beyond an open leaf's tip on the leaf's line) sits at
+the same distance. The hall needs a hatched-pier material rule AND a
+material-based seek (≤ ~300 mm), each with one corpus instance; the pen
+discriminator is the third. Report §1b. **Not built; decision pending**:
+three s01-specific rules before `_gate_denominator`, or the denominator
+stays as designed (`SCALE_FACTOR_MEASURED_ONLY`) and the next iterations
+are the wall-pen discriminator (generic, validated at identity) and step 4.
+
+### Step-9 review (2026-09-05, an independent agent — `docs/w-gate-iter3-checkpoints/step-9-review-prompt.md`)
+
+Claims 1–3, 5, 6 confirmed with fresh runs; corrections adopted in
+`step-9.md`: the hall's minimum seal is 9.57 px at 0.542 (17.65 at 1:50,
+not 9.52 / 17.6); two `only:` ablation configs abort on the cap-ordering
+assertion rather than reading 0/0; the collinear census under exact barrier
+eligibility reads 308/396 doorway ends with a collinear face, 132 seek
+candidates, 49 under 300 mm (the s17 door_0020 false class survives at
+519 mm); the blue-dimension residue is withdrawn (path 3281 has no barrier
+rights; removing the 17 blue primitives changes nothing); and BOTH wall-pen
+discriminators I proposed fail on the other multi-pen sheets (a hatched
+share fails s02/s04/s08/s12's unhatched wall pens; longest run overlaps —
+s03's non-wall grey 491.5 px vs s02/s03 black 430.6/462.0), while
+`ROOM_WALL_PEN_MIN_FRAC` 0.16 alone removes all 17 phantoms (a 1.05×
+margin, not a rule) and s12 (black 59.1 % / grey 40.9 %) was missing from my
+pen table. The decisive correction: the hall does NOT need the jamb block
+to pair — its right face (path 278) keeps barrier rights at 0.542 and
+current material reaches x ≈ 412.27, so a MATERIAL-seeking tail (nearest
+wall material outward from an un-anchored hinge-edge end, a perpendicular
+jamb return included, within a world cap) reaches it at ~12.3 px = 191 mm,
+one rule, plausibly generic (true class: s05 door_0007 135 mm, s17
+door_0004 169 mm, s18 door_0018 220 mm, s01 door_0002 203 mm). Its
+false-class census (`tools/census_scratch/step9/material_seek_probe.py`:
+every un-anchored hinge-edge end of a ≥ 0.55 single, the nearest FULL
+barrier material outward excluding the door's own seal) is in step-9.md
+§1b. `_gate_denominator` stays unchanged pending that rule and a
+separating pen rule — agreed by both.
+
+### Prompt for the next agent (iteration 3, step 10 — the material-seeking tail — fresh context)
+
+> Use `/fix-detection` for its discipline. Topic branch from
+> `recal/s01-true-factor` (its head; `git log --all --oneline | head`; main
+> is still `ee0f52f`). Re-sweep that tree first in four background groups
+> (s18; s16 s11 s15; s01–s07; the rest) and `compare_sweeps --snapshot` all
+> 20 slugs, never trusting what sits in `outputs/regress/`. Verdict reports
+> diffed section-wise; `tools/diff_room_polygons.py` on every sheet after
+> EVERY sweep; `tools/room_shape_crop.py` for every room whose IoU moved
+> under 0.99; a scratch UNSIMPLIFIED polygon diff (`ROOM_SIMPLIFY_TOL_PX`
+> 0, the rule toggled by monkeypatch) whenever any room loses area. Harness
+> gate overrides go in as MULTIPLIERS (`H.overrides(mult=...)`), never
+> absolute px. Read first, in this order:
+> `docs/w-gate-iter3-checkpoints/step-9.md` (all of it — §1, §1b as
+> corrected, §2, the review section), `step-9-review-prompt.md`,
+> `step-8.md`, `step-3.md`, this handoff's iteration-3 outcome sections
+> (step 9 and its review last), the CLAUDE.md paragraphs "Room detection"
+> and "Wall/room world-space gates", `detection/rooms.py::_door_plugs`,
+> `_restrict_swing_plugs`, `_swing_hinge_edges`, `_clip_plug_tails`,
+> `_tail_material_end`, `_plane_stamp` and the `door_barriers` loop in
+> `detect_rooms`, and `docs/regression-testing-guide.md` §9 §10 §12 §13.
+> The step-9 scratch tooling is in `tools/census_scratch/step9/` (README):
+> `s01_common.run_tapped` (seals keyed by bbox, taps on `_door_plugs` /
+> `_clip_plug_tails` / `_plane_stamp` / `_free_space_components`),
+> `s01_profile.py` (the hall door's profile numbers), `material_seek_probe.py`
+> (the rule's false-class census); the harness cache is
+> `tools/census_scratch/cache/`.
+>
+> **Tree state**: `ROOM_OPENING_SEAL_PX` 15, `_plane_stamp` shipped, corpus
+> 0 LOST / 68 returned FPs / 0 REVIEW, every labelled sheet fully reviewed;
+> `_gate_denominator` unchanged, s01 detects at identity. The user has
+> decided (2026-09-05) to retire s01's three stair-split verdicts
+> ((1090,699)–(1142,876), (466,920)–(521,1056), (1033,925)–(1142,1134)) BY
+> HAND once s01 runs at 0.542 and to re-review the merged rooms then — do
+> not touch `tests/ground_truth/s01.json` yourself.
+>
+> **This step: the MATERIAL-SEEKING TAIL** (`_door_plugs`), the rule an
+> independent review of step 9 proposed and step 9's census supports. The
+> convention: a doorway is cut out of a wall, so its jamb is wall material
+> the plug's tail has to reach; the tail's reach is fixed in advance
+> (bbox ± SEAL) while the jamb's distance is drawn. Rule: for a single
+> swing door at ≥ `ROOM_BBOX_SEAL_MIN_CONFIDENCE` (0.55), on a HINGE edge
+> (`_swing_hinge_edges`) whose profile fails at exactly ONE end's anchor
+> (start/end cover or touch) while the other end anchors, sample outward
+> from the failing corner beyond SEAL up to a new W-class constant
+> `ROOM_PLUG_JAMB_SEEK_PX` (~250 mm: 29.5 px at 1:50, 16 px at 0.542,
+> 14.8 px at 1:100), find the first sample within the plug half-width of
+> WALL MATERIAL (a perpendicular jamb return counts; opening seals never
+> do — `_door_plugs` only sees wall material anyway), extend THAT end's
+> reach to that distance plus the anchor window, and re-run the profile
+> with asymmetric reaches; only the interrupted signature may result (the
+> doorway), never a "full" plug. Consequences you must handle: `local` (the
+> material clipped `SEAL + NEAR + 4` around the bbox in the `door_barriers`
+> loop) must be clipped at `SEEK + NEAR + 4` — prove that alone is inert
+> (corpus byte-identical) before the seek; `_clip_plug_tails` uses SEAL as
+> its reach and would cut the extended tail back — make its reach the
+> plug's own along-edge extent beyond each corner (max of SEAL and the
+> plug polygon's projection); `_plane_stamp` stays as it is.
+>
+> **Measured classes (step-9 §1b, `material_seek_probe.py` on all 18 sheets
+> at their factors + s01 at 0.542, every un-anchored hinge-edge end of a
+> ≥ 0.55 single, 172 + 5 ends)**: true — the s01 hall door's top edge at
+> 0.542 (material at 12.3 px = 191 mm, the jamb block's right face, path
+> 278, perpendicular; seals at S ≥ 9.57 px), s18 door_0018's right edge at
+> 11 px = 186 mm (a 139 px 90° face; its doorway per step-8's table,
+> plug-less today — expect its rooms 0002/0003 to change, a win to
+> picture); false — exactly one within 300 mm: s14 door_0007's open-leaf
+> tip reaching a wall-fill chevron ring (paths 3015/3016) at 35 px =
+> 296 mm, which a 250 mm cap excludes at 1.18×; s01 door_0015's garden-pair
+> piers at 18 px = 281 mm must stay OUT at identity (else s01 at f = 1.0
+> moves — a decision, not a silent change); s14 door_0011 edge 0 has a
+> jamb at 161 mm but nothing at its other end (no plug either way). Pin
+> with synthetic tests: a doorway whose latch jamb is a perpendicular
+> return 22 px past the corner at 1:50 seals (fails today); a leaf tip with
+> material at cap + 6 px does not; a fallback-tier (0.35) box never seeks;
+> each test must fail on the old code for the stated reason.
+>
+> **Proof**: the fast tier green (`python -m unittest discover tests`;
+> `test_takeoff_fn_equivalence`'s `warnings` field fails on the untouched
+> tree, pre-existing), the harness at s01 0.542 showing the hall matched
+> (rooms 9/12 — the three stair rooms stay lost until their verdicts are
+> retired) with no new phantom beyond the 18 already measured, then the
+> corpus sweep: 0 LOST, 68 returned FPs, s01/s02 at f = 1.0 entity- and
+> polygon-identical, every polygon move listed and pictured (s18 rooms
+> 0002/0003 expected). If a rule costs a confirmed entity or returns an FP,
+> revert it, report why with a before|after of what the lost entity is a
+> chunk of, and STOP. Update the prose (the `_door_plugs` docstring, the
+> constant's comment with the measured classes, the CLAUDE.md room
+> paragraph's plug sentences, findings §4 row) in the existing style.
+>
+> **After it (each its own iteration)**: a wall-pen discriminator for
+> colour-coded sheets (step-9 §2: s01's red furniture pen at 13.7 % / 15.2 %
+> of the paired stroked length against `ROOM_WALL_PEN_MIN_FRAC` 0.15 —
+> 0.16 alone clears the 17 phantoms at 0.542 but is a 1.05× number; both
+> candidates I proposed, hatched-band share and longest paired run, were
+> refuted on s02/s03/s04/s08/s12 — census every multi-pen sheet
+> s01/s02/s03/s04/s08/s12/s17 before proposing anything); then narrow
+> `_gate_denominator` (s01 at 0.542 keeps 11 doors, 4 windows, the hall
+> and every remaining confirmed room; the stair retirement and the
+> re-review happen then); then step 4 (`WALL_MAX_THICKNESS_PX` 36 → 40:
+> the s11 recess box (1030,1330)–(1123,1360), s15 annotation pocket
+> (1480,698)–(1595,792) and s18 tree strip (156,724)–(197,863) must stay
+> out; expected −5 recorded phantoms on s16/s17); then the long queue
+> (same-line tail material for s17 door_0016, phase-invariant plug profiles,
+> the dash-row text-mask join, the fallback in-wall gate on tail-less plugs,
+> band pockets / the recess class, Gap D of `docs/hatch-cell-chords-handoff.md`,
+> a jamb-scale floor for lining rings, the lattice knife-edges, an
+> open-arrowhead stair recognizer, interior rings in the exported room
+> polygon, s18's glyph-outline fill rings).
+>
+> Rules for the whole run: do not commit (the user commits); do not edit
+> `tests/ground_truth/*.json` or `fixtures/MANIFEST.json` without an
+> explicit go for that specific entry; never revert s01's truth scale
+> (1:92.2); never `git stash`; macOS has no `timeout`; python is not on the
+> shell path — use `.venv/bin/python` with an ABSOLUTE path in background
+> commands (the cwd resets); the venv lacks InquirerPy; a Gemini label
+> reseed needs `gcloud auth application-default login` in the user's
+> prompt when it reports "Reauthentication is needed"; s01 and s02 at
+> f = 1.0 must not change (entity set AND polygons) until
+> `_gate_denominator` deliberately moves s01, and any move is reported as a
+> decision; probe with the FULL wall material, never `_door_plugs`' 27 px
+> local clip, and with the room stage's real barrier rules, never an
+> approximation (both bit step 9); PNG crops go under
+> `docs/w-gate-iter3-checkpoints/` and must never show a street address or
+> planning-portal id; commit messages carry no Co-Authored-By or session
+> trailer. End every report with the numbers: lost, returned FPs, new
+> REVIEW lines with your verdicts, net phantom delta, and what is next.

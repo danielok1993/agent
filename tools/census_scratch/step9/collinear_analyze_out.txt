@@ -1,0 +1,164 @@
+records 2209
+
+A. kept interrupted plugs (>= 0.55) at the sheets' factors: 198 edges
+   ends with a collinear barrier face within 60px: 310; without: 86
+   g px: median 2.3, p90 6.2, max 57.8
+   g mm: median 34, p90 78, max 979
+   run px of the collinear face: median 89 p10 12 min 4
+   largest g (px, mm, run, off, slug, id, edge, side):
+      (57.8, 978.7, 222.7, 0.0, 's03', 'door_0010', 2, 'a')
+      (56.1, 949.9, 52.5, 1.1, 's11', 'door_0009', 1, 'a')
+      (55.1, 860.2, 54.3, 7.0, 's01', 'door_0012', 2, 'b')
+      (44.0, 372.5, 261.5, 0.0, 's17', 'door_0026', 1, 'b')
+      (43.1, 364.9, 159.1, 2.7, 's02', 'door_0009', 1, 'a')
+      (26.0, 220.1, 22.0, 5.0, 's02', 'door_0016', 2, 'a')
+      (25.5, 215.9, 109.5, 3.6, 's04', 'door_0001', 2, 'a')
+      (23.5, 199.0, 119.2, 1.8, 's10', 'door_0004', 2, 'b')
+      (16.0, 135.5, 11.8, 0.1, 's03', 'door_0015', 3, 'a')
+      (15.6, 132.1, 229.1, 0.0, 's08', 'door_0004', 1, 'b')
+      (14.2, 221.7, 206.7, 0.7, 's01', 'door_0002', 0, 'a')
+      (13.4, 113.4, 117.1, 0.0, 's10', 'door_0014', 3, 'b')
+
+B. seek candidates at the sheets' factors: an end with a collinear face beginning beyond the seal (g > seal) within 60px
+   134 ends
+   s01 door_0001 c0.67 single_line_leaf/None edge2 far raw=None kept=None side a g=53.1px=829mm run=62 off=5.7 other_g=- seal=15.00
+   s01 door_0012 c0.65 folding/None edge2     raw=interrupted kept=interrupted side b g=55.1px=860mm run=54 off=7.0 other_g=0.0 seal=15.00
+   s02 door_0006 c0.68 single/None edge2 far raw=None kept=None side b g=27.0px=229mm run=13 off=5.9 other_g=- seal=15.00
+   s02 door_0009 c0.67 single_line_leaf/None edge1 H   raw=interrupted kept=interrupted side a g=43.1px=365mm run=159 off=2.7 other_g=- seal=15.00
+   s02 door_0013 c0.65 sliding/None edge0     raw=full kept=full side a g=55.0px=466mm run=85 off=3.0 other_g=- seal=15.00
+   s02 door_0013 c0.65 sliding/None edge1     raw=full kept=full side a g=51.0px=432mm run=89 off=5.5 other_g=- seal=15.00
+   s02 door_0016 c0.65 folding/None edge0     raw=None kept=None side a g=16.0px=135mm run=16 off=3.9 other_g=- seal=15.00
+   s02 door_0016 c0.65 folding/None edge1     raw=None kept=None side a g=16.6px=141mm run=16 off=3.5 other_g=- seal=15.00
+   s02 door_0016 c0.65 folding/None edge2     raw=interrupted kept=interrupted side a g=26.0px=220mm run=22 off=5.0 other_g=- seal=15.00
+   s02 door_0017 c0.65 folding/None edge2     raw=None kept=None side a g=33.1px=280mm run=18 off=0.1 other_g=- seal=15.00
+   s02 door_0024 c0.35 None/None edge1     raw=None kept=None side b g=47.8px=405mm run=17 off=0.0 other_g=- seal=15.00
+   s02 door_0024 c0.35 None/None edge2     raw=None kept=None side b g=31.9px=270mm run=46 off=0.9 other_g=- seal=15.00
+   s02 door_0024 c0.35 None/None edge3     raw=None kept=None side b g=31.9px=270mm run=46 off=6.3 other_g=- seal=15.00
+   s02 door_0028 c0.35 None/None edge0     raw=None kept=None side b g=22.4px=190mm run=18 off=6.4 other_g=- seal=15.00
+   s02 door_0035 c0.27 None/None edge2     raw=full kept=full side b g=45.9px=389mm run=149 off=0.4 other_g=- seal=15.00
+   s02 door_0035 c0.27 None/None edge3     raw=full kept=full side b g=45.9px=389mm run=149 off=0.6 other_g=- seal=15.00
+   s02 door_0050 c0.35 None/None edge0     raw=None kept=None side b g=52.4px=444mm run=91 off=5.6 other_g=- seal=15.00
+   s02 door_0053 c0.35 None/None edge3     raw=None kept=None side a g=31.1px=263mm run=18 off=5.9 other_g=- seal=15.00
+   s02 door_0055 c0.35 None/None edge0     raw=full kept=full side b g=24.9px=211mm run=397 off=7.6 other_g=- seal=15.00
+   s02 door_0062 c0.35 None/None edge1     raw=full kept=full side b g=17.4px=147mm run=107 off=2.5 other_g=- seal=15.00
+   s02 door_0084 c0.35 None/None edge1     raw=None kept=None side b g=31.0px=262mm run=217 off=5.0 other_g=- seal=15.00
+   s02 door_0116 c0.35 None/None edge1     raw=None kept=None side a g=23.5px=199mm run=308 off=0.6 other_g=- seal=15.00
+   s03 door_0006 c0.95 single/None edge2 H   raw=None kept=None side b g=54.3px=919mm run=66 off=2.0 other_g=- seal=15.00
+   s03 door_0010 c0.95 single/None edge2 H   raw=interrupted kept=interrupted side a g=57.8px=979mm run=223 off=0.0 other_g=2.0 seal=15.00
+   s03 door_0013 c0.95 single/None edge0 far raw=None kept=None side a g=51.5px=872mm run=18 off=7.2 other_g=39.2 seal=15.00
+   s03 door_0013 c0.95 single/None edge0 far raw=None kept=None side b g=39.2px=664mm run=16 off=7.2 other_g=51.5 seal=15.00
+   s03 door_0015 c0.95 single/None edge3 H   raw=interrupted kept=interrupted side a g=16.0px=135mm run=12 off=0.1 other_g=4.0 seal=15.00
+   s04 door_0001 c0.67 single_line_leaf/None edge2 H   raw=interrupted kept=interrupted side a g=25.5px=216mm run=110 off=3.6 other_g=11.9 seal=15.00
+   s04 door_0002 c0.67 single_line_leaf/None edge0 far raw=None kept=None side a g=29.6px=251mm run=463 off=5.3 other_g=- seal=15.00
+   s05 door_0004 c0.72 single/None edge1 far raw=None kept=None side b g=54.5px=923mm run=18 off=1.0 other_g=- seal=7.50
+   s05 door_0007 c0.72 single/None edge3 far raw=interrupted kept=None side a g=9.7px=164mm run=19 off=2.7 other_g=0.0 seal=7.50
+   s05 door_0009 c0.35 None/None edge2     raw=None kept=None side b g=8.8px=149mm run=136 off=2.8 other_g=- seal=7.50
+   s05 door_0009 c0.35 None/None edge3     raw=None kept=None side b g=13.5px=229mm run=183 off=7.1 other_g=- seal=7.50
+   s07 door_0000 c0.67 single_line_leaf/None edge0 H   raw=interrupted kept=interrupted side b g=10.2px=173mm run=8 off=2.9 other_g=0.0 seal=7.50
+   s07 door_0000 c0.67 single_line_leaf/None edge1 far raw=interrupted kept=None side b g=10.2px=173mm run=8 off=3.2 other_g=0.0 seal=7.50
+   s07 door_0006 c0.67 single_line_leaf/None edge0 far raw=interrupted kept=None side b g=8.2px=139mm run=18 off=0.5 other_g=- seal=7.50
+   s07 door_0009 c0.27 None/None edge0     raw=None kept=None side b g=31.1px=527mm run=6 off=3.2 other_g=- seal=7.50
+   s07 door_0009 c0.27 None/None edge1     raw=None kept=None side b g=31.1px=527mm run=6 off=6.1 other_g=- seal=7.50
+   s07 door_0011 c0.27 None/None edge0     raw=None kept=None side b g=15.5px=262mm run=6 off=5.2 other_g=- seal=7.50
+   s07 door_0011 c0.27 None/None edge1     raw=None kept=None side b g=15.5px=262mm run=6 off=3.4 other_g=- seal=7.50
+   s08 door_0004 c0.67 single_line_leaf/None edge1 H   raw=interrupted kept=interrupted side b g=15.6px=132mm run=229 off=0.0 other_g=12.4 seal=15.00
+   s10 door_0000 c0.78 single/None edge3 H   raw=None kept=None side b g=53.5px=453mm run=13 off=4.3 other_g=- seal=15.00
+   s10 door_0004 c0.67 single_line_leaf/None edge2 H   raw=interrupted kept=interrupted side b g=23.5px=199mm run=119 off=1.8 other_g=6.2 seal=15.00
+   s10 door_0012 c0.67 single_line_leaf/None edge0 far raw=None kept=None side b g=37.2px=315mm run=20 off=6.7 other_g=- seal=15.00
+   s10 door_0016 c0.35 None/None edge2     raw=full kept=full side a g=29.8px=252mm run=17 off=0.0 other_g=- seal=15.00
+   s10 door_0016 c0.35 None/None edge3     raw=full kept=full side a g=29.5px=250mm run=17 off=0.0 other_g=24.2 seal=15.00
+   s10 door_0016 c0.35 None/None edge3     raw=full kept=full side b g=24.2px=205mm run=16 off=0.0 other_g=29.5 seal=15.00
+   s10 door_0017 c0.35 None/None edge2     raw=full kept=full side b g=42.5px=360mm run=11 off=2.0 other_g=- seal=15.00
+   s10 door_0018 c0.35 None/None edge3     raw=full kept=full side b g=49.2px=417mm run=16 off=0.0 other_g=5.0 seal=15.00
+   s10 door_0019 c0.35 None/None edge2     raw=full kept=full side a g=29.8px=252mm run=17 off=0.0 other_g=- seal=15.00
+   s10 door_0019 c0.35 None/None edge3     raw=full kept=full side a g=29.5px=250mm run=17 off=0.0 other_g=24.5 seal=15.00
+   s10 door_0019 c0.35 None/None edge3     raw=full kept=full side b g=24.5px=207mm run=16 off=0.0 other_g=29.5 seal=15.00
+   s10 door_0020 c0.35 None/None edge2     raw=full kept=full side b g=42.5px=360mm run=11 off=2.0 other_g=- seal=15.00
+   s11 door_0002 c0.67 single_line_leaf/None edge0 far raw=None kept=None side a g=43.9px=743mm run=179 off=1.9 other_g=0.0 seal=7.50
+   s11 door_0003 c0.67 single_line_leaf/None edge0 H   raw=interrupted kept=interrupted side a g=11.8px=200mm run=168 off=3.6 other_g=3.3 seal=7.50
+   s11 door_0008 c0.67 single_line_leaf/None edge0 far raw=None kept=None side a g=28.9px=489mm run=6 off=2.2 other_g=0.0 seal=7.50
+   s11 door_0008 c0.67 single_line_leaf/None edge2 far raw=None kept=None side a g=19.5px=330mm run=39 off=3.4 other_g=0.0 seal=7.50
+   s11 door_0009 c0.67 single_line_leaf/None edge1 H   raw=interrupted kept=interrupted side a g=56.1px=950mm run=52 off=1.1 other_g=2.0 seal=7.50
+   s11 door_0010 c0.67 single_line_leaf/None edge0 far raw=None kept=None side b g=32.2px=545mm run=8 off=2.3 other_g=0.0 seal=7.50
+   s11 door_0012 c0.67 single_line_leaf/None edge1 H   raw=None kept=None side b g=42.0px=711mm run=8 off=5.4 other_g=0.0 seal=7.50
+   s11 door_0014 c0.67 single_line_leaf/None edge0 far raw=None kept=None side a g=54.4px=921mm run=18 off=1.5 other_g=0.0 seal=7.50
+   s11 door_0018 c0.45 None/None edge0     raw=None kept=None side b g=30.8px=522mm run=6 off=3.0 other_g=- seal=7.50
+   s11 door_0018 c0.45 None/None edge1     raw=None kept=None side a g=43.9px=743mm run=8 off=3.8 other_g=- seal=7.50
+   s11 door_0019 c0.35 None/None edge2     raw=None kept=None side b g=17.3px=293mm run=53 off=6.4 other_g=- seal=7.50
+   s11 door_0019 c0.35 None/None edge3     raw=None kept=None side b g=17.3px=293mm run=53 off=0.7 other_g=- seal=7.50
+   s12 door_0003 c0.72 single/None edge1 far raw=None kept=None side b g=54.5px=923mm run=18 off=1.0 other_g=- seal=7.50
+   s12 door_0011 c0.35 None/None edge3     raw=None kept=None side a g=57.1px=967mm run=290 off=2.1 other_g=- seal=7.50
+   s12 door_0012 c0.35 None/None edge2     raw=None kept=None side b g=17.6px=298mm run=224 off=2.8 other_g=- seal=7.50
+   s12 door_0012 c0.35 None/None edge3     raw=None kept=None side a g=42.9px=726mm run=290 off=5.3 other_g=8.8 seal=7.50
+   s12 door_0012 c0.35 None/None edge3     raw=None kept=None side b g=8.8px=149mm run=188 off=7.1 other_g=42.9 seal=7.50
+   s14 door_0005 c0.68 single/None edge3 far raw=None kept=None side b g=52.0px=440mm run=18 off=3.0 other_g=- seal=15.00
+   s14 door_0008 c0.72 single/None edge1 far raw=None kept=None side a g=39.0px=330mm run=14 off=5.0 other_g=- seal=15.00
+   s14 door_0011 c0.72 single/None edge0 H   raw=None kept=None side a g=28.0px=237mm run=21 off=2.0 other_g=- seal=15.00
+   s14 door_0019 c0.35 None/None edge2     raw=full kept=full side b g=49.5px=419mm run=26 off=0.0 other_g=- seal=15.00
+   s14 door_0020 c0.35 None/None edge3     raw=full kept=full side b g=25.0px=212mm run=15 off=0.0 other_g=3.0 seal=15.00
+   s14 door_0021 c0.35 None/None edge3     raw=full kept=full side a g=25.0px=212mm run=14 off=0.0 other_g=3.0 seal=15.00
+   s14 door_0025 c0.35 None/None edge0     raw=None kept=None side a g=51.5px=436mm run=396 off=0.0 other_g=- seal=15.00
+   s14 door_0027 c0.35 None/None edge0     raw=None kept=None side a g=25.5px=216mm run=18 off=5.0 other_g=- seal=15.00
+   s14 door_0028 c0.35 None/None edge2     raw=full kept=full side a g=37.5px=317mm run=14 off=0.0 other_g=- seal=15.00
+   s14 door_0029 c0.35 None/None edge2     raw=full kept=full side a g=37.5px=317mm run=14 off=0.0 other_g=- seal=15.00
+   s14 door_0031 c0.35 None/None edge3     raw=None kept=None side a g=35.5px=301mm run=158 off=0.0 other_g=- seal=15.00
+   s14 door_0042 c0.35 None/None edge1     raw=None kept=None side b g=18.0px=152mm run=96 off=3.0 other_g=- seal=15.00
+   s14 door_0043 c0.35 None/None edge1     raw=None kept=None side a g=17.5px=148mm run=96 off=3.0 other_g=- seal=15.00
+   s14 door_0044 c0.35 None/None edge3     raw=None kept=None side b g=18.0px=152mm run=62 off=3.0 other_g=- seal=15.00
+   s15 door_0013 c0.67 single_line_leaf/None edge1 far raw=None kept=None side a g=49.6px=420mm run=12 off=7.8 other_g=- seal=15.00
+   s15 door_0023 c0.35 None/None edge3     raw=full kept=full side b g=36.1px=306mm run=69 off=1.2 other_g=- seal=15.00
+   s15 door_0081 c0.35 None/None edge0     raw=None kept=None side a g=48.0px=406mm run=36 off=4.5 other_g=- seal=15.00
+   s16 door_0000 c0.67 single_line_leaf/None edge0 far raw=None kept=None side a g=43.9px=743mm run=53 off=2.2 other_g=0.0 seal=7.50
+   s16 door_0001 c0.48 single_line_leaf/None edge1 far raw=interrupted kept=None side b g=54.4px=921mm run=6 off=1.1 other_g=0.0 seal=7.50
+   s16 door_0002 c0.67 single_line_leaf/None edge0 far raw=None kept=None side b g=19.1px=323mm run=51 off=2.6 other_g=0.0 seal=7.50
+   s16 door_0003 c0.67 single_line_leaf/None edge1 far raw=None kept=None side b g=56.7px=960mm run=8 off=4.5 other_g=- seal=7.50
+   s16 door_0003 c0.67 single_line_leaf/None edge3 H   raw=None kept=None side b g=44.6px=755mm run=76 off=4.9 other_g=2.1 seal=7.50
+   s16 door_0004 c0.67 single_line_leaf/None edge0 far raw=None kept=None side b g=56.3px=953mm run=8 off=3.8 other_g=- seal=7.50
+   s16 door_0004 c0.67 single_line_leaf/None edge2 far raw=None kept=None side a g=34.5px=584mm run=6 off=0.8 other_g=- seal=7.50
+   s16 door_0004 c0.67 single_line_leaf/None edge3 H   raw=None kept=None side a g=43.1px=730mm run=61 off=5.3 other_g=3.6 seal=7.50
+   s16 door_0007 c0.67 single_line_leaf/None edge0 far raw=None kept=None side a g=28.5px=483mm run=6 off=2.2 other_g=0.0 seal=7.50
+   s16 door_0011 c0.67 single_line_leaf/None edge1 H   raw=None kept=None side b g=42.0px=711mm run=8 off=5.4 other_g=0.0 seal=7.50
+   s16 door_0012 c0.67 single_line_leaf/None edge0 far raw=None kept=None side a g=54.4px=921mm run=18 off=1.5 other_g=0.0 seal=7.50
+   s16 door_0013 c0.67 single_line_leaf/None edge1 H   raw=None kept=None side a g=55.1px=933mm run=7 off=1.0 other_g=0.0 seal=7.50
+   s16 door_0018 c0.35 None/None edge1     raw=full kept=full side a g=17.6px=298mm run=6 off=4.9 other_g=- seal=7.50
+   s16 door_0021 c0.45 None/None edge0     raw=None kept=None side a g=45.7px=774mm run=8 off=5.6 other_g=30.8 seal=7.50
+   s16 door_0021 c0.45 None/None edge0     raw=None kept=None side b g=30.8px=522mm run=6 off=3.0 other_g=45.7 seal=7.50
+   s16 door_0021 c0.45 None/None edge1     raw=None kept=None side a g=45.7px=774mm run=8 off=7.9 other_g=- seal=7.50
+   s17 door_0004 c0.95 single/None edge0 far raw=None kept=None side a g=41.2px=349mm run=12 off=1.2 other_g=0.0 seal=15.00
+   s17 door_0007 c0.95 single/None edge2 far raw=None kept=None side b g=59.3px=1004mm run=150 off=6.0 other_g=- seal=15.00
+   s17 door_0019 c0.95 single/None edge2 far raw=None kept=None side a g=56.4px=955mm run=136 off=7.8 other_g=- seal=15.00
+   s17 door_0020 c0.95 single/None edge3 H   raw=None kept=None side a g=30.7px=520mm run=18 off=0.2 other_g=- seal=15.00
+   s17 door_0026 c0.95 single/None edge1 H   raw=interrupted kept=interrupted side b g=44.0px=373mm run=262 off=0.0 other_g=- seal=15.00
+   s17 door_0086 c0.35 None/None edge3     raw=None kept=None side b g=36.7px=311mm run=12 off=3.5 other_g=- seal=15.00
+   s18 door_0001 c0.53 single/None edge0 H   raw=None kept=None side a g=40.7px=689mm run=7 off=7.9 other_g=- seal=7.50
+   s18 door_0005 c0.53 single/None edge0 far raw=interrupted kept=None side a g=45.8px=776mm run=6 off=6.3 other_g=7.7 seal=7.50
+   s18 door_0005 c0.53 single/None edge0 far raw=interrupted kept=None side b g=7.7px=130mm run=10 off=7.2 other_g=45.8 seal=7.50
+   s18 door_0010 c0.72 single/None edge0 H   raw=None kept=None side b g=58.5px=991mm run=6 off=6.0 other_g=0.0 seal=7.50
+   s18 door_0015 c0.48 single_line_leaf/None edge0 far raw=None kept=None side a g=23.0px=389mm run=8 off=2.5 other_g=27.5 seal=7.50
+   s18 door_0015 c0.48 single_line_leaf/None edge0 far raw=None kept=None side b g=27.5px=466mm run=6 off=7.2 other_g=23.0 seal=7.50
+   s18 door_0032 c0.27 None/None edge3     raw=None kept=None side b g=44.3px=750mm run=20 off=5.8 other_g=2.0 seal=7.50
+   s18 door_0033 c0.35 None/None edge1     raw=None kept=None side a g=35.5px=601mm run=200 off=0.0 other_g=- seal=7.50
+   s18 door_0034 c0.35 None/None edge1     raw=None kept=None side a g=31.2px=528mm run=10 off=5.5 other_g=- seal=7.50
+   s18 door_0034 c0.35 None/None edge3     raw=full kept=full side b g=39.8px=674mm run=142 off=0.0 other_g=- seal=7.50
+   s18 door_0035 c0.35 None/None edge0     raw=full kept=full side b g=44.5px=754mm run=49 off=5.8 other_g=2.0 seal=7.50
+   s18 door_0035 c0.35 None/None edge1     raw=None kept=None side b g=39.5px=669mm run=6 off=0.5 other_g=- seal=7.50
+   s18 door_0035 c0.35 None/None edge2     raw=None kept=None side b g=55.2px=935mm run=18 off=4.3 other_g=0.0 seal=7.50
+   s18 door_0035 c0.35 None/None edge3     raw=None kept=None side b g=55.2px=935mm run=18 off=6.8 other_g=0.0 seal=7.50
+   s18 door_0036 c0.35 None/None edge0     raw=None kept=None side b g=35.2px=596mm run=248 off=0.0 other_g=- seal=7.50
+   s18 door_0039 c0.35 None/None edge0     raw=full kept=full side b g=49.0px=830mm run=66 off=3.5 other_g=- seal=7.50
+   s18 door_0041 c0.35 None/None edge0     raw=full kept=full side b g=55.9px=947mm run=39 off=5.0 other_g=0.0 seal=7.50
+   s18 door_0041 c0.35 None/None edge1     raw=full kept=full side b g=55.9px=947mm run=39 off=4.0 other_g=0.0 seal=7.50
+   s18 door_0045 c0.35 None/None edge1     raw=full kept=full side a g=56.8px=962mm run=6 off=0.0 other_g=6.2 seal=7.50
+   s18 door_0046 c0.35 None/None edge0     raw=None kept=None side b g=20.5px=347mm run=30 off=1.0 other_g=- seal=7.50
+   s18 door_0055 c0.27 None/None edge2     raw=None kept=None side b g=16.6px=281mm run=612 off=2.7 other_g=- seal=7.50
+   s18 door_0075 c0.27 None/None edge3     raw=None kept=None side b g=14.1px=239mm run=612 off=0.2 other_g=- seal=7.50
+   s18 door_0269 c0.35 None/None edge0     raw=None kept=None side a g=44.7px=757mm run=6 off=6.0 other_g=- seal=7.50
+   s18 door_0269 c0.35 None/None edge2     raw=full kept=full side b g=12.4px=210mm run=30 off=8.0 other_g=- seal=7.50
+   s18 door_0271 c0.66 double_swing/garden edge2     raw=None kept=None side a g=48.3px=818mm run=22 off=2.7 other_g=0.0 seal=7.50
+
+C. s01 at 0.542: every edge end with a collinear face beyond the seal
+   door_0001 c0.67 single_line_leaf edge2 far raw=None kept=None side a g=56.1px=876mm run=62 off=5.7 other_g=- seal=8.13
+   door_0003 c0.67 single_line_leaf edge0 far raw=interrupted kept=None side a g=12.3px=192mm run=116 off=1.5 other_g=- seal=8.13
+   door_0002 c0.67 single_line_leaf edge0 H   raw=None kept=None side a g=33.5px=523mm run=199 off=0.7 other_g=0.0 seal=8.13
+   door_0012 c0.65 folding edge2     raw=interrupted kept=interrupted side b g=55.1px=860mm run=54 off=7.0 other_g=-0.0 seal=8.13
+   door_0012 c0.65 folding edge3     raw=None kept=None side a g=34.7px=542mm run=30 off=1.5 other_g=- seal=8.13

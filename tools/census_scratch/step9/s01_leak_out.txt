@@ -1,0 +1,136 @@
+
+=== identity: f=1.000 n={'door': 11, 'window': 4, 'room': 12} counts={'window': (4, 4), 'door': (11, 11), 'room': (12, 12)} lost=0 retFP=0 unrev=0
+   room bbox=(198, 920, 386, 1009) area=16362 doors=2 windows=0 conf=0.85
+   room bbox=(198, 1020, 382, 1119) area=17430 doors=2 windows=0 conf=0.85
+   room bbox=(209, 415, 521, 912) area=149908 doors=2 windows=0 conf=0.85
+   room bbox=(215, 1144, 436, 1435) area=57775 doors=1 windows=0 conf=0.82
+   room bbox=(392, 920, 521, 1387) area=33683 doors=5 windows=0 conf=0.85
+   room bbox=(466, 920, 521, 1051) area=7179 doors=1 windows=0 conf=0.85
+   room bbox=(819, 1144, 1142, 1373) area=71847 doors=1 windows=2 conf=0.90
+   room bbox=(830, 920, 1024, 1118) area=35849 doors=1 windows=1 conf=0.90
+   room bbox=(970, 409, 1142, 689) area=47316 doors=3 windows=0 conf=0.85
+   room bbox=(970, 698, 1081, 916) area=23856 doors=2 windows=0 conf=0.85
+   room bbox=(1033, 923, 1142, 1135) area=14532 doors=2 windows=0 conf=0.85
+   room bbox=(1090, 698, 1142, 878) area=9370 doors=2 windows=0 conf=0.85
+
+=== f0.542: f=0.542 n={'door': 11, 'window': 4, 'room': 26} counts={'window': (4, 4), 'door': (11, 11), 'room': (8, 12)} lost=4 retFP=0 unrev=18
+   LOST ('room', (1090, 699, 1142, 876))
+   LOST ('room', (466, 920, 521, 1056))
+   LOST ('room', (392, 922, 521, 1387))
+   LOST ('room', (1033, 925, 1142, 1134))
+   UNREV ('room', (222, 484, 263, 514), 0.7)
+   UNREV ('room', (222, 518, 263, 549), 0.657)
+   UNREV ('room', (222, 553, 263, 583), 0.7)
+   UNREV ('room', (970, 653, 1082, 687), 0.7)
+   UNREV ('room', (209, 667, 243, 702), 0.65)
+   UNREV ('room', (1032, 697, 1142, 1136), 0.849)
+   UNREV ('room', (209, 706, 243, 740), 0.65)
+   UNREV ('room', (209, 744, 243, 778), 0.7)
+   UNREV ('room', (984, 775, 1040, 792), 0.681)
+   UNREV ('room', (212, 782, 240, 817), 0.7)
+   UNREV ('room', (209, 821, 243, 856), 0.7)
+   UNREV ('room', (218, 860, 264, 894), 0.7)
+   UNREV ('room', (335, 860, 368, 894), 0.7)
+   UNREV ('room', (372, 860, 406, 894), 0.649)
+   UNREV ('room', (486, 872, 521, 906), 0.65)
+   UNREV ('room', (315, 928, 371, 945), 0.681)
+   UNREV ('room', (198, 1086, 384, 1119), 0.85)
+   UNREV ('room', (819, 1144, 1031, 1179), 0.85)
+   room bbox=(198, 920, 385, 1009) area=15154 doors=2 windows=0 conf=0.84
+   room bbox=(198, 1086, 384, 1119) area=6180 doors=1 windows=0 conf=0.85
+   room bbox=(209, 412, 521, 1389) area=164581 doors=6 windows=0 conf=0.84
+   room bbox=(209, 667, 243, 702) area=1187 doors=0 windows=0 conf=0.65
+   room bbox=(209, 706, 243, 740) area=1183 doors=0 windows=0 conf=0.65
+   room bbox=(209, 744, 243, 778) area=1190 doors=0 windows=0 conf=0.70
+   room bbox=(209, 821, 243, 856) area=1190 doors=0 windows=0 conf=0.70
+   room bbox=(210, 1020, 385, 1082) area=10630 doors=2 windows=0 conf=0.85
+   room bbox=(212, 782, 240, 817) area=966 doors=0 windows=0 conf=0.70
+   room bbox=(215, 1144, 436, 1435) area=57775 doors=1 windows=0 conf=0.82
+   room bbox=(218, 860, 264, 894) area=1568 doors=0 windows=0 conf=0.70
+   room bbox=(222, 484, 263, 514) area=1224 doors=0 windows=0 conf=0.70
+   room bbox=(222, 518, 263, 549) area=1236 doors=0 windows=0 conf=0.66
+   room bbox=(222, 553, 263, 583) area=1220 doors=0 windows=0 conf=0.70
+   room bbox=(315, 928, 371, 945) area=857 doors=0 windows=0 conf=0.68
+   room bbox=(335, 860, 368, 894) area=1132 doors=0 windows=0 conf=0.70
+   room bbox=(372, 860, 406, 894) area=1136 doors=0 windows=0 conf=0.65
+   room bbox=(486, 872, 521, 906) area=1190 doors=0 windows=0 conf=0.65
+   room bbox=(819, 1142, 1142, 1373) area=60882 doors=1 windows=2 conf=0.86
+   room bbox=(819, 1144, 1031, 1179) area=7307 doors=1 windows=0 conf=0.85
+   room bbox=(830, 920, 1026, 1118) area=35885 doors=1 windows=1 conf=0.87
+   room bbox=(970, 406, 1142, 692) area=40460 doors=2 windows=0 conf=0.83
+   room bbox=(970, 653, 1082, 687) area=3830 doors=0 windows=0 conf=0.70
+   room bbox=(970, 698, 1083, 916) area=21831 doors=1 windows=0 conf=0.84
+   room bbox=(984, 775, 1040, 792) area=857 doors=0 windows=0 conf=0.68
+   room bbox=(1032, 697, 1142, 1136) area=30896 doors=4 windows=0 conf=0.85
+
+=== door seals (identity | 0.542)
+  door_0000 conf=0.67 single_line_leaf/None bbox=(458, 1337, 512, 1392)
+      identity: plugs:interrupted@1
+      0.542   : plugs:interrupted@1
+  door_0001 conf=0.67 single_line_leaf/None bbox=(389, 1185, 440, 1232)
+      identity: plugs:interrupted@3
+      0.542   : plugs:interrupted@3
+  door_0002 conf=0.67 single_line_leaf/None bbox=(424, 917, 467, 958)
+      identity: plugs:interrupted@0,interrupted@3
+      0.542   : plugs:interrupted@3
+  door_0003 conf=0.67 single_line_leaf/None bbox=(1096, 649, 1141, 694)
+      identity: plugs:interrupted@1
+      0.542   : plugs:interrupted@1
+  door_0004 conf=0.67 single_line_leaf/None bbox=(979, 1064, 1029, 1117)
+      identity: plugs:interrupted@3
+      0.542   : plugs:interrupted@3
+  door_0005 conf=0.67 single_line_leaf/None bbox=(1036, 1139, 1090, 1189)
+      identity: plugs:interrupted@0
+      0.542   : plugs:interrupted@0
+  door_0006 conf=0.67 single_line_leaf/None bbox=(1041, 704, 1086, 749)
+      identity: plugs:interrupted@3
+      0.542   : plugs:interrupted@3
+  door_0011 conf=0.65 sliding/None bbox=(388, 1018, 398, 1118)
+      identity: plugs:full@2,full@3
+      0.542   : plugs:full@2,full@3
+  door_0012 conf=0.65 folding/None bbox=(388, 948, 412, 1011)
+      identity: plugs:interrupted@2
+      0.542   : plugs:interrupted@2
+  door_0013 conf=0.65 double_swing/garden bbox=(310, 356, 420, 410)
+      identity: (absent)
+      0.542   : plugs:interrupted@1
+  door_0014 conf=0.35 None/None bbox=(989, 394, 1123, 398)
+      identity: plugs:full@0,full@1
+      0.542   : plugs:full@0
+  door_0015 conf=0.65 double_swing/garden bbox=(310, 356, 420, 410)
+      identity: PLANE-STAMP
+      0.542   : (absent)
+  door_0016 conf=0.65 double_swing/garden bbox=(1001, 404, 1111, 458)
+      identity: plugs:full@0
+      0.542   : (absent)
+
+=== leak pieces (0.542 free space outside the identity rooms, touching >= 2 of them)
+
+  room@0.542 bbox=(209, 412, 521, 1389) piece bounds=(412.0, 912.9, 463.1, 918.8) area=285 touches identity rooms [(209, 415, 521, 912), (392, 920, 521, 1387)]
+      identity barrier inside the piece: 285 px2 of 285; 0.542 barrier inside: 3
+      identity door seal door_0002 (plugs:interrupted@0,interrupted@3) overlaps 285 px2
+      identity SEGMENT th=20.5 p1=(399.9, 906.8) p2=(400.1, 935.6) weak=None overlaps 1
+      identity FACE sw=1.50 stroked=True p1=(410.0, 891.3) p2=(410.2, 920.8) overlaps 1
+      identity FACE sw=1.50 stroked=True p1=(410.2, 917.7) p2=(203.5, 917.7) overlaps 0
+      identity FACE sw=1.50 stroked=True p1=(464.5, 917.5) p2=(523.0, 917.7) overlaps 2
+
+  room@0.542 bbox=(209, 412, 521, 1389) piece bounds=(466.5, 1052.2, 521.0, 1115.6) area=3223 touches identity rooms [(392, 920, 521, 1387), (466, 920, 521, 1051)]
+      identity barrier inside the piece: 3214 px2 of 3223; 0.542 barrier inside: 4
+      identity SEGMENT th=28.0 p1=(509.0, 1114.8) p2=(509.0, 1051.3) weak=None overlaps 1735
+      identity SEGMENT th=30.8 p1=(479.7, 1051.2) p2=(479.6, 1114.7) weak=None overlaps 1731
+      identity FACE sw=1.50 stroked=True p1=(495.0, 1114.8) p2=(495.0, 1051.3) overlaps 250
+
+  room@0.542 bbox=(209, 412, 521, 1389) piece bounds=(463.4, 927.3, 464.8, 956.6) area=20 touches identity rooms [(392, 920, 521, 1387), (466, 920, 521, 1051)]
+      identity barrier inside the piece: 20 px2 of 20; 0.542 barrier inside: 1
+      identity door seal door_0002 (plugs:interrupted@0,interrupted@3) overlaps 20 px2
+      identity FACE sw=1.50 stroked=True p1=(464.5, 957.5) p2=(464.2, 1114.8) overlaps 1
+
+  room@0.542 bbox=(1032, 697, 1142, 1136) piece bounds=(1059.4, 878.5, 1142.0, 926.5) area=2319 touches identity rooms [(1090, 698, 1142, 878), (1033, 923, 1142, 1135)]
+      identity barrier inside the piece: 2294 px2 of 2319; 0.542 barrier inside: 12
+      identity SEGMENT th=7.2 p1=(967.7, 921.9) p2=(1098.1, 921.9) weak=None overlaps 93
+      identity SEGMENT th=28.2 p1=(1129.9, 877.5) p2=(1129.9, 923.3) weak=None overlaps 1238
+      identity SEGMENT th=35.2 p1=(1098.1, 877.5) p2=(1098.1, 921.9) weak=None overlaps 1178
+      identity FACE sw=1.50 stroked=True p1=(1031.2, 923.3) p2=(1088.7, 923.3) overlaps 0
+      identity FACE sw=1.50 stroked=True p1=(1144.0, 625.2) p2=(1144.0, 1375.2) overlaps 0
+      identity FACE sw=1.50 stroked=True p1=(1115.7, 923.3) p2=(1115.7, 877.5) overlaps 176
+      identity FACE sw=1.50 stroked=True p1=(1071.8, 918.3) p2=(1107.0, 918.3) overlaps 73

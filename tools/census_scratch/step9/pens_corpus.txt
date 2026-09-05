@@ -1,0 +1,26 @@
+=== s02 f=1.000: paired stroked length 10884px, stroke_ref=1.50, segments=118
+   pen=(0.0, 0.0, 0.0) paired=10188 (93.6%) WALL PEN   all faces of this pen=23688
+   pen=(0.54, 0.69, 0.72) paired=696 (6.4%) not   all faces of this pen=696
+=== s03 f=1.000: paired stroked length 38909px, stroke_ref=1.50, segments=72
+   pen=(0.0, 0.0, 0.0) paired=21490 (55.2%) WALL PEN   all faces of this pen=26611
+   pen=(0.58, 0.58, 0.6) paired=13366 (34.4%) WALL PEN   all faces of this pen=14043
+   pen=(0.73, 0.73, 0.73) paired=4054 (10.4%) not   all faces of this pen=4134
+=== s04 f=1.000: paired stroked length 20871px, stroke_ref=1.19, segments=23
+   pen=(0.0, 0.0, 0.0) paired=10518 (50.4%) WALL PEN   all faces of this pen=11917
+   pen=(0.6, 0.6, 0.6) paired=10354 (49.6%) WALL PEN   all faces of this pen=11026
+=== s05 f=0.500: paired stroked length 11669px, stroke_ref=1.00, segments=91
+   pen=(0.0, 0.0, 0.0) paired=11669 (100.0%) WALL PEN   all faces of this pen=12754
+=== s08 f=1.000: paired stroked length 20650px, stroke_ref=1.00, segments=22
+   pen=(0.6, 0.6, 0.6) paired=11714 (56.7%) WALL PEN   all faces of this pen=11923
+   pen=(0.0, 0.0, 0.0) paired=8936 (43.3%) WALL PEN   all faces of this pen=11756
+=== s10 f=1.000: paired stroked length 19653px, stroke_ref=2.75, segments=79
+   pen=(0.0, 0.0, 0.0) paired=19653 (100.0%) WALL PEN   all faces of this pen=21613
+=== s15 f=1.000: paired stroked length 41781px, stroke_ref=1.50, segments=140
+   pen=(0.0, 0.0, 0.0) paired=41781 (100.0%) WALL PEN   all faces of this pen=52004
+=== s17 f=1.000: paired stroked length 51398px, stroke_ref=1.50, segments=139
+   pen=(0.0, 0.0, 0.0) paired=50979 (99.2%) WALL PEN   all faces of this pen=57004
+   pen=(1.0, 0.5, 0.0) paired=419 (0.8%) not   all faces of this pen=1627
+=== s18 f=0.500: paired stroked length 41324px, stroke_ref=1.75, segments=487
+   pen=(0.0, 0.0, 0.0) paired=41324 (100.0%) WALL PEN   all faces of this pen=52020
+=== s20 f=1.000: paired stroked length 17465px, stroke_ref=3.00, segments=39
+   pen=(0.0, 0.0, 0.0) paired=17465 (100.0%) WALL PEN   all faces of this pen=21314

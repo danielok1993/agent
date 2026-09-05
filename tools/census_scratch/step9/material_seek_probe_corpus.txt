@@ -1,0 +1,68 @@
+
+=== s01 f=1.000 seal=15.00 half=5.00 cap=300.0mm
+  un-anchored hinge-edge ends: 5, with full material within 300mm: 0
+
+=== s01 f=0.542 seal=8.13 half=2.71 cap=300.0mm
+  door_0002 c0.67 single_line_leaf edge0 side a raw=None kept=None local_touch=10.0 full_touch=10px=156mm  hits: face sw1.50 L30 @90deg
+  un-anchored hinge-edge ends: 5, with full material within 300mm: 1
+
+=== s02 f=1.000 seal=15.00 half=5.00 cap=300.0mm
+  un-anchored hinge-edge ends: 7, with full material within 300mm: 0
+
+=== s03 f=1.000 seal=15.00 half=5.00 cap=300.0mm
+  un-anchored hinge-edge ends: 10, with full material within 300mm: 0
+
+=== s04 f=1.000 seal=15.00 half=5.00 cap=300.0mm
+  un-anchored hinge-edge ends: 3, with full material within 300mm: 0
+
+=== s05 f=0.500 seal=7.50 half=2.50 cap=300.0mm
+  un-anchored hinge-edge ends: 6, with full material within 300mm: 0
+
+=== s06 f=0.500 seal=7.50 half=2.50 cap=300.0mm
+  un-anchored hinge-edge ends: 7, with full material within 300mm: 0
+
+=== s07 f=0.500 seal=7.50 half=2.50 cap=300.0mm
+  un-anchored hinge-edge ends: 2, with full material within 300mm: 0
+
+=== s08 f=1.000 seal=15.00 half=5.00 cap=300.0mm
+  un-anchored hinge-edge ends: 2, with full material within 300mm: 0
+
+=== s10 f=1.000 seal=15.00 half=5.00 cap=300.0mm
+  door_0009 c0.67 single_line_leaf edge2 side a raw=None kept=None local_touch=None full_touch=0px=0mm  hits: ?
+  un-anchored hinge-edge ends: 11, with full material within 300mm: 1
+
+=== s11 f=0.500 seal=7.50 half=2.50 cap=300.0mm
+  un-anchored hinge-edge ends: 13, with full material within 300mm: 0
+
+=== s12 f=0.500 seal=7.50 half=2.50 cap=300.0mm
+  un-anchored hinge-edge ends: 6, with full material within 300mm: 0
+
+=== s13 f=0.367 seal=5.50 half=2.00 cap=300.0mm
+  un-anchored hinge-edge ends: 9, with full material within 300mm: 0
+
+=== s14 f=1.000 seal=15.00 half=5.00 cap=300.0mm
+  door_0007 c0.72 single edge0 side b raw=None kept=None local_touch=None full_touch=35px=296mm  hits: face sw0.00 L22 @45deg; face sw0.00 L22 @45deg
+  door_0013 c0.72 single edge3 side b raw=None kept=None local_touch=None full_touch=18px=152mm  hits: door-seal (1019, 2835, 1107, 2923)
+  door_0011 c0.72 single edge0 side a raw=None kept=None local_touch=19.0 full_touch=19px=161mm  hits: face sw0.00 L14 @90deg; door-seal (2767, 1276, 2790, 1278)
+  door_0011 c0.72 single edge3 side b raw=None kept=None local_touch=None full_touch=24px=203mm  hits: door-seal (2908, 1386, 3008, 1485)
+  un-anchored hinge-edge ends: 29, with full material within 300mm: 4
+
+=== s15 f=1.000 seal=15.00 half=5.00 cap=300.0mm
+  un-anchored hinge-edge ends: 4, with full material within 300mm: 0
+
+=== s16 f=0.500 seal=7.50 half=2.50 cap=300.0mm
+  door_0004 c0.67 single_line_leaf edge3 side a raw=None kept=None local_touch=None full_touch=0px=0mm  hits: face sw1.13 L6 @83deg; face sw1.13 L7 @77deg; door-seal (921, 1239, 959, 1279)
+  door_0003 c0.67 single_line_leaf edge3 side b raw=None kept=None local_touch=None full_touch=0px=0mm  hits: face sw1.13 L6 @83deg; face sw1.13 L7 @77deg; door-seal (921, 1280, 959, 1320)
+  un-anchored hinge-edge ends: 17, with full material within 300mm: 2
+
+=== s17 f=1.000 seal=15.00 half=5.00 cap=300.0mm
+  un-anchored hinge-edge ends: 20, with full material within 300mm: 0
+
+=== s18 f=0.500 seal=7.50 half=2.50 cap=300.0mm
+  door_0018 c0.67 single_line_leaf edge3 side a raw=None kept=None local_touch=11.0 full_touch=11px=186mm  hits: face sw1.75 L139 @90deg
+  un-anchored hinge-edge ends: 10, with full material within 300mm: 1
+
+=== s20 f=1.000 seal=15.00 half=5.00 cap=300.0mm
+  door_0003 c0.72 single edge3 side a raw=None kept=None local_touch=None full_touch=3px=25mm  hits: door-seal (638, 822, 735, 919)
+  door_0004 c0.72 single edge3 side b raw=None kept=None local_touch=None full_touch=3px=25mm  hits: door-seal (638, 927, 735, 1024)
+  un-anchored hinge-edge ends: 11, with full material within 300mm: 2

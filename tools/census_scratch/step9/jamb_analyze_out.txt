@@ -1,0 +1,199 @@
+records 2173
+
+KEPT interrupted plugs on doors >= 0.55: 198
+  jamb gap (corner -> dilated material) mm at TRUE scale: n=378 median=0 p75=17 p90=34 max=219
+  top 25:
+      219 mm  s01 door_0003 edge1 side a  gap_px=14 seal=15.00 half=5.00 f=1.000
+      203 mm  s01 door_0006 edge3 side a  gap_px=13 seal=15.00 half=5.00 f=1.000
+      203 mm  s01 door_0002 edge0 side a  gap_px=13 seal=15.00 half=5.00 f=1.000
+      187 mm  s01 door_0001 edge3 side a  gap_px=12 seal=15.00 half=5.00 f=1.000
+      135 mm  s05 door_0007 edge2 side a  gap_px=8 seal=7.50 half=2.50 f=0.500
+      110 mm  s17 door_0008 edge0 side b  gap_px=13 seal=15.00 half=5.00 f=1.000
+      102 mm  s18 door_0017 edge2 side b  gap_px=6 seal=7.50 half=2.50 f=0.500
+      102 mm  s18 door_0017 edge2 side a  gap_px=6 seal=7.50 half=2.50 f=0.500
+      102 mm  s08 door_0003 edge1 side b  gap_px=12 seal=15.00 half=5.00 f=1.000
+       85 mm  s14 door_0013 edge2 side a  gap_px=10 seal=15.00 half=5.00 f=1.000
+       85 mm  s02 door_0006 edge3 side b  gap_px=10 seal=15.00 half=5.00 f=1.000
+       51 mm  s11 door_0010 edge2 side a  gap_px=3 seal=7.50 half=2.50 f=0.500
+       42 mm  s10 door_0013 edge1 side a  gap_px=5 seal=15.00 half=5.00 f=1.000
+       42 mm  s10 door_0008 edge3 side a  gap_px=5 seal=15.00 half=5.00 f=1.000
+       42 mm  s10 door_0007 edge0 side b  gap_px=5 seal=15.00 half=5.00 f=1.000
+       42 mm  s10 door_0006 edge2 side a  gap_px=5 seal=15.00 half=5.00 f=1.000
+       42 mm  s10 door_0004 edge2 side a  gap_px=5 seal=15.00 half=5.00 f=1.000
+       42 mm  s10 door_0001 edge1 side a  gap_px=5 seal=15.00 half=5.00 f=1.000
+       42 mm  s08 door_0003 edge3 side b  gap_px=5 seal=15.00 half=5.00 f=1.000
+       42 mm  s08 door_0003 edge3 side a  gap_px=5 seal=15.00 half=5.00 f=1.000
+       34 mm  s16 door_0015 edge0 side b  gap_px=2 seal=7.50 half=2.50 f=0.500
+       34 mm  s16 door_0012 edge1 side a  gap_px=2 seal=7.50 half=2.50 f=0.500
+       34 mm  s16 door_0007 edge1 side a  gap_px=2 seal=7.50 half=2.50 f=0.500
+       34 mm  s16 door_0005 edge2 side b  gap_px=2 seal=7.50 half=2.50 f=0.500
+       34 mm  s16 door_0000 edge1 side b  gap_px=2 seal=7.50 half=2.50 f=0.500
+  per sheet max mm: {'s01': 219, 's02': 85, 's03': 0, 's04': 17, 's05': 135, 's06': 0, 's07': 34, 's08': 102, 's10': 42, 's11': 51, 's12': 0, 's13': 23, 's14': 85, 's15': 34, 's16': 34, 's17': 110, 's18': 102, 's20': 25}
+  ends with gap 0 (material already at the corner): 255/378
+
+Non-qualifying hinge edges of doors >= 0.55 (no raw plug): gap at each end, mm
+   s01 door_0000 single_line_leaf edge2  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s01 door_0001 single_line_leaf edge1  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s01 door_0005 single_line_leaf edge2  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s01 door_0006 single_line_leaf edge0  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s01 door_0012 folding edge0  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s01 door_0012 folding edge1  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s01 door_0012 folding edge3  gap_a=203 mm (13.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s01 door_0015 double_swing edge1  gap_a=281 mm (18.0 px)  gap_b=281 mm (18.0 px)  seal=15.00 half=5.00
+   s02 door_0000 single edge2  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s02 door_0001 single edge0  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s02 door_0002 single edge0  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s02 door_0003 single edge3  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s02 door_0005 single edge1  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s02 door_0009 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s02 door_0016 folding edge0  gap_a=110 mm (13.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s02 door_0016 folding edge1  gap_a=110 mm (13.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s02 door_0016 folding edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s02 door_0017 folding edge1  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s02 door_0017 folding edge2  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s02 door_0017 folding edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s02 door_0018 folding edge0  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s02 door_0018 folding edge2  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s03 door_0002 single edge0  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s03 door_0006 single edge2  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s03 door_0007 single edge0  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s03 door_0008 single edge2  gap_a=85 mm (5.0 px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s03 door_0009 single edge1  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s03 door_0010 single edge1  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s03 door_0011 single edge3  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s03 door_0012 single edge3  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s03 door_0013 single edge3  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s03 door_0018 single edge1  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s03 door_0019 single edge1  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s04 door_0000 single_line_leaf edge1  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s04 door_0001 single_line_leaf edge1  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s04 door_0002 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s04 door_0003 sliding edge2  gap_a=0 mm (0.0 px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s04 door_0003 sliding edge3  gap_a=0 mm (0.0 px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s05 door_0000 single edge0  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s05 door_0001 single edge1  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s05 door_0002 single edge3  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s05 door_0003 single edge3  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s05 door_0005 single edge1  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s05 door_0006 single edge0  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s06 door_0001 single_line_leaf edge0  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s06 door_0005 single_line_leaf edge0  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s06 door_0008 single_line_leaf edge0  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s06 door_0009 single_line_leaf edge1  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s07 door_0001 single_line_leaf edge2  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s07 door_0005 single_line_leaf edge2  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s08 door_0000 single_line_leaf edge1  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s08 door_0004 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s10 door_0000 single edge1  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s10 door_0000 single edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s10 door_0001 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s10 door_0005 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s10 door_0007 single_line_leaf edge2  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s10 door_0009 single_line_leaf edge2  gap_a=- mm (None px)  gap_b=17 mm (2.0 px)  seal=15.00 half=5.00
+   s10 door_0011 single_line_leaf edge2  gap_a=- mm (None px)  gap_b=169 mm (20.0 px)  seal=15.00 half=5.00
+   s10 door_0012 single_line_leaf edge1  gap_a=25 mm (3.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s10 door_0013 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s10 door_0014 single_line_leaf edge1  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s11 door_0001 single_line_leaf edge0  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s11 door_0002 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s11 door_0003 single_line_leaf edge3  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s11 door_0008 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s11 door_0010 single_line_leaf edge1  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s11 door_0011 single_line_leaf edge2  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s11 door_0012 single_line_leaf edge1  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s11 door_0013 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s11 door_0014 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s11 door_0015 single_line_leaf edge1  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s11 door_0016 single_line_leaf edge1  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s11 door_0017 single_line_leaf edge1  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s12 door_0001 single edge0  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s12 door_0002 single edge1  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s12 door_0004 single edge3  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s12 door_0005 single edge0  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s12 door_0006 single edge3  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s13 door_0001 single_line_leaf edge0  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=5.50 half=2.00
+   s13 door_0005 single_line_leaf edge0  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=5.50 half=2.00
+   s13 door_0008 single_line_leaf edge0  gap_a=- mm (None px)  gap_b=69 mm (3.0 px)  seal=5.50 half=2.00
+   s13 door_0009 single_line_leaf edge1  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=5.50 half=2.00
+   s13 door_0012 single_line_leaf edge1  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=5.50 half=2.00
+   s14 door_0000 single edge0  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0001 single edge0  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0001 single edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0004 single edge1  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0004 single edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0005 single edge0  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0005 single edge2  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0006 single edge0  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0006 single edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0007 single edge0  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0008 single edge0  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0008 single edge3  gap_a=119 mm (14.0 px)  gap_b=17 mm (2.0 px)  seal=15.00 half=5.00
+   s14 door_0010 single edge0  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0010 single edge2  gap_a=17 mm (2.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0011 single edge0  gap_a=203 mm (24.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0011 single edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0013 single edge1  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0013 single edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0057 double_swing edge1  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s14 door_0058 double_swing edge3  gap_a=- mm (None px)  gap_b=17 mm (2.0 px)  seal=15.00 half=5.00
+   s15 door_0003 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s15 door_0005 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s15 door_0010 single_line_leaf edge0  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s15 door_0013 single_line_leaf edge2  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s16 door_0000 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s16 door_0002 single_line_leaf edge2  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s16 door_0003 single_line_leaf edge0  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s16 door_0003 single_line_leaf edge3  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s16 door_0004 single_line_leaf edge1  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s16 door_0004 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s16 door_0005 single_line_leaf edge0  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s16 door_0006 single_line_leaf edge3  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s16 door_0007 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s16 door_0010 single_line_leaf edge0  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s16 door_0011 single_line_leaf edge1  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s16 door_0012 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s16 door_0013 single_line_leaf edge1  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s16 door_0014 single_line_leaf edge1  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s16 door_0015 single_line_leaf edge2  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s16 door_0016 single_line_leaf edge3  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s16 door_0017 single_line_leaf edge1  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s17 door_0000 single edge0  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s17 door_0001 single edge1  gap_a=0 mm (0.0 px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s17 door_0001 single edge3  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s17 door_0004 single edge1  gap_a=169 mm (20.0 px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s17 door_0010 single edge1  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s17 door_0011 single edge0  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s17 door_0015 single edge2  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s17 door_0017 single edge3  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s17 door_0020 single edge3  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s17 door_0022 single edge0  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s17 door_0023 single edge0  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s17 door_0026 single edge2  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s17 door_0027 single edge2  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s17 door_0028 single edge0  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s17 door_0029 single edge3  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s17 door_0031 single edge3  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s17 door_0033 single edge3  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s17 door_0034 single edge3  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s17 door_0035 single edge0  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=15.00 half=5.00
+   s17 door_0036 single edge0  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s18 door_0000 single edge2  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s18 door_0002 single edge1  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s18 door_0002 single edge3  gap_a=- mm (None px)  gap_b=102 mm (6.0 px)  seal=7.50 half=2.50
+   s18 door_0010 single edge0  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s18 door_0016 single_line_leaf edge0  gap_a=- mm (None px)  gap_b=0 mm (0.0 px)  seal=7.50 half=2.50
+   s18 door_0018 single_line_leaf edge1  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s18 door_0018 single_line_leaf edge3  gap_a=220 mm (13.0 px)  gap_b=68 mm (4.0 px)  seal=7.50 half=2.50
+   s18 door_0021 single_line_leaf edge1  gap_a=- mm (None px)  gap_b=17 mm (1.0 px)  seal=7.50 half=2.50
+   s18 door_0021 single_line_leaf edge2  gap_a=0 mm (0.0 px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s18 door_0271 double_swing edge2  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=7.50 half=2.50
+   s20 door_0000 single edge1  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s20 door_0001 single edge2  gap_a=- mm (None px)  gap_b=178 mm (21.0 px)  seal=15.00 half=5.00
+   s20 door_0002 single edge1  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s20 door_0002 single edge3  gap_a=25 mm (3.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s20 door_0003 single edge1  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s20 door_0003 single edge3  gap_a=- mm (None px)  gap_b=25 mm (3.0 px)  seal=15.00 half=5.00
+   s20 door_0004 single edge0  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s20 door_0004 single edge3  gap_a=25 mm (3.0 px)  gap_b=- mm (None px)  seal=15.00 half=5.00
+   s20 door_0005 single edge2  gap_a=- mm (None px)  gap_b=178 mm (21.0 px)  seal=15.00 half=5.00
+   s20 door_0006 single edge1  gap_a=- mm (None px)  gap_b=- mm (None px)  seal=15.00 half=5.00

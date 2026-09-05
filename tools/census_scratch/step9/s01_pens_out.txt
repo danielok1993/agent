@@ -1,0 +1,25 @@
+
+=== s01 f=1.000: paired stroked length 16042px, stroke_ref=1.50, segments=88
+   pen=(0.0, 0.0, 0.0) paired=8991 (56.0%) WALL PEN   all faces of this pen=10405
+   pen=(0.75, 0.0, 1.0) paired=3740 (23.3%) WALL PEN   all faces of this pen=5001
+   pen=(1.0, 0.0, 0.0) paired=2203 (13.7%) not   all faces of this pen=4694
+   pen=(0.0, 0.0, 1.0) paired=1108 (6.9%) not   all faces of this pen=1790
+   segs pens=('(0.0, 0.0, 0.0)',) tier=plain: n=37 len=3195 th=[5.2, 5.8, 6.2, 6.5, 7.0, 7.2, 8.5, 8.8]
+   segs pens=('(0.0, 0.0, 1.0)', '(0.75, 0.0, 1.0)') tier=plain: n=4 len=1058 th=[7.0, 12.8, 19.2]
+   segs pens=('(1.0, 0.0, 0.0)',) tier=plain: n=28 len=969 th=[5.8, 6.0, 6.2, 6.5, 10.8, 12.8, 18.0, 18.2]
+   segs pens=('(0.0, 0.0, 0.0)', '(0.75, 0.0, 1.0)') tier=plain: n=2 len=662 th=[7.2, 19.2]
+   segs pens=('(0.75, 0.0, 1.0)',) tier=plain: n=9 len=539 th=[6.2, 7.0, 8.5, 9.2, 19.2]
+   segs pens=('(0.0, 0.0, 1.0)',) tier=plain: n=7 len=296 th=[8.8, 9.5, 18.0, 19.2, 29.5]
+   segs pens=('(0.0, 0.0, 0.0)', '(0.0, 0.0, 1.0)') tier=plain: n=1 len=245 th=[22.0]
+
+=== s01 f=0.542: paired stroked length 15853px, stroke_ref=1.50, segments=98
+   pen=(0.0, 0.0, 0.0) paired=8292 (52.3%) WALL PEN   all faces of this pen=11020
+   pen=(0.75, 0.0, 1.0) paired=4327 (27.3%) WALL PEN   all faces of this pen=6511
+   pen=(1.0, 0.0, 0.0) paired=2409 (15.2%) WALL PEN   all faces of this pen=5410
+   pen=(0.0, 0.0, 1.0) paired=825 (5.2%) not   all faces of this pen=2347
+   segs pens=('(0.0, 0.0, 0.0)',) tier=plain: n=39 len=3202 th=[2.8, 3.0, 3.2, 5.2, 5.5, 5.8, 6.2, 6.5]
+   segs pens=('(1.0, 0.0, 0.0)',) tier=plain: n=33 len=1155 th=[2.5, 2.8, 3.0, 3.2, 3.5, 3.8, 4.0, 4.8]
+   segs pens=('(0.0, 0.0, 1.0)', '(0.75, 0.0, 1.0)') tier=plain: n=5 len=1117 th=[7.0, 10.8, 12.8, 19.2]
+   segs pens=('(0.0, 0.0, 0.0)', '(0.75, 0.0, 1.0)') tier=plain: n=2 len=666 th=[7.2, 19.2]
+   segs pens=('(0.75, 0.0, 1.0)',) tier=plain: n=14 len=596 th=[3.0, 3.8, 6.2, 7.0, 8.0, 8.5, 9.2, 12.2]
+   segs pens=('(0.0, 0.0, 1.0)',) tier=plain: n=5 len=190 th=[8.8, 9.5, 18.0, 19.2]

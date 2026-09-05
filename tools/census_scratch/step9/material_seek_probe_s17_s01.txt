@@ -1,0 +1,10 @@
+=== s17 f=1.000 seal=15.00 half=5.00 cap=300.0mm
+  door_0020 c0.95 single edge3 side a raw=None kept=None local_touch=None full_touch=0px=0mm  hits: ?
+  door_0001 c0.83 single edge3 side a raw=None kept=None local_touch=None full_touch=0px=0mm  hits: ?
+  un-anchored hinge-edge ends: 20, with full material within 300mm: 2
+=== s01 f=1.000 seal=15.00 half=5.00 cap=300.0mm
+  door_0006 c0.67 single_line_leaf edge0 side b raw=None kept=None local_touch=None full_touch=0px=0mm  hits: face sw1.00 L17 @45deg; face sw1.50 L14 @90deg
+  un-anchored hinge-edge ends: 5, with full material within 300mm: 1
+=== s01 f=0.542 seal=8.13 half=2.71 cap=300.0mm
+  door_0002 c0.67 single_line_leaf edge0 side a raw=None kept=None local_touch=10.0 full_touch=10px=156mm  hits: face sw1.50 L30 @90deg
+  un-anchored hinge-edge ends: 5, with full material within 300mm: 1
