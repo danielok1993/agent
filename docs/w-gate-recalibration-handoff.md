@@ -1663,3 +1663,125 @@ separating pen rule — agreed by both.
 > planning-portal id; commit messages carry no Co-Authored-By or session
 > trailer. End every report with the numbers: lost, returned FPs, new
 > REVIEW lines with your verdicts, net phantom delta, and what is next.
+
+## Outcome — iteration 3, step 10 (2026-09-05, branch `fix/material-seeking-plug-tail`, shipped pending the user's decision)
+
+The MATERIAL-SEEKING TAIL (`detection/rooms.py`: `ROOM_PLUG_JAMB_SEEK_PX`
+29.5 = 250mm W-class, `_seek_edges`, `_edge_profile`, `_seek_jamb`,
+`_door_plugs(seek_edges=)`; `_clip_plug_tails` takes a sought tail's own
+extent as its reach; the `local` clip widened to SEEK + anchor window +
+NEAR + 4 and proven inert alone — corpus byte-identical). Rule: on a hinge
+edge of a ≥ 0.55 single whose fixed profile anchors at exactly one end,
+seek the nearest wall material outward from the failing corner within the
+cap (the material buffered by the plug half-width, cut by the edge's ray —
+phase-free; the envelope starts at the corner, so a touch inside the fixed
+reach whose anchor window straddled the corner seeks too), extend that
+end's reach to the hit plus the anchor window, re-profile; interrupted
+only. Ten tests (`TestJambSeekingTail`), every guard bite-proven; the
+one-end-anchored precondition is redundant with the re-profile's both-ends
+check. Harness s01 at 0.542: rooms 8/12 → **9/12 (the hall)**, the same 18
+unreviewed, doors/windows 11/4. Corpus sweep: **0 LOST, 68 returned FPs, 0
+REVIEW**, verdict-identical; `seek_census.py` (the rule as implemented, every
+door on 18 sheets with/without the seek): 4 doors change, every hit a
+perpendicular wall at 76–178mm — s01 door_0002 @0.542, s14 door_0008 (76mm,
+the straddling-window class; polygons identical), s17 door_0004 (121mm; the
+confirmed `partial` room_0018 stops at the closed leaf instead of wrapping
+under it into the threshold, −1,163 px², IoU vs verdict 0.545 → 0.572) and
+s18 door_0018 (178mm; rooms 0002/0003 +695/+30). 17 sheets polygon-
+identical, s01/s02 untouched at f=1.0, nothing appears or vanishes. Report
+`docs/w-gate-iter3-checkpoints/step-10.md` (4 PNGs). Not committed.
+
+### Prompt for the next agent (iteration 3, step 11 — the wall-pen discriminator — fresh context)
+
+> Use `/fix-detection` for its discipline. Topic branch from
+> `fix/material-seeking-plug-tail` once the user has committed it (else from
+> `recal/s01-true-factor`; `git log --all --oneline | head`; main is still
+> `ee0f52f`). Re-sweep that tree first in four background groups (s18; s16
+> s11 s15; s01–s07; the rest) and `compare_sweeps --snapshot` all 20 slugs,
+> never trusting what sits in `outputs/regress/`. Verdict reports diffed
+> section-wise; `tools/diff_room_polygons.py` after EVERY sweep;
+> `tools/room_shape_crop.py` for every room whose IoU moved under 0.99; a
+> scratch UNSIMPLIFIED diff whenever any room loses area; harness overrides
+> as MULTIPLIERS. Read first, in this order: `docs/w-gate-iter3-checkpoints/
+> step-10.md`, `step-9.md` (§2 and the review section), this handoff's
+> iteration-3 outcome sections, the CLAUDE.md paragraphs "Room detection"
+> (the wall-pen block: search `ROOM_WALL_PEN_MIN_FRAC` and `_pens_compatible`)
+> and "Wall/room world-space gates", `detection/rooms.py::detect_rooms`'s
+> wall-pen block, `docs/regression-testing-guide.md` §9 §10 §12 §13. The
+> step-9/10 scratch tooling is in `tools/census_scratch/step9/` (README):
+> `s01_pens.py [slug]` (per-pen PAIRED stroked face length, the gate's input;
+> `pens_corpus.txt`), `s01_phantoms.py` (the 17 red-fenced rooms at 0.542),
+> `s01_common.run_tapped`, `seek_census.py`; the harness cache is
+> `tools/census_scratch/cache/`.
+>
+> **Tree state**: seal 15, `_plane_stamp`, the seeking tail; corpus 0 LOST /
+> 68 returned FPs / 0 REVIEW; s01 detects at identity; at 0.542 in the
+> harness s01 reads doors 11/11, windows 4/4, rooms 9/12 (the three stair
+> verdicts the user will retire by hand) with 18 unreviewed: 17 phantoms
+> fenced by the RED furniture pen (1,0,0) — 12 kitchen-unit / sofa-cushion
+> cells of 0.24–0.38 m², 2 slivers, 1 strip, 2 room splits — plus the real
+> merged landing (1032,697)–(1142,1136).
+>
+> **This step: a WALL-PEN DISCRIMINATOR for colour-coded sheets.** The room
+> stage makes a pen a wall pen when its PAIRED stroked face length reaches
+> `ROOM_WALL_PEN_MIN_FRAC` (0.15) of the network's total; s01's red pen sits
+> at 13.7 % at identity and 15.2 % at 0.542 (33 thin same-pen sofa/bed pairs
+> at th 2.5–4.8 appear while black loses 700px and blue 283px) — a knife-edge
+> on both sides, and 0.16 alone clears the 17 phantoms but is a 1.05× number.
+> Both candidates step 9 proposed were REFUTED on the other multi-pen sheets
+> by the reviewer: a hatched-band share (fails the true unhatched wall pens
+> of s02/s04/s08/s12) and the longest paired run (s03's NON-wall 0.73-grey
+> pen reaches 491.5px while s02/s03 black stop at 430.6/462.0). Census EVERY
+> multi-pen sheet — s01 (identity AND 0.542), s02, s03, s04, s08, s12, s17 —
+> per pen and per paired segment before proposing anything: share of the
+> paired length, share carrying wall MATERIAL (hatch marks per 100px,
+> `_band_has_wall_material`'s input), thickness distribution of the pairs
+> (s01's red pairs at 0.542 are 2.5–4.8px — under any real wall; s02's
+> joinery pen?), whether a pen's pairs ever close a room-sized loop on their
+> own, whether its faces ever carry a door/window opening (a wall pen's
+> runs are interrupted by openings; a furniture pen's never are), the pen's
+> share of the page's LONE barrier faces vs paired faces, and what each pen
+> is on each sheet (the true class: s03 grey 0.58 / s04 s08 grey 0.6 / s12
+> grey 40.9 % are EXISTING-wall pens; the false class: s01 red, s02 joinery
+> 6.4 %, s03 grey 0.73 at 10.4 %, s17 orange 0.8 %). State the drawing
+> convention ("a wall pen's runs are cut by the sheet's openings" or
+> whatever the census supports with ≥ 1.5× margins on ≥ 2 sheets each
+> side), pin it with a synthetic test that fails on the old code, build it,
+> and prove: harness s01 at 0.542 with 0 red-fenced rooms (9/12, 1
+> unreviewed — the landing) and the corpus sweep verdict-identical with
+> s01/s02 at f=1.0 entity- and polygon-identical. If no convention separates
+> with margin, report the census and STOP — the number 0.16 is not a rule.
+>
+> **After it (each its own iteration)**: narrow `_gate_denominator` (s01 at
+> 0.542 keeps 11 doors, 4 windows, the hall and every remaining confirmed
+> room; the user retires the three stair verdicts by hand then and
+> re-reviews the merged landing through `tools/review.py`); then step 4
+> (`WALL_MAX_THICKNESS_PX` 36 → 40: the s11 recess box (1030,1330)–
+> (1123,1360), s15 annotation pocket (1480,698)–(1595,792) and s18 tree
+> strip (156,724)–(197,863) must stay out; expected −5 recorded phantoms on
+> s16/s17); then the long queue (same-line tail material for s17 door_0016,
+> phase-invariant plug profiles, the dash-row text-mask join, the fallback
+> in-wall gate on tail-less plugs, band pockets / the recess class, Gap D of
+> `docs/hatch-cell-chords-handoff.md`, a jamb-scale floor for lining rings,
+> the lattice knife-edges, an open-arrowhead stair recognizer, interior
+> rings in the exported room polygon, s18's glyph-outline fill rings).
+>
+> Rules for the whole run: do not commit (the user commits); do not edit
+> `tests/ground_truth/*.json` or `fixtures/MANIFEST.json` without an
+> explicit go for that specific entry; never revert s01's truth scale
+> (1:92.2); never `git stash`; macOS has no `timeout`; python is not on the
+> shell path — use `.venv/bin/python` with an ABSOLUTE path in background
+> commands (the cwd resets); the venv lacks InquirerPy; a Gemini label
+> reseed needs `gcloud auth application-default login` in the user's prompt
+> when it reports "Reauthentication is needed"; s01 and s02 at f = 1.0 must
+> not change (entity set AND polygons) until `_gate_denominator` deliberately
+> moves s01, and any move is reported as a decision; probe with the FULL wall
+> material and the room stage's real barrier rules, never an approximation;
+> census the rule AS IMPLEMENTED (with/without it on the pipeline's exact
+> inputs — `seek_census.py`'s pattern), not only the pre-build probe; never
+> import `crop_s01.py`-style scratch scripts that render at import (guard
+> under `__main__`); PNG crops go under `docs/w-gate-iter3-checkpoints/` and
+> must never show a street address or planning-portal id; commit messages
+> carry no Co-Authored-By or session trailer. End every report with the
+> numbers: lost, returned FPs, new REVIEW lines with your verdicts, net
+> phantom delta, and what is next.

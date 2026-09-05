@@ -18,8 +18,8 @@ def run_tapped(page, factor, mult=None):
         rooms._clip_plug_tails, rooms._plane_stamp, rooms._folding_chain_gap_plug,
         rooms._free_space_components, rooms._door_plugs)
 
-    def tap_plugs(bbox, wall_material, skip_edges=frozenset(), *, gates=rooms.ROOM_GATES_UNSCALED):
-        out = o_plugs(bbox, wall_material, skip_edges, gates=gates)
+    def tap_plugs(bbox, wall_material, skip_edges=frozenset(), *, gates=rooms.ROOM_GATES_UNSCALED, **kw):
+        out = o_plugs(bbox, wall_material, skip_edges, gates=gates, **kw)
         plug_calls.append((tuple(bbox), wall_material, frozenset(skip_edges), gates, out))
         return out
 

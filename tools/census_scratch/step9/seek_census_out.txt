@@ -1,0 +1,67 @@
+
+=== s01 f=1.000 seal=15.00 seek=29.50 half=5.00 win=24.0
+  doors 12, seeking-eligible 7, outcome changed 0
+
+=== s01 f=0.542 seal=8.13 seek=16.00 half=2.71 win=13.0
+  door_0002 c0.67 single_line_leaf bbox=(424.5,917.0)-(467.5,957.5) hinge=[0, 3] old={3: 'interrupted'} new={0: 'interrupted', 3: 'interrupted'} kept-in-run={0: 'interrupted', 3: 'interrupted'} how=plugs:interrupted@0,interrupted@3
+     edge0 side a: None -> interrupted  hit=9.57px=149mm  material: face sw1.50 L30 @90deg; face sw0.00 L20 @0deg
+  doors 11, seeking-eligible 7, outcome changed 1
+
+=== s02 f=1.000 seal=15.00 seek=29.50 half=5.00 win=24.0
+  doors 65, seeking-eligible 8, outcome changed 0
+
+=== s03 f=1.000 seal=15.00 seek=29.50 half=5.00 win=24.0
+  doors 55, seeking-eligible 15, outcome changed 0
+
+=== s04 f=1.000 seal=15.00 seek=29.50 half=5.00 win=24.0
+  doors 11, seeking-eligible 3, outcome changed 0
+
+=== s05 f=0.500 seal=7.50 seek=14.75 half=2.50 win=12.0
+  doors 13, seeking-eligible 8, outcome changed 0
+
+=== s06 f=0.500 seal=7.50 seek=14.75 half=2.50 win=12.0
+  doors 10, seeking-eligible 9, outcome changed 0
+
+=== s07 f=0.500 seal=7.50 seek=14.75 half=2.50 win=12.0
+  doors 11, seeking-eligible 7, outcome changed 0
+
+=== s08 f=1.000 seal=15.00 seek=29.50 half=5.00 win=24.0
+  doors 13, seeking-eligible 3, outcome changed 0
+
+=== s10 f=1.000 seal=15.00 seek=29.50 half=5.00 win=24.0
+  doors 21, seeking-eligible 13, outcome changed 0
+
+=== s11 f=0.500 seal=7.50 seek=14.75 half=2.50 win=12.0
+  doors 19, seeking-eligible 14, outcome changed 0
+
+=== s12 f=0.500 seal=7.50 seek=14.75 half=2.50 win=12.0
+  doors 12, seeking-eligible 7, outcome changed 0
+
+=== s13 f=0.367 seal=5.50 seek=10.81 half=2.00 win=8.8
+  doors 12, seeking-eligible 11, outcome changed 0
+
+=== s14 f=1.000 seal=15.00 seek=29.50 half=5.00 win=24.0
+  door_0008 c0.72 single bbox=(830.5,2834.7)-(918.5,2922.7) hinge=[0, 3] old={} new={3: 'interrupted'} kept-in-run={3: 'interrupted'} how=plugs:interrupted@3
+     edge3 side a: None -> interrupted  hit=9.0px=76mm  material: seg th11.5 @90deg; face sw1.50 L199 @90deg
+  doors 44, seeking-eligible 10, outcome changed 1
+
+=== s15 f=1.000 seal=15.00 seek=29.50 half=5.00 win=24.0
+  doors 98, seeking-eligible 10, outcome changed 0
+
+=== s16 f=0.500 seal=7.50 seek=14.75 half=2.50 win=12.0
+  doors 21, seeking-eligible 15, outcome changed 0
+
+=== s17 f=1.000 seal=15.00 seek=29.50 half=5.00 win=24.0
+  door_0004 c0.95 single bbox=(1201.2,2349.2)-(1287.8,2435.9) hinge=[1, 3] old={3: 'interrupted'} new={1: 'interrupted', 3: 'interrupted'} kept-in-run={1: 'interrupted', 3: 'interrupted'} how=plugs:interrupted@1,interrupted@3
+     edge1 side a: None -> interrupted  hit=14.25px=121mm  material: seg th32.5 @90deg; face sw1.50 L238 @90deg
+  doors 76, seeking-eligible 33, outcome changed 1
+
+=== s18 f=0.500 seal=7.50 seek=14.75 half=2.50 win=12.0
+  door_0018 c0.67 single_line_leaf bbox=(1156.7,746.7)-(1214.0,802.0) hinge=[1, 3] old={} new={3: 'interrupted'} kept-in-run={3: 'interrupted'} how=plugs:interrupted@3
+     edge3 side a: None -> interrupted  hit=10.5px=178mm  material: face sw1.75 L139 @90deg
+  doors 58, seeking-eligible 7, outcome changed 1
+
+=== s20 f=1.000 seal=15.00 seek=29.50 half=5.00 win=24.0
+  doors 14, seeking-eligible 7, outcome changed 0
+
+TOTAL doors with a changed plug outcome: 4

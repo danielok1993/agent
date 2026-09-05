@@ -12,8 +12,6 @@ OUT = "/Users/danielszweda/Documents/GitHub/UD/agent/docs/w-gate-iter3-checkpoin
 render_path = sorted(glob.glob("/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress_baseline/s01/*/pages/page_01/render.png"))[-1]
 render = Image.open(render_path).convert("RGBA")
 page = H.load("s01")[0]
-R1 = run_tapped(page, None)
-R2 = run_tapped(page, F542)
 try:
     FONT = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 14)
     FONT_S = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 11)
@@ -90,15 +88,23 @@ def side_by_side(panels, path, caption):
     print("wrote", path)
 
 
-hall = [bb for bb in R1["seals"] if abs(bb[0] - 424) < 3 and abs(bb[1] - 917) < 3][0]
-crop = (380, 880, 540, 980)
-p1 = panel(R1, crop, 5, "identity f=1.0: seal 15, half-width 5 — top-edge (doorway) plug interrupted; tail samples: green=touch, yellow=covered, red=no", hall, 0)
-p2 = panel(R2, crop, 5, "f=0.542: seal 8.13, half-width 2.71 — first sample 4.1px short of the jamb material; doorway plug lost, hall merges with the living room", hall, 0)
-side_by_side([p1, p2], f"{OUT}/step9_s01_hall_door_doorway_plug_identity_vs_0542.png",
-             "s01 hall door (424,917)-(467,958): the doorway is the TOP edge; its left jamb face sits 14.25px = 222mm (at 1:92.2) past the bbox corner. Blue = barrier, orange = door seals, green = room outlines")
+def main():
+    """The two step-9 pictures (guarded so crop_step10.py can import the drawing helpers).""" 
+    R1 = run_tapped(page, None)
+    R2 = run_tapped(page, F542)
+    hall = [bb for bb in R1["seals"] if abs(bb[0] - 424) < 3 and abs(bb[1] - 917) < 3][0]
+    crop = (380, 880, 540, 980)
+    p1 = panel(R1, crop, 5, "identity f=1.0: seal 15, half-width 5 — top-edge (doorway) plug interrupted; tail samples: green=touch, yellow=covered, red=no", hall, 0)
+    p2 = panel(R2, crop, 5, "f=0.542: seal 8.13, half-width 2.71 — first sample 4.1px short of the jamb material; doorway plug lost, hall merges with the living room", hall, 0)
+    side_by_side([p1, p2], f"{OUT}/step9_s01_hall_door_doorway_plug_identity_vs_0542.png",
+                 "s01 hall door (424,917)-(467,958): the doorway is the TOP edge; its left jamb face sits 14.25px = 222mm (at 1:92.2) past the bbox corner. Blue = barrier, orange = door seals, green = room outlines")
 
-crop2 = (195, 400, 530, 920)
-p3 = panel(R1, crop2, 2, "identity: red (furniture pen) carries 13.7% of the paired face length -> not a wall pen; its lone faces do not fence", show_faces_pen=(1.0, 0.0, 0.0))
-p4 = panel(R2, crop2, 2, "f=0.542: red carries 15.2% >= ROOM_WALL_PEN_MIN_FRAC 0.15 -> wall pen; every red 1.5px line fences: 12 cushion cells + 2 slivers + 3 splits", show_faces_pen=(1.0, 0.0, 0.0))
-side_by_side([p3, p4], f"{OUT}/step9_s01_living_room_furniture_pen_flip_identity_vs_0542.png",
-             "s01 living room at identity vs the true factor: the furniture pen crosses the wall-pen fraction gate (13.7% -> 15.2% vs 0.15). Red = faces in the furniture pen, blue = barrier, green = rooms")
+    crop2 = (195, 400, 530, 920)
+    p3 = panel(R1, crop2, 2, "identity: red (furniture pen) carries 13.7% of the paired face length -> not a wall pen; its lone faces do not fence", show_faces_pen=(1.0, 0.0, 0.0))
+    p4 = panel(R2, crop2, 2, "f=0.542: red carries 15.2% >= ROOM_WALL_PEN_MIN_FRAC 0.15 -> wall pen; every red 1.5px line fences: 12 cushion cells + 2 slivers + 3 splits", show_faces_pen=(1.0, 0.0, 0.0))
+    side_by_side([p3, p4], f"{OUT}/step9_s01_living_room_furniture_pen_flip_identity_vs_0542.png",
+                 "s01 living room at identity vs the true factor: the furniture pen crosses the wall-pen fraction gate (13.7% -> 15.2% vs 0.15). Red = faces in the furniture pen, blue = barrier, green = rooms")
+
+
+if __name__ == "__main__":
+    main()

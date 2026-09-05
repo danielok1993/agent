@@ -249,6 +249,49 @@ ROOM_OPENING_SEAL_PX        = 15.0    # bbox-edge extension when building door p
                                       # inert at 15. An interrupted plug seals a jamb
                                       # gap of at most SEAL - 1px
                                       # (tests/test_room_detection.py::TestPlugSealReach).
+ROOM_PLUG_JAMB_SEEK_PX      = 29.5    # how far past a swing bbox corner a doorway plug's
+                                      # tail may SEEK its jamb when the fixed SEAL reach
+                                      # finds none there (W-class: 250mm at 1:50, 16px at
+                                      # s01's true 1:92.2, 14.8px at 1:100). A doorway is
+                                      # cut out of a wall, so its latch jamb is wall
+                                      # material the plug has to reach — but the tail's
+                                      # reach is fixed in advance while the jamb's
+                                      # distance is drawn, and s01 draws its swing
+                                      # symbols short of their openings on the latch
+                                      # side (a 671mm leaf in an 847mm opening; the
+                                      # corpus census of 378 kept doorway ends at true
+                                      # scale, iteration 3 step 9: median 0mm, p90 34,
+                                      # then s01's four swings at 187–219mm, s05 135,
+                                      # s17 110, s18/s08 102, every other sheet <= 51).
+                                      # True class within the cap: s01 door_0002's hall
+                                      # doorway at 0.542 (the corner jamb block's right
+                                      # face, path 278, perpendicular to the doorway,
+                                      # 12.3px = 191mm), s18 door_0018's doorway (a 139px
+                                      # 90-degree face at 11px = 186mm, plug-less before).
+                                      # False class (material_seek_probe.py, every
+                                      # un-anchored hinge-edge end of a >= 0.55 single on
+                                      # 18 sheets, 172 ends): exactly one within 300mm —
+                                      # s14 door_0007's open-leaf tip reaching a
+                                      # wall-fill chevron ring at 35px = 296mm, 1.18x
+                                      # over the cap; s01 door_0015's garden-pair piers
+                                      # at 18px = 281mm are a pair, never a seeking
+                                      # single. Only a HINGE edge of a >= 0.55 single
+                                      # whose profile anchors at exactly one end seeks,
+                                      # and only the interrupted signature may result.
+                                      # As implemented (seek_census.py, every door on
+                                      # 18 sheets re-profiled with and without the
+                                      # seek): four doors change, every hit a
+                                      # perpendicular wall — s01 door_0002 at 0.542
+                                      # (149mm to the first touching sample), s14
+                                      # door_0008 (76mm, inside the fixed reach but
+                                      # its anchor window straddled the corner), s17
+                                      # door_0004 (121mm; a 0.95 single drawn CLOSED
+                                      # in its doorway, whose confirmed room_0018 had
+                                      # wrapped under the leaf into the threshold,
+                                      # -1,163 px2) and s18 door_0018 (178mm; rooms
+                                      # 0002/0003 +695/+30 px2). Corpus sweep
+                                      # verdict-identical, s01/s02 untouched at
+                                      # f=1.0, 17 sheets polygon-identical.
 ROOM_PLUG_NEAR_PX           = 8.0     # a bbox edge "hugs" wall material within this
                                       # distance; the swing bbox lands on the wall faces
                                       # a few px off at most
@@ -464,6 +507,7 @@ class RoomGates:
     ROOM_MIN_AREA_PX2: float                 # × f²
     ROOM_BLIND_WINDOW_MAX_AREA_PX2: float    # × f²
     ROOM_OPENING_SEAL_PX: float
+    ROOM_PLUG_JAMB_SEEK_PX: float
     ROOM_PLUG_ANCHOR_WIN_PX: float
     ROOM_PLUG_HALF_WIDTH_PX: float
     ROOM_FOLD_STACK_NEAR_PX: float
@@ -479,6 +523,7 @@ class RoomGates:
             ROOM_BLIND_WINDOW_MAX_AREA_PX2=(
                 ROOM_BLIND_WINDOW_MAX_AREA_PX2 * factor * factor),
             ROOM_OPENING_SEAL_PX=ROOM_OPENING_SEAL_PX * factor,
+            ROOM_PLUG_JAMB_SEEK_PX=ROOM_PLUG_JAMB_SEEK_PX * factor,
             ROOM_PLUG_ANCHOR_WIN_PX=ROOM_PLUG_ANCHOR_WIN_PX * factor,
             # World-space (half a wall band) with a PAPER floor at the line
             # barrier standoff: a plug thinner than the 2px standoff every
@@ -685,6 +730,22 @@ def _swing_hinge_edges(candidate) -> frozenset[int] | None:
     return frozenset({h_edge, v_edge})
 
 
+def _seek_edges(candidate) -> frozenset[int]:
+    """Bbox edges whose plug tails may SEEK their jamb beyond the fixed reach.
+
+    Only a single swing's hinge edges (`_swing_hinge_edges`) — the two
+    edges its wall plane can lie along — and only when the door carries
+    the pipeline's own conviction (>= ROOM_BBOX_SEAL_MIN_CONFIDENCE, the
+    floor every trust-based seal shares): a fallback-tier box hugging a
+    wall must not reach out for a jamb, and a garden pair or slider pins
+    no hinge (s01 door_0015's piers at 281mm stay a plane stamp).
+    """
+    if candidate.confidence < ROOM_BBOX_SEAL_MIN_CONFIDENCE:
+        return frozenset()
+    hinge = _swing_hinge_edges(candidate)
+    return hinge if hinge is not None else frozenset()
+
+
 def _restrict_swing_plugs(candidate, plugs):
     """Hold a single swing door to plugs on its hinge edges, one plane only.
 
@@ -885,8 +946,26 @@ def _clip_plug_tails(
             continue
         ux = (q[0] - p[0]) / length
         uy = (q[1] - p[1]) / length
-        end_a = _tail_material_end(p, -ux, -uy, reach, half, wall_material)
-        end_b = _tail_material_end(q, ux, uy, reach, half, wall_material)
+        # The clip's reach at each end is the tail's own: SEAL for a plug
+        # the fixed profile qualified, the plug's actual extent beyond the
+        # corner for a tail that SOUGHT its jamb further out (_door_plugs
+        # with seek_edges) — clipping that tail at SEAL would cut it back
+        # off the very jamb it reached.
+        rings = [poly.exterior] if hasattr(poly, "exterior") else [
+            g.exterior for g in getattr(poly, "geoms", ()) if hasattr(g, "exterior")
+        ]
+        proj = [
+            (cx - p[0]) * ux + (cy - p[1]) * uy
+            for ring in rings for cx, cy in ring.coords
+        ]
+        reach_a = reach_b = reach
+        if proj:
+            if -min(proj) > reach + 1e-6:
+                reach_a = -min(proj)
+            if max(proj) - length > reach + 1e-6:
+                reach_b = max(proj) - length
+        end_a = _tail_material_end(p, -ux, -uy, reach_a, half, wall_material)
+        end_b = _tail_material_end(q, ux, uy, reach_b, half, wall_material)
         slab = LineString([
             (p[0] - ux * end_a, p[1] - uy * end_a),
             (q[0] + ux * end_b, q[1] + uy * end_b),
@@ -896,9 +975,123 @@ def _clip_plug_tails(
     return out
 
 
+@dataclass
+class _EdgeProfile:
+    """The coverage profile of wall material along one extended bbox edge.
+
+    Samples run from ``reach_a`` beyond the edge's first corner to
+    ``reach_b`` beyond its second; ``kind`` is the profile's verdict
+    ("interrupted" / "full" / None) and ``anchored_a`` / ``anchored_b`` say
+    whether each end window both covers and touches wall material — the
+    per-end half of the interrupted signature, which the jamb seek reads.
+    """
+    edge_line: LineString
+    ext_len: float
+    n: int
+    step: float
+    win: int
+    reach_a: float
+    reach_b: float
+    touch: list[bool]
+    anchored_a: bool
+    anchored_b: bool
+    kind: str | None
+
+
+def _edge_profile(
+    p, q, ux, uy, length, reach_a, reach_b, wall_material, gates: RoomGates,
+) -> _EdgeProfile:
+    a = (p[0] - ux * reach_a, p[1] - uy * reach_a)
+    b = (q[0] + ux * reach_b, q[1] + uy * reach_b)
+    ext_len = length + (reach_a + reach_b)
+    edge_line = LineString([a, b])
+    n = max(int(ext_len / ROOM_PLUG_SAMPLE_PX), 8) + 1
+    dists = [
+        edge_line.interpolate(ext_len * i / (n - 1)).distance(wall_material)
+        for i in range(n)
+    ]
+    covered = [d <= ROOM_PLUG_NEAR_PX for d in dists]
+    quarter = n // 4
+    # Anchor window: the legacy n//4 quarter, capped at jamb scale — the
+    # anchoring jamb does not grow with the doorway, so on wide (double)
+    # doorways the quarter dilutes real jamb coverage below the gate.
+    win = min(
+        quarter,
+        int(math.ceil(
+            gates.ROOM_PLUG_ANCHOR_WIN_PX / ROOM_PLUG_SAMPLE_PX)) + 1,
+    )
+    start_cov = sum(covered[:win]) / win
+    end_cov = sum(covered[-win:]) / win
+    # Trim the mid window by the hug distance: samples just inside an
+    # open doorway still sit within ROOM_PLUG_NEAR_PX of the jamb corner
+    # diagonally and must not count as mid coverage. Mid coverage itself
+    # uses the tighter in-plane hug (ROOM_PLUG_MID_NEAR_PX): the
+    # interrupted-run middle must be empty IN the opening plane, and a
+    # perpendicular wall's end cap floating a few px off the plane must
+    # not fill the doorway gap.
+    trim = quarter + int(math.ceil(ROOM_PLUG_NEAR_PX / ROOM_PLUG_SAMPLE_PX))
+    in_plane = [d <= ROOM_PLUG_MID_NEAR_PX for d in dists]
+    mid = in_plane[trim:n - trim] or in_plane[quarter:n - quarter]
+    mid_cov = sum(mid) / len(mid)
+    total_cov = sum(covered) / n
+    # Interrupted run = jambs in the plane, nothing between them in the
+    # plane. Both end windows must actually REACH the plug band (within
+    # its half-width — the plug must connect to jamb material, not
+    # float); a parallel band hugging the whole edge from beyond that
+    # anchors both ends at the loose hug and touches nothing — the
+    # profile of an annotation/fixture box beside a wall, not of a
+    # doorway (measured: a real jamb solid ends 3.5px off the bbox edge
+    # on floor-plans door_0008; the white-fixture phantom's parallel
+    # band sits 6px off its bbox edge).
+    touch = [d <= gates.ROOM_PLUG_HALF_WIDTH_PX for d in dists]
+    anchored_a = start_cov >= ROOM_PLUG_END_COV_MIN and any(touch[:win])
+    anchored_b = end_cov >= ROOM_PLUG_END_COV_MIN and any(touch[-win:])
+    kind: str | None = None
+    if start_cov >= ROOM_PLUG_END_COV_MIN and end_cov >= ROOM_PLUG_END_COV_MIN:
+        if mid_cov <= ROOM_PLUG_MID_COV_MAX and anchored_a and anchored_b:
+            kind = "interrupted"
+        elif total_cov >= ROOM_PLUG_FULL_COV_MIN:
+            kind = "full"
+    return _EdgeProfile(
+        edge_line=edge_line, ext_len=ext_len, n=n, step=ext_len / (n - 1),
+        win=win, reach_a=reach_a, reach_b=reach_b, touch=touch,
+        anchored_a=anchored_a, anchored_b=anchored_b, kind=kind,
+    )
+
+
+def _seek_jamb(corner, ux, uy, reach, half, wall_material) -> float | None:
+    """How far along (ux, uy) from corner a tail sample first touches wall material.
+
+    The first axial position within ``reach`` at which a point on the
+    extended edge line lies within ``half`` of wall material — the
+    material's own outline buffered by the plug half-width, cut by the
+    ray, so a perpendicular jamb return, a collinear band end or a fill
+    ring all count, and the answer is phase-free. None when nothing is
+    within reach.
+    """
+    far = (corner[0] + ux * reach, corner[1] + uy * reach)
+    hit = LineString([corner, far]).intersection(wall_material.buffer(half))
+    if hit.is_empty:
+        return None
+    best: float | None = None
+    stack = [hit]
+    while stack:
+        g = stack.pop()
+        if g.is_empty:
+            continue
+        if hasattr(g, "geoms"):
+            stack.extend(g.geoms)
+            continue
+        for cx, cy in g.coords:
+            pos = (cx - corner[0]) * ux + (cy - corner[1]) * uy
+            if best is None or pos < best:
+                best = pos
+    return None if best is None else max(best, 0.0)
+
+
 def _door_plugs(
     bbox, wall_material, skip_edges=frozenset(),
-    *, gates: RoomGates = ROOM_GATES_UNSCALED,
+    *, seek_edges=frozenset(), gates: RoomGates = ROOM_GATES_UNSCALED,
 ) -> list[tuple[Polygon, str, int]]:
     """Thin barrier bands along the wall planes through a detected door.
 
@@ -937,6 +1130,47 @@ def _door_plugs(
     skip_edges holds indices (0 top, 1 bottom, 2 left, 3 right) of edges the
     door's own evidence rules out as wall plane — a garden pair's parked-open
     leaf edges (_open_leaf_edges) — regardless of coverage profile.
+
+    seek_edges holds the edges whose tails may SEEK their jamb beyond the
+    fixed reach (`_seek_edges`: a >= 0.55 single swing's hinge edges). A
+    doorway is cut out of a wall, so its latch jamb is wall material the
+    plug has to reach — but the reach is fixed in advance while the jamb's
+    distance is drawn, and a sheet that draws its swing symbols short of
+    their openings on the latch side (s01: a 671mm leaf in an 847mm
+    opening, its four swings' latch jambs 187–219mm past the bbox corner
+    at its true 1:92.2 against a corpus p90 of 34mm) loses the doorway
+    whenever the scaled tail stops short (at f=0.542 the hall door's
+    8.13px tail ended 4.1px off the corner jamb block's right face and
+    the hall merged with the living room; W-gate iteration 3 step 9). So
+    when a seeking edge's profile anchors at exactly ONE end — the other
+    end's window neither half-covered nor touching — the tail on the
+    failing side looks outward from its corner for the nearest wall
+    material within ROOM_PLUG_JAMB_SEEK_PX (`_seek_jamb`: a perpendicular
+    jamb return counts, as do a band end and a fill ring; opening seals
+    are never in the material this function sees), extends that end's
+    reach to the material plus the anchor window, and re-profiles with
+    asymmetric reaches. Only the interrupted signature may result: the
+    seek exists to find a doorway's jamb, and a doorway is empty between
+    its jambs — a sought profile that reads "full" is a drawn-through
+    plane the fixed reach did not assert and the seek must not either.
+    An end that touches material inside the fixed reach but is not half
+    covered (the window straddles the corner into the doorway) seeks the
+    same way and finds that material, so a nib 12px out anchors as the
+    jamb it is. Measured on the corpus (iteration 3 step 9,
+    `tools/census_scratch/step9/material_seek_probe.py`; every un-anchored
+    hinge-edge end of a >= 0.55 single on 18 sheets at their factors, 172
+    ends): the true class is s18 door_0018's doorway (a 139px
+    perpendicular face 11px = 186mm out, plug-less before) and s01's hall
+    at its true factor (191mm); the one false hit within 300mm is s14
+    door_0007's open-leaf tip reaching a wall-fill chevron ring at 296mm,
+    1.18x over the 250mm cap, and every other hit is another opening's
+    seal, which is not wall material. As implemented (`seek_census.py`,
+    every door on 18 sheets re-profiled with and without the seek) the
+    outcome changes on four doors, every hit a perpendicular wall: those
+    two, s17 door_0004 (a 0.95 single drawn CLOSED in its doorway, its
+    latch jamb a 32.5px band 121mm past the corner) and s14 door_0008 (an
+    11.5px band 76mm out — inside the fixed reach, but the anchor window
+    straddled the corner into the doorway and read 3/7).
     """
     x0, y0, x1, y1 = bbox
     edges = [
@@ -954,82 +1188,59 @@ def _door_plugs(
             continue
         ux = (q[0] - p[0]) / length
         uy = (q[1] - p[1]) / length
-        a = (p[0] - ux * gates.ROOM_OPENING_SEAL_PX,
-             p[1] - uy * gates.ROOM_OPENING_SEAL_PX)
-        b = (q[0] + ux * gates.ROOM_OPENING_SEAL_PX,
-             q[1] + uy * gates.ROOM_OPENING_SEAL_PX)
-        ext_len = length + 2.0 * gates.ROOM_OPENING_SEAL_PX
-        edge_line = LineString([a, b])
-        n = max(int(ext_len / ROOM_PLUG_SAMPLE_PX), 8) + 1
-        dists = [
-            edge_line.interpolate(ext_len * i / (n - 1)).distance(wall_material)
-            for i in range(n)
-        ]
-        covered = [d <= ROOM_PLUG_NEAR_PX for d in dists]
-        quarter = n // 4
-        # Anchor window: the legacy n//4 quarter, capped at jamb scale — the
-        # anchoring jamb does not grow with the doorway, so on wide (double)
-        # doorways the quarter dilutes real jamb coverage below the gate.
-        win = min(
-            quarter,
-            int(math.ceil(
-                gates.ROOM_PLUG_ANCHOR_WIN_PX / ROOM_PLUG_SAMPLE_PX)) + 1,
-        )
-        start_cov = sum(covered[:win]) / win
-        end_cov = sum(covered[-win:]) / win
-        # Trim the mid window by the hug distance: samples just inside an
-        # open doorway still sit within ROOM_PLUG_NEAR_PX of the jamb corner
-        # diagonally and must not count as mid coverage. Mid coverage itself
-        # uses the tighter in-plane hug (ROOM_PLUG_MID_NEAR_PX): the
-        # interrupted-run middle must be empty IN the opening plane, and a
-        # perpendicular wall's end cap floating a few px off the plane must
-        # not fill the doorway gap.
-        trim = quarter + int(math.ceil(ROOM_PLUG_NEAR_PX / ROOM_PLUG_SAMPLE_PX))
-        in_plane = [d <= ROOM_PLUG_MID_NEAR_PX for d in dists]
-        mid = in_plane[trim:n - trim] or in_plane[quarter:n - quarter]
-        mid_cov = sum(mid) / len(mid)
-        total_cov = sum(covered) / n
-        if start_cov < ROOM_PLUG_END_COV_MIN or end_cov < ROOM_PLUG_END_COV_MIN:
+        seal = gates.ROOM_OPENING_SEAL_PX
+        prof = _edge_profile(
+            p, q, ux, uy, length, seal, seal, wall_material, gates)
+        if (
+            prof.kind is None and edge_idx in seek_edges
+            and prof.anchored_a != prof.anchored_b
+        ):
+            if prof.anchored_a:
+                corner, dx, dy = q, ux, uy
+            else:
+                corner, dx, dy = p, -ux, -uy
+            hit = _seek_jamb(
+                corner, dx, dy, gates.ROOM_PLUG_JAMB_SEEK_PX,
+                gates.ROOM_PLUG_HALF_WIDTH_PX, wall_material,
+            )
+            if hit is not None:
+                reach = hit + gates.ROOM_PLUG_ANCHOR_WIN_PX
+                sought = _edge_profile(
+                    p, q, ux, uy, length,
+                    seal if prof.anchored_a else reach,
+                    reach if prof.anchored_a else seal,
+                    wall_material, gates,
+                )
+                if sought.kind == "interrupted":
+                    prof = sought
+        if prof.kind is None:
             continue
-        # Interrupted run = jambs in the plane, nothing between them in the
-        # plane. Both end windows must actually REACH the plug band (within
-        # its half-width — the plug must connect to jamb material, not
-        # float); a parallel band hugging the whole edge from beyond that
-        # anchors both ends at the loose hug and touches nothing — the
-        # profile of an annotation/fixture box beside a wall, not of a
-        # doorway (measured: a real jamb solid ends 3.5px off the bbox edge
-        # on floor-plans door_0008; the white-fixture phantom's parallel
-        # band sits 6px off its bbox edge).
-        touch = [d <= gates.ROOM_PLUG_HALF_WIDTH_PX for d in dists]
-        interrupted = (
-            mid_cov <= ROOM_PLUG_MID_COV_MAX
-            and any(touch[:win])
-            and any(touch[-win:])
-        )
-        if not (total_cov >= ROOM_PLUG_FULL_COV_MIN or interrupted):
-            continue
-        kind = "interrupted" if interrupted else "full"
-        # Trim each SEAL-length extension to the material that supports it:
-        # the tail exists to reach the jamb the bbox stopped short of, so it
-        # ends at its farthest sample still touching wall material (within
-        # the plug half-width). A tail hanging in free space — qualified by
-        # the loose hug of a parallel band, or overshooting a crossed jamb's
-        # far face — seals nothing and stamps a plug-width notch into the
-        # adjoining room (door_0002's top-left tail on floor-plans floated
-        # at 8.7px and notched room_0005 beside the jamb). A clearance gap a
-        # trimmed tail no longer bridges is far thinner than the GAP_CLOSE
-        # pinch, so the rooms it separates still split.
-        step = ext_len / (n - 1)
-        tail_n = max(int(gates.ROOM_OPENING_SEAL_PX / step), 1)
-        pos_a = gates.ROOM_OPENING_SEAL_PX
-        for i in range(min(tail_n, n)):
+        kind = prof.kind
+        edge_line, ext_len, n, step = (
+            prof.edge_line, prof.ext_len, prof.n, prof.step)
+        win, touch = prof.win, prof.touch
+        # Trim each extension to the material that supports it: the tail
+        # exists to reach the jamb the bbox stopped short of, so it ends
+        # at its farthest sample still touching wall material (within the
+        # plug half-width). A tail hanging in free space — qualified by
+        # the loose hug of a parallel band, or overshooting a crossed
+        # jamb's far face — seals nothing and stamps a plug-width notch
+        # into the adjoining room (door_0002's top-left tail on
+        # floor-plans floated at 8.7px and notched room_0005 beside the
+        # jamb). A clearance gap a trimmed tail no longer bridges is far
+        # thinner than the GAP_CLOSE pinch, so the rooms it separates
+        # still split.
+        tail_n_a = max(int(prof.reach_a / step), 1)
+        pos_a = prof.reach_a
+        for i in range(min(tail_n_a, n)):
             if touch[i]:
-                pos_a = min(i * step, gates.ROOM_OPENING_SEAL_PX)
+                pos_a = min(i * step, prof.reach_a)
                 break
-        pos_b = ext_len - gates.ROOM_OPENING_SEAL_PX
-        for i in range(n - 1, max(n - 1 - tail_n, -1), -1):
+        tail_n_b = max(int(prof.reach_b / step), 1)
+        pos_b = ext_len - prof.reach_b
+        for i in range(n - 1, max(n - 1 - tail_n_b, -1), -1):
             if touch[i]:
-                pos_b = max(i * step, ext_len - gates.ROOM_OPENING_SEAL_PX)
+                pos_b = max(i * step, ext_len - prof.reach_b)
                 break
         # A tail that still runs PAST the end of the material it touches
         # (the touch test reaches half a plug width beyond it) is cut back
@@ -1932,9 +2143,16 @@ def detect_rooms(
     # square axis bbox overhangs the wall plane on both sides.
     door_barriers = []
     for zone, c in zip(door_zone_bounds, doors):
+        # The material a plug profile can read: every sample lies within
+        # the tail's reach of the bbox and hugs material within
+        # ROOM_PLUG_NEAR_PX. A seeking tail (_door_plugs) samples out to
+        # the jamb cap plus its anchor window, so the clip is that far —
+        # widening it is inert for every non-seeking rule (their
+        # envelopes end at SEAL + NEAR = 23px, inside the old 27px clip).
         local = wall_material.intersection(
             box(*c.bbox).buffer(
-                gates.ROOM_OPENING_SEAL_PX + ROOM_PLUG_NEAR_PX + 4.0,
+                gates.ROOM_PLUG_JAMB_SEEK_PX + gates.ROOM_PLUG_ANCHOR_WIN_PX
+                + ROOM_PLUG_NEAR_PX + 4.0,
                 join_style=2,
             )
         )
@@ -1946,9 +2164,15 @@ def detect_rooms(
         # through the hinge, so far-edge plugs only ever fence the swing
         # square out of its room.
         leaf_edges = _open_leaf_edges(c, gates=gates) | _sliding_end_edges(c)
+        # A confident single swing's hinge-edge tails may seek a jamb the
+        # fixed reach stops short of (_door_plugs, seek_edges).
+        seeking = _seek_edges(c)
         plug_material = local
         plugs = _restrict_swing_plugs(
-            c, _door_plugs(c.bbox, local, skip_edges=leaf_edges, gates=gates)
+            c, _door_plugs(
+                c.bbox, local, skip_edges=leaf_edges,
+                seek_edges=seeking, gates=gates,
+            )
         )
         if c.confidence < ROOM_OPENING_MIN_CONFIDENCE:
             plugs = [
@@ -1971,7 +2195,7 @@ def detect_rooms(
                 plug_material = unary_union([local] + leaves)
                 plugs = _restrict_swing_plugs(c, _door_plugs(
                     c.bbox, plug_material,
-                    skip_edges=leaf_edges, gates=gates,
+                    skip_edges=leaf_edges, seek_edges=seeking, gates=gates,
                 ))
         # Every plug is classified by now; end its tails at the material
         # they touch (an island's end, a band end) rather than up to a

@@ -16,6 +16,7 @@ from models import Candidate, PathPrimitive, TextSpan
 from detection import detect_wall_network
 from detection.rooms import (
     ROOM_GAP_CLOSE_PX, ROOM_OPENING_SEAL_PX, ROOM_PLUG_HALF_WIDTH_PX,
+    ROOM_PLUG_JAMB_SEEK_PX,
     _clip_plug_tails, _door_plugs, _open_leaf_edges, _plane_stamp,
     _restrict_swing_plugs, _sliding_end_edges, _swing_hinge_edges,
     _window_seal, detect_rooms,
@@ -2236,3 +2237,171 @@ class TestDashRowBarriers(unittest.TestCase):
         right = [vline(60 + k, 348, 100 + 50 * k, 150 + 50 * k) for k in range(6)]
         rooms = rooms_for(rect_room(0, 100, 100, 600, 400) + left + right)
         self.assertEqual(len(rooms), 2)
+
+
+class TestJambSeekingTail(unittest.TestCase):
+    """A doorway plug's tail SEEKS its jamb when the fixed SEAL reach finds
+    none there (W-gate iteration 3 step 10, 2026-09-05).
+
+    A doorway is cut out of a wall, so its latch jamb is wall material the
+    plug has to reach — but the tail's reach is fixed in advance (bbox ±
+    ROOM_OPENING_SEAL_PX) while the jamb's distance is drawn, and s01 draws
+    its swing symbols short of their openings on the latch side (a 671mm
+    leaf in an 847mm opening; the corpus census of 378 kept doorway ends
+    at true scale: median 0mm, p90 34, then s01's four swings at
+    187–219mm). At s01's true factor the hall door's 8.13px tail stopped
+    4.1px short of the corner jamb block's right face and the hall merged
+    with the living room. Rule: on a HINGE edge of a >= 0.55 single whose
+    profile anchors at exactly one end, seek the nearest wall material
+    outward from the failing corner within ROOM_PLUG_JAMB_SEEK_PX (a
+    perpendicular jamb return counts), extend that end's reach to it plus
+    the anchor window, and re-profile; only the interrupted signature (the
+    doorway) may result, never a drawn-through plane.
+
+    Fixture (the profile, directly): a 50px single whose top edge is the
+    doorway, hinge top-left on a band reaching the corner; the latch jamb
+    is a perpendicular return 22px past the right corner — past the 15px
+    reach (its first tail sample sits 7px off the return, no touch) and
+    inside the 29.5px cap.
+    """
+
+    BBOX = (200.0, 100.0, 250.0, 150.0)
+    HINGE_JAMB = shapely_box(100, 96, 200, 104)
+
+    @staticmethod
+    def _return_at(gap):
+        # A wall crossing the doorway line `gap` px past the latch corner.
+        return shapely_box(250 + gap, 96, 258 + gap, 220)
+
+    def test_perpendicular_return_22px_past_the_corner_seals(self):
+        mat = unary_union([self.HINGE_JAMB, self._return_at(22.0)])
+        plugs = _door_plugs(self.BBOX, mat, seek_edges=frozenset({0}))
+        self.assertIn(("interrupted", 0), [(k, e) for _, k, e in plugs])
+        poly = [p for p, _, e in plugs if e == 0][0]
+        x0, _, x1, _ = poly.bounds
+        self.assertLessEqual(x0, 200.0)         # into the hinge jamb
+        self.assertGreaterEqual(x1, 272.0)      # reaches the return
+
+    def test_return_past_the_cap_is_not_sought(self):
+        mat = unary_union([
+            self.HINGE_JAMB, self._return_at(ROOM_PLUG_JAMB_SEEK_PX + 6.0),
+        ])
+        plugs = _door_plugs(self.BBOX, mat, seek_edges=frozenset({0}))
+        self.assertNotIn(0, [e for _, _, e in plugs])
+
+    def test_edge_not_permitted_to_seek_does_not(self):
+        mat = unary_union([self.HINGE_JAMB, self._return_at(22.0)])
+        self.assertNotIn(0, [e for _, _, e in _door_plugs(self.BBOX, mat)])
+
+    def test_seek_needs_the_other_end_anchored(self):
+        # s14 door_0011 edge 0: a jamb 161mm out at one end, nothing at the
+        # other — a lone return in reach of a corner is not a doorway. The
+        # return stands 22px past the LEFT corner here (the corner a seek
+        # with no anchored end would start from); the sought profile still
+        # has to anchor at the far end.
+        lone = shapely_box(170, 96, 178, 220)
+        plugs = _door_plugs(self.BBOX, lone, seek_edges=frozenset({0}))
+        self.assertNotIn(0, [e for _, _, e in plugs])
+
+    def test_leaf_tip_material_past_the_cap_does_not_plug(self):
+        # The leaf edge (left, hinge end on the band along the top): a
+        # parallel wall — a corridor's far wall — cap + 6px past the tip
+        # is out of reach, so the leaf edge carries no plug across the
+        # corridor.
+        band = shapely_box(100, 96, 300, 104)
+        y = 150.0 + ROOM_PLUG_JAMB_SEEK_PX + 6.0
+        far = shapely_box(150, y, 250, y + 8.0)
+        plugs = _door_plugs(
+            self.BBOX, unary_union([band, far]), seek_edges=frozenset({0, 2}))
+        self.assertNotIn(2, [e for _, _, e in plugs])
+
+    def test_seek_never_yields_a_full_plug(self):
+        # The band is drawn THROUGH the door from 6px inside the latch
+        # corner and a perpendicular return stands 20px past it: the sought
+        # profile covers 0.79 of the edge with its middle full — a
+        # drawn-through plane, which the seek must not assert (the seek
+        # exists to find a doorway's jamb, and a doorway is empty between
+        # its jambs).
+        mat = unary_union([
+            shapely_box(206, 96, 320, 104), shapely_box(172, 96, 180, 220),
+        ])
+        plugs = _door_plugs(self.BBOX, mat, seek_edges=frozenset({0}))
+        self.assertNotIn(0, [e for _, _, e in plugs])
+
+    def test_sought_tail_survives_the_material_clip(self):
+        # _clip_plug_tails ends each tail at the material it touches within
+        # the tail's reach; a sought tail's reach is its own extent, not
+        # SEAL, so the plug still reaches the return and ends at its far
+        # face.
+        mat = unary_union([self.HINGE_JAMB, self._return_at(22.0)])
+        plugs = _door_plugs(self.BBOX, mat, seek_edges=frozenset({0}))
+        clipped = _clip_plug_tails(self.BBOX, plugs, mat)
+        poly = [p for p, _, e in clipped if e == 0][0]
+        _, _, x1, _ = poly.bounds
+        self.assertGreaterEqual(x1, 272.0)
+        self.assertLessEqual(x1, 280.0 + 0.1)
+
+    def test_seek_edges_are_the_hinge_edges_of_a_confident_single(self):
+        from detection.rooms import _seek_edges
+        self.assertEqual(_seek_edges(self.hall_door()), frozenset({0, 3}))
+        self.assertEqual(_seek_edges(self.hall_door(0.35)), frozenset())
+        # A garden pair never seeks (s01 door_0015's piers at 281mm stay a
+        # plane stamp at identity): no hinge, no seek.
+        pair = Candidate("door_0015", "door", (310.0, 356.0, 420.0, 410.0),
+                         0.65, evidence={"assembly_type": "double_swing",
+                                         "swing_layout": "garden"})
+        self.assertEqual(_seek_edges(pair), frozenset())
+
+    # -- through the room stage: the s01 hall at its true factor ---------
+    #
+    # The hall/living divider ends at a corner block where the hall's left
+    # wall meets it; the block's right face is the doorway's latch jamb,
+    # 22px past the door's bbox. The door hinges on the right jamb and its
+    # open leaf parks along a partition below it (s01: the CPD cupboard's
+    # wall), so the leaf edge takes an interrupted plug and the door never
+    # falls to the plane stamp — the doorway is open unless its own plug
+    # reaches the block.
+
+    HALL_BBOX = (322.0, 258.0, 370.0, 306.0)
+
+    @classmethod
+    def hall_paths(cls):
+        return (
+            rect_room(0, 100, 100, 600, 400)
+            + wall_band_h(8, 108, 298, 250)      # divider, ends at the block
+            + wall_band_v(10, 290, 250, 392)     # the hall's left wall
+            + wall_band_h(12, 370, 592, 250)     # divider resumes: hinge jamb
+            + wall_band_v(14, 370, 316, 392)     # the leaf's parking partition
+        )
+
+    @classmethod
+    def hall_door(cls, confidence=0.67):
+        x0, y0, x1, y1 = cls.HALL_BBOX
+        return Candidate(
+            "door_0002", "door", cls.HALL_BBOX, confidence, evidence={
+                "method": "door_assembly", "assembly_type": "single_line_leaf",
+                "leaf_bbox": [x1 - 3.0, y0, x1, y1],
+                "opening_line": [[x1 - 1.5, y1], [x0, y0]],
+            },
+        )
+
+    @staticmethod
+    def _hall(rooms):
+        for r in rooms:
+            x0, y0, x1, y1 = r.bbox
+            if (abs(x0 - 300.0) <= 3.0 and abs(x1 - 368.0) <= 3.0
+                    and abs(y0 - 260.0) <= 3.0 and abs(y1 - 390.0) <= 3.0):
+                return r
+        return None
+
+    def test_hall_doorway_seals_through_the_room_stage(self):
+        rooms = rooms_for(self.hall_paths(), doors=[self.hall_door()])
+        self.assertEqual(len(rooms), 4)
+        hall = self._hall(rooms)
+        self.assertIsNotNone(hall, "the hall merged with the room above")
+        self.assertEqual(hall.evidence["door_openings"], 1)
+
+    def test_fallback_tier_door_never_seeks(self):
+        rooms = rooms_for(self.hall_paths(), doors=[self.hall_door(0.35)])
+        self.assertEqual(len(rooms), 3)
+        self.assertIsNone(self._hall(rooms))
