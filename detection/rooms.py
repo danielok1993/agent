@@ -197,54 +197,57 @@ ROOM_MAJOR_MASS_FRAC        = 0.15    # wall mass >= this fraction of the larges
                                       # as a building (a page can hold several plans)
 ROOM_MASS_TOUCH_TOL_PX      = 4.0     # room must lie this close to a building wall mass
 ROOM_SIMPLIFY_TOL_PX        = 2.0     # sub-pen-width polygon simplification
-ROOM_OPENING_SEAL_PX        = 12.0    # bbox-edge extension when building door plugs, and
+ROOM_OPENING_SEAL_PX        = 15.0    # bbox-edge extension when building door plugs, and
                                       # bbox dilation on the plug fallback: bridges the
                                       # clearance between the swing bbox and the jambs so
                                       # free space cannot leak around a detected door.
-                                      # 102mm at 1:50. The jamb gap beyond a swing bbox
-                                      # at true scales: s01 8px = 125mm (1:92.2 — this
-                                      # reference was set on it as if 1:50, so at
-                                      # f=0.542 the 6.5px tails stop 12px short of
-                                      # their jambs and a room leaks), s17 8px = 135mm
-                                      # (its 1:100 plan detected at identity), s05/s07
-                                      # 6px at f=0.5 = 102mm — exactly the scaled 6px
-                                      # tail, zero headroom. The W-gate census
-                                      # (2026-09-04) proposed 15 and iteration 2 TRIED
-                                      # it: no value above 12 is safe. Iteration 3
-                                      # step 2 measured WHY, per site (the swing-side
-                                      # mechanism first written here was wrong — no
-                                      # hinge-less door's swing edge qualifies on the
-                                      # corpus at 12 or 15): at 14 s15's corridor door
-                                      # door_0013 — a hinged door — LOSES its doorway
-                                      # plug because the dashed "steel ridge beam"
-                                      # line (a row of 14.8px strokes in a 2.0px pen,
-                                      # each a strong barrier face) crosses the
-                                      # doorway plane at its centre and the mid-window
-                                      # in-plane count flips 2/10 -> 3/11 > 0.25 with
-                                      # the sampling phase, so the 0.67 door falls to
-                                      # the dilated-bbox stamp (rooms 0023/0024, -5.4k
-                                      # px2 each) — the dash-row class; at 15 s02's
-                                      # BEDROOM 2 is notched around the "A" section
-                                      # marker bar because the 0.35 fallback door on it
-                                      # carries full-cover plugs along the bar (a
-                                      # filled ring, an island in the room) whose
-                                      # tails end at the last sample within the 5px
-                                      # touch tolerance, 4.8px PAST the bar at each
-                                      # end, narrowing the 20.5px neck to the wall to
-                                      # 15.7px, under the 16px free-space pinch; at
-                                      # 13-14 s01 room_0005 moves 6px because door_0002's
-                                      # plug cross-section fit flips 4 -> 10px as the
-                                      # anchor sample set shifts. And the s04 bedroom
-                                      # "improvement" at 15 was a corner door LINING
-                                      # the lining rule rejected (_is_door_lining, now
-                                      # handled at 12). s03 returns two recorded FP
-                                      # rooms at 18. Step 5 ended the tails AT the
-                                      # material they touch (_clip_plug_tails): with
-                                      # it s02 is identical to its baseline at 13, 14
-                                      # and 15. What still blocks a move: the dash
-                                      # rows (s15 at >= 14) and s01's fit flip at
-                                      # 13-14. An interrupted plug seals a jamb gap of
-                                      # at most SEAL - 1px
+                                      # 127mm at 1:50 (W-class; 15 -> 7.5px = 150mm at
+                                      # 1:100). The jamb gap beyond a swing bbox at
+                                      # true scales: s01 8px = 125mm (1:92.2 — the old
+                                      # 12 was set on it as if 1:50, so at f=0.542 the
+                                      # 6.5px tail stopped short of the hall door's
+                                      # jamb and the hall merged with the living room,
+                                      # iteration 3 step 3), s17 8px = 135mm (its 1:100
+                                      # plan detected at identity), s05/s07 6px at
+                                      # f=0.5 = 102mm — exactly the old scaled 6px
+                                      # tail, zero headroom. 12 -> 15 on 2026-09-05
+                                      # (iteration 3 step 7) after the two mechanisms
+                                      # that broke iteration 2's try were removed at
+                                      # 12: s15's dash-row barrier across door_0013's
+                                      # doorway plane (step 6, _dash_row_indices) and
+                                      # s02's plug tails overshooting the section-marker
+                                      # bar (step 5, _clip_plug_tails). Measured on the
+                                      # corpus at 15 (harness at 13/14/15 on
+                                      # s01-s05/s07/s11/s15-s17, then the full sweep):
+                                      # no entity appears, vanishes or is lost, no
+                                      # recorded FP returns (s03's two return at 18);
+                                      # what moves is outline, in three classes — (a)
+                                      # the plug-less dilated-bbox FALLBACK stamps
+                                      # SEAL in every direction, so at each such door
+                                      # the room on the plane side loses 3px more (s01
+                                      # door_0015 -447 px2 on the living room, s04
+                                      # door_0003 -539 on each flanking room, s17
+                                      # door_0001 -547 on the SH/WC whose confirmed
+                                      # outline IS that stamp's edge, s16/s18 by 1.5px
+                                      # at f=0.5; about -2.9k px2 over 10 doors — the
+                                      # stamp's across-plane growth is pure cost and
+                                      # plane-restricting it is its own iteration);
+                                      # (b) a tail on CONTINUING material — a jamb
+                                      # running on, or a parallel band within the 5px
+                                      # half-width the sample-trim reads as touching
+                                      # (s17 door_0016) — is 3px longer, and where the
+                                      # plug crosses a room corner it notches 3 x
+                                      # half-width more (s17 rooms 0001/0002 -25.5 each,
+                                      # s15 room_0007, s02 room_0000 -310); (c)
+                                      # sampling-phase knife-edges, both ways: s03
+                                      # door_0008's leaf-side interrupted plug (1/6
+                                      # -> 2/7 mid cover) drops and room_0009 wraps a
+                                      # wall stub as an island (+715), s17 door_0001's
+                                      # bottom plug qualifies at 14 only (the SH/WC
+                                      # regains its swing square there, +9.0k, and not
+                                      # at 15), s01 room_0005's fit flip at 13-14 is
+                                      # inert at 15. An interrupted plug seals a jamb
+                                      # gap of at most SEAL - 1px
                                       # (tests/test_room_detection.py::TestPlugSealReach).
 ROOM_PLUG_NEAR_PX           = 8.0     # a bbox edge "hugs" wall material within this
                                       # distance; the swing bbox lands on the wall faces

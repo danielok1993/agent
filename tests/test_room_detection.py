@@ -15,7 +15,8 @@ from shapely.ops import unary_union
 from models import Candidate, PathPrimitive, TextSpan
 from detection import detect_wall_network
 from detection.rooms import (
-    ROOM_GAP_CLOSE_PX, _clip_plug_tails, _door_plugs, _open_leaf_edges,
+    ROOM_GAP_CLOSE_PX, ROOM_OPENING_SEAL_PX, _clip_plug_tails, _door_plugs,
+    _open_leaf_edges,
     _restrict_swing_plugs, _sliding_end_edges, _swing_hinge_edges,
     _window_seal, detect_rooms,
 )
@@ -942,19 +943,21 @@ class TestGardenDoorSeals(unittest.TestCase):
 
 
 class TestPlugSealReach(unittest.TestCase):
-    """ROOM_OPENING_SEAL_PX stays 12px (102mm at 1:50). The W-gate census
-    (2026-09-04) proposed 15 — the jamb gap beyond a swing bbox at true
-    scales is s01 8px = 125mm (1:92.2), s17 8px = 135mm, s05/s07 6px at
-    f=0.5 = 102mm — and iteration 2 tried it; iteration 3 step 2 measured
-    what broke: s15's corridor door lost its doorway plug at 14 because a
-    dash-row barrier crossing the doorway plane flips the mid-window count
-    2/10 -> 3/11 with the sampling phase (bbox stamp, two swings fenced),
-    and s02 was notched around a section-marker bar at 15 because a
-    fallback door's full-cover plug tails overshoot the bar by 4.8px and
-    pinch the neck to the wall (see ROOM_OPENING_SEAL_PX; fixed by
-    _clip_plug_tails in step 5 — TestPlugTailTrim). Measured on this
-    fixture, an interrupted plug seals a jamb gap of at most SEAL - 1px (11
-    at 12, 13 at 14, 15 at 15): an 11px gap must seal, 13 must not."""
+    """ROOM_OPENING_SEAL_PX is 15px (127mm at 1:50; W-gate iteration 3 step
+    7, 2026-09-05). The jamb gap beyond a swing bbox at true scales is s01
+    8px = 125mm (1:92.2 — the old 12 was set on s01 as if 1:50, so at its
+    true factor the scaled 6.5px tail stopped short of the hall door's jamb
+    and the hall leaked), s17 8px = 135mm, s05/s07 6px at f=0.5 = 102mm
+    (exactly the old scaled tail, zero headroom). The W-gate census
+    proposed 15 and iteration 2 tried and reverted it; step 2 measured what
+    broke (a dash-row barrier crossing s15's doorway plane flipped a
+    mid-window count with the sampling phase; s02's plug tails overshot a
+    section-marker bar by 4.8px), steps 5 and 6 removed both mechanisms
+    (_clip_plug_tails — TestPlugTailTrim; _dash_row_indices —
+    TestDashRowExclusion), and step 7 moved the constant. Measured on this
+    fixture, an interrupted plug seals a jamb gap of at most SEAL - 1px: a
+    14px gap must seal, 16 must not (at the old 12, 11 sealed and 13 did
+    not)."""
 
     BBOX = (200.0, 100.0, 270.0, 150.0)   # top edge y=100 lies in the band
 
@@ -965,12 +968,12 @@ class TestPlugSealReach(unittest.TestCase):
             shapely_box(270 + gap, 96, 370, 104),
         ])
 
-    def test_jamb_11px_past_the_bbox_is_sealed(self):
-        plugs = _door_plugs(self.BBOX, self._jambs(11.0))
+    def test_jamb_14px_past_the_bbox_is_sealed(self):
+        plugs = _door_plugs(self.BBOX, self._jambs(14.0))
         self.assertIn(("interrupted", 0), [(k, e) for _, k, e in plugs])
 
-    def test_jamb_13px_past_the_bbox_is_not(self):
-        plugs = _door_plugs(self.BBOX, self._jambs(13.0))
+    def test_jamb_16px_past_the_bbox_is_not(self):
+        plugs = _door_plugs(self.BBOX, self._jambs(16.0))
         self.assertNotIn(0, [e for _, _, e in plugs])
 
 
@@ -1049,15 +1052,16 @@ class TestPlugTailTrim(unittest.TestCase):
         self.assertGreater(y1, 150.0)
 
     def test_tail_kept_on_through_material(self):
-        # A band running the full extended edge (ROOM_OPENING_SEAL_PX = 12
-        # past each bbox end) supports both tails: the plug keeps its whole
+        # A band running the full extended edge (ROOM_OPENING_SEAL_PX past
+        # each bbox end) supports both tails: the plug keeps its whole
         # reach (the drawn-through-plane case).
-        band = shapely_box(188, 92, 294, 108)
+        reach = ROOM_OPENING_SEAL_PX
+        band = shapely_box(200 - reach, 92, 282 + reach, 108)
         plugs = _door_plugs(self.BBOX, band)
         self.assertEqual([k for _, k, _ in plugs], ["full"])
         x0, _, x1, _ = plugs[0][0].bounds
-        self.assertAlmostEqual(x0, 188.0, delta=0.1)
-        self.assertAlmostEqual(x1, 294.0, delta=0.1)
+        self.assertAlmostEqual(x0, 200.0 - reach, delta=0.1)
+        self.assertAlmostEqual(x1, 282.0 + reach, delta=0.1)
 
     def test_tail_ends_at_the_material_it_touches(self):
         # W-gate iteration 3 step 5 (s02 door_0050, the 0.35 fallback door

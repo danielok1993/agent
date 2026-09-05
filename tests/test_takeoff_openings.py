@@ -2,7 +2,10 @@ import unittest
 
 from shapely.geometry import Polygon, box
 
-from takeoff.openings import assign_openings, opening_width_px, opening_width_px_from_evidence
+from takeoff.openings import (
+    OPENING_ASSIGN_BUFFER_PX, assign_openings, opening_width_px,
+    opening_width_px_from_evidence,
+)
 
 ROOM = box(0, 0, 300, 200)   # a 300×200 px room
 SQUARE = Polygon([(0, 0), (200, 0), (200, 200), (0, 200)])
@@ -123,12 +126,13 @@ class TestAssignOpenings(unittest.TestCase):
         self.assertEqual(over, [])
 
     def test_reach_is_seal_only(self):
-        # corrected room (already +2 px); reach is ROOM_OPENING_SEAL_PX (12)
-        # more: 211 in, 213 out
+        # corrected room (already +2 px); reach is ROOM_OPENING_SEAL_PX
+        # (OPENING_ASSIGN_BUFFER_PX, 15) more: 214 in, 216 out
+        reach = OPENING_ASSIGN_BUFFER_PX
         rooms = {"room_a": box(0, 0, 300, 200)}
-        assigned, _, over = assign_openings(rooms, [("d_in", "door", (100, 211, 160, 220))])
+        assigned, _, over = assign_openings(rooms, [("d_in", "door", (100, 200 + reach - 1, 160, 220))])
         self.assertEqual(assigned, {"room_a": ["d_in"]})
-        assigned, unassigned, over = assign_openings(rooms, [("d_out", "door", (100, 213, 160, 220))])
+        assigned, unassigned, over = assign_openings(rooms, [("d_out", "door", (100, 200 + reach + 1, 160, 220))])
         self.assertEqual(unassigned, ["d_out"])
 
     def test_room_key_order_is_stable(self):

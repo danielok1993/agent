@@ -31,7 +31,7 @@ from shapely.geometry import Point, Polygon, box
 from detection.rooms import ROOM_OPENING_SEAL_PX
 
 # Callers pass standoff-corrected polygons (already +ROOM_WALL_DILATE_PX), so
-# only the seal reach is added here: 2 + 12 = 14 px from the detected polygon.
+# only the seal reach is added here: 2 + 15 = 17 px from the detected polygon.
 OPENING_ASSIGN_BUFFER_PX = ROOM_OPENING_SEAL_PX
 
 # A door/window separates at most two spaces.

@@ -1170,3 +1170,121 @@ wide (s15's garage and hall slice still await `tools/review.py s15`). The
 next-agent prompt above applies with branch (a): step 7 next, s15 no longer
 blocks seal 14. Caution for step 7: the confirmed vestibule
 [848.7,1549.4,936.7,1630.8] matches the merged 169px vestibule at IoU 0.52.
+
+## Outcome — iteration 3, step 7 (2026-09-05, branch `fix/seal-15-retry`, shipped pending the user's decision)
+
+`ROOM_OPENING_SEAL_PX` 12 → 15 (127 mm at 1:50, 7.5 px = 150 mm at 1:100),
+branched from `fix/dash-rows-not-faces` (16a4835) with the user's uncommitted
+s10/s17/s18 verdicts in the tree (baseline 0 LOST, 68 returned FPs, 0
+REVIEW). Measured first with the harness at 13/14/15 (as multipliers, so the
+f = 0.5 sheets scale) on s01–s05/s07/s11/s15–s17, then the full sweep: the
+corpus is **verdict-identical** on all 20 sheets (0 lost, 68 returned FPs, 0
+REVIEW, no door/window change) and **48 room polygons on 13 sheets move**
+by sub-1% strips in three measured classes (`tools/diff_room_polygons.py`
+after every sweep, scratch unsimplified diffs on every labelled sheet,
+`probe_box` on every site): (a) the plug-less dilated-bbox FALLBACK stamps
+`bbox ⊕ SEAL` in every direction, so at 10 plug-less doors the room on the
+plane side loses 3 px more — s01 door_0015's double swing −447 px² on the
+living room, s04 door_0003's slider −539 on each flanking room, s17
+door_0001 −547 on the confirmed SH/WC whose recorded outline IS that stamp's
+edge, s16/s18 by 1.5 px at f = 0.5 — ≈ −2.9k px²; (b) tails on continuing
+material, or on a parallel band inside the 5 px touch half-width (s17
+door_0016's doorway plug into rooms 0001/0002), are 3 px longer at room
+corners — ≈ −1.0k; (c) sampling-phase knife-edges both ways — s03
+door_0008's leaf-side phantom plug drops and room_0009 swallows a wall stub
+as an island (+715), s02 door_0005's cross-section fit falls to the full
+envelope (−276), s17 door_0001's bottom plug qualifies at 14 only (the SH/WC
+regains its swing square there, +9.0k, not at 15) — ≈ +0.8k. Net ≈ −3.0k px²;
+**s01 −304 / s02 −53 at f = 1.0** (a decision, as step 5's move was). The
+brief's expected blockers: s01 room_0005's fit flip is inert at 15 (13–14
+only), s01 room_0003 is +143 (two phantom plugs fit 1 px narrower), s04
+room_0001 is −539 (class a), s15 is identical at 14 and −85 at 15 (class b),
+s03's two recorded FPs stay out. `TestPlugSealReach` pins 14 sealed / 16 not;
+`OPENING_ASSIGN_BUFFER_PX` follows the constant (17 px reach). Labels
+reseeded on the 13 sheets and re-swept: identical verdicts and warning codes
+(s16's stale `ROOM_LABEL_NO_GEMINI` gone). Report:
+`docs/w-gate-iter3-checkpoints/step-7.md` (8 PNGs beside it). Constant
+comment, CLAUDE.md gates paragraph, findings §4 row 355 and census row 17
+updated.
+
+### Prompt for the next agent (after the user's step-7 decision — fresh context)
+
+> Use `/fix-detection` for its discipline (topic branch from the tip that
+> carries steps 2, 3, 5, 6 and — if the user accepted it — 7:
+> `git log --all --oneline | head`; `compare_sweeps --snapshot` baselines of
+> that tree for all 20 slugs, re-swept first in four background groups — s18;
+> s16 s11 s15; s01–s07; the rest; verdict reports diffed section-wise;
+> `tools/diff_room_polygons.py` after EVERY sweep, `tools/room_shape_crop.py`
+> crops of every room whose IoU moved under 0.99, and a scratch UNSIMPLIFIED
+> polygon diff whenever any room loses area — set harness seal overrides as
+> MULTIPLIERS of the tree's constant, never absolute px, or the f = 0.5 sheets
+> run at double reach). Read first: `docs/w-gate-iter3-checkpoints/step-7.md`
+> (the three move classes and their sites), `step-6.md`, `step-5.md`,
+> `step-3.md`, this handoff's iteration-3 outcome sections, the CLAUDE.md
+> paragraphs "Room detection" and "Wall/room world-space gates",
+> `detection/rooms.py::_door_plugs` / `_clip_plug_tails` / the
+> dilated-bbox fallback in `detect_rooms`, and
+> `docs/regression-testing-guide.md` §9 §10 §12 §13.
+>
+> **Step 7 was accepted as-is and committed (2026-09-05): `ROOM_OPENING_SEAL_PX`
+> is 15.** Next is **step 8 — the plane-restricted fallback stamp**, the
+> iteration that pays for step 7. A door with no qualifying plug seals by
+> `box(*c.bbox).buffer(SEAL, join_style=2)` (`detect_rooms`, the `elif
+> c.confidence >= ROOM_BBOX_SEAL_MIN_CONFIDENCE` branch), which grows SEAL
+> ACROSS the door's plane as well as along it, so the room on the plane side
+> loses a SEAL-deep strip at every such door — 15 px now, 12 before. A swing
+> bbox's hinge edge lies on its wall face within `ROOM_PLUG_NEAR_PX` (8 px),
+> never SEAL off it, so the across-plane growth serves nothing. Measure
+> first: per plug-less door on the corpus at 15, how far the bbox's
+> wall-side edge sits off drawn wall material (the clearance the stamp must
+> bridge across) and how far its ends sit from the jambs (along) — the class
+> (a) sites in step-7.md are the test set (s01 door_0015 double swing, s04
+> door_0003 slider, s17 door_0001 on the confirmed SH/WC, s16 rooms
+> 0002/0006, s18 rooms 0002/0003/0005/0007) and `probe_box.py` dumps the
+> per-edge profiles. Which edge is the wall side is the whole question: a
+> swing door has `_swing_hinge_edges`, a slider's long axis IS the wall
+> (s04 door_0003, 7 × 141 px between two rooms), a fallback-tier box has
+> neither — state the orientation rule as a drawing convention and measure
+> it on the true class (s01/s02's plug-less doors) before choosing SEAL
+> along / NEAR across. Synthetic test first (a plug-less door whose bbox
+> stops N px short of both jambs and M px off its wall face: the doorway
+> must still seal, and the room on the far side of the wall must keep its
+> floor), harness pre-check, full sweep, polygon diffs — s17's confirmed
+> SH/WC outline IS the seal-12 stamp edge, so a shrunken stamp GROWS that
+> room toward its swing square: IoU against the recorded polygon must stay
+> ≥ 0.5 and the growth is a win to report, not a regression — crops,
+> reseed, prose, `step-8.md`, STOP.
+>
+> In parallel the user's decision on s01's three stair-split confirmed
+> rooms ((1090,699)–(1142,876), (466,920)–(521,1056), (1033,925)–(1142,1134),
+> step-3.md; show the before|after from a true-factor sweep on a throwaway
+> branch and ask — confirmed rooms are sometimes CHUNKS of one room). Only
+> with it: narrow `_gate_denominator` (s01 at 0.542 must keep 11 doors, 4
+> windows and every remaining confirmed room; step 3 measured the seal as
+> the hall's sole blocker and 15 × 0.542 = 8.1 px ≥ its 8 px jamb gap, so
+> re-measure the hall at 0.542 first with `ablate.py s01 s01mode`), then
+> step 4 (`WALL_MAX_THICKNESS_PX` 36 → 40: the s11 recess box, s15 annotation
+> pocket and s18 tree strip must stay out; expected −5 recorded phantoms on
+> s16/s17). Also queued, each its own iteration: a same-line requirement for
+> a tail's supporting material (class b — s17 door_0016's doorway plug hugs a
+> parallel band 4 px off its spine and runs 15 px into both flanking rooms);
+> phase-invariant plug profiles anchored at the bbox corners (class c — s17
+> door_0001's bottom plug qualifies at 14 only, s02 door_0005's fit falls to
+> the full envelope at 15); the dash-row text-mask join;
+> re-calibrating the fallback in-wall gate on tail-less plugs; deeper band
+> pockets / the recess class; Gap D of `docs/hatch-cell-chords-handoff.md`; a
+> jamb-scale floor for lining rings; the lattice knife-edges; an
+> open-arrowhead stair recognizer; interior rings in the exported room
+> polygon (s03's islanded stub).
+>
+> Rules for the whole run: do not commit (the user commits); do not edit
+> `tests/ground_truth/*.json` or `fixtures/MANIFEST.json`; never revert
+> s01's truth scale (1:92.2); never `git stash`; macOS has no `timeout`; the
+> venv lacks InquirerPy; s01 and s02 at f=1.0 must not change (entity set
+> AND polygons) until `_gate_denominator` deliberately moves s01 — report
+> any move as a decision; if a rule costs a confirmed entity or returns an
+> FP, revert it, report why, and STOP; PNG crops go under
+> `docs/w-gate-iter3-checkpoints/` and must never show a street address or
+> planning-portal id. End every report with the numbers: lost, returned
+> FPs, new REVIEW lines with your verdicts, net phantom delta, and what is
+> next.
