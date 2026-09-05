@@ -730,8 +730,8 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s18.json": {
-    "mtime": 1788565366.4422436,
-    "ast_hash": "007c0d53a72ecda8efb74b78c515e600",
+    "mtime": 1788597683.6853392,
+    "ast_hash": "14376487d22efd3f33e25b4fcbe5e412",
     "semantic_hash": ""
   },
   "tests/ground_truth/s20.json": {
@@ -1045,8 +1045,8 @@
     "semantic_hash": ""
   },
   "docs/w-gate-recalibration-handoff.md": {
-    "mtime": 1788595906.1845713,
-    "ast_hash": "dd5336cec546774c7ddfd6c875c2565e",
+    "mtime": 1788597796.3313272,
+    "ast_hash": "eb5d638e29c8bb19121d6b326546c3d3",
     "semantic_hash": ""
   },
   "takeoff/document.py": {
@@ -1640,8 +1640,8 @@
     "semantic_hash": ""
   },
   "docs/w-gate-iter3-checkpoints/step-8.md": {
-    "mtime": 1788595828.3200333,
-    "ast_hash": "4e521f211134400a25d419a64a8b323c",
+    "mtime": 1788597791.8053646,
+    "ast_hash": "d96618cbc3157f9e29e7802d8cdad00d",
     "semantic_hash": ""
   },
   "docs/w-gate-iter3-checkpoints/step8_before_after_composite.png": {
