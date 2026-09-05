@@ -230,8 +230,8 @@ ROOM_OPENING_SEAL_PX        = 15.0    # bbox-edge extension when building door p
                                       # door_0001 -547 on the SH/WC whose confirmed
                                       # outline IS that stamp's edge, s16/s18 by 1.5px
                                       # at f=0.5; about -2.9k px2 over 10 doors — the
-                                      # stamp's across-plane growth is pure cost and
-                                      # plane-restricting it is its own iteration);
+                                      # stamp's across-plane growth was pure cost, and
+                                      # step 8 plane-restricted it: _plane_stamp);
                                       # (b) a tail on CONTINUING material — a jamb
                                       # running on, or a parallel band within the 5px
                                       # half-width the sample-trim reads as touching
@@ -716,6 +716,88 @@ def _restrict_swing_plugs(candidate, plugs):
     if any(kind == "interrupted" for _, kind, _ in kept):
         kept = [t for t in kept if t[1] == "interrupted"]
     return kept or plugs
+
+
+def _plane_stamp(
+    candidate, skip_edges, wall_material,
+    *, gates: RoomGates = ROOM_GATES_UNSCALED,
+) -> Polygon:
+    """The plug-less fallback seal, restricted to the door's wall-plane edges.
+
+    A door with no qualifying plug used to seal by ``box(bbox) ⊕ SEAL`` —
+    a stamp that grows SEAL ACROSS the door's plane as well as along it,
+    so the whole swing square left its room and the room on the far side
+    of the wall lost a SEAL-deep strip at every such door (measured at
+    seal 15: s17 door_0001's 0.83 single on the confirmed SH/WC, whose
+    recorded outline WAS the stamp's L-shaped edge, −9.0k px² of swing
+    square; s01 door_0015's garden pair −447 on the living room; s04
+    door_0003's slider −539 on each flanking room; s16/s18 at f=0.5).
+
+    A door's wall plane lies along a bbox edge its own evidence has not
+    ruled out: a single swing's plane passes through its hinge corner, so
+    it is one of the two hinge edges (`_swing_hinge_edges`; the far edges
+    bound the swing square — room floor); a slider's long axis IS its wall
+    (`_sliding_end_edges` vetoes the short ends); a garden pair's parked
+    leaves and tip chord are vetoed (`_open_leaf_edges`), leaving its
+    wall edge; a door whose evidence pins nothing keeps all four edges (a
+    ring whose interior dissolves as door floor). Measured on the
+    corpus's 181 hinge-derivable plugged singles (W-gate iteration 3
+    step 8, 2026-09-05): the kept plug lies on a hinge edge 177 times,
+    and the leaf-axis "open leaf" convention names the plane edge 159
+    times against 5 for the closed-leaf convention — 3 % wrong, so the
+    fallback never picks ONE hinge edge. The plane edge sits ON its wall
+    face: median 0.0 px, max 4.2 px off the dilated material, inside the
+    plug's own ±ROOM_PLUG_HALF_WIDTH_PX cross-section.
+
+    Each plane edge is stamped as the plug it would have carried had its
+    profile qualified — the edge line at the plug's half-width, with a
+    SEAL tail at each end — so the seal is a subset of the old stamp
+    everywhere (rooms can only gain floor, never lose it). A tail is the
+    old stamp's along-reach and stays trust-based: it is kept as far as
+    wall material HUGS its spine (within ROOM_PLUG_NEAR_PX — the loose
+    hug the profile itself uses, wider than a qualified plug's touch
+    envelope because no sample proved these jambs are in reach; the
+    true class's jambs sit ≤ 13 px past the corner, s01 door_0015's piers
+    at 18 px are reached and the free-space pinch closes the rest) and
+    ends where that material ends (`_tail_material_end`): a doorway
+    tail runs into its jamb, a leaf edge's hinge-end tail crosses the
+    plane and stops at the band's far face instead of stamping a stub
+    into the far room, and a tail hugging nothing — the leaf's free tip —
+    is dropped.
+    """
+    plane = set(range(4)) - set(skip_edges)
+    hinge = _swing_hinge_edges(candidate)
+    if hinge is not None:
+        plane &= hinge
+    if not plane:
+        plane = set(range(4))
+    x0, y0, x1, y1 = candidate.bbox
+    edges = [
+        ((x0, y0), (x1, y0)),
+        ((x0, y1), (x1, y1)),
+        ((x0, y0), (x0, y1)),
+        ((x1, y0), (x1, y1)),
+    ]
+    reach = gates.ROOM_OPENING_SEAL_PX
+    half = gates.ROOM_PLUG_HALF_WIDTH_PX
+    slabs = []
+    for edge_idx in sorted(plane):
+        p, q = edges[edge_idx]
+        length = math.hypot(q[0] - p[0], q[1] - p[1])
+        if length < 1e-6:
+            continue
+        ux = (q[0] - p[0]) / length
+        uy = (q[1] - p[1]) / length
+        end_a = _tail_material_end(
+            p, -ux, -uy, reach, ROOM_PLUG_NEAR_PX, wall_material)
+        end_b = _tail_material_end(
+            q, ux, uy, reach, ROOM_PLUG_NEAR_PX, wall_material)
+        spine = LineString([
+            (p[0] - ux * end_a, p[1] - uy * end_a),
+            (q[0] + ux * end_b, q[1] + uy * end_b),
+        ])
+        slabs.append(spine.buffer(half, cap_style=2))
+    return unary_union(slabs)
 
 
 def _tail_material_end(corner, ux, uy, reach, half, wall_material) -> float:
@@ -1909,9 +1991,13 @@ def detect_rooms(
         if plugs:
             door_barriers.append((c.confidence, unary_union([p for p, _, _ in plugs])))
         elif c.confidence >= ROOM_BBOX_SEAL_MIN_CONFIDENCE:
+            # The fallback stamps the door's wall-PLANE edges only — each
+            # as the plug it would have carried, SEAL tails hugging their
+            # jambs — never the far edges that bound the swing square, and
+            # never SEAL across the plane into the far room (_plane_stamp).
             door_barriers.append((
                 c.confidence,
-                box(*c.bbox).buffer(gates.ROOM_OPENING_SEAL_PX, join_style=2),
+                _plane_stamp(c, leaf_edges, plug_material, gates=gates),
             ))
     window_barriers = [_window_seal(c, gates=gates) for c in windows]
     opening_parts = [g for _, g in door_barriers] + window_barriers

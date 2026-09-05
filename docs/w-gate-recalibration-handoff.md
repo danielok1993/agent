@@ -1288,3 +1288,122 @@ updated.
 > planning-portal id. End every report with the numbers: lost, returned
 > FPs, new REVIEW lines with your verdicts, net phantom delta, and what is
 > next.
+
+## Outcome — iteration 3, step 8 (2026-09-05, branch `fix/plane-restricted-fallback-stamp`, built and measured, HELD as a patch)
+
+The plane-restricted fallback stamp (`detection/rooms.py::_plane_stamp`):
+a plug-less door seals along its wall-plane edges only — a single's two
+hinge edges (`_swing_hinge_edges`; measured on the corpus's 181
+hinge-derivable plugged singles the plug lies on a hinge edge 177 times,
+that edge sits on its face at median 0.0 / max 4.2 px, and the leaf-axis
+"open leaf" convention names it only 159 : 5 against the closed-leaf one,
+so the stamp never picks ONE), a slider's long edges, a garden pair's
+un-vetoed edge, all four for a door pinning nothing — each as the plug it
+would have carried: ±`ROOM_PLUG_HALF_WIDTH_PX`, SEAL tails kept as far as
+material hugs them within `ROOM_PLUG_NEAR_PX` and ending where it ends. No
+new constant; 7 tests (three through `detect_rooms`, failing on the old
+code for the stated reasons). Census first (`plugless_census.py`, scratch):
+565 doors reach the room stage on 18 sheets, 18 are plug-less, 7 touch a
+room (s01 door_0015, s04 door_0003, s16 doors 0003/0004, s17 door_0001, s18
+doors 0018/0271). Corpus sweep vs the baseline (0 LOST / 68 FPs / 0
+REVIEW): **verdict-identical on 19 sheets, 10 room polygons gain +21.8k px²
+(s17's confirmed SH/WC +8,478 at IoU 0.752 — its swing square; s04 ±1.5k
+per flanking room; s01 room_0001 +1,431 at f=1.0; s02 untouched), nothing
+loses a pixel unsimplified, `door_openings` unchanged — and ONE confirmed
+s18 room is LOST**: (2267,758)–(2511,802), a `"shape": "partial"` 0.75 m
+strip on the patio side of the extension's cavity wall, fenced on top by
+the "4200 Overall Extension projection" glyph-outline rings (gap b) and,
+for its first 50 px, by door_0271's old stamp along its PARKED bottom
+leaf — nothing drawn bounds it there. Per the run's rule the tree is
+reverted to 71ba420's code; the complete change (code, tests, CLAUDE.md
+sentence, findings row) is `docs/w-gate-iter3-checkpoints/step-8-plane-stamp.patch`
+(applies cleanly). Report: `docs/w-gate-iter3-checkpoints/step-8.md`
+(7 PNGs beside it). Labels not reseeded (nothing in the tree moved).
+
+In parallel, s01 at its true factor on this tree (harness, f = 50/92.2):
+11/11 doors, 4/4 windows, 8/12 rooms, 18 unreviewed — the same four lost
+as step 3 (three stair-split rooms + the hall); picture
+`step8_s01_stair_rooms_identity_vs_true_factor.png`. New finding: the hall
+door's right-edge plug NOW qualifies at 0.542 (`interrupted`, seal 8.13 px
+≥ its 8 px gap) yet the hall still merges with the living room into
+(209,412)–(521,1389) — step 3's "the seal is the hall's sole blocker" is
+stale; the leak is elsewhere.
+
+### Prompt for the next agent (after the user's step-8 decision — fresh context)
+
+> Use `/fix-detection` for its discipline (topic branch from
+> `fix/seal-15-retry` 71ba420 or its successor; `git log --all --oneline |
+> head`; `compare_sweeps --snapshot` baselines of that tree for all 20
+> slugs, re-swept first in four background groups — s18; s16 s11 s15;
+> s01–s07; the rest; verdict reports diffed section-wise;
+> `tools/diff_room_polygons.py` after EVERY sweep, `tools/room_shape_crop.py`
+> for every room whose IoU moved under 0.99, a scratch UNSIMPLIFIED diff
+> whenever any room loses area; harness overrides as MULTIPLIERS). Read
+> first: `docs/w-gate-iter3-checkpoints/step-8.md`, `step-7.md`,
+> `step-3.md`, this handoff's iteration-3 outcome sections, the CLAUDE.md
+> paragraphs "Room detection" and "Wall/room world-space gates",
+> `docs/regression-testing-guide.md` §9 §10 §12 §13.
+>
+> **Step 8 is held as `step-8-plane-stamp.patch`** pending the user's
+> verdict on s18 room (2267,758)–(2511,802). If they retire it: `git apply`
+> the patch, run the 7 tests, re-sweep the corpus (expect 0 LOST / 68 FPs /
+> 0 REVIEW / 10 polygons +21.8k px², s18 room 13/13 after the retirement),
+> reseed labels on s01/s04/s16/s17/s18, re-sweep those, and that is the
+> step-8 commit (code + tests + prose in one, the truth edit as its own
+> data commit by the user). If they keep it, the stamp stays as it is and
+> class (a) of step 7 stays paid.
+>
+> Then, only with the user's decision on s01's three stair-split rooms
+> (`step8_s01_stair_rooms_identity_vs_true_factor.png`: at 0.542 the
+> landing + flights are one room and the CPD cupboard opens into the
+> hall): narrow `_gate_denominator` — s01 at 0.542 must keep 11 doors, 4
+> windows and every remaining confirmed room. **Re-measure the hall's
+> leak first** (`ablate.py s01 s01mode`, then a probe of every opening on
+> the hall/living boundary at 0.542): the hall door's plug qualifies now,
+> and the hall still merges into (209,412)–(521,1389). Then step 4
+> (`WALL_MAX_THICKNESS_PX` 36 → 40: the s11 recess box
+> (1030,1330)–(1123,1360), s15 annotation pocket (1480,698)–(1595,792) and
+> s18 tree strip (156,724)–(197,863) must stay out; expected −5 recorded
+> phantoms on s16/s17).
+>
+> Also queued, each its own iteration: a same-line requirement for a plug
+> tail's supporting material (s17 door_0016); phase-invariant plug
+> profiles anchored at the bbox corners (s17 door_0001's bottom plug, s02
+> door_0005); the dash-row text-mask join for 3-piece chain fragments;
+> re-calibrating the fallback in-wall gate on tail-less plugs; deeper band
+> pockets / the recess class; Gap D of `docs/hatch-cell-chords-handoff.md`;
+> a jamb-scale floor for lining rings; the lattice knife-edges; an
+> open-arrowhead stair recognizer; interior rings in the exported room
+> polygon; and, from step 8, the glyph-outline fill rings that fence
+> s18's patio strip (gap b — the same rings fenced it whichever way the
+> stamp goes).
+>
+> Rules for the whole run: do not commit (the user commits); do not edit
+> `tests/ground_truth/*.json` or `fixtures/MANIFEST.json`; never revert
+> s01's truth scale (1:92.2); never `git stash`; macOS has no `timeout`;
+> python is not on the shell path, use `.venv/bin/python` with an absolute
+> path in background commands (the cwd resets); the venv lacks InquirerPy;
+> `test_takeoff_fn_equivalence`'s `warnings` field fails on the untouched
+> tree (a region-cache mismatch, pre-existing); s01 and s02 at f=1.0 must
+> not change (entity set AND polygons) until `_gate_denominator`
+> deliberately moves s01 — report any move as a decision; if a rule costs
+> a confirmed entity or returns an FP, revert it, report why with a
+> before|after of what the lost entity is a chunk of, and STOP; PNG crops
+> go under `docs/w-gate-iter3-checkpoints/` and must never show a street
+> address or planning-portal id. End every report with the numbers: lost,
+> returned FPs, new REVIEW lines with your verdicts, net phantom delta, and
+> what is next.
+
+### Step-8 decision (2026-09-05, same day)
+
+The user looked at the before|after and asked for the change back
+("s18 still needs a lot of work, we can ignore patio for now — it's
+outside the house"): the patch is applied to the tree again (its 7 tests
+pass), labels reseeded on s01/s04/s16/s17/s18. The user then asked for the
+s18 `confirmed` patio strip (2267,758)–(2511,802) to be retired: removed
+through `regression.ground_truth.dump_truth` (a 6-line deletion), its own
+data commit; the re-sweep reads s18 13/13 — **0 LOST, 68 returned FPs, 0
+REVIEW** corpus-wide. Step 8 is committed on
+`fix/plane-restricted-fallback-stamp`. The next agent's prompt above
+applies as written from "Then, only with the user's decision on s01's
+three stair-split rooms".

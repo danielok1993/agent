@@ -15,8 +15,8 @@ from shapely.ops import unary_union
 from models import Candidate, PathPrimitive, TextSpan
 from detection import detect_wall_network
 from detection.rooms import (
-    ROOM_GAP_CLOSE_PX, ROOM_OPENING_SEAL_PX, _clip_plug_tails, _door_plugs,
-    _open_leaf_edges,
+    ROOM_GAP_CLOSE_PX, ROOM_OPENING_SEAL_PX, ROOM_PLUG_HALF_WIDTH_PX,
+    _clip_plug_tails, _door_plugs, _open_leaf_edges, _plane_stamp,
     _restrict_swing_plugs, _sliding_end_edges, _swing_hinge_edges,
     _window_seal, detect_rooms,
 )
@@ -1452,6 +1452,177 @@ class TestPlugPlaneEvidence(unittest.TestCase):
         plugs = _door_plugs((205, 150, 255, 270), material)
         edge2 = [kind for _, kind, e in plugs if e == 2]
         self.assertEqual(edge2, ["full"])
+
+
+class TestPlaneRestrictedFallback(unittest.TestCase):
+    """A plug-less door seals along its wall-plane edges only (W-gate
+    iteration 3 step 8).
+
+    The dilated-bbox fallback stamped ``bbox ⊕ SEAL`` in every direction:
+    the whole swing square left its room and the room on the far side of
+    the wall lost a SEAL-deep strip at every plug-less door (s17 door_0001
+    on the confirmed SH/WC, s01 door_0015's garden pair on the living room,
+    s04 door_0003's slider on both flanking rooms). Measured on the
+    corpus's 181 hinge-derivable plugged singles: the plug lies on a hinge
+    edge 177 times and that edge sits on its wall face (median 0.0 px,
+    max 4.2 px off the dilated material), while the leaf-axis "open leaf"
+    convention predicts the plane edge only 159 : 5 against the closed-leaf
+    convention — so the fallback stamps BOTH hinge edges as the plugs they
+    would have carried (±ROOM_PLUG_HALF_WIDTH_PX, SEAL tails) and nothing
+    on the far edges.
+
+    Fixture: two rooms stacked on a horizontal 8 px band with a 100 px
+    doorway (jambs at x=200 / 300); the door's bbox stops 18 px short of
+    both jambs — past the 15 px reach, so no plug qualifies — and its
+    hinge edge lies 2 px off the band's top face.
+    """
+
+    JAMB_L, JAMB_R = 200.0, 300.0
+    BBOX = (218.0, 226.0, 282.0, 290.0)     # hinge corner bottom-right
+
+    @classmethod
+    def paths(cls):
+        return (
+            rect_room(0, 100, 100, 400, 500)
+            + wall_band_h(100, 100, cls.JAMB_L, 292)
+            + wall_band_h(102, cls.JAMB_R, 400, 292)
+        )
+
+    @classmethod
+    def single(cls):
+        x0, y0, x1, y1 = cls.BBOX
+        # Leaf drawn open along the RIGHT edge, hinge at the bottom-right
+        # corner, chord from the leaf tip to the closed position on the
+        # bottom edge -> hinge edges {bottom, right}.
+        return Candidate(
+            "door_0000", "door", cls.BBOX, 0.67, evidence={
+                "method": "door_assembly", "assembly_type": "single",
+                "leaf_bbox": [x1 - 1.5, y0, x1, y1],
+                "opening_line": [[x1, y0], [x0, y1]],
+            },
+        )
+
+    @staticmethod
+    def _room_at(rooms, pt):
+        hits = [r for r in rooms
+                if ShapelyPolygon(r.evidence["polygon"]).contains(ShapelyPoint(pt))]
+        return hits[0] if hits else None
+
+    def test_doorway_sealed_and_far_room_keeps_its_floor(self):
+        rooms = rooms_for(self.paths(), doors=[self.single()])
+        self.assertEqual(len(rooms), 2)
+        # Room floor 1 px past the band's far-side barrier standoff (face
+        # 300 + 2), at the doorway's centre: the old stamp reached y=305.
+        below = self._room_at(rooms, (250.0, 303.0))
+        self.assertIsNotNone(below, "far room lost its floor at the doorway")
+        self.assertLess(below.bbox[1], 302.5)
+
+    def test_swing_square_rejoins_its_room(self):
+        rooms = rooms_for(self.paths(), doors=[self.single()])
+        self.assertEqual(len(rooms), 2)
+        centre = ((self.BBOX[0] + self.BBOX[2]) / 2, (self.BBOX[1] + self.BBOX[3]) / 2)
+        above = self._room_at(rooms, centre)
+        self.assertIsNotNone(above, "swing square fenced out of its room")
+        self.assertLess(above.bbox[1], 200.0)   # the room above, not a pocket
+
+    def test_plugless_slider_flanking_rooms_keep_their_floor(self):
+        # s04 door_0003: a 7 px panel in a 22 px divider between two rooms,
+        # stopping 18 px short of both jambs. The old stamp bit 15 px into
+        # each flanking room; the slab stays inside the band.
+        paths = (
+            rect_room(0, 100, 100, 700, 500)
+            + wall_band_v(100, 392, 100, 220, thickness=22.0)
+            + wall_band_v(102, 392, 380, 500, thickness=22.0)
+        )
+        slider = Candidate(
+            "door_0003", "door", (399.5, 238.0, 406.5, 362.0), 0.65,
+            evidence={"method": "door_assembly", "assembly_type": "sliding"},
+        )
+        rooms = rooms_for(paths, doors=[slider])
+        self.assertEqual(len(rooms), 2)
+        left = self._room_at(rooms, (389.0, 300.0))    # 1 px inside the standoff
+        right = self._room_at(rooms, (417.0, 300.0))
+        self.assertIsNotNone(left, "left room lost its floor beside the panel")
+        self.assertIsNotNone(right, "right room lost its floor beside the panel")
+        self.assertIsNot(left, right)
+
+    # -- the stamp's geometry, directly ------------------------------------
+
+    JAMBS = unary_union([
+        shapely_box(98, 290, 202, 302),      # left jamb, dilated 8px band
+        shapely_box(298, 290, 402, 302),     # right jamb
+    ])
+
+    def test_single_stamps_hinge_edges_only(self):
+        stamp = _plane_stamp(self.single(), frozenset(), self.JAMBS)
+        bx0, by0, bx1, by1 = self.BBOX
+        x0, y0, x1, y1 = stamp.bounds
+        half = ROOM_PLUG_HALF_WIDTH_PX
+        # The doorway (bottom) slab reaches both jambs with full SEAL tails
+        # at the plug's cross-section — never SEAL across the plane.
+        self.assertAlmostEqual(x0, bx0 - ROOM_OPENING_SEAL_PX, delta=0.1)
+        self.assertAlmostEqual(x1, bx1 + ROOM_OPENING_SEAL_PX, delta=0.1)
+        self.assertAlmostEqual(y1, by1 + half, delta=0.1)
+        # The far edges (top, left) carry nothing.
+        self.assertFalse(stamp.intersects(ShapelyPoint(250.0, by0 - 3.0)))
+        self.assertFalse(stamp.intersects(ShapelyPoint(bx0 - 3.0, 258.0)))
+        # The leaf (right) edge's free tip hugs nothing: its tail is dropped
+        # and the slab ends flat at the bbox corner.
+        self.assertAlmostEqual(y0, by0, delta=0.1)
+        # The swing square stays open.
+        self.assertFalse(stamp.contains(ShapelyPoint(250.0, 258.0)))
+
+    def test_leaf_edge_hinge_tail_ends_at_the_band_far_face(self):
+        # Hinge corner AT the right jamb: the leaf edge's hinge-end tail
+        # crosses the plane hugging the jamb and stops at the band's far
+        # barrier edge (302) instead of stamping a SEAL-long stub into the
+        # far room.
+        jambs = unary_union([
+            shapely_box(98, 290, 202, 302),
+            shapely_box(282, 290, 402, 302),
+        ])
+        stamp = _plane_stamp(self.single(), frozenset(), jambs)
+        self.assertAlmostEqual(stamp.bounds[3], 302.0, delta=0.1)
+
+    def test_slider_stamps_long_edges_inside_the_band(self):
+        slider = Candidate(
+            "door_0003", "door", (399.5, 238.0, 406.5, 362.0), 0.65,
+            evidence={"method": "door_assembly", "assembly_type": "sliding"},
+        )
+        band = unary_union([
+            shapely_box(390, 98, 416, 222),
+            shapely_box(390, 378, 416, 502),
+        ])
+        stamp = _plane_stamp(slider, _sliding_end_edges(slider), band)
+        x0, y0, x1, y1 = stamp.bounds
+        half = ROOM_PLUG_HALF_WIDTH_PX
+        self.assertAlmostEqual(x0, 399.5 - half, delta=0.1)
+        self.assertAlmostEqual(x1, 406.5 + half, delta=0.1)
+        self.assertAlmostEqual(y0, 238.0 - ROOM_OPENING_SEAL_PX, delta=0.1)
+        self.assertAlmostEqual(y1, 362.0 + ROOM_OPENING_SEAL_PX, delta=0.1)
+
+    def test_vetoed_edges_and_unpinned_doors(self):
+        # A garden pair's parked leaves and tip chord are vetoed by the
+        # caller (skip_edges): only the wall edge is stamped.
+        pair = Candidate(
+            "door_0015", "door", self.BBOX, 0.65,
+            evidence={"method": "door_assembly", "assembly_type": "double_swing",
+                      "swing_layout": "garden"},
+        )
+        stamp = _plane_stamp(pair, frozenset({0, 2, 3}), self.JAMBS)
+        self.assertAlmostEqual(stamp.bounds[1], 290.0 - ROOM_PLUG_HALF_WIDTH_PX, delta=0.1)
+        self.assertFalse(stamp.intersects(ShapelyPoint(250.0, 258.0)))
+        # A door whose evidence pins nothing keeps all four edges — a ring
+        # whose interior is open (dissolved later as door floor).
+        bare = Candidate(
+            "door_0000", "door", self.BBOX, 0.67,
+            evidence={"method": "door_assembly", "assembly_type": "single"},
+        )
+        stamp = _plane_stamp(bare, frozenset(), self.JAMBS)
+        bx0, by0, bx1, by1 = self.BBOX
+        for pt in ((250, by0), (250, by1), (bx0, 258), (bx1, 258)):
+            self.assertTrue(stamp.intersects(ShapelyPoint(*pt)), pt)
+        self.assertFalse(stamp.contains(ShapelyPoint(250.0, 258.0)))
 
 
 def stair_arrowhead(start_idx, tip, base_y, half=3.0):
