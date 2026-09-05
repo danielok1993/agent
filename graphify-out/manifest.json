@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1788564985.192013,
-    "ast_hash": "9f91dcbbf5bb5603c16edfd99c82efa6",
+    "mtime": 1788596626.7703116,
+    "ast_hash": "db5573ac44eb229faba12e1ffd32415e",
     "semantic_hash": ""
   },
   "README.md": {
@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "detection/rooms.py": {
-    "mtime": 1788566854.364809,
-    "ast_hash": "9b55f138082ea56572be63c4f2472d8f",
+    "mtime": 1788596626.7704237,
+    "ast_hash": "2f09d36e8bf2f40190a0ba3be24ba934",
     "semantic_hash": ""
   },
   "tests/test_cross_validate.py": {
@@ -260,8 +260,8 @@
     "semantic_hash": ""
   },
   "tests/test_room_detection.py": {
-    "mtime": 1788566895.1603084,
-    "ast_hash": "b555120b1997ec4bb2a4efcdb807db5d",
+    "mtime": 1788596626.771019,
+    "ast_hash": "26188f32317f147debde68caf081d394",
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
@@ -730,8 +730,8 @@
     "semantic_hash": ""
   },
   "tests/ground_truth/s18.json": {
-    "mtime": 1788565366.4422436,
-    "ast_hash": "007c0d53a72ecda8efb74b78c515e600",
+    "mtime": 1788597683.6853392,
+    "ast_hash": "14376487d22efd3f33e25b4fcbe5e412",
     "semantic_hash": ""
   },
   "tests/ground_truth/s20.json": {
@@ -810,8 +810,8 @@
     "semantic_hash": ""
   },
   "docs/scale-normalization-findings.md": {
-    "mtime": 1788565000.7736566,
-    "ast_hash": "25fd6f14c4fcdc6fe78af6885f8c8029",
+    "mtime": 1788596626.770716,
+    "ast_hash": "0f6b546b58137f711d41db68db81d559",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-08-12-scale-aware-wall-room-gates.md": {
@@ -1045,8 +1045,8 @@
     "semantic_hash": ""
   },
   "docs/w-gate-recalibration-handoff.md": {
-    "mtime": 1788565011.2576408,
-    "ast_hash": "6bbeebe1cc221e9174793fad77abed04",
+    "mtime": 1788597796.3313272,
+    "ast_hash": "eb5d638e29c8bb19121d6b326546c3d3",
     "semantic_hash": ""
   },
   "takeoff/document.py": {
@@ -1295,8 +1295,8 @@
     "semantic_hash": ""
   },
   "docs/w-gate-census-2026-09-04.md": {
-    "mtime": 1788515576.7724693,
-    "ast_hash": "60335b3d8874c54f03fa3396b46a98b6",
+    "mtime": 1788567522.8327806,
+    "ast_hash": "7a80f497fb710bb7b97913b455bf22c1",
     "semantic_hash": ""
   },
   "docs/w-gate-iter2-checkpoints/group-1.md": {
@@ -1632,6 +1632,56 @@
   "docs/w-gate-iter3-checkpoints/step7_s17_room_0021_shwc_stamp_12_vs_15.png": {
     "mtime": 1788567448.9070454,
     "ast_hash": "c1e94a9be0d85957c370ee9ff7d15515",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step-7.md": {
+    "mtime": 1788593415.7209935,
+    "ast_hash": "b40191b2d82d93317ea83b02ea11b050",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step-8.md": {
+    "mtime": 1788597791.8053646,
+    "ast_hash": "d96618cbc3157f9e29e7802d8cdad00d",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step8_before_after_composite.png": {
+    "mtime": 1788596653.0282927,
+    "ast_hash": "84b14b00475782c432113b7c234aee04",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step8_s01_room_0001_double_swing_strip_regained.png": {
+    "mtime": 1788595583.9035242,
+    "ast_hash": "4ebd395a4357cdc7d9e162fcb5424e60",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step8_s01_stair_rooms_identity_vs_true_factor.png": {
+    "mtime": 1788595637.194321,
+    "ast_hash": "7fd71e4cd0e0cc71d46f015b4a42d9f4",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step8_s04_room_0001_slider_strip_regained.png": {
+    "mtime": 1788595583.900338,
+    "ast_hash": "073073ca59e0da6edd6ad06ae00fa0ee",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step8_s16_room_0002_plugless_pair_notch_gone.png": {
+    "mtime": 1788595583.9063594,
+    "ast_hash": "764e8d7514c66fc220c3fb2621bb3035",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step8_s17_room_0021_shwc_swing_square_regained.png": {
+    "mtime": 1788595583.897435,
+    "ast_hash": "329da1156849ccddb854dc0a36f55ed5",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step8_s18_door_0271_patio_strip_lost_before_after.png": {
+    "mtime": 1788595583.8948781,
+    "ast_hash": "24252b4398913a944d5ca134ee9f68de",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step8_s18_room_0002_day_room_swing_regained.png": {
+    "mtime": 1788595583.909101,
+    "ast_hash": "c81f8c7ee2d12ba0b6f424da551c660a",
     "semantic_hash": ""
   }
 }
