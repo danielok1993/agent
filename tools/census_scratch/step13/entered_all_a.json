@@ -1,0 +1,8741 @@
+[
+ {
+  "slug": "s01",
+  "page": 1,
+  "factor": 0.5423,
+  "cap_px": 19.52,
+  "thick_px": 30.37,
+  "n_rooms": 10,
+  "n_face_lines": 270,
+  "rooms": [
+   {
+    "bbox": [
+     390.2,
+     919.5,
+     521.0,
+     1389.0
+    ],
+    "area": 44435,
+    "short": 130.79,
+    "long": 469.52,
+    "spacing": 134.79,
+    "spacing_mm": 2104,
+    "covers": [
+     0.109,
+     0.971
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 5,
+    "window_count": 0,
+    "entrance_count": 5,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 61.2,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       449.9,
+       1389.0,
+       511.7,
+       1394.5
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 47.4,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       437.0,
+       1176.6,
+       442.5,
+       1239.6
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 173.9,
+      "seal_axis_vs_room": 50.8,
+      "meets": "across",
+      "seal_bbox": [
+       408.2,
+       908.9,
+       475.6,
+       965.6
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 59.7,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       385.5,
+       947.4,
+       390.2,
+       1019.5
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 119.6,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       384.8,
+       1010.1,
+       401.0,
+       1125.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.972,
+    "gt_note": "top right corner has square cutout",
+    "mrr": [
+     [
+      390.2,
+      919.5
+     ],
+     [
+      390.2,
+      1389.0
+     ],
+     [
+      521.0,
+      1389.0
+     ],
+     [
+      521.0,
+      919.5
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     215.0,
+     1144.5,
+     437.0,
+     1435.3
+    ],
+    "area": 57815,
+    "short": 222.04,
+    "long": 290.75,
+    "spacing": 226.04,
+    "spacing_mm": 3529,
+    "covers": [
+     0.529,
+     0.831
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 72.4,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       437.0,
+       1176.6,
+       442.5,
+       1239.6
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.995,
+    "gt_note": "left does not extend fully to the wall, right fuzzy line",
+    "mrr": [
+     [
+      215.0,
+      1144.5
+     ],
+     [
+      215.0,
+      1435.3
+     ],
+     [
+      437.0,
+      1435.3
+     ],
+     [
+      437.0,
+      1144.5
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     198.0,
+     1020.3,
+     384.8,
+     1118.8
+    ],
+    "area": 17598,
+    "short": 98.5,
+    "long": 186.79,
+    "spacing": 102.5,
+    "spacing_mm": 1600,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.65,
+      "contact_px": 6.4,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       385.5,
+       947.4,
+       390.2,
+       1019.5
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 106.5,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       384.8,
+       1010.1,
+       401.0,
+       1125.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.988,
+    "gt_note": "",
+    "mrr": [
+     [
+      198.0,
+      1020.3
+     ],
+     [
+      198.0,
+      1118.8
+     ],
+     [
+      384.8,
+      1118.8
+     ],
+     [
+      384.8,
+      1020.3
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     198.0,
+     919.8,
+     385.5,
+     1009.3
+    ],
+    "area": 16363,
+    "short": 89.5,
+    "long": 187.5,
+    "spacing": 93.5,
+    "spacing_mm": 1460,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.65,
+      "contact_px": 69.9,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       385.5,
+       947.4,
+       390.2,
+       1019.5
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 7.7,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       384.8,
+       1010.1,
+       401.0,
+       1125.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.966,
+    "gt_note": "",
+    "mrr": [
+     [
+      198.0,
+      919.8
+     ],
+     [
+      198.0,
+      1009.3
+     ],
+     [
+      385.5,
+      1009.3
+     ],
+     [
+      385.5,
+      919.8
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     208.8,
+     412.0,
+     521.0,
+     914.3
+    ],
+    "area": 150719,
+    "short": 312.25,
+    "long": 502.29,
+    "spacing": 316.25,
+    "spacing_mm": 4937,
+    "covers": [
+     0.587,
+     0.985
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 72.2,
+      "seal_axis_vs_room": 50.8,
+      "meets": "across",
+      "seal_bbox": [
+       408.2,
+       908.9,
+       475.6,
+       965.6
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 134.0,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       301.9,
+       407.3,
+       427.9,
+       412.0
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.976,
+    "gt_note": "",
+    "mrr": [
+     [
+      208.8,
+      914.3
+     ],
+     [
+      521.0,
+      914.3
+     ],
+     [
+      521.0,
+      412.0
+     ],
+     [
+      208.8,
+      412.0
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     969.7,
+     406.5,
+     1142.0,
+     691.5
+    ],
+    "area": 47605,
+    "short": 172.25,
+    "long": 285.08,
+    "spacing": 176.25,
+    "spacing_mm": 2752,
+    "covers": [
+     0.721,
+     0.987
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 55.2,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1087.9,
+       691.5,
+       1141.2,
+       697.0
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 119.2,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       992.9,
+       401.0,
+       1118.9,
+       406.5
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.984,
+    "gt_note": "",
+    "mrr": [
+     [
+      969.7,
+      691.5
+     ],
+     [
+      1142.0,
+      691.5
+     ],
+     [
+      1142.0,
+      406.5
+     ],
+     [
+      969.7,
+      406.5
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1031.5,
+     697.0,
+     1142.0,
+     1136.5
+    ],
+    "area": 30951,
+    "short": 110.17,
+    "long": 440.93,
+    "spacing": 114.17,
+    "spacing_mm": 1782,
+    "covers": [
+     0.036,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.7,
+    "door_count": 4,
+    "window_count": 0,
+    "entrance_count": 4,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 80.8,
+      "seal_axis_vs_room": 0.7,
+      "meets": "along",
+      "seal_bbox": [
+       1026.0,
+       1055.4,
+       1031.5,
+       1125.4
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 72.6,
+      "seal_axis_vs_room": 89.3,
+      "meets": "across",
+      "seal_bbox": [
+       1028.1,
+       1136.5,
+       1098.1,
+       1142.0
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 60.2,
+      "seal_axis_vs_room": 89.3,
+      "meets": "across",
+      "seal_bbox": [
+       1087.9,
+       691.5,
+       1141.2,
+       697.0
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 69.5,
+      "seal_axis_vs_room": 0.7,
+      "meets": "along",
+      "seal_bbox": [
+       1083.0,
+       695.9,
+       1088.5,
+       757.4
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "more stair at the bottom right need to be covered. THe top left also has a slight notch and does not go all the way to t",
+    "mrr": [
+     [
+      1036.3,
+      695.6
+     ],
+     [
+      1030.5,
+      1136.5
+     ],
+     [
+      1140.7,
+      1137.9
+     ],
+     [
+      1146.4,
+      697.0
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     819.2,
+     1142.0,
+     1142.0,
+     1373.2
+    ],
+    "area": 71991,
+    "short": 231.29,
+    "long": 322.75,
+    "spacing": 235.29,
+    "spacing_mm": 3673,
+    "covers": [
+     0.662,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 1,
+    "window_count": 2,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 83.3,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1028.1,
+       1136.5,
+       1098.1,
+       1142.0
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.99,
+    "gt_note": "top right corner square cutout",
+    "mrr": [
+     [
+      819.2,
+      1373.2
+     ],
+     [
+      1142.0,
+      1373.2
+     ],
+     [
+      1142.0,
+      1142.0
+     ],
+     [
+      819.2,
+      1142.0
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     829.8,
+     919.8,
+     1026.0,
+     1118.5
+    ],
+    "area": 35884,
+    "short": 196.29,
+    "long": 198.75,
+    "spacing": 200.29,
+    "spacing_mm": 3127,
+    "covers": [
+     0.291,
+     0.713
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 72.2,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1026.0,
+       1055.4,
+       1031.5,
+       1125.4
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.971,
+    "gt_note": "top part is not extending fully to the wall",
+    "mrr": [
+     [
+      829.8,
+      919.8
+     ],
+     [
+      829.8,
+      1118.5
+     ],
+     [
+      1026.0,
+      1118.5
+     ],
+     [
+      1026.0,
+      919.8
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     969.7,
+     698.0,
+     1083.0,
+     916.2
+    ],
+    "area": 23901,
+    "short": 113.29,
+    "long": 218.25,
+    "spacing": 117.29,
+    "spacing_mm": 1831,
+    "covers": [
+     0.75,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 55.3,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1083.0,
+       695.9,
+       1088.5,
+       757.4
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.975,
+    "gt_note": "",
+    "mrr": [
+     [
+      969.7,
+      916.2
+     ],
+     [
+      1083.0,
+      916.2
+     ],
+     [
+      1083.0,
+      698.0
+     ],
+     [
+      969.7,
+      698.0
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s02",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 11,
+  "n_face_lines": 556,
+  "rooms": [
+   {
+    "bbox": [
+     1361.8,
+     639.6,
+     1878.7,
+     1118.1
+    ],
+    "area": 195783,
+    "short": 478.46,
+    "long": 516.93,
+    "spacing": 482.46,
+    "spacing_mm": 4085,
+    "covers": [
+     0.0,
+     0.517
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 3,
+    "window_count": 2,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 128.1,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1451.2,
+       706.2,
+       1571.4,
+       713.4
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 175.0,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1878.7,
+       757.2,
+       1888.7,
+       952.2
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1361.8,
+      1118.1
+     ],
+     [
+      1878.7,
+      1118.1
+     ],
+     [
+      1878.7,
+      639.6
+     ],
+     [
+      1361.8,
+      639.6
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     201.7,
+     583.7,
+     817.2,
+     1115.1
+    ],
+    "area": 264326,
+    "short": 531.37,
+    "long": 615.5,
+    "spacing": 535.37,
+    "spacing_mm": 4533,
+    "covers": [
+     0.348,
+     0.629
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 2,
+    "window_count": 3,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.85,
+      "contact_px": 138.2,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       793.9,
+       772.7,
+       808.7,
+       897.2
+      ]
+     },
+     {
+      "conf": 0.83,
+      "contact_px": 108.1,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       752.2,
+       577.2,
+       762.2,
+       697.4
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.991,
+    "gt_note": "",
+    "mrr": [
+     [
+      201.7,
+      583.7
+     ],
+     [
+      201.7,
+      1115.1
+     ],
+     [
+      817.2,
+      1115.1
+     ],
+     [
+      817.2,
+      583.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     762.2,
+     566.2,
+     1309.6,
+     764.7
+    ],
+    "area": 79697,
+    "short": 198.5,
+    "long": 547.38,
+    "spacing": 202.5,
+    "spacing_mm": 1714,
+    "covers": [
+     0.195,
+     0.418
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 3,
+    "window_count": 0,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.83,
+      "contact_px": 126.8,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       752.2,
+       577.2,
+       762.2,
+       697.4
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 169.2,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1168.8,
+       694.2,
+       1318.7,
+       710.2
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.703,
+    "gt_note": "",
+    "mrr": [
+     [
+      762.2,
+      566.2
+     ],
+     [
+      762.2,
+      764.7
+     ],
+     [
+      1309.6,
+      764.7
+     ],
+     [
+      1309.6,
+      566.2
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     886.4,
+     282.2,
+     1343.7,
+     548.0
+    ],
+    "area": 117397,
+    "short": 265.71,
+    "long": 457.34,
+    "spacing": 269.71,
+    "spacing_mm": 2284,
+    "covers": [
+     0.0,
+     0.369
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 5,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.83,
+      "contact_px": 122.3,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1072.8,
+       547.6,
+       1186.4,
+       554.7
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.971,
+    "gt_note": "",
+    "mrr": [
+     [
+      886.2,
+      547.7
+     ],
+     [
+      1343.5,
+      548.0
+     ],
+     [
+      1343.7,
+      282.3
+     ],
+     [
+      886.4,
+      282.0
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     168.3,
+     285.7,
+     867.9,
+     547.1
+    ],
+    "area": 158277,
+    "short": 261.19,
+    "long": 699.69,
+    "spacing": 265.19,
+    "spacing_mm": 2245,
+    "covers": [
+     0.0,
+     0.55
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.1,
+    "door_count": 4,
+    "window_count": 2,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 208.0,
+      "seal_axis_vs_room": 41.2,
+      "meets": "along",
+      "seal_bbox": [
+       754.4,
+       459.0,
+       874.8,
+       564.2
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.985,
+    "gt_note": "",
+    "mrr": [
+     [
+      167.9,
+      546.3
+     ],
+     [
+      867.6,
+      547.2
+     ],
+     [
+      868.0,
+      286.0
+     ],
+     [
+      168.3,
+      285.1
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     48.8,
+     297.7,
+     146.6,
+     508.7
+    ],
+    "area": 17232,
+    "short": 97.83,
+    "long": 211.0,
+    "spacing": 101.83,
+    "spacing_mm": 862,
+    "covers": [
+     0.0,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 90.6,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       56.4,
+       508.7,
+       153.2,
+       518.7
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.991,
+    "gt_note": "",
+    "mrr": [
+     [
+      146.6,
+      508.7
+     ],
+     [
+      146.6,
+      297.7
+     ],
+     [
+      48.8,
+      297.7
+     ],
+     [
+      48.8,
+      508.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1315.8,
+     99.1,
+     1733.3,
+     694.7
+    ],
+    "area": 209315,
+    "short": 401.39,
+    "long": 607.86,
+    "spacing": 405.39,
+    "spacing_mm": 3432,
+    "covers": [
+     0.0,
+     0.213
+    ],
+    "cover_ok": false,
+    "axis_deg": 87.8,
+    "door_count": 6,
+    "window_count": 0,
+    "entrance_count": 3,
+    "entrances": [
+     {
+      "conf": 0.83,
+      "contact_px": 93.4,
+      "seal_axis_vs_room": 2.2,
+      "meets": "along",
+      "seal_bbox": [
+       1305.8,
+       99.1,
+       1315.8,
+       238.6
+      ]
+     },
+     {
+      "conf": 0.83,
+      "contact_px": 117.4,
+      "seal_axis_vs_room": 2.2,
+      "meets": "along",
+      "seal_bbox": [
+       1324.2,
+       576.6,
+       1334.2,
+       696.7
+      ]
+     },
+     {
+      "conf": 0.81,
+      "contact_px": 231.1,
+      "seal_axis_vs_room": 2.2,
+      "meets": "along",
+      "seal_bbox": [
+       1693.8,
+       301.2,
+       1785.7,
+       538.2
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.99,
+    "gt_note": "",
+    "mrr": [
+     [
+      1311.4,
+      99.9
+     ],
+     [
+      1334.8,
+      707.3
+     ],
+     [
+      1735.9,
+      691.9
+     ],
+     [
+      1712.5,
+      84.5
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1712.3,
+     99.1,
+     2329.1,
+     536.6
+    ],
+    "area": 253826,
+    "short": 437.5,
+    "long": 616.87,
+    "spacing": 441.5,
+    "spacing_mm": 3738,
+    "covers": [
+     0.0,
+     0.644
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.81,
+      "contact_px": 391.7,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1693.8,
+       301.2,
+       1785.7,
+       538.2
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.998,
+    "gt_note": "",
+    "mrr": [
+     [
+      1712.3,
+      99.1
+     ],
+     [
+      1712.3,
+      536.6
+     ],
+     [
+      2329.1,
+      536.6
+     ],
+     [
+      2329.1,
+      99.1
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1053.0,
+     845.2,
+     1342.9,
+     1115.6
+    ],
+    "area": 76567,
+    "short": 270.37,
+    "long": 289.89,
+    "spacing": 274.37,
+    "spacing_mm": 2323,
+    "covers": [
+     0.301,
+     0.73
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.65,
+      "contact_px": 181.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1176.2,
+       830.2,
+       1348.3,
+       845.2
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.997,
+    "gt_note": "",
+    "mrr": [
+     [
+      1053.0,
+      1115.6
+     ],
+     [
+      1342.9,
+      1115.6
+     ],
+     [
+      1342.9,
+      845.2
+     ],
+     [
+      1053.0,
+      845.2
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1053.4,
+     712.1,
+     1343.1,
+     830.2
+    ],
+    "area": 33887,
+    "short": 117.59,
+    "long": 289.84,
+    "spacing": 121.59,
+    "spacing_mm": 1029,
+    "covers": [
+     0.287,
+     0.665
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.2,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.65,
+      "contact_px": 180.7,
+      "seal_axis_vs_room": 0.2,
+      "meets": "along",
+      "seal_bbox": [
+       1176.2,
+       830.2,
+       1348.3,
+       845.2
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 156.9,
+      "seal_axis_vs_room": 0.2,
+      "meets": "along",
+      "seal_bbox": [
+       1168.8,
+       694.2,
+       1318.7,
+       710.2
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.979,
+    "gt_note": "",
+    "mrr": [
+     [
+      1343.4,
+      713.2
+     ],
+     [
+      1053.5,
+      712.1
+     ],
+     [
+      1053.1,
+      829.7
+     ],
+     [
+      1342.9,
+      830.8
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     808.7,
+     780.2,
+     1017.4,
+     1115.5
+    ],
+    "area": 65784,
+    "short": 208.63,
+    "long": 335.08,
+    "spacing": 212.63,
+    "spacing_mm": 1800,
+    "covers": [
+     0.507,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.1,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.85,
+      "contact_px": 131.0,
+      "seal_axis_vs_room": 0.1,
+      "meets": "along",
+      "seal_bbox": [
+       793.9,
+       772.7,
+       808.7,
+       897.2
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.984,
+    "gt_note": "",
+    "mrr": [
+     [
+      1017.0,
+      1115.5
+     ],
+     [
+      1017.4,
+      780.5
+     ],
+     [
+      808.7,
+      780.2
+     ],
+     [
+      808.3,
+      1115.3
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s03",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 19,
+  "n_face_lines": 456,
+  "rooms": [
+   {
+    "bbox": [
+     648.4,
+     497.4,
+     835.2,
+     846.2
+    ],
+    "area": 63200,
+    "short": 186.75,
+    "long": 348.75,
+    "spacing": 190.75,
+    "spacing_mm": 3230,
+    "covers": [
+     0.652,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 3,
+    "window_count": 0,
+    "entrance_count": 3,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 104.2,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       673.9,
+       487.4,
+       799.9,
+       497.4
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 63.2,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       636.2,
+       846.2,
+       721.2,
+       856.2
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 104.7,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       641.4,
+       535.2,
+       648.4,
+       631.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.989,
+    "gt_note": "",
+    "mrr": [
+     [
+      648.4,
+      497.4
+     ],
+     [
+      648.4,
+      846.2
+     ],
+     [
+      835.2,
+      846.2
+     ],
+     [
+      835.2,
+      497.4
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     488.9,
+     505.7,
+     641.4,
+     661.2
+    ],
+    "area": 23432,
+    "short": 152.5,
+    "long": 155.5,
+    "spacing": 156.5,
+    "spacing_mm": 2650,
+    "covers": [
+     0.273,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 108.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       641.4,
+       535.2,
+       648.4,
+       631.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      488.9,
+      505.7
+     ],
+     [
+      488.9,
+      661.2
+     ],
+     [
+      641.4,
+      661.2
+     ],
+     [
+      641.4,
+      505.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     479.9,
+     856.2,
+     852.9,
+     1127.9
+    ],
+    "area": 82568,
+    "short": 271.75,
+    "long": 373.0,
+    "spacing": 275.75,
+    "spacing_mm": 4669,
+    "covers": [
+     0.387,
+     0.534
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 5,
+    "window_count": 0,
+    "entrance_count": 5,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 82.4,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       636.2,
+       846.2,
+       721.2,
+       856.2
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 93.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       539.4,
+       1068.7,
+       624.4,
+       1075.7
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 96.3,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       523.4,
+       886.7,
+       608.4,
+       893.7
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 60.5,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       469.9,
+       1000.1,
+       479.9,
+       1083.7
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 13.5,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       654.9,
+       1122.4,
+       661.9,
+       1201.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      479.9,
+      856.2
+     ],
+     [
+      479.9,
+      1127.9
+     ],
+     [
+      852.9,
+      1127.9
+     ],
+     [
+      852.9,
+      856.2
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     471.2,
+     1072.7,
+     654.9,
+     1197.4
+    ],
+    "area": 20617,
+    "short": 124.75,
+    "long": 183.75,
+    "spacing": 128.75,
+    "spacing_mm": 2180,
+    "covers": [
+     0.11,
+     0.442
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 3,
+    "window_count": 1,
+    "entrance_count": 3,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 103.6,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       539.4,
+       1068.7,
+       624.4,
+       1075.7
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 60.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       564.9,
+       1197.4,
+       648.2,
+       1207.4
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 75.9,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       654.9,
+       1122.4,
+       661.9,
+       1201.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.593,
+    "gt_note": "",
+    "mrr": [
+     [
+      471.2,
+      1197.4
+     ],
+     [
+      654.9,
+      1197.4
+     ],
+     [
+      654.9,
+      1072.7
+     ],
+     [
+      471.2,
+      1072.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     661.9,
+     1137.7,
+     852.9,
+     1348.4
+    ],
+    "area": 38963,
+    "short": 191.0,
+    "long": 210.75,
+    "spacing": 195.0,
+    "spacing_mm": 3302,
+    "covers": [
+     0.679,
+     0.961
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 72.2,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       654.9,
+       1122.4,
+       661.9,
+       1201.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "the section where window is being removed. This seems like the extruded section of the house window.",
+    "mrr": [
+     [
+      661.9,
+      1348.4
+     ],
+     [
+      852.9,
+      1348.4
+     ],
+     [
+      852.9,
+      1137.7
+     ],
+     [
+      661.9,
+      1137.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     488.9,
+     671.2,
+     638.4,
+     886.7
+    ],
+    "area": 32058,
+    "short": 149.5,
+    "long": 215.5,
+    "spacing": 153.5,
+    "spacing_mm": 2599,
+    "covers": [
+     0.785,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 6.4,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       636.2,
+       846.2,
+       721.2,
+       856.2
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 93.0,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       523.4,
+       886.7,
+       608.4,
+       893.7
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.974,
+    "gt_note": "does not fully extend to the walls, small gaps on the right hand side and bottom left",
+    "mrr": [
+     [
+      488.9,
+      671.2
+     ],
+     [
+      488.9,
+      886.7
+     ],
+     [
+      638.4,
+      886.7
+     ],
+     [
+      638.4,
+      671.2
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1077.2,
+     1007.9,
+     1244.4,
+     1188.7
+    ],
+    "area": 13782,
+    "short": 167.25,
+    "long": 180.75,
+    "spacing": 171.25,
+    "spacing_mm": 2900,
+    "covers": [
+     0.397,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 4,
+    "window_count": 0,
+    "entrance_count": 4,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 77.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1244.4,
+       1125.2,
+       1251.4,
+       1201.9
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 88.9,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1244.4,
+       1066.7,
+       1251.4,
+       1140.4
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 53.0,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1181.7,
+       1000.9,
+       1251.4,
+       1007.9
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 68.9,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1186.7,
+       1000.9,
+       1193.8,
+       1069.9
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "notch on the right hand side and bit of skewed detection near the top plus notch next to top door",
+    "mrr": [
+     [
+      1077.2,
+      1188.7
+     ],
+     [
+      1244.4,
+      1188.7
+     ],
+     [
+      1244.4,
+      1007.9
+     ],
+     [
+      1077.2,
+      1007.9
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1251.4,
+     1137.7,
+     1442.4,
+     1329.9
+    ],
+    "area": 36710,
+    "short": 191.0,
+    "long": 192.25,
+    "spacing": 195.0,
+    "spacing_mm": 3302,
+    "covers": [
+     0.733,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 72.2,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1244.4,
+       1125.2,
+       1251.4,
+       1201.9
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 10.8,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1244.4,
+       1066.7,
+       1251.4,
+       1140.4
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.984,
+    "gt_note": "",
+    "mrr": [
+     [
+      1251.4,
+      1137.7
+     ],
+     [
+      1251.4,
+      1329.9
+     ],
+     [
+      1442.4,
+      1329.9
+     ],
+     [
+      1442.4,
+      1137.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1251.4,
+     858.9,
+     1442.4,
+     1127.9
+    ],
+    "area": 51379,
+    "short": 191.0,
+    "long": 269.0,
+    "spacing": 195.0,
+    "spacing_mm": 3302,
+    "covers": [
+     0.821,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 3,
+    "window_count": 0,
+    "entrance_count": 3,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 10.7,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1244.4,
+       1125.2,
+       1251.4,
+       1201.9
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 69.2,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1244.4,
+       1066.7,
+       1251.4,
+       1140.4
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 15.0,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1181.7,
+       1000.9,
+       1251.4,
+       1007.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1251.4,
+      858.9
+     ],
+     [
+      1251.4,
+      1127.9
+     ],
+     [
+      1442.4,
+      1127.9
+     ],
+     [
+      1442.4,
+      858.9
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1077.2,
+     858.9,
+     1241.7,
+     1000.9
+    ],
+    "area": 23359,
+    "short": 142.0,
+    "long": 164.5,
+    "spacing": 146.0,
+    "spacing_mm": 2472,
+    "covers": [
+     0.714,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 68.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1181.7,
+       1000.9,
+       1251.4,
+       1007.9
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 15.1,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1186.7,
+       1000.9,
+       1193.8,
+       1069.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.988,
+    "gt_note": "",
+    "mrr": [
+     [
+      1077.2,
+      1000.9
+     ],
+     [
+      1241.7,
+      1000.9
+     ],
+     [
+      1241.7,
+      858.9
+     ],
+     [
+      1077.2,
+      858.9
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1077.2,
+     1010.7,
+     1186.7,
+     1120.7
+    ],
+    "area": 12035,
+    "short": 109.5,
+    "long": 110.0,
+    "spacing": 113.5,
+    "spacing_mm": 1922,
+    "covers": [
+     0.577,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 9.1,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1181.7,
+       1000.9,
+       1251.4,
+       1007.9
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 67.2,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1186.7,
+       1000.9,
+       1193.8,
+       1069.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1077.2,
+      1120.7
+     ],
+     [
+      1186.7,
+      1120.7
+     ],
+     [
+      1186.7,
+      1010.7
+     ],
+     [
+      1077.2,
+      1010.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     3409.4,
+     887.9,
+     3884.4,
+     1293.4
+    ],
+    "area": 157561,
+    "short": 405.5,
+    "long": 475.0,
+    "spacing": 409.5,
+    "spacing_mm": 3467,
+    "covers": [
+     0.0,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 14,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 102.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       3632.9,
+       1293.4,
+       3752.9,
+       1303.4
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.996,
+    "gt_note": "",
+    "mrr": [
+     [
+      3409.4,
+      887.9
+     ],
+     [
+      3409.4,
+      1293.4
+     ],
+     [
+      3884.4,
+      1293.4
+     ],
+     [
+      3884.4,
+      887.9
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     3407.2,
+     1238.4,
+     3629.9,
+     1526.2
+    ],
+    "area": 64058,
+    "short": 222.75,
+    "long": 287.75,
+    "spacing": 226.75,
+    "spacing_mm": 1920,
+    "covers": [
+     0.625,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 3,
+    "window_count": 0,
+    "entrance_count": 3,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 127.2,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       3629.9,
+       1406.9,
+       3637.1,
+       1527.2
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 15.3,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       3632.9,
+       1293.4,
+       3752.9,
+       1303.4
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 3.6,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       3629.9,
+       1529.2,
+       3637.0,
+       1647.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "door is being extruded from detection",
+    "mrr": [
+     [
+      3407.2,
+      1238.4
+     ],
+     [
+      3407.2,
+      1526.2
+     ],
+     [
+      3629.9,
+      1526.2
+     ],
+     [
+      3629.9,
+      1238.4
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     3407.2,
+     1303.4,
+     3748.7,
+     1901.9
+    ],
+    "area": 81361,
+    "short": 341.5,
+    "long": 598.5,
+    "spacing": 345.5,
+    "spacing_mm": 2925,
+    "covers": [
+     0.0,
+     0.615
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 5,
+    "window_count": 0,
+    "entrance_count": 5,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 99.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       3748.6,
+       1782.7,
+       3755.7,
+       1911.2
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 93.8,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       3748.7,
+       1670.9,
+       3755.7,
+       1793.4
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 91.3,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       3629.9,
+       1406.9,
+       3637.1,
+       1527.2
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 91.5,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       3632.9,
+       1293.4,
+       3752.9,
+       1303.4
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 90.3,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       3629.9,
+       1529.2,
+       3637.0,
+       1647.9
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "landing + flight + stair foot as one room (stairs are furniture); retires the two partial rooms it replaced",
+    "mrr": [
+     [
+      3748.7,
+      1303.4
+     ],
+     [
+      3407.2,
+      1303.4
+     ],
+     [
+      3407.2,
+      1901.9
+     ],
+     [
+      3748.7,
+      1901.9
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     3407.2,
+     1541.9,
+     3629.9,
+     1765.9
+    ],
+    "area": 49878,
+    "short": 222.75,
+    "long": 224.0,
+    "spacing": 226.75,
+    "spacing_mm": 1920,
+    "covers": [
+     0.576,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 114.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       3629.9,
+       1529.2,
+       3637.0,
+       1647.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      3407.2,
+      1765.9
+     ],
+     [
+      3629.9,
+      1765.9
+     ],
+     [
+      3629.9,
+      1541.9
+     ],
+     [
+      3407.2,
+      1541.9
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     3755.7,
+     1238.4,
+     4141.4,
+     1780.2
+    ],
+    "area": 208970,
+    "short": 385.75,
+    "long": 541.75,
+    "spacing": 389.75,
+    "spacing_mm": 3300,
+    "covers": [
+     0.819,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 3,
+    "window_count": 0,
+    "entrance_count": 3,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 4.6,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       3748.6,
+       1782.7,
+       3755.7,
+       1911.2
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 117.3,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       3748.7,
+       1670.9,
+       3755.7,
+       1793.4
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 15.8,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       3632.9,
+       1293.4,
+       3752.9,
+       1303.4
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "the left wall slightly skewed towards the bottom",
+    "mrr": [
+     [
+      3755.7,
+      1780.2
+     ],
+     [
+      4141.4,
+      1780.2
+     ],
+     [
+      4141.4,
+      1238.4
+     ],
+     [
+      3755.7,
+      1238.4
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     3755.7,
+     1795.9,
+     4141.4,
+     2184.2
+    ],
+    "area": 149749,
+    "short": 385.75,
+    "long": 388.25,
+    "spacing": 389.75,
+    "spacing_mm": 3300,
+    "covers": [
+     0.731,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 123.3,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       3748.6,
+       1782.7,
+       3755.7,
+       1911.2
+      ]
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 4.6,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       3748.7,
+       1670.9,
+       3755.7,
+       1793.4
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.992,
+    "gt_note": "",
+    "mrr": [
+     [
+      3755.7,
+      1795.9
+     ],
+     [
+      3755.7,
+      2184.2
+     ],
+     [
+      4141.4,
+      2184.2
+     ],
+     [
+      4141.4,
+      1795.9
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     3759.7,
+     496.7,
+     4141.4,
+     1201.4
+    ],
+    "area": 210812,
+    "short": 381.75,
+    "long": 704.75,
+    "spacing": 385.75,
+    "spacing_mm": 3266,
+    "covers": [
+     0.5,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 0.996,
+    "gt_note": "",
+    "mrr": [
+     [
+      3759.7,
+      496.7
+     ],
+     [
+      3759.7,
+      1201.4
+     ],
+     [
+      4141.4,
+      1201.4
+     ],
+     [
+      4141.4,
+      496.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     3373.9,
+     496.7,
+     3755.7,
+     846.9
+    ],
+    "area": 133708,
+    "short": 350.25,
+    "long": 381.75,
+    "spacing": 354.25,
+    "spacing_mm": 2999,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      3373.9,
+      496.7
+     ],
+     [
+      3373.9,
+      846.9
+     ],
+     [
+      3755.7,
+      846.9
+     ],
+     [
+      3755.7,
+      496.7
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s04",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 7,
+  "n_face_lines": 208,
+  "rooms": [
+   {
+    "bbox": [
+     1026.4,
+     860.6,
+     1459.2,
+     1146.2
+    ],
+    "area": 116781,
+    "short": 285.62,
+    "long": 432.88,
+    "spacing": 289.62,
+    "spacing_mm": 2452,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 4,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 93.9,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1459.2,
+       941.8,
+       1466.3,
+       1062.1
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.993,
+    "gt_note": "",
+    "mrr": [
+     [
+      1026.4,
+      1146.2
+     ],
+     [
+      1459.2,
+      1146.2
+     ],
+     [
+      1459.2,
+      860.6
+     ],
+     [
+      1026.4,
+      860.6
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1463.2,
+     1042.2,
+     1558.1,
+     1130.6
+    ],
+    "area": 8123,
+    "short": 88.44,
+    "long": 94.87,
+    "spacing": 92.44,
+    "spacing_mm": 783,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 2,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 21.5,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1459.2,
+       941.8,
+       1466.3,
+       1062.1
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "false_positive",
+    "gt_iou": 0.928,
+    "gt_note": "",
+    "mrr": [
+     [
+      1463.2,
+      1042.2
+     ],
+     [
+      1463.2,
+      1130.6
+     ],
+     [
+      1558.1,
+      1130.6
+     ],
+     [
+      1558.1,
+      1042.2
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1466.3,
+     955.6,
+     1852.2,
+     1130.6
+    ],
+    "area": 38139,
+    "short": 175.0,
+    "long": 385.97,
+    "spacing": 179.0,
+    "spacing_mm": 1515,
+    "covers": [
+     0.672,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 5,
+    "window_count": 0,
+    "entrance_count": 3,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 123.6,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1852.2,
+       951.0,
+       1859.2,
+       1071.3
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 90.6,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1459.2,
+       941.8,
+       1466.3,
+       1062.1
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 128.2,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1475.8,
+       948.6,
+       1596.0,
+       955.6
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1466.3,
+      955.6
+     ],
+     [
+      1466.3,
+      1130.6
+     ],
+     [
+      1852.2,
+      1130.6
+     ],
+     [
+      1852.2,
+      955.6
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1448.9,
+     621.0,
+     1682.2,
+     948.6
+    ],
+    "area": 71620,
+    "short": 233.31,
+    "long": 327.62,
+    "spacing": 237.31,
+    "spacing_mm": 2009,
+    "covers": [
+     0.0,
+     0.993
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 93.8,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1475.8,
+       948.6,
+       1596.0,
+       955.6
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.965,
+    "gt_note": "door is not ignored and room is drawn around it",
+    "mrr": [
+     [
+      1448.9,
+      948.6
+     ],
+     [
+      1682.2,
+      948.6
+     ],
+     [
+      1682.2,
+      621.0
+     ],
+     [
+      1448.9,
+      621.0
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1859.2,
+     621.0,
+     2296.8,
+     1130.6
+    ],
+    "area": 218475,
+    "short": 437.56,
+    "long": 509.62,
+    "spacing": 441.56,
+    "spacing_mm": 3738,
+    "covers": [
+     0.189,
+     0.276
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 5,
+    "window_count": 0,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 93.8,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1852.2,
+       951.0,
+       1859.2,
+       1071.3
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 181.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1851.0,
+       726.2,
+       1868.0,
+       896.5
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.572,
+    "gt_note": "",
+    "mrr": [
+     [
+      1859.2,
+      621.0
+     ],
+     [
+      1859.2,
+      1130.6
+     ],
+     [
+      2296.8,
+      1130.6
+     ],
+     [
+      2296.8,
+      621.0
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1712.1,
+     621.0,
+     1851.0,
+     937.1
+    ],
+    "area": 43360,
+    "short": 138.88,
+    "long": 316.06,
+    "spacing": 142.88,
+    "spacing_mm": 1210,
+    "covers": [
+     0.0,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.65,
+      "contact_px": 181.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1851.0,
+       726.2,
+       1868.0,
+       896.5
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.983,
+    "gt_note": "nearly perfect we just need to move the detection to the middle of the door",
+    "mrr": [
+     [
+      1712.1,
+      621.0
+     ],
+     [
+      1712.1,
+      937.1
+     ],
+     [
+      1851.0,
+      937.1
+     ],
+     [
+      1851.0,
+      621.0
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1588.2,
+     1053.1,
+     1762.2,
+     1130.6
+    ],
+    "area": 13485,
+    "short": 77.5,
+    "long": 174.0,
+    "spacing": 81.5,
+    "spacing_mm": 690,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 0,
+    "window_count": 1,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": true,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1588.2,
+      1053.1
+     ],
+     [
+      1588.2,
+      1130.6
+     ],
+     [
+      1762.2,
+      1130.6
+     ],
+     [
+      1762.2,
+      1053.1
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s05",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "n_rooms": 10,
+  "n_face_lines": 354,
+  "rooms": [
+   {
+    "bbox": [
+     1793.1,
+     171.1,
+     1924.6,
+     677.3
+    ],
+    "area": 51059,
+    "short": 131.5,
+    "long": 506.13,
+    "spacing": 135.5,
+    "spacing_mm": 2294,
+    "covers": [
+     0.0,
+     0.856
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 4,
+    "window_count": 0,
+    "entrance_count": 4,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 73.3,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1841.3,
+       166.1,
+       1903.6,
+       171.1
+      ]
+     },
+     {
+      "conf": 0.72,
+      "contact_px": 106.2,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1783.5,
+       625.8,
+       1844.8,
+       682.3
+      ]
+     },
+     {
+      "conf": 0.72,
+      "contact_px": 59.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1811.1,
+       378.0,
+       1816.1,
+       438.0
+      ]
+     },
+     {
+      "conf": 0.72,
+      "contact_px": 67.9,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1811.1,
+       306.6,
+       1816.1,
+       366.5
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.97,
+    "gt_note": "",
+    "mrr": [
+     [
+      1793.1,
+      171.1
+     ],
+     [
+      1793.1,
+      677.3
+     ],
+     [
+      1924.6,
+      677.3
+     ],
+     [
+      1924.6,
+      171.1
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1599.1,
+     386.5,
+     1811.1,
+     663.3
+    ],
+    "area": 49368,
+    "short": 212.0,
+    "long": 276.75,
+    "spacing": 216.0,
+    "spacing_mm": 3658,
+    "covers": [
+     0.289,
+     0.659
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 53.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1811.1,
+       378.0,
+       1816.1,
+       438.0
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1599.1,
+      386.5
+     ],
+     [
+      1599.1,
+      663.3
+     ],
+     [
+      1811.1,
+      663.3
+     ],
+     [
+      1811.1,
+      386.5
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1599.1,
+     157.0,
+     1811.1,
+     374.8
+    ],
+    "area": 43536,
+    "short": 212.0,
+    "long": 217.75,
+    "spacing": 216.0,
+    "spacing_mm": 3658,
+    "covers": [
+     0.295,
+     0.722
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 71.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1811.1,
+       306.6,
+       1816.1,
+       366.5
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1599.1,
+      157.0
+     ],
+     [
+      1599.1,
+      374.8
+     ],
+     [
+      1811.1,
+      374.8
+     ],
+     [
+      1811.1,
+      157.0
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1596.8,
+     1139.0,
+     1765.3,
+     1358.8
+    ],
+    "area": 36037,
+    "short": 168.5,
+    "long": 219.75,
+    "spacing": 172.5,
+    "spacing_mm": 2921,
+    "covers": [
+     0.568,
+     0.805
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 50.7,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1765.3,
+       1308.4,
+       1770.3,
+       1365.3
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1596.8,
+      1139.0
+     ],
+     [
+      1596.8,
+      1358.8
+     ],
+     [
+      1765.3,
+      1358.8
+     ],
+     [
+      1765.3,
+      1139.0
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1851.8,
+     1261.3,
+     1894.8,
+     1417.3
+    ],
+    "area": 6463,
+    "short": 43.0,
+    "long": 156.0,
+    "spacing": 47.0,
+    "spacing_mm": 796,
+    "covers": [
+     0.279,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1894.8,
+      1261.3
+     ],
+     [
+      1851.8,
+      1261.3
+     ],
+     [
+      1851.8,
+      1417.3
+     ],
+     [
+      1894.8,
+      1417.3
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1770.3,
+     1257.9,
+     1847.8,
+     1420.9
+    ],
+    "area": 11678,
+    "short": 77.5,
+    "long": 163.0,
+    "spacing": 81.5,
+    "spacing_mm": 1380,
+    "covers": [
+     0.279,
+     0.357
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 4,
+    "window_count": 0,
+    "entrance_count": 4,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 58.6,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1767.3,
+       1252.9,
+       1824.3,
+       1257.9
+      ]
+     },
+     {
+      "conf": 0.72,
+      "contact_px": 59.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1766.6,
+       1366.0,
+       1771.6,
+       1423.0
+      ]
+     },
+     {
+      "conf": 0.72,
+      "contact_px": 58.4,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1765.3,
+       1308.4,
+       1770.3,
+       1365.3
+      ]
+     },
+     {
+      "conf": 0.72,
+      "contact_px": 58.4,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1794.7,
+       1420.9,
+       1849.8,
+       1425.9
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1770.3,
+      1420.9
+     ],
+     [
+      1847.8,
+      1420.9
+     ],
+     [
+      1847.8,
+      1257.9
+     ],
+     [
+      1770.3,
+      1257.9
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1775.2,
+     1126.8,
+     1894.8,
+     1252.9
+    ],
+    "area": 14191,
+    "short": 119.62,
+    "long": 126.12,
+    "spacing": 123.62,
+    "spacing_mm": 2093,
+    "covers": [
+     0.951,
+     0.989
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 58.7,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1767.3,
+       1252.9,
+       1824.3,
+       1257.9
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.997,
+    "gt_note": "",
+    "mrr": [
+     [
+      1775.2,
+      1252.9
+     ],
+     [
+      1894.8,
+      1252.9
+     ],
+     [
+      1894.8,
+      1126.8
+     ],
+     [
+      1775.2,
+      1126.8
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1803.3,
+     1425.9,
+     1907.3,
+     1589.5
+    ],
+    "area": 15582,
+    "short": 104.0,
+    "long": 163.62,
+    "spacing": 108.0,
+    "spacing_mm": 1829,
+    "covers": [
+     0.328,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 45.2,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1794.7,
+       1420.9,
+       1849.8,
+       1425.9
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1907.3,
+      1425.9
+     ],
+     [
+      1803.3,
+      1425.9
+     ],
+     [
+      1803.3,
+      1589.5
+     ],
+     [
+      1907.3,
+      1589.5
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1596.8,
+     1370.5,
+     1791.6,
+     1601.5
+    ],
+    "area": 42264,
+    "short": 194.75,
+    "long": 231.0,
+    "spacing": 198.75,
+    "spacing_mm": 3365,
+    "covers": [
+     0.584,
+     0.765
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 61.6,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1766.6,
+       1366.0,
+       1771.6,
+       1423.0
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1596.8,
+      1370.5
+     ],
+     [
+      1596.8,
+      1601.5
+     ],
+     [
+      1791.6,
+      1601.5
+     ],
+     [
+      1791.6,
+      1370.5
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1921.6,
+     782.8,
+     2065.8,
+     1056.5
+    ],
+    "area": 39488,
+    "short": 144.25,
+    "long": 273.75,
+    "spacing": 148.25,
+    "spacing_mm": 2510,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1921.6,
+      782.8
+     ],
+     [
+      1921.6,
+      1056.5
+     ],
+     [
+      2065.8,
+      1056.5
+     ],
+     [
+      2065.8,
+      782.8
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s06",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "n_rooms": 9,
+  "n_face_lines": 214,
+  "rooms": [
+   {
+    "bbox": [
+     357.8,
+     1027.4,
+     561.3,
+     1238.2
+    ],
+    "area": 42389,
+    "short": 203.5,
+    "long": 210.88,
+    "spacing": 207.5,
+    "spacing_mm": 3514,
+    "covers": [
+     0.999,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 62.1,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       508.8,
+       1022.4,
+       564.3,
+       1027.4
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.991,
+    "gt_note": "",
+    "mrr": [
+     [
+      357.8,
+      1027.4
+     ],
+     [
+      357.8,
+      1238.2
+     ],
+     [
+      561.3,
+      1238.2
+     ],
+     [
+      561.3,
+      1027.4
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     349.3,
+     905.9,
+     573.2,
+     1022.4
+    ],
+    "area": 23691,
+    "short": 116.49,
+    "long": 223.87,
+    "spacing": 120.49,
+    "spacing_mm": 2040,
+    "covers": [
+     0.0,
+     0.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 4,
+    "window_count": 0,
+    "entrance_count": 4,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 70.0,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       344.3,
+       932.2,
+       349.3,
+       1010.5
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 45.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       508.8,
+       1022.4,
+       564.3,
+       1027.4
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 58.2,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       517.3,
+       900.9,
+       572.8,
+       905.9
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 45.5,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       573.2,
+       965.0,
+       578.2,
+       1020.5
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      573.2,
+      1022.4
+     ],
+     [
+      573.2,
+      905.9
+     ],
+     [
+      349.3,
+      905.9
+     ],
+     [
+      349.3,
+      1022.4
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     357.8,
+     721.8,
+     566.0,
+     900.9
+    ],
+    "area": 35192,
+    "short": 179.13,
+    "long": 208.12,
+    "spacing": 183.13,
+    "spacing_mm": 3101,
+    "covers": [
+     0.0,
+     0.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 2,
+    "window_count": 1,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 70.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       488.5,
+       716.8,
+       566.6,
+       721.8
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 46.9,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       517.3,
+       900.9,
+       572.8,
+       905.9
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      357.8,
+      721.8
+     ],
+     [
+      357.8,
+      900.9
+     ],
+     [
+      566.0,
+      900.9
+     ],
+     [
+      566.0,
+      721.8
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     578.2,
+     723.6,
+     780.8,
+     1018.8
+    ],
+    "area": 57960,
+    "short": 202.63,
+    "long": 295.13,
+    "spacing": 206.63,
+    "spacing_mm": 3499,
+    "covers": [
+     0.839,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 2,
+    "window_count": 1,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 61.3,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       573.2,
+       965.0,
+       578.2,
+       1020.5
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 87.0,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       634.1,
+       718.6,
+       729.6,
+       723.6
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.971,
+    "gt_note": "",
+    "mrr": [
+     [
+      578.2,
+      723.6
+     ],
+     [
+      578.2,
+      1018.8
+     ],
+     [
+      780.8,
+      1018.8
+     ],
+     [
+      780.8,
+      723.6
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     902.8,
+     908.3,
+     1008.2,
+     1016.8
+    ],
+    "area": 11172,
+    "short": 105.38,
+    "long": 108.5,
+    "spacing": 109.38,
+    "spacing_mm": 1852,
+    "covers": [
+     0.0,
+     0.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 61.3,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1008.2,
+       965.0,
+       1013.2,
+       1020.5
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "The detection does not include text in the middle, goes around it",
+    "mrr": [
+     [
+      1008.2,
+      908.3
+     ],
+     [
+      902.8,
+      908.3
+     ],
+     [
+      902.8,
+      1016.8
+     ],
+     [
+      1008.2,
+      1016.8
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1013.2,
+     904.4,
+     1120.0,
+     1022.4
+    ],
+    "area": 10384,
+    "short": 106.74,
+    "long": 117.99,
+    "spacing": 110.74,
+    "spacing_mm": 1875,
+    "covers": [
+     0.0,
+     0.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 4,
+    "window_count": 0,
+    "entrance_count": 4,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 45.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1008.2,
+       965.0,
+       1013.2,
+       1020.5
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 45.5,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1055.6,
+       1022.4,
+       1111.1,
+       1027.4
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 45.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1120.0,
+       965.0,
+       1125.0,
+       1020.5
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 57.4,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1064.3,
+       899.4,
+       1119.8,
+       904.4
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1013.2,
+      904.4
+     ],
+     [
+      1013.2,
+      1022.4
+     ],
+     [
+      1120.0,
+      1022.4
+     ],
+     [
+      1120.0,
+      904.4
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1125.0,
+     728.2,
+     1327.6,
+     1018.8
+    ],
+    "area": 57561,
+    "short": 202.63,
+    "long": 290.5,
+    "spacing": 206.63,
+    "spacing_mm": 3499,
+    "covers": [
+     0.836,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 2,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 61.3,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1120.0,
+       965.0,
+       1125.0,
+       1020.5
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1327.6,
+      1018.8
+     ],
+     [
+      1327.6,
+      728.2
+     ],
+     [
+      1125.0,
+      728.2
+     ],
+     [
+      1125.0,
+      1018.8
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     904.8,
+     728.2,
+     1112.8,
+     899.4
+    ],
+    "area": 34583,
+    "short": 171.13,
+    "long": 208.0,
+    "spacing": 175.13,
+    "spacing_mm": 2965,
+    "covers": [
+     0.0,
+     0.804
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 1,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 46.7,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1064.3,
+       899.4,
+       1119.8,
+       904.4
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "near right wall bit skewed",
+    "mrr": [
+     [
+      904.8,
+      728.2
+     ],
+     [
+      904.8,
+      899.4
+     ],
+     [
+      1112.8,
+      899.4
+     ],
+     [
+      1112.8,
+      728.2
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     904.8,
+     1027.4,
+     1108.3,
+     1238.2
+    ],
+    "area": 42388,
+    "short": 203.5,
+    "long": 210.88,
+    "spacing": 207.5,
+    "spacing_mm": 3514,
+    "covers": [
+     0.999,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 62.3,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1055.6,
+       1022.4,
+       1111.1,
+       1027.4
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.991,
+    "gt_note": "",
+    "mrr": [
+     [
+      1108.3,
+      1027.4
+     ],
+     [
+      904.8,
+      1027.4
+     ],
+     [
+      904.8,
+      1238.2
+     ],
+     [
+      1108.3,
+      1238.2
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s07",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "n_rooms": 6,
+  "n_face_lines": 227,
+  "rooms": [
+   {
+    "bbox": [
+     435.5,
+     466.7,
+     541.5,
+     619.2
+    ],
+    "area": 16165,
+    "short": 106.0,
+    "long": 152.5,
+    "spacing": 110.0,
+    "spacing_mm": 1863,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 58.7,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       490.8,
+       462.0,
+       548.4,
+       466.7
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      435.5,
+      466.7
+     ],
+     [
+      435.5,
+      619.2
+     ],
+     [
+      541.5,
+      619.2
+     ],
+     [
+      541.5,
+      466.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     227.0,
+     408.9,
+     506.0,
+     931.2
+    ],
+    "area": 104493,
+    "short": 279.0,
+    "long": 522.25,
+    "spacing": 283.0,
+    "spacing_mm": 4792,
+    "covers": [
+     0.322,
+     0.673
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 3,
+    "window_count": 3,
+    "entrance_count": 3,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 57.2,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       267.1,
+       931.2,
+       324.8,
+       936.2
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 61.7,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       219.9,
+       785.0,
+       277.5,
+       789.7
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 62.9,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       372.8,
+       404.3,
+       430.4,
+       409.3
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.995,
+    "gt_note": "",
+    "mrr": [
+     [
+      227.0,
+      408.9
+     ],
+     [
+      227.0,
+      931.2
+     ],
+     [
+      506.0,
+      931.2
+     ],
+     [
+      506.0,
+      408.9
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     274.3,
+     936.2,
+     323.5,
+     1037.9
+    ],
+    "area": 4980,
+    "short": 49.25,
+    "long": 101.75,
+    "spacing": 53.25,
+    "spacing_mm": 902,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 51.2,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       267.1,
+       931.2,
+       324.8,
+       936.2
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.916,
+    "gt_note": "",
+    "mrr": [
+     [
+      274.3,
+      936.2
+     ],
+     [
+      274.3,
+      1037.9
+     ],
+     [
+      323.5,
+      1037.9
+     ],
+     [
+      323.5,
+      936.2
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     67.7,
+     783.9,
+     329.5,
+     1167.7
+    ],
+    "area": 82409,
+    "short": 261.75,
+    "long": 383.75,
+    "spacing": 265.75,
+    "spacing_mm": 4500,
+    "covers": [
+     0.277,
+     0.622
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 2,
+    "window_count": 2,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 11.0,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       267.1,
+       931.2,
+       324.8,
+       936.2
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 58.4,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       219.9,
+       785.0,
+       277.5,
+       789.7
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.929,
+    "gt_note": "",
+    "mrr": [
+     [
+      67.7,
+      1167.7
+     ],
+     [
+      329.5,
+      1167.7
+     ],
+     [
+      329.5,
+      783.9
+     ],
+     [
+      67.7,
+      783.9
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     227.0,
+     118.9,
+     450.5,
+     306.9
+    ],
+    "area": 42018,
+    "short": 188.0,
+    "long": 223.5,
+    "spacing": 192.0,
+    "spacing_mm": 3251,
+    "covers": [
+     0.798,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 1,
+    "window_count": 2,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 58.6,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       399.9,
+       306.9,
+       457.5,
+       310.9
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      227.0,
+      306.9
+     ],
+     [
+      450.5,
+      306.9
+     ],
+     [
+      450.5,
+      118.9
+     ],
+     [
+      227.0,
+      118.9
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     454.5,
+     189.7,
+     486.5,
+     290.2
+    ],
+    "area": 3216,
+    "short": 32.0,
+    "long": 100.5,
+    "spacing": 36.0,
+    "spacing_mm": 610,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      454.5,
+      189.7
+     ],
+     [
+      454.5,
+      290.2
+     ],
+     [
+      486.5,
+      290.2
+     ],
+     [
+      486.5,
+      189.7
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s08",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 3,
+  "n_face_lines": 200,
+  "rooms": [
+   {
+    "bbox": [
+     682.3,
+     619.3,
+     2307.1,
+     1137.8
+    ],
+    "area": 526872,
+    "short": 517.75,
+    "long": 1624.95,
+    "spacing": 521.75,
+    "spacing_mm": 4417,
+    "covers": [
+     0.0,
+     0.378
+    ],
+    "cover_ok": false,
+    "axis_deg": 179.5,
+    "door_count": 4,
+    "window_count": 1,
+    "entrance_count": 4,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 231.9,
+      "seal_axis_vs_room": 44.6,
+      "meets": "along",
+      "seal_bbox": [
+       2194.9,
+       1008.7,
+       2327.1,
+       1141.4
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 106.8,
+      "seal_axis_vs_room": 89.5,
+      "meets": "across",
+      "seal_bbox": [
+       672.3,
+       937.6,
+       682.3,
+       1060.3
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 128.2,
+      "seal_axis_vs_room": 0.5,
+      "meets": "along",
+      "seal_bbox": [
+       1975.4,
+       1011.9,
+       2095.7,
+       1018.9
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 150.9,
+      "seal_axis_vs_room": 89.5,
+      "meets": "across",
+      "seal_bbox": [
+       1085.4,
+       654.4,
+       1095.4,
+       821.1
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.99,
+    "gt_note": "",
+    "mrr": [
+     [
+      683.2,
+      1144.6
+     ],
+     [
+      2308.1,
+      1129.6
+     ],
+     [
+      2303.3,
+      611.9
+     ],
+     [
+      678.4,
+      626.9
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1951.7,
+     621.0,
+     2296.8,
+     1011.9
+    ],
+    "area": 131067,
+    "short": 345.06,
+    "long": 390.88,
+    "spacing": 349.06,
+    "spacing_mm": 2955,
+    "covers": [
+     0.328,
+     0.99
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 93.8,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1975.4,
+       1011.9,
+       2095.7,
+       1018.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.962,
+    "gt_note": "",
+    "mrr": [
+     [
+      2296.8,
+      1011.9
+     ],
+     [
+      2296.8,
+      621.0
+     ],
+     [
+      1951.7,
+      621.0
+     ],
+     [
+      1951.7,
+      1011.9
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1463.2,
+     1060.1,
+     1677.7,
+     1130.6
+    ],
+    "area": 14376,
+    "short": 70.5,
+    "long": 214.5,
+    "spacing": 74.5,
+    "spacing_mm": 631,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1463.2,
+      1060.1
+     ],
+     [
+      1463.2,
+      1130.6
+     ],
+     [
+      1677.7,
+      1130.6
+     ],
+     [
+      1677.7,
+      1060.1
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s10",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 9,
+  "n_face_lines": 397,
+  "rooms": [
+   {
+    "bbox": [
+     210.5,
+     660.5,
+     1063.2,
+     980.2
+    ],
+    "area": 202727,
+    "short": 319.75,
+    "long": 852.75,
+    "spacing": 323.75,
+    "spacing_mm": 2741,
+    "covers": [
+     0.0,
+     0.214
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 5,
+    "window_count": 1,
+    "entrance_count": 5,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 133.8,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       648.2,
+       969.5,
+       774.0,
+       1097.0
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 122.8,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       235.2,
+       770.7,
+       360.8,
+       777.7
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 133.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       857.0,
+       653.5,
+       982.5,
+       660.5
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 111.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       823.5,
+       980.2,
+       944.0,
+       990.2
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 143.4,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       214.0,
+       963.0,
+       341.5,
+       973.0
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "slight notch next to door",
+    "mrr": [
+     [
+      210.5,
+      660.5
+     ],
+     [
+      210.5,
+      980.2
+     ],
+     [
+      1063.2,
+      980.2
+     ],
+     [
+      1063.2,
+      660.5
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     223.7,
+     976.5,
+     762.7,
+     1473.5
+    ],
+    "area": 220574,
+    "short": 471.96,
+    "long": 564.85,
+    "spacing": 475.96,
+    "spacing_mm": 4030,
+    "covers": [
+     0.0,
+     0.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 175.8,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 232.0,
+      "seal_axis_vs_room": 85.8,
+      "meets": "across",
+      "seal_bbox": [
+       648.2,
+       969.5,
+       774.0,
+       1097.0
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.998,
+    "gt_note": "sharp corner not covered",
+    "mrr": [
+     [
+      787.7,
+      1440.4
+     ],
+     [
+      753.5,
+      969.7
+     ],
+     [
+      190.1,
+      1010.6
+     ],
+     [
+      224.3,
+      1481.3
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     693.2,
+     306.3,
+     1080.2,
+     653.5
+    ],
+    "area": 127347,
+    "short": 347.24,
+    "long": 387.0,
+    "spacing": 351.24,
+    "spacing_mm": 2974,
+    "covers": [
+     0.0,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 3,
+    "window_count": 0,
+    "entrance_count": 3,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 122.5,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       686.2,
+       526.8,
+       693.2,
+       652.5
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 111.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       857.0,
+       653.5,
+       982.5,
+       660.5
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 133.3,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1080.2,
+       407.3,
+       1090.2,
+       558.8
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      693.2,
+      653.5
+     ],
+     [
+      1080.2,
+      653.5
+     ],
+     [
+      1080.2,
+      306.3
+     ],
+     [
+      693.2,
+      306.3
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     246.0,
+     1887.3,
+     686.2,
+     2339.0
+    ],
+    "area": 193555,
+    "short": 440.25,
+    "long": 451.75,
+    "spacing": 444.25,
+    "spacing_mm": 3761,
+    "covers": [
+     0.0,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 21.0,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       682.0,
+       2234.3,
+       807.7,
+       2244.3
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 223.2,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       565.8,
+       2224.8,
+       693.2,
+       2350.5
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "door there is slight extrusion",
+    "mrr": [
+     [
+      246.0,
+      2339.0
+     ],
+     [
+      686.2,
+      2339.0
+     ],
+     [
+      686.2,
+      1887.3
+     ],
+     [
+      246.0,
+      1887.3
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     395.8,
+     2244.3,
+     796.3,
+     2550.3
+    ],
+    "area": 85936,
+    "short": 306.0,
+    "long": 400.5,
+    "spacing": 310.0,
+    "spacing_mm": 2625,
+    "covers": [
+     0.0,
+     0.653
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 5,
+    "window_count": 0,
+    "entrance_count": 5,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 133.8,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       647.7,
+       2550.3,
+       773.5,
+       2557.3
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 111.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       682.0,
+       2234.3,
+       807.7,
+       2244.3
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 114.2,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       565.8,
+       2224.8,
+       693.2,
+       2350.5
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 135.3,
+      "seal_axis_vs_room": 41.2,
+      "meets": "along",
+      "seal_bbox": [
+       783.3,
+       2436.0,
+       923.7,
+       2561.5
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 232.0,
+      "seal_axis_vs_room": 41.2,
+      "meets": "along",
+      "seal_bbox": [
+       375.8,
+       2436.0,
+       516.2,
+       2561.5
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "this covers both stairs and hallway, not sure how to cover this. This is both structural and wall detection",
+    "mrr": [
+     [
+      395.8,
+      2244.3
+     ],
+     [
+      395.8,
+      2550.3
+     ],
+     [
+      796.3,
+      2550.3
+     ],
+     [
+      796.3,
+      2244.3
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     693.2,
+     1887.3,
+     1063.2,
+     2234.3
+    ],
+    "area": 125120,
+    "short": 347.0,
+    "long": 370.0,
+    "spacing": 351.0,
+    "spacing_mm": 2972,
+    "covers": [
+     0.0,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 111.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       682.0,
+       2234.3,
+       807.7,
+       2244.3
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 17.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       565.8,
+       2224.8,
+       693.2,
+       2350.5
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      693.2,
+      1887.3
+     ],
+     [
+      693.2,
+      2234.3
+     ],
+     [
+      1063.2,
+      2234.3
+     ],
+     [
+      1063.2,
+      1887.3
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     803.3,
+     2241.3,
+     1063.2,
+     2550.3
+    ],
+    "area": 76591,
+    "short": 260.0,
+    "long": 309.0,
+    "spacing": 264.0,
+    "spacing_mm": 2235,
+    "covers": [
+     0.0,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 232.0,
+      "seal_axis_vs_room": 48.8,
+      "meets": "across",
+      "seal_bbox": [
+       783.3,
+       2436.0,
+       923.7,
+       2561.5
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "same as r2 sligh extrusion near door\\",
+    "mrr": [
+     [
+      803.3,
+      2241.3
+     ],
+     [
+      803.3,
+      2550.3
+     ],
+     [
+      1063.2,
+      2550.3
+     ],
+     [
+      1063.2,
+      2241.3
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     238.7,
+     2557.3,
+     762.7,
+     3085.5
+    ],
+    "area": 213081,
+    "short": 524.0,
+    "long": 528.21,
+    "spacing": 528.0,
+    "spacing_mm": 4470,
+    "covers": [
+     0.667,
+     0.942
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 111.5,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       647.7,
+       2550.3,
+       773.5,
+       2557.3
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      762.8,
+      3085.5
+     ],
+     [
+      762.7,
+      2557.3
+     ],
+     [
+      238.7,
+      2557.3
+     ],
+     [
+      238.7,
+      3085.5
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     246.0,
+     2358.5,
+     388.8,
+     2550.3
+    ],
+    "area": 27258,
+    "short": 142.75,
+    "long": 191.75,
+    "spacing": 146.75,
+    "spacing_mm": 1242,
+    "covers": [
+     0.45,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 135.3,
+      "seal_axis_vs_room": 48.8,
+      "meets": "across",
+      "seal_bbox": [
+       375.8,
+       2436.0,
+       516.2,
+       2561.5
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "slight square cutout near door",
+    "mrr": [
+     [
+      388.8,
+      2550.3
+     ],
+     [
+      388.8,
+      2358.5
+     ],
+     [
+      246.0,
+      2358.5
+     ],
+     [
+      246.0,
+      2550.3
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s12",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "n_rooms": 15,
+  "n_face_lines": 487,
+  "rooms": [
+   {
+    "bbox": [
+     1547.6,
+     185.8,
+     1759.6,
+     403.5
+    ],
+    "area": 43536,
+    "short": 212.0,
+    "long": 217.75,
+    "spacing": 216.0,
+    "spacing_mm": 3658,
+    "covers": [
+     0.296,
+     0.721
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 71.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1759.6,
+       335.1,
+       1764.6,
+       395.0
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.973,
+    "gt_note": "",
+    "mrr": [
+     [
+      1547.6,
+      185.8
+     ],
+     [
+      1547.6,
+      403.5
+     ],
+     [
+      1759.6,
+      403.5
+     ],
+     [
+      1759.6,
+      185.8
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1838.6,
+     654.0,
+     1873.1,
+     682.5
+    ],
+    "area": 915,
+    "short": 28.5,
+    "long": 34.52,
+    "spacing": 32.5,
+    "spacing_mm": 550,
+    "covers": [
+     0.855,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1873.1,
+      682.5
+     ],
+     [
+      1873.1,
+      654.0
+     ],
+     [
+      1838.6,
+      654.0
+     ],
+     [
+      1838.6,
+      682.5
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1790.6,
+     628.8,
+     1834.8,
+     724.7
+    ],
+    "area": 3102,
+    "short": 44.25,
+    "long": 95.92,
+    "spacing": 48.25,
+    "spacing_mm": 817,
+    "covers": [
+     0.211,
+     0.216
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 66.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1785.6,
+       652.6,
+       1790.6,
+       712.5
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1790.6,
+      628.8
+     ],
+     [
+      1790.6,
+      724.7
+     ],
+     [
+      1834.8,
+      724.7
+     ],
+     [
+      1834.8,
+      628.8
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1735.3,
+     598.0,
+     1784.6,
+     635.7
+    ],
+    "area": 1725,
+    "short": 37.75,
+    "long": 49.25,
+    "spacing": 41.75,
+    "spacing_mm": 707,
+    "covers": [
+     0.614,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1735.3,
+      598.0
+     ],
+     [
+      1735.3,
+      635.7
+     ],
+     [
+      1784.6,
+      635.7
+     ],
+     [
+      1784.6,
+      598.0
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1841.8,
+     559.8,
+     1873.1,
+     631.0
+    ],
+    "area": 2227,
+    "short": 31.25,
+    "long": 71.25,
+    "spacing": 35.25,
+    "spacing_mm": 597,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1841.8,
+      631.0
+     ],
+     [
+      1873.1,
+      631.0
+     ],
+     [
+      1873.1,
+      559.8
+     ],
+     [
+      1841.8,
+      559.8
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1841.8,
+     529.8,
+     1873.1,
+     553.5
+    ],
+    "area": 742,
+    "short": 23.75,
+    "long": 31.25,
+    "spacing": 27.75,
+    "spacing_mm": 470,
+    "covers": [
+     0.936,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1873.1,
+      529.8
+     ],
+     [
+      1841.8,
+      529.8
+     ],
+     [
+      1841.8,
+      553.5
+     ],
+     [
+      1873.1,
+      553.5
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1841.8,
+     471.6,
+     1873.1,
+     493.8
+    ],
+    "area": 691,
+    "short": 22.13,
+    "long": 31.25,
+    "spacing": 26.13,
+    "spacing_mm": 442,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1841.8,
+      471.6
+     ],
+     [
+      1841.8,
+      493.8
+     ],
+     [
+      1873.1,
+      493.8
+     ],
+     [
+      1873.1,
+      471.6
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1715.3,
+     1200.5,
+     1883.8,
+     1420.5
+    ],
+    "area": 36098,
+    "short": 168.5,
+    "long": 220.0,
+    "spacing": 172.5,
+    "spacing_mm": 2921,
+    "covers": [
+     0.805,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 51.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1883.8,
+       1369.9,
+       1888.8,
+       1426.8
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.972,
+    "gt_note": "",
+    "mrr": [
+     [
+      1883.8,
+      1200.5
+     ],
+     [
+      1715.3,
+      1200.5
+     ],
+     [
+      1715.3,
+      1420.5
+     ],
+     [
+      1883.8,
+      1420.5
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1893.7,
+     1188.3,
+     2013.3,
+     1314.4
+    ],
+    "area": 14221,
+    "short": 119.62,
+    "long": 126.13,
+    "spacing": 123.62,
+    "spacing_mm": 2093,
+    "covers": [
+     0.989,
+     0.989
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 58.7,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1885.8,
+       1314.4,
+       1942.8,
+       1319.4
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1893.7,
+      1188.3
+     ],
+     [
+      1893.7,
+      1314.4
+     ],
+     [
+      2013.3,
+      1314.4
+     ],
+     [
+      2013.3,
+      1188.3
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1888.8,
+     1319.4,
+     1966.6,
+     1482.6
+    ],
+    "area": 11718,
+    "short": 77.75,
+    "long": 163.25,
+    "spacing": 81.75,
+    "spacing_mm": 1384,
+    "covers": [
+     0.277,
+     0.356
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 4,
+    "window_count": 0,
+    "entrance_count": 4,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 58.6,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1885.8,
+       1314.4,
+       1942.8,
+       1319.4
+      ]
+     },
+     {
+      "conf": 0.72,
+      "contact_px": 59.6,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1885.1,
+       1427.5,
+       1890.1,
+       1484.5
+      ]
+     },
+     {
+      "conf": 0.72,
+      "contact_px": 58.4,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1883.8,
+       1369.9,
+       1888.8,
+       1426.8
+      ]
+     },
+     {
+      "conf": 0.72,
+      "contact_px": 58.6,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1913.2,
+       1482.6,
+       1968.3,
+       1487.6
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1888.8,
+      1319.4
+     ],
+     [
+      1888.8,
+      1482.6
+     ],
+     [
+      1966.6,
+      1482.6
+     ],
+     [
+      1966.6,
+      1319.4
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1921.8,
+     1487.6,
+     2025.8,
+     1651.0
+    ],
+    "area": 15573,
+    "short": 104.0,
+    "long": 163.38,
+    "spacing": 108.0,
+    "spacing_mm": 1829,
+    "covers": [
+     0.205,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 55.3,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1913.2,
+       1482.6,
+       1968.3,
+       1487.6
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1921.8,
+      1487.6
+     ],
+     [
+      1921.8,
+      1651.0
+     ],
+     [
+      2025.8,
+      1651.0
+     ],
+     [
+      2025.8,
+      1487.6
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1715.3,
+     1432.0,
+     1910.1,
+     1663.0
+    ],
+    "area": 42282,
+    "short": 194.75,
+    "long": 231.0,
+    "spacing": 198.75,
+    "spacing_mm": 3365,
+    "covers": [
+     0.765,
+     0.957
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 61.6,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1885.1,
+       1427.5,
+       1890.1,
+       1484.5
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.977,
+    "gt_note": "",
+    "mrr": [
+     [
+      1715.3,
+      1432.0
+     ],
+     [
+      1715.3,
+      1663.0
+     ],
+     [
+      1910.1,
+      1663.0
+     ],
+     [
+      1910.1,
+      1432.0
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1970.6,
+     1434.5,
+     2013.3,
+     1478.8
+    ],
+    "area": 1892,
+    "short": 42.75,
+    "long": 44.25,
+    "spacing": 46.75,
+    "spacing_mm": 792,
+    "covers": [
+     0.977,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1970.6,
+      1434.5
+     ],
+     [
+      1970.6,
+      1478.8
+     ],
+     [
+      2013.3,
+      1478.8
+     ],
+     [
+      2013.3,
+      1434.5
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1972.6,
+     1322.8,
+     2013.3,
+     1417.5
+    ],
+    "area": 3861,
+    "short": 40.75,
+    "long": 94.75,
+    "spacing": 44.75,
+    "spacing_mm": 758,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1972.6,
+      1322.8
+     ],
+     [
+      1972.6,
+      1417.5
+     ],
+     [
+      2013.3,
+      1417.5
+     ],
+     [
+      2013.3,
+      1322.8
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1870.1,
+     811.3,
+     2014.3,
+     1101.7
+    ],
+    "area": 39489,
+    "short": 144.25,
+    "long": 290.42,
+    "spacing": 148.25,
+    "spacing_mm": 2510,
+    "covers": [
+     0.971,
+     0.971
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.943,
+    "gt_note": "",
+    "mrr": [
+     [
+      2014.3,
+      1101.7
+     ],
+     [
+      2014.3,
+      811.3
+     ],
+     [
+      1870.1,
+      811.3
+     ],
+     [
+      1870.1,
+      1101.7
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s13",
+  "page": 1,
+  "factor": 0.3666,
+  "cap_px": 13.2,
+  "thick_px": 20.53,
+  "n_rooms": 11,
+  "n_face_lines": 243,
+  "rooms": [
+   {
+    "bbox": [
+     523.3,
+     1088.5,
+     670.8,
+     1242.5
+    ],
+    "area": 22347,
+    "short": 147.5,
+    "long": 153.98,
+    "spacing": 151.5,
+    "spacing_mm": 3499,
+    "covers": [
+     0.998,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 47.5,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       632.9,
+       1084.5,
+       673.6,
+       1088.5
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.999,
+    "gt_note": "",
+    "mrr": [
+     [
+      523.3,
+      1242.5
+     ],
+     [
+      670.8,
+      1242.5
+     ],
+     [
+      670.8,
+      1088.5
+     ],
+     [
+      523.3,
+      1088.5
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     516.8,
+     999.7,
+     679.9,
+     1084.5
+    ],
+    "area": 12047,
+    "short": 84.79,
+    "long": 163.02,
+    "spacing": 88.79,
+    "spacing_mm": 2051,
+    "covers": [
+     0.0,
+     0.747
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 4,
+    "window_count": 0,
+    "entrance_count": 4,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 52.3,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       512.8,
+       1018.8,
+       516.8,
+       1076.2
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 34.2,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       632.9,
+       1084.5,
+       673.6,
+       1088.5
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 34.2,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       679.9,
+       1042.8,
+       683.9,
+       1083.5
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 44.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       639.1,
+       995.7,
+       679.8,
+       999.7
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.995,
+    "gt_note": "label issue creating notch",
+    "mrr": [
+     [
+      516.8,
+      999.7
+     ],
+     [
+      516.8,
+      1084.5
+     ],
+     [
+      679.9,
+      1084.5
+     ],
+     [
+      679.9,
+      999.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     523.3,
+     865.5,
+     674.1,
+     995.7
+    ],
+    "area": 18490,
+    "short": 130.23,
+    "long": 150.75,
+    "spacing": 134.23,
+    "spacing_mm": 3100,
+    "covers": [
+     0.0,
+     0.806
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 2,
+    "window_count": 1,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 52.3,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       618.1,
+       861.5,
+       675.3,
+       865.5
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 35.3,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       639.1,
+       995.7,
+       679.8,
+       999.7
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.997,
+    "gt_note": "skewed on the right wall",
+    "mrr": [
+     [
+      523.3,
+      865.5
+     ],
+     [
+      523.3,
+      995.7
+     ],
+     [
+      674.1,
+      995.7
+     ],
+     [
+      674.1,
+      865.5
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     606.6,
+     610.3,
+     831.1,
+     862.8
+    ],
+    "area": 40607,
+    "short": 224.5,
+    "long": 252.5,
+    "spacing": 228.5,
+    "spacing_mm": 5278,
+    "covers": [
+     0.377,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 4,
+    "window_count": 2,
+    "entrance_count": 4,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 65.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       718.3,
+       653.8,
+       722.3,
+       711.2
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 52.2,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       602.6,
+       774.0,
+       606.6,
+       831.5
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 52.3,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       618.1,
+       861.5,
+       675.3,
+       865.5
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 64.5,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       725.0,
+       862.8,
+       794.3,
+       866.8
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.999,
+    "gt_note": "",
+    "mrr": [
+     [
+      606.6,
+      610.3
+     ],
+     [
+      606.6,
+      862.8
+     ],
+     [
+      831.1,
+      862.8
+     ],
+     [
+      831.1,
+      610.3
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     683.9,
+     866.8,
+     831.1,
+     1082.2
+    ],
+    "area": 30597,
+    "short": 147.23,
+    "long": 215.5,
+    "spacing": 151.23,
+    "spacing_mm": 3493,
+    "covers": [
+     0.839,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 2,
+    "window_count": 1,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 47.1,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       679.9,
+       1042.8,
+       683.9,
+       1083.5
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 64.5,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       725.0,
+       862.8,
+       794.3,
+       866.8
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.998,
+    "gt_note": "",
+    "mrr": [
+     [
+      831.1,
+      1082.2
+     ],
+     [
+      831.1,
+      866.8
+     ],
+     [
+      683.9,
+      866.8
+     ],
+     [
+      683.9,
+      1082.2
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     722.3,
+     610.3,
+     831.1,
+     712.2
+    ],
+    "area": 10699,
+    "short": 102.0,
+    "long": 108.75,
+    "spacing": 106.0,
+    "spacing_mm": 2448,
+    "covers": [
+     0.0,
+     0.998
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 1,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 52.2,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       718.3,
+       653.8,
+       722.3,
+       711.2
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.999,
+    "gt_note": "",
+    "mrr": [
+     [
+      722.3,
+      610.3
+     ],
+     [
+      722.3,
+      712.2
+     ],
+     [
+      831.1,
+      712.2
+     ],
+     [
+      831.1,
+      610.3
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     922.6,
+     870.0,
+     1074.3,
+     994.7
+    ],
+    "area": 18296,
+    "short": 124.73,
+    "long": 151.75,
+    "spacing": 128.73,
+    "spacing_mm": 2973,
+    "covers": [
+     0.0,
+     0.802
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 1,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 45.3,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1038.6,
+       994.7,
+       1079.3,
+       998.7
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.965,
+    "gt_note": "",
+    "mrr": [
+     [
+      922.6,
+      870.0
+     ],
+     [
+      922.6,
+      994.7
+     ],
+     [
+      1074.3,
+      994.7
+     ],
+     [
+      1074.3,
+      870.0
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1001.6,
+     998.7,
+     1079.1,
+     1084.5
+    ],
+    "area": 5796,
+    "short": 77.54,
+    "long": 85.79,
+    "spacing": 81.54,
+    "spacing_mm": 1883,
+    "covers": [
+     0.568,
+     0.568
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 4,
+    "window_count": 0,
+    "entrance_count": 4,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 34.2,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       997.6,
+       1042.8,
+       1001.6,
+       1083.5
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 34.5,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1032.4,
+       1084.5,
+       1073.1,
+       1088.5
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 34.2,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1079.1,
+       1042.8,
+       1083.1,
+       1083.5
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 45.3,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1038.6,
+       994.7,
+       1079.3,
+       998.7
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.505,
+    "gt_note": "does not cover the whole landing, probably due to the label issue",
+    "mrr": [
+     [
+      1001.6,
+      1084.5
+     ],
+     [
+      1079.1,
+      1084.5
+     ],
+     [
+      1079.1,
+      998.7
+     ],
+     [
+      1001.6,
+      998.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1083.1,
+     870.0,
+     1230.3,
+     1082.2
+    ],
+    "area": 30590,
+    "short": 147.23,
+    "long": 212.25,
+    "spacing": 151.23,
+    "spacing_mm": 3493,
+    "covers": [
+     0.0,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 2,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 46.8,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1079.1,
+       1042.8,
+       1083.1,
+       1083.5
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.989,
+    "gt_note": "",
+    "mrr": [
+     [
+      1230.3,
+      870.0
+     ],
+     [
+      1083.1,
+      870.0
+     ],
+     [
+      1083.1,
+      1082.2
+     ],
+     [
+      1230.3,
+      1082.2
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     920.6,
+     1002.0,
+     997.6,
+     1080.2
+    ],
+    "area": 5840,
+    "short": 76.98,
+    "long": 78.25,
+    "spacing": 80.98,
+    "spacing_mm": 1870,
+    "covers": [
+     0.0,
+     0.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 47.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       997.6,
+       1042.8,
+       1001.6,
+       1083.5
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.973,
+    "gt_note": "",
+    "mrr": [
+     [
+      920.6,
+      1002.0
+     ],
+     [
+      920.6,
+      1080.2
+     ],
+     [
+      997.6,
+      1080.2
+     ],
+     [
+      997.6,
+      1002.0
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     922.6,
+     1088.5,
+     1070.1,
+     1242.5
+    ],
+    "area": 22347,
+    "short": 147.5,
+    "long": 153.98,
+    "spacing": 151.5,
+    "spacing_mm": 3499,
+    "covers": [
+     0.998,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 1,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 47.3,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1032.4,
+       1084.5,
+       1073.1,
+       1088.5
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.999,
+    "gt_note": "",
+    "mrr": [
+     [
+      922.6,
+      1088.5
+     ],
+     [
+      922.6,
+      1242.5
+     ],
+     [
+      1070.1,
+      1242.5
+     ],
+     [
+      1070.1,
+      1088.5
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s15",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 16,
+  "n_face_lines": 526,
+  "rooms": [
+   {
+    "bbox": [
+     436.4,
+     381.2,
+     887.2,
+     760.9
+    ],
+    "area": 170769,
+    "short": 379.75,
+    "long": 450.75,
+    "spacing": 383.75,
+    "spacing_mm": 3249,
+    "covers": [
+     0.795,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 106.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       784.4,
+       760.9,
+       899.5,
+       767.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.988,
+    "gt_note": "",
+    "mrr": [
+     [
+      436.4,
+      381.2
+     ],
+     [
+      436.4,
+      760.9
+     ],
+     [
+      887.2,
+      760.9
+     ],
+     [
+      887.2,
+      381.2
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     424.7,
+     263.4,
+     1441.2,
+     1415.4
+    ],
+    "area": 419877,
+    "short": 671.04,
+    "long": 1256.74,
+    "spacing": 675.04,
+    "spacing_mm": 5715,
+    "covers": [
+     0.0,
+     0.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 124.5,
+    "door_count": 32,
+    "window_count": 1,
+    "entrance_count": 6,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 104.2,
+      "seal_axis_vs_room": 34.5,
+      "meets": "along",
+      "seal_bbox": [
+       414.7,
+       1063.3,
+       424.7,
+       1187.7
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 93.7,
+      "seal_axis_vs_room": 55.5,
+      "meets": "across",
+      "seal_bbox": [
+       784.4,
+       760.9,
+       899.5,
+       767.9
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 123.1,
+      "seal_axis_vs_room": 55.5,
+      "meets": "across",
+      "seal_bbox": [
+       1220.2,
+       785.9,
+       1335.3,
+       792.9
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 93.7,
+      "seal_axis_vs_room": 34.5,
+      "meets": "along",
+      "seal_bbox": [
+       1017.7,
+       916.8,
+       1024.7,
+       1031.9
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 100.4,
+      "seal_axis_vs_room": 34.5,
+      "meets": "along",
+      "seal_bbox": [
+       832.9,
+       1221.5,
+       840.0,
+       1336.7
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 93.7,
+      "seal_axis_vs_room": 34.5,
+      "meets": "along",
+      "seal_bbox": [
+       768.9,
+       769.0,
+       776.0,
+       884.2
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      918.9,
+      1546.1
+     ],
+     [
+      1630.6,
+      510.2
+     ],
+     [
+      1077.5,
+      130.2
+     ],
+     [
+      365.8,
+      1166.1
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     848.7,
+     1419.4,
+     1008.7,
+     1495.7
+    ],
+    "area": 11947,
+    "short": 76.25,
+    "long": 160.0,
+    "spacing": 80.25,
+    "spacing_mm": 679,
+    "covers": [
+     0.467,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 2,
+    "window_count": 1,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "part of hall, if it is gone and we have long hallway then its file",
+    "mrr": [
+     [
+      848.7,
+      1419.4
+     ],
+     [
+      848.7,
+      1495.7
+     ],
+     [
+      1008.7,
+      1495.7
+     ],
+     [
+      1008.7,
+      1419.4
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1084.9,
+     792.9,
+     1431.9,
+     925.2
+    ],
+    "area": 35480,
+    "short": 132.25,
+    "long": 347.0,
+    "spacing": 136.25,
+    "spacing_mm": 1154,
+    "covers": [
+     0.055,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 8,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 98.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1220.2,
+       785.9,
+       1335.3,
+       792.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.852,
+    "gt_note": "",
+    "mrr": [
+     [
+      1431.9,
+      792.9
+     ],
+     [
+      1084.9,
+      792.9
+     ],
+     [
+      1084.9,
+      925.2
+     ],
+     [
+      1431.9,
+      925.2
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1024.7,
+     929.2,
+     1441.2,
+     1385.7
+    ],
+    "area": 166109,
+    "short": 416.5,
+    "long": 456.5,
+    "spacing": 420.5,
+    "spacing_mm": 3560,
+    "covers": [
+     0.797,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 3,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 106.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1017.7,
+       916.8,
+       1024.7,
+       1031.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.988,
+    "gt_note": "",
+    "mrr": [
+     [
+      1441.2,
+      1385.7
+     ],
+     [
+      1441.2,
+      929.2
+     ],
+     [
+      1024.7,
+      929.2
+     ],
+     [
+      1024.7,
+      1385.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     648.9,
+     956.4,
+     832.9,
+     1058.7
+    ],
+    "area": 18814,
+    "short": 102.25,
+    "long": 184.0,
+    "spacing": 106.25,
+    "spacing_mm": 900,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 6,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.971,
+    "gt_note": "",
+    "mrr": [
+     [
+      648.9,
+      956.4
+     ],
+     [
+      648.9,
+      1058.7
+     ],
+     [
+      832.9,
+      1058.7
+     ],
+     [
+      832.9,
+      956.4
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     436.4,
+     979.9,
+     633.2,
+     1058.7
+    ],
+    "area": 15475,
+    "short": 78.75,
+    "long": 196.75,
+    "spacing": 82.75,
+    "spacing_mm": 701,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 9,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.962,
+    "gt_note": "",
+    "mrr": [
+     [
+      436.4,
+      1058.7
+     ],
+     [
+      633.2,
+      1058.7
+     ],
+     [
+      633.2,
+      979.9
+     ],
+     [
+      436.4,
+      979.9
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     404.0,
+     1233.9,
+     841.7,
+     2295.0
+    ],
+    "area": 373853,
+    "short": 430.82,
+    "long": 1064.92,
+    "spacing": 434.82,
+    "spacing_mm": 3681,
+    "covers": [
+     0.1,
+     0.379
+    ],
+    "cover_ok": false,
+    "axis_deg": 91.3,
+    "door_count": 18,
+    "window_count": 0,
+    "entrance_count": 5,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 106.0,
+      "seal_axis_vs_room": 1.3,
+      "meets": "along",
+      "seal_bbox": [
+       832.9,
+       1221.5,
+       840.0,
+       1336.7
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 98.5,
+      "seal_axis_vs_room": 1.3,
+      "meets": "along",
+      "seal_bbox": [
+       396.9,
+       2168.8,
+       404.0,
+       2283.9
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 101.9,
+      "seal_axis_vs_room": 88.7,
+      "meets": "across",
+      "seal_bbox": [
+       642.8,
+       1832.2,
+       693.7,
+       1836.2
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 163.3,
+      "seal_axis_vs_room": 1.3,
+      "meets": "along",
+      "seal_bbox": [
+       841.7,
+       1718.3,
+       848.7,
+       1898.3
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 145.8,
+      "seal_axis_vs_room": 88.7,
+      "meets": "across",
+      "seal_bbox": [
+       551.3,
+       2295.0,
+       723.0,
+       2305.0
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.72,
+    "gt_note": "",
+    "mrr": [
+     [
+      832.3,
+      2301.0
+     ],
+     [
+      856.4,
+      1236.4
+     ],
+     [
+      425.7,
+      1226.6
+     ],
+     [
+      401.5,
+      2291.3
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     117.4,
+     1720.9,
+     396.9,
+     2484.9
+    ],
+    "area": 211532,
+    "short": 279.5,
+    "long": 764.0,
+    "spacing": 283.5,
+    "spacing_mm": 2400,
+    "covers": [
+     0.295,
+     0.6
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 3,
+    "window_count": 2,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 123.1,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       396.9,
+       2168.8,
+       404.0,
+       2283.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.997,
+    "gt_note": "nearly perfect, just need slight notches towards lower and upper gates / walls",
+    "mrr": [
+     [
+      117.4,
+      1720.9
+     ],
+     [
+      117.4,
+      2484.9
+     ],
+     [
+      396.9,
+      2484.9
+     ],
+     [
+      396.9,
+      1720.9
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     436.4,
+     781.4,
+     768.9,
+     975.9
+    ],
+    "area": 58935,
+    "short": 194.5,
+    "long": 332.5,
+    "spacing": 198.5,
+    "spacing_mm": 1681,
+    "covers": [
+     0.598,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 106.0,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       768.9,
+       769.0,
+       776.0,
+       884.2
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.588,
+    "gt_note": "",
+    "mrr": [
+     [
+      768.9,
+      781.4
+     ],
+     [
+      436.4,
+      781.4
+     ],
+     [
+      436.4,
+      975.9
+     ],
+     [
+      768.9,
+      975.9
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     848.7,
+     1637.9,
+     1441.2,
+     2295.0
+    ],
+    "area": 382037,
+    "short": 592.5,
+    "long": 657.13,
+    "spacing": 596.5,
+    "spacing_mm": 5050,
+    "covers": [
+     0.614,
+     0.994
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 18,
+    "window_count": 1,
+    "entrance_count": 4,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 11.9,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1017.7,
+       1518.9,
+       1027.7,
+       1634.0
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 123.1,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       881.3,
+       1630.8,
+       996.4,
+       1637.9
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 181.0,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1043.8,
+       2295.0,
+       1250.8,
+       2305.0
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 188.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       841.7,
+       1718.3,
+       848.7,
+       1898.3
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.842,
+    "gt_note": "",
+    "mrr": [
+     [
+      1441.2,
+      1637.9
+     ],
+     [
+      848.7,
+      1637.9
+     ],
+     [
+      848.7,
+      2295.0
+     ],
+     [
+      1441.2,
+      2295.0
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     848.7,
+     1549.4,
+     1017.7,
+     1630.8
+    ],
+    "area": 13013,
+    "short": 81.37,
+    "long": 169.0,
+    "spacing": 85.37,
+    "spacing_mm": 723,
+    "covers": [
+     0.0,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 4,
+    "window_count": 0,
+    "entrance_count": 2,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 75.7,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1017.7,
+       1518.9,
+       1027.7,
+       1634.0
+      ]
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 98.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       881.3,
+       1630.8,
+       996.4,
+       1637.9
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.521,
+    "gt_note": "",
+    "mrr": [
+     [
+      848.7,
+      1549.4
+     ],
+     [
+      848.7,
+      1630.8
+     ],
+     [
+      1017.7,
+      1630.8
+     ],
+     [
+      1017.7,
+      1549.4
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1027.7,
+     1549.4,
+     1441.2,
+     1621.9
+    ],
+    "area": 29589,
+    "short": 72.5,
+    "long": 413.5,
+    "spacing": 76.5,
+    "spacing_mm": 648,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 12,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.67,
+      "contact_px": 75.7,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1017.7,
+       1518.9,
+       1027.7,
+       1634.0
+      ]
+     }
+    ],
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.967,
+    "gt_note": "",
+    "mrr": [
+     [
+      1027.7,
+      1621.9
+     ],
+     [
+      1441.2,
+      1621.9
+     ],
+     [
+      1441.2,
+      1549.4
+     ],
+     [
+      1027.7,
+      1549.4
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     765.9,
+     1549.4,
+     832.9,
+     1669.2
+    ],
+    "area": 8023,
+    "short": 67.0,
+    "long": 119.75,
+    "spacing": 71.0,
+    "spacing_mm": 601,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      765.9,
+      1549.4
+     ],
+     [
+      765.9,
+      1669.2
+     ],
+     [
+      832.9,
+      1669.2
+     ],
+     [
+      832.9,
+      1549.4
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1291.4,
+     973.7,
+     1441.2,
+     1045.7
+    ],
+    "area": 10782,
+    "short": 72.0,
+    "long": 149.75,
+    "spacing": 76.0,
+    "spacing_mm": 643,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 0.963,
+    "gt_note": "",
+    "mrr": [
+     [
+      1291.4,
+      973.7
+     ],
+     [
+      1291.4,
+      1045.7
+     ],
+     [
+      1441.2,
+      1045.7
+     ],
+     [
+      1441.2,
+      973.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1022.2,
+     1425.2,
+     1441.2,
+     1495.7
+    ],
+    "area": 29510,
+    "short": 70.5,
+    "long": 419.0,
+    "spacing": 74.5,
+    "spacing_mm": 631,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 3,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 0.95,
+    "gt_note": "",
+    "mrr": [
+     [
+      1022.2,
+      1425.2
+     ],
+     [
+      1022.2,
+      1495.7
+     ],
+     [
+      1441.2,
+      1495.7
+     ],
+     [
+      1441.2,
+      1425.2
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s20",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 5,
+  "n_face_lines": 192,
+  "rooms": [
+   {
+    "bbox": [
+     767.0,
+     1085.0,
+     1081.8,
+     1391.5
+    ],
+    "area": 94305,
+    "short": 306.5,
+    "long": 314.75,
+    "spacing": 310.5,
+    "spacing_mm": 2629,
+    "covers": [
+     0.0,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 111.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       940.0,
+       1391.5,
+       1067.5,
+       1401.5
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      767.0,
+      1085.0
+     ],
+     [
+      767.0,
+      1391.5
+     ],
+     [
+      1081.8,
+      1391.5
+     ],
+     [
+      1081.8,
+      1085.0
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     740.2,
+     1420.7,
+     1265.0,
+     1635.2
+    ],
+    "area": 109590,
+    "short": 214.5,
+    "long": 524.75,
+    "spacing": 218.5,
+    "spacing_mm": 1850,
+    "covers": [
+     0.987,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.72,
+      "contact_px": 111.5,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       730.2,
+       1408.7,
+       740.2,
+       1536.2
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      740.2,
+      1420.7
+     ],
+     [
+      740.2,
+      1635.2
+     ],
+     [
+      1265.0,
+      1635.2
+     ],
+     [
+      1265.0,
+      1420.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     530.8,
+     2232.7,
+     1554.2,
+     2888.7
+    ],
+    "area": 591927,
+    "short": 656.0,
+    "long": 1023.5,
+    "spacing": 660.0,
+    "spacing_mm": 5588,
+    "covers": [
+     0.0,
+     0.212
+    ],
+    "cover_ok": false,
+    "axis_deg": 0.0,
+    "door_count": 3,
+    "window_count": 0,
+    "entrance_count": 3,
+    "entrances": [
+     {
+      "conf": 0.82,
+      "contact_px": 128.0,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       1554.2,
+       2628.7,
+       1561.2,
+       2748.7
+      ]
+     },
+     {
+      "conf": 0.72,
+      "contact_px": 111.5,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       940.0,
+       2888.7,
+       1067.5,
+       2898.7
+      ]
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 169.2,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       520.8,
+       2326.5,
+       530.8,
+       2513.0
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      530.8,
+      2888.7
+     ],
+     [
+      1554.2,
+      2888.7
+     ],
+     [
+      1554.2,
+      2232.7
+     ],
+     [
+      530.8,
+      2232.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     740.2,
+     2918.0,
+     1265.0,
+     3132.5
+    ],
+    "area": 108630,
+    "short": 214.5,
+    "long": 524.75,
+    "spacing": 218.5,
+    "spacing_mm": 1850,
+    "covers": [
+     0.987,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.82,
+      "contact_px": 144.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       954.5,
+       2916.0,
+       1074.5,
+       2926.0
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      740.2,
+      2918.0
+     ],
+     [
+      740.2,
+      3132.5
+     ],
+     [
+      1265.0,
+      3132.5
+     ],
+     [
+      1265.0,
+      2918.0
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     554.2,
+     2811.7,
+     948.0,
+     2878.5
+    ],
+    "area": 26283,
+    "short": 66.75,
+    "long": 393.75,
+    "spacing": 70.75,
+    "spacing_mm": 599,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.999,
+    "gt_note": "",
+    "mrr": [
+     [
+      554.2,
+      2811.7
+     ],
+     [
+      554.2,
+      2878.5
+     ],
+     [
+      948.0,
+      2878.5
+     ],
+     [
+      948.0,
+      2811.7
+     ]
+    ]
+   }
+  ]
+ }
+]

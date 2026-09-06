@@ -1,0 +1,1839 @@
+[
+ {
+  "slug": "s01",
+  "page": 1,
+  "factor": 0.5423,
+  "cap_px": 19.52,
+  "thick_px": 30.37,
+  "calls": [],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "window": [
+     4,
+     4
+    ],
+    "door": [
+     11,
+     11
+    ],
+    "room": [
+     10,
+     10
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "window": [
+     4,
+     4
+    ],
+    "door": [
+     11,
+     11
+    ],
+    "room": [
+     10,
+     10
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s02",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "calls": [],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     15,
+     15
+    ],
+    "window": [
+     11,
+     11
+    ],
+    "room": [
+     11,
+     11
+    ],
+    "label": [
+     0,
+     11
+    ],
+    "schedule": [
+     0,
+     1
+    ]
+   },
+   "lost": [
+    [
+     "label",
+     [
+      1492,
+      692,
+      1531,
+      713
+     ]
+    ],
+    [
+     "label",
+     [
+      1310,
+      626,
+      1349,
+      647
+     ]
+    ],
+    [
+     "label",
+     [
+      102,
+      291,
+      139,
+      305
+     ]
+    ],
+    [
+     "label",
+     [
+      2069,
+      598,
+      2108,
+      619
+     ]
+    ],
+    [
+     "label",
+     [
+      1111,
+      520,
+      1149,
+      541
+     ]
+    ],
+    [
+     "label",
+     [
+      795,
+      520,
+      833,
+      541
+     ]
+    ],
+    [
+     "label",
+     [
+      1038,
+      290,
+      1066,
+      311
+     ]
+    ],
+    [
+     "label",
+     [
+      263,
+      534,
+      291,
+      555
+     ]
+    ],
+    [
+     "label",
+     [
+      1325,
+      129,
+      1363,
+      150
+     ]
+    ],
+    [
+     "label",
+     [
+      720,
+      639,
+      759,
+      660
+     ]
+    ],
+    [
+     "label",
+     [
+      549,
+      307,
+      577,
+      328
+     ]
+    ],
+    [
+     "schedule",
+     [
+      754,
+      46,
+      2495,
+      1092
+     ]
+    ]
+   ],
+   "returned_fps": [],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     15,
+     15
+    ],
+    "window": [
+     11,
+     11
+    ],
+    "room": [
+     11,
+     11
+    ],
+    "label": [
+     0,
+     11
+    ],
+    "schedule": [
+     0,
+     1
+    ]
+   },
+   "lost": [
+    [
+     "label",
+     [
+      1492,
+      692,
+      1531,
+      713
+     ]
+    ],
+    [
+     "label",
+     [
+      1310,
+      626,
+      1349,
+      647
+     ]
+    ],
+    [
+     "label",
+     [
+      102,
+      291,
+      139,
+      305
+     ]
+    ],
+    [
+     "label",
+     [
+      2069,
+      598,
+      2108,
+      619
+     ]
+    ],
+    [
+     "label",
+     [
+      1111,
+      520,
+      1149,
+      541
+     ]
+    ],
+    [
+     "label",
+     [
+      795,
+      520,
+      833,
+      541
+     ]
+    ],
+    [
+     "label",
+     [
+      1038,
+      290,
+      1066,
+      311
+     ]
+    ],
+    [
+     "label",
+     [
+      263,
+      534,
+      291,
+      555
+     ]
+    ],
+    [
+     "label",
+     [
+      1325,
+      129,
+      1363,
+      150
+     ]
+    ],
+    [
+     "label",
+     [
+      720,
+      639,
+      759,
+      660
+     ]
+    ],
+    [
+     "label",
+     [
+      549,
+      307,
+      577,
+      328
+     ]
+    ],
+    [
+     "schedule",
+     [
+      754,
+      46,
+      2495,
+      1092
+     ]
+    ]
+   ],
+   "returned_fps": [],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s03",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "calls": [
+   {
+    "text": false,
+    "short": 381.75,
+    "long": 704.75,
+    "spacing": 385.75,
+    "covers": [
+     0.5,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      3759.7,
+      496.7
+     ],
+     [
+      3759.7,
+      1201.4
+     ],
+     [
+      4141.4,
+      1201.4
+     ],
+     [
+      4141.4,
+      496.7
+     ]
+    ],
+    "bbox": [
+     3759.7,
+     496.7,
+     4141.4,
+     1201.4
+    ],
+    "area": 210812,
+    "res_cap": false,
+    "n_faces": 456,
+    "band": "over_thick",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 0.996,
+    "gt_note": "",
+    "spacing_mm": 3266,
+    "short_mm": 3232
+   },
+   {
+    "text": false,
+    "short": 350.25,
+    "long": 381.75,
+    "spacing": 354.25,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      3373.9,
+      496.7
+     ],
+     [
+      3373.9,
+      846.9
+     ],
+     [
+      3755.7,
+      846.9
+     ],
+     [
+      3755.7,
+      496.7
+     ]
+    ],
+    "bbox": [
+     3373.9,
+     496.7,
+     3755.7,
+     846.9
+    ],
+    "area": 133708,
+    "res_cap": false,
+    "n_faces": 456,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 2999,
+    "short_mm": 2965
+   }
+  ],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     17,
+     17
+    ],
+    "window": [
+     15,
+     15
+    ],
+    "room": [
+     17,
+     17
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     17,
+     17
+    ],
+    "window": [
+     15,
+     15
+    ],
+    "room": [
+     17,
+     17
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s04",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "calls": [],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     4,
+     4
+    ],
+    "room": [
+     5,
+     5
+    ],
+    "window": [
+     1,
+     1
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "window",
+     [
+      1558,
+      1047,
+      1588,
+      1131
+     ]
+    ],
+    [
+     "room",
+     [
+      1463,
+      1049,
+      1558,
+      1131
+     ]
+    ]
+   ],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     4,
+     4
+    ],
+    "room": [
+     5,
+     5
+    ],
+    "window": [
+     1,
+     1
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "window",
+     [
+      1558,
+      1047,
+      1588,
+      1131
+     ]
+    ],
+    [
+     "room",
+     [
+      1463,
+      1049,
+      1558,
+      1131
+     ]
+    ]
+   ],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s05",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "calls": [
+   {
+    "text": false,
+    "short": 43.0,
+    "long": 156.0,
+    "spacing": 47.0,
+    "covers": [
+     0.279,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1894.8,
+      1261.3
+     ],
+     [
+      1851.8,
+      1261.3
+     ],
+     [
+      1851.8,
+      1417.3
+     ],
+     [
+      1894.8,
+      1417.3
+     ]
+    ],
+    "bbox": [
+     1851.8,
+     1261.3,
+     1894.8,
+     1417.3
+    ],
+    "area": 6463,
+    "res_cap": false,
+    "n_faces": 354,
+    "band": "over_thick",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 796,
+    "short_mm": 728
+   },
+   {
+    "text": false,
+    "short": 144.25,
+    "long": 273.75,
+    "spacing": 148.25,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1921.6,
+      782.8
+     ],
+     [
+      1921.6,
+      1056.5
+     ],
+     [
+      2065.8,
+      1056.5
+     ],
+     [
+      2065.8,
+      782.8
+     ]
+    ],
+    "bbox": [
+     1921.6,
+     782.8,
+     2065.8,
+     1056.5
+    ],
+    "area": 39488,
+    "res_cap": false,
+    "n_faces": 354,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 2510,
+    "short_mm": 2443
+   }
+  ],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     8,
+     8
+    ],
+    "room": [
+     9,
+     9
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "room",
+     [
+      1852,
+      1261,
+      1895,
+      1417
+     ]
+    ]
+   ],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     8,
+     8
+    ],
+    "room": [
+     9,
+     9
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "room",
+     [
+      1852,
+      1261,
+      1895,
+      1417
+     ]
+    ]
+   ],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s06",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "calls": [],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     10,
+     10
+    ],
+    "window": [
+     8,
+     8
+    ],
+    "room": [
+     9,
+     9
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     10,
+     10
+    ],
+    "window": [
+     8,
+     8
+    ],
+    "room": [
+     9,
+     9
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s07",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "calls": [
+   {
+    "text": false,
+    "short": 32.0,
+    "long": 100.5,
+    "spacing": 36.0,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      454.5,
+      189.7
+     ],
+     [
+      454.5,
+      290.2
+     ],
+     [
+      486.5,
+      290.2
+     ],
+     [
+      486.5,
+      189.7
+     ]
+    ],
+    "bbox": [
+     454.5,
+     189.7,
+     486.5,
+     290.2
+    ],
+    "area": 3216,
+    "res_cap": false,
+    "n_faces": 227,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 610,
+    "short_mm": 542
+   }
+  ],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     7,
+     7
+    ],
+    "window": [
+     10,
+     10
+    ],
+    "room": [
+     6,
+     6
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     7,
+     7
+    ],
+    "window": [
+     10,
+     10
+    ],
+    "room": [
+     6,
+     6
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s08",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "calls": [
+   {
+    "text": true,
+    "short": 70.5,
+    "long": 214.5,
+    "spacing": 74.5,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      1463.2,
+      1060.1
+     ],
+     [
+      1463.2,
+      1130.6
+     ],
+     [
+      1677.7,
+      1130.6
+     ],
+     [
+      1677.7,
+      1060.1
+     ]
+    ],
+    "bbox": [
+     1463.2,
+     1060.1,
+     1677.7,
+     1130.6
+    ],
+    "area": 14376,
+    "res_cap": false,
+    "n_faces": 200,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 631,
+    "short_mm": 597
+   }
+  ],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     4,
+     4
+    ],
+    "room": [
+     3,
+     3
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "window",
+     [
+      1775,
+      1044,
+      1806,
+      1131
+     ]
+    ]
+   ],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     4,
+     4
+    ],
+    "room": [
+     3,
+     3
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "window",
+     [
+      1775,
+      1044,
+      1806,
+      1131
+     ]
+    ]
+   ],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s09",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "calls": [],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {},
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {},
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s10",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "calls": [],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     14,
+     14
+    ],
+    "window": [
+     10,
+     10
+    ],
+    "room": [
+     9,
+     9
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     14,
+     14
+    ],
+    "window": [
+     10,
+     10
+    ],
+    "room": [
+     9,
+     9
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s12",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "calls": [
+   {
+    "text": false,
+    "short": 28.5,
+    "long": 34.52,
+    "spacing": 32.5,
+    "covers": [
+     0.855,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      1873.1,
+      682.5
+     ],
+     [
+      1873.1,
+      654.0
+     ],
+     [
+      1838.6,
+      654.0
+     ],
+     [
+      1838.6,
+      682.5
+     ]
+    ],
+    "bbox": [
+     1838.6,
+     654.0,
+     1873.1,
+     682.5
+    ],
+    "area": 915,
+    "res_cap": false,
+    "n_faces": 487,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 550,
+    "short_mm": 483
+   },
+   {
+    "text": false,
+    "short": 37.75,
+    "long": 49.25,
+    "spacing": 41.75,
+    "covers": [
+     0.614,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      1735.3,
+      598.0
+     ],
+     [
+      1735.3,
+      635.7
+     ],
+     [
+      1784.6,
+      635.7
+     ],
+     [
+      1784.6,
+      598.0
+     ]
+    ],
+    "bbox": [
+     1735.3,
+     598.0,
+     1784.6,
+     635.7
+    ],
+    "area": 1725,
+    "res_cap": false,
+    "n_faces": 487,
+    "band": "over_thick",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 707,
+    "short_mm": 639
+   },
+   {
+    "text": false,
+    "short": 31.25,
+    "long": 71.25,
+    "spacing": 35.25,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1841.8,
+      631.0
+     ],
+     [
+      1873.1,
+      631.0
+     ],
+     [
+      1873.1,
+      559.8
+     ],
+     [
+      1841.8,
+      559.8
+     ]
+    ],
+    "bbox": [
+     1841.8,
+     559.8,
+     1873.1,
+     631.0
+    ],
+    "area": 2227,
+    "res_cap": false,
+    "n_faces": 487,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 597,
+    "short_mm": 529
+   },
+   {
+    "text": false,
+    "short": 23.75,
+    "long": 31.25,
+    "spacing": 27.75,
+    "covers": [
+     0.936,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      1873.1,
+      529.8
+     ],
+     [
+      1841.8,
+      529.8
+     ],
+     [
+      1841.8,
+      553.5
+     ],
+     [
+      1873.1,
+      553.5
+     ]
+    ],
+    "bbox": [
+     1841.8,
+     529.8,
+     1873.1,
+     553.5
+    ],
+    "area": 742,
+    "res_cap": false,
+    "n_faces": 487,
+    "band": "in_band",
+    "cover_ok": true,
+    "would_drop": true,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 470,
+    "short_mm": 402
+   },
+   {
+    "text": false,
+    "short": 22.13,
+    "long": 31.25,
+    "spacing": 26.13,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      1841.8,
+      471.6
+     ],
+     [
+      1841.8,
+      493.8
+     ],
+     [
+      1873.1,
+      493.8
+     ],
+     [
+      1873.1,
+      471.6
+     ]
+    ],
+    "bbox": [
+     1841.8,
+     471.6,
+     1873.1,
+     493.8
+    ],
+    "area": 691,
+    "res_cap": false,
+    "n_faces": 487,
+    "band": "in_band",
+    "cover_ok": true,
+    "would_drop": true,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 442,
+    "short_mm": 375
+   },
+   {
+    "text": false,
+    "short": 42.75,
+    "long": 44.25,
+    "spacing": 46.75,
+    "covers": [
+     0.977,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1970.6,
+      1434.5
+     ],
+     [
+      1970.6,
+      1478.8
+     ],
+     [
+      2013.3,
+      1478.8
+     ],
+     [
+      2013.3,
+      1434.5
+     ]
+    ],
+    "bbox": [
+     1970.6,
+     1434.5,
+     2013.3,
+     1478.8
+    ],
+    "area": 1892,
+    "res_cap": false,
+    "n_faces": 487,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 792,
+    "short_mm": 724
+   },
+   {
+    "text": false,
+    "short": 40.75,
+    "long": 94.75,
+    "spacing": 44.75,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1972.6,
+      1322.8
+     ],
+     [
+      1972.6,
+      1417.5
+     ],
+     [
+      2013.3,
+      1417.5
+     ],
+     [
+      2013.3,
+      1322.8
+     ]
+    ],
+    "bbox": [
+     1972.6,
+     1322.8,
+     2013.3,
+     1417.5
+    ],
+    "area": 3861,
+    "res_cap": false,
+    "n_faces": 487,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 758,
+    "short_mm": 690
+   },
+   {
+    "text": false,
+    "short": 144.25,
+    "long": 290.42,
+    "spacing": 148.25,
+    "covers": [
+     0.971,
+     0.971
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      2014.3,
+      1101.7
+     ],
+     [
+      2014.3,
+      811.3
+     ],
+     [
+      1870.1,
+      811.3
+     ],
+     [
+      1870.1,
+      1101.7
+     ]
+    ],
+    "bbox": [
+     1870.1,
+     811.3,
+     2014.3,
+     1101.7
+    ],
+    "area": 39489,
+    "res_cap": false,
+    "n_faces": 487,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "confirmed",
+    "gt_iou": 0.943,
+    "gt_note": "",
+    "spacing_mm": 2510,
+    "short_mm": 2443
+   }
+  ],
+  "rooms_moved": [],
+  "rooms_gone": [
+   {
+    "bbox": [
+     1842,
+     472,
+     1873,
+     494
+    ],
+    "area": 695,
+    "conf": 0.7
+   },
+   {
+    "bbox": [
+     1842,
+     530,
+     1873,
+     554
+    ],
+    "area": 742,
+    "conf": 0.7
+   }
+  ],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     7,
+     7
+    ],
+    "room": [
+     8,
+     8
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "room",
+     [
+      1842,
+      472,
+      1873,
+      494
+     ]
+    ],
+    [
+     "room",
+     [
+      1842,
+      530,
+      1873,
+      554
+     ]
+    ],
+    [
+     "room",
+     [
+      1842,
+      560,
+      1873,
+      631
+     ]
+    ],
+    [
+     "room",
+     [
+      1735,
+      598,
+      1785,
+      636
+     ]
+    ],
+    [
+     "room",
+     [
+      1839,
+      654,
+      1873,
+      682
+     ]
+    ],
+    [
+     "room",
+     [
+      1973,
+      1323,
+      2013,
+      1418
+     ]
+    ],
+    [
+     "room",
+     [
+      1971,
+      1434,
+      2013,
+      1479
+     ]
+    ]
+   ],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     7,
+     7
+    ],
+    "room": [
+     8,
+     8
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "room",
+     [
+      1842,
+      560,
+      1873,
+      631
+     ]
+    ],
+    [
+     "room",
+     [
+      1735,
+      598,
+      1785,
+      636
+     ]
+    ],
+    [
+     "room",
+     [
+      1839,
+      654,
+      1873,
+      682
+     ]
+    ],
+    [
+     "room",
+     [
+      1973,
+      1323,
+      2013,
+      1418
+     ]
+    ],
+    [
+     "room",
+     [
+      1971,
+      1434,
+      2013,
+      1479
+     ]
+    ]
+   ],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s13",
+  "page": 1,
+  "factor": 0.3666,
+  "cap_px": 13.2,
+  "thick_px": 20.53,
+  "calls": [],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     12,
+     12
+    ],
+    "window": [
+     11,
+     11
+    ],
+    "room": [
+     11,
+     11
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     12,
+     12
+    ],
+    "window": [
+     11,
+     11
+    ],
+    "room": [
+     11,
+     11
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s14",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "calls": [],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     13,
+     13
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "window",
+     [
+      2844,
+      1180,
+      2901,
+      1218
+     ]
+    ]
+   ],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     13,
+     13
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "window",
+     [
+      2844,
+      1180,
+      2901,
+      1218
+     ]
+    ]
+   ],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s19",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "calls": [],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {},
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {},
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s20",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "calls": [
+   {
+    "text": false,
+    "short": 66.75,
+    "long": 393.75,
+    "spacing": 70.75,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      554.2,
+      2811.7
+     ],
+     [
+      554.2,
+      2878.5
+     ],
+     [
+      948.0,
+      2878.5
+     ],
+     [
+      948.0,
+      2811.7
+     ]
+    ],
+    "bbox": [
+     554.2,
+     2811.7,
+     948.0,
+     2878.5
+    ],
+    "area": 26283,
+    "res_cap": false,
+    "n_faces": 192,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "confirmed",
+    "gt_iou": 0.999,
+    "gt_note": "",
+    "spacing_mm": 599,
+    "short_mm": 565
+   }
+  ],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     8,
+     8
+    ],
+    "window": [
+     6,
+     6
+    ],
+    "room": [
+     5,
+     5
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "window",
+     [
+      1041,
+      716,
+      1084,
+      751
+     ]
+    ]
+   ],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     8,
+     8
+    ],
+    "window": [
+     6,
+     6
+    ],
+    "room": [
+     5,
+     5
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "window",
+     [
+      1041,
+      716,
+      1084,
+      751
+     ]
+    ]
+   ],
+   "unreviewed": []
+  }
+ }
+]

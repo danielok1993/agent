@@ -1,0 +1,432 @@
+[
+ {
+  "slug": "s17",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 35,
+  "n_face_lines": 643,
+  "rooms": [
+   {
+    "bbox": [
+     911.9,
+     2173.9,
+     946.7,
+     2330.7
+    ],
+    "area": 5197,
+    "short": 34.75,
+    "long": 156.75,
+    "spacing": 38.75,
+    "spacing_mm": 328,
+    "covers": [
+     0.0,
+     1.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 18.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       931.7,
+       2330.7,
+       941.7,
+       2440.9
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      946.7,
+      2330.7
+     ],
+     [
+      946.7,
+      2173.9
+     ],
+     [
+      911.9,
+      2173.9
+     ],
+     [
+      911.9,
+      2330.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     913.9,
+     2608.7,
+     948.7,
+     3060.7
+    ],
+    "area": 14756,
+    "short": 34.75,
+    "long": 452.0,
+    "spacing": 38.75,
+    "spacing_mm": 328,
+    "covers": [
+     0.0,
+     0.926
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 18.0,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       918.7,
+       2499.4,
+       928.7,
+       2608.7
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 0.986,
+    "gt_note": "",
+    "mrr": [
+     [
+      913.9,
+      2608.7
+     ],
+     [
+      913.9,
+      3060.7
+     ],
+     [
+      948.7,
+      3060.7
+     ],
+     [
+      948.7,
+      2608.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     3047.2,
+     2173.9,
+     3083.7,
+     2488.9
+    ],
+    "area": 10363,
+    "short": 34.79,
+    "long": 315.24,
+    "spacing": 38.79,
+    "spacing_mm": 328,
+    "covers": [
+     0.0,
+     0.04
+    ],
+    "cover_ok": false,
+    "axis_deg": 89.6,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 15.0,
+      "seal_axis_vs_room": 89.6,
+      "meets": "across",
+      "seal_bbox": [
+       2934.4,
+       2458.2,
+       3049.2,
+       2465.2
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 0.945,
+    "gt_note": "",
+    "mrr": [
+     [
+      3046.9,
+      2173.9
+     ],
+     [
+      3049.2,
+      2489.1
+     ],
+     [
+      3084.0,
+      2488.9
+     ],
+     [
+      3081.7,
+      2173.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     3047.2,
+     2594.4,
+     3083.7,
+     3060.7
+    ],
+    "area": 15279,
+    "short": 36.5,
+    "long": 466.25,
+    "spacing": 40.5,
+    "spacing_mm": 343,
+    "covers": [
+     0.0,
+     0.0
+    ],
+    "cover_ok": false,
+    "axis_deg": 90.0,
+    "door_count": 3,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.95,
+      "contact_px": 18.0,
+      "seal_axis_vs_room": 90.0,
+      "meets": "across",
+      "seal_bbox": [
+       2941.4,
+       2873.4,
+       3049.2,
+       2883.4
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      3047.2,
+      2594.4
+     ],
+     [
+      3047.2,
+      3060.7
+     ],
+     [
+      3083.7,
+      3060.7
+     ],
+     [
+      3083.7,
+      2594.4
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s11",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "n_rooms": 24,
+  "n_face_lines": 1174,
+  "rooms": [
+   {
+    "bbox": [
+     1077.5,
+     1597.0,
+     1095.2,
+     1704.0
+    ],
+    "area": 1899,
+    "short": 17.75,
+    "long": 107.0,
+    "spacing": 21.75,
+    "spacing_mm": 368,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 90.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.922,
+    "gt_note": "storage in utility",
+    "mrr": [
+     [
+      1077.5,
+      1597.0
+     ],
+     [
+      1077.5,
+      1704.0
+     ],
+     [
+      1095.2,
+      1704.0
+     ],
+     [
+      1095.2,
+      1597.0
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s12",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "n_rooms": 15,
+  "n_face_lines": 487,
+  "rooms": [
+   {
+    "bbox": [
+     1841.8,
+     529.8,
+     1873.1,
+     553.5
+    ],
+    "area": 742,
+    "short": 23.75,
+    "long": 31.25,
+    "spacing": 27.75,
+    "spacing_mm": 470,
+    "covers": [
+     0.936,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1873.1,
+      529.8
+     ],
+     [
+      1841.8,
+      529.8
+     ],
+     [
+      1841.8,
+      553.5
+     ],
+     [
+      1873.1,
+      553.5
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     1841.8,
+     471.6,
+     1873.1,
+     493.8
+    ],
+    "area": 691,
+    "short": 22.13,
+    "long": 31.25,
+    "spacing": 26.13,
+    "spacing_mm": 442,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "cover_ok": true,
+    "axis_deg": 0.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1841.8,
+      471.6
+     ],
+     [
+      1841.8,
+      493.8
+     ],
+     [
+      1873.1,
+      493.8
+     ],
+     [
+      1873.1,
+      471.6
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s07",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "n_rooms": 6,
+  "n_face_lines": 227,
+  "rooms": []
+ },
+ {
+  "slug": "s20",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 5,
+  "n_face_lines": 192,
+  "rooms": []
+ },
+ {
+  "slug": "s15",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 16,
+  "n_face_lines": 526,
+  "rooms": []
+ }
+]

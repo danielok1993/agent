@@ -511,7 +511,28 @@ ROOM_BAND_POCKET_FACE_COVER_MIN = 0.65  # a door-less, window-less, textless
                                       # storage cupboard at f=0.5 whose faces sit
                                       # 21.75px apart against the scaled 18px cap
                                       # (1.2x), and every other confirmed room is
-                                      # >= 52px wide at identity.
+                                      # >= 52px wide at identity. The ceiling was
+                                      # measured at WALL_THICK_MATERIAL_MAX_PX as
+                                      # implemented on all 20 sheets (W-gate
+                                      # iteration 3 step 13, 2026-09-06) and NOT
+                                      # moved: it drops four recorded-FP cells at
+                                      # 360-470mm (s18, s16, s12 x2) and the
+                                      # confirmed s11 storage at 368mm — a real
+                                      # cupboard drawn without a door of its own
+                                      # (door_0009 is the utility's door, its seal
+                                      # 8.8px away), so the true class's narrowest
+                                      # member lies INSIDE the false class's range;
+                                      # the next real spaces sit at 599-631mm on
+                                      # s20/s15/s07/s17/s08. And s17's four reveal
+                                      # strips (rooms 0013/0014/0027/0032, 328-
+                                      # 343mm) never reach this rule: each ends
+                                      # at a doorway whose 0.95 plug touches it
+                                      # over 15-18px (an entrance by the 4px
+                                      # contact test), and a 31.5px tab where the
+                                      # perpendicular band's flat-capped solid
+                                      # ends pins the rotated rectangle ON the
+                                      # face line, so one or both covers read 0.
+                                      # See docs/w-gate-iter3-checkpoints/step-13.md.
 
 
 @dataclass(frozen=True)

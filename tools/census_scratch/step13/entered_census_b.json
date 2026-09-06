@@ -1,0 +1,289 @@
+[
+ {
+  "slug": "s01",
+  "page": 1,
+  "factor": 0.5423,
+  "cap_px": 19.52,
+  "thick_px": 30.37,
+  "n_rooms": 10,
+  "n_face_lines": 270,
+  "rooms": []
+ },
+ {
+  "slug": "s02",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 11,
+  "n_face_lines": 556,
+  "rooms": []
+ },
+ {
+  "slug": "s03",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 19,
+  "n_face_lines": 456,
+  "rooms": []
+ },
+ {
+  "slug": "s04",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 7,
+  "n_face_lines": 208,
+  "rooms": []
+ },
+ {
+  "slug": "s05",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "n_rooms": 10,
+  "n_face_lines": 354,
+  "rooms": []
+ },
+ {
+  "slug": "s06",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "n_rooms": 9,
+  "n_face_lines": 214,
+  "rooms": []
+ },
+ {
+  "slug": "s08",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 3,
+  "n_face_lines": 200,
+  "rooms": []
+ },
+ {
+  "slug": "s09",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 0,
+  "n_face_lines": 0,
+  "rooms": []
+ },
+ {
+  "slug": "s10",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 9,
+  "n_face_lines": 397,
+  "rooms": []
+ },
+ {
+  "slug": "s13",
+  "page": 1,
+  "factor": 0.3666,
+  "cap_px": 13.2,
+  "thick_px": 20.53,
+  "n_rooms": 11,
+  "n_face_lines": 243,
+  "rooms": []
+ },
+ {
+  "slug": "s14",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 0,
+  "n_face_lines": 561,
+  "rooms": []
+ },
+ {
+  "slug": "s19",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "n_rooms": 0,
+  "n_face_lines": 0,
+  "rooms": []
+ },
+ {
+  "slug": "s16",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "n_rooms": 29,
+  "n_face_lines": 1600,
+  "rooms": [
+   {
+    "bbox": [
+     2507.3,
+     1322.8,
+     2527.3,
+     1401.3
+    ],
+    "area": 1570,
+    "short": 20.0,
+    "long": 78.5,
+    "spacing": 24.0,
+    "spacing_mm": 406,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "axis_deg": 90.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      2507.3,
+      1322.8
+     ],
+     [
+      2507.3,
+      1401.3
+     ],
+     [
+      2527.3,
+      1401.3
+     ],
+     [
+      2527.3,
+      1322.8
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s18",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "n_rooms": 26,
+  "n_face_lines": 2708,
+  "rooms": [
+   {
+    "bbox": [
+     1835.5,
+     2407.7,
+     1900.0,
+     2429.7
+    ],
+    "area": 1393,
+    "short": 22.0,
+    "long": 64.5,
+    "spacing": 26.0,
+    "spacing_mm": 440,
+    "covers": [
+     0.957,
+     1.0
+    ],
+    "axis_deg": 0.0,
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "entrances": [
+     {
+      "conf": 0.7,
+      "contact_px": 67.2,
+      "seal_axis_vs_room": 0.0,
+      "meets": "along",
+      "seal_bbox": [
+       1828.0,
+       2403.2,
+       1907.5,
+       2407.7
+      ]
+     }
+    ],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "mrr": [
+     [
+      1900.0,
+      2429.7
+     ],
+     [
+      1900.0,
+      2407.7
+     ],
+     [
+      1835.5,
+      2407.7
+     ],
+     [
+      1835.5,
+      2429.7
+     ]
+    ]
+   },
+   {
+    "bbox": [
+     2078.7,
+     1023.0,
+     2096.0,
+     1068.2
+    ],
+    "area": 781,
+    "short": 17.25,
+    "long": 45.26,
+    "spacing": 21.25,
+    "spacing_mm": 360,
+    "covers": [
+     0.856,
+     1.0
+    ],
+    "axis_deg": 90.0,
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "entrances": [],
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 0.945,
+    "gt_note": "",
+    "mrr": [
+     [
+      2078.7,
+      1023.0
+     ],
+     [
+      2078.7,
+      1068.2
+     ],
+     [
+      2096.0,
+      1068.2
+     ],
+     [
+      2096.0,
+      1023.0
+     ]
+    ]
+   }
+  ]
+ }
+]

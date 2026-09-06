@@ -1,0 +1,3110 @@
+[
+ {
+  "slug": "s18",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "calls": [
+   {
+    "text": false,
+    "short": 30.5,
+    "long": 348.75,
+    "spacing": 34.5,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      2644.7,
+      545.2
+     ],
+     [
+      2644.7,
+      894.0
+     ],
+     [
+      2675.2,
+      894.0
+     ],
+     [
+      2675.2,
+      545.2
+     ]
+    ],
+    "bbox": [
+     2644.7,
+     545.2,
+     2675.2,
+     894.0
+    ],
+    "area": 10636,
+    "res_cap": false,
+    "n_faces": 2708,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 0.928,
+    "gt_note": "",
+    "spacing_mm": 584,
+    "short_mm": 516
+   },
+   {
+    "text": false,
+    "short": 31.25,
+    "long": 51.76,
+    "spacing": 35.25,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1317.0,
+      725.5
+     ],
+     [
+      1348.2,
+      725.5
+     ],
+     [
+      1348.2,
+      673.7
+     ],
+     [
+      1317.0,
+      673.7
+     ]
+    ],
+    "bbox": [
+     1317.0,
+     673.7,
+     1348.2,
+     725.5
+    ],
+    "area": 1617,
+    "res_cap": false,
+    "n_faces": 2708,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 0.64,
+    "gt_note": "",
+    "spacing_mm": 597,
+    "short_mm": 529
+   },
+   {
+    "text": false,
+    "short": 23.25,
+    "long": 171.75,
+    "spacing": 27.25,
+    "covers": [
+     0.14,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      907.2,
+      809.5
+     ],
+     [
+      907.2,
+      832.7
+     ],
+     [
+      1079.0,
+      832.7
+     ],
+     [
+      1079.0,
+      809.5
+     ]
+    ],
+    "bbox": [
+     907.2,
+     809.5,
+     1079.0,
+     832.7
+    ],
+    "area": 3021,
+    "res_cap": false,
+    "n_faces": 2708,
+    "band": "in_band",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 0.997,
+    "gt_note": "",
+    "spacing_mm": 462,
+    "short_mm": 394
+   },
+   {
+    "text": false,
+    "short": 32.59,
+    "long": 66.69,
+    "spacing": 36.59,
+    "covers": [
+     0.0,
+     0.954
+    ],
+    "degenerate": false,
+    "axis_deg": 73.8,
+    "mrr": [
+     [
+      1651.4,
+      2347.0
+     ],
+     [
+      1632.8,
+      2282.9
+     ],
+     [
+      1601.5,
+      2292.0
+     ],
+     [
+      1620.1,
+      2356.0
+     ]
+    ],
+    "bbox": [
+     1615.9,
+     2282.9,
+     1651.4,
+     2347.0
+    ],
+    "area": 1158,
+    "res_cap": false,
+    "n_faces": 2708,
+    "band": "over_thick",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 620,
+    "short_mm": 552
+   },
+   {
+    "text": false,
+    "short": 48.0,
+    "long": 66.5,
+    "spacing": 52.0,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1660.0,
+      2092.7
+     ],
+     [
+      1660.0,
+      2159.2
+     ],
+     [
+      1708.0,
+      2159.2
+     ],
+     [
+      1708.0,
+      2092.7
+     ]
+    ],
+    "bbox": [
+     1660.0,
+     2092.7,
+     1708.0,
+     2159.2
+    ],
+    "area": 3192,
+    "res_cap": false,
+    "n_faces": 2708,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "confirmed",
+    "gt_iou": 0.989,
+    "gt_note": "",
+    "spacing_mm": 881,
+    "short_mm": 813
+   },
+   {
+    "text": false,
+    "short": 30.67,
+    "long": 60.72,
+    "spacing": 34.67,
+    "covers": [
+     0.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 105.2,
+    "mrr": [
+     [
+      1861.2,
+      2284.4
+     ],
+     [
+      1845.3,
+      2343.0
+     ],
+     [
+      1874.9,
+      2351.0
+     ],
+     [
+      1890.8,
+      2292.4
+     ]
+    ],
+    "bbox": [
+     1845.3,
+     2284.4,
+     1877.1,
+     2343.0
+    ],
+    "area": 931,
+    "res_cap": false,
+    "n_faces": 2708,
+    "band": "over_thick",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 0.835,
+    "gt_note": "",
+    "spacing_mm": 587,
+    "short_mm": 519
+   },
+   {
+    "text": false,
+    "short": 314.5,
+    "long": 447.25,
+    "spacing": 318.5,
+    "covers": [
+     0.12,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      2178.7,
+      2093.2
+     ],
+     [
+      2178.7,
+      2540.5
+     ],
+     [
+      2493.2,
+      2540.5
+     ],
+     [
+      2493.2,
+      2093.2
+     ]
+    ],
+    "bbox": [
+     2178.7,
+     2093.2,
+     2493.2,
+     2540.5
+    ],
+    "area": 104293,
+    "res_cap": false,
+    "n_faces": 2708,
+    "band": "over_thick",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 5393,
+    "short_mm": 5325
+   },
+   {
+    "text": false,
+    "short": 57.48,
+    "long": 66.25,
+    "spacing": 61.48,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      2178.7,
+      1219.2
+     ],
+     [
+      2178.7,
+      1276.7
+     ],
+     [
+      2245.0,
+      1276.7
+     ],
+     [
+      2245.0,
+      1219.2
+     ]
+    ],
+    "bbox": [
+     2178.7,
+     1219.2,
+     2245.0,
+     1276.7
+    ],
+    "area": 3717,
+    "res_cap": false,
+    "n_faces": 2708,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "confirmed",
+    "gt_iou": 0.977,
+    "gt_note": "",
+    "spacing_mm": 1041,
+    "short_mm": 973
+   },
+   {
+    "text": false,
+    "short": 161.25,
+    "long": 183.77,
+    "spacing": 165.25,
+    "covers": [
+     0.789,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      2083.7,
+      1031.5
+     ],
+     [
+      2083.7,
+      1215.2
+     ],
+     [
+      2245.0,
+      1215.2
+     ],
+     [
+      2245.0,
+      1031.5
+     ]
+    ],
+    "bbox": [
+     2083.7,
+     1031.5,
+     2245.0,
+     1215.2
+    ],
+    "area": 28094,
+    "res_cap": false,
+    "n_faces": 2708,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "confirmed",
+    "gt_iou": 0.662,
+    "gt_note": "",
+    "spacing_mm": 2798,
+    "short_mm": 2730
+   },
+   {
+    "text": false,
+    "short": 17.25,
+    "long": 45.26,
+    "spacing": 21.25,
+    "covers": [
+     0.856,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      2078.7,
+      1023.0
+     ],
+     [
+      2078.7,
+      1068.2
+     ],
+     [
+      2096.0,
+      1068.2
+     ],
+     [
+      2096.0,
+      1023.0
+     ]
+    ],
+    "bbox": [
+     2078.7,
+     1023.0,
+     2096.0,
+     1068.2
+    ],
+    "area": 781,
+    "res_cap": false,
+    "n_faces": 2708,
+    "band": "in_band",
+    "cover_ok": true,
+    "would_drop": true,
+    "gt": "false_positive",
+    "gt_iou": 0.945,
+    "gt_note": "",
+    "spacing_mm": 360,
+    "short_mm": 292
+   },
+   {
+    "text": false,
+    "short": 66.75,
+    "long": 475.27,
+    "spacing": 70.75,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      2759.7,
+      988.2
+     ],
+     [
+      2759.7,
+      513.0
+     ],
+     [
+      2693.0,
+      513.0
+     ],
+     [
+      2693.0,
+      988.2
+     ]
+    ],
+    "bbox": [
+     2693.0,
+     513.0,
+     2759.7,
+     988.2
+    ],
+    "area": 28918,
+    "res_cap": false,
+    "n_faces": 2708,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 1198,
+    "short_mm": 1130
+   }
+  ],
+  "rooms_moved": [],
+  "rooms_gone": [
+   {
+    "bbox": [
+     2079,
+     1023,
+     2096,
+     1068
+    ],
+    "area": 782,
+    "conf": 0.7
+   }
+  ],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     13,
+     13
+    ],
+    "window": [
+     12,
+     12
+    ],
+    "room": [
+     13,
+     13
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "window",
+     [
+      2505,
+      1094,
+      2515,
+      1210
+     ]
+    ],
+    [
+     "window",
+     [
+      1973,
+      839,
+      2038,
+      860
+     ]
+    ],
+    [
+     "window",
+     [
+      170,
+      1225,
+      189,
+      1262
+     ]
+    ],
+    [
+     "window",
+     [
+      1444,
+      2412,
+      1468,
+      2477
+     ]
+    ],
+    [
+     "window",
+     [
+      1770,
+      2315,
+      1835,
+      2339
+     ]
+    ],
+    [
+     "window",
+     [
+      1938,
+      2214,
+      2003,
+      2238
+     ]
+    ],
+    [
+     "window",
+     [
+      1421,
+      1199,
+      1426,
+      1227
+     ]
+    ],
+    [
+     "window",
+     [
+      1428,
+      1204,
+      1480,
+      1237
+     ]
+    ],
+    [
+     "room",
+     [
+      2179,
+      2093,
+      2493,
+      2540
+     ]
+    ],
+    [
+     "room",
+     [
+      1616,
+      2283,
+      1651,
+      2347
+     ]
+    ],
+    [
+     "room",
+     [
+      1836,
+      2408,
+      1900,
+      2430
+     ]
+    ],
+    [
+     "window",
+     [
+      2302,
+      973,
+      2328,
+      1021
+     ]
+    ],
+    [
+     "room",
+     [
+      2693,
+      513,
+      2760,
+      988
+     ]
+    ],
+    [
+     "room",
+     [
+      907,
+      810,
+      1078,
+      833
+     ]
+    ],
+    [
+     "room",
+     [
+      147,
+      1059,
+      197,
+      1229
+     ]
+    ],
+    [
+     "room",
+     [
+      2078,
+      1023,
+      2096,
+      1068
+     ]
+    ],
+    [
+     "room",
+     [
+      2645,
+      545,
+      2673,
+      894
+     ]
+    ],
+    [
+     "room",
+     [
+      1565,
+      1039,
+      1599,
+      1068
+     ]
+    ],
+    [
+     "room",
+     [
+      1565,
+      1074,
+      1592,
+      1100
+     ]
+    ],
+    [
+     "room",
+     [
+      1844,
+      2284,
+      1879,
+      2348
+     ]
+    ],
+    [
+     "window",
+     [
+      180,
+      990,
+      199,
+      1027
+     ]
+    ],
+    [
+     "window",
+     [
+      183,
+      860,
+      202,
+      897
+     ]
+    ],
+    [
+     "window",
+     [
+      177,
+      1025,
+      196,
+      1062
+     ]
+    ],
+    [
+     "room",
+     [
+      1317,
+      690,
+      1348,
+      729
+     ]
+    ]
+   ],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     13,
+     13
+    ],
+    "window": [
+     12,
+     12
+    ],
+    "room": [
+     13,
+     13
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "window",
+     [
+      2505,
+      1094,
+      2515,
+      1210
+     ]
+    ],
+    [
+     "window",
+     [
+      1973,
+      839,
+      2038,
+      860
+     ]
+    ],
+    [
+     "window",
+     [
+      170,
+      1225,
+      189,
+      1262
+     ]
+    ],
+    [
+     "window",
+     [
+      1444,
+      2412,
+      1468,
+      2477
+     ]
+    ],
+    [
+     "window",
+     [
+      1770,
+      2315,
+      1835,
+      2339
+     ]
+    ],
+    [
+     "window",
+     [
+      1938,
+      2214,
+      2003,
+      2238
+     ]
+    ],
+    [
+     "window",
+     [
+      1421,
+      1199,
+      1426,
+      1227
+     ]
+    ],
+    [
+     "window",
+     [
+      1428,
+      1204,
+      1480,
+      1237
+     ]
+    ],
+    [
+     "room",
+     [
+      2179,
+      2093,
+      2493,
+      2540
+     ]
+    ],
+    [
+     "room",
+     [
+      1616,
+      2283,
+      1651,
+      2347
+     ]
+    ],
+    [
+     "room",
+     [
+      1836,
+      2408,
+      1900,
+      2430
+     ]
+    ],
+    [
+     "window",
+     [
+      2302,
+      973,
+      2328,
+      1021
+     ]
+    ],
+    [
+     "room",
+     [
+      2693,
+      513,
+      2760,
+      988
+     ]
+    ],
+    [
+     "room",
+     [
+      907,
+      810,
+      1078,
+      833
+     ]
+    ],
+    [
+     "room",
+     [
+      147,
+      1059,
+      197,
+      1229
+     ]
+    ],
+    [
+     "room",
+     [
+      2645,
+      545,
+      2673,
+      894
+     ]
+    ],
+    [
+     "room",
+     [
+      1565,
+      1039,
+      1599,
+      1068
+     ]
+    ],
+    [
+     "room",
+     [
+      1565,
+      1074,
+      1592,
+      1100
+     ]
+    ],
+    [
+     "room",
+     [
+      1844,
+      2284,
+      1879,
+      2348
+     ]
+    ],
+    [
+     "window",
+     [
+      180,
+      990,
+      199,
+      1027
+     ]
+    ],
+    [
+     "window",
+     [
+      183,
+      860,
+      202,
+      897
+     ]
+    ],
+    [
+     "window",
+     [
+      177,
+      1025,
+      196,
+      1062
+     ]
+    ],
+    [
+     "room",
+     [
+      1317,
+      690,
+      1348,
+      729
+     ]
+    ]
+   ],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s17",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "calls": [
+   {
+    "text": false,
+    "short": 94.5,
+    "long": 280.75,
+    "spacing": 98.5,
+    "covers": [
+     0.675,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      708.4,
+      2595.7
+     ],
+     [
+      708.4,
+      2876.4
+     ],
+     [
+      802.9,
+      2876.4
+     ],
+     [
+      802.9,
+      2595.7
+     ]
+    ],
+    "bbox": [
+     708.4,
+     2595.7,
+     802.9,
+     2876.4
+    ],
+    "area": 25801,
+    "res_cap": false,
+    "n_faces": 643,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "technically this stairwell should merge with the hallway room",
+    "spacing_mm": 834,
+    "short_mm": 800
+   },
+   {
+    "text": false,
+    "short": 101.5,
+    "long": 133.0,
+    "spacing": 105.5,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1649.2,
+      1301.9
+     ],
+     [
+      1750.7,
+      1301.9
+     ],
+     [
+      1750.7,
+      1168.9
+     ],
+     [
+      1649.2,
+      1168.9
+     ]
+    ],
+    "bbox": [
+     1649.2,
+     1168.9,
+     1750.7,
+     1301.9
+    ],
+    "area": 13499,
+    "res_cap": false,
+    "n_faces": 643,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 1786,
+    "short_mm": 1719
+   },
+   {
+    "text": false,
+    "short": 21.25,
+    "long": 144.75,
+    "spacing": 25.25,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      3433.9,
+      2185.7
+     ],
+     [
+      3433.9,
+      2206.9
+     ],
+     [
+      3578.7,
+      2206.9
+     ],
+     [
+      3578.7,
+      2185.7
+     ]
+    ],
+    "bbox": [
+     3433.9,
+     2185.7,
+     3578.7,
+     2206.9
+    ],
+    "area": 3076,
+    "res_cap": true,
+    "n_faces": 643,
+    "band": "under_cap",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "unmatched",
+    "gt_iou": 0.0,
+    "gt_note": "",
+    "spacing_mm": 214,
+    "short_mm": 180
+   }
+  ],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     35,
+     35
+    ],
+    "window": [
+     10,
+     10
+    ],
+    "room": [
+     25,
+     25
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "room",
+     [
+      1473,
+      1187,
+      1627,
+      1309
+     ]
+    ],
+    [
+     "room",
+     [
+      1640,
+      1324,
+      1906,
+      1592
+     ]
+    ],
+    [
+     "room",
+     [
+      1528,
+      1525,
+      1627,
+      1592
+     ]
+    ],
+    [
+     "room",
+     [
+      912,
+      2174,
+      947,
+      2331
+     ]
+    ],
+    [
+     "room",
+     [
+      3047,
+      2174,
+      3082,
+      2489
+     ]
+    ],
+    [
+     "room",
+     [
+      3047,
+      2594,
+      3084,
+      3061
+     ]
+    ],
+    [
+     "room",
+     [
+      2843,
+      2883,
+      3045,
+      3025
+     ]
+    ],
+    [
+     "room",
+     [
+      1649,
+      1169,
+      1751,
+      1302
+     ]
+    ],
+    [
+     "room",
+     [
+      951,
+      2209,
+      1554,
+      3052
+     ]
+    ],
+    [
+     "room",
+     [
+      914,
+      2615,
+      949,
+      3061
+     ]
+    ]
+   ],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     35,
+     35
+    ],
+    "window": [
+     10,
+     10
+    ],
+    "room": [
+     25,
+     25
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "room",
+     [
+      1473,
+      1187,
+      1627,
+      1309
+     ]
+    ],
+    [
+     "room",
+     [
+      1640,
+      1324,
+      1906,
+      1592
+     ]
+    ],
+    [
+     "room",
+     [
+      1528,
+      1525,
+      1627,
+      1592
+     ]
+    ],
+    [
+     "room",
+     [
+      912,
+      2174,
+      947,
+      2331
+     ]
+    ],
+    [
+     "room",
+     [
+      3047,
+      2174,
+      3082,
+      2489
+     ]
+    ],
+    [
+     "room",
+     [
+      3047,
+      2594,
+      3084,
+      3061
+     ]
+    ],
+    [
+     "room",
+     [
+      2843,
+      2883,
+      3045,
+      3025
+     ]
+    ],
+    [
+     "room",
+     [
+      1649,
+      1169,
+      1751,
+      1302
+     ]
+    ],
+    [
+     "room",
+     [
+      951,
+      2209,
+      1554,
+      3052
+     ]
+    ],
+    [
+     "room",
+     [
+      914,
+      2615,
+      949,
+      3061
+     ]
+    ]
+   ],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s16",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "calls": [
+   {
+    "text": false,
+    "short": 31.62,
+    "long": 147.5,
+    "spacing": 35.62,
+    "covers": [
+     0.716,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      1116.5,
+      1445.1
+     ],
+     [
+      1116.5,
+      1476.7
+     ],
+     [
+      1264.0,
+      1476.7
+     ],
+     [
+      1264.0,
+      1445.1
+     ]
+    ],
+    "bbox": [
+     1116.5,
+     1445.1,
+     1264.0,
+     1476.7
+    ],
+    "area": 4306,
+    "res_cap": false,
+    "n_faces": 1600,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 0.529,
+    "gt_note": "",
+    "spacing_mm": 603,
+    "short_mm": 536
+   },
+   {
+    "text": false,
+    "short": 30.88,
+    "long": 92.75,
+    "spacing": 34.88,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      1203.1,
+      1441.1
+     ],
+     [
+      1295.8,
+      1441.1
+     ],
+     [
+      1295.8,
+      1410.2
+     ],
+     [
+      1203.1,
+      1410.2
+     ]
+    ],
+    "bbox": [
+     1203.1,
+     1410.2,
+     1295.8,
+     1441.1
+    ],
+    "area": 2864,
+    "res_cap": false,
+    "n_faces": 1600,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 591,
+    "short_mm": 523
+   },
+   {
+    "text": false,
+    "short": 69.87,
+    "long": 162.44,
+    "spacing": 73.87,
+    "covers": [
+     0.162,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1800.8,
+      1504.9
+     ],
+     [
+      1800.8,
+      1667.4
+     ],
+     [
+      1870.7,
+      1667.4
+     ],
+     [
+      1870.7,
+      1504.9
+     ]
+    ],
+    "bbox": [
+     1800.8,
+     1504.9,
+     1870.7,
+     1667.4
+    ],
+    "area": 5875,
+    "res_cap": false,
+    "n_faces": 1600,
+    "band": "over_thick",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 1251,
+    "short_mm": 1183
+   },
+   {
+    "text": false,
+    "short": 69.87,
+    "long": 162.44,
+    "spacing": 73.87,
+    "covers": [
+     0.162,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1950.6,
+      1667.4
+     ],
+     [
+      1950.6,
+      1504.9
+     ],
+     [
+      1880.7,
+      1504.9
+     ],
+     [
+      1880.7,
+      1667.4
+     ]
+    ],
+    "bbox": [
+     1880.7,
+     1504.9,
+     1950.6,
+     1667.4
+    ],
+    "area": 6456,
+    "res_cap": false,
+    "n_faces": 1600,
+    "band": "over_thick",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 1251,
+    "short_mm": 1183
+   },
+   {
+    "text": false,
+    "short": 43.25,
+    "long": 173.0,
+    "spacing": 47.25,
+    "covers": [
+     0.817,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1978.2,
+      1171.5
+     ],
+     [
+      2021.5,
+      1171.5
+     ],
+     [
+      2021.5,
+      998.5
+     ],
+     [
+      1978.2,
+      998.5
+     ]
+    ],
+    "bbox": [
+     1978.2,
+     998.5,
+     2021.5,
+     1171.5
+    ],
+    "area": 7389,
+    "res_cap": false,
+    "n_faces": 1600,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 800,
+    "short_mm": 732
+   },
+   {
+    "text": false,
+    "short": 67.55,
+    "long": 135.09,
+    "spacing": 71.55,
+    "covers": [
+     0.025,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      1943.3,
+      1498.3
+     ],
+     [
+      1808.2,
+      1498.3
+     ],
+     [
+      1808.2,
+      1565.9
+     ],
+     [
+      1943.3,
+      1565.9
+     ]
+    ],
+    "bbox": [
+     1808.2,
+     1498.3,
+     1943.3,
+     1565.9
+    ],
+    "area": 4563,
+    "res_cap": false,
+    "n_faces": 1600,
+    "band": "over_thick",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 1211,
+    "short_mm": 1144
+   },
+   {
+    "text": false,
+    "short": 96.06,
+    "long": 96.06,
+    "spacing": 100.06,
+    "covers": [
+     0.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 135.0,
+    "mrr": [
+     [
+      1943.6,
+      1674.3
+     ],
+     [
+      1875.7,
+      1606.4
+     ],
+     [
+      1807.8,
+      1674.3
+     ],
+     [
+      1875.7,
+      1742.3
+     ]
+    ],
+    "bbox": [
+     1807.8,
+     1606.4,
+     1943.6,
+     1674.3
+    ],
+    "area": 4613,
+    "res_cap": false,
+    "n_faces": 1600,
+    "band": "over_thick",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 1694,
+    "short_mm": 1627
+   },
+   {
+    "text": false,
+    "short": 38.37,
+    "long": 156.5,
+    "spacing": 42.37,
+    "covers": [
+     0.8,
+     0.9
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      2316.1,
+      1198.3
+     ],
+     [
+      2316.1,
+      1236.7
+     ],
+     [
+      2472.6,
+      1236.7
+     ],
+     [
+      2472.6,
+      1198.3
+     ]
+    ],
+    "bbox": [
+     2316.1,
+     1198.3,
+     2472.6,
+     1236.7
+    ],
+    "area": 5796,
+    "res_cap": false,
+    "n_faces": 1600,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 718,
+    "short_mm": 650
+   },
+   {
+    "text": false,
+    "short": 24.12,
+    "long": 78.5,
+    "spacing": 28.12,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      2479.2,
+      1322.8
+     ],
+     [
+      2479.2,
+      1401.3
+     ],
+     [
+      2503.3,
+      1401.3
+     ],
+     [
+      2503.3,
+      1322.8
+     ]
+    ],
+    "bbox": [
+     2479.2,
+     1322.8,
+     2503.3,
+     1401.3
+    ],
+    "area": 1894,
+    "res_cap": false,
+    "n_faces": 1600,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 476,
+    "short_mm": 409
+   },
+   {
+    "text": false,
+    "short": 20.0,
+    "long": 78.5,
+    "spacing": 24.0,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      2507.3,
+      1322.8
+     ],
+     [
+      2507.3,
+      1401.3
+     ],
+     [
+      2527.3,
+      1401.3
+     ],
+     [
+      2527.3,
+      1322.8
+     ]
+    ],
+    "bbox": [
+     2507.3,
+     1322.8,
+     2527.3,
+     1401.3
+    ],
+    "area": 1570,
+    "res_cap": false,
+    "n_faces": 1600,
+    "band": "in_band",
+    "cover_ok": true,
+    "would_drop": true,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 406,
+    "short_mm": 339
+   },
+   {
+    "text": false,
+    "short": 31.62,
+    "long": 50.75,
+    "spacing": 35.62,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      2476.6,
+      1547.1
+     ],
+     [
+      2476.6,
+      1578.7
+     ],
+     [
+      2527.3,
+      1578.7
+     ],
+     [
+      2527.3,
+      1547.1
+     ]
+    ],
+    "bbox": [
+     2476.6,
+     1547.1,
+     2527.3,
+     1578.7
+    ],
+    "area": 1605,
+    "res_cap": false,
+    "n_faces": 1600,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 603,
+    "short_mm": 536
+   }
+  ],
+  "rooms_moved": [],
+  "rooms_gone": [
+   {
+    "bbox": [
+     2507,
+     1323,
+     2527,
+     1401
+    ],
+    "area": 1570,
+    "conf": 0.7
+   }
+  ],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     16,
+     16
+    ],
+    "window": [
+     25,
+     25
+    ],
+    "room": [
+     17,
+     17
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "room",
+     [
+      2316,
+      1198,
+      2473,
+      1237
+     ]
+    ],
+    [
+     "room",
+     [
+      1808,
+      1498,
+      1943,
+      1566
+     ]
+    ],
+    [
+     "room",
+     [
+      1801,
+      1505,
+      1871,
+      1667
+     ]
+    ],
+    [
+     "room",
+     [
+      1881,
+      1505,
+      1951,
+      1667
+     ]
+    ],
+    [
+     "room",
+     [
+      1203,
+      1410,
+      1296,
+      1441
+     ]
+    ],
+    [
+     "room",
+     [
+      1808,
+      1606,
+      1944,
+      1674
+     ]
+    ],
+    [
+     "room",
+     [
+      972,
+      1753,
+      1192,
+      1785
+     ]
+    ],
+    [
+     "room",
+     [
+      2507,
+      1323,
+      2527,
+      1401
+     ]
+    ],
+    [
+     "room",
+     [
+      2477,
+      1547,
+      2527,
+      1579
+     ]
+    ],
+    [
+     "room",
+     [
+      1116,
+      1445,
+      1195,
+      1477
+     ]
+    ]
+   ],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     16,
+     16
+    ],
+    "window": [
+     25,
+     25
+    ],
+    "room": [
+     17,
+     17
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "room",
+     [
+      2316,
+      1198,
+      2473,
+      1237
+     ]
+    ],
+    [
+     "room",
+     [
+      1808,
+      1498,
+      1943,
+      1566
+     ]
+    ],
+    [
+     "room",
+     [
+      1801,
+      1505,
+      1871,
+      1667
+     ]
+    ],
+    [
+     "room",
+     [
+      1881,
+      1505,
+      1951,
+      1667
+     ]
+    ],
+    [
+     "room",
+     [
+      1203,
+      1410,
+      1296,
+      1441
+     ]
+    ],
+    [
+     "room",
+     [
+      1808,
+      1606,
+      1944,
+      1674
+     ]
+    ],
+    [
+     "room",
+     [
+      972,
+      1753,
+      1192,
+      1785
+     ]
+    ],
+    [
+     "room",
+     [
+      2477,
+      1547,
+      2527,
+      1579
+     ]
+    ],
+    [
+     "room",
+     [
+      1116,
+      1445,
+      1195,
+      1477
+     ]
+    ]
+   ],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s11",
+  "page": 1,
+  "factor": 0.5,
+  "cap_px": 18.0,
+  "thick_px": 28.0,
+  "calls": [
+   {
+    "text": false,
+    "short": 31.62,
+    "long": 35.0,
+    "spacing": 35.62,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      798.8,
+      1537.0
+     ],
+     [
+      798.8,
+      1572.0
+     ],
+     [
+      830.5,
+      1572.0
+     ],
+     [
+      830.5,
+      1537.0
+     ]
+    ],
+    "bbox": [
+     798.8,
+     1537.0,
+     830.5,
+     1572.0
+    ],
+    "area": 1107,
+    "res_cap": false,
+    "n_faces": 1174,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 603,
+    "short_mm": 535
+   },
+   {
+    "text": false,
+    "short": 31.62,
+    "long": 40.63,
+    "spacing": 35.62,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      798.8,
+      1464.2
+     ],
+     [
+      798.8,
+      1504.8
+     ],
+     [
+      830.5,
+      1504.8
+     ],
+     [
+      830.5,
+      1464.2
+     ]
+    ],
+    "bbox": [
+     798.8,
+     1464.2,
+     830.5,
+     1504.8
+    ],
+    "area": 1285,
+    "res_cap": false,
+    "n_faces": 1174,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 603,
+    "short_mm": 535
+   },
+   {
+    "text": false,
+    "short": 17.75,
+    "long": 107.0,
+    "spacing": 21.75,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1077.5,
+      1597.0
+     ],
+     [
+      1077.5,
+      1704.0
+     ],
+     [
+      1095.2,
+      1704.0
+     ],
+     [
+      1095.2,
+      1597.0
+     ]
+    ],
+    "bbox": [
+     1077.5,
+     1597.0,
+     1095.2,
+     1704.0
+    ],
+    "area": 1899,
+    "res_cap": false,
+    "n_faces": 1174,
+    "band": "in_band",
+    "cover_ok": true,
+    "would_drop": true,
+    "gt": "confirmed",
+    "gt_iou": 0.922,
+    "gt_note": "storage in utility",
+    "spacing_mm": 368,
+    "short_mm": 301
+   },
+   {
+    "text": false,
+    "short": 94.25,
+    "long": 145.79,
+    "spacing": 98.25,
+    "covers": [
+     0.376,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      1661.5,
+      1191.3
+     ],
+     [
+      1807.3,
+      1191.3
+     ],
+     [
+      1807.3,
+      1097.1
+     ],
+     [
+      1661.5,
+      1097.1
+     ]
+    ],
+    "bbox": [
+     1661.5,
+     1097.1,
+     1807.3,
+     1191.3
+    ],
+    "area": 9128,
+    "res_cap": false,
+    "n_faces": 1174,
+    "band": "over_thick",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 1664,
+    "short_mm": 1596
+   },
+   {
+    "text": false,
+    "short": 37.62,
+    "long": 156.12,
+    "spacing": 41.62,
+    "covers": [
+     0.906,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1807.3,
+      937.0
+     ],
+     [
+      1769.7,
+      937.0
+     ],
+     [
+      1769.7,
+      1093.1
+     ],
+     [
+      1807.3,
+      1093.1
+     ]
+    ],
+    "bbox": [
+     1769.7,
+     937.0,
+     1807.3,
+     1093.1
+    ],
+    "area": 5802,
+    "res_cap": false,
+    "n_faces": 1174,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 705,
+    "short_mm": 637
+   },
+   {
+    "text": false,
+    "short": 93.87,
+    "long": 145.42,
+    "spacing": 97.87,
+    "covers": [
+     0.377,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      1661.9,
+      1301.2
+     ],
+     [
+      1807.3,
+      1301.2
+     ],
+     [
+      1807.3,
+      1207.3
+     ],
+     [
+      1661.9,
+      1207.3
+     ]
+    ],
+    "bbox": [
+     1661.9,
+     1207.3,
+     1807.3,
+     1301.2
+    ],
+    "area": 9086,
+    "res_cap": false,
+    "n_faces": 1174,
+    "band": "over_thick",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 1657,
+    "short_mm": 1590
+   },
+   {
+    "text": false,
+    "short": 90.8,
+    "long": 181.59,
+    "spacing": 94.8,
+    "covers": [
+     0.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1650.5,
+      1108.5
+     ],
+     [
+      1650.5,
+      1290.1
+     ],
+     [
+      1741.3,
+      1290.1
+     ],
+     [
+      1741.3,
+      1108.5
+     ]
+    ],
+    "bbox": [
+     1650.5,
+     1108.5,
+     1741.3,
+     1290.1
+    ],
+    "area": 8244,
+    "res_cap": false,
+    "n_faces": 1174,
+    "band": "over_thick",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 1605,
+    "short_mm": 1537
+   },
+   {
+    "text": false,
+    "short": 37.62,
+    "long": 158.0,
+    "spacing": 41.62,
+    "covers": [
+     0.882,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1769.7,
+      1305.2
+     ],
+     [
+      1769.7,
+      1463.2
+     ],
+     [
+      1807.3,
+      1463.2
+     ],
+     [
+      1807.3,
+      1305.2
+     ]
+    ],
+    "bbox": [
+     1769.7,
+     1305.2,
+     1807.3,
+     1463.2
+    ],
+    "area": 5891,
+    "res_cap": false,
+    "n_faces": 1174,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 705,
+    "short_mm": 637
+   },
+   {
+    "text": false,
+    "short": 38.37,
+    "long": 156.5,
+    "spacing": 42.37,
+    "covers": [
+     0.8,
+     0.9
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      2102.0,
+      1126.0
+     ],
+     [
+      2102.0,
+      1164.3
+     ],
+     [
+      2258.5,
+      1164.3
+     ],
+     [
+      2258.5,
+      1126.0
+     ]
+    ],
+    "bbox": [
+     2102.0,
+     1126.0,
+     2258.5,
+     1164.3
+    ],
+    "area": 5888,
+    "res_cap": false,
+    "n_faces": 1174,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 718,
+    "short_mm": 650
+   }
+  ],
+  "rooms_moved": [],
+  "rooms_gone": [
+   {
+    "bbox": [
+     1078,
+     1597,
+     1095,
+     1704
+    ],
+    "area": 1894,
+    "conf": 0.7
+   }
+  ],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     16,
+     16
+    ],
+    "window": [
+     28,
+     28
+    ],
+    "room": [
+     16,
+     16
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "room",
+     [
+      1650,
+      1108,
+      1741,
+      1290
+     ]
+    ],
+    [
+     "room",
+     [
+      2102,
+      1126,
+      2258,
+      1164
+     ]
+    ],
+    [
+     "room",
+     [
+      799,
+      1464,
+      830,
+      1505
+     ]
+    ],
+    [
+     "room",
+     [
+      799,
+      1537,
+      830,
+      1572
+     ]
+    ]
+   ],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     16,
+     16
+    ],
+    "window": [
+     28,
+     28
+    ],
+    "room": [
+     15,
+     16
+    ]
+   },
+   "lost": [
+    [
+     "room",
+     [
+      1078,
+      1597,
+      1097,
+      1704
+     ]
+    ]
+   ],
+   "returned_fps": [
+    [
+     "room",
+     [
+      1650,
+      1108,
+      1741,
+      1290
+     ]
+    ],
+    [
+     "room",
+     [
+      2102,
+      1126,
+      2258,
+      1164
+     ]
+    ],
+    [
+     "room",
+     [
+      799,
+      1464,
+      830,
+      1505
+     ]
+    ],
+    [
+     "room",
+     [
+      799,
+      1537,
+      830,
+      1572
+     ]
+    ]
+   ],
+   "unreviewed": []
+  }
+ },
+ {
+  "slug": "s15",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "calls": [
+   {
+    "text": false,
+    "short": 102.25,
+    "long": 184.0,
+    "spacing": 106.25,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      648.9,
+      956.4
+     ],
+     [
+      648.9,
+      1058.7
+     ],
+     [
+      832.9,
+      1058.7
+     ],
+     [
+      832.9,
+      956.4
+     ]
+    ],
+    "bbox": [
+     648.9,
+     956.4,
+     832.9,
+     1058.7
+    ],
+    "area": 18814,
+    "res_cap": false,
+    "n_faces": 526,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "confirmed",
+    "gt_iou": 0.971,
+    "gt_note": "",
+    "spacing_mm": 900,
+    "short_mm": 866
+   },
+   {
+    "text": false,
+    "short": 78.75,
+    "long": 196.75,
+    "spacing": 82.75,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      436.4,
+      1058.7
+     ],
+     [
+      633.2,
+      1058.7
+     ],
+     [
+      633.2,
+      979.9
+     ],
+     [
+      436.4,
+      979.9
+     ]
+    ],
+    "bbox": [
+     436.4,
+     979.9,
+     633.2,
+     1058.7
+    ],
+    "area": 15475,
+    "res_cap": false,
+    "n_faces": 526,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "confirmed",
+    "gt_iou": 0.962,
+    "gt_note": "",
+    "spacing_mm": 701,
+    "short_mm": 667
+   },
+   {
+    "text": false,
+    "short": 67.0,
+    "long": 119.75,
+    "spacing": 71.0,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      765.9,
+      1549.4
+     ],
+     [
+      765.9,
+      1669.2
+     ],
+     [
+      832.9,
+      1669.2
+     ],
+     [
+      832.9,
+      1549.4
+     ]
+    ],
+    "bbox": [
+     765.9,
+     1549.4,
+     832.9,
+     1669.2
+    ],
+    "area": 8023,
+    "res_cap": false,
+    "n_faces": 526,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 601,
+    "short_mm": 567
+   },
+   {
+    "text": false,
+    "short": 72.0,
+    "long": 149.75,
+    "spacing": 76.0,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      1291.4,
+      973.7
+     ],
+     [
+      1291.4,
+      1045.7
+     ],
+     [
+      1441.2,
+      1045.7
+     ],
+     [
+      1441.2,
+      973.7
+     ]
+    ],
+    "bbox": [
+     1291.4,
+     973.7,
+     1441.2,
+     1045.7
+    ],
+    "area": 10782,
+    "res_cap": false,
+    "n_faces": 526,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 0.963,
+    "gt_note": "",
+    "spacing_mm": 643,
+    "short_mm": 610
+   },
+   {
+    "text": false,
+    "short": 70.5,
+    "long": 419.0,
+    "spacing": 74.5,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      1022.2,
+      1425.2
+     ],
+     [
+      1022.2,
+      1495.7
+     ],
+     [
+      1441.2,
+      1495.7
+     ],
+     [
+      1441.2,
+      1425.2
+     ]
+    ],
+    "bbox": [
+     1022.2,
+     1425.2,
+     1441.2,
+     1495.7
+    ],
+    "area": 29510,
+    "res_cap": false,
+    "n_faces": 526,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 0.95,
+    "gt_note": "",
+    "spacing_mm": 631,
+    "short_mm": 597
+   }
+  ],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     12,
+     12
+    ],
+    "window": [
+     1,
+     1
+    ],
+    "room": [
+     13,
+     13
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "door",
+     [
+      658,
+      1763,
+      694,
+      1834
+     ]
+    ],
+    [
+     "window",
+     [
+      835,
+      1388,
+      870,
+      1423
+     ]
+    ],
+    [
+     "window",
+     [
+      1324,
+      2274,
+      1355,
+      2297
+     ]
+    ],
+    [
+     "window",
+     [
+      148,
+      2485,
+      361,
+      2497
+     ]
+    ],
+    [
+     "room",
+     [
+      425,
+      263,
+      1441,
+      1415
+     ]
+    ],
+    [
+     "room",
+     [
+      1291,
+      974,
+      1441,
+      1043
+     ]
+    ],
+    [
+     "room",
+     [
+      1022,
+      1425,
+      1441,
+      1492
+     ]
+    ]
+   ],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     12,
+     12
+    ],
+    "window": [
+     1,
+     1
+    ],
+    "room": [
+     13,
+     13
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "door",
+     [
+      658,
+      1763,
+      694,
+      1834
+     ]
+    ],
+    [
+     "window",
+     [
+      835,
+      1388,
+      870,
+      1423
+     ]
+    ],
+    [
+     "window",
+     [
+      1324,
+      2274,
+      1355,
+      2297
+     ]
+    ],
+    [
+     "window",
+     [
+      148,
+      2485,
+      361,
+      2497
+     ]
+    ],
+    [
+     "room",
+     [
+      425,
+      263,
+      1441,
+      1415
+     ]
+    ],
+    [
+     "room",
+     [
+      1291,
+      974,
+      1441,
+      1043
+     ]
+    ],
+    [
+     "room",
+     [
+      1022,
+      1425,
+      1441,
+      1492
+     ]
+    ]
+   ],
+   "unreviewed": []
+  }
+ }
+]
