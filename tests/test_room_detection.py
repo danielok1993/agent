@@ -2083,6 +2083,81 @@ class TestRejectedDoorIsNotAnEntrance(unittest.TestCase):
         self.assertEqual(rooms[0].evidence["door_openings"], 1)
 
 
+class TestEntranceRunsAlongTheBoundary(unittest.TestCase):
+    """An ENTRANCE is a door seal that runs ALONG the space's boundary over
+    at least ROOM_ENTRANCE_MIN_RUN_PX (W-gate iteration 3 step 14). s17
+    rooms 0013/0014/0027/0032: each cavity-wall reveal strip ends where a
+    doorway is cut through the same wall, and that doorway's 0.95 plug —
+    in the wall plane, collinear with the strip — touches the strip's END
+    over the plug's own cross-section (15–18px of contact = 127–152mm),
+    which the any-touch entrance test read as an entrance, so the strip
+    escaped _is_band_pocket. A doorway INTO a space is cut through one of
+    its bounding walls and its plug runs along that boundary over the
+    doorway's width (≥ 501mm on every confirmed room of the corpus).
+
+    The cavity wall is TestBandPocket's (11.75 / 19 / 13.25px, the reveal
+    between the outer leaf's inner face and the wall's inner face) with an
+    80px doorway cut through it between two 8px jamb nibs; the door's
+    wall-plane edge lies mid-wall, as s17's do (door_0025's plug centre is
+    25px from the outer leaf, 12px from the inner face)."""
+
+    OUTER, OUTER_IN, INNER_OUT, INNER = 100.0, 111.75, 130.75, 144.0
+    REVEAL = 200.0
+    JAMB_L, JAMB_R = 392.0, 480.0    # nibs 392–400 and 480–488: doorway 400–480
+
+    def _plan(self):
+        x0, x1 = 100.0, 600.0
+        r0, jl, jr = self.REVEAL, self.JAMB_L, self.JAMB_R
+        resume = jr + 8.0
+        paths = [
+            hline(0, x0, jl, self.OUTER), hline(1, resume, x1, self.OUTER),
+            hline(2, x0, jl, self.OUTER_IN), hline(3, resume, x1, self.OUTER_IN),
+            hline(4, x0, r0, self.INNER_OUT),                  # stops at the reveal
+            hline(5, resume, x1, self.INNER_OUT),
+            hline(6, x0, jl, self.INNER), hline(7, resume, x1, self.INNER),
+            hline(8, r0, jl - 8.0, 105.25),                    # glazing, mid outer leaf
+        ]
+        idx = 9
+        for xj in (jl, jr):                                    # the jamb nibs
+            paths += wall_band_v(idx, xj, self.OUTER, self.INNER)
+            idx += 2
+        paths += wall_band_v(idx, x0, self.OUTER, 400.0)
+        idx += 2
+        paths += wall_band_v(idx, x1 - 8.0, self.OUTER, 400.0)
+        idx += 2
+        paths += wall_band_h(idx, x0, x1, 392.0)
+        return paths
+
+    def _door(self):
+        # A confident single hung in the doorway, its wall-plane edge mid-wall
+        # at y=128: the interrupted plug runs x 390–490 between the nibs, and
+        # its LEFT END meets the reveal strip's end at the left nib.
+        return door_candidate((400.0, 128.0, 480.0, 208.0), confidence=0.95)
+
+    def test_doorway_plug_meeting_the_strip_end_is_not_its_entrance(self):
+        rooms = rooms_for(self._plan(), doors=[self._door()])
+        self.assertEqual(len(rooms), 1, [r.bbox for r in rooms])
+        # The room below the wall (its free space climbs into the doorway
+        # up to the plug), not the strip inside the wall.
+        self.assertGreater(rooms[0].bbox[3], self.INNER)
+        self.assertEqual(rooms[0].evidence["door_openings"], 1)
+
+    def test_cupboard_entered_through_its_long_side_stays(self):
+        # The true class: a 26px-wide storage cupboard — faces 30px apart,
+        # inside the plain cap, s11 room_0018's class — whose door plug runs
+        # ALONG its boundary over a 60px doorway stays a room.
+        paths = (
+            wall_band_h(0, 100, 400, 100)
+            + wall_band_h(2, 100, 200, 138) + wall_band_h(4, 260, 400, 138)
+            + wall_band_v(6, 100, 100, 146) + wall_band_v(8, 392, 100, 146)
+        )
+        door = door_candidate((200.0, 138.0, 260.0, 198.0), confidence=0.95)
+        rooms = rooms_for(paths, doors=[door])
+        self.assertEqual(len(rooms), 1, [r.bbox for r in rooms])
+        self.assertLess(rooms[0].bbox[3], 140.0)
+        self.assertEqual(rooms[0].evidence["door_openings"], 1)
+
+
 if __name__ == "__main__":
     unittest.main()
 

@@ -2282,3 +2282,127 @@ every confirmed entered room's largest entrance contact is ≥ 569mm (67.2px at
 > messages carry no Co-Authored-By or session trailer. End every report with
 > the numbers: lost, returned FPs, new REVIEW lines with your verdicts, net
 > phantom delta, and what is next.
+
+## Outcome — iteration 3, step 14 (2026-09-06, branch `fix/entrance-contact-run`, shipped pending the user's decision)
+
+An ENTRANCE is a seal that RUNS ALONG the space's boundary: `_entrance_run`
+(the boundary's length within `ROOM_CONTACT_TOL_PX` of the seal, less the
+tolerance's reach past each end) ≥ `ROOM_ENTRANCE_MIN_RUN_PX` = 29.5px = 250mm
+at 1:50 (W-class, `RoomGates`). Only `entrance_count` reads it — the
+blind-window, wall-recess and band-pocket drops; `door_openings` and the
+confidence boost still count every touching seal. The tolerance is subtracted
+because it is paper: a crossing plug's raw contact is 2 × half-width + 2 × TOL
+(18px at 1:50, 12px at s13's 1:136), so no world floor on the raw contact
+clears both classes at every factor, while on the net run the false class is
+the plug's cross-section (a W quantity) and the true class the doorway width.
+Censused as implemented on every emitted room of all 20 sheets
+(`tools/census_scratch/step14/entrance_census.py`, gate OFF via a −1.0
+multiplier = the any-touch test exactly, then ON): the largest run of every
+confirmed entered room is ≥ 59.2px at f=1.0 (s03, 2.01× over the floor), 36.0px
+at f=0.5 (s18, 2.44×), 37.3px at s13's 0.367 (3.45×), 47.3px on s01 at 0.542
+(2.96×); exactly five rooms flip, all recorded FPs — s17's four reveal strips
+(runs 7–10px: door_0025's and door_0036's plugs collinear with strips
+0013/0032 and meeting their ends, the BATH door's and door_0003's tails
+ending at 0014/0027's faces) and s04's stair winder box (13.5px, the hall
+door's tail running down its edge). Sweep: **0 LOST, 68 returned FPs, 0
+REVIEW**, one verdict line swapped — s04's winder box (8,123 px², recorded FP)
+drops as a blind-window pocket and s04's stair flight (1588,1053)–(1762,1131)
+(13,485 px², recorded FP) returns, because it was the door-less side of
+window_0004 (tread 10 detected as a 0.62 window, itself a returned FP) that
+`_drop_window_exterior_sides` dropped against the box — one staircase fenced
+by its own linework plus a false window, a trade, net 0; 19 sheets entity-
+and polygon-identical, s01/s02 untouched, 0 changed polygons. The s17 strips
+are entrance-less and STILL emitted: `_is_band_pocket` now receives them (7
+calls on s17 against 3) and rejects them by the tab-pinned covers (0013
+[0.0, 1.0], 0032 [0.0, 0.93], 0014 [0.0, 0.04], 0027 [0.0, 0.0]) and the
+38.75–40.5px spacing over the 36px cap — the next two steps. Pinned by
+`TestEntranceRunsAlongTheBoundary` (bite-proven). Report
+`docs/w-gate-iter3-checkpoints/step-14.md` (8 PNGs). Not committed.
+
+### Prompt for the next agent (iteration 3, step 15 — the tab-tolerant cover reading in `_is_band_pocket` — fresh context)
+
+> Use `/fix-detection` for its discipline. Topic branch from the tree that
+> carries step 14 once the user has committed it (`git log --all --oneline |
+> head`; main is still `ee0f52f`). Re-sweep that tree first in four background
+> groups (s18; s16 s11 s15; s01–s07; the rest) and `compare_sweeps --snapshot`
+> all 20 slugs, never trusting what sits in `outputs/regress/`. Verdict
+> reports diffed section-wise (sort before `cmp`); `tools/diff_room_polygons.py`
+> after EVERY sweep; `tools/room_shape_crop.py` for every room whose IoU moved
+> under 0.99; a scratch UNSIMPLIFIED diff whenever any room loses area;
+> harness overrides as MULTIPLIERS. Read first: `docs/w-gate-iter3-checkpoints/step-14.md`
+> and `step-13.md` (the three holds on s17's strips — the entrance gate is
+> gone, the covers and the ceiling remain), the CLAUDE.md band-pocket block,
+> `_is_band_pocket` / `_edge_face_cover` in `detection/rooms.py`,
+> `docs/regression-testing-guide.md` §9 §10 §12 §13. Scratch tooling:
+> `tools/census_scratch/step14/entrance_census.py` (every emitted room with
+> its entrance runs, gate OFF/ON), `step13/pocket_census.py` (a tap on every
+> `_is_band_pocket` call with the rule's own reading — run it on the step-14
+> tree: s17 now shows 7 calls, the four strips `in_band` with one cover 0),
+> `step13/s17_strip_edges.py` (where each strip's long edge lies against its
+> face line), `step14/zoom14.py`.
+>
+> **Tree state**: the entrance-run gate (`ROOM_ENTRANCE_MIN_RUN_PX` 29.5),
+> seal 15, `_plane_stamp`, the material-seeking tail, the doorway veto, the
+> dimension-verified gate scale; `WALL_MAX_THICKNESS_PX` 36; the band-pocket
+> ceiling unchanged; corpus 0 LOST / 68 returned FPs / 0 REVIEW; s01 sweeps at
+> 0.542 with 10/10 rooms.
+>
+> **This step: the cover reading.** `_is_band_pocket` reads the cover of each
+> long edge of the component's MINIMUM ROTATED RECTANGLE against `face_lines`
+> at the barrier standoff (`_edge_face_cover`). s17's strips carry a 31.5px
+> tab at the end where the perpendicular 35.5px band's flat-capped solid ends
+> (the band's solid stops there and the vertical face begins 33px lower), so
+> the rectangle is pinned ON the face line (standoff 0, outside the 1.5px
+> tolerance) and that edge's cover reads 0: 0013 [0.0, 1.0], 0032 [0.0, 0.93],
+> 0014 [0.0, 0.04], 0027 [0.0, 0.0]. Measure first: for every call the rule
+> receives (pocket_census's tap, all 20 sheets), the cover read on the
+> polygon's OWN long runs (the boundary segments parallel to the long axis,
+> each against the faces at the standoff) versus the rectangle's edges, and
+> whether tolerating standoff 0 where a perpendicular band ends (the tab is
+> the band's flat cap, its face line IS the strip's edge there) separates the
+> strips from the true class — every confirmed room the rule would see if its
+> entrance did not spare it (`entered_census.py`'s population). Then build
+> the reading that separates, census it as implemented, and NOTE that the
+> strips still need the ceiling (38.75–40.5px against 36): say what the
+> strips do at each ceiling, and that s11's 368mm storage lies inside the
+> false class's range (step 13) unless recognised another way. s01 and s02
+> must not change; report every polygon move with its unsimplified px².
+>
+> **After it (each its own iteration)**: the band-pocket ceiling with s11's
+> storage recognised; the s04 staircase (tread 10 detected as a 0.62 window
+> fences the winder box and the flight into two recorded-FP cells — the
+> window detector's or the stair recogniser's class); `_dimension_line_indices`
+> on s15's TEXT-layer "3560"/"1100" lines; the s18 blind-window cap at 1:100
+> (10k × f² = 2.5k px² while the tree strip is 4.6k); promotion of an
+> under-share wall pen by doorways on pen-independent material (s03's 0.73
+> grey); the merged landing's stair coverage and top-left notch on s01; same-
+> line tail material for s17 door_0016; phase-invariant plug profiles; the
+> dash-row text-mask join; the fallback in-wall gate on tail-less plugs; the
+> recess class (s11's party-wall box); Gap D of
+> `docs/hatch-cell-chords-handoff.md`; a jamb-scale floor for lining rings;
+> the lattice knife-edges; interior rings in the exported room polygon; s18's
+> and s14's glyph-outline fill rings.
+>
+> Rules for the whole run: do not commit (the user commits); do not edit
+> `tests/ground_truth/*.json` or `fixtures/MANIFEST.json` without an explicit
+> go for that specific entry; never revert s01's truth scale (1:92.2); never
+> `git stash` (in zsh an unquoted `$VAR` does NOT word-split — pipe file lists
+> through `xargs`; `echo =====` is a command lookup in zsh, quote it); macOS
+> has no `timeout`; python is not on the shell path — use `.venv/bin/python`
+> with an ABSOLUTE path in background commands (the cwd resets); a background
+> job imports the tree at launch, so never edit a constant while one is
+> running; the venv lacks InquirerPy (tools/review.py is the user's to run);
+> s02 at f = 1.0 must not change (entity set AND polygons), and every s01
+> change is reported as a decision with its LOST lines named; probe with the
+> FULL wall material and the room stage's real barrier rules, never an
+> approximation (a tap on `_free_space_components` can read detect_rooms'
+> locals off `sys._getframe(1)` — `face_lines`, `door_barriers`,
+> `wall_material` — without editing the stage); census the rule AS
+> IMPLEMENTED (with/without it on the pipeline's exact inputs); scratch
+> scripts that render pictures do so under `__main__` only and are kept under
+> `tools/census_scratch/step15/`; PNG crops go under
+> `docs/w-gate-iter3-checkpoints/` and must never show a street address or
+> planning-portal id (s02's title block carries one — never crop it); commit
+> messages carry no Co-Authored-By or session trailer. End every report with
+> the numbers: lost, returned FPs, new REVIEW lines with your verdicts, net
+> phantom delta, and what is next.

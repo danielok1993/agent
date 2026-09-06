@@ -1,0 +1,563 @@
+[
+ {
+  "slug": "s17",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "thick_px": 56.0,
+  "calls": [
+   {
+    "text": false,
+    "short": 94.5,
+    "long": 280.75,
+    "spacing": 98.5,
+    "covers": [
+     0.675,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      708.4,
+      2595.7
+     ],
+     [
+      708.4,
+      2876.4
+     ],
+     [
+      802.9,
+      2876.4
+     ],
+     [
+      802.9,
+      2595.7
+     ]
+    ],
+    "bbox": [
+     708.4,
+     2595.7,
+     802.9,
+     2876.4
+    ],
+    "area": 25801,
+    "res_cap": false,
+    "n_faces": 643,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "technically this stairwell should merge with the hallway room",
+    "spacing_mm": 834,
+    "short_mm": 800
+   },
+   {
+    "text": false,
+    "short": 34.75,
+    "long": 156.75,
+    "spacing": 38.75,
+    "covers": [
+     0.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      946.7,
+      2330.7
+     ],
+     [
+      946.7,
+      2173.9
+     ],
+     [
+      911.9,
+      2173.9
+     ],
+     [
+      911.9,
+      2330.7
+     ]
+    ],
+    "bbox": [
+     911.9,
+     2173.9,
+     946.7,
+     2330.7
+    ],
+    "area": 5197,
+    "res_cap": false,
+    "n_faces": 643,
+    "band": "in_band",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 328,
+    "short_mm": 294
+   },
+   {
+    "text": false,
+    "short": 34.75,
+    "long": 452.0,
+    "spacing": 38.75,
+    "covers": [
+     0.0,
+     0.926
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      913.9,
+      2608.7
+     ],
+     [
+      913.9,
+      3060.7
+     ],
+     [
+      948.7,
+      3060.7
+     ],
+     [
+      948.7,
+      2608.7
+     ]
+    ],
+    "bbox": [
+     913.9,
+     2608.7,
+     948.7,
+     3060.7
+    ],
+    "area": 14756,
+    "res_cap": false,
+    "n_faces": 643,
+    "band": "in_band",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 0.986,
+    "gt_note": "",
+    "spacing_mm": 328,
+    "short_mm": 294
+   },
+   {
+    "text": false,
+    "short": 101.5,
+    "long": 133.0,
+    "spacing": 105.5,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1649.2,
+      1301.9
+     ],
+     [
+      1750.7,
+      1301.9
+     ],
+     [
+      1750.7,
+      1168.9
+     ],
+     [
+      1649.2,
+      1168.9
+     ]
+    ],
+    "bbox": [
+     1649.2,
+     1168.9,
+     1750.7,
+     1301.9
+    ],
+    "area": 13499,
+    "res_cap": false,
+    "n_faces": 643,
+    "band": "over_thick",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 1786,
+    "short_mm": 1719
+   },
+   {
+    "text": false,
+    "short": 34.79,
+    "long": 315.24,
+    "spacing": 38.79,
+    "covers": [
+     0.0,
+     0.04
+    ],
+    "degenerate": false,
+    "axis_deg": 89.6,
+    "mrr": [
+     [
+      3046.9,
+      2173.9
+     ],
+     [
+      3049.2,
+      2489.1
+     ],
+     [
+      3084.0,
+      2488.9
+     ],
+     [
+      3081.7,
+      2173.7
+     ]
+    ],
+    "bbox": [
+     3047.2,
+     2173.9,
+     3083.7,
+     2488.9
+    ],
+    "area": 10363,
+    "res_cap": false,
+    "n_faces": 643,
+    "band": "in_band",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 0.945,
+    "gt_note": "",
+    "spacing_mm": 328,
+    "short_mm": 295
+   },
+   {
+    "text": false,
+    "short": 36.5,
+    "long": 466.25,
+    "spacing": 40.5,
+    "covers": [
+     0.0,
+     0.0
+    ],
+    "degenerate": false,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      3047.2,
+      2594.4
+     ],
+     [
+      3047.2,
+      3060.7
+     ],
+     [
+      3083.7,
+      3060.7
+     ],
+     [
+      3083.7,
+      2594.4
+     ]
+    ],
+    "bbox": [
+     3047.2,
+     2594.4,
+     3083.7,
+     3060.7
+    ],
+    "area": 15279,
+    "res_cap": false,
+    "n_faces": 643,
+    "band": "in_band",
+    "cover_ok": false,
+    "would_drop": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "spacing_mm": 343,
+    "short_mm": 309
+   },
+   {
+    "text": false,
+    "short": 21.25,
+    "long": 144.75,
+    "spacing": 25.25,
+    "covers": [
+     1.0,
+     1.0
+    ],
+    "degenerate": false,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      3433.9,
+      2185.7
+     ],
+     [
+      3433.9,
+      2206.9
+     ],
+     [
+      3578.7,
+      2206.9
+     ],
+     [
+      3578.7,
+      2185.7
+     ]
+    ],
+    "bbox": [
+     3433.9,
+     2185.7,
+     3578.7,
+     2206.9
+    ],
+    "area": 3076,
+    "res_cap": true,
+    "n_faces": 643,
+    "band": "under_cap",
+    "cover_ok": true,
+    "would_drop": false,
+    "gt": "unmatched",
+    "gt_iou": 0.0,
+    "gt_note": "",
+    "spacing_mm": 214,
+    "short_mm": 180
+   }
+  ],
+  "rooms_moved": [],
+  "rooms_gone": [],
+  "rooms_new": [],
+  "score_base": {
+   "counts": {
+    "door": [
+     35,
+     35
+    ],
+    "window": [
+     10,
+     10
+    ],
+    "room": [
+     25,
+     25
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "room",
+     [
+      1473,
+      1187,
+      1627,
+      1309
+     ]
+    ],
+    [
+     "room",
+     [
+      1640,
+      1324,
+      1906,
+      1592
+     ]
+    ],
+    [
+     "room",
+     [
+      1528,
+      1525,
+      1627,
+      1592
+     ]
+    ],
+    [
+     "room",
+     [
+      912,
+      2174,
+      947,
+      2331
+     ]
+    ],
+    [
+     "room",
+     [
+      3047,
+      2174,
+      3082,
+      2489
+     ]
+    ],
+    [
+     "room",
+     [
+      3047,
+      2594,
+      3084,
+      3061
+     ]
+    ],
+    [
+     "room",
+     [
+      2843,
+      2883,
+      3045,
+      3025
+     ]
+    ],
+    [
+     "room",
+     [
+      1649,
+      1169,
+      1751,
+      1302
+     ]
+    ],
+    [
+     "room",
+     [
+      951,
+      2209,
+      1554,
+      3052
+     ]
+    ],
+    [
+     "room",
+     [
+      914,
+      2615,
+      949,
+      3061
+     ]
+    ]
+   ],
+   "unreviewed": []
+  },
+  "score_after": {
+   "counts": {
+    "door": [
+     35,
+     35
+    ],
+    "window": [
+     10,
+     10
+    ],
+    "room": [
+     25,
+     25
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "room",
+     [
+      1473,
+      1187,
+      1627,
+      1309
+     ]
+    ],
+    [
+     "room",
+     [
+      1640,
+      1324,
+      1906,
+      1592
+     ]
+    ],
+    [
+     "room",
+     [
+      1528,
+      1525,
+      1627,
+      1592
+     ]
+    ],
+    [
+     "room",
+     [
+      912,
+      2174,
+      947,
+      2331
+     ]
+    ],
+    [
+     "room",
+     [
+      3047,
+      2174,
+      3082,
+      2489
+     ]
+    ],
+    [
+     "room",
+     [
+      3047,
+      2594,
+      3084,
+      3061
+     ]
+    ],
+    [
+     "room",
+     [
+      2843,
+      2883,
+      3045,
+      3025
+     ]
+    ],
+    [
+     "room",
+     [
+      1649,
+      1169,
+      1751,
+      1302
+     ]
+    ],
+    [
+     "room",
+     [
+      951,
+      2209,
+      1554,
+      3052
+     ]
+    ],
+    [
+     "room",
+     [
+      914,
+      2615,
+      949,
+      3061
+     ]
+    ]
+   ],
+   "unreviewed": []
+  }
+ }
+]

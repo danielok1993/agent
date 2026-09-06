@@ -1,0 +1,5208 @@
+[
+ {
+  "slug": "s01",
+  "page": 1,
+  "factor": 0.5423,
+  "floor_px": 16.0,
+  "n_rooms_off": 10,
+  "n_rooms_on": 10,
+  "n_emitted_off": 10,
+  "n_emitted_on": 10,
+  "score_off": {
+   "counts": {
+    "window": [
+     4,
+     4
+    ],
+    "door": [
+     11,
+     11
+    ],
+    "room": [
+     10,
+     10
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "score_on": {
+   "counts": {
+    "window": [
+     4,
+     4
+    ],
+    "door": [
+     11,
+     11
+    ],
+    "room": [
+     10,
+     10
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "diff_off_to_on": {
+   "same": 25,
+   "gone": [],
+   "new": []
+  },
+  "rooms": [
+   {
+    "bbox": [
+     390.2,
+     919.5,
+     521.0,
+     1389.0
+    ],
+    "area": 44435,
+    "short": 130.79,
+    "old_entrance_count": 5,
+    "new_entrance_count": 5,
+    "status_flip": false,
+    "max_run_px": 165.9,
+    "max_run_mm_true": 2590,
+    "max_run_mm_at_factor": 2590,
+    "door_count": 5,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.972,
+    "gt_note": "top right corner has square cutout",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 61.2,
+      "run_px": 53.2,
+      "counts": true,
+      "seal_bbox": [
+       449.9,
+       1389.0,
+       511.7,
+       1394.5
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 47.4,
+      "run_px": 39.4,
+      "counts": true,
+      "seal_bbox": [
+       437.0,
+       1176.6,
+       442.5,
+       1239.6
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 173.9,
+      "run_px": 165.9,
+      "counts": true,
+      "seal_bbox": [
+       408.2,
+       908.9,
+       475.6,
+       965.6
+      ],
+      "seal_axis_vs_room": 50.8,
+      "meets": "across"
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 59.7,
+      "run_px": 51.7,
+      "counts": true,
+      "seal_bbox": [
+       385.5,
+       947.4,
+       390.2,
+       1019.5
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 119.6,
+      "run_px": 111.6,
+      "counts": true,
+      "seal_bbox": [
+       384.8,
+       1010.1,
+       401.0,
+       1125.9
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     215.0,
+     1144.5,
+     437.0,
+     1435.3
+    ],
+    "area": 57815,
+    "short": 222.04,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 64.4,
+    "max_run_mm_true": 1005,
+    "max_run_mm_at_factor": 1005,
+    "door_count": 1,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.995,
+    "gt_note": "left does not extend fully to the wall, right fuzzy line",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 72.4,
+      "run_px": 64.4,
+      "counts": true,
+      "seal_bbox": [
+       437.0,
+       1176.6,
+       442.5,
+       1239.6
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     198.0,
+     1020.3,
+     384.8,
+     1118.8
+    ],
+    "area": 17598,
+    "short": 98.5,
+    "old_entrance_count": 2,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 98.5,
+    "max_run_mm_true": 1538,
+    "max_run_mm_at_factor": 1538,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.988,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.65,
+      "contact_px": 6.4,
+      "run_px": -1.6,
+      "counts": false,
+      "seal_bbox": [
+       385.5,
+       947.4,
+       390.2,
+       1019.5
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 106.5,
+      "run_px": 98.5,
+      "counts": true,
+      "seal_bbox": [
+       384.8,
+       1010.1,
+       401.0,
+       1125.9
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     198.0,
+     919.8,
+     385.5,
+     1009.3
+    ],
+    "area": 16363,
+    "short": 89.5,
+    "old_entrance_count": 2,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 61.9,
+    "max_run_mm_true": 966,
+    "max_run_mm_at_factor": 966,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.966,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.65,
+      "contact_px": 69.9,
+      "run_px": 61.9,
+      "counts": true,
+      "seal_bbox": [
+       385.5,
+       947.4,
+       390.2,
+       1019.5
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 7.7,
+      "run_px": -0.3,
+      "counts": false,
+      "seal_bbox": [
+       384.8,
+       1010.1,
+       401.0,
+       1125.9
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     208.8,
+     412.0,
+     521.0,
+     914.3
+    ],
+    "area": 150719,
+    "short": 312.25,
+    "old_entrance_count": 2,
+    "new_entrance_count": 2,
+    "status_flip": false,
+    "max_run_px": 126.0,
+    "max_run_mm_true": 1967,
+    "max_run_mm_at_factor": 1967,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.976,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 72.2,
+      "run_px": 64.2,
+      "counts": true,
+      "seal_bbox": [
+       408.2,
+       908.9,
+       475.6,
+       965.6
+      ],
+      "seal_axis_vs_room": 50.8,
+      "meets": "across"
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 134.0,
+      "run_px": 126.0,
+      "counts": true,
+      "seal_bbox": [
+       301.9,
+       407.3,
+       427.9,
+       412.0
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     969.7,
+     406.5,
+     1142.0,
+     691.5
+    ],
+    "area": 47605,
+    "short": 172.25,
+    "old_entrance_count": 2,
+    "new_entrance_count": 2,
+    "status_flip": false,
+    "max_run_px": 111.2,
+    "max_run_mm_true": 1736,
+    "max_run_mm_at_factor": 1736,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.984,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 55.2,
+      "run_px": 47.2,
+      "counts": true,
+      "seal_bbox": [
+       1087.9,
+       691.5,
+       1141.2,
+       697.0
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 119.2,
+      "run_px": 111.2,
+      "counts": true,
+      "seal_bbox": [
+       992.9,
+       401.0,
+       1118.9,
+       406.5
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1031.5,
+     697.0,
+     1142.0,
+     1136.5
+    ],
+    "area": 30951,
+    "short": 110.17,
+    "old_entrance_count": 4,
+    "new_entrance_count": 4,
+    "status_flip": false,
+    "max_run_px": 72.8,
+    "max_run_mm_true": 1137,
+    "max_run_mm_at_factor": 1137,
+    "door_count": 4,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "more stair at the bottom right need to be covered. THe top left also has a slight notch and does not go all the way to t",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 80.8,
+      "run_px": 72.8,
+      "counts": true,
+      "seal_bbox": [
+       1026.0,
+       1055.4,
+       1031.5,
+       1125.4
+      ],
+      "seal_axis_vs_room": 0.7,
+      "meets": "along"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 72.6,
+      "run_px": 64.6,
+      "counts": true,
+      "seal_bbox": [
+       1028.1,
+       1136.5,
+       1098.1,
+       1142.0
+      ],
+      "seal_axis_vs_room": 89.3,
+      "meets": "across"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 60.2,
+      "run_px": 52.2,
+      "counts": true,
+      "seal_bbox": [
+       1087.9,
+       691.5,
+       1141.2,
+       697.0
+      ],
+      "seal_axis_vs_room": 89.3,
+      "meets": "across"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 69.5,
+      "run_px": 61.5,
+      "counts": true,
+      "seal_bbox": [
+       1083.0,
+       695.9,
+       1088.5,
+       757.4
+      ],
+      "seal_axis_vs_room": 0.7,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     819.2,
+     1142.0,
+     1142.0,
+     1373.2
+    ],
+    "area": 71991,
+    "short": 231.29,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 75.3,
+    "max_run_mm_true": 1176,
+    "max_run_mm_at_factor": 1176,
+    "door_count": 1,
+    "window_count": 2,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.99,
+    "gt_note": "top right corner square cutout",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 83.3,
+      "run_px": 75.3,
+      "counts": true,
+      "seal_bbox": [
+       1028.1,
+       1136.5,
+       1098.1,
+       1142.0
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     829.8,
+     919.8,
+     1026.0,
+     1118.5
+    ],
+    "area": 35884,
+    "short": 196.29,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 64.2,
+    "max_run_mm_true": 1002,
+    "max_run_mm_at_factor": 1002,
+    "door_count": 1,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.971,
+    "gt_note": "top part is not extending fully to the wall",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 72.2,
+      "run_px": 64.2,
+      "counts": true,
+      "seal_bbox": [
+       1026.0,
+       1055.4,
+       1031.5,
+       1125.4
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     969.7,
+     698.0,
+     1083.0,
+     916.2
+    ],
+    "area": 23901,
+    "short": 113.29,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 47.3,
+    "max_run_mm_true": 738,
+    "max_run_mm_at_factor": 738,
+    "door_count": 1,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.975,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 55.3,
+      "run_px": 47.3,
+      "counts": true,
+      "seal_bbox": [
+       1083.0,
+       695.9,
+       1088.5,
+       757.4
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s02",
+  "page": 1,
+  "factor": 1.0,
+  "floor_px": 29.5,
+  "n_rooms_off": 11,
+  "n_rooms_on": 11,
+  "n_emitted_off": 11,
+  "n_emitted_on": 11,
+  "score_off": {
+   "counts": {
+    "door": [
+     15,
+     15
+    ],
+    "window": [
+     11,
+     11
+    ],
+    "room": [
+     11,
+     11
+    ],
+    "label": [
+     0,
+     11
+    ],
+    "schedule": [
+     0,
+     1
+    ]
+   },
+   "lost": [
+    [
+     "label",
+     [
+      1492,
+      692,
+      1531,
+      713
+     ]
+    ],
+    [
+     "label",
+     [
+      1310,
+      626,
+      1349,
+      647
+     ]
+    ],
+    [
+     "label",
+     [
+      102,
+      291,
+      139,
+      305
+     ]
+    ],
+    [
+     "label",
+     [
+      2069,
+      598,
+      2108,
+      619
+     ]
+    ],
+    [
+     "label",
+     [
+      1111,
+      520,
+      1149,
+      541
+     ]
+    ],
+    [
+     "label",
+     [
+      795,
+      520,
+      833,
+      541
+     ]
+    ],
+    [
+     "label",
+     [
+      1038,
+      290,
+      1066,
+      311
+     ]
+    ],
+    [
+     "label",
+     [
+      263,
+      534,
+      291,
+      555
+     ]
+    ],
+    [
+     "label",
+     [
+      1325,
+      129,
+      1363,
+      150
+     ]
+    ],
+    [
+     "label",
+     [
+      720,
+      639,
+      759,
+      660
+     ]
+    ],
+    [
+     "label",
+     [
+      549,
+      307,
+      577,
+      328
+     ]
+    ],
+    [
+     "schedule",
+     [
+      754,
+      46,
+      2495,
+      1092
+     ]
+    ]
+   ],
+   "returned_fps": [],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "score_on": {
+   "counts": {
+    "door": [
+     15,
+     15
+    ],
+    "window": [
+     11,
+     11
+    ],
+    "room": [
+     11,
+     11
+    ],
+    "label": [
+     0,
+     11
+    ],
+    "schedule": [
+     0,
+     1
+    ]
+   },
+   "lost": [
+    [
+     "label",
+     [
+      1492,
+      692,
+      1531,
+      713
+     ]
+    ],
+    [
+     "label",
+     [
+      1310,
+      626,
+      1349,
+      647
+     ]
+    ],
+    [
+     "label",
+     [
+      102,
+      291,
+      139,
+      305
+     ]
+    ],
+    [
+     "label",
+     [
+      2069,
+      598,
+      2108,
+      619
+     ]
+    ],
+    [
+     "label",
+     [
+      1111,
+      520,
+      1149,
+      541
+     ]
+    ],
+    [
+     "label",
+     [
+      795,
+      520,
+      833,
+      541
+     ]
+    ],
+    [
+     "label",
+     [
+      1038,
+      290,
+      1066,
+      311
+     ]
+    ],
+    [
+     "label",
+     [
+      263,
+      534,
+      291,
+      555
+     ]
+    ],
+    [
+     "label",
+     [
+      1325,
+      129,
+      1363,
+      150
+     ]
+    ],
+    [
+     "label",
+     [
+      720,
+      639,
+      759,
+      660
+     ]
+    ],
+    [
+     "label",
+     [
+      549,
+      307,
+      577,
+      328
+     ]
+    ],
+    [
+     "schedule",
+     [
+      754,
+      46,
+      2495,
+      1092
+     ]
+    ]
+   ],
+   "returned_fps": [],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "diff_off_to_on": {
+   "same": 37,
+   "gone": [],
+   "new": []
+  },
+  "rooms": [
+   {
+    "bbox": [
+     1361.8,
+     639.6,
+     1878.7,
+     1118.1
+    ],
+    "area": 195783,
+    "short": 478.46,
+    "old_entrance_count": 2,
+    "new_entrance_count": 2,
+    "status_flip": false,
+    "max_run_px": 167.0,
+    "max_run_mm_true": 1414,
+    "max_run_mm_at_factor": 1414,
+    "door_count": 3,
+    "window_count": 2,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 128.1,
+      "run_px": 120.1,
+      "counts": true,
+      "seal_bbox": [
+       1451.2,
+       706.2,
+       1571.4,
+       713.4
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 175.0,
+      "run_px": 167.0,
+      "counts": true,
+      "seal_bbox": [
+       1878.7,
+       757.2,
+       1888.7,
+       952.2
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     201.7,
+     583.7,
+     817.2,
+     1115.1
+    ],
+    "area": 264326,
+    "short": 531.37,
+    "old_entrance_count": 2,
+    "new_entrance_count": 2,
+    "status_flip": false,
+    "max_run_px": 130.2,
+    "max_run_mm_true": 1102,
+    "max_run_mm_at_factor": 1102,
+    "door_count": 2,
+    "window_count": 3,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.991,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.85,
+      "contact_px": 138.2,
+      "run_px": 130.2,
+      "counts": true,
+      "seal_bbox": [
+       793.9,
+       772.7,
+       808.7,
+       897.2
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.83,
+      "contact_px": 108.1,
+      "run_px": 100.1,
+      "counts": true,
+      "seal_bbox": [
+       752.2,
+       577.2,
+       762.2,
+       697.4
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     762.2,
+     566.2,
+     1309.6,
+     764.7
+    ],
+    "area": 79697,
+    "short": 198.5,
+    "old_entrance_count": 2,
+    "new_entrance_count": 2,
+    "status_flip": false,
+    "max_run_px": 161.2,
+    "max_run_mm_true": 1365,
+    "max_run_mm_at_factor": 1365,
+    "door_count": 3,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.703,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.83,
+      "contact_px": 126.8,
+      "run_px": 118.8,
+      "counts": true,
+      "seal_bbox": [
+       752.2,
+       577.2,
+       762.2,
+       697.4
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 169.2,
+      "run_px": 161.2,
+      "counts": true,
+      "seal_bbox": [
+       1168.8,
+       694.2,
+       1318.7,
+       710.2
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     886.4,
+     282.2,
+     1343.7,
+     548.0
+    ],
+    "area": 117397,
+    "short": 265.71,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 114.3,
+    "max_run_mm_true": 968,
+    "max_run_mm_at_factor": 968,
+    "door_count": 5,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.971,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.83,
+      "contact_px": 122.3,
+      "run_px": 114.3,
+      "counts": true,
+      "seal_bbox": [
+       1072.8,
+       547.6,
+       1186.4,
+       554.7
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     168.3,
+     285.7,
+     867.9,
+     547.1
+    ],
+    "area": 158277,
+    "short": 261.19,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 200.0,
+    "max_run_mm_true": 1693,
+    "max_run_mm_at_factor": 1693,
+    "door_count": 4,
+    "window_count": 2,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.985,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 208.0,
+      "run_px": 200.0,
+      "counts": true,
+      "seal_bbox": [
+       754.4,
+       459.0,
+       874.8,
+       564.2
+      ],
+      "seal_axis_vs_room": 41.2,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     48.8,
+     297.7,
+     146.6,
+     508.7
+    ],
+    "area": 17232,
+    "short": 97.83,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 82.6,
+    "max_run_mm_true": 699,
+    "max_run_mm_at_factor": 699,
+    "door_count": 1,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.991,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 90.6,
+      "run_px": 82.6,
+      "counts": true,
+      "seal_bbox": [
+       56.4,
+       508.7,
+       153.2,
+       518.7
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1315.8,
+     99.1,
+     1733.3,
+     694.7
+    ],
+    "area": 209315,
+    "short": 401.39,
+    "old_entrance_count": 3,
+    "new_entrance_count": 3,
+    "status_flip": false,
+    "max_run_px": 223.1,
+    "max_run_mm_true": 1889,
+    "max_run_mm_at_factor": 1889,
+    "door_count": 6,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.99,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.83,
+      "contact_px": 93.4,
+      "run_px": 85.4,
+      "counts": true,
+      "seal_bbox": [
+       1305.8,
+       99.1,
+       1315.8,
+       238.6
+      ],
+      "seal_axis_vs_room": 2.2,
+      "meets": "along"
+     },
+     {
+      "conf": 0.83,
+      "contact_px": 117.4,
+      "run_px": 109.4,
+      "counts": true,
+      "seal_bbox": [
+       1324.2,
+       576.6,
+       1334.2,
+       696.7
+      ],
+      "seal_axis_vs_room": 2.2,
+      "meets": "along"
+     },
+     {
+      "conf": 0.81,
+      "contact_px": 231.1,
+      "run_px": 223.1,
+      "counts": true,
+      "seal_bbox": [
+       1693.8,
+       301.2,
+       1785.7,
+       538.2
+      ],
+      "seal_axis_vs_room": 2.2,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1712.3,
+     99.1,
+     2329.1,
+     536.6
+    ],
+    "area": 253826,
+    "short": 437.5,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 383.7,
+    "max_run_mm_true": 3249,
+    "max_run_mm_at_factor": 3249,
+    "door_count": 1,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.998,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.81,
+      "contact_px": 391.7,
+      "run_px": 383.7,
+      "counts": true,
+      "seal_bbox": [
+       1693.8,
+       301.2,
+       1785.7,
+       538.2
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1053.0,
+     845.2,
+     1342.9,
+     1115.6
+    ],
+    "area": 76567,
+    "short": 270.37,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 173.5,
+    "max_run_mm_true": 1469,
+    "max_run_mm_at_factor": 1469,
+    "door_count": 1,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.997,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.65,
+      "contact_px": 181.5,
+      "run_px": 173.5,
+      "counts": true,
+      "seal_bbox": [
+       1176.2,
+       830.2,
+       1348.3,
+       845.2
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1053.4,
+     712.1,
+     1343.1,
+     830.2
+    ],
+    "area": 33887,
+    "short": 117.59,
+    "old_entrance_count": 2,
+    "new_entrance_count": 2,
+    "status_flip": false,
+    "max_run_px": 172.7,
+    "max_run_mm_true": 1462,
+    "max_run_mm_at_factor": 1462,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.979,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.65,
+      "contact_px": 180.7,
+      "run_px": 172.7,
+      "counts": true,
+      "seal_bbox": [
+       1176.2,
+       830.2,
+       1348.3,
+       845.2
+      ],
+      "seal_axis_vs_room": 0.2,
+      "meets": "along"
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 156.9,
+      "run_px": 148.9,
+      "counts": true,
+      "seal_bbox": [
+       1168.8,
+       694.2,
+       1318.7,
+       710.2
+      ],
+      "seal_axis_vs_room": 0.2,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     808.7,
+     780.2,
+     1017.4,
+     1115.5
+    ],
+    "area": 65784,
+    "short": 208.63,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 123.0,
+    "max_run_mm_true": 1041,
+    "max_run_mm_at_factor": 1041,
+    "door_count": 1,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.984,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.85,
+      "contact_px": 131.0,
+      "run_px": 123.0,
+      "counts": true,
+      "seal_bbox": [
+       793.9,
+       772.7,
+       808.7,
+       897.2
+      ],
+      "seal_axis_vs_room": 0.1,
+      "meets": "along"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s03",
+  "page": 1,
+  "factor": 1.0,
+  "floor_px": 29.5,
+  "n_rooms_off": 19,
+  "n_rooms_on": 19,
+  "n_emitted_off": 17,
+  "n_emitted_on": 17,
+  "score_off": {
+   "counts": {
+    "door": [
+     17,
+     17
+    ],
+    "window": [
+     15,
+     15
+    ],
+    "room": [
+     17,
+     17
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "score_on": {
+   "counts": {
+    "door": [
+     17,
+     17
+    ],
+    "window": [
+     15,
+     15
+    ],
+    "room": [
+     17,
+     17
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "diff_off_to_on": {
+   "same": 49,
+   "gone": [],
+   "new": []
+  },
+  "rooms": [
+   {
+    "bbox": [
+     648.4,
+     497.4,
+     835.2,
+     846.2
+    ],
+    "area": 63200,
+    "short": 186.75,
+    "old_entrance_count": 3,
+    "new_entrance_count": 3,
+    "status_flip": false,
+    "max_run_px": 96.7,
+    "max_run_mm_true": 1637,
+    "max_run_mm_at_factor": 819,
+    "door_count": 3,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.989,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 104.2,
+      "run_px": 96.2,
+      "counts": true,
+      "seal_bbox": [
+       673.9,
+       487.4,
+       799.9,
+       497.4
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 63.2,
+      "run_px": 55.2,
+      "counts": true,
+      "seal_bbox": [
+       636.2,
+       846.2,
+       721.2,
+       856.2
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 104.7,
+      "run_px": 96.7,
+      "counts": true,
+      "seal_bbox": [
+       641.4,
+       535.2,
+       648.4,
+       631.9
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     488.9,
+     505.7,
+     641.4,
+     661.2
+    ],
+    "area": 23432,
+    "short": 152.5,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 100.0,
+    "max_run_mm_true": 1693,
+    "max_run_mm_at_factor": 847,
+    "door_count": 1,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 108.0,
+      "run_px": 100.0,
+      "counts": true,
+      "seal_bbox": [
+       641.4,
+       535.2,
+       648.4,
+       631.9
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     479.9,
+     856.2,
+     852.9,
+     1127.9
+    ],
+    "area": 82568,
+    "short": 271.75,
+    "old_entrance_count": 5,
+    "new_entrance_count": 4,
+    "status_flip": false,
+    "max_run_px": 88.3,
+    "max_run_mm_true": 1495,
+    "max_run_mm_at_factor": 748,
+    "door_count": 5,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 82.4,
+      "run_px": 74.4,
+      "counts": true,
+      "seal_bbox": [
+       636.2,
+       846.2,
+       721.2,
+       856.2
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 93.0,
+      "run_px": 85.0,
+      "counts": true,
+      "seal_bbox": [
+       539.4,
+       1068.7,
+       624.4,
+       1075.7
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 96.3,
+      "run_px": 88.3,
+      "counts": true,
+      "seal_bbox": [
+       523.4,
+       886.7,
+       608.4,
+       893.7
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 60.5,
+      "run_px": 52.5,
+      "counts": true,
+      "seal_bbox": [
+       469.9,
+       1000.1,
+       479.9,
+       1083.7
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 13.5,
+      "run_px": 5.5,
+      "counts": false,
+      "seal_bbox": [
+       654.9,
+       1122.4,
+       661.9,
+       1201.9
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     471.2,
+     1072.7,
+     654.9,
+     1197.4
+    ],
+    "area": 20617,
+    "short": 124.75,
+    "old_entrance_count": 3,
+    "new_entrance_count": 3,
+    "status_flip": false,
+    "max_run_px": 95.6,
+    "max_run_mm_true": 1619,
+    "max_run_mm_at_factor": 809,
+    "door_count": 3,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.593,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 103.6,
+      "run_px": 95.6,
+      "counts": true,
+      "seal_bbox": [
+       539.4,
+       1068.7,
+       624.4,
+       1075.7
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 60.5,
+      "run_px": 52.5,
+      "counts": true,
+      "seal_bbox": [
+       564.9,
+       1197.4,
+       648.2,
+       1207.4
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 75.9,
+      "run_px": 67.9,
+      "counts": true,
+      "seal_bbox": [
+       654.9,
+       1122.4,
+       661.9,
+       1201.9
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     661.9,
+     1137.7,
+     852.9,
+     1348.4
+    ],
+    "area": 38963,
+    "short": 191.0,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 64.2,
+    "max_run_mm_true": 1087,
+    "max_run_mm_at_factor": 544,
+    "door_count": 1,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "the section where window is being removed. This seems like the extruded section of the house window.",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 72.2,
+      "run_px": 64.2,
+      "counts": true,
+      "seal_bbox": [
+       654.9,
+       1122.4,
+       661.9,
+       1201.9
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     488.9,
+     671.2,
+     638.4,
+     886.7
+    ],
+    "area": 32058,
+    "short": 149.5,
+    "old_entrance_count": 2,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 85.0,
+    "max_run_mm_true": 1439,
+    "max_run_mm_at_factor": 720,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.974,
+    "gt_note": "does not fully extend to the walls, small gaps on the right hand side and bottom left",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 6.4,
+      "run_px": -1.6,
+      "counts": false,
+      "seal_bbox": [
+       636.2,
+       846.2,
+       721.2,
+       856.2
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 93.0,
+      "run_px": 85.0,
+      "counts": true,
+      "seal_bbox": [
+       523.4,
+       886.7,
+       608.4,
+       893.7
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1077.2,
+     1007.9,
+     1244.4,
+     1188.7
+    ],
+    "area": 13782,
+    "short": 167.25,
+    "old_entrance_count": 4,
+    "new_entrance_count": 4,
+    "status_flip": false,
+    "max_run_px": 80.9,
+    "max_run_mm_true": 1370,
+    "max_run_mm_at_factor": 685,
+    "door_count": 4,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "notch on the right hand side and bit of skewed detection near the top plus notch next to top door",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 77.0,
+      "run_px": 69.0,
+      "counts": true,
+      "seal_bbox": [
+       1244.4,
+       1125.2,
+       1251.4,
+       1201.9
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 88.9,
+      "run_px": 80.9,
+      "counts": true,
+      "seal_bbox": [
+       1244.4,
+       1066.7,
+       1251.4,
+       1140.4
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 53.0,
+      "run_px": 45.0,
+      "counts": true,
+      "seal_bbox": [
+       1181.7,
+       1000.9,
+       1251.4,
+       1007.9
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 68.9,
+      "run_px": 60.9,
+      "counts": true,
+      "seal_bbox": [
+       1186.7,
+       1000.9,
+       1193.8,
+       1069.9
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1251.4,
+     1137.7,
+     1442.4,
+     1329.9
+    ],
+    "area": 36710,
+    "short": 191.0,
+    "old_entrance_count": 2,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 64.2,
+    "max_run_mm_true": 1087,
+    "max_run_mm_at_factor": 544,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.984,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 72.2,
+      "run_px": 64.2,
+      "counts": true,
+      "seal_bbox": [
+       1244.4,
+       1125.2,
+       1251.4,
+       1201.9
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 10.8,
+      "run_px": 2.8,
+      "counts": false,
+      "seal_bbox": [
+       1244.4,
+       1066.7,
+       1251.4,
+       1140.4
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1251.4,
+     858.9,
+     1442.4,
+     1127.9
+    ],
+    "area": 51379,
+    "short": 191.0,
+    "old_entrance_count": 3,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 61.2,
+    "max_run_mm_true": 1036,
+    "max_run_mm_at_factor": 518,
+    "door_count": 3,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 10.7,
+      "run_px": 2.7,
+      "counts": false,
+      "seal_bbox": [
+       1244.4,
+       1125.2,
+       1251.4,
+       1201.9
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 69.2,
+      "run_px": 61.2,
+      "counts": true,
+      "seal_bbox": [
+       1244.4,
+       1066.7,
+       1251.4,
+       1140.4
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 15.0,
+      "run_px": 7.0,
+      "counts": false,
+      "seal_bbox": [
+       1181.7,
+       1000.9,
+       1251.4,
+       1007.9
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1077.2,
+     858.9,
+     1241.7,
+     1000.9
+    ],
+    "area": 23359,
+    "short": 142.0,
+    "old_entrance_count": 2,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 60.0,
+    "max_run_mm_true": 1016,
+    "max_run_mm_at_factor": 508,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.988,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 68.0,
+      "run_px": 60.0,
+      "counts": true,
+      "seal_bbox": [
+       1181.7,
+       1000.9,
+       1251.4,
+       1007.9
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 15.1,
+      "run_px": 7.1,
+      "counts": false,
+      "seal_bbox": [
+       1186.7,
+       1000.9,
+       1193.8,
+       1069.9
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1077.2,
+     1010.7,
+     1186.7,
+     1120.7
+    ],
+    "area": 12035,
+    "short": 109.5,
+    "old_entrance_count": 2,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 59.2,
+    "max_run_mm_true": 1002,
+    "max_run_mm_at_factor": 501,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 9.1,
+      "run_px": 1.1,
+      "counts": false,
+      "seal_bbox": [
+       1181.7,
+       1000.9,
+       1251.4,
+       1007.9
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 67.2,
+      "run_px": 59.2,
+      "counts": true,
+      "seal_bbox": [
+       1186.7,
+       1000.9,
+       1193.8,
+       1069.9
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     3409.4,
+     887.9,
+     3884.4,
+     1293.4
+    ],
+    "area": 157561,
+    "short": 405.5,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 94.0,
+    "max_run_mm_true": 796,
+    "max_run_mm_at_factor": 796,
+    "door_count": 14,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.996,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 102.0,
+      "run_px": 94.0,
+      "counts": true,
+      "seal_bbox": [
+       3632.9,
+       1293.4,
+       3752.9,
+       1303.4
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     3407.2,
+     1238.4,
+     3629.9,
+     1526.2
+    ],
+    "area": 64058,
+    "short": 222.75,
+    "old_entrance_count": 3,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 119.2,
+    "max_run_mm_true": 1009,
+    "max_run_mm_at_factor": 1009,
+    "door_count": 3,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "door is being extruded from detection",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 127.2,
+      "run_px": 119.2,
+      "counts": true,
+      "seal_bbox": [
+       3629.9,
+       1406.9,
+       3637.1,
+       1527.2
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 15.3,
+      "run_px": 7.3,
+      "counts": false,
+      "seal_bbox": [
+       3632.9,
+       1293.4,
+       3752.9,
+       1303.4
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 3.6,
+      "run_px": -4.4,
+      "counts": false,
+      "seal_bbox": [
+       3629.9,
+       1529.2,
+       3637.0,
+       1647.9
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     3407.2,
+     1303.4,
+     3748.7,
+     1901.9
+    ],
+    "area": 81361,
+    "short": 341.5,
+    "old_entrance_count": 5,
+    "new_entrance_count": 5,
+    "status_flip": false,
+    "max_run_px": 91.5,
+    "max_run_mm_true": 775,
+    "max_run_mm_at_factor": 775,
+    "door_count": 5,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "landing + flight + stair foot as one room (stairs are furniture); retires the two partial rooms it replaced",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 99.5,
+      "run_px": 91.5,
+      "counts": true,
+      "seal_bbox": [
+       3748.6,
+       1782.7,
+       3755.7,
+       1911.2
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 93.8,
+      "run_px": 85.8,
+      "counts": true,
+      "seal_bbox": [
+       3748.7,
+       1670.9,
+       3755.7,
+       1793.4
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 91.3,
+      "run_px": 83.3,
+      "counts": true,
+      "seal_bbox": [
+       3629.9,
+       1406.9,
+       3637.1,
+       1527.2
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 91.5,
+      "run_px": 83.5,
+      "counts": true,
+      "seal_bbox": [
+       3632.9,
+       1293.4,
+       3752.9,
+       1303.4
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 90.3,
+      "run_px": 82.3,
+      "counts": true,
+      "seal_bbox": [
+       3629.9,
+       1529.2,
+       3637.0,
+       1647.9
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     3407.2,
+     1541.9,
+     3629.9,
+     1765.9
+    ],
+    "area": 49878,
+    "short": 222.75,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 106.0,
+    "max_run_mm_true": 897,
+    "max_run_mm_at_factor": 897,
+    "door_count": 1,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 114.0,
+      "run_px": 106.0,
+      "counts": true,
+      "seal_bbox": [
+       3629.9,
+       1529.2,
+       3637.0,
+       1647.9
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     3755.7,
+     1238.4,
+     4141.4,
+     1780.2
+    ],
+    "area": 208970,
+    "short": 385.75,
+    "old_entrance_count": 3,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 109.3,
+    "max_run_mm_true": 925,
+    "max_run_mm_at_factor": 925,
+    "door_count": 3,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "the left wall slightly skewed towards the bottom",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 4.6,
+      "run_px": -3.4,
+      "counts": false,
+      "seal_bbox": [
+       3748.6,
+       1782.7,
+       3755.7,
+       1911.2
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 117.3,
+      "run_px": 109.3,
+      "counts": true,
+      "seal_bbox": [
+       3748.7,
+       1670.9,
+       3755.7,
+       1793.4
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 15.8,
+      "run_px": 7.8,
+      "counts": false,
+      "seal_bbox": [
+       3632.9,
+       1293.4,
+       3752.9,
+       1303.4
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     3755.7,
+     1795.9,
+     4141.4,
+     2184.2
+    ],
+    "area": 149749,
+    "short": 385.75,
+    "old_entrance_count": 2,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 115.3,
+    "max_run_mm_true": 976,
+    "max_run_mm_at_factor": 976,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.992,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.95,
+      "contact_px": 123.3,
+      "run_px": 115.3,
+      "counts": true,
+      "seal_bbox": [
+       3748.6,
+       1782.7,
+       3755.7,
+       1911.2
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.95,
+      "contact_px": 4.6,
+      "run_px": -3.4,
+      "counts": false,
+      "seal_bbox": [
+       3748.7,
+       1670.9,
+       3755.7,
+       1793.4
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     3759.7,
+     496.7,
+     4141.4,
+     1201.4
+    ],
+    "area": 210812,
+    "short": 381.75,
+    "old_entrance_count": 0,
+    "new_entrance_count": 0,
+    "status_flip": false,
+    "max_run_px": null,
+    "max_run_mm_true": null,
+    "max_run_mm_at_factor": null,
+    "door_count": 0,
+    "window_count": 0,
+    "emitted_off": false,
+    "fate_on": "present",
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 0.996,
+    "gt_note": "",
+    "seals": []
+   },
+   {
+    "bbox": [
+     3373.9,
+     496.7,
+     3755.7,
+     846.9
+    ],
+    "area": 133708,
+    "short": 350.25,
+    "old_entrance_count": 0,
+    "new_entrance_count": 0,
+    "status_flip": false,
+    "max_run_px": null,
+    "max_run_mm_true": null,
+    "max_run_mm_at_factor": null,
+    "door_count": 0,
+    "window_count": 0,
+    "emitted_off": false,
+    "fate_on": "present",
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": []
+   }
+  ]
+ },
+ {
+  "slug": "s04",
+  "page": 1,
+  "factor": 1.0,
+  "floor_px": 29.5,
+  "n_rooms_off": 7,
+  "n_rooms_on": 6,
+  "n_emitted_off": 6,
+  "n_emitted_on": 6,
+  "score_off": {
+   "counts": {
+    "door": [
+     4,
+     4
+    ],
+    "room": [
+     5,
+     5
+    ],
+    "window": [
+     1,
+     1
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "window",
+     [
+      1558,
+      1047,
+      1588,
+      1131
+     ]
+    ],
+    [
+     "room",
+     [
+      1463,
+      1049,
+      1558,
+      1131
+     ]
+    ]
+   ],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "score_on": {
+   "counts": {
+    "door": [
+     4,
+     4
+    ],
+    "room": [
+     5,
+     5
+    ],
+    "window": [
+     1,
+     1
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "room",
+     [
+      1588,
+      1053,
+      1762,
+      1131
+     ]
+    ],
+    [
+     "window",
+     [
+      1558,
+      1047,
+      1588,
+      1131
+     ]
+    ]
+   ],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "diff_off_to_on": {
+   "same": 11,
+   "gone": [
+    [
+     "room",
+     [
+      1463,
+      1042,
+      1558,
+      1131
+     ]
+    ]
+   ],
+   "new": [
+    [
+     "room",
+     [
+      1588,
+      1053,
+      1762,
+      1131
+     ]
+    ]
+   ]
+  },
+  "rooms": [
+   {
+    "bbox": [
+     1026.4,
+     860.6,
+     1459.2,
+     1146.2
+    ],
+    "area": 116781,
+    "short": 285.62,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 85.9,
+    "max_run_mm_true": 727,
+    "max_run_mm_at_factor": 727,
+    "door_count": 4,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.993,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 93.9,
+      "run_px": 85.9,
+      "counts": true,
+      "seal_bbox": [
+       1459.2,
+       941.8,
+       1466.3,
+       1062.1
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1463.2,
+     1042.2,
+     1558.1,
+     1130.6
+    ],
+    "area": 8123,
+    "short": 88.44,
+    "old_entrance_count": 1,
+    "new_entrance_count": 0,
+    "status_flip": true,
+    "max_run_px": 13.5,
+    "max_run_mm_true": 114,
+    "max_run_mm_at_factor": 114,
+    "door_count": 2,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "gone",
+    "text": true,
+    "gt": "false_positive",
+    "gt_iou": 0.928,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 21.5,
+      "run_px": 13.5,
+      "counts": false,
+      "seal_bbox": [
+       1459.2,
+       941.8,
+       1466.3,
+       1062.1
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1466.3,
+     955.6,
+     1852.2,
+     1130.6
+    ],
+    "area": 38139,
+    "short": 175.0,
+    "old_entrance_count": 3,
+    "new_entrance_count": 3,
+    "status_flip": false,
+    "max_run_px": 120.2,
+    "max_run_mm_true": 1018,
+    "max_run_mm_at_factor": 1018,
+    "door_count": 5,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 123.6,
+      "run_px": 115.6,
+      "counts": true,
+      "seal_bbox": [
+       1852.2,
+       951.0,
+       1859.2,
+       1071.3
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 90.6,
+      "run_px": 82.6,
+      "counts": true,
+      "seal_bbox": [
+       1459.2,
+       941.8,
+       1466.3,
+       1062.1
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 128.2,
+      "run_px": 120.2,
+      "counts": true,
+      "seal_bbox": [
+       1475.8,
+       948.6,
+       1596.0,
+       955.6
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1448.9,
+     621.0,
+     1682.2,
+     948.6
+    ],
+    "area": 71620,
+    "short": 233.31,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 85.8,
+    "max_run_mm_true": 726,
+    "max_run_mm_at_factor": 726,
+    "door_count": 1,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.965,
+    "gt_note": "door is not ignored and room is drawn around it",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 93.8,
+      "run_px": 85.8,
+      "counts": true,
+      "seal_bbox": [
+       1475.8,
+       948.6,
+       1596.0,
+       955.6
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1859.2,
+     621.0,
+     2296.8,
+     1130.6
+    ],
+    "area": 218475,
+    "short": 437.56,
+    "old_entrance_count": 2,
+    "new_entrance_count": 2,
+    "status_flip": false,
+    "max_run_px": 173.5,
+    "max_run_mm_true": 1469,
+    "max_run_mm_at_factor": 1469,
+    "door_count": 5,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.572,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 93.8,
+      "run_px": 85.8,
+      "counts": true,
+      "seal_bbox": [
+       1852.2,
+       951.0,
+       1859.2,
+       1071.3
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 181.5,
+      "run_px": 173.5,
+      "counts": true,
+      "seal_bbox": [
+       1851.0,
+       726.2,
+       1868.0,
+       896.5
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1712.1,
+     621.0,
+     1851.0,
+     937.1
+    ],
+    "area": 43360,
+    "short": 138.88,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 173.5,
+    "max_run_mm_true": 1469,
+    "max_run_mm_at_factor": 1469,
+    "door_count": 1,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.983,
+    "gt_note": "nearly perfect we just need to move the detection to the middle of the door",
+    "seals": [
+     {
+      "conf": 0.65,
+      "contact_px": 181.5,
+      "run_px": 173.5,
+      "counts": true,
+      "seal_bbox": [
+       1851.0,
+       726.2,
+       1868.0,
+       896.5
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1588.2,
+     1053.1,
+     1762.2,
+     1130.6
+    ],
+    "area": 13485,
+    "short": 77.5,
+    "old_entrance_count": 0,
+    "new_entrance_count": 0,
+    "status_flip": false,
+    "max_run_px": null,
+    "max_run_mm_true": null,
+    "max_run_mm_at_factor": null,
+    "door_count": 0,
+    "window_count": 1,
+    "emitted_off": false,
+    "fate_on": "present",
+    "text": true,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": []
+   }
+  ]
+ },
+ {
+  "slug": "s05",
+  "page": 1,
+  "factor": 0.5,
+  "floor_px": 14.75,
+  "n_rooms_off": 10,
+  "n_rooms_on": 10,
+  "n_emitted_off": 10,
+  "n_emitted_on": 10,
+  "score_off": {
+   "counts": {
+    "door": [
+     8,
+     8
+    ],
+    "room": [
+     9,
+     9
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "room",
+     [
+      1852,
+      1261,
+      1895,
+      1417
+     ]
+    ]
+   ],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "score_on": {
+   "counts": {
+    "door": [
+     8,
+     8
+    ],
+    "room": [
+     9,
+     9
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "room",
+     [
+      1852,
+      1261,
+      1895,
+      1417
+     ]
+    ]
+   ],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "diff_off_to_on": {
+   "same": 18,
+   "gone": [],
+   "new": []
+  },
+  "rooms": [
+   {
+    "bbox": [
+     1793.1,
+     171.1,
+     1924.6,
+     677.3
+    ],
+    "area": 51059,
+    "short": 131.5,
+    "old_entrance_count": 4,
+    "new_entrance_count": 4,
+    "status_flip": false,
+    "max_run_px": 98.2,
+    "max_run_mm_true": 1663,
+    "max_run_mm_at_factor": 1663,
+    "door_count": 4,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.97,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.72,
+      "contact_px": 73.3,
+      "run_px": 65.3,
+      "counts": true,
+      "seal_bbox": [
+       1841.3,
+       166.1,
+       1903.6,
+       171.1
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.72,
+      "contact_px": 106.2,
+      "run_px": 98.2,
+      "counts": true,
+      "seal_bbox": [
+       1783.5,
+       625.8,
+       1844.8,
+       682.3
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.72,
+      "contact_px": 59.5,
+      "run_px": 51.5,
+      "counts": true,
+      "seal_bbox": [
+       1811.1,
+       378.0,
+       1816.1,
+       438.0
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.72,
+      "contact_px": 67.9,
+      "run_px": 59.9,
+      "counts": true,
+      "seal_bbox": [
+       1811.1,
+       306.6,
+       1816.1,
+       366.5
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1599.1,
+     386.5,
+     1811.1,
+     663.3
+    ],
+    "area": 49368,
+    "short": 212.0,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 45.0,
+    "max_run_mm_true": 762,
+    "max_run_mm_at_factor": 762,
+    "door_count": 1,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.72,
+      "contact_px": 53.0,
+      "run_px": 45.0,
+      "counts": true,
+      "seal_bbox": [
+       1811.1,
+       378.0,
+       1816.1,
+       438.0
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1599.1,
+     157.0,
+     1811.1,
+     374.8
+    ],
+    "area": 43536,
+    "short": 212.0,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 63.0,
+    "max_run_mm_true": 1067,
+    "max_run_mm_at_factor": 1067,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.72,
+      "contact_px": 71.0,
+      "run_px": 63.0,
+      "counts": true,
+      "seal_bbox": [
+       1811.1,
+       306.6,
+       1816.1,
+       366.5
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1596.8,
+     1139.0,
+     1765.3,
+     1358.8
+    ],
+    "area": 36037,
+    "short": 168.5,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 42.7,
+    "max_run_mm_true": 723,
+    "max_run_mm_at_factor": 723,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.72,
+      "contact_px": 50.7,
+      "run_px": 42.7,
+      "counts": true,
+      "seal_bbox": [
+       1765.3,
+       1308.4,
+       1770.3,
+       1365.3
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1851.8,
+     1261.3,
+     1894.8,
+     1417.3
+    ],
+    "area": 6463,
+    "short": 43.0,
+    "old_entrance_count": 0,
+    "new_entrance_count": 0,
+    "status_flip": false,
+    "max_run_px": null,
+    "max_run_mm_true": null,
+    "max_run_mm_at_factor": null,
+    "door_count": 0,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": []
+   },
+   {
+    "bbox": [
+     1770.3,
+     1257.9,
+     1847.8,
+     1420.9
+    ],
+    "area": 11678,
+    "short": 77.5,
+    "old_entrance_count": 4,
+    "new_entrance_count": 4,
+    "status_flip": false,
+    "max_run_px": 51.0,
+    "max_run_mm_true": 864,
+    "max_run_mm_at_factor": 864,
+    "door_count": 4,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.72,
+      "contact_px": 58.6,
+      "run_px": 50.6,
+      "counts": true,
+      "seal_bbox": [
+       1767.3,
+       1252.9,
+       1824.3,
+       1257.9
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.72,
+      "contact_px": 59.0,
+      "run_px": 51.0,
+      "counts": true,
+      "seal_bbox": [
+       1766.6,
+       1366.0,
+       1771.6,
+       1423.0
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.72,
+      "contact_px": 58.4,
+      "run_px": 50.4,
+      "counts": true,
+      "seal_bbox": [
+       1765.3,
+       1308.4,
+       1770.3,
+       1365.3
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.72,
+      "contact_px": 58.4,
+      "run_px": 50.4,
+      "counts": true,
+      "seal_bbox": [
+       1794.7,
+       1420.9,
+       1849.8,
+       1425.9
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1775.2,
+     1126.8,
+     1894.8,
+     1252.9
+    ],
+    "area": 14191,
+    "short": 119.62,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 50.7,
+    "max_run_mm_true": 859,
+    "max_run_mm_at_factor": 859,
+    "door_count": 1,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.997,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.72,
+      "contact_px": 58.7,
+      "run_px": 50.7,
+      "counts": true,
+      "seal_bbox": [
+       1767.3,
+       1252.9,
+       1824.3,
+       1257.9
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1803.3,
+     1425.9,
+     1907.3,
+     1589.5
+    ],
+    "area": 15582,
+    "short": 104.0,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 37.2,
+    "max_run_mm_true": 630,
+    "max_run_mm_at_factor": 630,
+    "door_count": 1,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.72,
+      "contact_px": 45.2,
+      "run_px": 37.2,
+      "counts": true,
+      "seal_bbox": [
+       1794.7,
+       1420.9,
+       1849.8,
+       1425.9
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1596.8,
+     1370.5,
+     1791.6,
+     1601.5
+    ],
+    "area": 42264,
+    "short": 194.75,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 53.6,
+    "max_run_mm_true": 908,
+    "max_run_mm_at_factor": 908,
+    "door_count": 1,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.72,
+      "contact_px": 61.6,
+      "run_px": 53.6,
+      "counts": true,
+      "seal_bbox": [
+       1766.6,
+       1366.0,
+       1771.6,
+       1423.0
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1921.6,
+     782.8,
+     2065.8,
+     1056.5
+    ],
+    "area": 39488,
+    "short": 144.25,
+    "old_entrance_count": 0,
+    "new_entrance_count": 0,
+    "status_flip": false,
+    "max_run_px": null,
+    "max_run_mm_true": null,
+    "max_run_mm_at_factor": null,
+    "door_count": 0,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": []
+   }
+  ]
+ },
+ {
+  "slug": "s06",
+  "page": 1,
+  "factor": 0.5,
+  "floor_px": 14.75,
+  "n_rooms_off": 9,
+  "n_rooms_on": 9,
+  "n_emitted_off": 9,
+  "n_emitted_on": 9,
+  "score_off": {
+   "counts": {
+    "door": [
+     10,
+     10
+    ],
+    "window": [
+     8,
+     8
+    ],
+    "room": [
+     9,
+     9
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "score_on": {
+   "counts": {
+    "door": [
+     10,
+     10
+    ],
+    "window": [
+     8,
+     8
+    ],
+    "room": [
+     9,
+     9
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "diff_off_to_on": {
+   "same": 27,
+   "gone": [],
+   "new": []
+  },
+  "rooms": [
+   {
+    "bbox": [
+     357.8,
+     1027.4,
+     561.3,
+     1238.2
+    ],
+    "area": 42389,
+    "short": 203.5,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 54.1,
+    "max_run_mm_true": 916,
+    "max_run_mm_at_factor": 916,
+    "door_count": 1,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.991,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 62.1,
+      "run_px": 54.1,
+      "counts": true,
+      "seal_bbox": [
+       508.8,
+       1022.4,
+       564.3,
+       1027.4
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     349.3,
+     905.9,
+     573.2,
+     1022.4
+    ],
+    "area": 23691,
+    "short": 116.49,
+    "old_entrance_count": 4,
+    "new_entrance_count": 4,
+    "status_flip": false,
+    "max_run_px": 62.0,
+    "max_run_mm_true": 1050,
+    "max_run_mm_at_factor": 1050,
+    "door_count": 4,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 70.0,
+      "run_px": 62.0,
+      "counts": true,
+      "seal_bbox": [
+       344.3,
+       932.2,
+       349.3,
+       1010.5
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 45.5,
+      "run_px": 37.5,
+      "counts": true,
+      "seal_bbox": [
+       508.8,
+       1022.4,
+       564.3,
+       1027.4
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 58.2,
+      "run_px": 50.2,
+      "counts": true,
+      "seal_bbox": [
+       517.3,
+       900.9,
+       572.8,
+       905.9
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 45.5,
+      "run_px": 37.5,
+      "counts": true,
+      "seal_bbox": [
+       573.2,
+       965.0,
+       578.2,
+       1020.5
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     357.8,
+     721.8,
+     566.0,
+     900.9
+    ],
+    "area": 35192,
+    "short": 179.13,
+    "old_entrance_count": 2,
+    "new_entrance_count": 2,
+    "status_flip": false,
+    "max_run_px": 62.0,
+    "max_run_mm_true": 1050,
+    "max_run_mm_at_factor": 1050,
+    "door_count": 2,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 70.0,
+      "run_px": 62.0,
+      "counts": true,
+      "seal_bbox": [
+       488.5,
+       716.8,
+       566.6,
+       721.8
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 46.9,
+      "run_px": 38.9,
+      "counts": true,
+      "seal_bbox": [
+       517.3,
+       900.9,
+       572.8,
+       905.9
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     578.2,
+     723.6,
+     780.8,
+     1018.8
+    ],
+    "area": 57960,
+    "short": 202.63,
+    "old_entrance_count": 2,
+    "new_entrance_count": 2,
+    "status_flip": false,
+    "max_run_px": 79.0,
+    "max_run_mm_true": 1338,
+    "max_run_mm_at_factor": 1338,
+    "door_count": 2,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.971,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 61.3,
+      "run_px": 53.3,
+      "counts": true,
+      "seal_bbox": [
+       573.2,
+       965.0,
+       578.2,
+       1020.5
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 87.0,
+      "run_px": 79.0,
+      "counts": true,
+      "seal_bbox": [
+       634.1,
+       718.6,
+       729.6,
+       723.6
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     902.8,
+     908.3,
+     1008.2,
+     1016.8
+    ],
+    "area": 11172,
+    "short": 105.38,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 53.3,
+    "max_run_mm_true": 903,
+    "max_run_mm_at_factor": 903,
+    "door_count": 1,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "The detection does not include text in the middle, goes around it",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 61.3,
+      "run_px": 53.3,
+      "counts": true,
+      "seal_bbox": [
+       1008.2,
+       965.0,
+       1013.2,
+       1020.5
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1013.2,
+     904.4,
+     1120.0,
+     1022.4
+    ],
+    "area": 10384,
+    "short": 106.74,
+    "old_entrance_count": 4,
+    "new_entrance_count": 4,
+    "status_flip": false,
+    "max_run_px": 49.4,
+    "max_run_mm_true": 836,
+    "max_run_mm_at_factor": 836,
+    "door_count": 4,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 45.5,
+      "run_px": 37.5,
+      "counts": true,
+      "seal_bbox": [
+       1008.2,
+       965.0,
+       1013.2,
+       1020.5
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 45.5,
+      "run_px": 37.5,
+      "counts": true,
+      "seal_bbox": [
+       1055.6,
+       1022.4,
+       1111.1,
+       1027.4
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 45.5,
+      "run_px": 37.5,
+      "counts": true,
+      "seal_bbox": [
+       1120.0,
+       965.0,
+       1125.0,
+       1020.5
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 57.4,
+      "run_px": 49.4,
+      "counts": true,
+      "seal_bbox": [
+       1064.3,
+       899.4,
+       1119.8,
+       904.4
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1125.0,
+     728.2,
+     1327.6,
+     1018.8
+    ],
+    "area": 57561,
+    "short": 202.63,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 53.3,
+    "max_run_mm_true": 903,
+    "max_run_mm_at_factor": 903,
+    "door_count": 1,
+    "window_count": 2,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 61.3,
+      "run_px": 53.3,
+      "counts": true,
+      "seal_bbox": [
+       1120.0,
+       965.0,
+       1125.0,
+       1020.5
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     904.8,
+     728.2,
+     1112.8,
+     899.4
+    ],
+    "area": 34583,
+    "short": 171.13,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 38.7,
+    "max_run_mm_true": 655,
+    "max_run_mm_at_factor": 655,
+    "door_count": 1,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "near right wall bit skewed",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 46.7,
+      "run_px": 38.7,
+      "counts": true,
+      "seal_bbox": [
+       1064.3,
+       899.4,
+       1119.8,
+       904.4
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     904.8,
+     1027.4,
+     1108.3,
+     1238.2
+    ],
+    "area": 42388,
+    "short": 203.5,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 54.3,
+    "max_run_mm_true": 919,
+    "max_run_mm_at_factor": 919,
+    "door_count": 1,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.991,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 62.3,
+      "run_px": 54.3,
+      "counts": true,
+      "seal_bbox": [
+       1055.6,
+       1022.4,
+       1111.1,
+       1027.4
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "s07",
+  "page": 1,
+  "factor": 0.5,
+  "floor_px": 14.75,
+  "n_rooms_off": 6,
+  "n_rooms_on": 6,
+  "n_emitted_off": 6,
+  "n_emitted_on": 6,
+  "score_off": {
+   "counts": {
+    "door": [
+     7,
+     7
+    ],
+    "window": [
+     10,
+     10
+    ],
+    "room": [
+     6,
+     6
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "score_on": {
+   "counts": {
+    "door": [
+     7,
+     7
+    ],
+    "window": [
+     10,
+     10
+    ],
+    "room": [
+     6,
+     6
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "diff_off_to_on": {
+   "same": 23,
+   "gone": [],
+   "new": []
+  },
+  "rooms": [
+   {
+    "bbox": [
+     435.5,
+     466.7,
+     541.5,
+     619.2
+    ],
+    "area": 16165,
+    "short": 106.0,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 50.7,
+    "max_run_mm_true": 859,
+    "max_run_mm_at_factor": 859,
+    "door_count": 1,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 58.7,
+      "run_px": 50.7,
+      "counts": true,
+      "seal_bbox": [
+       490.8,
+       462.0,
+       548.4,
+       466.7
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     227.0,
+     408.9,
+     506.0,
+     931.2
+    ],
+    "area": 104493,
+    "short": 279.0,
+    "old_entrance_count": 3,
+    "new_entrance_count": 3,
+    "status_flip": false,
+    "max_run_px": 54.9,
+    "max_run_mm_true": 930,
+    "max_run_mm_at_factor": 930,
+    "door_count": 3,
+    "window_count": 3,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.995,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 57.2,
+      "run_px": 49.2,
+      "counts": true,
+      "seal_bbox": [
+       267.1,
+       931.2,
+       324.8,
+       936.2
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 61.7,
+      "run_px": 53.7,
+      "counts": true,
+      "seal_bbox": [
+       219.9,
+       785.0,
+       277.5,
+       789.7
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 62.9,
+      "run_px": 54.9,
+      "counts": true,
+      "seal_bbox": [
+       372.8,
+       404.3,
+       430.4,
+       409.3
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     274.3,
+     936.2,
+     323.5,
+     1037.9
+    ],
+    "area": 4980,
+    "short": 49.25,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 43.2,
+    "max_run_mm_true": 732,
+    "max_run_mm_at_factor": 732,
+    "door_count": 1,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.916,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 51.2,
+      "run_px": 43.2,
+      "counts": true,
+      "seal_bbox": [
+       267.1,
+       931.2,
+       324.8,
+       936.2
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     67.7,
+     783.9,
+     329.5,
+     1167.7
+    ],
+    "area": 82409,
+    "short": 261.75,
+    "old_entrance_count": 2,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 50.4,
+    "max_run_mm_true": 853,
+    "max_run_mm_at_factor": 853,
+    "door_count": 2,
+    "window_count": 2,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.929,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 11.0,
+      "run_px": 3.0,
+      "counts": false,
+      "seal_bbox": [
+       267.1,
+       931.2,
+       324.8,
+       936.2
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 58.4,
+      "run_px": 50.4,
+      "counts": true,
+      "seal_bbox": [
+       219.9,
+       785.0,
+       277.5,
+       789.7
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     227.0,
+     118.9,
+     450.5,
+     306.9
+    ],
+    "area": 42018,
+    "short": 188.0,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 50.6,
+    "max_run_mm_true": 857,
+    "max_run_mm_at_factor": 857,
+    "door_count": 1,
+    "window_count": 2,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 58.6,
+      "run_px": 50.6,
+      "counts": true,
+      "seal_bbox": [
+       399.9,
+       306.9,
+       457.5,
+       310.9
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     454.5,
+     189.7,
+     486.5,
+     290.2
+    ],
+    "area": 3216,
+    "short": 32.0,
+    "old_entrance_count": 0,
+    "new_entrance_count": 0,
+    "status_flip": false,
+    "max_run_px": null,
+    "max_run_mm_true": null,
+    "max_run_mm_at_factor": null,
+    "door_count": 0,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": []
+   }
+  ]
+ },
+ {
+  "slug": "s08",
+  "page": 1,
+  "factor": 1.0,
+  "floor_px": 29.5,
+  "n_rooms_off": 3,
+  "n_rooms_on": 3,
+  "n_emitted_off": 3,
+  "n_emitted_on": 3,
+  "score_off": {
+   "counts": {
+    "door": [
+     4,
+     4
+    ],
+    "room": [
+     3,
+     3
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "window",
+     [
+      1775,
+      1044,
+      1806,
+      1131
+     ]
+    ]
+   ],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "score_on": {
+   "counts": {
+    "door": [
+     4,
+     4
+    ],
+    "room": [
+     3,
+     3
+    ]
+   },
+   "lost": [],
+   "returned_fps": [
+    [
+     "window",
+     [
+      1775,
+      1044,
+      1806,
+      1131
+     ]
+    ]
+   ],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "diff_off_to_on": {
+   "same": 8,
+   "gone": [],
+   "new": []
+  },
+  "rooms": [
+   {
+    "bbox": [
+     682.3,
+     619.3,
+     2307.1,
+     1137.8
+    ],
+    "area": 526872,
+    "short": 517.75,
+    "old_entrance_count": 4,
+    "new_entrance_count": 4,
+    "status_flip": false,
+    "max_run_px": 223.9,
+    "max_run_mm_true": 1896,
+    "max_run_mm_at_factor": 1896,
+    "door_count": 4,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.99,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 231.9,
+      "run_px": 223.9,
+      "counts": true,
+      "seal_bbox": [
+       2194.9,
+       1008.7,
+       2327.1,
+       1141.4
+      ],
+      "seal_axis_vs_room": 44.6,
+      "meets": "along"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 106.8,
+      "run_px": 98.8,
+      "counts": true,
+      "seal_bbox": [
+       672.3,
+       937.6,
+       682.3,
+       1060.3
+      ],
+      "seal_axis_vs_room": 89.5,
+      "meets": "across"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 128.2,
+      "run_px": 120.2,
+      "counts": true,
+      "seal_bbox": [
+       1975.4,
+       1011.9,
+       2095.7,
+       1018.9
+      ],
+      "seal_axis_vs_room": 0.5,
+      "meets": "along"
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 150.9,
+      "run_px": 142.9,
+      "counts": true,
+      "seal_bbox": [
+       1085.4,
+       654.4,
+       1095.4,
+       821.1
+      ],
+      "seal_axis_vs_room": 89.5,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1951.7,
+     621.0,
+     2296.8,
+     1011.9
+    ],
+    "area": 131067,
+    "short": 345.06,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 85.8,
+    "max_run_mm_true": 726,
+    "max_run_mm_at_factor": 726,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 0.962,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 93.8,
+      "run_px": 85.8,
+      "counts": true,
+      "seal_bbox": [
+       1975.4,
+       1011.9,
+       2095.7,
+       1018.9
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     1463.2,
+     1060.1,
+     1677.7,
+     1130.6
+    ],
+    "area": 14376,
+    "short": 70.5,
+    "old_entrance_count": 0,
+    "new_entrance_count": 0,
+    "status_flip": false,
+    "max_run_px": null,
+    "max_run_mm_true": null,
+    "max_run_mm_at_factor": null,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": true,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": []
+   }
+  ]
+ },
+ {
+  "slug": "s09",
+  "page": 1,
+  "factor": 1.0,
+  "floor_px": 29.5,
+  "n_rooms_off": 0,
+  "n_rooms_on": 0,
+  "n_emitted_off": 0,
+  "n_emitted_on": 0,
+  "score_off": {
+   "counts": {},
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "score_on": {
+   "counts": {},
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "diff_off_to_on": {
+   "same": 0,
+   "gone": [],
+   "new": []
+  },
+  "rooms": []
+ },
+ {
+  "slug": "s10",
+  "page": 1,
+  "factor": 1.0,
+  "floor_px": 29.5,
+  "n_rooms_off": 9,
+  "n_rooms_on": 9,
+  "n_emitted_off": 9,
+  "n_emitted_on": 9,
+  "score_off": {
+   "counts": {
+    "door": [
+     14,
+     14
+    ],
+    "window": [
+     10,
+     10
+    ],
+    "room": [
+     9,
+     9
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "score_on": {
+   "counts": {
+    "door": [
+     14,
+     14
+    ],
+    "window": [
+     10,
+     10
+    ],
+    "room": [
+     9,
+     9
+    ]
+   },
+   "lost": [],
+   "returned_fps": [],
+   "unreviewed": [],
+   "closed": 0
+  },
+  "diff_off_to_on": {
+   "same": 33,
+   "gone": [],
+   "new": []
+  },
+  "rooms": [
+   {
+    "bbox": [
+     210.5,
+     660.5,
+     1063.2,
+     980.2
+    ],
+    "area": 202727,
+    "short": 319.75,
+    "old_entrance_count": 5,
+    "new_entrance_count": 5,
+    "status_flip": false,
+    "max_run_px": 135.4,
+    "max_run_mm_true": 1146,
+    "max_run_mm_at_factor": 1146,
+    "door_count": 5,
+    "window_count": 1,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "slight notch next to door",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 133.8,
+      "run_px": 125.8,
+      "counts": true,
+      "seal_bbox": [
+       648.2,
+       969.5,
+       774.0,
+       1097.0
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 122.8,
+      "run_px": 114.8,
+      "counts": true,
+      "seal_bbox": [
+       235.2,
+       770.7,
+       360.8,
+       777.7
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 133.5,
+      "run_px": 125.5,
+      "counts": true,
+      "seal_bbox": [
+       857.0,
+       653.5,
+       982.5,
+       660.5
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 111.5,
+      "run_px": 103.5,
+      "counts": true,
+      "seal_bbox": [
+       823.5,
+       980.2,
+       944.0,
+       990.2
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 143.4,
+      "run_px": 135.4,
+      "counts": true,
+      "seal_bbox": [
+       214.0,
+       963.0,
+       341.5,
+       973.0
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     223.7,
+     976.5,
+     762.7,
+     1473.5
+    ],
+    "area": 220574,
+    "short": 471.96,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 224.0,
+    "max_run_mm_true": 1896,
+    "max_run_mm_at_factor": 1896,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 0.998,
+    "gt_note": "sharp corner not covered",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 232.0,
+      "run_px": 224.0,
+      "counts": true,
+      "seal_bbox": [
+       648.2,
+       969.5,
+       774.0,
+       1097.0
+      ],
+      "seal_axis_vs_room": 85.8,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     693.2,
+     306.3,
+     1080.2,
+     653.5
+    ],
+    "area": 127347,
+    "short": 347.24,
+    "old_entrance_count": 3,
+    "new_entrance_count": 3,
+    "status_flip": false,
+    "max_run_px": 125.3,
+    "max_run_mm_true": 1061,
+    "max_run_mm_at_factor": 1061,
+    "door_count": 3,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 122.5,
+      "run_px": 114.5,
+      "counts": true,
+      "seal_bbox": [
+       686.2,
+       526.8,
+       693.2,
+       652.5
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 111.5,
+      "run_px": 103.5,
+      "counts": true,
+      "seal_bbox": [
+       857.0,
+       653.5,
+       982.5,
+       660.5
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.65,
+      "contact_px": 133.3,
+      "run_px": 125.3,
+      "counts": true,
+      "seal_bbox": [
+       1080.2,
+       407.3,
+       1090.2,
+       558.8
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     246.0,
+     1887.3,
+     686.2,
+     2339.0
+    ],
+    "area": 193555,
+    "short": 440.25,
+    "old_entrance_count": 2,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 215.2,
+    "max_run_mm_true": 1822,
+    "max_run_mm_at_factor": 1822,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "door there is slight extrusion",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 21.0,
+      "run_px": 13.0,
+      "counts": false,
+      "seal_bbox": [
+       682.0,
+       2234.3,
+       807.7,
+       2244.3
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 223.2,
+      "run_px": 215.2,
+      "counts": true,
+      "seal_bbox": [
+       565.8,
+       2224.8,
+       693.2,
+       2350.5
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     395.8,
+     2244.3,
+     796.3,
+     2550.3
+    ],
+    "area": 85936,
+    "short": 306.0,
+    "old_entrance_count": 5,
+    "new_entrance_count": 5,
+    "status_flip": false,
+    "max_run_px": 224.0,
+    "max_run_mm_true": 1896,
+    "max_run_mm_at_factor": 1896,
+    "door_count": 5,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "this covers both stairs and hallway, not sure how to cover this. This is both structural and wall detection",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 133.8,
+      "run_px": 125.8,
+      "counts": true,
+      "seal_bbox": [
+       647.7,
+       2550.3,
+       773.5,
+       2557.3
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 111.0,
+      "run_px": 103.0,
+      "counts": true,
+      "seal_bbox": [
+       682.0,
+       2234.3,
+       807.7,
+       2244.3
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 114.2,
+      "run_px": 106.2,
+      "counts": true,
+      "seal_bbox": [
+       565.8,
+       2224.8,
+       693.2,
+       2350.5
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 135.3,
+      "run_px": 127.3,
+      "counts": true,
+      "seal_bbox": [
+       783.3,
+       2436.0,
+       923.7,
+       2561.5
+      ],
+      "seal_axis_vs_room": 41.2,
+      "meets": "along"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 232.0,
+      "run_px": 224.0,
+      "counts": true,
+      "seal_bbox": [
+       375.8,
+       2436.0,
+       516.2,
+       2561.5
+      ],
+      "seal_axis_vs_room": 41.2,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     693.2,
+     1887.3,
+     1063.2,
+     2234.3
+    ],
+    "area": 125120,
+    "short": 347.0,
+    "old_entrance_count": 2,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 103.0,
+    "max_run_mm_true": 872,
+    "max_run_mm_at_factor": 872,
+    "door_count": 2,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 111.0,
+      "run_px": 103.0,
+      "counts": true,
+      "seal_bbox": [
+       682.0,
+       2234.3,
+       807.7,
+       2244.3
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     },
+     {
+      "conf": 0.67,
+      "contact_px": 17.5,
+      "run_px": 9.5,
+      "counts": false,
+      "seal_bbox": [
+       565.8,
+       2224.8,
+       693.2,
+       2350.5
+      ],
+      "seal_axis_vs_room": 0.0,
+      "meets": "along"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     803.3,
+     2241.3,
+     1063.2,
+     2550.3
+    ],
+    "area": 76591,
+    "short": 260.0,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 224.0,
+    "max_run_mm_true": 1896,
+    "max_run_mm_at_factor": 1896,
+    "door_count": 1,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "same as r2 sligh extrusion near door\\",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 232.0,
+      "run_px": 224.0,
+      "counts": true,
+      "seal_bbox": [
+       783.3,
+       2436.0,
+       923.7,
+       2561.5
+      ],
+      "seal_axis_vs_room": 48.8,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     238.7,
+     2557.3,
+     762.7,
+     3085.5
+    ],
+    "area": 213081,
+    "short": 524.0,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 103.5,
+    "max_run_mm_true": 876,
+    "max_run_mm_at_factor": 876,
+    "door_count": 1,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 111.5,
+      "run_px": 103.5,
+      "counts": true,
+      "seal_bbox": [
+       647.7,
+       2550.3,
+       773.5,
+       2557.3
+      ],
+      "seal_axis_vs_room": 90.0,
+      "meets": "across"
+     }
+    ]
+   },
+   {
+    "bbox": [
+     246.0,
+     2358.5,
+     388.8,
+     2550.3
+    ],
+    "area": 27258,
+    "short": 142.75,
+    "old_entrance_count": 1,
+    "new_entrance_count": 1,
+    "status_flip": false,
+    "max_run_px": 127.3,
+    "max_run_mm_true": 1078,
+    "max_run_mm_at_factor": 1078,
+    "door_count": 1,
+    "window_count": 0,
+    "emitted_off": true,
+    "fate_on": "present",
+    "text": false,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "slight square cutout near door",
+    "seals": [
+     {
+      "conf": 0.67,
+      "contact_px": 135.3,
+      "run_px": 127.3,
+      "counts": true,
+      "seal_bbox": [
+       375.8,
+       2436.0,
+       516.2,
+       2561.5
+      ],
+      "seal_axis_vs_room": 48.8,
+      "meets": "across"
+     }
+    ]
+   }
+  ]
+ }
+]

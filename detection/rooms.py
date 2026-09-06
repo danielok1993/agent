@@ -477,6 +477,56 @@ ROOM_ENTRANCE_MIN_CONFIDENCE = ROOM_BBOX_SEAL_MIN_CONFIDENCE
                                       # with a window and a 0.35 door, is the
                                       # nearest to the 10k blind cap). Confidence
                                       # and door_openings still count every seal.
+ROOM_ENTRANCE_MIN_RUN_PX    = 29.5    # an ENTRANCE seal RUNS ALONG the space's
+                                      # boundary at least this far (W: 250mm at
+                                      # 1:50, 14.75px at 1:100, 16px at s01's
+                                      # 1:92.2), read net of ROOM_CONTACT_TOL_PX
+                                      # at each end (_entrance_run). A doorway
+                                      # INTO a space is cut through one of its
+                                      # bounding walls, so its plug lies along
+                                      # that boundary over the doorway's width;
+                                      # a doorway cut through the wall a strip
+                                      # lies INSIDE of — its plug collinear with
+                                      # the strip, meeting the strip's end — or
+                                      # a neighbour's doorway whose tail ends at
+                                      # the strip's face touches it over the
+                                      # plug's own cross-section only, 2 x
+                                      # ROOM_PLUG_HALF_WIDTH_PX. The any-touch
+                                      # test (a seal within the contact
+                                      # tolerance) called that an entrance, and
+                                      # s17's four cavity-wall reveal strips
+                                      # (rooms 0013/0014/0027/0032, each ending
+                                      # at a doorway cut through the cavity
+                                      # wall) escaped _is_band_pocket on it.
+                                      # Measured on every emitted room of all 20
+                                      # sheets at their factors (W-gate iteration
+                                      # 3 steps 13-14, 2026-09-06): per room the
+                                      # LARGEST run any entrance seal makes — a
+                                      # neighbour's tail grazes real rooms over
+                                      # 3.6-15px, so the test is per room over
+                                      # its seals, never per seal — is >= 59.2px
+                                      # on every confirmed entered room at f=1.0
+                                      # (s03, 501mm at 1:50), 36px at f=0.5 (s18,
+                                      # 610mm), 37.3px at s13's f=0.367 (861mm),
+                                      # 47.3px on s01 at 0.542 (738mm), medians
+                                      # 700-1400mm; the false class — the s17
+                                      # strips at 7-10px and s04's recorded-FP
+                                      # box (1463,1042)-(1558,1131) at 13.5px —
+                                      # never exceeds a plug's cross-section.
+                                      # 250mm sits 2.2x over the false ceiling
+                                      # and 2.0x under the true floor at f=1.0,
+                                      # 3.0x / 2.4x at f=0.5, 2.7x / 3.4x at
+                                      # f=0.367. The tolerance is subtracted
+                                      # because it is PAPER: a crossing plug's
+                                      # raw contact is 2 x half-width + 2 x TOL
+                                      # (18px at 1:50 but 12px at 1:136 against a
+                                      # 13px scaled floor), so no world floor on
+                                      # the raw contact clears both classes at
+                                      # every factor. Feeds the entrance gate
+                                      # only (the blind-window, wall-recess and
+                                      # band-pocket drops); door_openings and
+                                      # the confidence boost still count every
+                                      # touching seal.
 ROOM_BAND_POCKET_FACE_COVER_MIN = 0.65  # a door-less, window-less, textless
                                       # component lying INSIDE a wall band's
                                       # thickness is the band's own material — a
@@ -550,6 +600,7 @@ class RoomGates:
     ROOM_PLUG_HALF_WIDTH_PX: float
     ROOM_FOLD_STACK_NEAR_PX: float
     ROOM_FOLD_JAMB_MIN_LEN_PX: float
+    ROOM_ENTRANCE_MIN_RUN_PX: float
     WALL_MAX_THICKNESS_PX: float             # walls-owned, used by rooms
     WALL_HATCH_MAX_LEN_PX: float             # walls-owned, used by rooms
 
@@ -574,6 +625,7 @@ class RoomGates:
                 ROOM_PLUG_HALF_WIDTH_PX * factor, ROOM_LINE_BARRIER_PX),
             ROOM_FOLD_STACK_NEAR_PX=ROOM_FOLD_STACK_NEAR_PX * factor,
             ROOM_FOLD_JAMB_MIN_LEN_PX=ROOM_FOLD_JAMB_MIN_LEN_PX * factor,
+            ROOM_ENTRANCE_MIN_RUN_PX=ROOM_ENTRANCE_MIN_RUN_PX * factor,
             WALL_MAX_THICKNESS_PX=WALL_MAX_THICKNESS_PX * factor,
             WALL_HATCH_MAX_LEN_PX=WALL_HATCH_MAX_LEN_PX * factor,
         )
@@ -1715,6 +1767,22 @@ def _is_band_pocket(
     )
 
 
+def _entrance_run(boundary, seal) -> float:
+    """How far a door seal runs ALONG a room boundary, in px — see
+    ROOM_ENTRANCE_MIN_RUN_PX.
+
+    The boundary's length within ROOM_CONTACT_TOL_PX of the seal, less the
+    tolerance's own reach past each end of the seal: a plug lying along the
+    boundary reads its length, a plug meeting the boundary end-on (a doorway
+    cut through the wall a strip lies inside of) or a tail ending at it
+    reads its cross-section. Negative when the seal is out of contact.
+    """
+    if seal.distance(boundary) > ROOM_CONTACT_TOL_PX:
+        return -math.inf
+    near = boundary.intersection(seal.buffer(ROOM_CONTACT_TOL_PX))
+    return near.length - 2.0 * ROOM_CONTACT_TOL_PX
+
+
 def _is_door_lining(poly: Polygon, material, openings: list[Polygon]) -> bool:
     """A stroked ring that continues the wall band up to an opening's bbox.
 
@@ -2503,8 +2571,12 @@ def detect_rooms(
         door_count = sum(
             1 for g in door_geoms if g.distance(boundary) <= ROOM_CONTACT_TOL_PX
         )
+        # An entrance RUNS ALONG the boundary (a doorway into the space);
+        # a seal meeting it end-on or grazing it is a doorway cut through
+        # the wall the space lies in, or a neighbour's (_entrance_run).
         entrance_count = sum(
-            1 for g in entrance_geoms if g.distance(boundary) <= ROOM_CONTACT_TOL_PX
+            1 for g in entrance_geoms
+            if _entrance_run(boundary, g) >= gates.ROOM_ENTRANCE_MIN_RUN_PX
         )
         window_count = sum(
             1 for g in window_geoms if g.distance(boundary) <= ROOM_CONTACT_TOL_PX
