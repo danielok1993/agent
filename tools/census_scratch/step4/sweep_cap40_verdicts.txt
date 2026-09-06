@@ -1,0 +1,25 @@
+s18  door 13/13  room 13/13  window 12/12  unreviewed 1   lost=0 fp=24 review=1
+      REVIEW new room_0007  conf 0.77  (176,794)
+      other: images: /Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s18/2026-09-06_14-59-45/pages/  — then: python tools/review.py s18
+s16  door 16/16  room 17/17  window 25/25   lost=0 fp=9 review=0
+s11  door 16/16  room 16/16  window 28/28  unreviewed 1   lost=0 fp=4 review=1
+      REVIEW new room_0012  conf 0.62  (1076,1345)
+      other: images: /Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s11/2026-09-06_15-00-38/pages/  — then: python tools/review.py s11
+s15  door 12/12  room 13/13  window 1/1   lost=0 fp=7 review=0
+s01  door 11/11  room 10/10  window 4/4   lost=0 fp=0 review=0
+s02  door 15/15  label 11/11  room 11/11  schedule 1/1  window 11/11   lost=0 fp=0 review=0
+s03  door 17/17  room 17/17  window 15/15   lost=0 fp=0 review=0
+s04  door 4/4  room 5/5  window 1/1   lost=0 fp=2 review=0
+s05  door 8/8  room 9/9   lost=0 fp=1 review=0
+s06  door 10/10  room 9/9  window 8/8   lost=0 fp=0 review=0
+s07  door 7/7  room 6/6  window 10/10   lost=0 fp=0 review=0
+s08  door 4/4  room 3/3   lost=0 fp=1 review=0
+s09    unlabeled — every detection is unreviewed   lost=0 fp=0 review=0
+s10  door 14/14  room 9/9  window 10/10   lost=0 fp=0 review=0
+s12  door 7/7  room 8/8   lost=0 fp=7 review=0
+s13  door 12/12  room 11/11  window 11/11   lost=0 fp=0 review=0
+s14  door 13/13   lost=0 fp=1 review=0
+s17  door 35/35  room 25/25  window 10/10   lost=0 fp=6 review=0
+s19    unlabeled — every detection is unreviewed   lost=0 fp=0 review=0
+s20  door 8/8  room 5/5  window 6/6   lost=0 fp=1 review=0
+TOTAL {'lost': 0, 'fp': 63, 'review': 2}

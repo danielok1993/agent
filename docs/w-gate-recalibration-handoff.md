@@ -2042,3 +2042,123 @@ geometry (the same four names as at identity). Not committed.
 > commit messages carry no Co-Authored-By or session trailer. End every
 > report with the numbers: lost, returned FPs, new REVIEW lines with your
 > verdicts, net phantom delta, and what is next.
+
+## Outcome — iteration 3, step 4 (2026-09-06, branch `recal/wall-max-thickness-40`, measurement only — `WALL_MAX_THICKNESS_PX` NOT moved)
+
+The 36 → 40 move was run AS IMPLEMENTED on all 20 sheets at their factors
+(`tools/census_scratch/step4/band_census.py`: the whole stage-5 chain at cap
+×1.0 and ×40/36 through the harness, segments, rooms and truth scored; then
+a full corpus sweep at 40, restored). Result: 0 LOST, 68 → 63 returned FPs
+(s17's four cavity-wall reveal strips — the 313mm cavity wall drawn at
+36.5–36.75px, 1.03× over the cap, a standard modern wall — and s16's pocket,
+sealed by two stair TREADS 18px apart, the wrong reason), 2 new REVIEW rooms
+both phantoms (s18's tree strip, fenced by the site boundary drawn double at
+18.25px over 682px; s11's recess box — the neighbour's chimney breast —
+freed by a 20×15px stub box pairing plain under the party wall), s15's
+confirmed bedroom −5,135 px² (the wardrobe's double edge × the unrecognised
+"3560" dimension line on its TEXT layer), s02 re-noded by 3–19 px² (glyph
+outlines pairing), s01 identical, and 27 s11/s16 rooms stopping at their
+plaster lines (19.88px external walls at 1:100 with finish lines on both
+sides — correct, 1.1px strips; the porch and utility had leaked into their
+bands). Discriminators measured on both classes (`interior_census.py`):
+material, stroked linework parallel to the faces inside the band (over the
+overlap AND over the faces' full extent — the cavity's leaf lines stop
+exactly where the strips form), and confident openings in the band — all
+read 0 on s17's four true stretches and on s18's boundary, s16's treads and
+s11's stub alike, at the same world thickness; s15's wardrobe passes the
+linework test on its own double edge. So the number is not the lever and was
+not moved (the brief's rule: two of the three named pockets return). The
+lever is the room stage: the s17 strips are exactly `_is_band_pocket`'s
+class, rejected only by its `WALL_MAX_THICKNESS_PX` ceiling (35px + 2×2 >
+36); the rule sees only entrance-less, window-less components and the
+corpus's narrowest confirmed room (s11's 19px storage) carries a door, so a
+`WALL_THICK_MATERIAL_MAX_PX` ceiling cannot touch an entered room — and the
+11 recorded-FP pockets on s11/s12/s16/s18 at 1.2–2× the cap are the same
+class. Also exposed: `_dimension_line_indices` misses s15's ticked "3560" /
+"1100" lines on its TEXT layer; s18's blind-window drop caps at 2.5k px² at
+1:100 while the tree strip is 4.6k. Harness fixes shipped with the scratch
+tooling (door-plug tap passes `seek_edges`; the marks tap captures the one
+through-diagonal population so `wide_pairs` carry real material verdicts and
+keep endpoints/pen). Report `docs/w-gate-iter3-checkpoints/step-4.md` (10
+PNGs). Not committed.
+
+### Prompt for the next agent (iteration 3, step 13 — the band-pocket ceiling — fresh context)
+
+> Use `/fix-detection` for its discipline. Topic branch from
+> `recal/wall-max-thickness-40` once the user has committed it (`git log
+> --all --oneline | head`; main is still `ee0f52f`). Re-sweep that tree first
+> in four background groups (s18; s16 s11 s15; s01–s07; the rest) and
+> `compare_sweeps --snapshot` all 20 slugs, never trusting what sits in
+> `outputs/regress/`. Verdict reports diffed section-wise;
+> `tools/diff_room_polygons.py` after EVERY sweep; `tools/room_shape_crop.py`
+> for every room whose IoU moved under 0.99; a scratch UNSIMPLIFIED diff
+> whenever any room loses area; harness overrides as MULTIPLIERS
+> (`H.overrides(mult=...)`). Read first, in this order:
+> `docs/w-gate-iter3-checkpoints/step-4.md` (why the cap did not move and
+> where the lever is), the CLAUDE.md "Room detection" paragraph's band-pocket
+> block (`_is_band_pocket`, `ROOM_BAND_POCKET_FACE_COVER_MIN`, the s17
+> cavity-wall measurements, the s11 storage margin, the "11 recorded-FP
+> pockets at 1.2–2× the scaled cap"), `_is_wall_recess` and
+> `_drop_window_exterior_sides` beside it, `docs/regression-testing-guide.md`
+> §9 §10 §12 §13. Scratch tooling: `tools/census_scratch/harness.py`
+> (`H.run`, `H.score`, the `components` tap — every free-space component
+> with its minimum rotated rectangle), `step4/band_census.py` and
+> `step4/attribute_rooms.py` as patterns; the harness cache is
+> `tools/census_scratch/cache/` (delete a slug's pickle after any scale
+> change).
+>
+> **Tree state**: seal 15, `_plane_stamp`, the material-seeking tail, the
+> doorway veto, the dimension-verified gate scale; `WALL_MAX_THICKNESS_PX`
+> still 36; corpus 0 LOST / 68 returned FPs / 0 REVIEW; s01 sweeps at 0.542
+> with 10/10 rooms.
+>
+> **This step: raise `_is_band_pocket`'s spacing ceiling from
+> `WALL_MAX_THICKNESS_PX` to `WALL_THICK_MATERIAL_MAX_PX`** (a strip whose
+> two long edges lie on wall faces up to pier spacing apart is inside that
+> wall). Census FIRST: every entrance-less, window-less free-space component
+> on all 20 sheets whose minimum rotated rectangle's short side + 2 ×
+> `ROOM_LINE_BARRIER_PX` lies between the cap and the thick cap at the
+> sheet's factor, with `_edge_face_cover` on both long edges — classed from
+> the pictures (s17's four reveal strips 0013/0014/0027/0032 are the
+> expected wins; the 11 recorded-FP pockets on s11/s12/s16/s18 are the same
+> class one band deeper; s11's 19px "storage in utility" (1078,1597)–
+> (1097,1704) has `door_0009` and must stay). Measure the false side — any
+> door-less, window-less REAL space that narrow (a duct, a lightwell, a
+> cupboard drawn without a door) — before moving the ceiling. s01 and s02 at
+> their factors must not change; report every polygon move with its
+> unsimplified lost/gained px².
+>
+> **After it (each its own iteration)**: `_dimension_line_indices` on s15's
+> TEXT-layer "3560"/"1100" lines (ticked, unrecognised — they pair with
+> fixture edges at wall spacing); the s18 blind-window cap at 1:100 (the
+> tree strip, 4.6k px² against the scaled 2.5k); promotion of an under-share
+> wall pen by doorways on pen-independent material (s03's 0.73 grey); the
+> merged landing's stair coverage and top-left notch (an open-arrowhead stair
+> recognizer); same-line tail material for s17 door_0016; phase-invariant
+> plug profiles; the dash-row text-mask join; the fallback in-wall gate on
+> tail-less plugs; the recess class (s11's party-wall box is the neighbour's
+> chimney breast); Gap D of `docs/hatch-cell-chords-handoff.md`; a jamb-scale
+> floor for lining rings; the lattice knife-edges; interior rings in the
+> exported room polygon; s18's and s14's glyph-outline fill rings (they pair
+> at the letter height, 36–40px, inert today).
+>
+> Rules for the whole run: do not commit (the user commits); do not edit
+> `tests/ground_truth/*.json` or `fixtures/MANIFEST.json` without an
+> explicit go for that specific entry; never revert s01's truth scale
+> (1:92.2); never `git stash` (in zsh an unquoted `$VAR` does NOT
+> word-split — pipe file lists through `xargs`); macOS has no `timeout`;
+> python is not on the shell path — use `.venv/bin/python` with an ABSOLUTE
+> path in background commands (the cwd resets); a background job imports the
+> tree at launch, so never edit a constant while one is running; the venv
+> lacks InquirerPy (tools/review.py is the user's to run); s02 at f = 1.0
+> must not change (entity set AND polygons), and every s01 change is
+> reported as a decision with its LOST lines named; probe with the FULL wall
+> material and the room stage's real barrier rules, never an approximation;
+> census the rule AS IMPLEMENTED (with/without it on the pipeline's exact
+> inputs); scratch scripts that render pictures do so under `__main__` only
+> and are kept under `tools/census_scratch/step13/`; PNG crops go under
+> `docs/w-gate-iter3-checkpoints/` and must never show a street address or
+> planning-portal id (s02's title block carries one — never crop it); commit
+> messages carry no Co-Authored-By or session trailer. End every report with
+> the numbers: lost, returned FPs, new REVIEW lines with your verdicts, net
+> phantom delta, and what is next.

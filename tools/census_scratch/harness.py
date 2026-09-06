@@ -201,6 +201,8 @@ def _install_taps(taps: Taps):
                     taps.wide_pairs.append({
                         "th": c.thickness, "len": _line_length(c.p1, c.p2),
                         "stroked": c.stroked, "fill": c.wall_fill,
+                        "pen": c.pen, "sw": c.stroke_width,
+                        "p1": c.p1, "p2": c.p2,
                         "mid": ((c.p1[0] + c.p2[0]) / 2, (c.p1[1] + c.p2[1]) / 2),
                         "material": o_mat(c, taps._marks, gates=gates) if taps._marks is not None else None,
                         "through": walls._band_has_through_hatch(c, taps._through_marks, gates=gates) if taps._through_marks is not None else None,
@@ -259,8 +261,13 @@ def _install_taps(taps: Taps):
             taps.weak_faces.append({"len": _line_length(f.p1, f.p2), "sw": f.stroke_width})
         return out
 
-    def plugs_fn(bbox, wall_material, skip_edges=frozenset(), *, gates=rooms.ROOM_GATES_UNSCALED):
-        out = o_plugs(bbox, wall_material, skip_edges, gates=gates)
+    def plugs_fn(bbox, wall_material, skip_edges=frozenset(), *,
+                 seek_edges=frozenset(), gates=rooms.ROOM_GATES_UNSCALED):
+        # seek_edges arrived with iteration 3 step 10 (the material-seeking
+        # tail); passed through untouched so the tap keeps reproducing the
+        # sweep.
+        out = o_plugs(bbox, wall_material, skip_edges, seek_edges=seek_edges,
+                      gates=gates)
         # Re-derive the per-edge profile at a WIDE seal reach so we can see the
         # true jamb distance regardless of the gate.
         x0, y0, x1, y1 = bbox
@@ -352,12 +359,14 @@ def _install_taps(taps: Taps):
 
     def marks_fn(paths, *, gates=walls.WALL_GATES_UNSCALED, max_len=None):
         out = o_marks(paths, gates=gates, max_len=max_len)
+        # Since the W-gate census the pipeline collects marks ONCE, at the
+        # through diagonal, and every band gate filters them to its own cap
+        # (_mark_len_cap) — so that one call is both populations.
+        taps._marks = out
+        taps._through_marks = out
         if max_len is None:
-            taps._marks = out
             # also collect an UNCAPPED mark population to see the true hatch length
             taps.marks_uncapped = o_marks(paths, gates=gates, max_len=400.0)
-        else:
-            taps._through_marks = out
         return out
 
     taps._marks = None

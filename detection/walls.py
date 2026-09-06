@@ -135,6 +135,39 @@ WALL_MAX_THICKNESS_PX       = 36.0  # heavy exterior/party walls: 305mm at 1:50.
                                     # ink and the flight opens. Three of s01's
                                     # confirmed rooms are cut by those bands.
                                     # Corridors are far wider.
+                                    # Iteration 3 step 4 (2026-09-06) measured
+                                    # 40 AS IMPLEMENTED on all 20 sheets at
+                                    # their factors (tools/census_scratch/step4):
+                                    # -5 recorded phantoms (s17's four 313mm
+                                    # cavity-wall stretches at 36.5-36.75px —
+                                    # a modern cavity wall is 315mm, 1.03x over
+                                    # this cap — and s16's pocket, sealed by two
+                                    # stair TREADS 18px apart at f=0.5), +2
+                                    # phantoms (s18's site boundary drawn
+                                    # double at 18.25px over 682px fences a
+                                    # tree strip; a 20x15px stub box under
+                                    # s11's party wall pairs plain and the
+                                    # neighbour's chimney-breast box beside it
+                                    # passes the room filters), s15's confirmed
+                                    # bedroom -5,135 px2 (a wardrobe's double
+                                    # edge x the unrecognised "3560" dimension
+                                    # line 39.75px below it), s02 re-noded by
+                                    # 3-19 px2, and 27 s11/s16 rooms stopping at
+                                    # their plaster lines (19.88px external
+                                    # walls at 1:100, correct, 1.1px strips).
+                                    # No pairing-stage feature separates the
+                                    # s17 stretches from the false class:
+                                    # material, linework inside the band (over
+                                    # the overlap and over the faces' full
+                                    # extent — the leaf lines stop exactly
+                                    # where the strips form) and openings in
+                                    # the band all read 0 on both, at the same
+                                    # world thickness. NOT moved; the strips are
+                                    # _is_band_pocket's class, held out only by
+                                    # its ceiling (35 + 4 > 36) — raise that to
+                                    # WALL_THICK_MATERIAL_MAX_PX (the rule sees
+                                    # only entrance-less components; s11's 19px
+                                    # storage has a door), its own step.
 WALL_THICK_MATERIAL_MAX_PX  = 56.0  # locally thickened masonry (chimney breast /
                                     # pier: floor-plans' bedroom pier bulges its
                                     # 19px wall to 39px — 613mm at its TRUE
