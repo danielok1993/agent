@@ -531,16 +531,56 @@ ROOM_BAND_POCKET_FACE_COVER_MIN = 0.65  # a door-less, window-less, textless
                                       # component lying INSIDE a wall band's
                                       # thickness is the band's own material — a
                                       # window reveal, a hollow cavity, a blocked
-                                      # opening — never floor: its two long edges
-                                      # lie on wall faces (at the barrier standoff,
-                                      # each face covering at least this much of
-                                      # the edge — real pockets measure 1.0; the
-                                      # slack mirrors ROOM_RECESS_GAP_COVER_MIN for
-                                      # a face a text mask interrupts) spaced at
-                                      # most WALL_MAX_THICKNESS_PX apart, i.e. two
+                                      # opening — never floor: its two long SIDES
+                                      # lie along wall (each at least this much
+                                      # of the component's length — real pockets
+                                      # measure 1.0; the slack mirrors
+                                      # ROOM_RECESS_GAP_COVER_MIN for a face a
+                                      # text mask interrupts) spaced at most
+                                      # WALL_MAX_THICKNESS_PX apart, i.e. two
                                       # faces that could have paired as one wall.
                                       # Rooms are wider than a wall by definition
-                                      # (the lattice rule's premise). Measured on
+                                      # (the lattice rule's premise). The cover
+                                      # is read on the component's OWN boundary
+                                      # runs (_side_wall_covers, W-gate iteration
+                                      # 3 step 15, 2026-09-06), never on its
+                                      # minimum rotated rectangle's edges: a run
+                                      # lies along wall where a face runs beside
+                                      # it at the barrier standoff or where a
+                                      # wall solid's flat END lies on it (a
+                                      # paired segment's end line, standoff 0),
+                                      # and a side's cover is the union of its
+                                      # runs' wall-lying stretches over the
+                                      # rectangle's length. A rectangle is pinned
+                                      # by the component's widest point: s17's
+                                      # four reveal strips each end where a
+                                      # perpendicular 35.5px partition meets the
+                                      # cavity wall with its faces drawn unequal
+                                      # — the one at the strip's end running
+                                      # across the wall, the other stopping at
+                                      # the strip's face line — so the paired
+                                      # segment ends ON that line, its flat cap
+                                      # forms a 31.5px tab at standoff 0, and the
+                                      # rectangle's edge sat ON the face line the
+                                      # rest of the side lies 2px inside of: the
+                                      # edge cover read 0 (0013 [0.0, 1.0], 0032
+                                      # [0.0, 0.93], 0014 [0.0, 0.04], 0027
+                                      # [0.0, 0.0]) where the strips' own sides
+                                      # read [0.99, 1.0], [1.0, 1.0], [0.96,
+                                      # 0.99], [1.0, 1.0] — on the face over
+                                      # 0.79-0.93 of the length, on the cap over
+                                      # the rest. Censused on every
+                                      # call and every emitted room of all 20
+                                      # sheets (tools/census_scratch/step15/): the
+                                      # s11 storage reads 1.0/1.0 under either
+                                      # reading, s18's recorded-FP sofa-back
+                                      # strip (907,810)-(1079,833) 0.14 -> 0.90
+                                      # (a notch pinned its rectangle), and at
+                                      # the 36 ceiling the rule's population is
+                                      # one already-dropped reveal, so the corpus
+                                      # is entity- and polygon-identical; the
+                                      # strips (38.75-40.5px) are held out by the
+                                      # ceiling alone. Measured on
                                       # s17: the 1.5px-pen cavity wall is drawn
                                       # leaf/cavity/leaf (11.75/12/13.25px, 37px in
                                       # all, over the cap, 0 diagonal marks in the
@@ -1698,45 +1738,113 @@ def _is_wall_recess(comp, wall_segments, opening_boxes, text_spans) -> bool:
     return False
 
 
-def _edge_face_cover(edge, face_lines) -> float:
-    """How much of a component edge lies along a wall face: the largest
-    projected overlap fraction over the faces parallel to the edge whose
-    line sits at the barrier standoff (ROOM_LINE_BARRIER_PX, within
-    ROOM_RECESS_BACK_TOL_PX) from it. 0.0 when no face runs beside it."""
-    (ax, ay), (bx, by) = edge
+def _run_wall_cover(run, face_lines, cap_lines) -> list[tuple[float, float]]:
+    """The stretches of one boundary run that lie along wall, as [lo, hi]
+    intervals in px from the run's first point: the projected extents of
+    the faces parallel to it whose line sits at the barrier standoff
+    (ROOM_LINE_BARRIER_PX, within ROOM_RECESS_BACK_TOL_PX) and of the flat
+    ends of wall solids lying ON it (a cap line within the same tolerance
+    of standoff 0 — a flat-capped solid ends exactly at its segment's end
+    line, so a boundary along a band's end lies on that line, not 2px off
+    it). A line's standoff is read where it actually lies beside the run,
+    at the middle of its overlap, interpolated between its endpoints."""
+    (ax, ay), (bx, by) = run
     length = math.hypot(bx - ax, by - ay)
     if length < 1e-6:
-        return 0.0
+        return []
     ux, uy = (bx - ax) / length, (by - ay) / length
     nx, ny = -uy, ux
-    mx, my = (ax + bx) / 2.0, (ay + by) / 2.0
     angle = _line_angle_deg((ax, ay), (bx, by))
-    best = 0.0
-    for p1, p2 in face_lines:
-        if _angle_diff_mod180(angle, _line_angle_deg(p1, p2)) > WALL_PARALLEL_ANGLE_TOL:
+    out: list[tuple[float, float]] = []
+    for lines, standoff in ((face_lines, ROOM_LINE_BARRIER_PX), (cap_lines, 0.0)):
+        for p1, p2 in lines:
+            if _angle_diff_mod180(angle, _line_angle_deg(p1, p2)) > WALL_PARALLEL_ANGLE_TOL:
+                continue
+            t1 = (p1[0] - ax) * ux + (p1[1] - ay) * uy
+            t2 = (p2[0] - ax) * ux + (p2[1] - ay) * uy
+            lo, hi = max(min(t1, t2), 0.0), min(max(t1, t2), length)
+            if hi - lo <= 1e-6:
+                continue
+            d1 = (p1[0] - ax) * nx + (p1[1] - ay) * ny
+            d2 = (p2[0] - ax) * nx + (p2[1] - ay) * ny
+            tm = (lo + hi) / 2.0
+            d = d1 + (d2 - d1) * (tm - t1) / (t2 - t1) if abs(t2 - t1) > 1e-9 else d1
+            if abs(abs(d) - standoff) > ROOM_RECESS_BACK_TOL_PX:
+                continue
+            out.append((lo, hi))
+    return out
+
+
+def _side_wall_covers(comp, axis_edge, centre, face_lines, cap_lines) -> tuple[float, float]:
+    """How much of each long SIDE of a component lies along wall — see
+    ROOM_BAND_POCKET_FACE_COVER_MIN.
+
+    The component's own boundary runs parallel to `axis_edge` (a long edge
+    of its minimum rotated rectangle) are classed to a side by the sign of
+    their offset from `centre`; a side's cover is the union of its runs'
+    wall-lying stretches (_run_wall_cover) projected onto the axis, over
+    the axis edge's length. Read on the boundary itself, not on the
+    rectangle: a rectangle is pinned by the component's widest point, and
+    a 2px tab where a perpendicular band's flat cap bounds the component
+    puts the rectangle's edge ON the face line the rest of the side lies
+    2px inside of."""
+    (ax, ay), (bx, by) = axis_edge
+    long = math.hypot(bx - ax, by - ay)
+    if long < 1e-6:
+        return (0.0, 0.0)
+    ux, uy = (bx - ax) / long, (by - ay) / long
+    nx, ny = -uy, ux
+    cx, cy = centre
+    angle = _line_angle_deg((ax, ay), (bx, by))
+    spans: tuple[list[tuple[float, float]], list[tuple[float, float]]] = ([], [])
+    coords = list(comp.exterior.coords)
+    for a, b in zip(coords, coords[1:]):
+        run_len = _line_length(a, b)
+        if run_len < 1e-6:
             continue
-        standoff = abs((p1[0] - mx) * nx + (p1[1] - my) * ny)
-        if abs(standoff - ROOM_LINE_BARRIER_PX) > ROOM_RECESS_BACK_TOL_PX:
+        if _angle_diff_mod180(angle, _line_angle_deg(a, b)) > WALL_PARALLEL_ANGLE_TOL:
             continue
-        t1 = (p1[0] - ax) * ux + (p1[1] - ay) * uy
-        t2 = (p2[0] - ax) * ux + (p2[1] - ay) * uy
-        overlap = min(max(t1, t2), length) - max(min(t1, t2), 0.0)
-        best = max(best, overlap / length)
-    return best
+        mx, my = (a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0
+        side = 0 if (mx - cx) * nx + (my - cy) * ny < 0.0 else 1
+        rux, ruy = (b[0] - a[0]) / run_len, (b[1] - a[1]) / run_len
+        for lo, hi in _run_wall_cover((a, b), face_lines, cap_lines):
+            ta = (a[0] + rux * lo - ax) * ux + (a[1] + ruy * lo - ay) * uy
+            tb = (a[0] + rux * hi - ax) * ux + (a[1] + ruy * hi - ay) * uy
+            spans[side].append((max(min(ta, tb), 0.0), min(max(ta, tb), long)))
+    covers = []
+    for side in spans:
+        total = 0.0
+        cur_lo = cur_hi = None
+        for lo, hi in sorted(side):
+            if cur_hi is None or lo > cur_hi:
+                if cur_hi is not None:
+                    total += cur_hi - cur_lo
+                cur_lo, cur_hi = lo, hi
+            elif hi > cur_hi:
+                cur_hi = hi
+        if cur_hi is not None:
+            total += cur_hi - cur_lo
+        covers.append(total / long)
+    return (covers[0], covers[1])
 
 
 def _is_band_pocket(
-    comp, face_lines, text_spans, *, gates: RoomGates = ROOM_GATES_UNSCALED,
+    comp, face_lines, text_spans, *, cap_lines=(),
+    gates: RoomGates = ROOM_GATES_UNSCALED,
 ) -> bool:
     """True when comp lies INSIDE a wall band's thickness — see
     ROOM_BAND_POCKET_FACE_COVER_MIN.
 
     The recess rule's premise extended from "in the band's plane" to "inside
-    the band": both long edges of the component's minimum rotated rectangle
-    lie on wall faces (segment flanks or barrier faces) whose spacing is at
-    most WALL_MAX_THICKNESS_PX — two faces that could have paired as one
-    wall — so the free space between them is that wall's material (a window
-    reveal, a hollow cavity, a blocked opening), not floor. Called only for
+    the band": both long sides of the component lie along wall — faces
+    (segment flanks or barrier faces) at the barrier standoff, or the flat
+    ends of wall solids (`cap_lines`) — at a spacing of at most
+    WALL_MAX_THICKNESS_PX (the minimum rotated rectangle's short side plus
+    the two standoffs), i.e. two faces that could have paired as one wall,
+    so the free space between them is that wall's material (a window
+    reveal, a hollow cavity, a blocked opening), not floor. The cover is
+    read on the component's OWN boundary runs (_side_wall_covers); the
+    rectangle gives only the axis and the width. Called only for
     components with no entrance and no window; text inside vetoes.
     """
     if _contains_text(comp, text_spans):
@@ -1755,16 +1863,16 @@ def _is_band_pocket(
     edges = [(c[i], c[(i + 1) % 4]) for i in range(4)]
     lens = [_line_length(a, b) for a, b in edges]
     if lens[0] >= lens[1]:
-        long_edges, short = (edges[0], edges[2]), lens[1]
+        axis_edge, short = edges[0], lens[1]
     else:
-        long_edges, short = (edges[1], edges[3]), lens[0]
+        axis_edge, short = edges[1], lens[0]
     # Face spacing = pocket width + the standoff on each side.
     if short + 2.0 * ROOM_LINE_BARRIER_PX > gates.WALL_MAX_THICKNESS_PX:
         return False
-    return all(
-        _edge_face_cover(e, face_lines) >= ROOM_BAND_POCKET_FACE_COVER_MIN
-        for e in long_edges
+    covers = _side_wall_covers(
+        comp, axis_edge, (rect.centroid.x, rect.centroid.y), face_lines, cap_lines,
     )
+    return min(covers) >= ROOM_BAND_POCKET_FACE_COVER_MIN
 
 
 def _entrance_run(boundary, seal) -> float:
@@ -2471,6 +2579,10 @@ def detect_rooms(
     window_barriers = [_window_seal(c, gates=gates) for c in windows]
     opening_parts = [g for _, g in door_barriers] + window_barriers
 
+    # cap_lines: the flat ends of every wall solid (a segment's end line
+    # across its thickness) — a free-space boundary along a band's end lies
+    # ON that line, and _is_band_pocket reads it as wall like a face.
+    cap_lines: list[tuple[tuple[float, float], tuple[float, float]]] = []
     for s in wall_segments:
         length = _line_length(s.p1, s.p2)
         if length < 1e-6:
@@ -2482,6 +2594,11 @@ def detect_rooms(
             face_lines.append((
                 (s.p1[0] + sign * nx * half, s.p1[1] + sign * ny * half),
                 (s.p2[0] + sign * nx * half, s.p2[1] + sign * ny * half),
+            ))
+        for p in (s.p1, s.p2):
+            cap_lines.append((
+                (p[0] + nx * half, p[1] + ny * half),
+                (p[0] - nx * half, p[1] - ny * half),
             ))
 
     # Drafting-gap sealing happens on the free-space side, inside
@@ -2600,7 +2717,9 @@ def detect_rooms(
             # faces at wall spacing, is the band itself (a window reveal).
             if _is_wall_recess(comp, wall_segments, opening_boxes, text_spans):
                 continue
-            if _is_band_pocket(exterior, face_lines, text_spans, gates=gates):
+            if _is_band_pocket(
+                exterior, face_lines, text_spans, cap_lines=cap_lines, gates=gates,
+            ):
                 continue
         rooms.append((exterior, {
             "contact": contact,

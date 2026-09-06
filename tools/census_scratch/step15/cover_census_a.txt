@@ -1,0 +1,11 @@
+s01 p1 f=0.542 cap 19.5: pocket calls 0 (≤56×f: 0), rooms 10, face_lines 270, cap_lines 120
+s02 p1 f=1.000 cap 36.0: pocket calls 0 (≤56×f: 0), rooms 11, face_lines 556, cap_lines 236
+s03 p1 f=1.000 cap 36.0: pocket calls 2 (≤56×f: 0), rooms 19, face_lines 456, cap_lines 144
+s04 p1 f=1.000 cap 36.0: pocket calls 0 (≤56×f: 0), rooms 6, face_lines 208, cap_lines 46
+s05 p1 f=0.500 cap 18.0: pocket calls 2 (≤56×f: 0), rooms 10, face_lines 354, cap_lines 182
+s06 p1 f=0.500 cap 18.0: pocket calls 0 (≤56×f: 0), rooms 9, face_lines 214, cap_lines 96
+s07 p1 f=0.500 cap 18.0: pocket calls 1 (≤56×f: 0), rooms 6, face_lines 227, cap_lines 100
+s08 p1 f=1.000 cap 36.0: pocket calls 1 (≤56×f: 0), rooms 3, face_lines 200, cap_lines 44
+s09 p1 f=1.000 cap 36.0: pocket calls 0 (≤56×f: 0), rooms 0, face_lines 0, cap_lines 0
+s10 p1 f=1.000 cap 36.0: pocket calls 0 (≤56×f: 0), rooms 9, face_lines 397, cap_lines 158
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/tools/census_scratch/step15/cover_census_a.json

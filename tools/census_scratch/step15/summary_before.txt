@@ -1,0 +1,240 @@
+=== 1. the rule's population: every _is_band_pocket call, by band and reading (min cover >= 0.65) ===
+calls 58 (+0 degenerate)
+by band: {'>56f': 47, '(36f,56f]': 10, '<=36f': 1}
+  <=36f      n=  1  mrr:  1  mrr_tol0:  1  runs:  1  runs_caps:  1  runs_max:  1
+  (36f,56f]  n= 10  mrr:  5  mrr_tol0:  9  runs: 10  runs_caps: 10  runs_max: 10
+  >56f       n= 47  mrr: 33  mrr_tol0: 34  runs: 36  runs_caps: 37  runs_max: 36
+
+=== 2. every call with spacing <= 56f (the ceiling step's population) ===
+sheet bbox                                   sp    mm gt                      mrr         tol0         runs         caps          max now
+s17   [3434, 2186, 3579, 2207]            25.25   214 unmatched       [1.00,1.00]  [1.00,1.00]  [1.00,1.00]  [1.00,1.00]  [1.00,1.00] DROPPED
+s17   [912, 2174, 947, 2331]              38.75   328 false_positive  [0.00,1.00]  [0.79,1.00]  [0.79,1.00]  [0.80,1.00]  [0.79,1.00] kept
+s17   [914, 2609, 949, 3061]              38.75   328 false_positive  [0.00,0.93]  [0.93,0.93]  [0.93,0.96]  [0.93,1.00]  [0.93,0.96] kept
+s17   [3047, 2174, 3084, 2489]            38.79   328 false_positive  [0.00,0.04]  [0.86,0.89]  [0.86,0.89]  [0.88,0.90]  [0.86,0.89] kept
+s17   [3047, 2594, 3084, 3061]            40.50   343 false_positive  [0.00,0.00]  [0.93,0.93]  [0.93,0.93]  [0.93,0.93]  [0.93,0.93] kept
+s18   [2079, 1023, 2096, 1068]            21.25   360 false_positive  [0.86,1.00]  [0.86,1.00]  [0.86,1.00]  [1.00,1.00]  [0.86,1.00] kept
+s11   [1078, 1597, 1095, 1704]            21.75   368 confirmed       [1.00,1.00]  [1.00,1.00]  [1.00,1.00]  [1.00,1.00]  [1.00,1.00] kept
+s16   [2507, 1323, 2527, 1401]            24.00   406 false_positive  [1.00,1.00]  [1.00,1.00]  [1.00,1.00]  [1.00,1.00]  [1.00,1.00] kept
+s12   [1842, 472, 1873, 494]              26.13   442 false_positive  [1.00,1.00]  [1.00,1.00]  [1.00,1.00]  [1.00,1.00]  [1.00,1.00] kept
+s18   [907, 810, 1079, 833]               27.25   461 false_positive  [0.14,1.00]  [0.14,1.00]  [0.90,1.00]  [0.90,1.00]  [0.90,1.00] kept
+s12   [1842, 530, 1873, 554]              27.75   470 false_positive  [0.94,1.00]  [0.94,1.00]  [0.94,1.00]  [0.94,1.00]  [0.94,1.00] kept
+
+=== 3. per-ceiling verdicts (drop = spacing <= ceiling*f, no text, both covers >= 0.65), calls with spacing <= 56f ===
+s17   [3434, 2186, 3579, 2207]            25.25 (214mm) unmatched      | mrr: 36:D 40:D 41:D 44:D 48:D 56:D | runs: 36:D 40:D 41:D 44:D 48:D 56:D | runs_caps: 36:D 40:D 41:D 44:D 48:D 56:D
+s17   [912, 2174, 947, 2331]              38.75 (328mm) false_positive | mrr: 36:. 40:. 41:. 44:. 48:. 56:. | runs: 36:. 40:D 41:D 44:D 48:D 56:D | runs_caps: 36:. 40:D 41:D 44:D 48:D 56:D
+s17   [914, 2609, 949, 3061]              38.75 (328mm) false_positive | mrr: 36:. 40:. 41:. 44:. 48:. 56:. | runs: 36:. 40:D 41:D 44:D 48:D 56:D | runs_caps: 36:. 40:D 41:D 44:D 48:D 56:D
+s17   [3047, 2174, 3084, 2489]            38.79 (328mm) false_positive | mrr: 36:. 40:. 41:. 44:. 48:. 56:. | runs: 36:. 40:D 41:D 44:D 48:D 56:D | runs_caps: 36:. 40:D 41:D 44:D 48:D 56:D
+s17   [3047, 2594, 3084, 3061]            40.50 (343mm) false_positive | mrr: 36:. 40:. 41:. 44:. 48:. 56:. | runs: 36:. 40:. 41:D 44:D 48:D 56:D | runs_caps: 36:. 40:. 41:D 44:D 48:D 56:D
+s18   [2079, 1023, 2096, 1068]            21.25 (360mm) false_positive | mrr: 36:. 40:. 41:. 44:D 48:D 56:D | runs: 36:. 40:. 41:. 44:D 48:D 56:D | runs_caps: 36:. 40:. 41:. 44:D 48:D 56:D
+s11   [1078, 1597, 1095, 1704]            21.75 (368mm) confirmed      | mrr: 36:. 40:. 41:. 44:D 48:D 56:D | runs: 36:. 40:. 41:. 44:D 48:D 56:D | runs_caps: 36:. 40:. 41:. 44:D 48:D 56:D
+s16   [2507, 1323, 2527, 1401]            24.00 (406mm) false_positive | mrr: 36:. 40:. 41:. 44:. 48:D 56:D | runs: 36:. 40:. 41:. 44:. 48:D 56:D | runs_caps: 36:. 40:. 41:. 44:. 48:D 56:D
+s12   [1842, 472, 1873, 494]              26.13 (442mm) false_positive | mrr: 36:. 40:. 41:. 44:. 48:. 56:D | runs: 36:. 40:. 41:. 44:. 48:. 56:D | runs_caps: 36:. 40:. 41:. 44:. 48:. 56:D
+s18   [907, 810, 1079, 833]               27.25 (461mm) false_positive | mrr: 36:. 40:. 41:. 44:. 48:. 56:. | runs: 36:. 40:. 41:. 44:. 48:. 56:D | runs_caps: 36:. 40:. 41:. 44:. 48:. 56:D
+s12   [1842, 530, 1873, 554]              27.75 (470mm) false_positive | mrr: 36:. 40:. 41:. 44:. 48:. 56:D | runs: 36:. 40:. 41:. 44:. 48:. 56:D | runs_caps: 36:. 40:. 41:. 44:. 48:. 56:D
+
+=== 4. the true class: every CONFIRMED emitted room, min cover under each reading ===
+emitted rooms 244, confirmed 187
+  confirmed rooms with both sides >= 0.65 under mrr      :  65 / 187
+  confirmed rooms with both sides >= 0.65 under mrr_tol0 :  67 / 187
+  confirmed rooms with both sides >= 0.65 under runs     : 124 / 187
+  confirmed rooms with both sides >= 0.65 under runs_caps: 126 / 187
+  confirmed rooms with both sides >= 0.65 under runs_max : 117 / 187
+  confirmed rooms that read >= 0.65 under runs_caps but NOT under mrr (spacing, entrance count):
+    s15 [849, 1419, 1009, 1496] sp 80.25 (679mm, 80.2px@1:50) entr 0 doors 2 win 1 text=True mrr [0.467, 1.0] runs_caps [0.719, 1.0]
+    s17 [458, 1308, 559, 1601] sp 105.59 (1788mm, 105.6px@1:50) entr 4 doors 4 win 0 text=False mrr [0.564, 0.976] runs_caps [0.798, 1.395]
+    s18 [1364, 565, 1422, 732] sp 62.63 (1061mm, 125.3px@1:50) entr 1 doors 1 win 0 text=False mrr [0.418, 1.0] runs_caps [0.708, 1.06]
+    s17 [581, 1324, 783, 1448] sp 128.75 (2180mm, 128.8px@1:50) entr 1 doors 1 win 0 text=False mrr [0.627, 0.798] runs_caps [0.709, 0.731]
+    s15 [1085, 793, 1432, 925] sp 136.25 (1154mm, 136.2px@1:50) entr 1 doors 8 win 0 text=True mrr [0.055, 1.0] runs_caps [0.715, 0.994]
+    s04 [1712, 621, 1851, 937] sp 142.88 (1210mm, 142.9px@1:50) entr 1 doors 1 win 0 text=True mrr [0.0, 1.0] runs_caps [0.716, 1.0]
+    s17 [1470, 1316, 1630, 1518] sp 163.37 (2766mm, 163.4px@1:50) entr 5 doors 5 win 0 text=False mrr [0.0, 0.697] runs_caps [0.733, 1.983]
+    s15 [436, 781, 769, 976] sp 198.5 (1681mm, 198.5px@1:50) entr 1 doors 1 win 0 text=True mrr [0.598, 1.0] runs_caps [0.823, 0.994]
+    s17 [229, 1178, 569, 1372] sp 198.95 (3369mm, 198.9px@1:50) entr 4 doors 4 win 0 text=True mrr [0.0, 0.346] runs_caps [0.663, 0.791]
+    s02 [762, 566, 1310, 765] sp 202.5 (1714mm, 202.5px@1:50) entr 2 doors 3 win 0 text=True mrr [0.195, 0.418] runs_caps [0.659, 0.886]
+    s02 [809, 780, 1017, 1116] sp 212.63 (1800mm, 212.6px@1:50) entr 1 doors 1 win 0 text=True mrr [0.507, 1.0] runs_caps [0.867, 0.957]
+    s05 [1803, 1426, 1907, 1590] sp 108.0 (1829mm, 216.0px@1:50) entr 1 doors 1 win 0 text=False mrr [0.328, 1.0] runs_caps [0.874, 1.013]
+    s12 [1922, 1488, 2026, 1651] sp 108.0 (1829mm, 216.0px@1:50) entr 1 doors 1 win 0 text=False mrr [0.205, 1.0] runs_caps [0.862, 1.011]
+    s17 [229, 1380, 450, 1635] sp 225.0 (3810mm, 225.0px@1:50) entr 2 doors 2 win 0 text=True mrr [0.629, 0.876] runs_caps [0.787, 0.992]
+    s03 [3407, 1238, 3630, 1526] sp 226.75 (1920mm, 226.8px@1:50) entr 1 doors 3 win 0 text=True mrr [0.625, 1.0] runs_caps [0.652, 0.972]
+    s04 [1449, 621, 1682, 949] sp 237.31 (2009mm, 237.3px@1:50) entr 1 doors 1 win 1 text=True mrr [0.0, 0.993] runs_caps [0.651, 0.965]
+    s06 [349, 906, 573, 1022] sp 120.49 (2040mm, 241.0px@1:50) entr 4 doors 4 win 0 text=True mrr [0.0, 0.0] runs_caps [0.776, 0.797]
+    s13 [517, 1000, 680, 1084] sp 88.79 (2051mm, 242.2px@1:50) entr 4 doors 4 win 0 text=True mrr [0.0, 0.747] runs_caps [0.802, 0.854]
+    s17 [3247, 2211, 3679, 2468] sp 260.75 (2208mm, 260.8px@1:50) entr 1 doors 7 win 0 text=True mrr [0.597, 1.0] runs_caps [0.768, 0.997]
+    s10 [803, 2241, 1063, 2550] sp 264.0 (2235mm, 264.0px@1:50) entr 1 doors 1 win 0 text=False mrr [0.0, 1.0] runs_caps [0.659, 0.974]
+    s02 [168, 286, 868, 547] sp 265.19 (2245mm, 265.2px@1:50) entr 1 doors 4 win 2 text=True mrr [0.0, 0.55] runs_caps [0.714, 0.856]
+    s05 [1793, 171, 1925, 677] sp 135.5 (2294mm, 271.0px@1:50) entr 4 doors 4 win 0 text=False mrr [0.0, 0.856] runs_caps [0.725, 0.95]
+    s16 [2321, 1241, 2455, 1506] sp 137.87 (2335mm, 275.7px@1:50) entr 1 doors 1 win 2 text=False mrr [0.0, 1.0] runs_caps [1.026, 1.139]
+    s03 [480, 856, 853, 1128] sp 275.75 (4669mm, 275.8px@1:50) entr 4 doors 5 win 0 text=True mrr [0.387, 0.534] runs_caps [0.651, 0.82]
+    s11 [2107, 1168, 2241, 1434] sp 137.88 (2335mm, 275.8px@1:50) entr 1 doors 1 win 2 text=False mrr [0.0, 1.0] runs_caps [0.833, 1.0]
+    s15 [117, 1721, 397, 2485] sp 283.5 (2400mm, 283.5px@1:50) entr 1 doors 3 win 2 text=True mrr [0.295, 0.6] runs_caps [0.871, 0.98]
+    s20 [767, 1085, 1082, 1392] sp 310.5 (2629mm, 310.5px@1:50) entr 1 doors 1 win 0 text=False mrr [0.0, 1.0] runs_caps [0.658, 1.0]
+    s11 [626, 1115, 779, 1290] sp 157.0 (2658mm, 314.0px@1:50) entr 1 doors 1 win 2 text=False mrr [0.365, 1.0] runs_caps [0.687, 1.0]
+    s16 [1273, 1618, 1427, 1785] sp 157.38 (2665mm, 314.8px@1:50) entr 1 doors 3 win 1 text=False mrr [0.514, 1.0] runs_caps [0.684, 0.954]
+    s05 [1597, 1139, 1765, 1359] sp 172.5 (2921mm, 345.0px@1:50) entr 1 doors 2 win 0 text=False mrr [0.568, 0.805] runs_caps [0.778, 0.836]
+    s06 [905, 728, 1113, 899] sp 175.13 (2965mm, 350.3px@1:50) entr 1 doors 1 win 1 text=False mrr [0.0, 0.804] runs_caps [0.73, 0.804]
+    s10 [693, 1887, 1063, 2234] sp 351.0 (2972mm, 351.0px@1:50) entr 1 doors 2 win 0 text=False mrr [0.0, 1.0] runs_caps [0.716, 1.0]
+    s13 [923, 870, 1074, 995] sp 128.73 (2973mm, 351.1px@1:50) entr 1 doors 1 win 1 text=False mrr [0.0, 0.802] runs_caps [0.73, 0.802]
+    s10 [693, 306, 1080, 654] sp 351.24 (2974mm, 351.2px@1:50) entr 3 doors 3 win 0 text=False mrr [0.0, 1.0] runs_caps [0.717, 0.995]
+    s11 [2078, 1532, 2288, 1704] sp 175.75 (2976mm, 351.5px@1:50) entr 2 doors 2 win 1 text=False mrr [0.441, 1.0] runs_caps [0.826, 1.0]
+    s16 [2292, 1605, 2503, 1776] sp 175.75 (2976mm, 351.5px@1:50) entr 2 doors 2 win 1 text=False mrr [0.441, 1.0] runs_caps [0.826, 1.0]
+    s01 [830, 920, 1026, 1118] sp 200.29 (3127mm, 369.3px@1:50) entr 1 doors 1 win 1 text=False mrr [0.291, 0.713] runs_caps [0.715, 0.98]
+    s18 [1892, 1023, 2075, 1271] sp 187.0 (3166mm, 374.0px@1:50) entr 0 doors 2 win 1 text=False mrr [0.527, 0.726] runs_caps [0.657, 0.777]
+    s18 [1603, 1039, 1793, 1271] sp 193.5 (3277mm, 387.0px@1:50) entr 1 doors 3 win 0 text=False mrr [0.338, 1.0] runs_caps [0.663, 0.974]
+    s05 [1597, 1370, 1792, 1602] sp 198.75 (3365mm, 397.5px@1:50) entr 1 doors 1 win 0 text=False mrr [0.584, 0.765] runs_caps [0.795, 0.913]
+    s17 [247, 2189, 932, 2588] sp 403.89 (3420mm, 403.9px@1:50) entr 4 doors 4 win 0 text=True mrr [0.0, 0.0] runs_caps [0.801, 0.846]
+    s03 [3409, 888, 3884, 1293] sp 409.5 (3467mm, 409.5px@1:50) entr 1 doors 14 win 0 text=True mrr [0.0, 1.0] runs_caps [0.794, 1.0]
+    s13 [1083, 870, 1230, 1082] sp 151.23 (3493mm, 412.5px@1:50) entr 1 doors 1 win 2 text=False mrr [0.0, 1.0] runs_caps [0.839, 0.981]
+    s01 [215, 1144, 437, 1435] sp 226.04 (3529mm, 416.8px@1:50) entr 1 doors 1 win 0 text=True mrr [0.529, 0.831] runs_caps [0.726, 0.993]
+    s11 [949, 1144, 1256, 1353] sp 213.75 (3619mm, 427.5px@1:50) entr 1 doors 1 win 0 text=False mrr [0.267, 0.841] runs_caps [0.978, 0.995]
+    s16 [1122, 1224, 1429, 1435] sp 215.12 (3643mm, 430.2px@1:50) entr 2 doors 2 win 0 text=False mrr [0.258, 0.842] runs_caps [0.769, 0.99]
+    s05 [1599, 386, 1811, 663] sp 216.0 (3658mm, 432.0px@1:50) entr 1 doors 1 win 0 text=False mrr [0.289, 0.659] runs_caps [0.834, 0.978]
+    s05 [1599, 157, 1811, 375] sp 216.0 (3658mm, 432.0px@1:50) entr 1 doors 2 win 0 text=False mrr [0.295, 0.722] runs_caps [0.794, 0.982]
+    s12 [1548, 186, 1760, 404] sp 216.0 (3658mm, 432.0px@1:50) entr 1 doors 2 win 0 text=False mrr [0.296, 0.721] runs_caps [0.793, 0.982]
+    s15 [404, 1234, 842, 2295] sp 434.82 (3681mm, 434.8px@1:50) entr 5 doors 18 win 0 text=True mrr [0.1, 0.379] runs_caps [0.724, 1.723]
+    s10 [246, 1887, 686, 2339] sp 444.25 (3761mm, 444.2px@1:50) entr 1 doors 2 win 0 text=False mrr [0.0, 1.0] runs_caps [0.766, 1.0]
+    s17 [247, 2596, 693, 3110] sp 450.0 (3810mm, 450.0px@1:50) entr 2 doors 2 win 2 text=True mrr [0.627, 0.873] runs_caps [0.789, 0.996]
+    s11 [1829, 886, 2098, 1126] sp 244.0 (4132mm, 488.0px@1:50) entr 2 doors 2 win 1 text=False mrr [0.264, 0.369] runs_caps [0.663, 0.985]
+    s16 [2043, 958, 2312, 1198] sp 244.0 (4132mm, 488.0px@1:50) entr 2 doors 2 win 1 text=False mrr [0.264, 0.369] runs_caps [0.659, 0.985]
+    s11 [752, 892, 1157, 1133] sp 244.75 (4144mm, 489.5px@1:50) entr 1 doors 1 win 2 text=False mrr [0.441, 0.464] runs_caps [0.863, 0.985]
+    s16 [917, 973, 1330, 1213] sp 244.75 (4144mm, 489.5px@1:50) entr 1 doors 1 win 3 text=False mrr [0.434, 0.454] runs_caps [0.87, 0.971]
+    s18 [926, 565, 1348, 812] sp 251.25 (4254mm, 502.5px@1:50) entr 1 doors 1 win 1 text=False mrr [0.305, 0.305] runs_caps [0.89, 1.084]
+    s08 [682, 619, 2307, 1138] sp 521.75 (4417mm, 521.8px@1:50) entr 4 doors 4 win 1 text=True mrr [0.0, 0.378] runs_caps [0.767, 1.09]
+    s07 [68, 784, 330, 1168] sp 265.75 (4500mm, 531.5px@1:50) entr 1 doors 2 win 2 text=False mrr [0.277, 0.622] runs_caps [0.969, 0.974]
+    s02 [202, 584, 817, 1115] sp 535.37 (4533mm, 535.4px@1:50) entr 2 doors 2 win 3 text=True mrr [0.348, 0.629] runs_caps [0.712, 0.846]
+    s07 [227, 409, 506, 931] sp 283.0 (4792mm, 566.0px@1:50) entr 3 doors 3 win 3 text=False mrr [0.322, 0.673] runs_caps [1.113, 1.118]
+    s01 [209, 412, 521, 914] sp 316.25 (4937mm, 583.2px@1:50) entr 2 doors 2 win 0 text=True mrr [0.587, 0.985] runs_caps [0.955, 1.038]
+    s15 [849, 1638, 1441, 2295] sp 596.5 (5050mm, 596.5px@1:50) entr 3 doors 18 win 1 text=True mrr [0.614, 0.994] runs_caps [0.752, 0.97]
+    s20 [531, 2233, 1554, 2889] sp 660.0 (5588mm, 660.0px@1:50) entr 3 doors 3 win 0 text=False mrr [0.0, 0.212] runs_caps [1.001, 1.003]
+    s11 [752, 1291, 1272, 1704] sp 416.87 (7059mm, 833.7px@1:50) entr 3 doors 3 win 2 text=False mrr [0.19, 0.58] runs_caps [1.031, 1.801]
+  narrowest confirmed rooms with both sides >= 0.65 under runs_caps (the ceiling step's true floor):
+    s11 [1078, 1597, 1095, 1704] sp 21.75 = 43.5px@1:50 (368mm) entr 0 doors 0 win 0 text=False mrr [1.0, 1.0] runs_caps [1.0, 1.0]
+    s20 [554, 2812, 948, 2878] sp 70.75 = 70.8px@1:50 (599mm) entr 0 doors 0 win 0 text=False mrr [1.0, 1.0] runs_caps [1.0, 1.0]
+    s15 [766, 1549, 833, 1669] sp 71.0 = 71.0px@1:50 (601mm) entr 0 doors 0 win 0 text=False mrr [1.0, 1.0] runs_caps [1.0, 1.0]
+    s07 [454, 190, 486, 290] sp 36.0 = 72.0px@1:50 (610mm) entr 0 doors 0 win 0 text=False mrr [1.0, 1.0] runs_caps [1.0, 1.0]
+    s17 [951, 2209, 1145, 2278] sp 72.25 = 72.2px@1:50 (612mm) entr 0 doors 1 win 1 text=False mrr [1.0, 1.0] runs_caps [1.0, 1.0]
+    s15 [1028, 1549, 1441, 1622] sp 76.5 = 76.5px@1:50 (648mm) entr 1 doors 12 win 0 text=True mrr [1.0, 1.0] runs_caps [0.995, 1.0]
+    s15 [849, 1419, 1009, 1496] sp 80.25 = 80.2px@1:50 (679mm) entr 0 doors 2 win 1 text=True mrr [0.467, 1.0] runs_caps [0.719, 1.0]
+    s15 [436, 980, 633, 1059] sp 82.75 = 82.8px@1:50 (701mm) entr 0 doors 9 win 0 text=False mrr [1.0, 1.0] runs_caps [0.978, 1.0]
+    s17 [708, 2596, 803, 2876] sp 98.5 = 98.5px@1:50 (834mm) entr 0 doors 0 win 0 text=False mrr [0.675, 1.0] runs_caps [0.954, 1.0]
+    s18 [1660, 2093, 1708, 2159] sp 52.0 = 104.0px@1:50 (881mm) entr 0 doors 0 win 0 text=False mrr [1.0, 1.0] runs_caps [1.0, 1.0]
+    s17 [458, 1308, 559, 1601] sp 105.59 = 105.6px@1:50 (1788mm) entr 4 doors 4 win 0 text=False mrr [0.564, 0.976] runs_caps [0.798, 1.395]
+    s15 [649, 956, 833, 1059] sp 106.25 = 106.2px@1:50 (900mm) entr 0 doors 6 win 0 text=False mrr [1.0, 1.0] runs_caps [1.0, 1.0]
+
+=== 5. every emitted room whose min cover changes class between mrr and runs_caps (any gt) ===
+    s17 [912, 2174, 947, 2331] sp 38.75 (328mm) gt=false_positive entr 0 win 0 text=False mrr [0.0, 1.0] -> runs_caps [0.799, 1.0]  UP
+    s17 [914, 2609, 949, 3061] sp 38.75 (328mm) gt=false_positive entr 0 win 0 text=False mrr [0.0, 0.926] -> runs_caps [0.93, 1.0]  UP
+    s17 [3047, 2174, 3084, 2489] sp 38.79 (328mm) gt=false_positive entr 0 win 0 text=False mrr [0.0, 0.04] -> runs_caps [0.876, 0.899]  UP
+    s17 [3047, 2594, 3084, 3061] sp 40.5 (343mm) gt=false_positive entr 0 win 0 text=False mrr [0.0, 0.0] -> runs_caps [0.932, 0.932]  UP
+    s18 [907, 810, 1079, 833] sp 27.25 (461mm) gt=false_positive entr 0 win 0 text=False mrr [0.14, 1.0] -> runs_caps [0.897, 1.0]  UP
+    s08 [1463, 1060, 1678, 1131] sp 74.5 (631mm) gt=confirmed entr 0 win 0 text=True mrr [1.0, 1.0] -> runs_caps [0.641, 1.0]  DOWN
+    s15 [849, 1419, 1009, 1496] sp 80.25 (679mm) gt=confirmed entr 0 win 1 text=True mrr [0.467, 1.0] -> runs_caps [0.719, 1.0]  UP
+    s12 [1735, 598, 1785, 636] sp 41.75 (707mm) gt=false_positive entr 0 win 0 text=False mrr [0.614, 1.0] -> runs_caps [0.954, 0.959]  UP
+    s05 [1852, 1261, 1895, 1417] sp 47.0 (796mm) gt=false_positive entr 0 win 0 text=False mrr [0.279, 1.0] -> runs_caps [0.963, 1.0]  UP
+    s17 [458, 1308, 559, 1601] sp 105.59 (1788mm) gt=confirmed entr 4 win 0 text=False mrr [0.564, 0.976] -> runs_caps [0.798, 1.395]  UP
+    s18 [147, 1060, 197, 1230] sp 53.8 (911mm) gt=false_positive entr 0 win 2 text=False mrr [0.0, 1.0] -> runs_caps [0.811, 0.993]  UP
+    s18 [1364, 565, 1422, 732] sp 62.63 (1061mm) gt=confirmed entr 1 win 0 text=False mrr [0.418, 1.0] -> runs_caps [0.708, 1.06]  UP
+    s17 [581, 1324, 783, 1448] sp 128.75 (2180mm) gt=confirmed entr 1 win 0 text=False mrr [0.627, 0.798] -> runs_caps [0.709, 0.731]  UP
+    s15 [1085, 793, 1432, 925] sp 136.25 (1154mm) gt=confirmed entr 1 win 0 text=True mrr [0.055, 1.0] -> runs_caps [0.715, 0.994]  UP
+    s04 [1712, 621, 1851, 937] sp 142.88 (1210mm) gt=confirmed entr 1 win 0 text=True mrr [0.0, 1.0] -> runs_caps [0.716, 1.0]  UP
+    s17 [1470, 1316, 1630, 1518] sp 163.37 (2766mm) gt=confirmed entr 5 win 0 text=False mrr [0.0, 0.697] -> runs_caps [0.733, 1.983]  UP
+    s04 [1466, 956, 1852, 1131] sp 179.0 (1516mm) gt=confirmed entr 3 win 0 text=True mrr [0.672, 1.0] -> runs_caps [0.209, 1.484]  DOWN
+    s15 [436, 781, 769, 976] sp 198.5 (1681mm) gt=confirmed entr 1 win 0 text=True mrr [0.598, 1.0] -> runs_caps [0.823, 0.994]  UP
+    s17 [229, 1178, 569, 1372] sp 198.95 (3369mm) gt=confirmed entr 4 win 0 text=True mrr [0.0, 0.346] -> runs_caps [0.663, 0.791]  UP
+    s02 [762, 566, 1310, 765] sp 202.5 (1714mm) gt=confirmed entr 2 win 0 text=True mrr [0.195, 0.418] -> runs_caps [0.659, 0.886]  UP
+    s02 [809, 780, 1017, 1116] sp 212.63 (1800mm) gt=confirmed entr 1 win 0 text=True mrr [0.507, 1.0] -> runs_caps [0.867, 0.957]  UP
+    s05 [1803, 1426, 1907, 1590] sp 108.0 (1829mm) gt=confirmed entr 1 win 0 text=False mrr [0.328, 1.0] -> runs_caps [0.874, 1.013]  UP
+    s12 [1922, 1488, 2026, 1651] sp 108.0 (1829mm) gt=confirmed entr 1 win 0 text=False mrr [0.205, 1.0] -> runs_caps [0.862, 1.011]  UP
+    s17 [229, 1380, 450, 1635] sp 225.0 (3810mm) gt=confirmed entr 2 win 0 text=True mrr [0.629, 0.876] -> runs_caps [0.787, 0.992]  UP
+    s03 [3407, 1238, 3630, 1526] sp 226.75 (1920mm) gt=confirmed entr 1 win 0 text=True mrr [0.625, 1.0] -> runs_caps [0.652, 0.972]  UP
+    s04 [1449, 621, 1682, 949] sp 237.31 (2009mm) gt=confirmed entr 1 win 1 text=True mrr [0.0, 0.993] -> runs_caps [0.651, 0.965]  UP
+    s06 [349, 906, 573, 1022] sp 120.49 (2040mm) gt=confirmed entr 4 win 0 text=True mrr [0.0, 0.0] -> runs_caps [0.776, 0.797]  UP
+    s13 [517, 1000, 680, 1084] sp 88.79 (2051mm) gt=confirmed entr 4 win 0 text=True mrr [0.0, 0.747] -> runs_caps [0.802, 0.854]  UP
+    s17 [3440, 2484, 3679, 3025] sp 243.0 (2057mm) gt=confirmed entr 1 win 1 text=True mrr [0.789, 1.0] -> runs_caps [0.491, 1.0]  DOWN
+    s17 [3247, 2211, 3679, 2468] sp 260.75 (2208mm) gt=confirmed entr 1 win 0 text=True mrr [0.597, 1.0] -> runs_caps [0.768, 0.997]  UP
+    s10 [803, 2241, 1063, 2550] sp 264.0 (2235mm) gt=confirmed entr 1 win 0 text=False mrr [0.0, 1.0] -> runs_caps [0.659, 0.974]  UP
+    s02 [168, 286, 868, 547] sp 265.19 (2245mm) gt=confirmed entr 1 win 2 text=True mrr [0.0, 0.55] -> runs_caps [0.714, 0.856]  UP
+    s05 [1793, 171, 1925, 677] sp 135.5 (2294mm) gt=confirmed entr 4 win 0 text=False mrr [0.0, 0.856] -> runs_caps [0.725, 0.95]  UP
+    s16 [2321, 1241, 2455, 1506] sp 137.87 (2335mm) gt=confirmed entr 1 win 2 text=False mrr [0.0, 1.0] -> runs_caps [1.026, 1.139]  UP
+    s03 [480, 856, 853, 1128] sp 275.75 (4669mm) gt=confirmed entr 4 win 0 text=True mrr [0.387, 0.534] -> runs_caps [0.651, 0.82]  UP
+    s11 [2107, 1168, 2241, 1434] sp 137.88 (2335mm) gt=confirmed entr 1 win 2 text=False mrr [0.0, 1.0] -> runs_caps [0.833, 1.0]  UP
+    s15 [117, 1721, 397, 2485] sp 283.5 (2400mm) gt=confirmed entr 1 win 2 text=True mrr [0.295, 0.6] -> runs_caps [0.871, 0.98]  UP
+    s20 [767, 1085, 1082, 1392] sp 310.5 (2629mm) gt=confirmed entr 1 win 0 text=False mrr [0.0, 1.0] -> runs_caps [0.658, 1.0]  UP
+    s11 [626, 1115, 779, 1290] sp 157.0 (2658mm) gt=confirmed entr 1 win 2 text=False mrr [0.365, 1.0] -> runs_caps [0.687, 1.0]  UP
+    s16 [1273, 1618, 1427, 1785] sp 157.38 (2665mm) gt=confirmed entr 1 win 1 text=False mrr [0.514, 1.0] -> runs_caps [0.684, 0.954]  UP
+    s17 [3086, 2606, 3426, 3025] sp 344.0 (2912mm) gt=confirmed entr 1 win 0 text=True mrr [1.0, 1.0] -> runs_caps [0.588, 1.0]  DOWN
+    s05 [1597, 1139, 1765, 1359] sp 172.5 (2921mm) gt=confirmed entr 1 win 0 text=False mrr [0.568, 0.805] -> runs_caps [0.778, 0.836]  UP
+    s06 [905, 728, 1113, 899] sp 175.13 (2965mm) gt=confirmed entr 1 win 1 text=False mrr [0.0, 0.804] -> runs_caps [0.73, 0.804]  UP
+    s10 [693, 1887, 1063, 2234] sp 351.0 (2972mm) gt=confirmed entr 1 win 0 text=False mrr [0.0, 1.0] -> runs_caps [0.716, 1.0]  UP
+    s13 [923, 870, 1074, 995] sp 128.73 (2973mm) gt=confirmed entr 1 win 1 text=False mrr [0.0, 0.802] -> runs_caps [0.73, 0.802]  UP
+    s10 [693, 306, 1080, 654] sp 351.24 (2974mm) gt=confirmed entr 3 win 0 text=False mrr [0.0, 1.0] -> runs_caps [0.717, 0.995]  UP
+    s11 [2078, 1532, 2288, 1704] sp 175.75 (2976mm) gt=confirmed entr 2 win 1 text=False mrr [0.441, 1.0] -> runs_caps [0.826, 1.0]  UP
+    s16 [2292, 1605, 2503, 1776] sp 175.75 (2976mm) gt=confirmed entr 2 win 1 text=False mrr [0.441, 1.0] -> runs_caps [0.826, 1.0]  UP
+    s01 [830, 920, 1026, 1118] sp 200.29 (3127mm) gt=confirmed entr 1 win 1 text=False mrr [0.291, 0.713] -> runs_caps [0.715, 0.98]  UP
+    s18 [1892, 1023, 2075, 1271] sp 187.0 (3166mm) gt=confirmed entr 0 win 1 text=False mrr [0.527, 0.726] -> runs_caps [0.657, 0.777]  UP
+    s03 [3760, 497, 4141, 1201] sp 385.75 (3266mm) gt=false_positive entr 0 win 0 text=False mrr [0.5, 1.0] -> runs_caps [0.997, 1.0]  UP
+    s18 [1603, 1039, 1793, 1271] sp 193.5 (3277mm) gt=confirmed entr 1 win 0 text=False mrr [0.338, 1.0] -> runs_caps [0.663, 0.974]  UP
+    s05 [1597, 1370, 1792, 1602] sp 198.75 (3365mm) gt=confirmed entr 1 win 0 text=False mrr [0.584, 0.765] -> runs_caps [0.795, 0.913]  UP
+    s17 [247, 2189, 932, 2588] sp 403.89 (3420mm) gt=confirmed entr 4 win 0 text=True mrr [0.0, 0.0] -> runs_caps [0.801, 0.846]  UP
+    s03 [3409, 888, 3884, 1293] sp 409.5 (3467mm) gt=confirmed entr 1 win 0 text=True mrr [0.0, 1.0] -> runs_caps [0.794, 1.0]  UP
+    s13 [1083, 870, 1230, 1082] sp 151.23 (3493mm) gt=confirmed entr 1 win 2 text=False mrr [0.0, 1.0] -> runs_caps [0.839, 0.981]  UP
+    s01 [215, 1144, 437, 1435] sp 226.04 (3529mm) gt=confirmed entr 1 win 0 text=True mrr [0.529, 0.831] -> runs_caps [0.726, 0.993]  UP
+    s11 [949, 1144, 1256, 1353] sp 213.75 (3619mm) gt=confirmed entr 1 win 0 text=False mrr [0.267, 0.841] -> runs_caps [0.978, 0.995]  UP
+    s16 [1122, 1224, 1429, 1435] sp 215.12 (3643mm) gt=confirmed entr 2 win 0 text=False mrr [0.258, 0.842] -> runs_caps [0.769, 0.99]  UP
+    s05 [1599, 386, 1811, 663] sp 216.0 (3658mm) gt=confirmed entr 1 win 0 text=False mrr [0.289, 0.659] -> runs_caps [0.834, 0.978]  UP
+    s05 [1599, 157, 1811, 375] sp 216.0 (3658mm) gt=confirmed entr 1 win 0 text=False mrr [0.295, 0.722] -> runs_caps [0.794, 0.982]  UP
+    s12 [1548, 186, 1760, 404] sp 216.0 (3658mm) gt=confirmed entr 1 win 0 text=False mrr [0.296, 0.721] -> runs_caps [0.793, 0.982]  UP
+    s15 [404, 1234, 842, 2295] sp 434.82 (3681mm) gt=confirmed entr 5 win 0 text=True mrr [0.1, 0.379] -> runs_caps [0.724, 1.723]  UP
+    s10 [246, 1887, 686, 2339] sp 444.25 (3761mm) gt=confirmed entr 1 win 0 text=False mrr [0.0, 1.0] -> runs_caps [0.766, 1.0]  UP
+    s17 [247, 2596, 693, 3110] sp 450.0 (3810mm) gt=confirmed entr 2 win 2 text=True mrr [0.627, 0.873] -> runs_caps [0.789, 0.996]  UP
+    s11 [1829, 886, 2098, 1126] sp 244.0 (4132mm) gt=confirmed entr 2 win 1 text=False mrr [0.264, 0.369] -> runs_caps [0.663, 0.985]  UP
+    s16 [2043, 958, 2312, 1198] sp 244.0 (4132mm) gt=confirmed entr 2 win 1 text=False mrr [0.264, 0.369] -> runs_caps [0.659, 0.985]  UP
+    s11 [752, 892, 1157, 1133] sp 244.75 (4144mm) gt=confirmed entr 1 win 2 text=False mrr [0.441, 0.464] -> runs_caps [0.863, 0.985]  UP
+    s16 [917, 973, 1330, 1213] sp 244.75 (4144mm) gt=confirmed entr 1 win 3 text=False mrr [0.434, 0.454] -> runs_caps [0.87, 0.971]  UP
+    s18 [926, 565, 1348, 812] sp 251.25 (4254mm) gt=confirmed entr 1 win 1 text=False mrr [0.305, 0.305] -> runs_caps [0.89, 1.084]  UP
+    s08 [682, 619, 2307, 1138] sp 521.75 (4417mm) gt=confirmed entr 4 win 1 text=True mrr [0.0, 0.378] -> runs_caps [0.767, 1.09]  UP
+    s07 [68, 784, 330, 1168] sp 265.75 (4500mm) gt=confirmed entr 1 win 2 text=False mrr [0.277, 0.622] -> runs_caps [0.969, 0.974]  UP
+    s02 [202, 584, 817, 1115] sp 535.37 (4533mm) gt=confirmed entr 2 win 3 text=True mrr [0.348, 0.629] -> runs_caps [0.712, 0.846]  UP
+    s07 [227, 409, 506, 931] sp 283.0 (4792mm) gt=confirmed entr 3 win 3 text=False mrr [0.322, 0.673] -> runs_caps [1.113, 1.118]  UP
+    s01 [209, 412, 521, 914] sp 316.25 (4937mm) gt=confirmed entr 2 win 0 text=True mrr [0.587, 0.985] -> runs_caps [0.955, 1.038]  UP
+    s15 [849, 1638, 1441, 2295] sp 596.5 (5050mm) gt=confirmed entr 3 win 1 text=True mrr [0.614, 0.994] -> runs_caps [0.752, 0.97]  UP
+    s17 [951, 2209, 1554, 3049] sp 607.58 (5144mm) gt=false_positive entr 3 win 1 text=True mrr [0.0, 0.501] -> runs_caps [0.669, 1.04]  UP
+    s18 [2179, 2093, 2493, 2540] sp 318.5 (5393mm) gt=false_positive entr 0 win 0 text=False mrr [0.12, 1.0] -> runs_caps [0.996, 1.0]  UP
+    s20 [531, 2233, 1554, 2889] sp 660.0 (5588mm) gt=confirmed entr 3 win 0 text=False mrr [0.0, 0.212] -> runs_caps [1.001, 1.003]  UP
+    s11 [752, 1291, 1272, 1704] sp 416.87 (7059mm) gt=confirmed entr 3 win 2 text=False mrr [0.19, 0.58] -> runs_caps [1.031, 1.801]  UP
+
+=== 6. the s17 strips, per side (runs reading) ===
+  [912, 2174, 947, 2331] sp 38.75 long 156.75 covers mrr [0.0, 1.0] runs [0.786, 1.0] caps [0.799, 1.0]
+    side 0: parallel 156.7px in 2 runs
+       run [913.9, 2205.4]-[913.9, 2330.7] len 125.2 offset -15.37 covered by faces 123.2 with caps 125.2
+       run [911.9, 2173.9]-[911.9, 2205.4] len 31.5 offset -17.37 covered by faces 0.0 with caps 0.0
+    side 1: parallel 156.7px in 4 runs
+       run [946.7, 2330.7]-[946.7, 2216.9] len 113.7 offset 17.37 covered by faces 113.7 with caps 113.7
+       run [946.7, 2216.9]-[946.7, 2189.7] len 27.2 offset 17.37 covered by faces 27.2 with caps 27.2
+       run [946.7, 2189.7]-[946.7, 2185.7] len 4.0 offset 17.37 covered by faces 4.0 with caps 4.0
+       run [946.7, 2185.7]-[946.7, 2173.9] len 11.8 offset 17.37 covered by faces 11.8 with caps 11.8
+  [914, 2609, 949, 3061] sp 38.75 long 452.0 covers mrr [0.0, 0.926] runs [0.926, 0.961] caps [0.93, 1.0]
+    side 0: parallel 452.0px in 2 runs
+       run [948.7, 3060.7]-[948.7, 3029.2] len 31.5 offset -17.37 covered by faces 0.0 with caps 0.0
+       run [946.7, 3029.2]-[946.7, 2608.7] len 420.5 offset -15.37 covered by faces 418.5 with caps 420.5
+    side 1: parallel 452.0px in 2 runs
+       run [920.9, 3044.9]-[920.9, 3060.7] len 15.7 offset 10.37 covered by faces 15.7 with caps 15.7
+       run [913.9, 2608.7]-[913.9, 3044.9] len 436.3 offset 17.37 covered by faces 418.5 with caps 436.3
+  [3047, 2174, 3084, 2489] sp 38.79 long 315.24 covers mrr [0.0, 0.04] runs [0.863, 0.893] caps [0.876, 0.899]
+    side 0: parallel 315.0px in 3 runs
+       run [3081.7, 2488.9]-[3081.7, 2479.4] len 9.5 offset -15.14 covered by faces 0.0 with caps 2.0
+       run [3083.7, 2479.4]-[3083.7, 2447.9] len 31.5 offset -17.28 covered by faces 0.0 with caps 0.0
+       run [3081.7, 2447.9]-[3081.7, 2173.9] len 274.0 offset -16.36 covered by faces 272.0 with caps 274.0
+    side 1: parallel 315.0px in 2 runs
+       run [3049.2, 2205.4]-[3049.2, 2488.9] len 283.5 offset 16.39 covered by faces 281.5 with caps 283.5
+       run [3047.2, 2173.9]-[3047.2, 2205.4] len 31.5 offset 17.28 covered by faces 0.0 with caps 0.0
+  [3047, 2594, 3084, 3061] sp 40.5 long 466.25 covers mrr [0.0, 0.0] runs [0.928, 0.928] caps [0.932, 0.932]
+    side 0: parallel 466.2px in 2 runs
+       run [3083.7, 3060.7]-[3083.7, 3029.2] len 31.5 offset -18.25 covered by faces 0.0 with caps 0.0
+       run [3081.7, 3029.2]-[3081.7, 2594.4] len 434.8 offset -16.25 covered by faces 432.8 with caps 434.8
+    side 1: parallel 466.2px in 2 runs
+       run [3047.2, 3029.2]-[3047.2, 3060.7] len 31.5 offset 18.25 covered by faces 0.0 with caps 0.0
+       run [3049.2, 2594.4]-[3049.2, 3029.2] len 434.8 offset 16.25 covered by faces 432.8 with caps 434.8
+  [3434, 2186, 3579, 2207] sp 25.25 long 144.75 covers mrr [1.0, 1.0] runs [1.0, 1.0] caps [1.0, 1.0]
+    side 0: parallel 144.8px in 1 runs
+       run [3578.7, 2185.7]-[3433.9, 2185.7] len 144.8 offset -10.62 covered by faces 144.8 with caps 144.8
+    side 1: parallel 144.8px in 1 runs
+       run [3433.9, 2206.9]-[3578.7, 2206.9] len 144.8 offset 10.62 covered by faces 144.8 with caps 144.8

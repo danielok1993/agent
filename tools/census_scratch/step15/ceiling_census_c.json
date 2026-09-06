@@ -1,0 +1,3186 @@
+[
+ {
+  "slug": "s01",
+  "page": 1,
+  "factor": 0.5423,
+  "as_is": {
+   "n_calls": 0,
+   "dropped": [],
+   "score": {
+    "counts": {
+     "window": [
+      4,
+      4
+     ],
+     "door": [
+      11,
+      11
+     ],
+     "room": [
+      10,
+      10
+     ]
+    },
+    "lost": [],
+    "returned_fps": [],
+    "unreviewed": []
+   }
+  },
+  "ceilings": {
+   "40": {
+    "ceiling_px": 21.69,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "window": [
+       4,
+       4
+      ],
+      "door": [
+       11,
+       11
+      ],
+      "room": [
+       10,
+       10
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "41": {
+    "ceiling_px": 22.23,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "window": [
+       4,
+       4
+      ],
+      "door": [
+       11,
+       11
+      ],
+      "room": [
+       10,
+       10
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "44": {
+    "ceiling_px": 23.86,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "window": [
+       4,
+       4
+      ],
+      "door": [
+       11,
+       11
+      ],
+      "room": [
+       10,
+       10
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "48": {
+    "ceiling_px": 26.03,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "window": [
+       4,
+       4
+      ],
+      "door": [
+       11,
+       11
+      ],
+      "room": [
+       10,
+       10
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "56": {
+    "ceiling_px": 30.37,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "window": [
+       4,
+       4
+      ],
+      "door": [
+       11,
+       11
+      ],
+      "room": [
+       10,
+       10
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   }
+  }
+ },
+ {
+  "slug": "s02",
+  "page": 1,
+  "factor": 1.0,
+  "as_is": {
+   "n_calls": 0,
+   "dropped": [],
+   "score": {
+    "counts": {
+     "door": [
+      15,
+      15
+     ],
+     "window": [
+      11,
+      11
+     ],
+     "room": [
+      11,
+      11
+     ],
+     "label": [
+      0,
+      11
+     ],
+     "schedule": [
+      0,
+      1
+     ]
+    },
+    "lost": [
+     [
+      "label",
+      [
+       1492,
+       692,
+       1531,
+       713
+      ]
+     ],
+     [
+      "label",
+      [
+       1310,
+       626,
+       1349,
+       647
+      ]
+     ],
+     [
+      "label",
+      [
+       102,
+       291,
+       139,
+       305
+      ]
+     ],
+     [
+      "label",
+      [
+       2069,
+       598,
+       2108,
+       619
+      ]
+     ],
+     [
+      "label",
+      [
+       1111,
+       520,
+       1149,
+       541
+      ]
+     ],
+     [
+      "label",
+      [
+       795,
+       520,
+       833,
+       541
+      ]
+     ],
+     [
+      "label",
+      [
+       1038,
+       290,
+       1066,
+       311
+      ]
+     ],
+     [
+      "label",
+      [
+       263,
+       534,
+       291,
+       555
+      ]
+     ],
+     [
+      "label",
+      [
+       1325,
+       129,
+       1363,
+       150
+      ]
+     ],
+     [
+      "label",
+      [
+       720,
+       639,
+       759,
+       660
+      ]
+     ],
+     [
+      "label",
+      [
+       549,
+       307,
+       577,
+       328
+      ]
+     ],
+     [
+      "schedule",
+      [
+       754,
+       46,
+       2495,
+       1092
+      ]
+     ]
+    ],
+    "returned_fps": [],
+    "unreviewed": []
+   }
+  },
+  "ceilings": {
+   "40": {
+    "ceiling_px": 40.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       15,
+       15
+      ],
+      "window": [
+       11,
+       11
+      ],
+      "room": [
+       11,
+       11
+      ],
+      "label": [
+       0,
+       11
+      ],
+      "schedule": [
+       0,
+       1
+      ]
+     },
+     "lost": [
+      [
+       "label",
+       [
+        1492,
+        692,
+        1531,
+        713
+       ]
+      ],
+      [
+       "label",
+       [
+        1310,
+        626,
+        1349,
+        647
+       ]
+      ],
+      [
+       "label",
+       [
+        102,
+        291,
+        139,
+        305
+       ]
+      ],
+      [
+       "label",
+       [
+        2069,
+        598,
+        2108,
+        619
+       ]
+      ],
+      [
+       "label",
+       [
+        1111,
+        520,
+        1149,
+        541
+       ]
+      ],
+      [
+       "label",
+       [
+        795,
+        520,
+        833,
+        541
+       ]
+      ],
+      [
+       "label",
+       [
+        1038,
+        290,
+        1066,
+        311
+       ]
+      ],
+      [
+       "label",
+       [
+        263,
+        534,
+        291,
+        555
+       ]
+      ],
+      [
+       "label",
+       [
+        1325,
+        129,
+        1363,
+        150
+       ]
+      ],
+      [
+       "label",
+       [
+        720,
+        639,
+        759,
+        660
+       ]
+      ],
+      [
+       "label",
+       [
+        549,
+        307,
+        577,
+        328
+       ]
+      ],
+      [
+       "schedule",
+       [
+        754,
+        46,
+        2495,
+        1092
+       ]
+      ]
+     ],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "41": {
+    "ceiling_px": 41.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       15,
+       15
+      ],
+      "window": [
+       11,
+       11
+      ],
+      "room": [
+       11,
+       11
+      ],
+      "label": [
+       0,
+       11
+      ],
+      "schedule": [
+       0,
+       1
+      ]
+     },
+     "lost": [
+      [
+       "label",
+       [
+        1492,
+        692,
+        1531,
+        713
+       ]
+      ],
+      [
+       "label",
+       [
+        1310,
+        626,
+        1349,
+        647
+       ]
+      ],
+      [
+       "label",
+       [
+        102,
+        291,
+        139,
+        305
+       ]
+      ],
+      [
+       "label",
+       [
+        2069,
+        598,
+        2108,
+        619
+       ]
+      ],
+      [
+       "label",
+       [
+        1111,
+        520,
+        1149,
+        541
+       ]
+      ],
+      [
+       "label",
+       [
+        795,
+        520,
+        833,
+        541
+       ]
+      ],
+      [
+       "label",
+       [
+        1038,
+        290,
+        1066,
+        311
+       ]
+      ],
+      [
+       "label",
+       [
+        263,
+        534,
+        291,
+        555
+       ]
+      ],
+      [
+       "label",
+       [
+        1325,
+        129,
+        1363,
+        150
+       ]
+      ],
+      [
+       "label",
+       [
+        720,
+        639,
+        759,
+        660
+       ]
+      ],
+      [
+       "label",
+       [
+        549,
+        307,
+        577,
+        328
+       ]
+      ],
+      [
+       "schedule",
+       [
+        754,
+        46,
+        2495,
+        1092
+       ]
+      ]
+     ],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "44": {
+    "ceiling_px": 44.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       15,
+       15
+      ],
+      "window": [
+       11,
+       11
+      ],
+      "room": [
+       11,
+       11
+      ],
+      "label": [
+       0,
+       11
+      ],
+      "schedule": [
+       0,
+       1
+      ]
+     },
+     "lost": [
+      [
+       "label",
+       [
+        1492,
+        692,
+        1531,
+        713
+       ]
+      ],
+      [
+       "label",
+       [
+        1310,
+        626,
+        1349,
+        647
+       ]
+      ],
+      [
+       "label",
+       [
+        102,
+        291,
+        139,
+        305
+       ]
+      ],
+      [
+       "label",
+       [
+        2069,
+        598,
+        2108,
+        619
+       ]
+      ],
+      [
+       "label",
+       [
+        1111,
+        520,
+        1149,
+        541
+       ]
+      ],
+      [
+       "label",
+       [
+        795,
+        520,
+        833,
+        541
+       ]
+      ],
+      [
+       "label",
+       [
+        1038,
+        290,
+        1066,
+        311
+       ]
+      ],
+      [
+       "label",
+       [
+        263,
+        534,
+        291,
+        555
+       ]
+      ],
+      [
+       "label",
+       [
+        1325,
+        129,
+        1363,
+        150
+       ]
+      ],
+      [
+       "label",
+       [
+        720,
+        639,
+        759,
+        660
+       ]
+      ],
+      [
+       "label",
+       [
+        549,
+        307,
+        577,
+        328
+       ]
+      ],
+      [
+       "schedule",
+       [
+        754,
+        46,
+        2495,
+        1092
+       ]
+      ]
+     ],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "48": {
+    "ceiling_px": 48.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       15,
+       15
+      ],
+      "window": [
+       11,
+       11
+      ],
+      "room": [
+       11,
+       11
+      ],
+      "label": [
+       0,
+       11
+      ],
+      "schedule": [
+       0,
+       1
+      ]
+     },
+     "lost": [
+      [
+       "label",
+       [
+        1492,
+        692,
+        1531,
+        713
+       ]
+      ],
+      [
+       "label",
+       [
+        1310,
+        626,
+        1349,
+        647
+       ]
+      ],
+      [
+       "label",
+       [
+        102,
+        291,
+        139,
+        305
+       ]
+      ],
+      [
+       "label",
+       [
+        2069,
+        598,
+        2108,
+        619
+       ]
+      ],
+      [
+       "label",
+       [
+        1111,
+        520,
+        1149,
+        541
+       ]
+      ],
+      [
+       "label",
+       [
+        795,
+        520,
+        833,
+        541
+       ]
+      ],
+      [
+       "label",
+       [
+        1038,
+        290,
+        1066,
+        311
+       ]
+      ],
+      [
+       "label",
+       [
+        263,
+        534,
+        291,
+        555
+       ]
+      ],
+      [
+       "label",
+       [
+        1325,
+        129,
+        1363,
+        150
+       ]
+      ],
+      [
+       "label",
+       [
+        720,
+        639,
+        759,
+        660
+       ]
+      ],
+      [
+       "label",
+       [
+        549,
+        307,
+        577,
+        328
+       ]
+      ],
+      [
+       "schedule",
+       [
+        754,
+        46,
+        2495,
+        1092
+       ]
+      ]
+     ],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "56": {
+    "ceiling_px": 56.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       15,
+       15
+      ],
+      "window": [
+       11,
+       11
+      ],
+      "room": [
+       11,
+       11
+      ],
+      "label": [
+       0,
+       11
+      ],
+      "schedule": [
+       0,
+       1
+      ]
+     },
+     "lost": [
+      [
+       "label",
+       [
+        1492,
+        692,
+        1531,
+        713
+       ]
+      ],
+      [
+       "label",
+       [
+        1310,
+        626,
+        1349,
+        647
+       ]
+      ],
+      [
+       "label",
+       [
+        102,
+        291,
+        139,
+        305
+       ]
+      ],
+      [
+       "label",
+       [
+        2069,
+        598,
+        2108,
+        619
+       ]
+      ],
+      [
+       "label",
+       [
+        1111,
+        520,
+        1149,
+        541
+       ]
+      ],
+      [
+       "label",
+       [
+        795,
+        520,
+        833,
+        541
+       ]
+      ],
+      [
+       "label",
+       [
+        1038,
+        290,
+        1066,
+        311
+       ]
+      ],
+      [
+       "label",
+       [
+        263,
+        534,
+        291,
+        555
+       ]
+      ],
+      [
+       "label",
+       [
+        1325,
+        129,
+        1363,
+        150
+       ]
+      ],
+      [
+       "label",
+       [
+        720,
+        639,
+        759,
+        660
+       ]
+      ],
+      [
+       "label",
+       [
+        549,
+        307,
+        577,
+        328
+       ]
+      ],
+      [
+       "schedule",
+       [
+        754,
+        46,
+        2495,
+        1092
+       ]
+      ]
+     ],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   }
+  }
+ },
+ {
+  "slug": "s03",
+  "page": 1,
+  "factor": 1.0,
+  "as_is": {
+   "n_calls": 2,
+   "dropped": [],
+   "score": {
+    "counts": {
+     "door": [
+      17,
+      17
+     ],
+     "window": [
+      15,
+      15
+     ],
+     "room": [
+      17,
+      17
+     ]
+    },
+    "lost": [],
+    "returned_fps": [],
+    "unreviewed": []
+   }
+  },
+  "ceilings": {
+   "40": {
+    "ceiling_px": 40.0,
+    "n_calls": 2,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       17,
+       17
+      ],
+      "window": [
+       15,
+       15
+      ],
+      "room": [
+       17,
+       17
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "41": {
+    "ceiling_px": 41.0,
+    "n_calls": 2,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       17,
+       17
+      ],
+      "window": [
+       15,
+       15
+      ],
+      "room": [
+       17,
+       17
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "44": {
+    "ceiling_px": 44.0,
+    "n_calls": 2,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       17,
+       17
+      ],
+      "window": [
+       15,
+       15
+      ],
+      "room": [
+       17,
+       17
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "48": {
+    "ceiling_px": 48.0,
+    "n_calls": 2,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       17,
+       17
+      ],
+      "window": [
+       15,
+       15
+      ],
+      "room": [
+       17,
+       17
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "56": {
+    "ceiling_px": 56.0,
+    "n_calls": 2,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       17,
+       17
+      ],
+      "window": [
+       15,
+       15
+      ],
+      "room": [
+       17,
+       17
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   }
+  }
+ },
+ {
+  "slug": "s04",
+  "page": 1,
+  "factor": 1.0,
+  "as_is": {
+   "n_calls": 0,
+   "dropped": [],
+   "score": {
+    "counts": {
+     "door": [
+      4,
+      4
+     ],
+     "room": [
+      5,
+      5
+     ],
+     "window": [
+      1,
+      1
+     ]
+    },
+    "lost": [],
+    "returned_fps": [
+     [
+      "room",
+      [
+       1588,
+       1053,
+       1762,
+       1131
+      ]
+     ],
+     [
+      "window",
+      [
+       1558,
+       1047,
+       1588,
+       1131
+      ]
+     ]
+    ],
+    "unreviewed": []
+   }
+  },
+  "ceilings": {
+   "40": {
+    "ceiling_px": 40.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       4,
+       4
+      ],
+      "room": [
+       5,
+       5
+      ],
+      "window": [
+       1,
+       1
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "room",
+       [
+        1588,
+        1053,
+        1762,
+        1131
+       ]
+      ],
+      [
+       "window",
+       [
+        1558,
+        1047,
+        1588,
+        1131
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "41": {
+    "ceiling_px": 41.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       4,
+       4
+      ],
+      "room": [
+       5,
+       5
+      ],
+      "window": [
+       1,
+       1
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "room",
+       [
+        1588,
+        1053,
+        1762,
+        1131
+       ]
+      ],
+      [
+       "window",
+       [
+        1558,
+        1047,
+        1588,
+        1131
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "44": {
+    "ceiling_px": 44.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       4,
+       4
+      ],
+      "room": [
+       5,
+       5
+      ],
+      "window": [
+       1,
+       1
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "room",
+       [
+        1588,
+        1053,
+        1762,
+        1131
+       ]
+      ],
+      [
+       "window",
+       [
+        1558,
+        1047,
+        1588,
+        1131
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "48": {
+    "ceiling_px": 48.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       4,
+       4
+      ],
+      "room": [
+       5,
+       5
+      ],
+      "window": [
+       1,
+       1
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "room",
+       [
+        1588,
+        1053,
+        1762,
+        1131
+       ]
+      ],
+      [
+       "window",
+       [
+        1558,
+        1047,
+        1588,
+        1131
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "56": {
+    "ceiling_px": 56.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       4,
+       4
+      ],
+      "room": [
+       5,
+       5
+      ],
+      "window": [
+       1,
+       1
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "room",
+       [
+        1588,
+        1053,
+        1762,
+        1131
+       ]
+      ],
+      [
+       "window",
+       [
+        1558,
+        1047,
+        1588,
+        1131
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   }
+  }
+ },
+ {
+  "slug": "s05",
+  "page": 1,
+  "factor": 0.5,
+  "as_is": {
+   "n_calls": 2,
+   "dropped": [],
+   "score": {
+    "counts": {
+     "door": [
+      8,
+      8
+     ],
+     "room": [
+      9,
+      9
+     ]
+    },
+    "lost": [],
+    "returned_fps": [
+     [
+      "room",
+      [
+       1852,
+       1261,
+       1895,
+       1417
+      ]
+     ]
+    ],
+    "unreviewed": []
+   }
+  },
+  "ceilings": {
+   "40": {
+    "ceiling_px": 20.0,
+    "n_calls": 2,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       8,
+       8
+      ],
+      "room": [
+       9,
+       9
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "room",
+       [
+        1852,
+        1261,
+        1895,
+        1417
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "41": {
+    "ceiling_px": 20.5,
+    "n_calls": 2,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       8,
+       8
+      ],
+      "room": [
+       9,
+       9
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "room",
+       [
+        1852,
+        1261,
+        1895,
+        1417
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "44": {
+    "ceiling_px": 22.0,
+    "n_calls": 2,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       8,
+       8
+      ],
+      "room": [
+       9,
+       9
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "room",
+       [
+        1852,
+        1261,
+        1895,
+        1417
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "48": {
+    "ceiling_px": 24.0,
+    "n_calls": 2,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       8,
+       8
+      ],
+      "room": [
+       9,
+       9
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "room",
+       [
+        1852,
+        1261,
+        1895,
+        1417
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "56": {
+    "ceiling_px": 28.0,
+    "n_calls": 2,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       8,
+       8
+      ],
+      "room": [
+       9,
+       9
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "room",
+       [
+        1852,
+        1261,
+        1895,
+        1417
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   }
+  }
+ },
+ {
+  "slug": "s06",
+  "page": 1,
+  "factor": 0.5,
+  "as_is": {
+   "n_calls": 0,
+   "dropped": [],
+   "score": {
+    "counts": {
+     "door": [
+      10,
+      10
+     ],
+     "window": [
+      8,
+      8
+     ],
+     "room": [
+      9,
+      9
+     ]
+    },
+    "lost": [],
+    "returned_fps": [],
+    "unreviewed": []
+   }
+  },
+  "ceilings": {
+   "40": {
+    "ceiling_px": 20.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       10,
+       10
+      ],
+      "window": [
+       8,
+       8
+      ],
+      "room": [
+       9,
+       9
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "41": {
+    "ceiling_px": 20.5,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       10,
+       10
+      ],
+      "window": [
+       8,
+       8
+      ],
+      "room": [
+       9,
+       9
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "44": {
+    "ceiling_px": 22.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       10,
+       10
+      ],
+      "window": [
+       8,
+       8
+      ],
+      "room": [
+       9,
+       9
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "48": {
+    "ceiling_px": 24.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       10,
+       10
+      ],
+      "window": [
+       8,
+       8
+      ],
+      "room": [
+       9,
+       9
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "56": {
+    "ceiling_px": 28.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       10,
+       10
+      ],
+      "window": [
+       8,
+       8
+      ],
+      "room": [
+       9,
+       9
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   }
+  }
+ },
+ {
+  "slug": "s07",
+  "page": 1,
+  "factor": 0.5,
+  "as_is": {
+   "n_calls": 1,
+   "dropped": [],
+   "score": {
+    "counts": {
+     "door": [
+      7,
+      7
+     ],
+     "window": [
+      10,
+      10
+     ],
+     "room": [
+      6,
+      6
+     ]
+    },
+    "lost": [],
+    "returned_fps": [],
+    "unreviewed": []
+   }
+  },
+  "ceilings": {
+   "40": {
+    "ceiling_px": 20.0,
+    "n_calls": 1,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       7,
+       7
+      ],
+      "window": [
+       10,
+       10
+      ],
+      "room": [
+       6,
+       6
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "41": {
+    "ceiling_px": 20.5,
+    "n_calls": 1,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       7,
+       7
+      ],
+      "window": [
+       10,
+       10
+      ],
+      "room": [
+       6,
+       6
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "44": {
+    "ceiling_px": 22.0,
+    "n_calls": 1,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       7,
+       7
+      ],
+      "window": [
+       10,
+       10
+      ],
+      "room": [
+       6,
+       6
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "48": {
+    "ceiling_px": 24.0,
+    "n_calls": 1,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       7,
+       7
+      ],
+      "window": [
+       10,
+       10
+      ],
+      "room": [
+       6,
+       6
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "56": {
+    "ceiling_px": 28.0,
+    "n_calls": 1,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       7,
+       7
+      ],
+      "window": [
+       10,
+       10
+      ],
+      "room": [
+       6,
+       6
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   }
+  }
+ },
+ {
+  "slug": "s08",
+  "page": 1,
+  "factor": 1.0,
+  "as_is": {
+   "n_calls": 1,
+   "dropped": [],
+   "score": {
+    "counts": {
+     "door": [
+      4,
+      4
+     ],
+     "room": [
+      3,
+      3
+     ]
+    },
+    "lost": [],
+    "returned_fps": [
+     [
+      "window",
+      [
+       1775,
+       1044,
+       1806,
+       1131
+      ]
+     ]
+    ],
+    "unreviewed": []
+   }
+  },
+  "ceilings": {
+   "40": {
+    "ceiling_px": 40.0,
+    "n_calls": 1,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       4,
+       4
+      ],
+      "room": [
+       3,
+       3
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "window",
+       [
+        1775,
+        1044,
+        1806,
+        1131
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "41": {
+    "ceiling_px": 41.0,
+    "n_calls": 1,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       4,
+       4
+      ],
+      "room": [
+       3,
+       3
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "window",
+       [
+        1775,
+        1044,
+        1806,
+        1131
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "44": {
+    "ceiling_px": 44.0,
+    "n_calls": 1,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       4,
+       4
+      ],
+      "room": [
+       3,
+       3
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "window",
+       [
+        1775,
+        1044,
+        1806,
+        1131
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "48": {
+    "ceiling_px": 48.0,
+    "n_calls": 1,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       4,
+       4
+      ],
+      "room": [
+       3,
+       3
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "window",
+       [
+        1775,
+        1044,
+        1806,
+        1131
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "56": {
+    "ceiling_px": 56.0,
+    "n_calls": 1,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       4,
+       4
+      ],
+      "room": [
+       3,
+       3
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "window",
+       [
+        1775,
+        1044,
+        1806,
+        1131
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   }
+  }
+ },
+ {
+  "slug": "s09",
+  "page": 1,
+  "factor": 1.0,
+  "as_is": {
+   "n_calls": 0,
+   "dropped": [],
+   "score": {
+    "counts": {},
+    "lost": [],
+    "returned_fps": [],
+    "unreviewed": []
+   }
+  },
+  "ceilings": {
+   "40": {
+    "ceiling_px": 40.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {},
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "41": {
+    "ceiling_px": 41.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {},
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "44": {
+    "ceiling_px": 44.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {},
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "48": {
+    "ceiling_px": 48.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {},
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "56": {
+    "ceiling_px": 56.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {},
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   }
+  }
+ },
+ {
+  "slug": "s10",
+  "page": 1,
+  "factor": 1.0,
+  "as_is": {
+   "n_calls": 0,
+   "dropped": [],
+   "score": {
+    "counts": {
+     "door": [
+      14,
+      14
+     ],
+     "window": [
+      10,
+      10
+     ],
+     "room": [
+      9,
+      9
+     ]
+    },
+    "lost": [],
+    "returned_fps": [],
+    "unreviewed": []
+   }
+  },
+  "ceilings": {
+   "40": {
+    "ceiling_px": 40.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       14,
+       14
+      ],
+      "window": [
+       10,
+       10
+      ],
+      "room": [
+       9,
+       9
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "41": {
+    "ceiling_px": 41.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       14,
+       14
+      ],
+      "window": [
+       10,
+       10
+      ],
+      "room": [
+       9,
+       9
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "44": {
+    "ceiling_px": 44.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       14,
+       14
+      ],
+      "window": [
+       10,
+       10
+      ],
+      "room": [
+       9,
+       9
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "48": {
+    "ceiling_px": 48.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       14,
+       14
+      ],
+      "window": [
+       10,
+       10
+      ],
+      "room": [
+       9,
+       9
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "56": {
+    "ceiling_px": 56.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       14,
+       14
+      ],
+      "window": [
+       10,
+       10
+      ],
+      "room": [
+       9,
+       9
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   }
+  }
+ },
+ {
+  "slug": "s13",
+  "page": 1,
+  "factor": 0.3666,
+  "as_is": {
+   "n_calls": 0,
+   "dropped": [],
+   "score": {
+    "counts": {
+     "door": [
+      12,
+      12
+     ],
+     "window": [
+      11,
+      11
+     ],
+     "room": [
+      11,
+      11
+     ]
+    },
+    "lost": [],
+    "returned_fps": [],
+    "unreviewed": []
+   }
+  },
+  "ceilings": {
+   "40": {
+    "ceiling_px": 14.66,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       12,
+       12
+      ],
+      "window": [
+       11,
+       11
+      ],
+      "room": [
+       11,
+       11
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "41": {
+    "ceiling_px": 15.03,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       12,
+       12
+      ],
+      "window": [
+       11,
+       11
+      ],
+      "room": [
+       11,
+       11
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "44": {
+    "ceiling_px": 16.13,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       12,
+       12
+      ],
+      "window": [
+       11,
+       11
+      ],
+      "room": [
+       11,
+       11
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "48": {
+    "ceiling_px": 17.59,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       12,
+       12
+      ],
+      "window": [
+       11,
+       11
+      ],
+      "room": [
+       11,
+       11
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "56": {
+    "ceiling_px": 20.53,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       12,
+       12
+      ],
+      "window": [
+       11,
+       11
+      ],
+      "room": [
+       11,
+       11
+      ]
+     },
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   }
+  }
+ },
+ {
+  "slug": "s14",
+  "page": 1,
+  "factor": 1.0,
+  "as_is": {
+   "n_calls": 0,
+   "dropped": [],
+   "score": {
+    "counts": {
+     "door": [
+      13,
+      13
+     ]
+    },
+    "lost": [],
+    "returned_fps": [
+     [
+      "window",
+      [
+       2844,
+       1180,
+       2901,
+       1218
+      ]
+     ]
+    ],
+    "unreviewed": []
+   }
+  },
+  "ceilings": {
+   "40": {
+    "ceiling_px": 40.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       13,
+       13
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "window",
+       [
+        2844,
+        1180,
+        2901,
+        1218
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "41": {
+    "ceiling_px": 41.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       13,
+       13
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "window",
+       [
+        2844,
+        1180,
+        2901,
+        1218
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "44": {
+    "ceiling_px": 44.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       13,
+       13
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "window",
+       [
+        2844,
+        1180,
+        2901,
+        1218
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "48": {
+    "ceiling_px": 48.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       13,
+       13
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "window",
+       [
+        2844,
+        1180,
+        2901,
+        1218
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "56": {
+    "ceiling_px": 56.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       13,
+       13
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "window",
+       [
+        2844,
+        1180,
+        2901,
+        1218
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   }
+  }
+ },
+ {
+  "slug": "s19",
+  "page": 1,
+  "factor": 1.0,
+  "as_is": {
+   "n_calls": 0,
+   "dropped": [],
+   "score": {
+    "counts": {},
+    "lost": [],
+    "returned_fps": [],
+    "unreviewed": []
+   }
+  },
+  "ceilings": {
+   "40": {
+    "ceiling_px": 40.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {},
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "41": {
+    "ceiling_px": 41.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {},
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "44": {
+    "ceiling_px": 44.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {},
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "48": {
+    "ceiling_px": 48.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {},
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   },
+   "56": {
+    "ceiling_px": 56.0,
+    "n_calls": 0,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {},
+     "lost": [],
+     "returned_fps": [],
+     "unreviewed": []
+    }
+   }
+  }
+ },
+ {
+  "slug": "s20",
+  "page": 1,
+  "factor": 1.0,
+  "as_is": {
+   "n_calls": 1,
+   "dropped": [],
+   "score": {
+    "counts": {
+     "door": [
+      8,
+      8
+     ],
+     "window": [
+      6,
+      6
+     ],
+     "room": [
+      5,
+      5
+     ]
+    },
+    "lost": [],
+    "returned_fps": [
+     [
+      "window",
+      [
+       1041,
+       716,
+       1084,
+       751
+      ]
+     ]
+    ],
+    "unreviewed": []
+   }
+  },
+  "ceilings": {
+   "40": {
+    "ceiling_px": 40.0,
+    "n_calls": 1,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       8,
+       8
+      ],
+      "window": [
+       6,
+       6
+      ],
+      "room": [
+       5,
+       5
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "window",
+       [
+        1041,
+        716,
+        1084,
+        751
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "41": {
+    "ceiling_px": 41.0,
+    "n_calls": 1,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       8,
+       8
+      ],
+      "window": [
+       6,
+       6
+      ],
+      "room": [
+       5,
+       5
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "window",
+       [
+        1041,
+        716,
+        1084,
+        751
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "44": {
+    "ceiling_px": 44.0,
+    "n_calls": 1,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       8,
+       8
+      ],
+      "window": [
+       6,
+       6
+      ],
+      "room": [
+       5,
+       5
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "window",
+       [
+        1041,
+        716,
+        1084,
+        751
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "48": {
+    "ceiling_px": 48.0,
+    "n_calls": 1,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       8,
+       8
+      ],
+      "window": [
+       6,
+       6
+      ],
+      "room": [
+       5,
+       5
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "window",
+       [
+        1041,
+        716,
+        1084,
+        751
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   },
+   "56": {
+    "ceiling_px": 56.0,
+    "n_calls": 1,
+    "dropped": [],
+    "newly_dropped": [],
+    "rooms_gone": [],
+    "rooms_new": [],
+    "rooms_moved": [],
+    "score": {
+     "counts": {
+      "door": [
+       8,
+       8
+      ],
+      "window": [
+       6,
+       6
+      ],
+      "room": [
+       5,
+       5
+      ]
+     },
+     "lost": [],
+     "returned_fps": [
+      [
+       "window",
+       [
+        1041,
+        716,
+        1084,
+        751
+       ]
+      ]
+     ],
+     "unreviewed": []
+    }
+   }
+  }
+ }
+]

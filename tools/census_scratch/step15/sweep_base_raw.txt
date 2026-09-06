@@ -1,0 +1,397 @@
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s18/2026-09-06_17-
+05-35
+                         Scales                         
+                                                        
+  Region        Type         Scale   Source   Evidence  
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0001   floor_plan   1:100   user     1:100     
+  region_0003   floor_plan   1:100   user     1:100     
+                                                        
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s18/2026-09-06_17-
+05-35
+  Pages: 1 | Candidates: 107 | Entities: 62 | Warnings: 5
+s18  door 13/13  room 13/13  window 12/12
+    ✗ FALSE POSITIVE RETURNED window @ (2510,1152)
+    ✗ FALSE POSITIVE RETURNED window @ (2006,850)
+    ✗ FALSE POSITIVE RETURNED window @ (180,1243)
+    ✗ FALSE POSITIVE RETURNED window @ (1456,2445)
+    ✗ FALSE POSITIVE RETURNED window @ (1803,2327)
+    ✗ FALSE POSITIVE RETURNED window @ (1971,2226)
+    ✗ FALSE POSITIVE RETURNED window @ (1423,1213)
+    ✗ FALSE POSITIVE RETURNED window @ (1454,1221)
+    ✗ FALSE POSITIVE RETURNED room @ (2336,2317)
+    ✗ FALSE POSITIVE RETURNED room @ (1634,2315)
+    ✗ FALSE POSITIVE RETURNED room @ (1868,2419)
+    ✗ FALSE POSITIVE RETURNED window @ (2315,997)
+    ✗ FALSE POSITIVE RETURNED room @ (2726,751)
+    ✗ FALSE POSITIVE RETURNED room @ (993,821)
+    ✗ FALSE POSITIVE RETURNED room @ (172,1144)
+    ✗ FALSE POSITIVE RETURNED room @ (2087,1046)
+    ✗ FALSE POSITIVE RETURNED room @ (2659,720)
+    ✗ FALSE POSITIVE RETURNED room @ (1582,1054)
+    ✗ FALSE POSITIVE RETURNED room @ (1579,1087)
+    ✗ FALSE POSITIVE RETURNED room @ (1861,2316)
+    ✗ FALSE POSITIVE RETURNED window @ (189,1008)
+    ✗ FALSE POSITIVE RETURNED window @ (192,879)
+    ✗ FALSE POSITIVE RETURNED window @ (187,1044)
+    ✗ FALSE POSITIVE RETURNED room @ (1333,710)
+exit 1
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s16/2026-09-06_17-
+05-38
+                         Scales                         
+                                                        
+  Region        Type         Scale   Source   Evidence  
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0000   floor_plan   1:100   user     1:100     
+  region_0002   floor_plan   1:100   user     1:100     
+                                                        
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s16/2026-09-06_17-
+05-38
+  Pages: 1 | Candidates: 73 | Entities: 68 | Warnings: 4
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s11/2026-09-06_17-
+06-29
+                         Scales                         
+                                                        
+  Region        Type         Scale   Source   Evidence  
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0000   floor_plan   1:100   user     1:100     
+  region_0002   floor_plan   1:100   user     1:100     
+                                                        
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s11/2026-09-06_17-
+06-29
+  Pages: 1 | Candidates: 67 | Entities: 64 | Warnings: 4
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s15/2026-09-06_17-
+06-57
+                          Scales                           
+                                                           
+  Region        Type         Scale   Source     Evidence   
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0000   floor_plan    1:50   viewport   C=17.6392  
+                                                           
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s15/2026-09-06_17-
+06-57
+  Pages: 1 | Candidates: 119 | Entities: 33 | Warnings: 2
+s16  door 16/16  room 17/17  window 25/25
+    ✗ FALSE POSITIVE RETURNED room @ (2394,1218)
+    ✗ FALSE POSITIVE RETURNED room @ (1876,1532)
+    ✗ FALSE POSITIVE RETURNED room @ (1836,1586)
+    ✗ FALSE POSITIVE RETURNED room @ (1916,1586)
+    ✗ FALSE POSITIVE RETURNED room @ (1249,1426)
+    ✗ FALSE POSITIVE RETURNED room @ (1876,1640)
+    ✗ FALSE POSITIVE RETURNED room @ (1082,1769)
+    ✗ FALSE POSITIVE RETURNED room @ (2517,1362)
+    ✗ FALSE POSITIVE RETURNED room @ (2502,1563)
+    ✗ FALSE POSITIVE RETURNED room @ (1156,1461)
+s11  door 16/16  room 16/16  window 28/28
+    ✗ FALSE POSITIVE RETURNED room @ (1696,1199)
+    ✗ FALSE POSITIVE RETURNED room @ (2180,1145)
+    ✗ FALSE POSITIVE RETURNED room @ (815,1484)
+    ✗ FALSE POSITIVE RETURNED room @ (815,1554)
+s15  door 12/12  room 13/13  window 1/1
+    ✗ FALSE POSITIVE RETURNED door @ (676,1799)
+    ✗ FALSE POSITIVE RETURNED window @ (853,1405)
+    ✗ FALSE POSITIVE RETURNED window @ (1340,2285)
+    ✗ FALSE POSITIVE RETURNED window @ (254,2491)
+    ✗ FALSE POSITIVE RETURNED room @ (933,839)
+    ✗ FALSE POSITIVE RETURNED room @ (1366,1008)
+    ✗ FALSE POSITIVE RETURNED room @ (1232,1459)
+exit 1
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s01/2026-09-06_17-
+05-41
+                         Scales                          
+                                                         
+  Region        Type          Scale   Source   Evidence  
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0000   floor_plan   1:92.2   user     1:92.2    
+  region_0001   floor_plan   1:92.2   user     1:92.2    
+                                                         
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s01/2026-09-06_17-
+05-41
+  Pages: 1 | Candidates: 25 | Entities: 25 | Warnings: 3
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s02/2026-09-06_17-
+05-48
+                                   Scales                                   
+                                                                            
+  Region        Type         Scale   Source   Evidence                      
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0000   floor_plan    1:50   text     scale bar - metric - 1:50@A3  
+                                                                            
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s02/2026-09-06_17-
+05-48
+  Pages: 1 | Candidates: 131 | Entities: 49 | Warnings: 3
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s03/2026-09-06_17-
+06-00
+                          Scales                           
+                                                           
+  Region        Type         Scale   Source     Evidence   
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0000   floor_plan   1:100   viewport   C=35.2676  
+  region_0001   floor_plan   1:100   viewport   C=35.2676  
+  region_0003   floor_plan    1:50   viewport   C=17.6355  
+                                                           
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s03/2026-09-06_17-
+06-00
+  Pages: 1 | Candidates: 87 | Entities: 49 | Warnings: 3
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s04/2026-09-06_17-
+06-08
+                          Scales                           
+                                                           
+  Region        Type         Scale   Source     Evidence   
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0000   floor_plan    1:50   viewport   C=17.6391  
+                                                           
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s04/2026-09-06_17-
+06-08
+  Pages: 1 | Candidates: 19 | Entities: 12 | Warnings: 2
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s05/2026-09-06_17-
+06-11
+                          Scales                          
+                                                          
+  Region        Type         Scale   Source     Evidence  
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0000   floor_plan   1:100   viewport   C=35.279  
+                                                          
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s05/2026-09-06_17-
+06-11
+  Pages: 1 | Candidates: 23 | Entities: 18 | Warnings: 3
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s06/2026-09-06_17-
+06-21
+                                     Scales                                     
+                                                                                
+  Region        Type          Scale   Source     Evidence                       
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0004   floor_plan   1:99.6   viewport   C=35.139 → nearest standard    
+                                                 1:100                          
+  region_0005   floor_plan   1:99.6   viewport   C=35.139 → nearest standard    
+                                                 1:100                          
+                                                                                
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s06/2026-09-06_17-
+06-21
+  Pages: 1 | Candidates: 27 | Entities: 27 | Warnings: 3
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s07/2026-09-06_17-
+06-25
+                          Scales                           
+                                                           
+  Region        Type         Scale   Source     Evidence   
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0000   floor_plan   1:100   viewport   C=35.2793  
+                                                           
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s07/2026-09-06_17-
+06-25
+  Pages: 1 | Candidates: 27 | Entities: 23 | Warnings: 3
+s01  door 11/11  room 10/10  window 4/4
+s02  door 15/15  label 11/11  room 11/11  schedule 1/1  window 11/11
+s03  door 17/17  room 17/17  window 15/15
+s04  door 4/4  room 5/5  window 1/1
+    ✗ FALSE POSITIVE RETURNED room @ (1675,1092)
+    ✗ FALSE POSITIVE RETURNED window @ (1573,1089)
+s05  door 8/8  room 9/9
+    ✗ FALSE POSITIVE RETURNED room @ (1873,1339)
+s06  door 10/10  room 9/9  window 8/8
+s07  door 7/7  room 6/6  window 10/10
+exit 1
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s08/2026-09-06_17-
+05-44
+                          Scales                           
+                                                           
+  Region        Type         Scale   Source     Evidence   
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0000   floor_plan    1:50   viewport   C=17.6391  
+                                                           
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s08/2026-09-06_17-
+05-44
+  Pages: 1 | Candidates: 17 | Entities: 8 | Warnings: 2
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s09/2026-09-06_17-
+05-45
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s09/2026-09-06_17-
+05-45
+  Pages: 1 | Candidates: 0 | Entities: 0 | Warnings: 4
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s10/2026-09-06_17-
+05-46
+                         Scales                         
+                                                        
+  Region        Type         Scale   Source   Evidence  
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0002   floor_plan    1:50   user     1:50      
+  region_0005   floor_plan    1:50   user     1:50      
+                                                        
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s10/2026-09-06_17-
+05-46
+  Pages: 1 | Candidates: 40 | Entities: 33 | Warnings: 4
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s12/2026-09-06_17-
+05-54
+                          Scales                          
+                                                          
+  Region        Type         Scale   Source     Evidence  
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0000   floor_plan   1:100   viewport   C=35.279  
+  region_0007   floor_plan   1:100   viewport   C=35.279  
+                                                          
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s12/2026-09-06_17-
+05-54
+  Pages: 1 | Candidates: 27 | Entities: 22 | Warnings: 4
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s13/2026-09-06_17-
+06-00
+                                     Scales                                     
+                                                                                
+  Region        Type           Scale   Source     Evidence                      
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0002   floor_plan   1:136.4   viewport   CONFLICT — text nearby says   
+                                                  1:100                         
+  region_0003   floor_plan   1:136.4   viewport   C=48.1204                     
+                                                                                
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s13/2026-09-06_17-
+06-00
+  Pages: 1 | Candidates: 35 | Entities: 34 | Warnings: 3
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s14/2026-09-06_17-
+06-05
+                         Scales                         
+                                                        
+  Region        Type         Scale   Source   Evidence  
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0002   floor_plan    1:50   text     1:50@A1   
+                                                        
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s14/2026-09-06_17-
+06-05
+  Pages: 1 | Candidates: 45 | Entities: 14 | Warnings: 3
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s17/2026-09-06_17-
+06-21
+                          Scales                           
+                                                           
+  Region        Type         Scale   Source     Evidence   
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0010   floor_plan   1:100   viewport   C=35.2754  
+  region_0011   floor_plan   1:100   viewport   C=35.2754  
+  region_0016   floor_plan    1:50   viewport   C=17.6385  
+  region_0020   floor_plan    1:50   viewport   C=17.6385  
+                                                           
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s17/2026-09-06_17-
+06-21
+  Pages: 1 | Candidates: 121 | Entities: 80 | Warnings: 4
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s19/2026-09-06_17-
+06-37
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s19/2026-09-06_17-
+06-37
+  Pages: 1 | Candidates: 0 | Entities: 0 | Warnings: 4
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s20/2026-09-06_17-
+06-37
+                         Scales                         
+                                                        
+  Region        Type         Scale   Source   Evidence  
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0002   floor_plan    1:50   user     1:50      
+  region_0004   floor_plan    1:50   user     1:50      
+                                                        
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s20/2026-09-06_17-
+06-37
+  Pages: 1 | Candidates: 26 | Entities: 20 | Warnings: 3
+s08  door 4/4  room 3/3
+    ✗ FALSE POSITIVE RETURNED window @ (1790,1087)
+s09    unlabeled — every detection is unreviewed
+s10  door 14/14  room 9/9  window 10/10
+s12  door 7/7  room 8/8
+    ✗ FALSE POSITIVE RETURNED room @ (1857,483)
+    ✗ FALSE POSITIVE RETURNED room @ (1857,542)
+    ✗ FALSE POSITIVE RETURNED room @ (1857,595)
+    ✗ FALSE POSITIVE RETURNED room @ (1760,617)
+    ✗ FALSE POSITIVE RETURNED room @ (1856,668)
+    ✗ FALSE POSITIVE RETURNED room @ (1993,1370)
+    ✗ FALSE POSITIVE RETURNED room @ (1992,1457)
+s13  door 12/12  room 11/11  window 11/11
+s14  door 13/13
+    ✗ FALSE POSITIVE RETURNED window @ (2872,1199)
+s17  door 35/35  room 25/25  window 10/10
+    ✗ FALSE POSITIVE RETURNED room @ (1550,1248)
+    ✗ FALSE POSITIVE RETURNED room @ (1773,1458)
+    ✗ FALSE POSITIVE RETURNED room @ (1577,1559)
+    ✗ FALSE POSITIVE RETURNED room @ (929,2252)
+    ✗ FALSE POSITIVE RETURNED room @ (3064,2331)
+    ✗ FALSE POSITIVE RETURNED room @ (3065,2828)
+    ✗ FALSE POSITIVE RETURNED room @ (2944,2954)
+    ✗ FALSE POSITIVE RETURNED room @ (1700,1235)
+    ✗ FALSE POSITIVE RETURNED room @ (1252,2631)
+    ✗ FALSE POSITIVE RETURNED room @ (931,2838)
+s19    unlabeled — every detection is unreviewed
+s20  door 8/8  room 5/5  window 6/6
+    ✗ FALSE POSITIVE RETURNED window @ (1062,733)
+exit 1

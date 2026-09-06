@@ -1,0 +1,19 @@
+s18 p1 f=0.500: as-is calls 11 dropped 0 score lost=0 fp=24 unrev=0
+    ceiling 40 (20.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 24->24 unrev 0->0
+    ceiling 41 (20.5px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 24->24 unrev 0->0
+    ceiling 44 (22.0px): newly dropped 1 | rooms gone 1 new 0 moved 0 | lost 0->0 fp 24->23 unrev 0->0
+        DROP [2078.7, 1023.0, 2096.0, 1068.2] gt=false_positive 0.95
+    ceiling 48 (24.0px): newly dropped 1 | rooms gone 1 new 0 moved 0 | lost 0->0 fp 24->23 unrev 0->0
+        DROP [2078.7, 1023.0, 2096.0, 1068.2] gt=false_positive 0.95
+    ceiling 56 (28.0px): newly dropped 2 | rooms gone 2 new 0 moved 0 | lost 0->0 fp 24->22 unrev 0->0
+        DROP [907.2, 809.5, 1079.0, 832.7] gt=false_positive 1.00
+        DROP [2078.7, 1023.0, 2096.0, 1068.2] gt=false_positive 0.95
+s16 p1 f=0.500: as-is calls 11 dropped 0 score lost=0 fp=10 unrev=0
+    ceiling 40 (20.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 10->10 unrev 0->0
+    ceiling 41 (20.5px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 10->10 unrev 0->0
+    ceiling 44 (22.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 10->10 unrev 0->0
+    ceiling 48 (24.0px): newly dropped 1 | rooms gone 1 new 0 moved 0 | lost 0->0 fp 10->9 unrev 0->0
+        DROP [2507.3, 1322.8, 2527.3, 1401.3] gt=false_positive 1.00
+    ceiling 56 (28.0px): newly dropped 1 | rooms gone 1 new 0 moved 0 | lost 0->0 fp 10->9 unrev 0->0
+        DROP [2507.3, 1322.8, 2527.3, 1401.3] gt=false_positive 1.00
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/tools/census_scratch/step15/ceiling_census_a.json

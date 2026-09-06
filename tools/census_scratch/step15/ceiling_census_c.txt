@@ -1,0 +1,85 @@
+s01 p1 f=0.542: as-is calls 0 dropped 0 score lost=0 fp=0 unrev=0
+    ceiling 40 (21.7px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (22.2px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (23.9px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (26.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (30.4px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+s02 p1 f=1.000: as-is calls 0 dropped 0 score lost=12 fp=0 unrev=0
+    ceiling 40 (40.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+    ceiling 41 (41.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+    ceiling 44 (44.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+    ceiling 48 (48.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+    ceiling 56 (56.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+s03 p1 f=1.000: as-is calls 2 dropped 0 score lost=0 fp=0 unrev=0
+    ceiling 40 (40.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (41.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (44.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (48.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (56.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+s04 p1 f=1.000: as-is calls 0 dropped 0 score lost=0 fp=2 unrev=0
+    ceiling 40 (40.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+    ceiling 41 (41.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+    ceiling 44 (44.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+    ceiling 48 (48.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+    ceiling 56 (56.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+s05 p1 f=0.500: as-is calls 2 dropped 0 score lost=0 fp=1 unrev=0
+    ceiling 40 (20.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 41 (20.5px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 44 (22.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 48 (24.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 56 (28.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+s06 p1 f=0.500: as-is calls 0 dropped 0 score lost=0 fp=0 unrev=0
+    ceiling 40 (20.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (20.5px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (22.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (24.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (28.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+s07 p1 f=0.500: as-is calls 1 dropped 0 score lost=0 fp=0 unrev=0
+    ceiling 40 (20.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (20.5px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (22.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (24.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (28.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+s08 p1 f=1.000: as-is calls 1 dropped 0 score lost=0 fp=1 unrev=0
+    ceiling 40 (40.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 41 (41.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 44 (44.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 48 (48.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 56 (56.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+s09 p1 f=1.000: as-is calls 0 dropped 0 score lost=0 fp=0 unrev=0
+    ceiling 40 (40.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (41.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (44.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (48.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (56.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+s10 p1 f=1.000: as-is calls 0 dropped 0 score lost=0 fp=0 unrev=0
+    ceiling 40 (40.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (41.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (44.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (48.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (56.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+s13 p1 f=0.367: as-is calls 0 dropped 0 score lost=0 fp=0 unrev=0
+    ceiling 40 (14.7px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (15.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (16.1px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (17.6px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (20.5px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+s14 p1 f=1.000: as-is calls 0 dropped 0 score lost=0 fp=1 unrev=0
+    ceiling 40 (40.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 41 (41.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 44 (44.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 48 (48.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 56 (56.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+s19 p1 f=1.000: as-is calls 0 dropped 0 score lost=0 fp=0 unrev=0
+    ceiling 40 (40.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (41.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (44.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (48.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (56.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+s20 p1 f=1.000: as-is calls 1 dropped 0 score lost=0 fp=1 unrev=0
+    ceiling 40 (40.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 41 (41.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 44 (44.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 48 (48.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 56 (56.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/tools/census_scratch/step15/ceiling_census_c.json

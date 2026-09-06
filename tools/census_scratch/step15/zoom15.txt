@@ -1,0 +1,6 @@
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/docs/w-gate-iter3-checkpoints/step15_s17_reveal_strip_0013_tab_on_band_cap.png (465, 881) old [0.0, 1.0] new [0.987, 1.0]
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/docs/w-gate-iter3-checkpoints/step15_s17_reveal_strip_0014_tabs_at_both_ends.png (324, 950) old [0.0, 0.04] new [0.963, 0.993]
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/docs/w-gate-iter3-checkpoints/step15_s17_reveal_strip_0027_tabs_at_both_ends.png (240, 950) old [0.0, 0.0] new [0.996, 0.996]
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/docs/w-gate-iter3-checkpoints/step15_s17_reveal_strip_0032_tab_at_the_far_end.png (243, 950) old [0.0, 0.926] new [0.996, 1.0]
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/docs/w-gate-iter3-checkpoints/step15_s18_sofa_strip_recorded_fp_notch_0.14_to_0.90.png (1168, 622) old [0.14, 1.0] new [0.897, 1.0]
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/docs/w-gate-iter3-checkpoints/step15_s11_storage_in_utility_confirmed_1.0_both_readings.png (543, 950) old [1.0, 1.0] new [1.0, 1.0]

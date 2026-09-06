@@ -2044,6 +2044,70 @@ class TestBandPocket(unittest.TestCase):
         self.assertAlmostEqual(strip.bbox[3] - strip.bbox[1], 48.0, delta=2.0)
 
 
+class TestBandPocketTabbedByAPerpendicularBand(unittest.TestCase):
+    """The cover is read on the pocket's OWN long sides, not on its minimum
+    rotated rectangle (W-gate iteration 3 step 15). s17 rooms 0013/0014/
+    0027/0032: each cavity-wall reveal strip ends where a perpendicular
+    partition meets the wall — the partition's paired segment ends ON the
+    strip's face line, its solid is flat-capped, and the leaf's face line
+    is drawn from the partition's far flank on — so over the partition's
+    thickness the strip's boundary lies on the solid's cap at standoff 0
+    (a 31.5px tab) and 2px inside it everywhere else. The tab pinned the
+    rectangle's long edge ON the face line, and the edge's cover read 0
+    (0013 [0.0, 1.0], 0014 [0.0, 0.04], 0027 [0.0, 0.0]) although the
+    strip's own long runs lie on the face over 0.79–0.93 of its length
+    and on the cap over the rest.
+
+    TestBandPocket's cavity wall with s17's junction as drawn (paths 2701 /
+    2905 / 2697 beside room_0013): a 32px partition rises from the room to
+    the wall, its two faces unequal — the face at the reveal's end runs
+    ACROSS the cavity wall to the far face and is the reveal's end barrier,
+    the other stops at the wall's inner face line — so the paired segment
+    ends ON that line and its flat-capped solid forms a 28px tab in the
+    reveal at standoff 0; the inner face line is drawn from the partition's
+    far flank on, and the inner leaf resumes past the reveal so that line
+    pairs there and keeps its barrier rights across the reveal. Nothing
+    collinear ends within junction-snap reach of the partition's
+    centreline (the inner leaf on the near side stops one pocket short
+    of it, as s17's outer leaf is unpaired there)."""
+
+    OUTER, OUTER_IN, INNER_OUT, INNER = 100.0, 111.75, 130.75, 144.0
+    LEAF_END = 260.0                 # the near inner leaf stops here
+    PART0, PART1 = 300.0, 332.0      # the partition's faces
+    RESUME = 440.0                   # the inner leaf resumes: the reveal's far end
+
+    def _plan(self):
+        x0, x1 = 100.0, 600.0
+        le, p0, p1, r1 = self.LEAF_END, self.PART0, self.PART1, self.RESUME
+        paths = [
+            hline(0, x0, x1, self.OUTER),                          # outer face
+            hline(1, x0, x1, self.OUTER_IN),                       # outer leaf, inner face
+            hline(2, x0, le, self.INNER_OUT),                      # inner leaf, outer face:
+            hline(3, r1, x1, self.INNER_OUT),                      #   stops, then resumes
+            hline(4, x0, p0, self.INNER),                          # inner face up to the
+            hline(5, p1, x1, self.INNER),                          #   partition, and from its
+                                                                   #   far flank on
+            hline(6, p1 + 2.0, r1 - 8.0, 105.25),                  # glazing, mid outer leaf
+            vline(7, p0, self.OUTER_IN, 392.0),                    # the partition's near face,
+                                                                   #   across the wall
+            vline(8, p1, self.INNER, 392.0),                       # its far face, to the wall
+        ]
+        idx = 9
+        paths += wall_band_v(idx, x0, self.OUTER, 400.0)
+        idx += 2
+        paths += wall_band_v(idx, x1 - 8.0, self.OUTER, 400.0)
+        idx += 2
+        paths += wall_band_h(idx, x0, x1, 392.0)
+        return paths
+
+    def test_tabbed_reveal_is_not_a_room(self):
+        rooms = rooms_for(self._plan())
+        # The two rooms the partition divides, and no reveal pocket.
+        self.assertEqual(len(rooms), 2, [r.bbox for r in rooms])
+        for r in rooms:
+            self.assertGreater(r.bbox[1], self.INNER)
+
+
 class TestRejectedDoorIsNotAnEntrance(unittest.TestCase):
     """detect_rooms consumes candidates before the offline floor, so a door
     the pipeline itself rejects (< ROOM_BBOX_SEAL_MIN_CONFIDENCE, the floor's

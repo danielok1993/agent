@@ -1,0 +1,9148 @@
+[
+ {
+  "slug": "s17",
+  "page": 1,
+  "factor": 1.0,
+  "cap_px": 36.0,
+  "n_face_lines": 643,
+  "n_cap_lines": 262,
+  "calls": [
+   {
+    "short": 94.5,
+    "long": 280.75,
+    "spacing": 98.5,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      708.4,
+      2595.7
+     ],
+     [
+      708.4,
+      2876.4
+     ],
+     [
+      802.9,
+      2876.4
+     ],
+     [
+      802.9,
+      2595.7
+     ]
+    ],
+    "n_vertices": 10,
+    "covers": {
+     "mrr": [
+      0.675,
+      1.0
+     ],
+     "mrr_tol0": [
+      0.675,
+      1.0
+     ],
+     "runs": [
+      0.954,
+      1.0
+     ],
+     "runs_caps": [
+      0.954,
+      1.0
+     ],
+     "runs_max": [
+      0.954,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 276.8,
+      "n_runs": 3,
+      "runs": [
+       {
+        "len": 191.5,
+        "offset": -44.5,
+        "cov_faces": 189.5,
+        "cov_with_caps": 189.5,
+        "a": [
+         800.2,
+         2787.2
+        ],
+        "b": [
+         800.2,
+         2595.7
+        ]
+       },
+       {
+        "len": 36.5,
+        "offset": -47.25,
+        "cov_faces": 36.5,
+        "cov_with_caps": 36.5,
+        "a": [
+         802.9,
+         2876.4
+        ],
+        "b": [
+         802.9,
+         2839.9
+        ]
+       },
+       {
+        "len": 48.7,
+        "offset": -47.25,
+        "cov_faces": 41.8,
+        "cov_with_caps": 41.8,
+        "a": [
+         802.9,
+         2835.9
+        ],
+        "b": [
+         802.9,
+         2787.2
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 284.8,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 280.8,
+        "offset": 47.25,
+        "cov_faces": 280.8,
+        "cov_with_caps": 280.8,
+        "a": [
+         708.4,
+         2595.7
+        ],
+        "b": [
+         708.4,
+         2876.4
+        ]
+       },
+       {
+        "len": 4.0,
+        "offset": 3.5,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         752.2,
+         2839.9
+        ],
+        "b": [
+         752.2,
+         2835.9
+        ]
+       }
+      ]
+     }
+    ],
+    "res_now": false,
+    "bbox": [
+     708.4,
+     2595.7,
+     802.9,
+     2876.4
+    ],
+    "area": 25801,
+    "text": false,
+    "spacing_mm": 834,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "technically this stairwell should merge with the hallway room",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 34.75,
+    "long": 156.75,
+    "spacing": 38.75,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      946.7,
+      2330.7
+     ],
+     [
+      946.7,
+      2173.9
+     ],
+     [
+      911.9,
+      2173.9
+     ],
+     [
+      911.9,
+      2330.7
+     ]
+    ],
+    "n_vertices": 9,
+    "covers": {
+     "mrr": [
+      0.0,
+      1.0
+     ],
+     "mrr_tol0": [
+      0.786,
+      1.0
+     ],
+     "runs": [
+      0.786,
+      1.0
+     ],
+     "runs_caps": [
+      0.799,
+      1.0
+     ],
+     "runs_max": [
+      0.786,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 156.7,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 125.2,
+        "offset": -15.37,
+        "cov_faces": 123.2,
+        "cov_with_caps": 125.2,
+        "a": [
+         913.9,
+         2205.4
+        ],
+        "b": [
+         913.9,
+         2330.7
+        ]
+       },
+       {
+        "len": 31.5,
+        "offset": -17.37,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         911.9,
+         2173.9
+        ],
+        "b": [
+         911.9,
+         2205.4
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 156.7,
+      "n_runs": 4,
+      "runs": [
+       {
+        "len": 113.7,
+        "offset": 17.37,
+        "cov_faces": 113.7,
+        "cov_with_caps": 113.7,
+        "a": [
+         946.7,
+         2330.7
+        ],
+        "b": [
+         946.7,
+         2216.9
+        ]
+       },
+       {
+        "len": 27.2,
+        "offset": 17.37,
+        "cov_faces": 27.2,
+        "cov_with_caps": 27.2,
+        "a": [
+         946.7,
+         2216.9
+        ],
+        "b": [
+         946.7,
+         2189.7
+        ]
+       },
+       {
+        "len": 4.0,
+        "offset": 17.37,
+        "cov_faces": 4.0,
+        "cov_with_caps": 4.0,
+        "a": [
+         946.7,
+         2189.7
+        ],
+        "b": [
+         946.7,
+         2185.7
+        ]
+       },
+       {
+        "len": 11.8,
+        "offset": 17.37,
+        "cov_faces": 11.8,
+        "cov_with_caps": 11.8,
+        "a": [
+         946.7,
+         2185.7
+        ],
+        "b": [
+         946.7,
+         2173.9
+        ]
+       }
+      ]
+     }
+    ],
+    "res_now": false,
+    "bbox": [
+     911.9,
+     2173.9,
+     946.7,
+     2330.7
+    ],
+    "area": 5197,
+    "text": false,
+    "spacing_mm": 328,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_caps": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_max": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     }
+    }
+   },
+   {
+    "short": 34.75,
+    "long": 452.0,
+    "spacing": 38.75,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      913.9,
+      2608.7
+     ],
+     [
+      913.9,
+      3060.7
+     ],
+     [
+      948.7,
+      3060.7
+     ],
+     [
+      948.7,
+      2608.7
+     ]
+    ],
+    "n_vertices": 8,
+    "covers": {
+     "mrr": [
+      0.0,
+      0.926
+     ],
+     "mrr_tol0": [
+      0.926,
+      0.926
+     ],
+     "runs": [
+      0.926,
+      0.961
+     ],
+     "runs_caps": [
+      0.93,
+      1.0
+     ],
+     "runs_max": [
+      0.926,
+      0.961
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 452.0,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 31.5,
+        "offset": -17.37,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         948.7,
+         3060.7
+        ],
+        "b": [
+         948.7,
+         3029.2
+        ]
+       },
+       {
+        "len": 420.5,
+        "offset": -15.37,
+        "cov_faces": 418.5,
+        "cov_with_caps": 420.5,
+        "a": [
+         946.7,
+         3029.2
+        ],
+        "b": [
+         946.7,
+         2608.7
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 452.0,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 15.7,
+        "offset": 10.37,
+        "cov_faces": 15.7,
+        "cov_with_caps": 15.7,
+        "a": [
+         920.9,
+         3044.9
+        ],
+        "b": [
+         920.9,
+         3060.7
+        ]
+       },
+       {
+        "len": 436.3,
+        "offset": 17.37,
+        "cov_faces": 418.5,
+        "cov_with_caps": 436.3,
+        "a": [
+         913.9,
+         2608.7
+        ],
+        "b": [
+         913.9,
+         3044.9
+        ]
+       }
+      ]
+     }
+    ],
+    "res_now": false,
+    "bbox": [
+     913.9,
+     2608.7,
+     948.7,
+     3060.7
+    ],
+    "area": 14756,
+    "text": false,
+    "spacing_mm": 328,
+    "gt": "false_positive",
+    "gt_iou": 0.986,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_caps": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_max": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     }
+    }
+   },
+   {
+    "short": 101.5,
+    "long": 133.0,
+    "spacing": 105.5,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1649.2,
+      1301.9
+     ],
+     [
+      1750.7,
+      1301.9
+     ],
+     [
+      1750.7,
+      1168.9
+     ],
+     [
+      1649.2,
+      1168.9
+     ]
+    ],
+    "n_vertices": 4,
+    "covers": {
+     "mrr": [
+      1.0,
+      1.0
+     ],
+     "mrr_tol0": [
+      1.0,
+      1.0
+     ],
+     "runs": [
+      1.0,
+      1.0
+     ],
+     "runs_caps": [
+      1.0,
+      1.0
+     ],
+     "runs_max": [
+      1.0,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 133.0,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 133.0,
+        "offset": -50.75,
+        "cov_faces": 133.0,
+        "cov_with_caps": 133.0,
+        "a": [
+         1649.2,
+         1168.9
+        ],
+        "b": [
+         1649.2,
+         1301.9
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 133.0,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 133.0,
+        "offset": 50.75,
+        "cov_faces": 133.0,
+        "cov_with_caps": 133.0,
+        "a": [
+         1750.7,
+         1301.9
+        ],
+        "b": [
+         1750.7,
+         1168.9
+        ]
+       }
+      ]
+     }
+    ],
+    "res_now": false,
+    "bbox": [
+     1649.2,
+     1168.9,
+     1750.7,
+     1301.9
+    ],
+    "area": 13499,
+    "text": false,
+    "spacing_mm": 1786,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 34.79,
+    "long": 315.24,
+    "spacing": 38.79,
+    "axis_deg": 89.6,
+    "mrr": [
+     [
+      3046.9,
+      2173.9
+     ],
+     [
+      3049.2,
+      2489.1
+     ],
+     [
+      3084.0,
+      2488.9
+     ],
+     [
+      3081.7,
+      2173.7
+     ]
+    ],
+    "n_vertices": 10,
+    "covers": {
+     "mrr": [
+      0.0,
+      0.04
+     ],
+     "mrr_tol0": [
+      0.864,
+      0.894
+     ],
+     "runs": [
+      0.863,
+      0.893
+     ],
+     "runs_caps": [
+      0.876,
+      0.899
+     ],
+     "runs_max": [
+      0.863,
+      0.893
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 315.0,
+      "n_runs": 3,
+      "runs": [
+       {
+        "len": 9.5,
+        "offset": -15.14,
+        "cov_faces": 0.0,
+        "cov_with_caps": 2.0,
+        "a": [
+         3081.7,
+         2488.9
+        ],
+        "b": [
+         3081.7,
+         2479.4
+        ]
+       },
+       {
+        "len": 31.5,
+        "offset": -17.28,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3083.7,
+         2479.4
+        ],
+        "b": [
+         3083.7,
+         2447.9
+        ]
+       },
+       {
+        "len": 274.0,
+        "offset": -16.36,
+        "cov_faces": 272.0,
+        "cov_with_caps": 274.0,
+        "a": [
+         3081.7,
+         2447.9
+        ],
+        "b": [
+         3081.7,
+         2173.9
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 315.0,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 283.5,
+        "offset": 16.39,
+        "cov_faces": 281.5,
+        "cov_with_caps": 283.5,
+        "a": [
+         3049.2,
+         2205.4
+        ],
+        "b": [
+         3049.2,
+         2488.9
+        ]
+       },
+       {
+        "len": 31.5,
+        "offset": 17.28,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3047.2,
+         2173.9
+        ],
+        "b": [
+         3047.2,
+         2205.4
+        ]
+       }
+      ]
+     }
+    ],
+    "res_now": false,
+    "bbox": [
+     3047.2,
+     2173.9,
+     3083.7,
+     2488.9
+    ],
+    "area": 10363,
+    "text": false,
+    "spacing_mm": 328,
+    "gt": "false_positive",
+    "gt_iou": 0.945,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_caps": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_max": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     }
+    }
+   },
+   {
+    "short": 36.5,
+    "long": 466.25,
+    "spacing": 40.5,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      3047.2,
+      2594.4
+     ],
+     [
+      3047.2,
+      3060.7
+     ],
+     [
+      3083.7,
+      3060.7
+     ],
+     [
+      3083.7,
+      2594.4
+     ]
+    ],
+    "n_vertices": 8,
+    "covers": {
+     "mrr": [
+      0.0,
+      0.0
+     ],
+     "mrr_tol0": [
+      0.928,
+      0.928
+     ],
+     "runs": [
+      0.928,
+      0.928
+     ],
+     "runs_caps": [
+      0.932,
+      0.932
+     ],
+     "runs_max": [
+      0.928,
+      0.928
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 466.2,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 31.5,
+        "offset": -18.25,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3083.7,
+         3060.7
+        ],
+        "b": [
+         3083.7,
+         3029.2
+        ]
+       },
+       {
+        "len": 434.8,
+        "offset": -16.25,
+        "cov_faces": 432.8,
+        "cov_with_caps": 434.8,
+        "a": [
+         3081.7,
+         3029.2
+        ],
+        "b": [
+         3081.7,
+         2594.4
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 466.2,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 31.5,
+        "offset": 18.25,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3047.2,
+         3029.2
+        ],
+        "b": [
+         3047.2,
+         3060.7
+        ]
+       },
+       {
+        "len": 434.8,
+        "offset": 16.25,
+        "cov_faces": 432.8,
+        "cov_with_caps": 434.8,
+        "a": [
+         3049.2,
+         2594.4
+        ],
+        "b": [
+         3049.2,
+         3029.2
+        ]
+       }
+      ]
+     }
+    ],
+    "res_now": false,
+    "bbox": [
+     3047.2,
+     2594.4,
+     3083.7,
+     3060.7
+    ],
+    "area": 15279,
+    "text": false,
+    "spacing_mm": 343,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     }
+    }
+   },
+   {
+    "short": 21.25,
+    "long": 144.75,
+    "spacing": 25.25,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      3433.9,
+      2185.7
+     ],
+     [
+      3433.9,
+      2206.9
+     ],
+     [
+      3578.7,
+      2206.9
+     ],
+     [
+      3578.7,
+      2185.7
+     ]
+    ],
+    "n_vertices": 4,
+    "covers": {
+     "mrr": [
+      1.0,
+      1.0
+     ],
+     "mrr_tol0": [
+      1.0,
+      1.0
+     ],
+     "runs": [
+      1.0,
+      1.0
+     ],
+     "runs_caps": [
+      1.0,
+      1.0
+     ],
+     "runs_max": [
+      1.0,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 144.8,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 144.8,
+        "offset": -10.62,
+        "cov_faces": 144.8,
+        "cov_with_caps": 144.8,
+        "a": [
+         3578.7,
+         2185.7
+        ],
+        "b": [
+         3433.9,
+         2185.7
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 144.8,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 144.8,
+        "offset": 10.62,
+        "cov_faces": 144.8,
+        "cov_with_caps": 144.8,
+        "a": [
+         3433.9,
+         2206.9
+        ],
+        "b": [
+         3578.7,
+         2206.9
+        ]
+       }
+      ]
+     }
+    ],
+    "res_now": true,
+    "bbox": [
+     3433.9,
+     2185.7,
+     3578.7,
+     2206.9
+    ],
+    "area": 3076,
+    "text": false,
+    "spacing_mm": 214,
+    "gt": "unmatched",
+    "gt_iou": 0.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": true,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "mrr_tol0": {
+      "36": true,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs": {
+      "36": true,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_caps": {
+      "36": true,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_max": {
+      "36": true,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     }
+    }
+   }
+  ],
+  "rooms": [
+   {
+    "short": 148.75,
+    "long": 256.83,
+    "spacing": 152.75,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      581.4,
+      1455.7
+     ],
+     [
+      581.4,
+      1604.4
+     ],
+     [
+      838.2,
+      1604.4
+     ],
+     [
+      838.2,
+      1455.7
+     ]
+    ],
+    "n_vertices": 15,
+    "covers": {
+     "mrr": [
+      0.492,
+      0.701
+     ],
+     "mrr_tol0": [
+      0.492,
+      0.701
+     ],
+     "runs": [
+      0.555,
+      0.746
+     ],
+     "runs_caps": [
+      0.555,
+      0.746
+     ],
+     "runs_max": [
+      0.555,
+      0.746
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 205.1,
+      "n_runs": 3,
+      "runs": [
+       {
+        "len": 130.8,
+        "offset": -71.62,
+        "cov_faces": 126.2,
+        "cov_with_caps": 126.2,
+        "a": [
+         712.2,
+         1458.4
+        ],
+        "b": [
+         581.4,
+         1458.4
+        ]
+       },
+       {
+        "len": 20.9,
+        "offset": -71.62,
+        "cov_faces": 16.4,
+        "cov_with_caps": 16.4,
+        "a": [
+         786.5,
+         1458.4
+        ],
+        "b": [
+         765.7,
+         1458.4
+        ]
+       },
+       {
+        "len": 53.5,
+        "offset": -74.38,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         765.7,
+         1455.7
+        ],
+        "b": [
+         712.2,
+         1455.7
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 256.8,
+      "n_runs": 5,
+      "runs": [
+       {
+        "len": 15.5,
+        "offset": 62.37,
+        "cov_faces": 13.5,
+        "cov_with_caps": 13.5,
+        "a": [
+         581.4,
+         1592.4
+        ],
+        "b": [
+         596.9,
+         1592.4
+        ]
+       },
+       {
+        "len": 182.0,
+        "offset": 74.38,
+        "cov_faces": 178.0,
+        "cov_with_caps": 178.0,
+        "a": [
+         596.9,
+         1604.4
+        ],
+        "b": [
+         778.9,
+         1604.4
+        ]
+       },
+       {
+        "len": 43.3,
+        "offset": 74.38,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         778.9,
+         1604.4
+        ],
+        "b": [
+         822.2,
+         1604.4
+        ]
+       },
+       {
+        "len": 9.7,
+        "offset": 74.38,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         822.2,
+         1604.4
+        ],
+        "b": [
+         831.9,
+         1604.4
+        ]
+       },
+       {
+        "len": 6.3,
+        "offset": 62.37,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         831.9,
+         1592.4
+        ],
+        "b": [
+         838.2,
+         1592.4
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 2,
+    "max_entrance_run": 91.8,
+    "bbox": [
+     581.4,
+     1455.7,
+     838.2,
+     1604.4
+    ],
+    "area": 33918,
+    "text": true,
+    "spacing_mm": 2587,
+    "gt": "confirmed",
+    "gt_iou": 0.524,
+    "gt_note": "two rooms detected as one",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 101.59,
+    "long": 293.25,
+    "spacing": 105.59,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      457.6,
+      1308.2
+     ],
+     [
+      457.6,
+      1601.4
+     ],
+     [
+      559.2,
+      1601.4
+     ],
+     [
+      559.2,
+      1308.2
+     ]
+    ],
+    "n_vertices": 36,
+    "covers": {
+     "mrr": [
+      0.564,
+      0.976
+     ],
+     "mrr_tol0": [
+      0.564,
+      0.976
+     ],
+     "runs": [
+      0.784,
+      1.395
+     ],
+     "runs_caps": [
+      0.798,
+      1.395
+     ],
+     "runs_max": [
+      0.784,
+      1.395
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 464.7,
+      "n_runs": 5,
+      "runs": [
+       {
+        "len": 9.0,
+        "offset": -38.3,
+        "cov_faces": 7.0,
+        "cov_with_caps": 7.0,
+        "a": [
+         546.7,
+         1601.4
+        ],
+        "b": [
+         546.7,
+         1592.4
+        ]
+       },
+       {
+        "len": 284.2,
+        "offset": -50.8,
+        "cov_faces": 284.2,
+        "cov_with_caps": 284.2,
+        "a": [
+         559.2,
+         1592.4
+        ],
+        "b": [
+         559.2,
+         1308.2
+        ]
+       },
+       {
+        "len": 71.5,
+        "offset": -4.05,
+        "cov_faces": 23.8,
+        "cov_with_caps": 23.8,
+        "a": [
+         512.4,
+         1308.2
+        ],
+        "b": [
+         512.4,
+         1379.7
+        ]
+       },
+       {
+        "len": 96.0,
+        "offset": -2.8,
+        "cov_faces": 94.0,
+        "cov_with_caps": 94.0,
+        "a": [
+         511.2,
+         1379.7
+        ],
+        "b": [
+         511.2,
+         1475.7
+        ]
+       },
+       {
+        "len": 4.0,
+        "offset": -10.3,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         518.7,
+         1497.9
+        ],
+        "b": [
+         518.7,
+         1501.9
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 326.6,
+      "n_runs": 10,
+      "runs": [
+       {
+        "len": 5.5,
+        "offset": 47.95,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         460.4,
+         1586.9
+        ],
+        "b": [
+         460.4,
+         1592.4
+        ]
+       },
+       {
+        "len": 9.0,
+        "offset": 11.45,
+        "cov_faces": 7.0,
+        "cov_with_caps": 7.0,
+        "a": [
+         496.9,
+         1592.4
+        ],
+        "b": [
+         496.9,
+         1601.4
+        ]
+       },
+       {
+        "len": 88.1,
+        "offset": 4.2,
+        "cov_faces": 86.1,
+        "cov_with_caps": 86.1,
+        "a": [
+         504.2,
+         1475.7
+        ],
+        "b": [
+         504.2,
+         1387.5
+        ]
+       },
+       {
+        "len": 118.7,
+        "offset": 47.95,
+        "cov_faces": 118.7,
+        "cov_with_caps": 118.7,
+        "a": [
+         460.4,
+         1399.4
+        ],
+        "b": [
+         460.4,
+         1518.2
+        ]
+       },
+       {
+        "len": 16.2,
+        "offset": 25.95,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         482.4,
+         1518.2
+        ],
+        "b": [
+         482.4,
+         1501.9
+        ]
+       },
+       {
+        "len": 4.0,
+        "offset": 27.95,
+        "cov_faces": 0.0,
+        "cov_with_caps": 2.0,
+        "a": [
+         480.4,
+         1501.9
+        ],
+        "b": [
+         480.4,
+         1497.9
+        ]
+       },
+       {
+        "len": 16.2,
+        "offset": 2.95,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         505.4,
+         1501.9
+        ],
+        "b": [
+         505.4,
+         1518.2
+        ]
+       },
+       {
+        "len": 4.0,
+        "offset": 0.95,
+        "cov_faces": 0.0,
+        "cov_with_caps": 2.0,
+        "a": [
+         507.4,
+         1518.2
+        ],
+        "b": [
+         507.4,
+         1522.2
+        ]
+       },
+       {
+        "len": 22.8,
+        "offset": 47.95,
+        "cov_faces": 18.0,
+        "cov_with_caps": 18.0,
+        "a": [
+         460.4,
+         1522.2
+        ],
+        "b": [
+         460.4,
+         1544.9
+        ]
+       },
+       {
+        "len": 42.0,
+        "offset": 50.8,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         457.6,
+         1544.9
+        ],
+        "b": [
+         457.6,
+         1586.9
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 4,
+    "window_count": 0,
+    "entrance_count": 4,
+    "max_entrance_run": 76.0,
+    "bbox": [
+     457.6,
+     1308.2,
+     559.2,
+     1601.4
+    ],
+    "area": 22905,
+    "text": false,
+    "spacing_mm": 1788,
+    "gt": "confirmed",
+    "gt_iou": 0.97,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 221.0,
+    "long": 255.25,
+    "spacing": 225.0,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      229.4,
+      1634.9
+     ],
+     [
+      450.4,
+      1634.9
+     ],
+     [
+      450.4,
+      1379.7
+     ],
+     [
+      229.4,
+      1379.7
+     ]
+    ],
+    "n_vertices": 11,
+    "covers": {
+     "mrr": [
+      0.629,
+      0.876
+     ],
+     "mrr_tol0": [
+      0.629,
+      0.876
+     ],
+     "runs": [
+      0.787,
+      0.992
+     ],
+     "runs_caps": [
+      0.787,
+      0.992
+     ],
+     "runs_max": [
+      0.787,
+      0.992
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 255.3,
+      "n_runs": 3,
+      "runs": [
+       {
+        "len": 31.6,
+        "offset": -64.5,
+        "cov_faces": 31.6,
+        "cov_with_caps": 31.6,
+        "a": [
+         275.4,
+         1603.3
+        ],
+        "b": [
+         275.4,
+         1634.9
+        ]
+       },
+       {
+        "len": 212.7,
+        "offset": -110.5,
+        "cov_faces": 212.7,
+        "cov_with_caps": 212.7,
+        "a": [
+         229.4,
+         1379.7
+        ],
+        "b": [
+         229.4,
+         1592.4
+        ]
+       },
+       {
+        "len": 10.9,
+        "offset": -64.5,
+        "cov_faces": 8.9,
+        "cov_with_caps": 8.9,
+        "a": [
+         275.4,
+         1592.4
+        ],
+        "b": [
+         275.4,
+         1603.3
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 255.3,
+      "n_runs": 3,
+      "runs": [
+       {
+        "len": 42.5,
+        "offset": 70.5,
+        "cov_faces": 40.5,
+        "cov_with_caps": 40.5,
+        "a": [
+         410.4,
+         1634.9
+        ],
+        "b": [
+         410.4,
+         1592.4
+        ]
+       },
+       {
+        "len": 65.2,
+        "offset": 110.5,
+        "cov_faces": 13.0,
+        "cov_with_caps": 13.0,
+        "a": [
+         450.4,
+         1592.4
+        ],
+        "b": [
+         450.4,
+         1527.2
+        ]
+       },
+       {
+        "len": 147.5,
+        "offset": 110.5,
+        "cov_faces": 147.5,
+        "cov_with_caps": 147.5,
+        "a": [
+         450.4,
+         1527.2
+        ],
+        "b": [
+         450.4,
+         1379.7
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 2,
+    "max_entrance_run": 75.2,
+    "bbox": [
+     229.4,
+     1379.7,
+     450.4,
+     1634.9
+    ],
+    "area": 52755,
+    "text": true,
+    "spacing_mm": 3810,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "cutouts near both doors",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 194.95,
+    "long": 339.35,
+    "spacing": 198.95,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      229.4,
+      1177.6
+     ],
+     [
+      229.4,
+      1372.5
+     ],
+     [
+      568.8,
+      1372.5
+     ],
+     [
+      568.8,
+      1177.6
+     ]
+    ],
+    "n_vertices": 30,
+    "covers": {
+     "mrr": [
+      0.0,
+      0.346
+     ],
+     "mrr_tol0": [
+      0.0,
+      0.346
+     ],
+     "runs": [
+      0.639,
+      0.766
+     ],
+     "runs_caps": [
+      0.663,
+      0.791
+     ],
+     "runs_max": [
+      0.639,
+      0.766
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 339.4,
+      "n_runs": 6,
+      "runs": [
+       {
+        "len": 57.3,
+        "offset": -88.38,
+        "cov_faces": 55.3,
+        "cov_with_caps": 55.3,
+        "a": [
+         286.7,
+         1186.7
+        ],
+        "b": [
+         229.4,
+         1186.7
+        ]
+       },
+       {
+        "len": 9.6,
+        "offset": -25.88,
+        "cov_faces": 7.6,
+        "cov_with_caps": 7.6,
+        "a": [
+         568.8,
+         1249.2
+        ],
+        "b": [
+         559.2,
+         1249.2
+        ]
+       },
+       {
+        "len": 151.2,
+        "offset": -88.38,
+        "cov_faces": 151.2,
+        "cov_with_caps": 151.2,
+        "a": [
+         559.2,
+         1186.7
+        ],
+        "b": [
+         407.9,
+         1186.7
+        ]
+       },
+       {
+        "len": 12.3,
+        "offset": -37.63,
+        "cov_faces": 0.0,
+        "cov_with_caps": 8.2,
+        "a": [
+         407.9,
+         1237.4
+        ],
+        "b": [
+         395.7,
+         1237.4
+        ]
+       },
+       {
+        "len": 48.0,
+        "offset": -88.38,
+        "cov_faces": 46.0,
+        "cov_with_caps": 46.0,
+        "a": [
+         395.7,
+         1186.7
+        ],
+        "b": [
+         347.7,
+         1186.7
+        ]
+       },
+       {
+        "len": 61.0,
+        "offset": -97.47,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         347.7,
+         1177.6
+        ],
+        "b": [
+         286.7,
+         1177.6
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 345.4,
+      "n_runs": 9,
+      "runs": [
+       {
+        "len": 122.0,
+        "offset": 94.87,
+        "cov_faces": 117.2,
+        "cov_with_caps": 117.2,
+        "a": [
+         229.4,
+         1369.9
+        ],
+        "b": [
+         351.4,
+         1369.9
+        ]
+       },
+       {
+        "len": 39.8,
+        "offset": 97.47,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         351.4,
+         1372.5
+        ],
+        "b": [
+         391.2,
+         1372.5
+        ]
+       },
+       {
+        "len": 4.5,
+        "offset": 94.87,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         391.2,
+         1369.9
+        ],
+        "b": [
+         395.7,
+         1369.9
+        ]
+       },
+       {
+        "len": 12.3,
+        "offset": 11.62,
+        "cov_faces": 0.0,
+        "cov_with_caps": 8.2,
+        "a": [
+         395.7,
+         1286.7
+        ],
+        "b": [
+         407.9,
+         1286.7
+        ]
+       },
+       {
+        "len": 94.5,
+        "offset": 94.87,
+        "cov_faces": 94.5,
+        "cov_with_caps": 94.5,
+        "a": [
+         407.9,
+         1369.9
+        ],
+        "b": [
+         502.4,
+         1369.9
+        ]
+       },
+       {
+        "len": 3.0,
+        "offset": 76.12,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         502.4,
+         1351.2
+        ],
+        "b": [
+         505.4,
+         1351.2
+        ]
+       },
+       {
+        "len": 3.0,
+        "offset": 38.37,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         505.4,
+         1313.4
+        ],
+        "b": [
+         502.4,
+         1313.4
+        ]
+       },
+       {
+        "len": 7.0,
+        "offset": 26.87,
+        "cov_faces": 5.0,
+        "cov_with_caps": 5.0,
+        "a": [
+         502.4,
+         1301.9
+        ],
+        "b": [
+         509.4,
+         1301.9
+        ]
+       },
+       {
+        "len": 59.4,
+        "offset": 18.37,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         509.4,
+         1293.4
+        ],
+        "b": [
+         568.8,
+         1293.4
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 4,
+    "window_count": 0,
+    "entrance_count": 4,
+    "max_entrance_run": 112.1,
+    "bbox": [
+     229.4,
+     1177.6,
+     568.8,
+     1372.5
+    ],
+    "area": 55699,
+    "text": true,
+    "spacing_mm": 3369,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 98.4,
+    "long": 127.0,
+    "spacing": 102.4,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      677.2,
+      1301.9
+     ],
+     [
+      677.2,
+      1174.9
+     ],
+     [
+      578.8,
+      1174.9
+     ],
+     [
+      578.8,
+      1301.9
+     ]
+    ],
+    "n_vertices": 9,
+    "covers": {
+     "mrr": [
+      0.569,
+      0.63
+     ],
+     "mrr_tol0": [
+      0.569,
+      0.63
+     ],
+     "runs": [
+      0.569,
+      0.63
+     ],
+     "runs_caps": [
+      0.569,
+      0.63
+     ],
+     "runs_max": [
+      0.569,
+      0.63
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 127.0,
+      "n_runs": 3,
+      "runs": [
+       {
+        "len": 41.5,
+        "offset": -49.2,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         578.8,
+         1251.9
+        ],
+        "b": [
+         578.8,
+         1293.4
+        ]
+       },
+       {
+        "len": 8.5,
+        "offset": -39.2,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         588.8,
+         1293.4
+        ],
+        "b": [
+         588.8,
+         1301.9
+        ]
+       },
+       {
+        "len": 77.0,
+        "offset": -46.55,
+        "cov_faces": 72.3,
+        "cov_with_caps": 72.3,
+        "a": [
+         581.4,
+         1174.9
+        ],
+        "b": [
+         581.4,
+         1251.9
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 127.0,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 60.2,
+        "offset": 49.2,
+        "cov_faces": 13.2,
+        "cov_with_caps": 13.2,
+        "a": [
+         677.2,
+         1301.9
+        ],
+        "b": [
+         677.2,
+         1241.7
+        ]
+       },
+       {
+        "len": 66.8,
+        "offset": 49.2,
+        "cov_faces": 66.8,
+        "cov_with_caps": 66.8,
+        "a": [
+         677.2,
+         1241.7
+        ],
+        "b": [
+         677.2,
+         1174.9
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 2,
+    "max_entrance_run": 79.6,
+    "bbox": [
+     578.8,
+     1174.9,
+     677.2,
+     1301.9
+    ],
+    "area": 12208,
+    "text": false,
+    "spacing_mm": 1734,
+    "gt": "confirmed",
+    "gt_iou": 0.972,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 124.75,
+    "long": 201.27,
+    "spacing": 128.75,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      782.7,
+      1323.7
+     ],
+     [
+      581.4,
+      1323.7
+     ],
+     [
+      581.4,
+      1448.4
+     ],
+     [
+      782.7,
+      1448.4
+     ]
+    ],
+    "n_vertices": 6,
+    "covers": {
+     "mrr": [
+      0.627,
+      0.798
+     ],
+     "mrr_tol0": [
+      0.627,
+      0.798
+     ],
+     "runs": [
+      0.689,
+      0.731
+     ],
+     "runs_caps": [
+      0.709,
+      0.731
+     ],
+     "runs_max": [
+      0.627,
+      0.731
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 207.3,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 201.3,
+        "offset": -62.37,
+        "cov_faces": 138.8,
+        "cov_with_caps": 138.8,
+        "a": [
+         581.4,
+         1448.4
+        ],
+        "b": [
+         782.7,
+         1448.4
+        ]
+       },
+       {
+        "len": 6.0,
+        "offset": -10.12,
+        "cov_faces": 0.0,
+        "cov_with_caps": 4.0,
+        "a": [
+         587.4,
+         1396.2
+        ],
+        "b": [
+         581.4,
+         1396.2
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 147.1,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 147.1,
+        "offset": 62.37,
+        "cov_faces": 147.1,
+        "cov_with_caps": 147.1,
+        "a": [
+         734.5,
+         1323.7
+        ],
+        "b": [
+         587.4,
+         1323.7
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "max_entrance_run": 88.3,
+    "bbox": [
+     581.4,
+     1323.7,
+     782.7,
+     1448.4
+    ],
+    "area": 21671,
+    "text": false,
+    "spacing_mm": 2180,
+    "gt": "confirmed",
+    "gt_iou": 0.98,
+    "gt_note": "skewed near the bottom wall",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 63.1,
+    "long": 277.0,
+    "spacing": 67.1,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      628.2,
+      3055.7
+     ],
+     [
+      628.2,
+      3118.8
+     ],
+     [
+      905.2,
+      3118.8
+     ],
+     [
+      905.2,
+      3055.7
+     ]
+    ],
+    "n_vertices": 21,
+    "covers": {
+     "mrr": [
+      0.0,
+      0.225
+     ],
+     "mrr_tol0": [
+      0.225,
+      0.587
+     ],
+     "runs": [
+      0.606,
+      0.612
+     ],
+     "runs_caps": [
+      0.606,
+      0.612
+     ],
+     "runs_max": [
+      0.606,
+      0.612
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 273.0,
+      "n_runs": 9,
+      "runs": [
+       {
+        "len": 18.0,
+        "offset": -22.63,
+        "cov_faces": 18.0,
+        "cov_with_caps": 18.0,
+        "a": [
+         905.2,
+         3064.7
+        ],
+        "b": [
+         887.2,
+         3064.7
+        ]
+       },
+       {
+        "len": 2.0,
+        "offset": -22.63,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         887.2,
+         3064.7
+        ],
+        "b": [
+         885.2,
+         3064.7
+        ]
+       },
+       {
+        "len": 5.3,
+        "offset": -22.63,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         885.2,
+         3064.7
+        ],
+        "b": [
+         879.9,
+         3064.7
+        ]
+       },
+       {
+        "len": 44.5,
+        "offset": -31.55,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         879.9,
+         3055.7
+        ],
+        "b": [
+         835.4,
+         3055.7
+        ]
+       },
+       {
+        "len": 44.5,
+        "offset": -31.55,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         831.4,
+         3055.7
+        ],
+        "b": [
+         786.9,
+         3055.7
+        ]
+       },
+       {
+        "len": 77.0,
+        "offset": -22.63,
+        "cov_faces": 69.7,
+        "cov_with_caps": 69.7,
+        "a": [
+         786.9,
+         3064.7
+        ],
+        "b": [
+         709.9,
+         3064.7
+        ]
+       },
+       {
+        "len": 2.0,
+        "offset": -22.63,
+        "cov_faces": 2.0,
+        "cov_with_caps": 2.0,
+        "a": [
+         709.9,
+         3064.7
+        ],
+        "b": [
+         707.9,
+         3064.7
+        ]
+       },
+       {
+        "len": 5.3,
+        "offset": -22.63,
+        "cov_faces": 5.3,
+        "cov_with_caps": 5.3,
+        "a": [
+         707.9,
+         3064.7
+        ],
+        "b": [
+         702.7,
+         3064.7
+        ]
+       },
+       {
+        "len": 74.5,
+        "offset": -22.63,
+        "cov_faces": 74.5,
+        "cov_with_caps": 74.5,
+        "a": [
+         702.7,
+         3064.7
+        ],
+        "b": [
+         628.2,
+         3064.7
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 281.0,
+      "n_runs": 4,
+      "runs": [
+       {
+        "len": 175.2,
+        "offset": 22.87,
+        "cov_faces": 168.0,
+        "cov_with_caps": 168.0,
+        "a": [
+         628.2,
+         3110.2
+        ],
+        "b": [
+         803.4,
+         3110.2
+        ]
+       },
+       {
+        "len": 81.0,
+        "offset": 31.55,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         803.4,
+         3118.8
+        ],
+        "b": [
+         884.4,
+         3118.8
+        ]
+       },
+       {
+        "len": 20.8,
+        "offset": 22.87,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         884.4,
+         3110.2
+        ],
+        "b": [
+         905.2,
+         3110.2
+        ]
+       },
+       {
+        "len": 4.0,
+        "offset": 8.37,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         835.4,
+         3095.7
+        ],
+        "b": [
+         831.4,
+         3095.7
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 2,
+    "max_entrance_run": 97.0,
+    "bbox": [
+     628.2,
+     3055.7,
+     905.2,
+     3118.8
+    ],
+    "area": 13976,
+    "text": false,
+    "spacing_mm": 568,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 210.25,
+    "long": 583.08,
+    "spacing": 214.25,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      699.7,
+      3045.7
+     ],
+     [
+      909.9,
+      3045.7
+     ],
+     [
+      909.9,
+      2462.7
+     ],
+     [
+      699.7,
+      2462.7
+     ]
+    ],
+    "n_vertices": 31,
+    "covers": {
+     "mrr": [
+      0.0,
+      0.968
+     ],
+     "mrr_tol0": [
+      0.0,
+      0.968
+     ],
+     "runs": [
+      0.087,
+      1.509
+     ],
+     "runs_caps": [
+      0.096,
+      1.509
+     ],
+     "runs_max": [
+      0.087,
+      1.509
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 166.8,
+      "n_runs": 7,
+      "runs": [
+       {
+        "len": 20.6,
+        "offset": -23.13,
+        "cov_faces": 18.6,
+        "cov_with_caps": 18.6,
+        "a": [
+         781.7,
+         3025.2
+        ],
+        "b": [
+         781.7,
+         3045.7
+        ]
+       },
+       {
+        "len": 7.2,
+        "offset": -2.13,
+        "cov_faces": 0.0,
+        "cov_with_caps": 5.2,
+        "a": [
+         802.7,
+         2878.9
+        ],
+        "b": [
+         802.7,
+         2886.2
+        ]
+       },
+       {
+        "len": 32.2,
+        "offset": -96.38,
+        "cov_faces": 32.2,
+        "cov_with_caps": 32.2,
+        "a": [
+         708.4,
+         2886.2
+        ],
+        "b": [
+         708.4,
+         2918.4
+        ]
+       },
+       {
+        "len": 2.0,
+        "offset": -96.38,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         708.4,
+         2918.4
+        ],
+        "b": [
+         708.4,
+         2920.4
+        ]
+       },
+       {
+        "len": 5.3,
+        "offset": -96.38,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         708.4,
+         2920.4
+        ],
+        "b": [
+         708.4,
+         2925.7
+        ]
+       },
+       {
+        "len": 88.3,
+        "offset": -105.12,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         699.7,
+         2925.7
+        ],
+        "b": [
+         699.7,
+         3013.9
+        ]
+       },
+       {
+        "len": 11.2,
+        "offset": -96.38,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         708.4,
+         3013.9
+        ],
+        "b": [
+         708.4,
+         3025.2
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 999.3,
+      "n_runs": 9,
+      "runs": [
+       {
+        "len": 20.6,
+        "offset": 80.37,
+        "cov_faces": 18.6,
+        "cov_with_caps": 18.6,
+        "a": [
+         885.2,
+         3045.7
+        ],
+        "b": [
+         885.2,
+         3025.2
+        ]
+       },
+       {
+        "len": 562.5,
+        "offset": 105.12,
+        "cov_faces": 562.5,
+        "cov_with_caps": 562.5,
+        "a": [
+         909.9,
+         3025.2
+        ],
+        "b": [
+         909.9,
+         2462.7
+        ]
+       },
+       {
+        "len": 98.5,
+        "offset": 7.62,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         812.4,
+         2462.7
+        ],
+        "b": [
+         812.4,
+         2561.2
+        ]
+       },
+       {
+        "len": 30.5,
+        "offset": 5.12,
+        "cov_faces": 30.5,
+        "cov_with_caps": 30.5,
+        "a": [
+         809.9,
+         2561.2
+        ],
+        "b": [
+         809.9,
+         2591.7
+        ]
+       },
+       {
+        "len": 4.0,
+        "offset": 7.62,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         812.4,
+         2591.7
+        ],
+        "b": [
+         812.4,
+         2595.7
+        ]
+       },
+       {
+        "len": 191.5,
+        "offset": 5.12,
+        "cov_faces": 189.5,
+        "cov_with_caps": 189.5,
+        "a": [
+         809.9,
+         2595.7
+        ],
+        "b": [
+         809.9,
+         2787.2
+        ]
+       },
+       {
+        "len": 48.7,
+        "offset": 2.12,
+        "cov_faces": 41.8,
+        "cov_with_caps": 41.8,
+        "a": [
+         806.9,
+         2787.2
+        ],
+        "b": [
+         806.9,
+         2835.9
+        ]
+       },
+       {
+        "len": 4.0,
+        "offset": 20.37,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         825.2,
+         2835.9
+        ],
+        "b": [
+         825.2,
+         2839.9
+        ]
+       },
+       {
+        "len": 39.0,
+        "offset": 2.12,
+        "cov_faces": 37.0,
+        "cov_with_caps": 37.0,
+        "a": [
+         806.9,
+         2839.9
+        ],
+        "b": [
+         806.9,
+         2878.9
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 3,
+    "window_count": 0,
+    "entrance_count": 3,
+    "max_entrance_run": 198.5,
+    "bbox": [
+     699.7,
+     2462.7,
+     909.9,
+     3045.7
+    ],
+    "area": 73259,
+    "text": false,
+    "spacing_mm": 1814,
+    "gt": "confirmed",
+    "gt_iou": 0.958,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 94.5,
+    "long": 280.75,
+    "spacing": 98.5,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      708.4,
+      2595.7
+     ],
+     [
+      708.4,
+      2876.4
+     ],
+     [
+      802.9,
+      2876.4
+     ],
+     [
+      802.9,
+      2595.7
+     ]
+    ],
+    "n_vertices": 10,
+    "covers": {
+     "mrr": [
+      0.675,
+      1.0
+     ],
+     "mrr_tol0": [
+      0.675,
+      1.0
+     ],
+     "runs": [
+      0.954,
+      1.0
+     ],
+     "runs_caps": [
+      0.954,
+      1.0
+     ],
+     "runs_max": [
+      0.954,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 276.8,
+      "n_runs": 3,
+      "runs": [
+       {
+        "len": 191.5,
+        "offset": -44.5,
+        "cov_faces": 189.5,
+        "cov_with_caps": 189.5,
+        "a": [
+         800.2,
+         2787.2
+        ],
+        "b": [
+         800.2,
+         2595.7
+        ]
+       },
+       {
+        "len": 36.5,
+        "offset": -47.25,
+        "cov_faces": 36.5,
+        "cov_with_caps": 36.5,
+        "a": [
+         802.9,
+         2876.4
+        ],
+        "b": [
+         802.9,
+         2839.9
+        ]
+       },
+       {
+        "len": 48.7,
+        "offset": -47.25,
+        "cov_faces": 41.8,
+        "cov_with_caps": 41.8,
+        "a": [
+         802.9,
+         2835.9
+        ],
+        "b": [
+         802.9,
+         2787.2
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 284.8,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 280.8,
+        "offset": 47.25,
+        "cov_faces": 280.8,
+        "cov_with_caps": 280.8,
+        "a": [
+         708.4,
+         2595.7
+        ],
+        "b": [
+         708.4,
+         2876.4
+        ]
+       },
+       {
+        "len": 4.0,
+        "offset": 3.5,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         752.2,
+         2839.9
+        ],
+        "b": [
+         752.2,
+         2835.9
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "max_entrance_run": null,
+    "bbox": [
+     708.4,
+     2595.7,
+     802.9,
+     2876.4
+    ],
+    "area": 25801,
+    "text": false,
+    "spacing_mm": 834,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "technically this stairwell should merge with the hallway room",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 399.89,
+    "long": 685.08,
+    "spacing": 403.89,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      246.7,
+      2588.5
+     ],
+     [
+      931.7,
+      2588.5
+     ],
+     [
+      931.7,
+      2188.6
+     ],
+     [
+      246.7,
+      2188.6
+     ]
+    ],
+    "n_vertices": 33,
+    "covers": {
+     "mrr": [
+      0.0,
+      0.0
+     ],
+     "mrr_tol0": [
+      0.0,
+      0.0
+     ],
+     "runs": [
+      0.801,
+      0.846
+     ],
+     "runs_caps": [
+      0.801,
+      0.846
+     ],
+     "runs_max": [
+      0.801,
+      0.846
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 685.1,
+      "n_runs": 6,
+      "runs": [
+       {
+        "len": 21.8,
+        "offset": -53.89,
+        "cov_faces": 19.8,
+        "cov_with_caps": 19.8,
+        "a": [
+         931.7,
+         2334.7
+        ],
+        "b": [
+         909.9,
+         2334.7
+        ]
+       },
+       {
+        "len": 306.5,
+        "offset": -179.14,
+        "cov_faces": 306.5,
+        "cov_with_caps": 306.5,
+        "a": [
+         909.9,
+         2209.4
+        ],
+        "b": [
+         603.4,
+         2209.4
+        ]
+       },
+       {
+        "len": 20.8,
+        "offset": -77.64,
+        "cov_faces": 16.8,
+        "cov_with_caps": 16.8,
+        "a": [
+         603.4,
+         2310.9
+        ],
+        "b": [
+         582.7,
+         2310.9
+        ]
+       },
+       {
+        "len": 95.5,
+        "offset": -179.14,
+        "cov_faces": 93.5,
+        "cov_with_caps": 93.5,
+        "a": [
+         582.7,
+         2209.4
+        ],
+        "b": [
+         487.2,
+         2209.4
+        ]
+       },
+       {
+        "len": 126.0,
+        "offset": -199.95,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         487.2,
+         2188.6
+        ],
+        "b": [
+         361.2,
+         2188.6
+        ]
+       },
+       {
+        "len": 114.5,
+        "offset": -179.14,
+        "cov_faces": 112.5,
+        "cov_with_caps": 112.5,
+        "a": [
+         361.2,
+         2209.4
+        ],
+        "b": [
+         246.7,
+         2209.4
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 703.1,
+      "n_runs": 11,
+      "runs": [
+       {
+        "len": 14.0,
+        "offset": 48.36,
+        "cov_faces": 12.0,
+        "cov_with_caps": 12.0,
+        "a": [
+         796.4,
+         2436.9
+        ],
+        "b": [
+         810.4,
+         2436.9
+        ]
+       },
+       {
+        "len": 121.3,
+        "offset": 48.36,
+        "cov_faces": 121.3,
+        "cov_with_caps": 121.3,
+        "a": [
+         810.4,
+         2436.9
+        ],
+        "b": [
+         931.7,
+         2436.9
+        ]
+       },
+       {
+        "len": 236.5,
+        "offset": 191.36,
+        "cov_faces": 236.5,
+        "cov_with_caps": 236.5,
+        "a": [
+         246.7,
+         2579.9
+        ],
+        "b": [
+         483.2,
+         2579.9
+        ]
+       },
+       {
+        "len": 2.0,
+        "offset": 191.36,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         483.2,
+         2579.9
+        ],
+        "b": [
+         485.2,
+         2579.9
+        ]
+       },
+       {
+        "len": 5.3,
+        "offset": 191.36,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         485.2,
+         2579.9
+        ],
+        "b": [
+         490.4,
+         2579.9
+        ]
+       },
+       {
+        "len": 83.5,
+        "offset": 199.95,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         490.4,
+         2588.5
+        ],
+        "b": [
+         573.9,
+         2588.5
+        ]
+       },
+       {
+        "len": 8.7,
+        "offset": 191.36,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         573.9,
+         2579.9
+        ],
+        "b": [
+         582.7,
+         2579.9
+        ]
+       },
+       {
+        "len": 20.8,
+        "offset": 24.61,
+        "cov_faces": 16.8,
+        "cov_with_caps": 16.8,
+        "a": [
+         582.7,
+         2413.2
+        ],
+        "b": [
+         603.4,
+         2413.2
+        ]
+       },
+       {
+        "len": 193.0,
+        "offset": 191.36,
+        "cov_faces": 193.0,
+        "cov_with_caps": 193.0,
+        "a": [
+         603.4,
+         2579.9
+        ],
+        "b": [
+         796.4,
+         2579.9
+        ]
+       },
+       {
+        "len": 9.0,
+        "offset": 154.11,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         796.4,
+         2542.7
+        ],
+        "b": [
+         805.4,
+         2542.7
+        ]
+       },
+       {
+        "len": 9.0,
+        "offset": 74.11,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         805.4,
+         2462.7
+        ],
+        "b": [
+         796.4,
+         2462.7
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 4,
+    "window_count": 0,
+    "entrance_count": 4,
+    "max_entrance_run": 126.0,
+    "bbox": [
+     246.7,
+     2188.6,
+     931.7,
+     2588.5
+    ],
+    "area": 230228,
+    "text": true,
+    "spacing_mm": 3420,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 446.0,
+    "long": 514.5,
+    "spacing": 450.0,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      246.7,
+      2595.7
+     ],
+     [
+      246.7,
+      3110.2
+     ],
+     [
+      692.7,
+      3110.2
+     ],
+     [
+      692.7,
+      2595.7
+     ]
+    ],
+    "n_vertices": 18,
+    "covers": {
+     "mrr": [
+      0.627,
+      0.873
+     ],
+     "mrr_tol0": [
+      0.627,
+      0.873
+     ],
+     "runs": [
+      0.789,
+      0.996
+     ],
+     "runs_caps": [
+      0.789,
+      0.996
+     ],
+     "runs_max": [
+      0.789,
+      0.996
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 514.5,
+      "n_runs": 3,
+      "runs": [
+       {
+        "len": 85.0,
+        "offset": -142.5,
+        "cov_faces": 83.0,
+        "cov_with_caps": 83.0,
+        "a": [
+         612.2,
+         3110.2
+        ],
+        "b": [
+         612.2,
+         3025.2
+        ]
+       },
+       {
+        "len": 98.8,
+        "offset": -223.0,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         692.7,
+         3025.2
+        ],
+        "b": [
+         692.7,
+         2926.4
+        ]
+       },
+       {
+        "len": 330.7,
+        "offset": -223.0,
+        "cov_faces": 322.7,
+        "cov_with_caps": 322.7,
+        "a": [
+         692.7,
+         2926.4
+        ],
+        "b": [
+         692.7,
+         2595.7
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 514.5,
+      "n_runs": 3,
+      "runs": [
+       {
+        "len": 65.2,
+        "offset": 131.0,
+        "cov_faces": 65.2,
+        "cov_with_caps": 65.2,
+        "a": [
+         338.7,
+         3044.9
+        ],
+        "b": [
+         338.7,
+         3110.2
+        ]
+       },
+       {
+        "len": 429.5,
+        "offset": 223.0,
+        "cov_faces": 429.5,
+        "cov_with_caps": 429.5,
+        "a": [
+         246.7,
+         2595.7
+        ],
+        "b": [
+         246.7,
+         3025.2
+        ]
+       },
+       {
+        "len": 19.7,
+        "offset": 131.0,
+        "cov_faces": 17.7,
+        "cov_with_caps": 17.7,
+        "a": [
+         338.7,
+         3025.2
+        ],
+        "b": [
+         338.7,
+         3044.9
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 2,
+    "window_count": 2,
+    "entrance_count": 2,
+    "max_entrance_run": 120.0,
+    "bbox": [
+     246.7,
+     2595.7,
+     692.7,
+     3110.2
+    ],
+    "area": 214804,
+    "text": true,
+    "spacing_mm": 3810,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 68.25,
+    "long": 194.75,
+    "spacing": 72.25,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      950.7,
+      2277.7
+     ],
+     [
+      1145.4,
+      2277.7
+     ],
+     [
+      1145.4,
+      2209.4
+     ],
+     [
+      950.7,
+      2209.4
+     ]
+    ],
+    "n_vertices": 10,
+    "covers": {
+     "mrr": [
+      1.0,
+      1.0
+     ],
+     "mrr_tol0": [
+      1.0,
+      1.0
+     ],
+     "runs": [
+      1.0,
+      1.0
+     ],
+     "runs_caps": [
+      1.0,
+      1.0
+     ],
+     "runs_max": [
+      1.0,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 194.8,
+      "n_runs": 4,
+      "runs": [
+       {
+        "len": 87.7,
+        "offset": -34.12,
+        "cov_faces": 87.7,
+        "cov_with_caps": 87.7,
+        "a": [
+         1145.4,
+         2209.4
+        ],
+        "b": [
+         1057.7,
+         2209.4
+        ]
+       },
+       {
+        "len": 4.0,
+        "offset": -32.62,
+        "cov_faces": 4.0,
+        "cov_with_caps": 4.0,
+        "a": [
+         1057.7,
+         2210.9
+        ],
+        "b": [
+         1053.7,
+         2210.9
+        ]
+       },
+       {
+        "len": 85.5,
+        "offset": -34.12,
+        "cov_faces": 85.5,
+        "cov_with_caps": 85.5,
+        "a": [
+         1053.7,
+         2209.4
+        ],
+        "b": [
+         968.2,
+         2209.4
+        ]
+       },
+       {
+        "len": 17.5,
+        "offset": -32.62,
+        "cov_faces": 17.5,
+        "cov_with_caps": 17.5,
+        "a": [
+         968.2,
+         2210.9
+        ],
+        "b": [
+         950.7,
+         2210.9
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 194.8,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 194.8,
+        "offset": 34.12,
+        "cov_faces": 194.8,
+        "cov_with_caps": 194.8,
+        "a": [
+         950.7,
+         2277.7
+        ],
+        "b": [
+         1145.4,
+         2277.7
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 1,
+    "window_count": 1,
+    "entrance_count": 0,
+    "max_entrance_run": null,
+    "bbox": [
+     950.7,
+     2209.4,
+     1145.4,
+     2277.7
+    ],
+    "area": 13259,
+    "text": false,
+    "spacing_mm": 612,
+    "gt": "confirmed",
+    "gt_iou": 0.981,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 603.58,
+    "long": 839.25,
+    "spacing": 607.58,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      950.7,
+      2209.4
+     ],
+     [
+      950.7,
+      3048.7
+     ],
+     [
+      1554.2,
+      3048.7
+     ],
+     [
+      1554.2,
+      2209.4
+     ]
+    ],
+    "n_vertices": 46,
+    "covers": {
+     "mrr": [
+      0.0,
+      0.501
+     ],
+     "mrr_tol0": [
+      0.0,
+      0.501
+     ],
+     "runs": [
+      0.669,
+      1.04
+     ],
+     "runs_caps": [
+      0.669,
+      1.04
+     ],
+     "runs_max": [
+      0.669,
+      1.04
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 1122.2,
+      "n_runs": 21,
+      "runs": [
+       {
+        "len": 9.0,
+        "offset": -199.75,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1452.2,
+         3048.7
+        ],
+        "b": [
+         1452.2,
+         3039.7
+        ]
+       },
+       {
+        "len": 14.5,
+        "offset": -201.71,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1454.2,
+         3039.7
+        ],
+        "b": [
+         1454.2,
+         3025.2
+        ]
+       },
+       {
+        "len": 1.5,
+        "offset": -203.21,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1455.7,
+         3025.2
+        ],
+        "b": [
+         1455.7,
+         3023.7
+        ]
+       },
+       {
+        "len": 1.5,
+        "offset": -207.21,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1459.7,
+         3023.7
+        ],
+        "b": [
+         1459.7,
+         3025.2
+        ]
+       },
+       {
+        "len": 99.5,
+        "offset": -291.46,
+        "cov_faces": 99.5,
+        "cov_with_caps": 99.5,
+        "a": [
+         1543.9,
+         3025.2
+        ],
+        "b": [
+         1543.9,
+         2925.7
+        ]
+       },
+       {
+        "len": 153.8,
+        "offset": -291.46,
+        "cov_faces": 153.8,
+        "cov_with_caps": 153.8,
+        "a": [
+         1543.9,
+         2925.7
+        ],
+        "b": [
+         1543.9,
+         2771.9
+        ]
+       },
+       {
+        "len": 290.5,
+        "offset": -291.46,
+        "cov_faces": 290.5,
+        "cov_with_caps": 290.5,
+        "a": [
+         1543.9,
+         2771.9
+        ],
+        "b": [
+         1543.9,
+         2481.4
+        ]
+       },
+       {
+        "len": 2.0,
+        "offset": -291.46,
+        "cov_faces": 1.5,
+        "cov_with_caps": 1.5,
+        "a": [
+         1543.9,
+         2481.4
+        ],
+        "b": [
+         1543.9,
+         2479.4
+        ]
+       },
+       {
+        "len": 1.5,
+        "offset": -291.46,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1543.9,
+         2479.4
+        ],
+        "b": [
+         1543.9,
+         2477.9
+        ]
+       },
+       {
+        "len": 99.2,
+        "offset": -301.79,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1554.2,
+         2477.9
+        ],
+        "b": [
+         1554.2,
+         2378.7
+        ]
+       },
+       {
+        "len": 169.2,
+        "offset": -291.46,
+        "cov_faces": 167.2,
+        "cov_with_caps": 167.2,
+        "a": [
+         1543.9,
+         2378.7
+        ],
+        "b": [
+         1543.9,
+         2209.4
+        ]
+       },
+       {
+        "len": 1.5,
+        "offset": -207.96,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1460.4,
+         2209.4
+        ],
+        "b": [
+         1460.4,
+         2210.9
+        ]
+       },
+       {
+        "len": 1.5,
+        "offset": -203.96,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1456.4,
+         2210.9
+        ],
+        "b": [
+         1456.4,
+         2209.4
+        ]
+       },
+       {
+        "len": 1.5,
+        "offset": -117.21,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1369.7,
+         2209.4
+        ],
+        "b": [
+         1369.7,
+         2210.9
+        ]
+       },
+       {
+        "len": 1.5,
+        "offset": -113.21,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1365.7,
+         2210.9
+        ],
+        "b": [
+         1365.7,
+         2209.4
+        ]
+       },
+       {
+        "len": 134.2,
+        "offset": -47.71,
+        "cov_faces": 119.0,
+        "cov_with_caps": 119.0,
+        "a": [
+         1300.2,
+         2209.4
+        ],
+        "b": [
+         1300.2,
+         2343.7
+        ]
+       },
+       {
+        "len": 9.3,
+        "offset": -48.96,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1301.4,
+         2343.7
+        ],
+        "b": [
+         1301.4,
+         2352.9
+        ]
+       },
+       {
+        "len": 79.8,
+        "offset": -40.34,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1292.8,
+         2352.9
+        ],
+        "b": [
+         1292.8,
+         2432.7
+        ]
+       },
+       {
+        "len": 15.3,
+        "offset": -48.96,
+        "cov_faces": 7.8,
+        "cov_with_caps": 7.8,
+        "a": [
+         1301.4,
+         2432.7
+        ],
+        "b": [
+         1301.4,
+         2447.9
+        ]
+       },
+       {
+        "len": 31.5,
+        "offset": -47.71,
+        "cov_faces": 31.5,
+        "cov_with_caps": 31.5,
+        "a": [
+         1300.2,
+         2447.9
+        ],
+        "b": [
+         1300.2,
+         2479.4
+        ]
+       },
+       {
+        "len": 4.0,
+        "offset": -48.96,
+        "cov_faces": 2.0,
+        "cov_with_caps": 2.0,
+        "a": [
+         1301.4,
+         2479.4
+        ],
+        "b": [
+         1301.4,
+         2483.4
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 565.2,
+      "n_runs": 3,
+      "runs": [
+       {
+        "len": 396.5,
+        "offset": 301.79,
+        "cov_faces": 396.5,
+        "cov_with_caps": 396.5,
+        "a": [
+         950.7,
+         2628.7
+        ],
+        "b": [
+         950.7,
+         3025.2
+        ]
+       },
+       {
+        "len": 23.5,
+        "offset": 271.29,
+        "cov_faces": 21.5,
+        "cov_with_caps": 21.5,
+        "a": [
+         981.2,
+         3025.2
+        ],
+        "b": [
+         981.2,
+         3048.7
+        ]
+       },
+       {
+        "len": 145.2,
+        "offset": 290.04,
+        "cov_faces": 143.2,
+        "cov_with_caps": 143.2,
+        "a": [
+         962.4,
+         2483.4
+        ],
+        "b": [
+         962.4,
+         2628.7
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 9,
+    "window_count": 1,
+    "entrance_count": 3,
+    "max_entrance_run": 123.8,
+    "bbox": [
+     950.7,
+     2209.4,
+     1554.2,
+     3048.7
+    ],
+    "area": 399131,
+    "text": true,
+    "spacing_mm": 5144,
+    "gt": "false_positive",
+    "gt_iou": 0.996,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 162.25,
+    "long": 203.67,
+    "spacing": 166.25,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      941.7,
+      2281.7
+     ],
+     [
+      941.7,
+      2443.9
+     ],
+     [
+      1145.4,
+      2443.9
+     ],
+     [
+      1145.4,
+      2281.7
+     ]
+    ],
+    "n_vertices": 8,
+    "covers": {
+     "mrr": [
+      0.966,
+      0.966
+     ],
+     "mrr_tol0": [
+      0.966,
+      0.966
+     ],
+     "runs": [
+      0.956,
+      0.956
+     ],
+     "runs_caps": [
+      0.956,
+      0.956
+     ],
+     "runs_max": [
+      0.956,
+      0.956
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 203.7,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 194.8,
+        "offset": -81.13,
+        "cov_faces": 194.8,
+        "cov_with_caps": 194.8,
+        "a": [
+         1145.4,
+         2281.7
+        ],
+        "b": [
+         950.7,
+         2281.7
+        ]
+       },
+       {
+        "len": 8.9,
+        "offset": -22.88,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         950.7,
+         2339.9
+        ],
+        "b": [
+         941.7,
+         2339.9
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 203.7,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 194.8,
+        "offset": 81.13,
+        "cov_faces": 194.8,
+        "cov_with_caps": 194.8,
+        "a": [
+         950.7,
+         2443.9
+        ],
+        "b": [
+         1145.4,
+         2443.9
+        ]
+       },
+       {
+        "len": 8.9,
+        "offset": 68.88,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         941.7,
+         2431.7
+        ],
+        "b": [
+         950.7,
+         2431.7
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "max_entrance_run": 91.8,
+    "bbox": [
+     941.7,
+     2281.7,
+     1145.4,
+     2443.9
+    ],
+    "area": 32417,
+    "text": true,
+    "spacing_mm": 1408,
+    "gt": "confirmed",
+    "gt_iou": 0.982,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 34.75,
+    "long": 156.75,
+    "spacing": 38.75,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      946.7,
+      2330.7
+     ],
+     [
+      946.7,
+      2173.9
+     ],
+     [
+      911.9,
+      2173.9
+     ],
+     [
+      911.9,
+      2330.7
+     ]
+    ],
+    "n_vertices": 9,
+    "covers": {
+     "mrr": [
+      0.0,
+      1.0
+     ],
+     "mrr_tol0": [
+      0.786,
+      1.0
+     ],
+     "runs": [
+      0.786,
+      1.0
+     ],
+     "runs_caps": [
+      0.799,
+      1.0
+     ],
+     "runs_max": [
+      0.786,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 156.7,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 125.2,
+        "offset": -15.37,
+        "cov_faces": 123.2,
+        "cov_with_caps": 125.2,
+        "a": [
+         913.9,
+         2205.4
+        ],
+        "b": [
+         913.9,
+         2330.7
+        ]
+       },
+       {
+        "len": 31.5,
+        "offset": -17.37,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         911.9,
+         2173.9
+        ],
+        "b": [
+         911.9,
+         2205.4
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 156.7,
+      "n_runs": 4,
+      "runs": [
+       {
+        "len": 113.7,
+        "offset": 17.37,
+        "cov_faces": 113.7,
+        "cov_with_caps": 113.7,
+        "a": [
+         946.7,
+         2330.7
+        ],
+        "b": [
+         946.7,
+         2216.9
+        ]
+       },
+       {
+        "len": 27.2,
+        "offset": 17.37,
+        "cov_faces": 27.2,
+        "cov_with_caps": 27.2,
+        "a": [
+         946.7,
+         2216.9
+        ],
+        "b": [
+         946.7,
+         2189.7
+        ]
+       },
+       {
+        "len": 4.0,
+        "offset": 17.37,
+        "cov_faces": 4.0,
+        "cov_with_caps": 4.0,
+        "a": [
+         946.7,
+         2189.7
+        ],
+        "b": [
+         946.7,
+         2185.7
+        ]
+       },
+       {
+        "len": 11.8,
+        "offset": 17.37,
+        "cov_faces": 11.8,
+        "cov_with_caps": 11.8,
+        "a": [
+         946.7,
+         2185.7
+        ],
+        "b": [
+         946.7,
+         2173.9
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 0,
+    "max_entrance_run": 10.0,
+    "bbox": [
+     911.9,
+     2173.9,
+     946.7,
+     2330.7
+    ],
+    "area": 5197,
+    "text": false,
+    "spacing_mm": 328,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_caps": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_max": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     }
+    }
+   },
+   {
+    "short": 103.75,
+    "long": 223.25,
+    "spacing": 107.75,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1181.9,
+      2209.4
+     ],
+     [
+      1181.9,
+      2432.7
+     ],
+     [
+      1285.7,
+      2432.7
+     ],
+     [
+      1285.7,
+      2209.4
+     ]
+    ],
+    "n_vertices": 4,
+    "covers": {
+     "mrr": [
+      0.61,
+      1.0
+     ],
+     "mrr_tol0": [
+      0.61,
+      1.0
+     ],
+     "runs": [
+      0.61,
+      1.0
+     ],
+     "runs_caps": [
+      0.61,
+      1.0
+     ],
+     "runs_max": [
+      0.61,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 223.2,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 223.2,
+        "offset": -51.87,
+        "cov_faces": 136.2,
+        "cov_with_caps": 136.2,
+        "a": [
+         1285.7,
+         2432.7
+        ],
+        "b": [
+         1285.7,
+         2209.4
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 223.2,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 223.2,
+        "offset": 51.87,
+        "cov_faces": 223.2,
+        "cov_with_caps": 223.2,
+        "a": [
+         1181.9,
+         2209.4
+        ],
+        "b": [
+         1181.9,
+         2432.7
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "max_entrance_run": 202.2,
+    "bbox": [
+     1181.9,
+     2209.4,
+     1285.7,
+     2432.7
+    ],
+    "area": 23162,
+    "text": true,
+    "spacing_mm": 912,
+    "gt": "confirmed",
+    "gt_iou": 0.572,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 34.75,
+    "long": 452.0,
+    "spacing": 38.75,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      913.9,
+      2608.7
+     ],
+     [
+      913.9,
+      3060.7
+     ],
+     [
+      948.7,
+      3060.7
+     ],
+     [
+      948.7,
+      2608.7
+     ]
+    ],
+    "n_vertices": 8,
+    "covers": {
+     "mrr": [
+      0.0,
+      0.926
+     ],
+     "mrr_tol0": [
+      0.926,
+      0.926
+     ],
+     "runs": [
+      0.926,
+      0.961
+     ],
+     "runs_caps": [
+      0.93,
+      1.0
+     ],
+     "runs_max": [
+      0.926,
+      0.961
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 452.0,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 31.5,
+        "offset": -17.37,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         948.7,
+         3060.7
+        ],
+        "b": [
+         948.7,
+         3029.2
+        ]
+       },
+       {
+        "len": 420.5,
+        "offset": -15.37,
+        "cov_faces": 418.5,
+        "cov_with_caps": 420.5,
+        "a": [
+         946.7,
+         3029.2
+        ],
+        "b": [
+         946.7,
+         2608.7
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 452.0,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 15.7,
+        "offset": 10.37,
+        "cov_faces": 15.7,
+        "cov_with_caps": 15.7,
+        "a": [
+         920.9,
+         3044.9
+        ],
+        "b": [
+         920.9,
+         3060.7
+        ]
+       },
+       {
+        "len": 436.3,
+        "offset": 17.37,
+        "cov_faces": 418.5,
+        "cov_with_caps": 436.3,
+        "a": [
+         913.9,
+         2608.7
+        ],
+        "b": [
+         913.9,
+         3044.9
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 0,
+    "max_entrance_run": 10.0,
+    "bbox": [
+     913.9,
+     2608.7,
+     948.7,
+     3060.7
+    ],
+    "area": 14756,
+    "text": false,
+    "spacing_mm": 328,
+    "gt": "false_positive",
+    "gt_iou": 0.986,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_caps": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_max": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     }
+    }
+   },
+   {
+    "short": 212.75,
+    "long": 221.0,
+    "spacing": 216.75,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      1297.2,
+      1379.7
+     ],
+     [
+      1297.2,
+      1592.4
+     ],
+     [
+      1518.2,
+      1592.4
+     ],
+     [
+      1518.2,
+      1379.7
+     ]
+    ],
+    "n_vertices": 4,
+    "covers": {
+     "mrr": [
+      0.787,
+      1.0
+     ],
+     "mrr_tol0": [
+      0.787,
+      1.0
+     ],
+     "runs": [
+      0.787,
+      1.0
+     ],
+     "runs_caps": [
+      0.787,
+      1.0
+     ],
+     "runs_max": [
+      0.787,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 221.0,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 221.0,
+        "offset": -106.37,
+        "cov_faces": 174.0,
+        "cov_with_caps": 174.0,
+        "a": [
+         1518.2,
+         1379.7
+        ],
+        "b": [
+         1297.2,
+         1379.7
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 221.0,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 221.0,
+        "offset": 106.37,
+        "cov_faces": 221.0,
+        "cov_with_caps": 221.0,
+        "a": [
+         1297.2,
+         1592.4
+        ],
+        "b": [
+         1518.2,
+         1592.4
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 1,
+    "max_entrance_run": 60.2,
+    "bbox": [
+     1297.2,
+     1379.7,
+     1518.2,
+     1592.4
+    ],
+    "area": 47018,
+    "text": true,
+    "spacing_mm": 3670,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "cutout near door",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 159.37,
+    "long": 202.25,
+    "spacing": 163.37,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1470.3,
+      1315.9
+     ],
+     [
+      1470.3,
+      1518.2
+     ],
+     [
+      1629.7,
+      1518.2
+     ],
+     [
+      1629.7,
+      1315.9
+     ]
+    ],
+    "n_vertices": 34,
+    "covers": {
+     "mrr": [
+      0.0,
+      0.697
+     ],
+     "mrr_tol0": [
+      0.0,
+      0.697
+     ],
+     "runs": [
+      0.723,
+      1.983
+     ],
+     "runs_caps": [
+      0.733,
+      1.983
+     ],
+     "runs_max": [
+      0.723,
+      1.983
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 479.0,
+      "n_runs": 10,
+      "runs": [
+       {
+        "len": 129.7,
+        "offset": -21.94,
+        "cov_faces": 127.7,
+        "cov_with_caps": 127.7,
+        "a": [
+         1571.9,
+         1497.9
+        ],
+        "b": [
+         1571.9,
+         1368.2
+        ]
+       },
+       {
+        "len": 129.7,
+        "offset": -25.94,
+        "cov_faces": 127.7,
+        "cov_with_caps": 127.7,
+        "a": [
+         1575.9,
+         1368.2
+        ],
+        "b": [
+         1575.9,
+         1497.9
+        ]
+       },
+       {
+        "len": 17.2,
+        "offset": -36.44,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1586.4,
+         1497.9
+        ],
+        "b": [
+         1586.4,
+         1515.2
+        ]
+       },
+       {
+        "len": 138.0,
+        "offset": -76.69,
+        "cov_faces": 138.0,
+        "cov_with_caps": 138.0,
+        "a": [
+         1626.7,
+         1515.2
+        ],
+        "b": [
+         1626.7,
+         1377.2
+        ]
+       },
+       {
+        "len": 2.0,
+        "offset": -76.69,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1626.7,
+         1377.2
+        ],
+        "b": [
+         1626.7,
+         1375.2
+        ]
+       },
+       {
+        "len": 2.8,
+        "offset": -76.69,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1626.7,
+         1375.2
+        ],
+        "b": [
+         1626.7,
+         1372.4
+        ]
+       },
+       {
+        "len": 41.5,
+        "offset": -79.69,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1629.7,
+         1372.4
+        ],
+        "b": [
+         1629.7,
+         1330.9
+        ]
+       },
+       {
+        "len": 12.0,
+        "offset": -76.69,
+        "cov_faces": 7.5,
+        "cov_with_caps": 7.5,
+        "a": [
+         1626.7,
+         1330.9
+        ],
+        "b": [
+         1626.7,
+         1318.9
+        ]
+       },
+       {
+        "len": 3.0,
+        "offset": -74.19,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1624.2,
+         1318.9
+        ],
+        "b": [
+         1624.2,
+         1315.9
+        ]
+       },
+       {
+        "len": 3.0,
+        "offset": -32.69,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1582.7,
+         1315.9
+        ],
+        "b": [
+         1582.7,
+         1318.9
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 224.7,
+      "n_runs": 8,
+      "runs": [
+       {
+        "len": 41.5,
+        "offset": 79.69,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1470.3,
+         1325.7
+        ],
+        "b": [
+         1470.3,
+         1367.2
+        ]
+       },
+       {
+        "len": 2.7,
+        "offset": 76.81,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1473.2,
+         1367.2
+        ],
+        "b": [
+         1473.2,
+         1369.9
+        ]
+       },
+       {
+        "len": 2.6,
+        "offset": 74.31,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1475.7,
+         1369.9
+        ],
+        "b": [
+         1475.7,
+         1372.5
+        ]
+       },
+       {
+        "len": 2.6,
+        "offset": 34.56,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1515.4,
+         1372.5
+        ],
+        "b": [
+         1515.4,
+         1369.9
+        ]
+       },
+       {
+        "len": 148.2,
+        "offset": 22.06,
+        "cov_faces": 146.2,
+        "cov_with_caps": 146.2,
+        "a": [
+         1527.9,
+         1369.9
+        ],
+        "b": [
+         1527.9,
+         1518.2
+        ]
+       },
+       {
+        "len": 16.2,
+        "offset": 0.06,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1549.9,
+         1518.2
+        ],
+        "b": [
+         1549.9,
+         1501.9
+        ]
+       },
+       {
+        "len": 4.0,
+        "offset": 2.06,
+        "cov_faces": 0.0,
+        "cov_with_caps": 2.0,
+        "a": [
+         1547.9,
+         1501.9
+        ],
+        "b": [
+         1547.9,
+         1497.9
+        ]
+       },
+       {
+        "len": 6.7,
+        "offset": 76.81,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1473.2,
+         1318.9
+        ],
+        "b": [
+         1473.2,
+         1325.7
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 5,
+    "window_count": 0,
+    "entrance_count": 5,
+    "max_entrance_run": 72.9,
+    "bbox": [
+     1470.3,
+     1315.9,
+     1629.7,
+     1518.2
+    ],
+    "area": 21553,
+    "text": false,
+    "spacing_mm": 2766,
+    "gt": "confirmed",
+    "gt_iou": 0.985,
+    "gt_note": "does not cover stairs, we probably want to cover the stairs to fully detect size of the room",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 166.0,
+    "long": 183.25,
+    "spacing": 170.0,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1297.2,
+      1369.9
+     ],
+     [
+      1463.2,
+      1369.9
+     ],
+     [
+      1463.2,
+      1186.7
+     ],
+     [
+      1297.2,
+      1186.7
+     ]
+    ],
+    "n_vertices": 4,
+    "covers": {
+     "mrr": [
+      0.734,
+      1.0
+     ],
+     "mrr_tol0": [
+      0.734,
+      1.0
+     ],
+     "runs": [
+      0.734,
+      1.0
+     ],
+     "runs_caps": [
+      0.734,
+      1.0
+     ],
+     "runs_max": [
+      0.734,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 183.3,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 183.3,
+        "offset": -83.0,
+        "cov_faces": 183.3,
+        "cov_with_caps": 183.3,
+        "a": [
+         1297.2,
+         1186.7
+        ],
+        "b": [
+         1297.2,
+         1369.9
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 183.3,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 183.3,
+        "offset": 83.0,
+        "cov_faces": 134.5,
+        "cov_with_caps": 134.5,
+        "a": [
+         1463.2,
+         1369.9
+        ],
+        "b": [
+         1463.2,
+         1186.7
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 1,
+    "max_entrance_run": 61.9,
+    "bbox": [
+     1297.2,
+     1186.7,
+     1463.2,
+     1369.9
+    ],
+    "area": 30419,
+    "text": true,
+    "spacing_mm": 2879,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "bit of a rectangle cut out near door",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 122.25,
+    "long": 153.5,
+    "spacing": 126.25,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      1473.2,
+      1186.7
+     ],
+     [
+      1473.2,
+      1308.9
+     ],
+     [
+      1626.7,
+      1308.9
+     ],
+     [
+      1626.7,
+      1186.7
+     ]
+    ],
+    "n_vertices": 4,
+    "covers": {
+     "mrr": [
+      0.682,
+      1.0
+     ],
+     "mrr_tol0": [
+      0.682,
+      1.0
+     ],
+     "runs": [
+      0.682,
+      1.0
+     ],
+     "runs_caps": [
+      0.682,
+      1.0
+     ],
+     "runs_max": [
+      0.682,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 153.5,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 153.5,
+        "offset": -61.12,
+        "cov_faces": 153.5,
+        "cov_with_caps": 153.5,
+        "a": [
+         1626.7,
+         1186.7
+        ],
+        "b": [
+         1473.2,
+         1186.7
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 153.5,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 153.5,
+        "offset": 61.12,
+        "cov_faces": 104.7,
+        "cov_with_caps": 104.7,
+        "a": [
+         1473.2,
+         1308.9
+        ],
+        "b": [
+         1626.7,
+         1308.9
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 1,
+    "max_entrance_run": 61.7,
+    "bbox": [
+     1473.2,
+     1186.7,
+     1626.7,
+     1308.9
+    ],
+    "area": 18765,
+    "text": true,
+    "spacing_mm": 2138,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 67.25,
+    "long": 98.75,
+    "spacing": 71.25,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      1527.9,
+      1525.2
+     ],
+     [
+      1527.9,
+      1592.4
+     ],
+     [
+      1626.7,
+      1592.4
+     ],
+     [
+      1626.7,
+      1525.2
+     ]
+    ],
+    "n_vertices": 9,
+    "covers": {
+     "mrr": [
+      0.542,
+      1.0
+     ],
+     "mrr_tol0": [
+      0.542,
+      1.0
+     ],
+     "runs": [
+      0.542,
+      1.0
+     ],
+     "runs_caps": [
+      0.542,
+      1.0
+     ],
+     "runs_max": [
+      0.542,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 98.7,
+      "n_runs": 4,
+      "runs": [
+       {
+        "len": 36.3,
+        "offset": -30.87,
+        "cov_faces": 31.5,
+        "cov_with_caps": 31.5,
+        "a": [
+         1586.2,
+         1527.9
+        ],
+        "b": [
+         1549.9,
+         1527.9
+        ]
+       },
+       {
+        "len": 22.0,
+        "offset": -30.87,
+        "cov_faces": 22.0,
+        "cov_with_caps": 22.0,
+        "a": [
+         1549.9,
+         1527.9
+        ],
+        "b": [
+         1527.9,
+         1527.9
+        ]
+       },
+       {
+        "len": 2.5,
+        "offset": -30.87,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1626.7,
+         1527.9
+        ],
+        "b": [
+         1624.2,
+         1527.9
+        ]
+       },
+       {
+        "len": 38.0,
+        "offset": -33.63,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1624.2,
+         1525.2
+        ],
+        "b": [
+         1586.2,
+         1525.2
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 98.7,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 98.7,
+        "offset": 33.63,
+        "cov_faces": 98.7,
+        "cov_with_caps": 98.7,
+        "a": [
+         1527.9,
+         1592.4
+        ],
+        "b": [
+         1626.7,
+         1592.4
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "max_entrance_run": 59.9,
+    "bbox": [
+     1527.9,
+     1525.2,
+     1626.7,
+     1592.4
+    ],
+    "area": 6474,
+    "text": true,
+    "spacing_mm": 1206,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 266.33,
+    "long": 268.75,
+    "spacing": 270.33,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1639.7,
+      1323.7
+     ],
+     [
+      1639.7,
+      1592.4
+     ],
+     [
+      1906.0,
+      1592.4
+     ],
+     [
+      1906.0,
+      1323.7
+     ]
+    ],
+    "n_vertices": 21,
+    "covers": {
+     "mrr": [
+      0.0,
+      0.0
+     ],
+     "mrr_tol0": [
+      0.0,
+      0.0
+     ],
+     "runs": [
+      0.0,
+      0.801
+     ],
+     "runs_caps": [
+      0.0,
+      0.801
+     ],
+     "runs_max": [
+      0.0,
+      0.801
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 0.0,
+      "n_runs": 0,
+      "runs": []
+     },
+     {
+      "parallel_len": 268.7,
+      "n_runs": 3,
+      "runs": [
+       {
+        "len": 4.8,
+        "offset": 123.67,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1649.2,
+         1323.7
+        ],
+        "b": [
+         1649.2,
+         1328.4
+        ]
+       },
+       {
+        "len": 46.7,
+        "offset": 133.17,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         1639.7,
+         1328.4
+        ],
+        "b": [
+         1639.7,
+         1375.2
+        ]
+       },
+       {
+        "len": 217.2,
+        "offset": 123.67,
+        "cov_faces": 215.2,
+        "cov_with_caps": 215.2,
+        "a": [
+         1649.2,
+         1375.2
+        ],
+        "b": [
+         1649.2,
+         1592.4
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "max_entrance_run": 46.7,
+    "bbox": [
+     1639.7,
+     1323.7,
+     1906.0,
+     1592.4
+    ],
+    "area": 54077,
+    "text": true,
+    "spacing_mm": 4577,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 101.5,
+    "long": 133.0,
+    "spacing": 105.5,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      1649.2,
+      1301.9
+     ],
+     [
+      1750.7,
+      1301.9
+     ],
+     [
+      1750.7,
+      1168.9
+     ],
+     [
+      1649.2,
+      1168.9
+     ]
+    ],
+    "n_vertices": 4,
+    "covers": {
+     "mrr": [
+      1.0,
+      1.0
+     ],
+     "mrr_tol0": [
+      1.0,
+      1.0
+     ],
+     "runs": [
+      1.0,
+      1.0
+     ],
+     "runs_caps": [
+      1.0,
+      1.0
+     ],
+     "runs_max": [
+      1.0,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 133.0,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 133.0,
+        "offset": -50.75,
+        "cov_faces": 133.0,
+        "cov_with_caps": 133.0,
+        "a": [
+         1649.2,
+         1168.9
+        ],
+        "b": [
+         1649.2,
+         1301.9
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 133.0,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 133.0,
+        "offset": 50.75,
+        "cov_faces": 133.0,
+        "cov_with_caps": 133.0,
+        "a": [
+         1750.7,
+         1301.9
+        ],
+        "b": [
+         1750.7,
+         1168.9
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 0,
+    "window_count": 0,
+    "entrance_count": 0,
+    "max_entrance_run": null,
+    "bbox": [
+     1649.2,
+     1168.9,
+     1750.7,
+     1301.9
+    ],
+    "area": 13499,
+    "text": false,
+    "spacing_mm": 1786,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 256.75,
+    "long": 431.87,
+    "spacing": 260.75,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      3678.9,
+      2467.7
+     ],
+     [
+      3678.9,
+      2210.9
+     ],
+     [
+      3247.0,
+      2210.9
+     ],
+     [
+      3247.0,
+      2467.7
+     ]
+    ],
+    "n_vertices": 15,
+    "covers": {
+     "mrr": [
+      0.597,
+      1.0
+     ],
+     "mrr_tol0": [
+      0.597,
+      1.0
+     ],
+     "runs": [
+      0.768,
+      0.997
+     ],
+     "runs_caps": [
+      0.768,
+      0.997
+     ],
+     "runs_max": [
+      0.768,
+      0.997
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 431.9,
+      "n_runs": 5,
+      "runs": [
+       {
+        "len": 37.6,
+        "offset": -104.63,
+        "cov_faces": 35.6,
+        "cov_with_caps": 35.6,
+        "a": [
+         3247.0,
+         2443.9
+        ],
+        "b": [
+         3284.7,
+         2443.9
+        ]
+       },
+       {
+        "len": 94.0,
+        "offset": -125.37,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3284.7,
+         2464.7
+        ],
+        "b": [
+         3378.7,
+         2464.7
+        ]
+       },
+       {
+        "len": 44.2,
+        "offset": -104.63,
+        "cov_faces": 40.2,
+        "cov_with_caps": 40.2,
+        "a": [
+         3378.7,
+         2443.9
+        ],
+        "b": [
+         3422.9,
+         2443.9
+        ]
+       },
+       {
+        "len": 25.0,
+        "offset": -128.37,
+        "cov_faces": 25.0,
+        "cov_with_caps": 25.0,
+        "a": [
+         3422.9,
+         2467.7
+        ],
+        "b": [
+         3447.9,
+         2467.7
+        ]
+       },
+       {
+        "len": 231.0,
+        "offset": -127.63,
+        "cov_faces": 231.0,
+        "cov_with_caps": 231.0,
+        "a": [
+         3447.9,
+         2466.9
+        ],
+        "b": [
+         3678.9,
+         2466.9
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 431.9,
+      "n_runs": 3,
+      "runs": [
+       {
+        "len": 239.0,
+        "offset": 128.37,
+        "cov_faces": 239.0,
+        "cov_with_caps": 239.0,
+        "a": [
+         3678.9,
+         2210.9
+        ],
+        "b": [
+         3439.9,
+         2210.9
+        ]
+       },
+       {
+        "len": 191.8,
+        "offset": 128.37,
+        "cov_faces": 191.8,
+        "cov_with_caps": 191.8,
+        "a": [
+         3439.9,
+         2210.9
+        ],
+        "b": [
+         3248.2,
+         2210.9
+        ]
+       },
+       {
+        "len": 1.1,
+        "offset": 65.37,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3248.2,
+         2273.9
+        ],
+        "b": [
+         3247.0,
+         2273.9
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 7,
+    "window_count": 0,
+    "entrance_count": 1,
+    "max_entrance_run": 94.0,
+    "bbox": [
+     3247.0,
+     2210.9,
+     3678.9,
+     2467.7
+    ],
+    "area": 108413,
+    "text": true,
+    "spacing_mm": 2208,
+    "gt": "confirmed",
+    "gt_iou": 0.986,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 411.25,
+    "long": 733.38,
+    "spacing": 415.25,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      3458.4,
+      2465.2
+     ],
+     [
+      2725.0,
+      2465.2
+     ],
+     [
+      2725.0,
+      2876.4
+     ],
+     [
+      3458.4,
+      2876.4
+     ]
+    ],
+    "n_vertices": 59,
+    "covers": {
+     "mrr": [
+      0.0,
+      0.16
+     ],
+     "mrr_tol0": [
+      0.0,
+      0.16
+     ],
+     "runs": [
+      0.285,
+      1.052
+     ],
+     "runs_caps": [
+      0.285,
+      1.06
+     ],
+     "runs_max": [
+      0.285,
+      1.052
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 317.2,
+      "n_runs": 6,
+      "runs": [
+       {
+        "len": 91.7,
+        "offset": -205.63,
+        "cov_faces": 91.7,
+        "cov_with_caps": 91.7,
+        "a": [
+         2843.4,
+         2876.4
+        ],
+        "b": [
+         2935.2,
+         2876.4
+        ]
+       },
+       {
+        "len": 47.8,
+        "offset": -169.12,
+        "cov_faces": 45.8,
+        "cov_with_caps": 45.8,
+        "a": [
+         2935.2,
+         2839.9
+        ],
+        "b": [
+         2887.4,
+         2839.9
+        ]
+       },
+       {
+        "len": 47.8,
+        "offset": -165.12,
+        "cov_faces": 45.8,
+        "cov_with_caps": 45.8,
+        "a": [
+         2887.4,
+         2835.9
+        ],
+        "b": [
+         2935.2,
+         2835.9
+        ]
+       },
+       {
+        "len": 15.0,
+        "offset": -165.12,
+        "cov_faces": 13.0,
+        "cov_with_caps": 13.0,
+        "a": [
+         2945.2,
+         2835.9
+        ],
+        "b": [
+         2960.2,
+         2835.9
+        ]
+       },
+       {
+        "len": 15.0,
+        "offset": -169.12,
+        "cov_faces": 13.0,
+        "cov_with_caps": 13.0,
+        "a": [
+         2960.2,
+         2839.9
+        ],
+        "b": [
+         2945.2,
+         2839.9
+        ]
+       },
+       {
+        "len": 100.0,
+        "offset": -202.63,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         2945.2,
+         2873.4
+        ],
+        "b": [
+         3045.2,
+         2873.4
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 1275.0,
+      "n_runs": 24,
+      "runs": [
+       {
+        "len": 8.6,
+        "offset": 183.13,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         2733.7,
+         2487.7
+        ],
+        "b": [
+         2725.0,
+         2487.7
+        ]
+       },
+       {
+        "len": 8.6,
+        "offset": 96.37,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         2725.0,
+         2574.4
+        ],
+        "b": [
+         2733.7,
+         2574.4
+        ]
+       },
+       {
+        "len": 5.3,
+        "offset": 90.87,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         2733.7,
+         2579.9
+        ],
+        "b": [
+         2738.9,
+         2579.9
+        ]
+       },
+       {
+        "len": 83.5,
+        "offset": 82.29,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         2738.9,
+         2588.5
+        ],
+        "b": [
+         2822.4,
+         2588.5
+        ]
+       },
+       {
+        "len": 21.0,
+        "offset": 90.87,
+        "cov_faces": 11.8,
+        "cov_with_caps": 11.8,
+        "a": [
+         2822.4,
+         2579.9
+        ],
+        "b": [
+         2843.4,
+         2579.9
+        ]
+       },
+       {
+        "len": 10.0,
+        "offset": 94.13,
+        "cov_faces": 0.0,
+        "cov_with_caps": 6.0,
+        "a": [
+         2935.2,
+         2576.7
+        ],
+        "b": [
+         2945.2,
+         2576.7
+        ]
+       },
+       {
+        "len": 36.5,
+        "offset": 80.38,
+        "cov_faces": 34.5,
+        "cov_with_caps": 34.5,
+        "a": [
+         3045.2,
+         2590.4
+        ],
+        "b": [
+         3081.7,
+         2590.4
+        ]
+       },
+       {
+        "len": 236.5,
+        "offset": 81.5,
+        "cov_faces": 236.5,
+        "cov_with_caps": 236.5,
+        "a": [
+         3081.7,
+         2589.3
+        ],
+        "b": [
+         3318.2,
+         2589.3
+        ]
+       },
+       {
+        "len": 7.5,
+        "offset": 80.38,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3318.2,
+         2590.4
+        ],
+        "b": [
+         3325.7,
+         2590.4
+        ]
+       },
+       {
+        "len": 83.3,
+        "offset": 71.63,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3325.7,
+         2599.2
+        ],
+        "b": [
+         3408.9,
+         2599.2
+        ]
+       },
+       {
+        "len": 9.3,
+        "offset": 80.38,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3408.9,
+         2590.4
+        ],
+        "b": [
+         3418.2,
+         2590.4
+        ]
+       },
+       {
+        "len": 30.0,
+        "offset": 78.87,
+        "cov_faces": 30.0,
+        "cov_with_caps": 30.0,
+        "a": [
+         3418.2,
+         2591.9
+        ],
+        "b": [
+         3448.2,
+         2591.9
+        ]
+       },
+       {
+        "len": 10.3,
+        "offset": 92.63,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3448.2,
+         2578.2
+        ],
+        "b": [
+         3458.4,
+         2578.2
+        ]
+       },
+       {
+        "len": 10.3,
+        "offset": 176.13,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3458.4,
+         2494.7
+        ],
+        "b": [
+         3448.2,
+         2494.7
+        ]
+       },
+       {
+        "len": 74.8,
+        "offset": 187.37,
+        "cov_faces": 67.5,
+        "cov_with_caps": 67.5,
+        "a": [
+         3448.2,
+         2483.4
+        ],
+        "b": [
+         3373.4,
+         2483.4
+        ]
+       },
+       {
+        "len": 83.5,
+        "offset": 196.13,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3373.4,
+         2474.7
+        ],
+        "b": [
+         3289.9,
+         2474.7
+        ]
+       },
+       {
+        "len": 71.1,
+        "offset": 187.37,
+        "cov_faces": 55.0,
+        "cov_with_caps": 55.0,
+        "a": [
+         3289.9,
+         2483.4
+        ],
+        "b": [
+         3218.8,
+         2483.4
+        ]
+       },
+       {
+        "len": 45.4,
+        "offset": 196.13,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3218.8,
+         2474.7
+        ],
+        "b": [
+         3173.4,
+         2474.7
+        ]
+       },
+       {
+        "len": 24.8,
+        "offset": 187.37,
+        "cov_faces": 24.8,
+        "cov_with_caps": 24.8,
+        "a": [
+         3173.4,
+         2483.4
+        ],
+        "b": [
+         3148.7,
+         2483.4
+        ]
+       },
+       {
+        "len": 63.0,
+        "offset": 187.37,
+        "cov_faces": 63.0,
+        "cov_with_caps": 63.0,
+        "a": [
+         3148.7,
+         2483.4
+        ],
+        "b": [
+         3085.7,
+         2483.4
+        ]
+       },
+       {
+        "len": 40.5,
+        "offset": 177.87,
+        "cov_faces": 36.5,
+        "cov_with_caps": 36.5,
+        "a": [
+         3085.7,
+         2492.9
+        ],
+        "b": [
+         3045.2,
+         2492.9
+        ]
+       },
+       {
+        "len": 5.5,
+        "offset": 196.87,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3045.2,
+         2473.9
+        ],
+        "b": [
+         3039.7,
+         2473.9
+        ]
+       },
+       {
+        "len": 86.8,
+        "offset": 205.63,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3039.7,
+         2465.2
+        ],
+        "b": [
+         2952.9,
+         2465.2
+        ]
+       },
+       {
+        "len": 219.2,
+        "offset": 196.87,
+        "cov_faces": 211.7,
+        "cov_with_caps": 211.7,
+        "a": [
+         2952.9,
+         2473.9
+        ],
+        "b": [
+         2733.7,
+         2473.9
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 13,
+    "window_count": 0,
+    "entrance_count": 8,
+    "max_entrance_run": 100.0,
+    "bbox": [
+     2725.0,
+     2465.2,
+     3458.4,
+     2876.4
+    ],
+    "area": 136741,
+    "text": false,
+    "spacing_mm": 3516,
+    "gt": "confirmed",
+    "gt_iou": 0.611,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 34.79,
+    "long": 315.24,
+    "spacing": 38.79,
+    "axis_deg": 89.6,
+    "mrr": [
+     [
+      3046.9,
+      2173.9
+     ],
+     [
+      3049.2,
+      2489.1
+     ],
+     [
+      3084.0,
+      2488.9
+     ],
+     [
+      3081.7,
+      2173.7
+     ]
+    ],
+    "n_vertices": 10,
+    "covers": {
+     "mrr": [
+      0.0,
+      0.04
+     ],
+     "mrr_tol0": [
+      0.864,
+      0.894
+     ],
+     "runs": [
+      0.863,
+      0.893
+     ],
+     "runs_caps": [
+      0.876,
+      0.899
+     ],
+     "runs_max": [
+      0.863,
+      0.893
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 315.0,
+      "n_runs": 3,
+      "runs": [
+       {
+        "len": 9.5,
+        "offset": -15.14,
+        "cov_faces": 0.0,
+        "cov_with_caps": 2.0,
+        "a": [
+         3081.7,
+         2488.9
+        ],
+        "b": [
+         3081.7,
+         2479.4
+        ]
+       },
+       {
+        "len": 31.5,
+        "offset": -17.28,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3083.7,
+         2479.4
+        ],
+        "b": [
+         3083.7,
+         2447.9
+        ]
+       },
+       {
+        "len": 274.0,
+        "offset": -16.36,
+        "cov_faces": 272.0,
+        "cov_with_caps": 274.0,
+        "a": [
+         3081.7,
+         2447.9
+        ],
+        "b": [
+         3081.7,
+         2173.9
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 315.0,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 283.5,
+        "offset": 16.39,
+        "cov_faces": 281.5,
+        "cov_with_caps": 283.5,
+        "a": [
+         3049.2,
+         2205.4
+        ],
+        "b": [
+         3049.2,
+         2488.9
+        ]
+       },
+       {
+        "len": 31.5,
+        "offset": 17.28,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3047.2,
+         2173.9
+        ],
+        "b": [
+         3047.2,
+         2205.4
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 0,
+    "max_entrance_run": 7.0,
+    "bbox": [
+     3047.2,
+     2173.9,
+     3083.7,
+     2488.9
+    ],
+    "area": 10363,
+    "text": false,
+    "spacing_mm": 328,
+    "gt": "false_positive",
+    "gt_iou": 0.945,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_caps": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_max": {
+      "36": false,
+      "40": true,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     }
+    }
+   },
+   {
+    "short": 239.0,
+    "long": 541.37,
+    "spacing": 243.0,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      3678.9,
+      2483.8
+     ],
+     [
+      3439.9,
+      2483.8
+     ],
+     [
+      3439.9,
+      3025.2
+     ],
+     [
+      3678.9,
+      3025.2
+     ]
+    ],
+    "n_vertices": 20,
+    "covers": {
+     "mrr": [
+      0.789,
+      1.0
+     ],
+     "mrr_tol0": [
+      0.789,
+      1.0
+     ],
+     "runs": [
+      0.491,
+      1.0
+     ],
+     "runs_caps": [
+      0.491,
+      1.0
+     ],
+     "runs_max": [
+      0.491,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 541.4,
+      "n_runs": 4,
+      "runs": [
+       {
+        "len": 99.5,
+        "offset": -119.5,
+        "cov_faces": 99.5,
+        "cov_with_caps": 99.5,
+        "a": [
+         3678.9,
+         3025.2
+        ],
+        "b": [
+         3678.9,
+         2925.7
+        ]
+       },
+       {
+        "len": 2.0,
+        "offset": -119.5,
+        "cov_faces": 2.0,
+        "cov_with_caps": 2.0,
+        "a": [
+         3678.9,
+         2925.7
+        ],
+        "b": [
+         3678.9,
+         2923.7
+        ]
+       },
+       {
+        "len": 151.8,
+        "offset": -119.5,
+        "cov_faces": 151.8,
+        "cov_with_caps": 151.8,
+        "a": [
+         3678.9,
+         2923.7
+        ],
+        "b": [
+         3678.9,
+         2771.9
+        ]
+       },
+       {
+        "len": 288.1,
+        "offset": -119.5,
+        "cov_faces": 288.1,
+        "cov_with_caps": 288.1,
+        "a": [
+         3678.9,
+         2771.9
+        ],
+        "b": [
+         3678.9,
+         2483.8
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 545.4,
+      "n_runs": 8,
+      "runs": [
+       {
+        "len": 5.0,
+        "offset": 115.0,
+        "cov_faces": 3.0,
+        "cov_with_caps": 3.0,
+        "a": [
+         3444.4,
+         2770.9
+        ],
+        "b": [
+         3444.4,
+         2775.9
+        ]
+       },
+       {
+        "len": 37.8,
+        "offset": 119.5,
+        "cov_faces": 37.8,
+        "cov_with_caps": 37.8,
+        "a": [
+         3439.9,
+         2775.9
+        ],
+        "b": [
+         3439.9,
+         2813.7
+        ]
+       },
+       {
+        "len": 171.8,
+        "offset": 110.0,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3449.4,
+         2813.7
+        ],
+        "b": [
+         3449.4,
+         2985.4
+        ]
+       },
+       {
+        "len": 39.7,
+        "offset": 119.5,
+        "cov_faces": 39.7,
+        "cov_with_caps": 39.7,
+        "a": [
+         3439.9,
+         2985.4
+        ],
+        "b": [
+         3439.9,
+         3025.2
+        ]
+       },
+       {
+        "len": 114.5,
+        "offset": 95.5,
+        "cov_faces": 12.9,
+        "cov_with_caps": 12.9,
+        "a": [
+         3463.9,
+         2483.8
+        ],
+        "b": [
+         3463.9,
+         2598.3
+        ]
+       },
+       {
+        "len": 172.6,
+        "offset": 82.25,
+        "cov_faces": 172.6,
+        "cov_with_caps": 172.6,
+        "a": [
+         3477.2,
+         2598.3
+        ],
+        "b": [
+         3477.2,
+         2770.9
+        ]
+       },
+       {
+        "len": 2.0,
+        "offset": 82.25,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3477.2,
+         2770.9
+        ],
+        "b": [
+         3477.2,
+         2772.9
+        ]
+       },
+       {
+        "len": 2.0,
+        "offset": 86.25,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3473.2,
+         2772.9
+        ],
+        "b": [
+         3473.2,
+         2770.9
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 10,
+    "window_count": 1,
+    "entrance_count": 1,
+    "max_entrance_run": 114.0,
+    "bbox": [
+     3439.9,
+     2483.8,
+     3678.9,
+     3025.2
+    ],
+    "area": 118548,
+    "text": true,
+    "spacing_mm": 2057,
+    "gt": "confirmed",
+    "gt_iou": 0.94,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 340.0,
+    "long": 419.12,
+    "spacing": 344.0,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      3085.7,
+      2606.0
+     ],
+     [
+      3085.7,
+      3025.2
+     ],
+     [
+      3425.7,
+      3025.2
+     ],
+     [
+      3425.7,
+      2606.0
+     ]
+    ],
+    "n_vertices": 12,
+    "covers": {
+     "mrr": [
+      1.0,
+      1.0
+     ],
+     "mrr_tol0": [
+      1.0,
+      1.0
+     ],
+     "runs": [
+      0.588,
+      1.0
+     ],
+     "runs_caps": [
+      0.588,
+      1.0
+     ],
+     "runs_max": [
+      0.588,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 419.1,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 419.0,
+        "offset": -170.0,
+        "cov_faces": 419.0,
+        "cov_with_caps": 419.0,
+        "a": [
+         3425.7,
+         3025.2
+        ],
+        "b": [
+         3425.7,
+         2606.2
+        ]
+       },
+       {
+        "len": 0.1,
+        "offset": -51.5,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3307.2,
+         2606.2
+        ],
+        "b": [
+         3307.2,
+         2606.0
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 419.1,
+      "n_runs": 4,
+      "runs": [
+       {
+        "len": 1.1,
+        "offset": 106.5,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3149.2,
+         2606.0
+        ],
+        "b": [
+         3149.2,
+         2607.2
+        ]
+       },
+       {
+        "len": 206.5,
+        "offset": 170.0,
+        "cov_faces": 206.5,
+        "cov_with_caps": 206.5,
+        "a": [
+         3085.7,
+         2607.2
+        ],
+        "b": [
+         3085.7,
+         2813.7
+        ]
+       },
+       {
+        "len": 171.8,
+        "offset": 160.5,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3095.2,
+         2813.7
+        ],
+        "b": [
+         3095.2,
+         2985.4
+        ]
+       },
+       {
+        "len": 39.7,
+        "offset": 170.0,
+        "cov_faces": 39.7,
+        "cov_with_caps": 39.7,
+        "a": [
+         3085.7,
+         2985.4
+        ],
+        "b": [
+         3085.7,
+         3025.2
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 13,
+    "window_count": 0,
+    "entrance_count": 1,
+    "max_entrance_run": 118.6,
+    "bbox": [
+     3085.7,
+     2606.0,
+     3425.7,
+     3025.2
+    ],
+    "area": 140785,
+    "text": true,
+    "spacing_mm": 2912,
+    "gt": "confirmed",
+    "gt_iou": 0.973,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 146.38,
+    "long": 253.75,
+    "spacing": 150.38,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      3085.7,
+      2210.9
+     ],
+     [
+      3085.7,
+      2464.7
+     ],
+     [
+      3232.0,
+      2464.7
+     ],
+     [
+      3232.0,
+      2210.9
+     ]
+    ],
+    "n_vertices": 15,
+    "covers": {
+     "mrr": [
+      0.926,
+      1.0
+     ],
+     "mrr_tol0": [
+      0.926,
+      1.0
+     ],
+     "runs": [
+      0.678,
+      0.918
+     ],
+     "runs_caps": [
+      0.678,
+      0.918
+     ],
+     "runs_max": [
+      0.678,
+      0.918
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 274.5,
+      "n_runs": 4,
+      "runs": [
+       {
+        "len": 20.7,
+        "offset": -14.56,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3173.4,
+         2443.9
+        ],
+        "b": [
+         3173.4,
+         2464.7
+        ]
+       },
+       {
+        "len": 81.7,
+        "offset": -59.94,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3218.8,
+         2464.7
+        ],
+        "b": [
+         3218.8,
+         2382.9
+        ]
+       },
+       {
+        "len": 80.0,
+        "offset": -73.19,
+        "cov_faces": 80.0,
+        "cov_with_caps": 80.0,
+        "a": [
+         3232.0,
+         2382.9
+        ],
+        "b": [
+         3232.0,
+         2302.9
+        ]
+       },
+       {
+        "len": 92.0,
+        "offset": -72.31,
+        "cov_faces": 92.0,
+        "cov_with_caps": 92.0,
+        "a": [
+         3231.2,
+         2302.9
+        ],
+        "b": [
+         3231.2,
+         2210.9
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 233.0,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 0.0,
+        "offset": 65.56,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3093.3,
+         2210.9
+        ],
+        "b": [
+         3093.3,
+         2210.9
+        ]
+       },
+       {
+        "len": 233.0,
+        "offset": 73.19,
+        "cov_faces": 233.0,
+        "cov_with_caps": 233.0,
+        "a": [
+         3085.7,
+         2210.9
+        ],
+        "b": [
+         3085.7,
+         2443.9
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 2,
+    "window_count": 1,
+    "entrance_count": 1,
+    "max_entrance_run": 138.7,
+    "bbox": [
+     3085.7,
+     2210.9,
+     3232.0,
+     2464.7
+    ],
+    "area": 34158,
+    "text": true,
+    "spacing_mm": 1273,
+    "gt": "confirmed",
+    "gt_iou": 0.918,
+    "gt_note": "the room overlay does not ignore room text SH/WC",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 248.75,
+    "long": 311.5,
+    "spacing": 252.75,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      2733.7,
+      2209.4
+     ],
+     [
+      2733.7,
+      2458.2
+     ],
+     [
+      3045.2,
+      2458.2
+     ],
+     [
+      3045.2,
+      2209.4
+     ]
+    ],
+    "n_vertices": 4,
+    "covers": {
+     "mrr": [
+      0.68,
+      1.0
+     ],
+     "mrr_tol0": [
+      0.68,
+      1.0
+     ],
+     "runs": [
+      0.68,
+      1.0
+     ],
+     "runs_caps": [
+      0.68,
+      1.0
+     ],
+     "runs_max": [
+      0.68,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 311.5,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 311.5,
+        "offset": -124.37,
+        "cov_faces": 311.5,
+        "cov_with_caps": 311.5,
+        "a": [
+         3045.2,
+         2209.4
+        ],
+        "b": [
+         2733.7,
+         2209.4
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 311.5,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 311.5,
+        "offset": 124.37,
+        "cov_faces": 211.7,
+        "cov_with_caps": 211.7,
+        "a": [
+         2733.7,
+         2458.2
+        ],
+        "b": [
+         3045.2,
+         2458.2
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "max_entrance_run": 110.8,
+    "bbox": [
+     2733.7,
+     2209.4,
+     3045.2,
+     2458.2
+    ],
+    "area": 77486,
+    "text": true,
+    "spacing_mm": 2140,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 429.5,
+    "long": 446.0,
+    "spacing": 433.5,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      2381.7,
+      2595.7
+     ],
+     [
+      2381.7,
+      3025.2
+     ],
+     [
+      2827.7,
+      3025.2
+     ],
+     [
+      2827.7,
+      2595.7
+     ]
+    ],
+    "n_vertices": 4,
+    "covers": {
+     "mrr": [
+      0.785,
+      1.0
+     ],
+     "mrr_tol0": [
+      0.785,
+      1.0
+     ],
+     "runs": [
+      0.785,
+      1.0
+     ],
+     "runs_caps": [
+      0.785,
+      1.0
+     ],
+     "runs_max": [
+      0.785,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 446.0,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 446.0,
+        "offset": -214.75,
+        "cov_faces": 350.0,
+        "cov_with_caps": 350.0,
+        "a": [
+         2827.7,
+         2595.7
+        ],
+        "b": [
+         2381.7,
+         2595.7
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 446.0,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 446.0,
+        "offset": 214.75,
+        "cov_faces": 446.0,
+        "cov_with_caps": 446.0,
+        "a": [
+         2381.7,
+         3025.2
+        ],
+        "b": [
+         2827.7,
+         3025.2
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 2,
+    "window_count": 0,
+    "entrance_count": 1,
+    "max_entrance_run": 107.0,
+    "bbox": [
+     2381.7,
+     2595.7,
+     2827.7,
+     3025.2
+    ],
+    "area": 191557,
+    "text": true,
+    "spacing_mm": 3670,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 336.25,
+    "long": 370.5,
+    "spacing": 340.25,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      2381.7,
+      2209.4
+     ],
+     [
+      2381.7,
+      2579.9
+     ],
+     [
+      2717.9,
+      2579.9
+     ],
+     [
+      2717.9,
+      2209.4
+     ]
+    ],
+    "n_vertices": 4,
+    "covers": {
+     "mrr": [
+      0.731,
+      1.0
+     ],
+     "mrr_tol0": [
+      0.731,
+      1.0
+     ],
+     "runs": [
+      0.731,
+      1.0
+     ],
+     "runs_caps": [
+      0.731,
+      1.0
+     ],
+     "runs_max": [
+      0.731,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 370.5,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 370.5,
+        "offset": -168.12,
+        "cov_faces": 270.7,
+        "cov_with_caps": 270.7,
+        "a": [
+         2717.9,
+         2579.9
+        ],
+        "b": [
+         2717.9,
+         2209.4
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 370.5,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 370.5,
+        "offset": 168.12,
+        "cov_faces": 370.5,
+        "cov_with_caps": 370.5,
+        "a": [
+         2381.7,
+         2209.4
+        ],
+        "b": [
+         2381.7,
+         2579.9
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "max_entrance_run": 110.6,
+    "bbox": [
+     2381.7,
+     2209.4,
+     2717.9,
+     2579.9
+    ],
+    "area": 124581,
+    "text": true,
+    "spacing_mm": 2881,
+    "gt": "confirmed",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 141.75,
+    "long": 201.75,
+    "spacing": 145.75,
+    "axis_deg": 0.0,
+    "mrr": [
+     [
+      3045.2,
+      2883.4
+     ],
+     [
+      2843.4,
+      2883.4
+     ],
+     [
+      2843.4,
+      3025.2
+     ],
+     [
+      3045.2,
+      3025.2
+     ]
+    ],
+    "n_vertices": 8,
+    "covers": {
+     "mrr": [
+      0.0,
+      1.0
+     ],
+     "mrr_tol0": [
+      0.0,
+      1.0
+     ],
+     "runs": [
+      0.542,
+      1.0
+     ],
+     "runs_caps": [
+      0.542,
+      1.0
+     ],
+     "runs_max": [
+      0.542,
+      1.0
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 201.8,
+      "n_runs": 1,
+      "runs": [
+       {
+        "len": 201.8,
+        "offset": -70.87,
+        "cov_faces": 201.8,
+        "cov_with_caps": 201.8,
+        "a": [
+         2843.4,
+         3025.2
+        ],
+        "b": [
+         3045.2,
+         3025.2
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 201.8,
+      "n_runs": 3,
+      "runs": [
+       {
+        "len": 5.5,
+        "offset": 62.12,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3045.2,
+         2892.2
+        ],
+        "b": [
+         3039.7,
+         2892.2
+        ]
+       },
+       {
+        "len": 79.8,
+        "offset": 70.87,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3039.7,
+         2883.4
+        ],
+        "b": [
+         2959.9,
+         2883.4
+        ]
+       },
+       {
+        "len": 116.5,
+        "offset": 62.12,
+        "cov_faces": 109.3,
+        "cov_with_caps": 109.3,
+        "a": [
+         2959.9,
+         2892.2
+        ],
+        "b": [
+         2843.4,
+         2892.2
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 1,
+    "window_count": 0,
+    "entrance_count": 1,
+    "max_entrance_run": 79.8,
+    "bbox": [
+     2843.4,
+     2883.4,
+     3045.2,
+     3025.2
+    ],
+    "area": 27531,
+    "text": true,
+    "spacing_mm": 1234,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     }
+    }
+   },
+   {
+    "short": 36.5,
+    "long": 466.25,
+    "spacing": 40.5,
+    "axis_deg": 90.0,
+    "mrr": [
+     [
+      3047.2,
+      2594.4
+     ],
+     [
+      3047.2,
+      3060.7
+     ],
+     [
+      3083.7,
+      3060.7
+     ],
+     [
+      3083.7,
+      2594.4
+     ]
+    ],
+    "n_vertices": 8,
+    "covers": {
+     "mrr": [
+      0.0,
+      0.0
+     ],
+     "mrr_tol0": [
+      0.928,
+      0.928
+     ],
+     "runs": [
+      0.928,
+      0.928
+     ],
+     "runs_caps": [
+      0.932,
+      0.932
+     ],
+     "runs_max": [
+      0.928,
+      0.928
+     ]
+    },
+    "side_detail": [
+     {
+      "parallel_len": 466.2,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 31.5,
+        "offset": -18.25,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3083.7,
+         3060.7
+        ],
+        "b": [
+         3083.7,
+         3029.2
+        ]
+       },
+       {
+        "len": 434.8,
+        "offset": -16.25,
+        "cov_faces": 432.8,
+        "cov_with_caps": 434.8,
+        "a": [
+         3081.7,
+         3029.2
+        ],
+        "b": [
+         3081.7,
+         2594.4
+        ]
+       }
+      ]
+     },
+     {
+      "parallel_len": 466.2,
+      "n_runs": 2,
+      "runs": [
+       {
+        "len": 31.5,
+        "offset": 18.25,
+        "cov_faces": 0.0,
+        "cov_with_caps": 0.0,
+        "a": [
+         3047.2,
+         3029.2
+        ],
+        "b": [
+         3047.2,
+         3060.7
+        ]
+       },
+       {
+        "len": 434.8,
+        "offset": 16.25,
+        "cov_faces": 432.8,
+        "cov_with_caps": 434.8,
+        "a": [
+         3049.2,
+         2594.4
+        ],
+        "b": [
+         3049.2,
+         3029.2
+        ]
+       }
+      ]
+     }
+    ],
+    "door_count": 3,
+    "window_count": 0,
+    "entrance_count": 0,
+    "max_entrance_run": 10.0,
+    "bbox": [
+     3047.2,
+     2594.4,
+     3083.7,
+     3060.7
+    ],
+    "area": 15279,
+    "text": false,
+    "spacing_mm": 343,
+    "gt": "false_positive",
+    "gt_iou": 1.0,
+    "gt_note": "",
+    "verdicts": {
+     "mrr": {
+      "36": false,
+      "40": false,
+      "41": false,
+      "44": false,
+      "48": false,
+      "56": false
+     },
+     "mrr_tol0": {
+      "36": false,
+      "40": false,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs": {
+      "36": false,
+      "40": false,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_caps": {
+      "36": false,
+      "40": false,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     },
+     "runs_max": {
+      "36": false,
+      "40": false,
+      "41": true,
+      "44": true,
+      "48": true,
+      "56": true
+     }
+    }
+   }
+  ]
+ }
+]

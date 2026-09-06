@@ -1,0 +1,52 @@
+s11 p1 f=0.500: as-is calls 9 dropped 0 score lost=0 fp=4 unrev=0
+    ceiling 40 (20.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 4->4 unrev 0->0
+    ceiling 41 (20.5px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 4->4 unrev 0->0
+    ceiling 44 (22.0px): newly dropped 1 | rooms gone 1 new 0 moved 0 | lost 0->1 fp 4->4 unrev 0->0
+        DROP [1077.5, 1597.0, 1095.2, 1704.0] gt=confirmed 0.92
+        LOST delta: [('room', (1078, 1597, 1097, 1704))]
+    ceiling 48 (24.0px): newly dropped 1 | rooms gone 1 new 0 moved 0 | lost 0->1 fp 4->4 unrev 0->0
+        DROP [1077.5, 1597.0, 1095.2, 1704.0] gt=confirmed 0.92
+        LOST delta: [('room', (1078, 1597, 1097, 1704))]
+    ceiling 56 (28.0px): newly dropped 1 | rooms gone 1 new 0 moved 0 | lost 0->1 fp 4->4 unrev 0->0
+        DROP [1077.5, 1597.0, 1095.2, 1704.0] gt=confirmed 0.92
+        LOST delta: [('room', (1078, 1597, 1097, 1704))]
+s15 p1 f=1.000: as-is calls 5 dropped 0 score lost=0 fp=7 unrev=0
+    ceiling 40 (40.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 7->7 unrev 0->0
+    ceiling 41 (41.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 7->7 unrev 0->0
+    ceiling 44 (44.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 7->7 unrev 0->0
+    ceiling 48 (48.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 7->7 unrev 0->0
+    ceiling 56 (56.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 7->7 unrev 0->0
+s17 p1 f=1.000: as-is calls 7 dropped 1 score lost=0 fp=10 unrev=0
+    ceiling 40 (40.0px): newly dropped 3 | rooms gone 3 new 0 moved 0 | lost 0->0 fp 10->7 unrev 0->0
+        DROP [911.9, 2173.9, 946.7, 2330.7] gt=false_positive 1.00
+        DROP [913.9, 2608.7, 948.7, 3060.7] gt=false_positive 0.99
+        DROP [3047.2, 2173.9, 3083.7, 2488.9] gt=false_positive 0.95
+    ceiling 41 (41.0px): newly dropped 4 | rooms gone 4 new 0 moved 0 | lost 0->0 fp 10->6 unrev 0->0
+        DROP [911.9, 2173.9, 946.7, 2330.7] gt=false_positive 1.00
+        DROP [913.9, 2608.7, 948.7, 3060.7] gt=false_positive 0.99
+        DROP [3047.2, 2173.9, 3083.7, 2488.9] gt=false_positive 0.95
+        DROP [3047.2, 2594.4, 3083.7, 3060.7] gt=false_positive 1.00
+    ceiling 44 (44.0px): newly dropped 4 | rooms gone 4 new 0 moved 0 | lost 0->0 fp 10->6 unrev 0->0
+        DROP [911.9, 2173.9, 946.7, 2330.7] gt=false_positive 1.00
+        DROP [913.9, 2608.7, 948.7, 3060.7] gt=false_positive 0.99
+        DROP [3047.2, 2173.9, 3083.7, 2488.9] gt=false_positive 0.95
+        DROP [3047.2, 2594.4, 3083.7, 3060.7] gt=false_positive 1.00
+    ceiling 48 (48.0px): newly dropped 4 | rooms gone 4 new 0 moved 0 | lost 0->0 fp 10->6 unrev 0->0
+        DROP [911.9, 2173.9, 946.7, 2330.7] gt=false_positive 1.00
+        DROP [913.9, 2608.7, 948.7, 3060.7] gt=false_positive 0.99
+        DROP [3047.2, 2173.9, 3083.7, 2488.9] gt=false_positive 0.95
+        DROP [3047.2, 2594.4, 3083.7, 3060.7] gt=false_positive 1.00
+    ceiling 56 (56.0px): newly dropped 4 | rooms gone 4 new 0 moved 0 | lost 0->0 fp 10->6 unrev 0->0
+        DROP [911.9, 2173.9, 946.7, 2330.7] gt=false_positive 1.00
+        DROP [913.9, 2608.7, 948.7, 3060.7] gt=false_positive 0.99
+        DROP [3047.2, 2173.9, 3083.7, 2488.9] gt=false_positive 0.95
+        DROP [3047.2, 2594.4, 3083.7, 3060.7] gt=false_positive 1.00
+s12 p1 f=0.500: as-is calls 8 dropped 0 score lost=0 fp=7 unrev=0
+    ceiling 40 (20.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 7->7 unrev 0->0
+    ceiling 41 (20.5px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 7->7 unrev 0->0
+    ceiling 44 (22.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 7->7 unrev 0->0
+    ceiling 48 (24.0px): newly dropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 7->7 unrev 0->0
+    ceiling 56 (28.0px): newly dropped 2 | rooms gone 2 new 0 moved 0 | lost 0->0 fp 7->5 unrev 0->0
+        DROP [1841.8, 529.8, 1873.1, 553.5] gt=false_positive 1.00
+        DROP [1841.8, 471.6, 1873.1, 493.8] gt=false_positive 1.00
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/tools/census_scratch/step15/ceiling_census_b.json

@@ -1,0 +1,17 @@
+s11 p1 f=0.500 cap 18.0: pocket calls 9 (≤56×f: 1), rooms 24, face_lines 1174, cap_lines 464
+    CALL [1077.5, 1597.0, 1095.2, 1704.0] sp 21.75 (368mm) gt=confirmed text=False mrr [1.0, 1.0] tol0 [1.0, 1.0] runs [1.0, 1.0] caps [1.0, 1.0] max [1.0, 1.0] now_dropped=False
+    CONFIRMED-NARROW [1077.5, 1597.0, 1095.2, 1704.0] sp 21.75 (368mm) entr 0 doors 0 win 0 text=False mrr [1.0, 1.0] runs [1.0, 1.0] caps [1.0, 1.0]
+s12 p1 f=0.500 cap 18.0: pocket calls 8 (≤56×f: 2), rooms 15, face_lines 487, cap_lines 150
+    CALL [1841.8, 471.6, 1873.1, 493.8] sp 26.13 (442mm) gt=false_positive text=False mrr [1.0, 1.0] tol0 [1.0, 1.0] runs [1.0, 1.0] caps [1.0, 1.0] max [1.0, 1.0] now_dropped=False
+    CALL [1841.8, 529.8, 1873.1, 553.5] sp 27.75 (470mm) gt=false_positive text=False mrr [0.936, 1.0] tol0 [0.936, 1.0] runs [0.936, 1.0] caps [0.936, 1.0] max [0.936, 1.0] now_dropped=False
+s13 p1 f=0.367 cap 13.2: pocket calls 0 (≤56×f: 0), rooms 11, face_lines 243, cap_lines 96
+s14 p1 f=1.000 cap 36.0: pocket calls 0 (≤56×f: 0), rooms 0, face_lines 561, cap_lines 264
+s15 p1 f=1.000 cap 36.0: pocket calls 5 (≤56×f: 0), rooms 16, face_lines 526, cap_lines 280
+s16 p1 f=0.500 cap 18.0: pocket calls 11 (≤56×f: 1), rooms 29, face_lines 1600, cap_lines 644
+    CALL [2507.3, 1322.8, 2527.3, 1401.3] sp 24.0 (406mm) gt=false_positive text=False mrr [1.0, 1.0] tol0 [1.0, 1.0] runs [1.0, 1.0] caps [1.0, 1.0] max [1.0, 1.0] now_dropped=False
+s18 p1 f=0.500 cap 18.0: pocket calls 11 (≤56×f: 2), rooms 26, face_lines 2708, cap_lines 974
+    CALL [2078.7, 1023.0, 2096.0, 1068.2] sp 21.25 (360mm) gt=false_positive text=False mrr [0.856, 1.0] tol0 [0.856, 1.0] runs [0.856, 1.0] caps [1.0, 1.0] max [0.856, 1.0] now_dropped=False
+    CALL [907.2, 809.5, 1079.0, 832.7] sp 27.25 (461mm) gt=false_positive text=False mrr [0.14, 1.0] tol0 [0.14, 1.0] runs [0.897, 1.0] caps [0.897, 1.0] max [0.897, 1.0] now_dropped=False
+s19 p1 f=1.000 cap 36.0: pocket calls 0 (≤56×f: 0), rooms 0, face_lines 0, cap_lines 0
+s20 p1 f=1.000 cap 36.0: pocket calls 1 (≤56×f: 0), rooms 5, face_lines 192, cap_lines 78
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/tools/census_scratch/step15/cover_census_b.json
