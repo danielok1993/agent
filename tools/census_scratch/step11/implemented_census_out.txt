@@ -1,0 +1,59 @@
+=== s01 f=1.000: share-gated ['(0.0, 0.0, 0.0)', '(0.75, 0.0, 1.0)']
+    owners      : (0.0, 0.0, 0.0)=6, (0.75, 0.0, 1.0)=2   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=6, (0.75, 0.0, 1.0)=2   vetoed -
+=== s01 f=0.542: share-gated ['(0.0, 0.0, 0.0)', '(0.75, 0.0, 1.0)', '(1.0, 0.0, 0.0)']
+    owners      : (0.0, 0.0, 0.0)=5, (0.75, 0.0, 1.0)=4   vetoed ['(1.0, 0.0, 0.0)']
+    paired-only : (0.0, 0.0, 0.0)=5, (0.75, 0.0, 1.0)=3   vetoed ['(1.0, 0.0, 0.0)']   <- DIFFERS
+=== s02 f=1.000: share-gated ['(0.0, 0.0, 0.0)']
+    owners      : (0.0, 0.0, 0.0)=1   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=1   vetoed -
+=== s03 f=1.000: share-gated ['(0.0, 0.0, 0.0)', '(0.58, 0.58, 0.6)']
+    owners      : (0.0, 0.0, 0.0)=14, (0.58, 0.58, 0.6)=8, (0.73, 0.73, 0.73)=1   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=14, (0.58, 0.58, 0.6)=8, (0.73, 0.73, 0.73)=1   vetoed -
+=== s04 f=1.000: share-gated ['(0.0, 0.0, 0.0)', '(0.6, 0.6, 0.6)']
+    owners      : (0.0, 0.0, 0.0)=3, (0.6, 0.6, 0.6)=3   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=3, (0.6, 0.6, 0.6)=3   vetoed -
+=== s05 f=0.500: share-gated ['(0.0, 0.0, 0.0)']
+    owners      : (0.0, 0.0, 0.0)=8   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=8   vetoed -
+=== s06 f=0.500: share-gated ['(0.0, 0.0, 0.0)']
+    owners      : (0.0, 0.0, 0.0)=7   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=7   vetoed -
+=== s07 f=0.500: share-gated ['(0.0, 0.0, 0.0)']
+    owners      : (0.0, 0.0, 0.0)=6   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=6   vetoed -
+=== s08 f=1.000: share-gated ['(0.0, 0.0, 0.0)', '(0.6, 0.6, 0.6)']
+    owners      : (0.0, 0.0, 0.0)=3, (0.6, 0.6, 0.6)=3   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=3, (0.6, 0.6, 0.6)=3   vetoed -
+=== s09 f=1.000: nothing detected
+=== s10 f=1.000: share-gated ['(0.0, 0.0, 0.0)']
+    owners      : (0.0, 0.0, 0.0)=13   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=13   vetoed -
+=== s11 f=0.500: share-gated ['(0.0, 0.0, 0.0)']
+    owners      : (0.0, 0.0, 0.0)=14   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=14   vetoed -
+=== s12 f=0.500: share-gated ['(0.0, 0.0, 0.0)', '(0.86, 0.86, 0.86)']
+    owners      : (0.0, 0.0, 0.0)=7, (0.86, 0.86, 0.86)=4   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=7, (0.86, 0.86, 0.86)=4   vetoed -
+=== s13 f=0.367: share-gated ['(0.0, 0.0, 0.0)']
+    owners      : (0.0, 0.0, 0.0)=8   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=8   vetoed -
+=== s14 f=1.000: share-gated ['(0.0, 0.0, 0.0)']
+    owners      : (0.0, 0.0, 0.0)=5   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=5   vetoed -
+=== s15 f=1.000: share-gated ['(0.0, 0.0, 0.0)']
+    owners      : (0.0, 0.0, 0.0)=11   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=11   vetoed -
+=== s16 f=0.500: share-gated ['(0.0, 0.0, 0.0)']
+    owners      : (0.0, 0.0, 0.0)=13   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=13   vetoed -
+=== s17 f=1.000: share-gated ['(0.0, 0.0, 0.0)']
+    owners      : (0.0, 0.0, 0.0)=27   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=23   vetoed -   <- DIFFERS
+=== s18 f=0.500: share-gated ['(0.0, 0.0, 0.0)']
+    owners      : (0.0, 0.0, 0.0)=9   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=8   vetoed -   <- DIFFERS
+=== s19 f=1.000: nothing detected
+=== s20 f=1.000: share-gated ['(0.0, 0.0, 0.0)']
+    owners      : (0.0, 0.0, 0.0)=3   vetoed -
+    paired-only : (0.0, 0.0, 0.0)=3   vetoed -

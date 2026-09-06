@@ -2405,3 +2405,128 @@ class TestJambSeekingTail(unittest.TestCase):
         rooms = rooms_for(self.hall_paths(), doors=[self.hall_door(0.35)])
         self.assertEqual(len(rooms), 3)
         self.assertIsNone(self._hall(rooms))
+
+
+RED = (1.0, 0.0, 0.0)
+
+
+class TestDoorwayOwnedWallPens(unittest.TestCase):
+    """On a colour-coded drawing the wall pens are the pens the sheet's
+    DOORWAYS are cut into (W-gate iteration 3 step 11, 2026-09-05).
+
+    Building bands is not proof of walls: 600 mm kitchen units, sofa arms
+    and bed frames pair at wall spacing in the furniture pen at any scale,
+    and on s01 the red furniture pen carries 13.7 % of the paired network
+    at identity and 15.2 % at its true factor (0.542) — across
+    ROOM_WALL_PEN_MIN_FRAC on one side and not the other, 17 phantom rooms
+    fenced by red unit fronts and sofa cushions. A doorway IS proof: it is
+    cut out of a wall, and a confident swing door's interrupted plug reaches
+    a jamb at each end (its tails). A pen forms a jamb when a face of it
+    collinear with the doorway line stops there, or when a paired band of
+    it is what the tail runs into (the wall continuing, or a return at a
+    corner-hung door); a pen forms BOTH jambs of a doorway when the doorway
+    is cut into it. Measured over every multi-pen sheet (s01 at both
+    factors, s02, s03, s04, s08, s12, s17; tools/census_scratch/step11):
+    every network-building wall pen has 1–27 doorways cut into it, every
+    annotation/furniture pen 0 (s01 red at both factors, s01 blue — whose
+    dimension EXTENSION lines end at both jambs of one door but are lone,
+    perpendicular ink — s02's four annotation pens, s17's orange
+    demolition ticks, the 0 % red pens of s04/s08/s12/s17).
+
+    The rule is a VETO on the share gate: a pen that built >= the share
+    but that no doorway is cut into drew furniture and loses its lone-face
+    and same-pen-pair rights. When no doorway on the sheet is cut into any
+    pen (no confident door with an interrupted plug), the share gate stands
+    alone — the doorways name nobody. A doorway plug qualifies only against
+    the pass-1 material, so a pen UNDER the share gate cannot be promoted by
+    a doorway that only its own ink frames; that promotion needs pen-less
+    material (fills) and is out of scope (s03's 0.73 grey rear-extension
+    walls, inert behind their grey fills)."""
+
+    @staticmethod
+    def room_with_doorway():
+        """Black rect room, 45px doorway in the top band (240..285)."""
+        return (
+            wall_band_h(0, 100, 240, 100)
+            + wall_band_h(2, 285, 400, 100)
+            + wall_band_h(4, 100, 400, 292)
+            + wall_band_v(6, 100, 100, 300)
+            + wall_band_v(8, 392, 100, 300)
+        )
+
+    @staticmethod
+    def furniture_pairs():
+        """Three red same-pen pairs (unit boxes, 20px deep, 90px long) —
+        540px of paired faces against the room's 1,910px: 22 % of the
+        network, a wall pen by the share gate alone."""
+        return [
+            vline(20, 140, 200, 290, color=RED), vline(21, 160, 200, 290, color=RED),
+            vline(22, 240, 200, 290, color=RED), vline(23, 260, 200, 290, color=RED),
+            vline(24, 330, 200, 290, color=RED), vline(25, 350, 200, 290, color=RED),
+        ]
+
+    DOOR = (238, 96, 290, 155)
+    LONE_RED = hline(60, 108, 392, 170, color=RED)
+
+    def test_network_building_furniture_pen_is_vetoed_by_the_doorways(self):
+        paths = self.room_with_doorway() + self.furniture_pairs() + [self.LONE_RED]
+        rooms = rooms_for(paths, doors=[door_candidate(self.DOOR)])
+        self.assertEqual(len(rooms), 1, "the red lone line split the room")
+        self.assertEqual(rooms[0].evidence["door_openings"], 1)
+        # The red pairs' solids do not notch the room either: the full
+        # interior inside the 2px barrier standoff (280 x 180), plus the
+        # doorway recess — the same floor test_door_swing_area_stays_in_room
+        # asserts on this room without the furniture.
+        self.assertGreaterEqual(rooms[0].evidence["area_px2"], 50400)
+
+    def test_the_pen_the_doorway_is_cut_into_keeps_its_rights(self):
+        paths = self.room_with_doorway() + self.furniture_pairs() + [
+            hline(60, 108, 392, 170),   # the same lone line in the wall pen
+        ]
+        rooms = rooms_for(paths, doors=[door_candidate(self.DOOR)])
+        self.assertEqual(len(rooms), 2)
+
+    def test_one_jamb_is_not_a_doorway(self):
+        # A unit box drawn against the wall up to the door's left jamb: its
+        # paired red faces are what the left tail runs into, the right tail
+        # sees only black. One jamb names no pen — red stays vetoed.
+        unit = [
+            hline(30, 130, 236, 100, color=RED), hline(31, 130, 236, 120, color=RED),
+        ]
+        paths = self.room_with_doorway() + self.furniture_pairs() + unit + [self.LONE_RED]
+        rooms = rooms_for(paths, doors=[door_candidate(self.DOOR)])
+        self.assertEqual(len(rooms), 1, "one red jamb made red a wall pen")
+
+    def test_without_a_doorway_the_share_gate_stands(self):
+        # No door at all (a closed room): the doorways name nobody and the
+        # network-share gate alone decides, as before — red at 22 % is a
+        # wall pen and its lone line splits the room. (The fallback, pinned
+        # so it cannot be removed silently; the room stage has no better
+        # evidence here.)
+        paths = rect_room(0, 100, 100, 400, 300) + self.furniture_pairs() + [self.LONE_RED]
+        rooms = rooms_for(paths)
+        self.assertEqual(len(rooms), 2)
+
+    def test_a_rejected_door_names_no_pen(self):
+        # A 0.45 door's interrupted plug still seals (plug-seal tier) but a
+        # candidate the pipeline itself rejects cannot vouch for a wall pen.
+        paths = self.room_with_doorway() + self.furniture_pairs() + [self.LONE_RED]
+        rooms = rooms_for(paths, doors=[door_candidate(self.DOOR, confidence=0.45)])
+        self.assertEqual(len(rooms), 2)
+
+    def test_a_single_line_wall_names_its_pen(self):
+        # The doorway's wall is drawn as ONE line (a party wall, a face whose
+        # partner an opening ate): its jamb faces pair with nothing, so only
+        # a lone face collinear with the doorway line, stopping at the jamb,
+        # can name the pen — and it must, or the doorways name nobody and
+        # the share gate alone keeps red a wall pen.
+        paths = (
+            [hline(0, 100, 238, 100), hline(1, 287, 400, 100)]
+            + wall_band_h(4, 100, 400, 292)
+            + wall_band_v(6, 100, 100, 300)
+            + wall_band_v(8, 392, 100, 300)
+            + self.furniture_pairs() + [self.LONE_RED]
+        )
+        rooms = rooms_for(paths, doors=[door_candidate(self.DOOR)])
+        self.assertEqual(len(rooms), 1, "the single-line wall named no pen")
+        self.assertEqual(rooms[0].evidence["door_openings"], 1)

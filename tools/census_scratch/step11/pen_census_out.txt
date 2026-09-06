@@ -1,0 +1,52 @@
+
+=== s01 f=1.000  paired stroked 16042px (mixed-pen segs 1965px)  ref=1.50 gate=1.12  conf doors 11 (plugged 10), conf windows 4
+pen                    wall?  share pen-paired loneElig nSeg segLen  mat% thMin thMed thMax lngSeg lngFace   D  Dg   W  Wg loops widths
+(0.0, 0.0, 0.0)        WALL   56.0%        86%     1414   37   3195   81%   5.2  21.8  39.2    331     756   8   8   4   4     2 [1.5]
+(0.75, 0.0, 1.0)       WALL   23.3%        75%        0    9    539   69%   6.2   9.2  19.2    134     495   5   3   1   0     0 [1.0]
+(1.0, 0.0, 0.0)        no     13.7%        47%     2490   28    969    5%   5.8  12.8  38.5    109     230   4   4   0   0     2 [1.5]
+(0.0, 0.0, 1.0)        no      6.9%        62%      682    7    296    0%   8.8  19.2  29.5     71      80   3   3   0   0     0 [1.5]
+
+=== s01 f=0.542  paired stroked 15853px (mixed-pen segs 1783px)  ref=1.50 gate=1.12  conf doors 11 (plugged 11), conf windows 4
+pen                    wall?  share pen-paired loneElig nSeg segLen  mat% thMin thMed thMax lngSeg lngFace   D  Dg   W  Wg loops widths
+(0.0, 0.0, 0.0)        WALL   52.3%        75%     2728   39   3202   80%   2.8  21.0  27.0    331     756   6   6   4   4     1 [1.5]
+(0.75, 0.0, 1.0)       WALL   27.3%        66%        0   14    596   48%   3.0   7.0  19.2    134     495   6   5   1   0     0 [1.0]
+(1.0, 0.0, 0.0)        WALL   15.2%        45%     3001   33   1155    3%   2.5   6.2  22.2    109     230   2   2   0   0     8 [1.5]
+(0.0, 0.0, 1.0)        no      5.2%        35%     1521    5    190    0%   8.8   9.5  19.2     71      80   6   6   0   0     0 [1.5]
+
+=== s02 f=1.000  paired stroked 10884px (mixed-pen segs 0px)  ref=1.50 gate=1.12  conf doors 15 (plugged 15), conf windows 6
+pen                    wall?  share pen-paired loneElig nSeg segLen  mat% thMin thMed thMax lngSeg lngFace   D  Dg   W  Wg loops widths
+(0.0, 0.0, 0.0)        WALL   93.6%        43%     4998   60   4941    0%   4.3  30.5  34.9    431     424   9   9   6   6    28 [1.05, 1.5, 1.8]
+(0.54, 0.69, 0.72)     no      6.4%       100%        0   10    354    0%   5.8   7.7   8.4     68      69   0   0   0   0     0 [1.8]
+(0.54, 0.54, 0.54)     no      0.0%         0%     2409    0      0    0%   0.0   0.0   0.0      0     402   0   0   0   0     0 [1.8]
+(0.6, 0.6, 0.6)        no      0.0%         0%       96    0      0    0%   0.0   0.0   0.0      0      24   0   0   0   0     0 [1.8]
+(1.0, 0.15, 0.0)       no      0.0%         0%      150    0      0    0%   0.0   0.0   0.0      0      19   0   0   0   0     0 [1.8]
+
+=== s03 f=1.000  paired stroked 38909px (mixed-pen segs 7206px)  ref=1.50 gate=1.12  conf doors 17 (plugged 17), conf windows 15
+pen                    wall?  share pen-paired loneElig nSeg segLen  mat% thMin thMed thMax lngSeg lngFace   D  Dg   W  Wg loops widths
+(0.0, 0.0, 0.0)        WALL   55.2%        81%     5121   28   2814   45%   2.2  12.0  33.2    365    1444  17  17  15  15     8 [1.5]
+(0.58, 0.58, 0.6)      WALL   34.4%        95%        0    8   1879    0%   5.8  14.8  16.5    568     992  11   3  10   1     8 [1.0]
+(0.73, 0.73, 0.73)     no     10.4%        98%        0    1    491    0%   7.2   7.2   7.2    491     508   3   0   2   0     0 [1.0]
+
+=== s04 f=1.000  paired stroked 20871px (mixed-pen segs 5140px)  ref=1.19 gate=0.89  conf doors 4 (plugged 3), conf windows 2
+pen                    wall?  share pen-paired loneElig nSeg segLen  mat% thMin thMed thMax lngSeg lngFace   D  Dg   W  Wg loops widths
+(0.0, 0.0, 0.0)        WALL   50.4%        88%     1399    3    529    0%   5.3   5.3  16.2    216    1446   3   3   2   2     2 [1.19]
+(0.6, 0.6, 0.6)        WALL   49.6%        94%      672    3   1018    0%  15.6  15.6  26.6    868    1661   3   3   2   2     3 [1.0]
+(1.0, 0.0, 0.0)        no      0.0%         0%     2044    0      0    0%   0.0   0.0   0.0      0      39   0   0   0   0     0 [1.0, 1.19]
+
+=== s08 f=1.000  paired stroked 20650px (mixed-pen segs 5343px)  ref=1.00 gate=0.75  conf doors 4 (plugged 4), conf windows 1
+pen                    wall?  share pen-paired loneElig nSeg segLen  mat% thMin thMed thMax lngSeg lngFace   D  Dg   W  Wg loops widths
+(0.6, 0.6, 0.6)        WALL   56.7%        98%      208    7   1225    0%  14.2  16.6  34.4    408    1661   3   3   1   1     7 [1.0]
+(0.0, 0.0, 0.0)        WALL   43.3%        76%     2820    1    116    0%   7.2   7.2   7.2    116    1661   2   2   1   1     0 [1.19]
+(1.0, 0.0, 0.0)        no      0.0%         0%     2088    0      0    0%   0.0   0.0   0.0      0      39   1   1   0   0     0 [1.0, 1.19]
+
+=== s12 f=0.500  paired stroked 19280px (mixed-pen segs 3848px)  ref=1.00 gate=0.75  conf doors 7 (plugged 7), conf windows 0
+pen                    wall?  share pen-paired loneElig nSeg segLen  mat% thMin thMed thMax lngSeg lngFace   D  Dg   W  Wg loops widths
+(0.0, 0.0, 0.0)        WALL   59.1%        83%     2368   41   1742   40%   2.2  13.0  34.2    295     578   7   7   0   0    12 [1.0]
+(0.86, 0.86, 0.86)     WALL   40.9%        82%     1740    3     68    0%   4.8   6.0   7.5     31     490   6   6   0   0     5 [1.0]
+(1.0, 0.0, 0.0)        no      0.0%         0%       29    0      0    0%   0.0   0.0   0.0      0      14   0   0   0   0     0 [1.0]
+
+=== s17 f=1.000  paired stroked 51398px (mixed-pen segs 90px)  ref=1.50 gate=1.12  conf doors 35 (plugged 34), conf windows 10
+pen                    wall?  share pen-paired loneElig nSeg segLen  mat% thMin thMed thMax lngSeg lngFace   D  Dg   W  Wg loops widths
+(0.0, 0.0, 0.0)        WALL   99.2%        89%     6026  129  24389    6%   2.2  12.5  36.0    873    1374  34  34  10  10    14 [1.5]
+(1.0, 0.5, 0.0)        no      0.8%        26%     1208    8    173    0%   5.3   6.8  35.7     81     194   1   1   1   1     0 [1.5]
+(1.0, 0.0, 0.0)        no      0.0%         0%        0    0      0    0%   0.0   0.0   0.0      0      36   0   0   0   0     0 [1.0]

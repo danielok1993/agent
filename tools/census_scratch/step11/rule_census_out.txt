@@ -1,0 +1,99 @@
+
+=== s01 f=1.000: pens 4, today's wall pens ['(0.0, 0.0, 0.0)', '(0.75, 0.0, 1.0)']
+   [a only] interrupted doorways 9; owners: (0.0, 0.0, 0.0)=3  -> wall pens CHANGE: ['(0.0, 0.0, 0.0)']
+   [a+b] interrupted doorways 9; owners: (0.0, 0.0, 0.0)=6, (0.75, 0.0, 1.0)=2  -> wall pens same
+   [a+b_tip] interrupted doorways 9; owners: (0.0, 0.0, 0.0)=6, (0.75, 0.0, 1.0)=1  -> wall pens same
+
+=== s01 f=0.542: pens 4, today's wall pens ['(0.0, 0.0, 0.0)', '(0.75, 0.0, 1.0)', '(1.0, 0.0, 0.0)']
+   [a only] interrupted doorways 10; owners: (0.0, 0.0, 0.0)=4, (0.75, 0.0, 1.0)=2  -> wall pens CHANGE: ['(0.0, 0.0, 0.0)', '(0.75, 0.0, 1.0)']
+   [a+b] interrupted doorways 10; owners: (0.0, 0.0, 0.0)=5, (0.75, 0.0, 1.0)=3  -> wall pens CHANGE: ['(0.0, 0.0, 0.0)', '(0.75, 0.0, 1.0)']
+   [a+b_tip] interrupted doorways 10; owners: (0.0, 0.0, 0.0)=4, (0.75, 0.0, 1.0)=3  -> wall pens CHANGE: ['(0.0, 0.0, 0.0)', '(0.75, 0.0, 1.0)']
+
+=== s02 f=1.000: pens 2, today's wall pens ['(0.0, 0.0, 0.0)']
+   [a only] interrupted doorways 7; owners: (0.0, 0.0, 0.0)=1  -> wall pens same
+   [a+b] interrupted doorways 7; owners: (0.0, 0.0, 0.0)=1  -> wall pens same
+   [a+b_tip] interrupted doorways 7; owners: (0.0, 0.0, 0.0)=1  -> wall pens same
+
+=== s03 f=1.000: pens 3, today's wall pens ['(0.0, 0.0, 0.0)', '(0.58, 0.58, 0.6)']
+   [a only] interrupted doorways 17; owners: (0.0, 0.0, 0.0)=7, (0.58, 0.58, 0.6)=1  -> wall pens same
+   [a+b] interrupted doorways 17; owners: (0.0, 0.0, 0.0)=14, (0.58, 0.58, 0.6)=8, (0.73, 0.73, 0.73)=1  -> wall pens CHANGE: ['(0.0, 0.0, 0.0)', '(0.58, 0.58, 0.6)', '(0.73, 0.73, 0.73)']
+   [a+b_tip] interrupted doorways 17; owners: (0.0, 0.0, 0.0)=13, (0.58, 0.58, 0.6)=6  -> wall pens same
+
+=== s04 f=1.000: pens 2, today's wall pens ['(0.0, 0.0, 0.0)', '(0.6, 0.6, 0.6)']
+   [a only] interrupted doorways 3; owners: (0.0, 0.0, 0.0)=1, (0.6, 0.6, 0.6)=1  -> wall pens same
+   [a+b] interrupted doorways 3; owners: (0.0, 0.0, 0.0)=3, (0.6, 0.6, 0.6)=3  -> wall pens same
+   [a+b_tip] interrupted doorways 3; owners: (0.0, 0.0, 0.0)=3, (0.6, 0.6, 0.6)=3  -> wall pens same
+
+=== s05 f=0.500: pens 1, today's wall pens ['(0.0, 0.0, 0.0)']
+   [a only] interrupted doorways 9; owners: (0.0, 0.0, 0.0)=7  -> wall pens same
+   [a+b] interrupted doorways 9; owners: (0.0, 0.0, 0.0)=8  -> wall pens same
+   [a+b_tip] interrupted doorways 9; owners: (0.0, 0.0, 0.0)=8  -> wall pens same
+
+=== s06 f=0.500: pens 1, today's wall pens ['(0.0, 0.0, 0.0)']
+   [a only] interrupted doorways 10; owners: (0.0, 0.0, 0.0)=3  -> wall pens same
+   [a+b] interrupted doorways 10; owners: (0.0, 0.0, 0.0)=7  -> wall pens same
+   [a+b_tip] interrupted doorways 10; owners: (0.0, 0.0, 0.0)=7  -> wall pens same
+
+=== s07 f=0.500: pens 1, today's wall pens ['(0.0, 0.0, 0.0)']
+   [a only] interrupted doorways 8; owners:   -> wall pens same  (fallback: no owners)
+   [a+b] interrupted doorways 8; owners: (0.0, 0.0, 0.0)=6  -> wall pens same
+   [a+b_tip] interrupted doorways 8; owners: (0.0, 0.0, 0.0)=6  -> wall pens same
+
+=== s08 f=1.000: pens 2, today's wall pens ['(0.0, 0.0, 0.0)', '(0.6, 0.6, 0.6)']
+   [a only] interrupted doorways 5; owners: (0.0, 0.0, 0.0)=1, (0.6, 0.6, 0.6)=1  -> wall pens same
+   [a+b] interrupted doorways 5; owners: (0.0, 0.0, 0.0)=3, (0.6, 0.6, 0.6)=3  -> wall pens same
+   [a+b_tip] interrupted doorways 5; owners: (0.0, 0.0, 0.0)=1, (0.6, 0.6, 0.6)=1  -> wall pens same
+
+=== s09 f=1.000: no barriers (nothing detected)
+
+=== s10 f=1.000: pens 1, today's wall pens ['(0.0, 0.0, 0.0)']
+   [a only] interrupted doorways 15; owners: (0.0, 0.0, 0.0)=4  -> wall pens same
+   [a+b] interrupted doorways 15; owners: (0.0, 0.0, 0.0)=13  -> wall pens same
+   [a+b_tip] interrupted doorways 15; owners: (0.0, 0.0, 0.0)=9  -> wall pens same
+
+=== s11 f=0.500: pens 1, today's wall pens ['(0.0, 0.0, 0.0)']
+   [a only] interrupted doorways 15; owners: (0.0, 0.0, 0.0)=9  -> wall pens same
+   [a+b] interrupted doorways 15; owners: (0.0, 0.0, 0.0)=14  -> wall pens same
+   [a+b_tip] interrupted doorways 15; owners: (0.0, 0.0, 0.0)=14  -> wall pens same
+
+=== s12 f=0.500: pens 2, today's wall pens ['(0.0, 0.0, 0.0)', '(0.86, 0.86, 0.86)']
+   [a only] interrupted doorways 7; owners: (0.0, 0.0, 0.0)=6, (0.86, 0.86, 0.86)=4  -> wall pens same
+   [a+b] interrupted doorways 7; owners: (0.0, 0.0, 0.0)=7, (0.86, 0.86, 0.86)=4  -> wall pens same
+   [a+b_tip] interrupted doorways 7; owners: (0.0, 0.0, 0.0)=7, (0.86, 0.86, 0.86)=4  -> wall pens same
+
+=== s13 f=0.367: pens 1, today's wall pens ['(0.0, 0.0, 0.0)']
+   [a only] interrupted doorways 12; owners: (0.0, 0.0, 0.0)=4  -> wall pens same
+   [a+b] interrupted doorways 12; owners: (0.0, 0.0, 0.0)=8  -> wall pens same
+   [a+b_tip] interrupted doorways 12; owners: (0.0, 0.0, 0.0)=8  -> wall pens same
+
+=== s14 f=1.000: pens 1, today's wall pens ['(0.0, 0.0, 0.0)']
+   [a only] interrupted doorways 6; owners: (0.0, 0.0, 0.0)=4  -> wall pens same
+   [a+b] interrupted doorways 6; owners: (0.0, 0.0, 0.0)=5  -> wall pens same
+   [a+b_tip] interrupted doorways 6; owners: (0.0, 0.0, 0.0)=5  -> wall pens same
+
+=== s15 f=1.000: pens 1, today's wall pens ['(0.0, 0.0, 0.0)']
+   [a only] interrupted doorways 12; owners: (0.0, 0.0, 0.0)=4  -> wall pens same
+   [a+b] interrupted doorways 12; owners: (0.0, 0.0, 0.0)=11  -> wall pens same
+   [a+b_tip] interrupted doorways 12; owners: (0.0, 0.0, 0.0)=9  -> wall pens same
+
+=== s16 f=0.500: pens 1, today's wall pens ['(0.0, 0.0, 0.0)']
+   [a only] interrupted doorways 14; owners: (0.0, 0.0, 0.0)=9  -> wall pens same
+   [a+b] interrupted doorways 14; owners: (0.0, 0.0, 0.0)=13  -> wall pens same
+   [a+b_tip] interrupted doorways 14; owners: (0.0, 0.0, 0.0)=13  -> wall pens same
+
+=== s17 f=1.000: pens 2, today's wall pens ['(0.0, 0.0, 0.0)']
+   [a only] interrupted doorways 36; owners: (0.0, 0.0, 0.0)=11  -> wall pens same
+   [a+b] interrupted doorways 36; owners: (0.0, 0.0, 0.0)=27  -> wall pens same
+   [a+b_tip] interrupted doorways 36; owners: (0.0, 0.0, 0.0)=25  -> wall pens same
+
+=== s18 f=0.500: pens 1, today's wall pens ['(0.0, 0.0, 0.0)']
+   [a only] interrupted doorways 10; owners: (0.0, 0.0, 0.0)=5  -> wall pens same
+   [a+b] interrupted doorways 10; owners: (0.0, 0.0, 0.0)=9  -> wall pens same
+   [a+b_tip] interrupted doorways 10; owners: (0.0, 0.0, 0.0)=9  -> wall pens same
+
+=== s19 f=1.000: no barriers (nothing detected)
+
+=== s20 f=1.000: pens 1, today's wall pens ['(0.0, 0.0, 0.0)']
+   [a only] interrupted doorways 6; owners: (0.0, 0.0, 0.0)=2  -> wall pens same
+   [a+b] interrupted doorways 6; owners: (0.0, 0.0, 0.0)=3  -> wall pens same
+   [a+b_tip] interrupted doorways 6; owners: (0.0, 0.0, 0.0)=2  -> wall pens same

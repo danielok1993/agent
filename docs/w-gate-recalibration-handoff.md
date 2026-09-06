@@ -1785,3 +1785,124 @@ identical, s01/s02 untouched at f=1.0, nothing appears or vanishes. Report
 > carry no Co-Authored-By or session trailer. End every report with the
 > numbers: lost, returned FPs, new REVIEW lines with your verdicts, net
 > phantom delta, and what is next.
+
+## Outcome — iteration 3, step 11 (2026-09-05, branch `fix/wall-pen-discriminator`, shipped pending the user's decision)
+
+The DOORWAY VETO on the wall-pen share gate (`detection/rooms.py`:
+`_doorway_pens`, a second barrier pass in `detect_rooms`). The census
+(`tools/census_scratch/step11/`, every multi-pen sheet, s01 at both
+factors) first corrected the brief's classes — s03's 0.73 grey draws the
+existing rear-extension walls (10.4 %, a wall pen sealed by its fills), and
+s02's 6.4 % "joinery" pen is the title block's logo lettering — then measured
+every feature the brief listed: paired share, material share (0 % on the
+unhatched wall pens of s02/s04/s08/s12), pair thickness (s12's grey wall pen
+at 6 px median, s04's black 5.3), longest run, loop closure, the lone/paired
+split — none separates. What does: **a doorway is cut out of a wall.** A
+confident door's INTERRUPTED plug reaches a jamb at each end; a pen forms
+the jamb when a PAIRED face of it intersects the tail envelope (the band
+continuing, or a corner-hung door's return) or a LONE face of it collinear
+with the doorway line stops in the jamb window (the tail plus the plug's
+first `ROOM_PLUG_NEAR_PX` inside the bbox — a swing symbol overlaps its
+hinge jamb by 3 px on s01); the doorway is cut into the pen forming BOTH
+jambs. The loose "ink touches a tail" form was refuted first (s01 red
+touched 4 doors at identity through units and wardrobe ends against the
+wall; blue's dimension EXTENSION lines end at both jambs of one door per
+factor — lone, perpendicular, excluded). On the pipeline's own plugs: every
+network-building wall pen owns 1–27 doorways (s01 black 6/5, magenta 2/4,
+s02 black 1, s03 black 14 / grey 8, s04 3/3, s08 3/3, s12 7/4, s17 27,
+single-pen sheets 3–14), every annotation/furniture pen 0 (s01 red at both
+factors and blue, s02's four, s17's orange and red, the 0 % reds). Because
+ownership is read off pass-1 plugs, which qualified against the share-gated
+material, the doorways VETO a share-gated pen and never promote an
+under-share one (promotion is untestable without pen-independent material
+and unobservable on the corpus — s03's 0.73 grey; its own iteration if a
+sheet ever needs it); when no doorway names any pen the share gate stands
+alone. Six tests (`TestDoorwayOwnedWallPens`), every guard bite-proven
+(veto, both jambs, confidence floor, the lone-collinear clause via a
+single-line wall). **Harness s01 at 0.542: doors 11/11, windows 4/4, rooms
+9/12, unreviewed 18 → 1 (the merged landing); lost = the three stair
+verdicts.** Corpus sweep: **0 LOST, 68 returned FPs, 0 REVIEW, all 20
+sheets entity- and polygon-IDENTICAL** (the veto fires on no sheet at its
+factor — the census said so before the sweep). Report
+`docs/w-gate-iter3-checkpoints/step-11.md` (2 PNGs). Not committed.
+
+### Prompt for the next agent (iteration 3, step 12 — narrowing `_gate_denominator` — fresh context)
+
+> Use `/fix-detection` for its discipline. Topic branch from
+> `fix/wall-pen-discriminator` once the user has committed it (`git log
+> --all --oneline | head`; main is still `ee0f52f`). Re-sweep that tree
+> first in four background groups (s18; s16 s11 s15; s01–s07; the rest)
+> and `compare_sweeps --snapshot` all 20 slugs, never trusting what sits in
+> `outputs/regress/`. Verdict reports diffed section-wise;
+> `tools/diff_room_polygons.py` after EVERY sweep; `tools/room_shape_crop.py`
+> for every room whose IoU moved under 0.99; a scratch UNSIMPLIFIED diff
+> whenever any room loses area; harness overrides as MULTIPLIERS
+> (`H.overrides(mult=...)`). Read first, in this order:
+> `docs/w-gate-iter3-checkpoints/step-11.md`, `step-10.md`, `step-9.md`
+> (§2, §3 and the review), this handoff's iteration-3 outcome sections, the
+> CLAUDE.md paragraphs "Room detection" (the wall-pen block: search
+> `_doorway_pens`) and "Wall/room world-space gates" (the
+> `SCALE_FACTOR_MEASURED_ONLY` design note and findings doc §4f),
+> `scale/factor.py::detection_scale` / `_gate_denominator`,
+> `docs/regression-testing-guide.md` §9 §10 §12 §13. Scratch tooling:
+> `tools/census_scratch/harness.py` (`H.run(page, factor=...)`,
+> `H.score`), `step9/s01_common.run_tapped`, `step11/implemented_census.py`;
+> the harness cache is `tools/census_scratch/cache/`.
+>
+> **Tree state**: seal 15, `_plane_stamp`, the material-seeking tail, the
+> doorway veto; corpus 0 LOST / 68 returned FPs / 0 REVIEW; s01 detects at
+> identity (`SCALE_FACTOR_MEASURED_ONLY`: a measured, non-standard
+> denominator never drives the gates); at 0.542 in the harness s01 reads
+> doors 11/11, windows 4/4, rooms 9/12 — lost exactly the three stair
+> verdicts (1090,699)–(1142,876), (466,920)–(521,1056),
+> (1033,925)–(1142,1134) the user has retired in principle — with ONE
+> unreviewed room, the merged landing (1032,697)–(1142,1136).
+>
+> **This step: let s01's measured 1:92.2 drive its gates.** Decide, with
+> the user, what `_gate_denominator` should accept: a user-stored measured
+> denominator (s01's is stored, `scale/store.py`), a dimension-verified one
+> (`takeoff/plausibility.py` verifies 1:92.2 from 31 dimension strings), or
+> both — and what stays excluded (an unverified text scale). Build it,
+> then prove: the sweep loses EXACTLY the three stair verdicts and nothing
+> else on s01 (11 doors, 4 windows, the hall and every other confirmed
+> room), gains the merged landing as one REVIEW line, and every other sheet
+> is entity- and polygon-identical (no other sheet has a measured-only
+> scale — check `TRUE_SCALE` in the harness against `scale/` for each).
+> Report the three LOST lines as the expected retirements; the user then
+> deletes them from `tests/ground_truth/s01.json` by hand and records the
+> landing through `tools/review.py s01` (data commit, theirs). Then s01's
+> room-label cache needs a Gemini reseed at the new geometry
+> (`python app.py extract fixtures/sheets/s01-*.pdf --out <dir>
+> --ceiling-height 2.4 < /dev/null`; `gcloud auth application-default
+> login` in the user's prompt if it reports "Reauthentication is needed").
+>
+> **After it (each its own iteration)**: step 4 (`WALL_MAX_THICKNESS_PX`
+> 36 → 40: the s11 recess box (1030,1330)–(1123,1360), s15 annotation
+> pocket (1480,698)–(1595,792) and s18 tree strip (156,724)–(197,863) must
+> stay out; expected −5 recorded phantoms on s16/s17); then the long queue
+> (promotion of an under-share wall pen by doorways on pen-independent
+> material — s03's 0.73 grey is the instance, inert today; same-line tail
+> material for s17 door_0016, phase-invariant plug profiles, the dash-row
+> text-mask join, the fallback in-wall gate on tail-less plugs, band
+> pockets / the recess class, Gap D of `docs/hatch-cell-chords-handoff.md`,
+> a jamb-scale floor for lining rings, the lattice knife-edges, an
+> open-arrowhead stair recognizer, interior rings in the exported room
+> polygon, s18's glyph-outline fill rings).
+>
+> Rules for the whole run: do not commit (the user commits); do not edit
+> `tests/ground_truth/*.json` or `fixtures/MANIFEST.json` without an
+> explicit go for that specific entry; never revert s01's truth scale
+> (1:92.2); never `git stash`; macOS has no `timeout`; python is not on the
+> shell path — use `.venv/bin/python` with an ABSOLUTE path in background
+> commands (the cwd resets); the venv lacks InquirerPy; s02 at f = 1.0 must
+> not change (entity set AND polygons), and every s01 change is reported
+> as a decision with its LOST lines named; probe with the FULL wall
+> material and the room stage's real barrier rules, never an
+> approximation; census the rule AS IMPLEMENTED (with/without it on the
+> pipeline's exact inputs); scratch scripts that render pictures do so
+> under `__main__` only; PNG crops go under `docs/w-gate-iter3-checkpoints/`
+> and must never show a street address or planning-portal id (s02's title
+> block carries one — never crop it); commit messages carry no
+> Co-Authored-By or session trailer. End every report with the numbers:
+> lost, returned FPs, new REVIEW lines with your verdicts, net phantom
+> delta, and what is next.

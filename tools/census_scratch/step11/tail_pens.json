@@ -1,0 +1,158 @@
+{
+ "s01": {
+  "(0.0, 0.0, 0.0)": {
+   "owned": 6,
+   "touched": 1,
+   "cross_only": 1
+  },
+  "(0.0, 0.0, 1.0)": {
+   "owned": 1,
+   "touched": 1,
+   "cross_only": 0
+  },
+  "(0.75, 0.0, 1.0)": {
+   "owned": 1,
+   "touched": 2,
+   "cross_only": 0
+  },
+  "(1.0, 0.0, 0.0)": {
+   "owned": 0,
+   "touched": 4,
+   "cross_only": 0
+  }
+ },
+ "s01@0.5422993492407809": {
+  "(0.0, 0.0, 0.0)": {
+   "owned": 5,
+   "touched": 1,
+   "cross_only": 0
+  },
+  "(0.0, 0.0, 1.0)": {
+   "owned": 1,
+   "touched": 1,
+   "cross_only": 2
+  },
+  "(0.75, 0.0, 1.0)": {
+   "owned": 2,
+   "touched": 2,
+   "cross_only": 0
+  },
+  "(1.0, 0.0, 0.0)": {
+   "owned": 0,
+   "touched": 2,
+   "cross_only": 0
+  }
+ },
+ "s02": {
+  "(0.0, 0.0, 0.0)": {
+   "owned": 3,
+   "touched": 2,
+   "cross_only": 1
+  },
+  "(0.54, 0.54, 0.54)": {
+   "owned": 0,
+   "touched": 0,
+   "cross_only": 0
+  },
+  "(0.54, 0.69, 0.72)": {
+   "owned": 0,
+   "touched": 0,
+   "cross_only": 0
+  },
+  "(0.6, 0.6, 0.6)": {
+   "owned": 0,
+   "touched": 0,
+   "cross_only": 0
+  },
+  "(1.0, 0.15, 0.0)": {
+   "owned": 0,
+   "touched": 0,
+   "cross_only": 0
+  }
+ },
+ "s03": {
+  "(0.0, 0.0, 0.0)": {
+   "owned": 11,
+   "touched": 6,
+   "cross_only": 0
+  },
+  "(0.58, 0.58, 0.6)": {
+   "owned": 5,
+   "touched": 4,
+   "cross_only": 2
+  },
+  "(0.73, 0.73, 0.73)": {
+   "owned": 1,
+   "touched": 2,
+   "cross_only": 0
+  }
+ },
+ "s04": {
+  "(0.0, 0.0, 0.0)": {
+   "owned": 1,
+   "touched": 2,
+   "cross_only": 0
+  },
+  "(0.6, 0.6, 0.6)": {
+   "owned": 1,
+   "touched": 2,
+   "cross_only": 0
+  },
+  "(1.0, 0.0, 0.0)": {
+   "owned": 0,
+   "touched": 0,
+   "cross_only": 0
+  }
+ },
+ "s08": {
+  "(0.0, 0.0, 0.0)": {
+   "owned": 1,
+   "touched": 1,
+   "cross_only": 1
+  },
+  "(0.6, 0.6, 0.6)": {
+   "owned": 2,
+   "touched": 1,
+   "cross_only": 1
+  },
+  "(1.0, 0.0, 0.0)": {
+   "owned": 0,
+   "touched": 1,
+   "cross_only": 0
+  }
+ },
+ "s12": {
+  "(0.0, 0.0, 0.0)": {
+   "owned": 7,
+   "touched": 0,
+   "cross_only": 0
+  },
+  "(0.86, 0.86, 0.86)": {
+   "owned": 4,
+   "touched": 2,
+   "cross_only": 0
+  },
+  "(1.0, 0.0, 0.0)": {
+   "owned": 0,
+   "touched": 0,
+   "cross_only": 0
+  }
+ },
+ "s17": {
+  "(0.0, 0.0, 0.0)": {
+   "owned": 31,
+   "touched": 3,
+   "cross_only": 2
+  },
+  "(1.0, 0.0, 0.0)": {
+   "owned": 0,
+   "touched": 0,
+   "cross_only": 0
+  },
+  "(1.0, 0.5, 0.0)": {
+   "owned": 0,
+   "touched": 1,
+   "cross_only": 0
+  }
+ }
+}
