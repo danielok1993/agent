@@ -1,0 +1,56 @@
+s11 p1 f=0.500 cap 18.0: pocket calls 9 (<=56xf: 1), rooms 24, glyph strokes 696, text spans 0
+    CALL [1077.5, 1597.0, 1095.2, 1704.0] sp 21.75 (368mm) gt=confirmed text=False glyphs=0 covers [1.0, 1.0] backed_any [0.0, 1.0] spans [0.0, 5.12] same_pen=True ends cov [1.0, 1.0] ends backed [1.0, 1.0] NEAR faces 0/2 seg_gaps [None, None] now_dropped=False
+        side near 0.0 far 128.6 lone 0.0 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.5, True, 128.6)]
+        side near 0.0 far 111.0 lone 0.0 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.5, True, 111.0)]
+    CONFIRMED-NARROW [1077.5, 1597.0, 1095.2, 1704.0] sp 21.75 (368mm) gt=confirmed text=False glyphs=0 covers [1.0, 1.0] backed_any [0.0, 1.0] spans [0.0, 5.12] same_pen=True ends cov [1.0, 1.0] ends backed [1.0, 1.0] NEAR faces 0/2 seg_gaps [None, None] entr 0 doors 0 win 0
+        side near 0.0 far 128.6 lone 0.0 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.5, True, 128.6)]
+        side near 0.0 far 111.0 lone 0.0 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.5, True, 111.0)]
+s12 p1 f=0.500 cap 18.0: pocket calls 8 (<=56xf: 2), rooms 15, glyph strokes 2741, text spans 0
+    CALL [1841.8, 471.6, 1873.1, 493.8] sp 26.13 (442mm) gt=false_positive text=False glyphs=0 covers [1.0, 1.0] backed_any [0.088, 1.0] spans [11.0, 2.0] same_pen=False ends cov [1.0, 1.0] ends backed [1.0, 0.0] NEAR faces 0/2 seg_gaps [None, None] now_dropped=False
+        side near 0.0 far 0.0 lone 0.0 px; near seg None gap None; pens []
+        side near 0.0 far 35.3 lone 0.0 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.0, True, 35.3)]
+    CALL [1841.8, 529.8, 1873.1, 553.5] sp 27.75 (470mm) gt=false_positive text=False glyphs=0 covers [0.936, 1.0] backed_any [0.0, 1.0] spans [1.75, 5.25] same_pen=True ends cov [1.0, 1.0] ends backed [1.0, 0.0] NEAR faces 0/2 seg_gaps [None, None] now_dropped=False
+        side near 0.0 far 27.0 lone 0.0 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.0, True, 27.0)]
+        side near 0.0 far 27.0 lone 0.0 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.0, True, 27.0)]
+s13 p1 f=0.367 cap 13.2: pocket calls 0 (<=56xf: 0), rooms 11, glyph strokes 1031, text spans 4
+s14 p1 f=1.000 cap 36.0: pocket calls 0 (<=56xf: 0), rooms 0, glyph strokes 0, text spans 0
+s15 p1 f=1.000 cap 36.0: pocket calls 5 (<=56xf: 0), rooms 16, glyph strokes 0, text spans 78
+    CONFIRMED-NARROW [765.9, 1549.4, 832.9, 1669.2] sp 71.0 (601mm) gt=confirmed text=False glyphs=0 covers [1.0, 1.0] backed_any [0.0, 1.0] spans [11.25, 0.0] same_pen=True ends cov [1.0, 1.0] ends backed [1.0, 0.5] NEAR faces 0/2 seg_gaps [None, None] entr 0 doors 0 win 0
+        side near 0.0 far 402.2 lone 0.0 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 3.0, True, 402.2)]
+        side near 0.0 far 0.0 lone 283.5 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.5, True, 283.5)]
+s16 p1 f=0.500 cap 18.0: pocket calls 11 (<=56xf: 1), rooms 29, glyph strokes 698, text spans 0
+    CALL [2507.3, 1322.8, 2527.3, 1401.3] sp 24.0 (406mm) gt=false_positive text=False glyphs=0 covers [1.0, 1.0] backed_any [0.0, 0.0] spans [0.0, 0.0] same_pen=True ends cov [1.0, 1.0] ends backed [1.0, 1.0] NEAR faces 0/2 seg_gaps [None, 201.5] now_dropped=False
+        side near 0.0 far 0.0 lone 358.9 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.13, True, 358.9)]
+        side near 0.0 far 0.0 lone 82.5 px; near seg [[2513.4, 1602.8], [2513.4, 1647.5], 17.63] gap 201.5; pens [('(0.0, 0.0, 0.0)', 1.13, True, 82.5)]
+s17 p1 f=1.000 cap 36.0: pocket calls 7 (<=56xf: 5), rooms 35, glyph strokes 362, text spans 40
+    CALL [3433.9, 2185.7, 3578.7, 2206.9] sp 25.25 (214mm) gt=unmatched text=False glyphs=0 covers [1.0, 1.0] backed_any [0.0, 1.0] spans [11.25, 0.0] same_pen=True ends cov [0.0, 1.0] ends backed [0.0, 1.0] NEAR faces 2/2 seg_gaps [2.0, 2.0] now_dropped=True
+        side near 395.2 far 0.0 lone 0.0 px; near seg [[3431.9, 2189.7], [3192.4, 2189.7], 12.0] gap 2.0; pens [('(0.0, 0.0, 0.0)', 1.5, True, 395.2)]
+        side near 598.8 far 0.0 lone 0.0 px; near seg [[3431.9, 2202.3], [3192.4, 2202.3], 13.25] gap 2.0; pens [('(0.0, 0.0, 0.0)', 1.5, True, 598.8)]
+    CALL [911.9, 2173.9, 946.7, 2330.7] sp 38.75 (328mm) gt=false_positive text=False glyphs=0 covers [0.987, 1.0] backed_any [0.123, 0.214] spans [0.0, 0.0] same_pen=True ends cov [0.942, 1.0] ends backed [0.345, 0.0] NEAR faces 0/2 seg_gaps [None, None] now_dropped=False
+        side near 0.0 far 0.0 lone 125.2 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.5, True, 125.2)]
+        side near 0.0 far 643.0 lone 0.0 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.5, True, 643.0)]
+    CALL [913.9, 2608.7, 948.7, 3060.7] sp 38.75 (328mm) gt=false_positive text=False glyphs=0 covers [0.996, 1.0] backed_any [0.079, 0.114] spans [0.0, 0.0] same_pen=True ends cov [0.942, 0.942] ends backed [0.338, 0.144] NEAR faces 0/2 seg_gaps [None, None] now_dropped=False
+        side near 0.0 far 420.5 lone 0.0 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.5, True, 420.5)]
+        side near 0.0 far 0.0 lone 576.5 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.5, True, 576.5)]
+    CALL [3047.2, 2173.9, 3083.7, 2488.9] sp 38.79 (328mm) gt=false_positive text=False glyphs=0 covers [0.963, 0.993] backed_any [0.156, 0.199] spans [0.0, 0.0] same_pen=True ends cov [0.992, 0.934] ends backed [0.0, 0.0] NEAR faces 0/2 seg_gaps [None, None] now_dropped=False
+        side near 0.0 far 274.0 lone 0.0 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.5, True, 274.0)]
+        side near 0.0 far 0.0 lone 283.5 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.5, True, 283.5)]
+    CALL [3047.2, 2594.4, 3083.7, 3060.7] sp 40.5 (343mm) gt=false_positive text=False glyphs=0 covers [0.996, 0.996] backed_any [0.097, 0.106] spans [0.0, 0.0] same_pen=True ends cov [0.89, 1.0] ends backed [0.0, 0.0] NEAR faces 0/2 seg_gaps [None, None] now_dropped=False
+        side near 0.0 far 0.0 lone 434.8 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.5, True, 434.8)]
+        side near 0.0 far 0.0 lone 434.8 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.5, True, 434.8)]
+    CONFIRMED-NARROW [628.2, 3055.7, 905.2, 3118.8] sp 67.1 (568mm) gt=confirmed text=False glyphs=0 covers [0.606, 0.612] backed_any [0.564, 0.606] spans [35.0, 11.25] same_pen=True ends cov [0.753, 0.721] ends backed [0.721, 0.721] NEAR faces 0/2 seg_gaps [None, None] entr 2 doors 2 win 0
+        side near 0.0 far 1559.0 lone 0.0 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.5, True, 1559.0)]
+        side near 0.0 far 164.2 lone 0.0 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.5, True, 164.2)]
+s18 p1 f=0.500 cap 18.0: pocket calls 11 (<=56xf: 2), rooms 26, glyph strokes 184, text spans 0
+    CALL [2078.7, 1023.0, 2096.0, 1068.2] sp 21.25 (360mm) gt=false_positive text=False glyphs=0 covers [0.856, 1.0] backed_any [0.0, 0.044] spans [0.0, 0.0] same_pen=True ends cov [1.0, 1.0] ends backed [0.0, 0.29] NEAR faces 1/2 seg_gaps [None, 2.0] now_dropped=False
+        side near 0.0 far 0.0 lone 40.8 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.75, True, 40.8)]
+        side near 132.8 far 0.0 lone 0.0 px; near seg [[2079.2, 1153.7], [2079.2, 1070.2], 5.0] gap 2.0; pens [('(0.0, 0.0, 0.0)', 1.75, True, 132.8)]
+    CALL [907.2, 809.5, 1079.0, 832.7] sp 27.25 (462mm) gt=false_positive text=False glyphs=0 covers [0.897, 1.0] backed_any [0.0, 0.0] spans [0.0, 0.0] same_pen=True ends cov [1.0, 0.72] ends backed [0.0, 0.72] NEAR faces 0/2 seg_gaps [None, None] now_dropped=False
+        side near 0.0 far 0.0 lone 158.0 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.75, True, 158.0)]
+        side near 0.0 far 0.0 lone 441.5 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 1.75, True, 441.5)]
+s19 p1 f=1.000 cap 36.0: pocket calls 0 (<=56xf: 0), rooms 0, glyph strokes 0, text spans 0
+s20 p1 f=1.000 cap 36.0: pocket calls 1 (<=56xf: 0), rooms 5, glyph strokes 3578, text spans 0
+    CONFIRMED-NARROW [554.2, 2811.7, 948.0, 2878.5] sp 70.75 (599mm) gt=confirmed text=False glyphs=0 covers [1.0, 1.0] backed_any [0.0, 1.0] spans [0.0, 35.0] same_pen=True ends cov [1.0, 1.0] ends backed [0.0, 1.0] NEAR faces 0/2 seg_gaps [None, None] entr 0 doors 0 win 0
+        side near 0.0 far 0.0 lone 433.3 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 3.0, True, 433.3)]
+        side near 0.0 far 397.8 lone 0.0 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 3.0, True, 397.8)]
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/tools/census_scratch/step16/backing_census_b.json

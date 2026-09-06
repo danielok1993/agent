@@ -2563,3 +2563,136 @@ the storage by 1.06× — a knife-edge. Report
 > messages carry no Co-Authored-By or session trailer. End every report with
 > the numbers: lost, returned FPs, new REVIEW lines with your verdicts, net
 > phantom delta, and what is next.
+
+## Outcome — iteration 3, step 16 (2026-09-06, branch `fix/band-pocket-ceiling-storage`, two changes shipped pending the user's decision)
+
+**Change 1 — enclosure.** The brief's premise fails on the drawing: s11's
+confirmed "storage in utility" (1078,1597)–(1095,1704), 368mm at f=0.5, is
+not between two walls. Its left side is a 5.7px partition (paths
+8387/8388); its right side is its FRONT drawn as one 1.5px line (path 8383,
+the utility behind it — the s02 "coats" class in the wall pen, keeping its
+lone-face rights because 21.75px is over the 1:100 cap). So (b) "a wall
+solid behind both sides" reads 1/2 on it exactly as on s17's dropped
+25.25px reveal, (a) no vector-text glyph row lies inside any call on the
+corpus (s11 draws 696 glyph strokes; the rule's text veto has nothing to
+extend to), and (c) every face in play is the one black 1.5px pen. The
+s17 strips are not reveals whose leaves stop either: a 313mm wall drawn
+HOLLOW (paths 2697/2756 drawn only along the strip, rooms on both sides,
+the inner leaf pair 2753/2754 on the room side below the doorway; no
+paired segment's flank collinear with either face at any reach, against
+2px for the 25.25px reveal's resuming cavity pair and inner leaf). What
+separates them is (d) the ENDS: the storage is closed by wall BANDS at
+both ends — the 6px band above (8346/8347) and the 17.6px external wall
+below (8333/8335), closures 1.0 / 1.0 — while a hollow wall is closed by
+its own interruptions, a doorway's jamb line and the partition's face
+continuing across (0.345 / 0.0, 0.338 / 0.201, 0.001 / 0.001, 0.0 / 0.0;
+the 0.34 a jamb block behind a third of the doorway end), and the 25.25px
+reveal by a resuming leaf at one end only (0.0 / 1.0). The convention:
+walls meet at junctions where one STOPS at the other's face — a wall band
+never stands across another wall's thickness — so a component with a band
+across each end is a cell of the wall grid. Built as `_end_closures`
+(the end runs probed `ROOM_BAND_POCKET_END_PROBE_PX` 7px outward against
+the stage's `solids`, unioned over the rectangle's short edge) and an
+exemption in `_is_band_pocket` at `ROOM_BAND_POCKET_END_CLOSURE_MIN` 0.65
+(1.54× under the storage, 1.88× over the strips). Censused on every call
+(58) and every emitted room (244) of all 20 sheets (`tools/census_scratch/step16/`):
+the only other enclosed call at pocket spacing is s16's recorded-FP
+partition box (1.0 / 1.0), which stays as today; s18's kitchen-corner box
+(0.0 / 0.29), s18's sofa-back strip (0.0 / 0.72) and s12's two unit cells
+(1.0 / 0.0) are not enclosed. The exemption recognises the fully WALLED
+cupboard, not every door-less space: the corpus's other confirmed
+door-less spaces — s07's cupboard (0.06 / 0.06, a box of lone lines),
+s20's passage (0.0 / 1.0), s15's space (1.0 / 0.5) — sit at 599–610mm and
+are held out by the spacing ceiling alone. Corpus sweep at the 36 ceiling:
+**0 LOST / 68 returned FPs / 0 REVIEW, verdict lines byte-identical, all 20
+sheets entity- and polygon-identical** (by construction: at 36 the rule's
+population is the one reveal). Pinned by `TestBandPocketEnclosedByWallBands`
+(both tests bite; 1443 green).
+
+**Change 2 — the ceiling** (`tools/census_scratch/step16/rooms_step16_ceiling.diff`,
+separable): `_is_band_pocket` reads `WALL_THICK_MATERIAL_MAX_PX` (56px =
+475mm at 1:50, 28px at 1:100) from a new `RoomGates` field scaled as
+`WallGates` scales it, in place of `WALL_MAX_THICKNESS_PX` — two faces that
+could have paired as one wall, plain or thick. Censused AS IMPLEMENTED with
+the exemption on and off at 36 / 40 / 41 / 44 / 48 / 56 on all 20 sheets
+(`ceiling_census16.py`): with it on, 40 drops three s17 strips, 41 all four,
+44 adds s18's kitchen-corner box, 56 adds s12's two unit cells and s18's
+sofa-back strip — eight recorded FPs — and the storage and s16's enclosed
+partition box stay at every ceiling; with it off the storage is LOST from 44
+and s16's box goes at 48. Sweep at 56: **0 LOST / 60 returned FPs / 0
+REVIEW**, eight rooms removed (all recorded FPs), 0 polygons changed, nothing
+added, the 20 per-sheet count lines identical, s01/s02 identical. Three of
+the eight (s12's cells at 0.93 / 0.99×, s18's sofa strip at 0.97× the scaled
+28px ceiling) are fixture cells against a wall, dropped for the wrong reason
+— the rule's premise is false for them. The margin is the walls' own thick
+cap, not a measured midpoint: the other confirmed door-less spaces are boxes
+of lone lines at 599–610mm (1.26–1.29× over), and no ceiling clears 1.5×
+both ways between 343mm and 599mm; a missed-door cupboard 305–475mm deep
+with a single line at one end would now be dropped — the corpus has none.
+Pinned by `TestBandPocketCeilingAtTheThickTier` (the hollow wall at s17's
+38.75px face spacing fails on the 36-ceiling tree, the walled cell and the
+storage's own 1:100 topology with a lone front line stay) and the
+`RoomGates` scaling test; fast tier 1449 with the label-cache flake only.
+Report `docs/w-gate-iter3-checkpoints/step-16.md` (13 PNGs). Not committed;
+`graphify update .` run.
+
+### Prompt for the next agent (iteration 3 step 17 — `_is_wall_recess`'s back edge on the tab — fresh context)
+
+> Use `/fix-detection` for its discipline. Topic branch from the tree that
+> carries step 16 (`fix/band-pocket-ceiling-storage`; `git log --all
+> --oneline | head`). Re-sweep that tree first in four background groups
+> (s18; s16 s11 s15; s01–s07; the rest) and `compare_sweeps --snapshot` all
+> 20 slugs, never trusting what sits in `outputs/regress/`; verdict reports
+> diffed section-wise (sort before cmp); `tools/diff_room_polygons.py` after
+> EVERY sweep; `tools/room_shape_crop.py` for every room whose IoU moved
+> under 0.99; a scratch UNSIMPLIFIED diff whenever any room loses area;
+> harness overrides as MULTIPLIERS. Read first: step-16.md, step-15.md, the
+> CLAUDE.md "Room detection" paragraph's recess and band-pocket blocks,
+> `_is_wall_recess` / `_is_band_pocket` / `_end_closures` in
+> `detection/rooms.py`, `TestWallRecess` and
+> `TestBandPocketTabbedByAPerpendicularBand` in `tests/test_room_detection.py`.
+> Scratch tooling: `tools/census_scratch/harness.py`,
+> `step16/backing_census.py` (the free-space tap reading `solids` and
+> `network`), `step16/zoom16.py` (context crops with the stage's segments,
+> faces and seals overlaid), `step16/end_runs_probe.py`.
+>
+> Tree state: enclosure exemption + the band-pocket ceiling at
+> `WALL_THICK_MATERIAL_MAX_PX`; corpus 0 LOST / 60 returned FPs / 0 REVIEW.
+>
+> This step: `_is_wall_recess` reads its back edge off the component's
+> EXTENT (`min(ws)` / `max(ws)` over every vertex), so a tab where a
+> perpendicular band's flat-capped solid ends — the step-15 fixture's 28px
+> tab — pins the extent on the band's outer line and the test fails; a
+> tab-less version of the fixture is a recess. Read the back edge on the
+> component's own boundary runs the way `_side_wall_covers` reads the cover
+> (the run lying along the band's outer line, at the standoff), census every
+> recess-rule call on the corpus with both readings (the pipeline's exact
+> `wall_segments` / `opening_boxes` off the free-space tap), then the rule
+> as implemented with/without, and sweep. s01 and s02 must not change.
+>
+> After it (each its own iteration): the s04 staircase (tread 10 detected
+> as a 0.62 window fences the winder box and the flight into two recorded-FP
+> cells); `_dimension_line_indices` on s15's TEXT-layer "3560"/"1100"
+> lines; the s18 blind-window cap at 1:100; promotion of an under-share wall
+> pen by doorways on pen-independent material (s03's 0.73 grey); the merged
+> landing's stair coverage and top-left notch on s01; same-line tail
+> material for s17 door_0016; phase-invariant plug profiles; the dash-row
+> text-mask join; the fallback in-wall gate on tail-less plugs; the recess
+> class (s11's party-wall box is the neighbour's chimney breast); the three
+> fixture cells the pocket ceiling now drops for the wrong reason (s12's
+> unit cells, s18's sofa strip — a fixture-cell rule would own them); Gap D
+> of `docs/hatch-cell-chords-handoff.md`; a jamb-scale floor for lining
+> rings; the lattice knife-edges; interior rings in the exported room
+> polygon; s18's and s14's glyph-outline fill rings.
+>
+> Rules for the whole run: as step 16's (do not commit; no ground-truth or
+> manifest edits without an explicit go; never revert s01's truth scale;
+> never `git stash`; macOS has no `timeout`; `.venv/bin/python` with absolute
+> paths in background commands; never edit a constant while a background
+> job runs — and a background job dies when the turn ends, so stay in-turn
+> and poll it; the venv lacks InquirerPy; s02 at f = 1.0 must not change;
+> probe with the full wall material and the stage's real barrier rules;
+> census the rule AS IMPLEMENTED; pictures under `__main__` only, scratch
+> under `tools/census_scratch/step17/`, PNGs under
+> `docs/w-gate-iter3-checkpoints/` with no address or planning-portal id;
+> no Co-Authored-By or session trailer). End every report with the numbers.

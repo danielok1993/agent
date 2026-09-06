@@ -42,7 +42,7 @@ from detection.geometry import (
 )
 from detection.walls import (
     WALL_HATCH_MAX_LEN_PX, WALL_MAX_THICKNESS_PX, WALL_MIN_STROKE_WIDTH_PX,
-    WALL_PARALLEL_ANGLE_TOL,
+    WALL_PARALLEL_ANGLE_TOL, WALL_THICK_MATERIAL_MAX_PX,
     WallGates, WallNetwork,
     _accept_white_walls, _bridge_white_runs, _is_diagonal_hatch_angle,
 )
@@ -537,10 +537,43 @@ ROOM_BAND_POCKET_FACE_COVER_MIN = 0.65  # a door-less, window-less, textless
                                       # measure 1.0; the slack mirrors
                                       # ROOM_RECESS_GAP_COVER_MIN for a face a
                                       # text mask interrupts) spaced at most
-                                      # WALL_MAX_THICKNESS_PX apart, i.e. two
-                                      # faces that could have paired as one wall.
-                                      # Rooms are wider than a wall by definition
-                                      # (the lattice rule's premise). The cover
+                                      # WALL_THICK_MATERIAL_MAX_PX apart (56px =
+                                      # 475mm at 1:50, 28px at 1:100; the thick
+                                      # tier's cap, since W-gate iteration 3 step
+                                      # 16, 2026-09-06 — WALL_MAX_THICKNESS_PX
+                                      # before it), i.e. two faces that could have
+                                      # paired as one wall, plain or thick. Rooms
+                                      # are wider than a wall by definition (the
+                                      # lattice rule's premise), and what keeps a
+                                      # real space out of the rule at thick
+                                      # spacing is ENCLOSURE, not width
+                                      # (ROOM_BAND_POCKET_END_CLOSURE_MIN): the
+                                      # ceiling was measured AS IMPLEMENTED with
+                                      # that exemption at 36 / 40 / 41 / 44 / 48 /
+                                      # 56 on all 20 sheets (tools/census_scratch/
+                                      # step16/ceiling_census16.py) — at 56 it
+                                      # drops s17's four hollow-wall strips
+                                      # (38.75-40.5px = 328-343mm; three at 40,
+                                      # all four from 41), s18's kitchen-corner
+                                      # box (360mm, from 44), s12's two unit cells
+                                      # (442 / 470mm) and s18's sofa-back strip
+                                      # (462mm) at 56 — eight recorded FPs, the
+                                      # last three at 0.93-0.99x the scaled 28px
+                                      # ceiling, dropped for the wrong reason
+                                      # (fixture cells against a wall, not wall
+                                      # material) — keeps s11's confirmed 368mm
+                                      # storage (enclosed) and s16's recorded-FP
+                                      # partition box (enclosed, 406mm), and
+                                      # nothing else moves on any sheet at any
+                                      # ceiling; without the exemption the
+                                      # storage is LOST from 44. The next real
+                                      # door-less spaces sit at 599-610mm
+                                      # (s20, s15, s07: 1.26-1.29x over 475mm),
+                                      # boxes of lone lines the exemption does
+                                      # NOT recognise — between the strips' 343mm
+                                      # and their 599mm no ceiling clears 1.5x
+                                      # both ways, so 475mm is the walls' own
+                                      # thick cap, not a measured midpoint. The cover
                                       # is read on the component's OWN boundary
                                       # runs (_side_wall_covers, W-gate iteration
                                       # 3 step 15, 2026-09-06), never on its
@@ -623,6 +656,86 @@ ROOM_BAND_POCKET_FACE_COVER_MIN = 0.65  # a door-less, window-less, textless
                                       # ends pins the rotated rectangle ON the
                                       # face line, so one or both covers read 0.
                                       # See docs/w-gate-iter3-checkpoints/step-13.md.
+ROOM_BAND_POCKET_END_CLOSURE_MIN = 0.65  # a component closed at BOTH ends by a WALL
+                                      # BAND — a wall solid (a paired segment's
+                                      # band, a wall-rated fill, an accepted white
+                                      # wall, a jamb block) standing behind at
+                                      # least this much of each end (_end_closures)
+                                      # — is ENCLOSED by walls on all four sides:
+                                      # a cell of the wall grid, a space, never
+                                      # the band's own material, whatever its
+                                      # width. A pocket INSIDE a wall's thickness
+                                      # is closed at its ends by the wall's own
+                                      # interruptions — an opening's jamb line, a
+                                      # face drawn across the wall, the face of a
+                                      # partition that meets the wall — and a
+                                      # wall band never stands across another
+                                      # wall's thickness: walls meet at junctions
+                                      # where one STOPS at the other's face. The
+                                      # storage this exempts is not "between two
+                                      # walls" at all: s11's confirmed "storage in
+                                      # utility" (1078,1597)-(1095,1704), 368mm
+                                      # at f=0.5, is a built-in cupboard whose
+                                      # left side is a 5.7px partition (paths
+                                      # 8387/8388) and whose right side is its
+                                      # FRONT drawn as one 1.5px line (path 8383,
+                                      # the utility behind it) — the s02 "coats"
+                                      # class in the wall pen — so "material behind
+                                      # both sides" reads 1/2 on it exactly as on
+                                      # s17's dropped 25.25px window reveal (the
+                                      # outer leaf behind one side); what closes
+                                      # it is the 6px band above (paths 8346/8347)
+                                      # and the 17.6px external wall below
+                                      # (8333/8335): end closures 1.0 / 1.0.
+                                      # s17's four hollow-wall strips (rooms
+                                      # 0013/0014/0027/0032, recorded FPs: a
+                                      # 313mm wall drawn as two lines with rooms
+                                      # on both sides, its ends a doorway's jamb
+                                      # line and the partition's face continuing
+                                      # across) read 0.345 / 0.0, 0.338 / 0.201,
+                                      # 0.001 / 0.001, 0.0 / 0.0 — the 0.34 is a
+                                      # jamb block behind a third of the doorway
+                                      # end — and the 25.25px reveal 0.0 / 1.0
+                                      # (the cavity pair and inner leaf resume
+                                      # at one end only). 0.65 — the family's
+                                      # "mostly" threshold (ROOM_RECESS_GAP_COVER_MIN,
+                                      # ROOM_BAND_POCKET_FACE_COVER_MIN) — sits
+                                      # 1.54x under the storage and 1.88x over
+                                      # the strips. Measured on every call the
+                                      # rule receives and every emitted room of
+                                      # all 20 sheets at their factors
+                                      # (tools/census_scratch/step16/, W-gate
+                                      # iteration 3 step 16, 2026-09-06): the
+                                      # only other enclosed component at pocket
+                                      # spacing is s16's recorded-FP partition
+                                      # box (2507,1323)-(2527,1401), 1.0 / 1.0,
+                                      # which stays as it does today; the
+                                      # recorded-FP cells of s18 (0.0 / 0.29 and
+                                      # 0.0 / 0.72) and s12 (1.0 / 0.0 twice) are
+                                      # not enclosed. The exemption recognises
+                                      # the fully WALLED cupboard, not every
+                                      # door-less space: the corpus's other
+                                      # confirmed door-less spaces — s07's
+                                      # cupboard (0.06 / 0.06, a box of lone
+                                      # lines), s20's passage (0.0 / 1.0), s15's
+                                      # space (1.0 / 0.5) — sit at 599-610mm and
+                                      # are held out by the spacing ceiling
+                                      # alone (1.26-1.29x over 475mm).
+ROOM_BAND_POCKET_END_PROBE_PX = 7.0   # where the closure is read: this far
+                                      # outward of an end run (P: the standoff
+                                      # geometry is paper). The run lies
+                                      # ROOM_LINE_BARRIER_PX +- ROOM_RECESS_BACK_TOL_PX
+                                      # (0.5-3.5px) off its face, and a lone
+                                      # face's line barrier reaches
+                                      # ROOM_LINE_BARRIER_PX past the face, so
+                                      # nothing but a solid lies past 5.5px
+                                      # from the run, while a band behind the
+                                      # face is dilated ROOM_WALL_DILATE_PX past
+                                      # it and spans its thickness beyond —
+                                      # 7px is inside the solid of any band and
+                                      # 1.5px past the reach of any lone face.
+                                      # 6 and 7 read identically on every
+                                      # component of the step-16 census.
 
 
 @dataclass(frozen=True)
@@ -643,6 +756,7 @@ class RoomGates:
     ROOM_ENTRANCE_MIN_RUN_PX: float
     WALL_MAX_THICKNESS_PX: float             # walls-owned, used by rooms
     WALL_HATCH_MAX_LEN_PX: float             # walls-owned, used by rooms
+    WALL_THICK_MATERIAL_MAX_PX: float        # walls-owned: the band-pocket ceiling
 
     @classmethod
     def at(cls, factor: float) -> "RoomGates":
@@ -668,6 +782,7 @@ class RoomGates:
             ROOM_ENTRANCE_MIN_RUN_PX=ROOM_ENTRANCE_MIN_RUN_PX * factor,
             WALL_MAX_THICKNESS_PX=WALL_MAX_THICKNESS_PX * factor,
             WALL_HATCH_MAX_LEN_PX=WALL_HATCH_MAX_LEN_PX * factor,
+            WALL_THICK_MATERIAL_MAX_PX=WALL_THICK_MATERIAL_MAX_PX * factor,
         )
 
 
@@ -1828,8 +1943,74 @@ def _side_wall_covers(comp, axis_edge, centre, face_lines, cap_lines) -> tuple[f
     return (covers[0], covers[1])
 
 
+def _end_closures(comp, end_edge, centre, solids) -> tuple[float, float]:
+    """How much of each END of a component a wall band closes — see
+    ROOM_BAND_POCKET_END_CLOSURE_MIN.
+
+    The component's boundary runs parallel to `end_edge` (a short edge of
+    its minimum rotated rectangle) are classed to an end by the sign of
+    their offset from `centre`; each run is probed
+    ROOM_BAND_POCKET_END_PROBE_PX outward — past the line barrier a lone
+    face keeps around itself — against the stage's wall `solids`, and an
+    end's closure is the union of its runs' solid-backed stretches
+    projected onto the edge, over the edge's length. Read on the boundary
+    itself, as the covers are, so a tab or a notch cannot pin it."""
+    (ax, ay), (bx, by) = end_edge
+    width = math.hypot(bx - ax, by - ay)
+    if width < 1e-6 or solids is None or solids.is_empty:
+        return (0.0, 0.0)
+    ux, uy = (bx - ax) / width, (by - ay) / width
+    nx, ny = -uy, ux
+    cx, cy = centre
+    angle = _line_angle_deg((ax, ay), (bx, by))
+    spans: tuple[list[tuple[float, float]], list[tuple[float, float]]] = ([], [])
+    coords = list(comp.exterior.coords)
+    for a, b in zip(coords, coords[1:]):
+        run_len = _line_length(a, b)
+        if run_len < 1e-6:
+            continue
+        if _angle_diff_mod180(angle, _line_angle_deg(a, b)) > WALL_PARALLEL_ANGLE_TOL:
+            continue
+        mx, my = (a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0
+        off = (mx - cx) * nx + (my - cy) * ny
+        side = 0 if off < 0.0 else 1
+        ox, oy = (-nx, -ny) if side == 0 else (nx, ny)      # outward
+        rux, ruy = (b[0] - a[0]) / run_len, (b[1] - a[1]) / run_len
+        probe = LineString([
+            (a[0] + ox * ROOM_BAND_POCKET_END_PROBE_PX, a[1] + oy * ROOM_BAND_POCKET_END_PROBE_PX),
+            (b[0] + ox * ROOM_BAND_POCKET_END_PROBE_PX, b[1] + oy * ROOM_BAND_POCKET_END_PROBE_PX),
+        ])
+        hit = probe.intersection(solids)
+        for piece in getattr(hit, "geoms", [hit]):
+            if piece.is_empty or piece.geom_type != "LineString":
+                continue
+            ts = [
+                (p[0] - probe.coords[0][0]) * rux + (p[1] - probe.coords[0][1]) * ruy
+                for p in piece.coords
+            ]
+            lo, hi = min(ts), max(ts)
+            ta = (a[0] + rux * lo - ax) * ux + (a[1] + ruy * lo - ay) * uy
+            tb = (a[0] + rux * hi - ax) * ux + (a[1] + ruy * hi - ay) * uy
+            spans[side].append((max(min(ta, tb), 0.0), min(max(ta, tb), width)))
+    closures = []
+    for side in spans:
+        total = 0.0
+        cur_lo = cur_hi = None
+        for lo, hi in sorted(side):
+            if cur_hi is None or lo > cur_hi:
+                if cur_hi is not None:
+                    total += cur_hi - cur_lo
+                cur_lo, cur_hi = lo, hi
+            elif hi > cur_hi:
+                cur_hi = hi
+        if cur_hi is not None:
+            total += cur_hi - cur_lo
+        closures.append(total / width)
+    return (closures[0], closures[1])
+
+
 def _is_band_pocket(
-    comp, face_lines, text_spans, *, cap_lines=(),
+    comp, face_lines, text_spans, *, cap_lines=(), solids=None,
     gates: RoomGates = ROOM_GATES_UNSCALED,
 ) -> bool:
     """True when comp lies INSIDE a wall band's thickness — see
@@ -1839,13 +2020,19 @@ def _is_band_pocket(
     the band": both long sides of the component lie along wall — faces
     (segment flanks or barrier faces) at the barrier standoff, or the flat
     ends of wall solids (`cap_lines`) — at a spacing of at most
-    WALL_MAX_THICKNESS_PX (the minimum rotated rectangle's short side plus
-    the two standoffs), i.e. two faces that could have paired as one wall,
-    so the free space between them is that wall's material (a window
-    reveal, a hollow cavity, a blocked opening), not floor. The cover is
+    WALL_THICK_MATERIAL_MAX_PX (the minimum rotated rectangle's short side
+    plus the two standoffs; the thick tier's cap since W-gate iteration 3
+    step 16 — WALL_MAX_THICKNESS_PX before it, see
+    ROOM_BAND_POCKET_FACE_COVER_MIN), i.e. two faces that could have paired
+    as one wall, plain or thick, so the free space between them is that
+    wall's material (a window reveal, a hollow cavity, a blocked opening,
+    a wall drawn hollow), not floor. The cover is
     read on the component's OWN boundary runs (_side_wall_covers); the
-    rectangle gives only the axis and the width. Called only for
-    components with no entrance and no window; text inside vetoes.
+    rectangle gives only the axis and the width. A component that wall
+    bands close at BOTH ends (`solids`, _end_closures) is enclosed by walls
+    on all four sides — a space, whatever its width — and is exempt (see
+    ROOM_BAND_POCKET_END_CLOSURE_MIN). Called only for components with no
+    entrance and no window; text inside vetoes.
     """
     if _contains_text(comp, text_spans):
         return False
@@ -1863,16 +2050,19 @@ def _is_band_pocket(
     edges = [(c[i], c[(i + 1) % 4]) for i in range(4)]
     lens = [_line_length(a, b) for a, b in edges]
     if lens[0] >= lens[1]:
-        axis_edge, short = edges[0], lens[1]
+        axis_edge, end_edge, short = edges[0], edges[1], lens[1]
     else:
-        axis_edge, short = edges[1], lens[0]
+        axis_edge, end_edge, short = edges[1], edges[0], lens[0]
     # Face spacing = pocket width + the standoff on each side.
-    if short + 2.0 * ROOM_LINE_BARRIER_PX > gates.WALL_MAX_THICKNESS_PX:
+    if short + 2.0 * ROOM_LINE_BARRIER_PX > gates.WALL_THICK_MATERIAL_MAX_PX:
         return False
-    covers = _side_wall_covers(
-        comp, axis_edge, (rect.centroid.x, rect.centroid.y), face_lines, cap_lines,
-    )
-    return min(covers) >= ROOM_BAND_POCKET_FACE_COVER_MIN
+    centre = (rect.centroid.x, rect.centroid.y)
+    covers = _side_wall_covers(comp, axis_edge, centre, face_lines, cap_lines)
+    if min(covers) < ROOM_BAND_POCKET_FACE_COVER_MIN:
+        return False
+    # Enclosed by wall bands at both ends: a walled cell, not a pocket.
+    closures = _end_closures(comp, end_edge, centre, solids)
+    return min(closures) < ROOM_BAND_POCKET_END_CLOSURE_MIN
 
 
 def _entrance_run(boundary, seal) -> float:
@@ -2718,7 +2908,8 @@ def detect_rooms(
             if _is_wall_recess(comp, wall_segments, opening_boxes, text_spans):
                 continue
             if _is_band_pocket(
-                exterior, face_lines, text_spans, cap_lines=cap_lines, gates=gates,
+                exterior, face_lines, text_spans, cap_lines=cap_lines,
+                solids=solids, gates=gates,
             ):
                 continue
         rooms.append((exterior, {

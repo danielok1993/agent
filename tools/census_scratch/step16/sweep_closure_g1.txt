@@ -1,0 +1,41 @@
+Output directory: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s18/2026-09-06_18-
+29-28
+                         Scales                         
+                                                        
+  Region        Type         Scale   Source   Evidence  
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0001   floor_plan   1:100   user     1:100     
+  region_0003   floor_plan   1:100   user     1:100     
+                                                        
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/Users/danielszweda/Documents/GitHub/UD/agent/outputs/regress/s18/2026-09-06_18-
+29-28
+  Pages: 1 | Candidates: 107 | Entities: 62 | Warnings: 5
+s18  door 13/13  room 13/13  window 12/12
+    ✗ FALSE POSITIVE RETURNED window @ (2510,1152)
+    ✗ FALSE POSITIVE RETURNED window @ (2006,850)
+    ✗ FALSE POSITIVE RETURNED window @ (180,1243)
+    ✗ FALSE POSITIVE RETURNED window @ (1456,2445)
+    ✗ FALSE POSITIVE RETURNED window @ (1803,2327)
+    ✗ FALSE POSITIVE RETURNED window @ (1971,2226)
+    ✗ FALSE POSITIVE RETURNED window @ (1423,1213)
+    ✗ FALSE POSITIVE RETURNED window @ (1454,1221)
+    ✗ FALSE POSITIVE RETURNED room @ (2336,2317)
+    ✗ FALSE POSITIVE RETURNED room @ (1634,2315)
+    ✗ FALSE POSITIVE RETURNED room @ (1868,2419)
+    ✗ FALSE POSITIVE RETURNED window @ (2315,997)
+    ✗ FALSE POSITIVE RETURNED room @ (2726,751)
+    ✗ FALSE POSITIVE RETURNED room @ (993,821)
+    ✗ FALSE POSITIVE RETURNED room @ (172,1144)
+    ✗ FALSE POSITIVE RETURNED room @ (2087,1046)
+    ✗ FALSE POSITIVE RETURNED room @ (2659,720)
+    ✗ FALSE POSITIVE RETURNED room @ (1582,1054)
+    ✗ FALSE POSITIVE RETURNED room @ (1579,1087)
+    ✗ FALSE POSITIVE RETURNED room @ (1861,2316)
+    ✗ FALSE POSITIVE RETURNED window @ (189,1008)
+    ✗ FALSE POSITIVE RETURNED window @ (192,879)
+    ✗ FALSE POSITIVE RETURNED window @ (187,1044)
+    ✗ FALSE POSITIVE RETURNED room @ (1333,710)

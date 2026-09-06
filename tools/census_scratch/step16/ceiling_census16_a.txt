@@ -1,0 +1,137 @@
+s01 p1 f=0.542: as-is (exempt on, ceiling 36) calls 0 dropped 0 score lost=0 fp=0 unrev=0
+    ceiling 36 (19.5px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 36 (19.5px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 40 (21.7px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 40 (21.7px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (22.2px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (22.2px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (23.9px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (23.9px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (26.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (26.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (30.4px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (30.4px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+s02 p1 f=1.000: as-is (exempt on, ceiling 36) calls 0 dropped 0 score lost=12 fp=0 unrev=0
+    ceiling 36 (36.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+    ceiling 36 (36.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+    ceiling 40 (40.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+    ceiling 40 (40.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+    ceiling 41 (41.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+    ceiling 41 (41.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+    ceiling 44 (44.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+    ceiling 44 (44.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+    ceiling 48 (48.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+    ceiling 48 (48.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+    ceiling 56 (56.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+    ceiling 56 (56.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 12->12 fp 0->0 unrev 0->0
+s03 p1 f=1.000: as-is (exempt on, ceiling 36) calls 2 dropped 0 score lost=0 fp=0 unrev=0
+    call [3759.7, 496.7, 4141.4, 1201.4] dropped=False closures=[0.0, 0.57]
+    call [3373.9, 496.7, 3755.7, 846.9] dropped=False closures=[0.0, 0.0]
+    ceiling 36 (36.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 36 (36.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 40 (40.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 40 (40.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (41.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (41.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (44.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (44.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (48.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (48.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (56.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (56.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+s04 p1 f=1.000: as-is (exempt on, ceiling 36) calls 0 dropped 0 score lost=0 fp=2 unrev=0
+    ceiling 36 (36.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+    ceiling 36 (36.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+    ceiling 40 (40.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+    ceiling 40 (40.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+    ceiling 41 (41.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+    ceiling 41 (41.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+    ceiling 44 (44.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+    ceiling 44 (44.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+    ceiling 48 (48.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+    ceiling 48 (48.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+    ceiling 56 (56.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+    ceiling 56 (56.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 2->2 unrev 0->0
+s05 p1 f=0.500: as-is (exempt on, ceiling 36) calls 2 dropped 0 score lost=0 fp=1 unrev=0
+    call [1851.8, 1261.3, 1894.8, 1417.3] dropped=False closures=[1.0, 0.948]
+    call [1921.6, 782.8, 2065.8, 1056.5] dropped=False closures=[1.0, 1.0]
+    ceiling 36 (18.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 36 (18.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 40 (20.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 40 (20.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 41 (20.5px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 41 (20.5px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 44 (22.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 44 (22.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 48 (24.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 48 (24.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 56 (28.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 56 (28.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+s06 p1 f=0.500: as-is (exempt on, ceiling 36) calls 0 dropped 0 score lost=0 fp=0 unrev=0
+    ceiling 36 (18.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 36 (18.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 40 (20.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 40 (20.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (20.5px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (20.5px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (22.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (22.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (24.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (24.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (28.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (28.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+s07 p1 f=0.500: as-is (exempt on, ceiling 36) calls 1 dropped 0 score lost=0 fp=0 unrev=0
+    call [454.5, 189.7, 486.5, 290.2] dropped=False closures=[0.258, 0.258]
+    ceiling 36 (18.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 36 (18.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 40 (20.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 40 (20.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (20.5px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (20.5px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (22.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (22.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (24.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (24.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (28.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (28.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+s08 p1 f=1.000: as-is (exempt on, ceiling 36) calls 1 dropped 0 score lost=0 fp=1 unrev=0
+    call [1463.2, 1060.1, 1677.7, 1130.6] dropped=False closures=[1.0, 0.863]
+    ceiling 36 (36.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 36 (36.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 40 (40.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 40 (40.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 41 (41.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 41 (41.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 44 (44.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 44 (44.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 48 (48.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 48 (48.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 56 (56.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+    ceiling 56 (56.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 1->1 unrev 0->0
+s09 p1 f=1.000: as-is (exempt on, ceiling 36) calls 0 dropped 0 score lost=0 fp=0 unrev=0
+    ceiling 36 (36.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 36 (36.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 40 (40.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 40 (40.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (41.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (41.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (44.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (44.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (48.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (48.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (56.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (56.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+s10 p1 f=1.000: as-is (exempt on, ceiling 36) calls 0 dropped 0 score lost=0 fp=0 unrev=0
+    ceiling 36 (36.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 36 (36.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 40 (40.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 40 (40.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (41.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 41 (41.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (44.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 44 (44.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (48.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 48 (48.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (56.0px) exempt=on : newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+    ceiling 56 (56.0px) exempt=off: newly dropped 0 undropped 0 | rooms gone 0 new 0 moved 0 | lost 0->0 fp 0->0 unrev 0->0
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/tools/census_scratch/step16/ceiling_census16_a.json

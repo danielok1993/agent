@@ -1,0 +1,14 @@
+s01 p1 f=0.542 cap 19.5: pocket calls 0 (<=56xf: 0), rooms 10, glyph strokes 64, text spans 61
+s02 p1 f=1.000 cap 36.0: pocket calls 0 (<=56xf: 0), rooms 11, glyph strokes 0, text spans 295
+s03 p1 f=1.000 cap 36.0: pocket calls 2 (<=56xf: 0), rooms 19, glyph strokes 44, text spans 21
+s04 p1 f=1.000 cap 36.0: pocket calls 0 (<=56xf: 0), rooms 6, glyph strokes 0, text spans 21
+s05 p1 f=0.500 cap 18.0: pocket calls 2 (<=56xf: 0), rooms 10, glyph strokes 2001, text spans 0
+s06 p1 f=0.500 cap 18.0: pocket calls 0 (<=56xf: 0), rooms 9, glyph strokes 746, text spans 2
+s07 p1 f=0.500 cap 18.0: pocket calls 1 (<=56xf: 0), rooms 6, glyph strokes 0, text spans 1
+    CONFIRMED-NARROW [454.5, 189.7, 486.5, 290.2] sp 36.0 (610mm) gt=confirmed text=False glyphs=0 covers [1.0, 1.0] backed_any [0.0, 0.0] spans [0.0, 0.0] same_pen=True ends cov [0.805, 0.805] ends backed [0.062, 0.062] NEAR faces 1/2 seg_gaps [None, 2.0] entr 0 doors 0 win 0
+        side near 0.0 far 0.0 lone 104.5 px; near seg None gap None; pens [('(0.0, 0.0, 0.0)', 3.0, True, 104.5)]
+        side near 192.0 far 0.0 lone 0.0 px; near seg [[456.6, 108.0], [456.6, 187.7], 8.25] gap 2.0; pens [('(0.0, 0.0, 0.0)', 3.0, True, 192.0)]
+s08 p1 f=1.000 cap 36.0: pocket calls 1 (<=56xf: 0), rooms 3, glyph strokes 11, text spans 18
+s09 p1 f=1.000 cap 36.0: pocket calls 0 (<=56xf: 0), rooms 0, glyph strokes 0, text spans 0
+s10 p1 f=1.000 cap 36.0: pocket calls 0 (<=56xf: 0), rooms 9, glyph strokes 0, text spans 0
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/tools/census_scratch/step16/backing_census_a.json

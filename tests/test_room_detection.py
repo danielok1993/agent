@@ -2108,6 +2108,138 @@ class TestBandPocketTabbedByAPerpendicularBand(unittest.TestCase):
             self.assertGreater(r.bbox[1], self.INNER)
 
 
+class TestBandPocketEnclosedByWallBands(unittest.TestCase):
+    """A component that wall BANDS close at both ends is enclosed by walls
+    on all four sides — a cell of the wall grid, a space whatever its
+    width — and _is_band_pocket exempts it (W-gate iteration 3 step 16,
+    ROOM_BAND_POCKET_END_CLOSURE_MIN). s11's confirmed "storage in utility"
+    is a door-less built-in cupboard 17.75px wide at f=0.5 (368mm face
+    spacing): a 5.7px partition on one side, its FRONT drawn as a single
+    line in the wall pen on the other (the s02 "coats" class), a 6px band
+    above and the 17.6px external wall below. Drawn at 1:50 here — a 30px
+    cupboard (34px spacing, inside the plain cap) between an 8px partition
+    and a lone front line, closed by 8px bands — so the rule sees it at
+    the ceiling as it stands.
+
+    A hollow wall's ends are its own interruptions — a doorway's jamb line,
+    a partition's face drawn across it — with at most a jamb block behind
+    a third of them (s17 strips 0013/0032: 0.345 / 0.338 at the doorway
+    end, 0 at the partition end), never a band standing across the wall.
+
+    The front is drawn as a 6px panel rather than the storage's single
+    line: at 1:50 a lone line 30px from the partition's flank pairs with
+    it, the far-side rule drops that pair as "paired across the room" and
+    demotes the lone partner (the s02 "coats" treatment), whereas s11's
+    front keeps its rights because 21.75px is over the 1:100 cap. The
+    panel's inner flank pairs the same way but is paired with its own
+    outer line too, so it stays a barrier."""
+
+    X0, X1 = 100.0, 500.0           # the room's outer band
+    CUP_L = 300.0                   # the cupboard's left face: the partition's flank
+    WIDTH = 30.0                    # face to face (34px spacing, inside the plain cap)
+    CUP_T, CUP_B = 150.0, 330.0     # its ends
+
+    def _plan(self, ends, width=None):
+        """ends: 'bands' — an 8px band across each end (the storage);
+        'lines' — a single line across each end with a 10px jamb nib
+        standing on it beside the partition (the hollow wall)."""
+        cup_r = self.CUP_L + (self.WIDTH if width is None else width)
+        paths = rect_room(0, self.X0, 100.0, self.X1, 400.0)
+        idx = 8
+        # The partition beside the cupboard, its right flank the cupboard's
+        # left face; it runs the room's height.
+        paths += wall_band_v(idx, self.CUP_L - 8.0, 100.0, 400.0)
+        idx += 2
+        # The cupboard's front: a thin panel, room floor beyond.
+        paths += wall_band_v(idx, cup_r, self.CUP_T, self.CUP_B, thickness=6.0)
+        idx += 2
+        for y in (self.CUP_T, self.CUP_B):
+            if ends == "bands":
+                # A band from the partition across the cupboard to its front.
+                paths += wall_band_h(idx, self.CUP_L - 8.0, cup_r + 6.0,
+                                     y if y == self.CUP_T else y - 8.0)
+                idx += 2
+            else:
+                paths.append(hline(idx, self.CUP_L, cup_r, y))
+                idx += 1
+                # A jamb nib on the end line, 10 of the cupboard's 26px
+                # (0.38): a block behind part of the end is not a band
+                # standing across it.
+                y0, y1 = (y - 20.0, y) if y == self.CUP_T else (y, y + 20.0)
+                paths += wall_band_v(idx, self.CUP_L, y0, y1, thickness=10.0)
+                idx += 2
+        return paths
+
+    def _cupboard(self, rooms, width=None):
+        cup_r = self.CUP_L + (self.WIDTH if width is None else width)
+        return [r for r in rooms if r.bbox[2] < cup_r + 4.0
+                and r.bbox[0] > self.CUP_L - 4.0]
+
+    def test_cupboard_closed_by_bands_at_both_ends_stays(self):
+        rooms = rooms_for(self._plan("bands"))
+        cup = self._cupboard(rooms)
+        self.assertEqual(len(cup), 1, [r.bbox for r in rooms])
+        self.assertAlmostEqual(cup[0].bbox[2] - cup[0].bbox[0], 26.0, delta=2.0)
+        self.assertEqual(cup[0].evidence["door_openings"], 0)
+
+    def test_hollow_wall_closed_by_lines_is_still_a_pocket(self):
+        rooms = rooms_for(self._plan("lines"))
+        self.assertEqual(len(self._cupboard(rooms)), 0, [r.bbox for r in rooms])
+
+
+class TestBandPocketCeilingAtTheThickTier(TestBandPocketEnclosedByWallBands):
+    """The band-pocket ceiling is WALL_THICK_MATERIAL_MAX_PX (56px = 475mm at
+    1:50), not the plain pairing cap (W-gate iteration 3 step 16): s17's
+    four hollow-wall strips are 38.75–40.5px between their faces (328–343mm,
+    a 313mm wall drawn as two lines), over the 36px cap, and two faces that
+    could have paired as one THICK wall bound the band's own material as
+    surely as two at plain spacing. What keeps a real space out of the rule
+    at that width is enclosure (ROOM_BAND_POCKET_END_CLOSURE_MIN), not
+    width: s11's confirmed 368mm storage is closed by bands at both ends.
+
+    The cell of the parent class widened to s17's 38.75px face spacing
+    (34.75px of free space): closed by lines with jamb nibs it is the
+    hollow wall and is dropped; closed by bands it stays."""
+
+    STRIP = 38.75
+
+    def test_hollow_wall_over_the_plain_cap_is_a_pocket(self):
+        rooms = rooms_for(self._plan("lines", self.STRIP))
+        self.assertEqual(len(self._cupboard(rooms, self.STRIP)), 0,
+                         [r.bbox for r in rooms])
+
+    def test_walled_cell_over_the_plain_cap_stays(self):
+        rooms = rooms_for(self._plan("bands", self.STRIP))
+        cup = self._cupboard(rooms, self.STRIP)
+        self.assertEqual(len(cup), 1, [r.bbox for r in rooms])
+        self.assertAlmostEqual(cup[0].bbox[2] - cup[0].bbox[0], self.STRIP - 4.0, delta=2.0)
+
+    def test_storage_with_a_lone_front_line_at_1_to_100_stays(self):
+        # s11's storage as drawn, at f=0.5: a 5.7px partition on the left,
+        # the cupboard's FRONT as one wall-pen line 21.75px from the
+        # partition's flank (over the scaled 18px cap, so the line never
+        # pairs and keeps its lone-face rights), a 6px band above, the
+        # room's band below. The rule sees it from a 44px ceiling up
+        # (22px at f=0.5) and the enclosure exempts it.
+        x_part, part_th = 300.0, 5.7
+        x_front = x_part + part_th + 21.75
+        top_y = 150.0
+        paths = rect_room(0, 100.0, 100.0, 500.0, 400.0)
+        idx = 8
+        paths += wall_band_v(idx, x_part, 100.0, 400.0, thickness=part_th)
+        idx += 2
+        paths.append(vline(idx, x_front, top_y + 6.0, 392.0))
+        idx += 1
+        paths += wall_band_h(idx, x_part, x_front + 4.0, top_y, thickness=6.0)
+        idx += 2
+        network = detect_wall_network(paths, [], scale_factor=0.5)
+        rooms = detect_rooms(network, [], [], PAGE_W, PAGE_H, [], scale_factor=0.5)
+        cup = [r for r in rooms if r.bbox[0] > x_part and r.bbox[2] < x_front + 4.0]
+        self.assertEqual(len(cup), 1, [r.bbox for r in rooms])
+        self.assertAlmostEqual(cup[0].bbox[2] - cup[0].bbox[0], 17.75, delta=2.0)
+        self.assertEqual(cup[0].evidence["door_openings"], 0)
+
+
 class TestRejectedDoorIsNotAnEntrance(unittest.TestCase):
     """detect_rooms consumes candidates before the offline floor, so a door
     the pipeline itself rejects (< ROOM_BBOX_SEAL_MIN_CONFIDENCE, the floor's

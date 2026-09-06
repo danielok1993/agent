@@ -1,0 +1,267 @@
+.............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+[fixtures] corpus sheets missing from /var/folders/6p/y0cffvwx3lx_w6vfk1mydk2h0000gn/T/tmpmg6sjirl/sheets — real-PDF tests will skip. Run: python tools/fetch_fixtures.py
+
+s02: FAILED — RuntimeError('boom')
+
+s02: interrupted, nothing recorded for this sheet
+Scale (text): 1:50 — '1:50 & 1/100 [/bold] extra'
+Scale (text): 1:50 — '[/nonexistent]'
+Scale (text): 1:50 — '[/]'
+...............                                       Scales                                        
+                                                                                     
+  Region        Type           Scale   Source     Evidence                           
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0002   floor_plan   1:136.4   viewport   CONFLICT — text nearby says 1:100  
+                                                                                     
+.                                   Scales                                   
+                                                                            
+  Region        Type          Scale   Source     Evidence                   
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0002   floor_plan   1:99.6   viewport    → nearest standard 1:100  
+                                                                            
+.                           Scales                           
+                                                            
+  Region        Type         Scale   Source     Evidence    
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0002   floor_plan   1:100   viewport   C=35.27546  
+                                                            
+.                                 Scales                                  
+                                                                         
+  Region        Type         Scale   Source   Evidence                   
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0002   floor_plan   1:100   text     SCALE 1:100 [/see detail]  
+                                                                         
+.                            Scales                            
+                                                              
+  Region        Type           Scale   Source       Evidence  
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0002   floor_plan   UNKNOWN   unresolved             
+                                                              
+.......................................................................................................................................................................................................................................................Output directory: 
+/var/folders/6p/y0cffvwx3lx_w6vfk1mydk2h0000gn/T/tmpp04zwhk9/fn/out_00/2026-09-0
+6_19-09-58
+                            Scales                            
+                                                              
+  Region        Type           Scale   Source       Evidence  
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0000   floor_plan   UNKNOWN   unresolved             
+  region_0001   floor_plan   UNKNOWN   unresolved             
+                                                              
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/var/folders/6p/y0cffvwx3lx_w6vfk1mydk2h0000gn/T/tmpp04zwhk9/fn/out_00/2026-09-0
+6_19-09-58
+  Pages: 1 | Candidates: 28 | Entities: 27 | Warnings: 5
+Output directory: 
+/var/folders/6p/y0cffvwx3lx_w6vfk1mydk2h0000gn/T/tmpp04zwhk9/cli/2026-09-06_19-1
+0-18
+                            Scales                            
+                                                              
+  Region        Type           Scale   Source       Evidence  
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+  region_0000   floor_plan   UNKNOWN   unresolved             
+  region_0001   floor_plan   UNKNOWN   unresolved             
+                                                              
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/var/folders/6p/y0cffvwx3lx_w6vfk1mydk2h0000gn/T/tmpp04zwhk9/cli/2026-09-06_19-1
+0-18
+  Pages: 1 | Candidates: 28 | Entities: 27 | Warnings: 5
+F..........takeoff t1 does not exist
+.......takeoff t1 belongs to customer cus-2, not cus-1
+takeoff t1 does not exist
+............................Traceback (most recent call last):
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 156, in run_measurement
+    work_root = workdir or tempfile.mkdtemp(prefix="takeoff-")
+                           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+OSError: no space left on device
+.Traceback (most recent call last):
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 171, in run_measurement
+    _measure_source(source, out_parent, prefix, request, bucket,
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    extract_fn, page_count_fn,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    all_sheets, all_artifacts, skipped, run_files)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 86, in _measure_source
+    out_dir = extract_fn(
+        pdf_path=source.local_path,
+    ...<14 lines>...
+        window_height=None,
+    )
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/tests/test_takeoff_fn_runner.py", line 301, in _boom
+    raise RuntimeError("detector exploded")
+RuntimeError: detector exploded
+Traceback (most recent call last):
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 209, in run_measurement
+    raise FailedPrecondition(
+        "No floor plan was found in any source drawing")
+takeoff_fn.errors.FailedPrecondition: No floor plan was found in any source drawing
+.Traceback (most recent call last):
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 209, in run_measurement
+    raise FailedPrecondition(
+        "No floor plan was found in any source drawing")
+takeoff_fn.errors.FailedPrecondition: No floor plan was found in any source drawing
+.Traceback (most recent call last):
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 165, in run_measurement
+    raise FailedPrecondition(
+        "No source drawing could be read for this takeoff")
+takeoff_fn.errors.FailedPrecondition: No source drawing could be read for this takeoff
+..Traceback (most recent call last):
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 209, in run_measurement
+    raise FailedPrecondition(
+        "No floor plan was found in any source drawing")
+takeoff_fn.errors.FailedPrecondition: No floor plan was found in any source drawing
+........Traceback (most recent call last):
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 171, in run_measurement
+    _measure_source(source, out_parent, prefix, request, bucket,
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    extract_fn, page_count_fn,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    all_sheets, all_artifacts, skipped, run_files)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 88, in _measure_source
+    page_indices=list(range(page_count_fn(source.local_path))),
+                            ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/tests/test_takeoff_fn_runner.py", line 442, in _page_count
+    raise RuntimeError("password protected")
+RuntimeError: password protected
+.Traceback (most recent call last):
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 171, in run_measurement
+    _measure_source(source, out_parent, prefix, request, bucket,
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    extract_fn, page_count_fn,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    all_sheets, all_artifacts, skipped, run_files)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 86, in _measure_source
+    out_dir = extract_fn(
+        pdf_path=source.local_path,
+    ...<14 lines>...
+        window_height=None,
+    )
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/tests/test_takeoff_fn_runner.py", line 421, in _extract
+    raise RuntimeError("cannot open broken document")
+RuntimeError: cannot open broken document
+.Traceback (most recent call last):
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 171, in run_measurement
+    _measure_source(source, out_parent, prefix, request, bucket,
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    extract_fn, page_count_fn,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    all_sheets, all_artifacts, skipped, run_files)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 86, in _measure_source
+    out_dir = extract_fn(
+        pdf_path=source.local_path,
+    ...<14 lines>...
+        window_height=None,
+    )
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/tests/test_takeoff_fn_runner.py", line 464, in _boom
+    raise RuntimeError("detector exploded")
+RuntimeError: detector exploded
+Traceback (most recent call last):
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 171, in run_measurement
+    _measure_source(source, out_parent, prefix, request, bucket,
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    extract_fn, page_count_fn,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    all_sheets, all_artifacts, skipped, run_files)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 86, in _measure_source
+    out_dir = extract_fn(
+        pdf_path=source.local_path,
+    ...<14 lines>...
+        window_height=None,
+    )
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/tests/test_takeoff_fn_runner.py", line 464, in _boom
+    raise RuntimeError("detector exploded")
+RuntimeError: detector exploded
+Traceback (most recent call last):
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 209, in run_measurement
+    raise FailedPrecondition(
+        "No floor plan was found in any source drawing")
+takeoff_fn.errors.FailedPrecondition: No floor plan was found in any source drawing
+........Traceback (most recent call last):
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 171, in run_measurement
+    _measure_source(source, out_parent, prefix, request, bucket,
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    extract_fn, page_count_fn,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    all_sheets, all_artifacts, skipped, run_files)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/takeoff_fn/runner.py", line 86, in _measure_source
+    out_dir = extract_fn(
+        pdf_path=source.local_path,
+    ...<14 lines>...
+        window_height=None,
+    )
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/tests/test_takeoff_fn_runner.py", line 515, in _spy
+    raise RuntimeError("cannot open broken document")
+RuntimeError: cannot open broken document
+.........................................................................Output directory: 
+/var/folders/6p/y0cffvwx3lx_w6vfk1mydk2h0000gn/T/tmp2m5bpfnl/2026-09-06_19-10-38
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/var/folders/6p/y0cffvwx3lx_w6vfk1mydk2h0000gn/T/tmp2m5bpfnl/2026-09-06_19-10-38
+  Pages: 1 | Candidates: 0 | Entities: 0 | Warnings: 3
+.Output directory: 
+/var/folders/6p/y0cffvwx3lx_w6vfk1mydk2h0000gn/T/tmp_dp1lbgp/2026-09-06_19-10-38
+  Page 1/1 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/var/folders/6p/y0cffvwx3lx_w6vfk1mydk2h0000gn/T/tmp_dp1lbgp/2026-09-06_19-10-38
+  Pages: 1 | Candidates: 0 | Entities: 0 | Warnings: 3
+..Output directory: 
+/var/folders/6p/y0cffvwx3lx_w6vfk1mydk2h0000gn/T/tmp9lq9zzog/2026-09-06_19-10-38
+  Page 2/2 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/var/folders/6p/y0cffvwx3lx_w6vfk1mydk2h0000gn/T/tmp9lq9zzog/2026-09-06_19-10-38
+  Pages: 2 | Candidates: 0 | Entities: 0 | Warnings: 8
+.Output directory: 
+/var/folders/6p/y0cffvwx3lx_w6vfk1mydk2h0000gn/T/tmp3wdnqgez/2026-09-06_19-10-38
+  Page 1/2 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/var/folders/6p/y0cffvwx3lx_w6vfk1mydk2h0000gn/T/tmp3wdnqgez/2026-09-06_19-10-38
+  Pages: 1 | Candidates: 0 | Entities: 0 | Warnings: 4
+.Output directory: 
+/var/folders/6p/y0cffvwx3lx_w6vfk1mydk2h0000gn/T/tmplhxjhb2g/2026-09-06_19-10-38
+  Page 1/2 — save ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+
+Done. Output: 
+/var/folders/6p/y0cffvwx3lx_w6vfk1mydk2h0000gn/T/tmplhxjhb2g/2026-09-06_19-10-38
+  Pages: 1 | Candidates: 0 | Entities: 0 | Warnings: 4
+...............................................................................................................................................................................................................................................................................
+======================================================================
+FAIL: test_the_function_and_the_cli_agree_field_for_field (test_takeoff_fn_equivalence.TestCliEquivalence.test_the_function_and_the_cli_agree_field_for_field) (field='rooms')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/danielszweda/Documents/GitHub/UD/agent/tests/test_takeoff_fn_equivalence.py", line 197, in test_the_function_and_the_cli_agree_field_for_field
+    self.assertEqual(self.fn[key], self.cli[key])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'ro[423 chars]ting & Kitchen', 'confidence': 0.85, 'bbox': [[4454 chars] []}] != [{'ro[423 chars]ting / Kitchen', 'confidence': 0.85, 'bbox': [[4454 chars] []}]
+
+First differing element 1:
+{'roo[42 chars]ting & Kitchen', 'confidence': 0.85, 'bbox': [[379 chars]: []}
+{'roo[42 chars]ting / Kitchen', 'confidence': 0.85, 'bbox': [[379 chars]: []}
+
+Diff is 7432 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 1449 tests in 90.890s
+
+FAILED (failures=1)
+<sys>:0: DeprecationWarning: builtin type swigvarlink has no __module__ attribute

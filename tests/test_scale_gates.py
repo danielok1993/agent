@@ -269,6 +269,17 @@ class TestRoomGatesConstruction(unittest.TestCase):
         g = RoomGates.at(0.5)
         self.assertEqual(g.WALL_HATCH_MAX_LEN_PX, WALL_HATCH_MAX_LEN_PX * 0.5)
 
+    def test_wall_thick_material_max_matches_wallgates_scaling(self):
+        # The band-pocket ceiling (W-gate iteration 3 step 16): rooms.py's
+        # _is_band_pocket reads the thick-tier cap from RoomGates, scaled
+        # exactly as WallGates scales it (28px at 1:100, 20.5 at s13's 1:136).
+        from detection.walls import WALL_THICK_MATERIAL_MAX_PX, WallGates
+        for f in (1.0, 0.5, 0.367):
+            self.assertEqual(RoomGates.at(f).WALL_THICK_MATERIAL_MAX_PX,
+                             WallGates.at(f).WALL_THICK_MATERIAL_MAX_PX)
+        self.assertEqual(RoomGates.at(0.5).WALL_THICK_MATERIAL_MAX_PX,
+                         WALL_THICK_MATERIAL_MAX_PX * 0.5)
+
 
 class TestRoomsScaled(unittest.TestCase):
     def test_identity_factor_equals_omitted(self):
