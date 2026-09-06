@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1788696526.5586376,
-    "ast_hash": "5c3ae9ef3f3b5952147846234a5392f0",
+    "mtime": 1788699503.3217006,
+    "ast_hash": "95fcbc07d5fb2caed7aba71c946e887e",
     "semantic_hash": ""
   },
   "README.md": {
@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "detection/rooms.py": {
-    "mtime": 1788693794.7083406,
-    "ast_hash": "b7e62d15edd3be80ecda83945d7b96b1",
+    "mtime": 1788699491.5854354,
+    "ast_hash": "99197dd5706713d2111b3a0c9fc212f6",
     "semantic_hash": ""
   },
   "tests/test_cross_validate.py": {
@@ -1045,8 +1045,8 @@
     "semantic_hash": ""
   },
   "docs/w-gate-recalibration-handoff.md": {
-    "mtime": 1788696561.8535638,
-    "ast_hash": "cf93186d224627d02dd54cc341fbf5ad",
+    "mtime": 1788699554.9104764,
+    "ast_hash": "6d2c3c30e93cc3dfb2248276f9225612",
     "semantic_hash": ""
   },
   "takeoff/document.py": {
@@ -2157,6 +2157,191 @@
   "docs/w-gate-iter3-checkpoints/step4_s18_tree_strip_added_cap40.png": {
     "mtime": 1788696237.2689698,
     "ast_hash": "a1250126cdcf2ec225c63723af19e916",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/contact_stats.py": {
+    "mtime": 1788699296.8687563,
+    "ast_hash": "12f6624e328dee8c0bd9a019fc306566",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/entered_all_a.json": {
+    "mtime": 1788699135.8025768,
+    "ast_hash": "435680e7c2b90c4d796d9efa8e66f4d6",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/entered_all_b.json": {
+    "mtime": 1788699189.3960755,
+    "ast_hash": "00adde410b6f4e4d91aca63d0657dc20",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/entered_census.py": {
+    "mtime": 1788699097.2296886,
+    "ast_hash": "c2fb8085848311b7a40f774db4e38cac",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/entered_census_a.json": {
+    "mtime": 1788698979.1279464,
+    "ast_hash": "4f63d9ea374c3990687b6e0e42b7d1b7",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/entered_census_b.json": {
+    "mtime": 1788699004.5090802,
+    "ast_hash": "c0d354edc2bcdb02b3cc841f2f167cc9",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/openings_near.py": {
+    "mtime": 1788698324.229141,
+    "ast_hash": "90ccd4253ce0b45dc2c5e71d40b0f08c",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/pocket_census.py": {
+    "mtime": 1788697941.5232818,
+    "ast_hash": "7908d08ca7891e84442e3d16c437977e",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/pocket_census_heavy.json": {
+    "mtime": 1788698238.4039214,
+    "ast_hash": "b4da25f879eb68d19b6367778c49426d",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/pocket_census_light.json": {
+    "mtime": 1788698071.791889,
+    "ast_hash": "88aa363c46f6d0a2207260adccb5721e",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/pocket_crops.py": {
+    "mtime": 1788698059.5080082,
+    "ast_hash": "6f0a8e29b3f5062a8ff2a6aee86c4fff",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/s11_storage_door.py": {
+    "mtime": 1788699350.4799442,
+    "ast_hash": "1e573df376bce30d10afd45d60d94350",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/s17_strip_barriers.py": {
+    "mtime": 1788699089.654347,
+    "ast_hash": "fb99638963e5a9b8d4e7963d21967d11",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/s17_strip_edges.py": {
+    "mtime": 1788699165.5900116,
+    "ast_hash": "599873d491d4106f4fd73138eafa3def",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/s17_strip_openings.py": {
+    "mtime": 1788698263.7329042,
+    "ast_hash": "90da1ce4093a6e6b42806cbf10028485",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/zoom13.py": {
+    "mtime": 1788699263.7431626,
+    "ast_hash": "7985810c3b1a6879eca4256203350f9d",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step4/zoom.py": {
+    "mtime": 1788696605.2324898,
+    "ast_hash": "d9e6a625e9f5879e631afc3d949d8bf9",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step-13.md": {
+    "mtime": 1788699484.8094413,
+    "ast_hash": "265c46159c1a788caed44361c14a6262",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/README.md": {
+    "mtime": 1788699192.3367715,
+    "ast_hash": "a9b99736b6e2a37510d8ad94eb0b6c86",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/sweep_base_raw.txt": {
+    "mtime": 1788697963.841694,
+    "ast_hash": "e9966c712eecb99b299d8d5c79049c0b",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step13/sweep_base_verdicts.txt": {
+    "mtime": 1788697963.8500588,
+    "ast_hash": "7632a13bebcd2616de5fce8e683f2e7d",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step4/README.md": {
+    "mtime": 1788696605.2355735,
+    "ast_hash": "42794585367c9c660fe5f7cb1a384f30",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step4/band_census_out.txt": {
+    "mtime": 1788696605.2129245,
+    "ast_hash": "44b57ebef43f6c19c819588aa93c67f6",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step4/interior_census_out.txt": {
+    "mtime": 1788696605.2202044,
+    "ast_hash": "89236f912dfb1d86a9c94ddfbb9dc139",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step4/sweep_base_verdicts.txt": {
+    "mtime": 1788696605.227115,
+    "ast_hash": "2266598a95e2d6be0f2167c4b2b97df0",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step4/sweep_cap40_verdicts.txt": {
+    "mtime": 1788696605.229779,
+    "ast_hash": "b56ada0473a7bfc12c8b333c8f610fb4",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step4/unsimplified_diff_out.txt": {
+    "mtime": 1788696605.2242382,
+    "ast_hash": "d58ffdc4c4fdbafc5424d110036fdd27",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step13_s07_cupboard_confirmed_610mm.png": {
+    "mtime": 1788699100.5283928,
+    "ast_hash": "7d9303187df0281063b5315071c3361e",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step13_s11_storage_in_utility_confirmed_368mm.png": {
+    "mtime": 1788699100.5130951,
+    "ast_hash": "b09c754206e06452c594a323f268f9a5",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step13_s12_kitchen_unit_cell_442mm.png": {
+    "mtime": 1788699100.5168762,
+    "ast_hash": "16f8acfc1ab1629454dcf6da0bf59f5c",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step13_s12_kitchen_unit_cell_470mm.png": {
+    "mtime": 1788699100.5197506,
+    "ast_hash": "46fe6c48e263abc8219bb7c346c81173",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step13_s15_space_confirmed_601mm.png": {
+    "mtime": 1788699100.533612,
+    "ast_hash": "015d1bf637d86806b8ba14c14b8e747f",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step13_s16_bathroom_box_406mm.png": {
+    "mtime": 1788699100.5230153,
+    "ast_hash": "9fdad97977d2320836617ef65c7dd7ea",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step13_s17_reveal_strip_0013_with_entrance_seal.png": {
+    "mtime": 1788699405.6952875,
+    "ast_hash": "1527ab78d6aa811545ccd5e4f0d35fc3",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step13_s17_reveal_strip_0014_with_entrance_seal.png": {
+    "mtime": 1788699405.6958418,
+    "ast_hash": "faf6d1041581e28d9f58fbaa06ac3058",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step13_s18_kitchen_corner_box_360mm.png": {
+    "mtime": 1788699100.525898,
+    "ast_hash": "4bc9001738a7f6b23896acce6b183710",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step13_s20_passage_confirmed_599mm.png": {
+    "mtime": 1788699100.5309978,
+    "ast_hash": "d58e571007d979f41e454c33db1d6b56",
     "semantic_hash": ""
   }
 }
