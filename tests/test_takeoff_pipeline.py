@@ -110,7 +110,8 @@ class TestRunExtractWiring(unittest.TestCase):
             def fake_compute(entities, candidates, page_scales, regions, det_scale,
                              heights, page_number, page_text, w_mm, h_mm,
                              paths=(), text_spans=(),
-                             page_width_px=0.0, page_height_px=0.0, page_rotation=0):
+                             page_width_px=0.0, page_height_px=0.0, page_rotation=0,
+                             dimension_matches=None):
                 calls.append((page_number, heights, round(w_mm), round(h_mm),
                               round(page_width_px), round(page_height_px), page_rotation))
                 self.assertIsInstance(list(paths), list)     # primitives reach the takeoff
@@ -160,7 +161,8 @@ class TestRunExtractWiring(unittest.TestCase):
             def fake_compute(entities, candidates, page_scales, regions, det_scale,
                              heights, page_number, page_text, w_mm, h_mm,
                              paths=(), text_spans=(),
-                             page_width_px=0.0, page_height_px=0.0, page_rotation=0):
+                             page_width_px=0.0, page_height_px=0.0, page_rotation=0,
+                             dimension_matches=None):
                 calls.append((round(page_width_px), round(page_height_px), page_rotation))
                 return self._canned(page_number, floor=1.0)
 

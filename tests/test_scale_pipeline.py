@@ -139,5 +139,31 @@ class TestFallbackDenominatorIsThreaded(unittest.TestCase):
         self.assertIn("fallback=fallback_denominator", source)
 
 
+class TestDimensionStringsAreThreadedIntoTheGates(unittest.TestCase):
+    def test_run_extract_measures_the_page_once_and_passes_it_on(self):
+        # The page's ticked dimension strings are matched ONCE, on the full
+        # page (the takeoff's convention), and handed both to detection_scale
+        # — so a verified 1:92.2 drives s01's gates — and to compute_takeoff,
+        # which must not re-match them. Same wiring assertion as above.
+        import inspect
+        import pipeline
+
+        source = inspect.getsource(pipeline.run_extract)
+        self.assertIn("dimension_matches(page_data.paths, page_data.text_spans)",
+                      source)
+        self.assertIn("dimensions=dimensions", source)
+        self.assertIn("dimension_matches=dimensions", source)
+
+    def test_the_corpus_page_loader_does_the_same(self):
+        # tools/_corpus_page.py is what every probe and the census harness
+        # run on; findings §4c requires it to reproduce the sweep's factor.
+        import inspect
+
+        from tools import _corpus_page
+
+        source = inspect.getsource(_corpus_page.load_detection_pages)
+        self.assertIn("dimensions=", source)
+
+
 if __name__ == "__main__":
     unittest.main()

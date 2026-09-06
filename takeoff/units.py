@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-MM_PER_PX_AT_1_1 = 25.4 / 150.0   # 0.16933 mm of paper per pixel
+from scale.units import MM_PER_PX_AT_1_1  # noqa: F401 — 0.16933 mm of paper per pixel
 
 
 def effective_denominator(info) -> Optional[float]:

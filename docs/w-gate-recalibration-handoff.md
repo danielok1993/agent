@@ -1906,3 +1906,139 @@ factor — the census said so before the sweep). Report
 > Co-Authored-By or session trailer. End every report with the numbers:
 > lost, returned FPs, new REVIEW lines with your verdicts, net phantom
 > delta, and what is next.
+
+## Outcome — iteration 3, step 12 (2026-09-06, branch `recal/gate-denominator-stored-scale`, shipped pending the user's decision)
+
+`_gate_denominator` narrowed by the DRAWING'S OWN DIMENSION STRINGS. The
+user's decision (asked in plain terms — trust what was typed, trust only
+proven numbers, or both): "autodetect — if there are numbers to verify the
+claim we should use them … some builders who upload the PDF might not know
+what the scale is … either way verify the claim if possible", and build it
+although only s01 exercises it today. So: the ticked-dimension-string
+matcher moved from `takeoff/plausibility.py` into `scale/dimensions.py`
+(re-exported unchanged, one grammar; `MM_PER_PX_AT_1_1` now lives in
+`scale/units.py` because scale/ must not import takeoff/), `run_extract`
+matches the FULL page once and hands the list to both `detection_scale`
+and `compute_takeoff` (which no longer re-matches), and
+`scale/factor.py::_gate_choice` judges each floor-plan region by the ≥ 3
+strings drawn inside its own bbox (`measured_denominator`, the median;
+page-level fallback by all of them): agreement within 5 % VERIFIES the
+claim and a verified claim drives the gates whatever its number; a
+contradiction past 15 % replaces it with the measured scale
+(`SCALE_FACTOR_FROM_DIMENSIONS`, source `dimensions`, snapped to a standard
+scale when within 2 %; the takeoff keeps the claim and its
+`SCALE_IMPLAUSIBLE`); inconclusive or unmeasurable claims stand or abstain
+as before (`SCALE_FACTOR_MEASURED_ONLY` survives, narrowed to the
+unverified case). `DetectionScale.measured` and the summary's
+`detection.measured_denominator` record the page's measured scale. Tests:
+`tests/test_scale_factor.py::TestDimensionsVerifyTheClaim` (8),
+`tests/test_scale_dimensions.py` (6), wiring assertions in
+`test_scale_pipeline.py` (run_extract and `tools/_corpus_page.py`), and the
+takeoff's reuse of precomputed matches; bite-proven — with the two
+dimension branches disabled exactly the five rule tests fail. **Rule
+census as implemented (all 20 sheets): s01 24 + 7 strings, both plans
+verified at 1:92.21/92.23, factor 1.0 → 0.5423; every other sheet 0
+strings, factor unchanged.** Sweep vs the re-run baseline (0 LOST / 68 /
+0, verdict lines byte-identical to step 9): **s01 3 LOST — exactly the
+three retired stair verdicts (1090,699)–(1142,876), (466,920)–(521,1056),
+(1033,925)–(1142,1134) — 68 returned FPs (identical lines), 1 REVIEW (the
+merged landing (1032,697)–(1142,1136), 0.85, real); doors 11/11, windows
+4/4, rooms 9/12; 19 sheets entity- and polygon-IDENTICAL.** s01's polygons:
+the hall absorbs the CPD cupboard and the flight (+10.9k px², IoU 0.75
+against its verdict, still matched), six rooms gain 24–791 px²,
+unsimplified loss 143 px² in sub-pen slivers over all matched rooms
+against 12.6k gained; door_0012's folding bbox is 8 px shorter along its
+jamb (`DOOR_FOLD_JAMB_ANCHOR_TOL_PX` 5.4 px at 0.542, IoU 0.89, matched).
+Pre-existing, attributed by revert + re-run:
+`tests/test_takeoff_fn_equivalence.py` fails identically on the baseline
+tree (the function arm's page comes back unclassified — Gemini
+application-default credentials need a re-login: "Reauthentication
+failed"), which also blocks the s01 label reseed. Report
+`docs/w-gate-iter3-checkpoints/step-12.md` (3 PNGs). Same day, on the
+user's go ("you can retire the 3"), the three stair verdicts were removed
+from `tests/ground_truth/s01.json` (20 lines, 24 confirmed remain) and the
+re-sweep reads s01 11/11 / 9/9 / 4/4, exit 0, one unreviewed room — the
+landing, which the user then recorded through `tools/review.py s01`
+(confirmed 2026-09-06, note: "more stair at the bottom right need to be
+covered. The top left also has a slight notch and does not go all the way
+to the wall" — queued with the stair work) → **s01 10/10, exit 0**. The
+user re-logged in to gcloud and s01's label cache was reseeded at the new
+geometry (the same four names as at identity). Not committed.
+
+### Prompt for the next agent (iteration 3, step 4 — `WALL_MAX_THICKNESS_PX` 36 → 40 — fresh context)
+
+> Use `/fix-detection` for its discipline. Topic branch from
+> `recal/gate-denominator-stored-scale` once the user has committed it and
+> made the s01 data commit (`git log --all --oneline | head`; main is still
+> `ee0f52f`). Re-sweep that tree first in four background groups (s18; s16
+> s11 s15; s01–s07; the rest) and `compare_sweeps --snapshot` all 20 slugs,
+> never trusting what sits in `outputs/regress/`. Verdict reports diffed
+> section-wise; `tools/diff_room_polygons.py` after EVERY sweep;
+> `tools/room_shape_crop.py` for every room whose IoU moved under 0.99; a
+> scratch UNSIMPLIFIED diff whenever any room loses area; harness overrides
+> as MULTIPLIERS (`H.overrides(mult=...)`). s01 now sweeps at f = 0.542
+> (its stored 1:92.2 verified by 31 dimension strings) with 10 confirmed
+> rooms; the merged landing's verdict note asks for the bottom-right stair
+> to be covered and a top-left notch closed — stair-queue items, report
+> any move on them. Read first, in this order:
+> `docs/w-gate-iter3-checkpoints/step-12.md`, `step-11.md`, `step-3.md`
+> (what the cap holds on s01), the iteration-2 group-2 note on the 40 that
+> was tried and reverted (`docs/w-gate-iter2-checkpoints/group-2.md` and the
+> `WALL_MAX_THICKNESS_PX` comment in `detection/walls.py`), the CLAUDE.md
+> "Room detection" paragraph (the cap, the thick and through tiers,
+> `_claims_far_side_pair`, `_claims_far_side_sparse`) and "Wall/room
+> world-space gates", `docs/regression-testing-guide.md` §9 §10 §12 §13.
+> Scratch tooling: `tools/census_scratch/harness.py`,
+> `step11/implemented_census.py`; the harness cache is
+> `tools/census_scratch/cache/` — s01's pickle now carries factor 0.542
+> (delete a slug's pickle after any scale change).
+>
+> **Tree state**: seal 15, `_plane_stamp`, the material-seeking tail, the
+> doorway veto, and the dimension-verified gate scale (s01 detects at
+> 0.542 in the sweep); corpus 0 LOST / 68 returned FPs / 0 REVIEW once the
+> user has retired s01's three stair verdicts and recorded the merged
+> landing; s01's label cache reseeded at the new geometry (or still
+> pending — check `ROOM_LABEL_NO_GEMINI` on s01).
+>
+> **This step: `WALL_MAX_THICKNESS_PX` 36 → 40** (W-class; 340mm at 1:50).
+> Iteration 2 tried it and reverted because the 36–40px band is full of
+> fixtures at wall spacing that only material can separate — s02's WC
+> basin edge over two corner X symbols at 38.25px (since cleared by
+> iteration 3's far-side density rule), s01's 38.5px kitchen units. Census
+> every strong pair in the 36–40px band on all 20 sheets at their factors
+> (the harness's `wide_pairs` tap) with the pipeline's exact material
+> marks, class each as wall or fixture from the pictures, and find the
+> discriminator for whatever the far-side rules do not already catch
+> BEFORE moving the number. The s11 recess box (1030,1330)–(1123,1360),
+> the s15 annotation pocket (1480,698)–(1595,792) and the s18 tree strip
+> (156,724)–(197,863) must stay out; expected −5 recorded phantoms on
+> s16/s17 (the reveal strips, step 11's residue). s01 and s02 at f = 1.0
+> must not lose an entity.
+>
+> **After it (each its own iteration)**: the long queue — promotion of an
+> under-share wall pen by doorways on pen-independent material (s03's 0.73
+> grey, inert today); same-line tail material for s17 door_0016;
+> phase-invariant plug profiles; the dash-row text-mask join; the fallback
+> in-wall gate on tail-less plugs; band pockets / the recess class; Gap D of
+> `docs/hatch-cell-chords-handoff.md`; a jamb-scale floor for lining rings;
+> the lattice knife-edges; an open-arrowhead stair recognizer; interior
+> rings in the exported room polygon; s18's glyph-outline fill rings.
+>
+> Rules for the whole run: do not commit (the user commits); do not edit
+> `tests/ground_truth/*.json` or `fixtures/MANIFEST.json` without an
+> explicit go for that specific entry; never revert s01's truth scale
+> (1:92.2); never `git stash` (and in zsh an unquoted `$VAR` does NOT
+> word-split — pipe file lists through `xargs`); macOS has no `timeout`;
+> python is not on the shell path — use `.venv/bin/python` with an
+> ABSOLUTE path in background commands (the cwd resets); the venv lacks
+> InquirerPy; s02 at f = 1.0 must not change (entity set AND polygons), and
+> every s01 change is reported as a decision with its LOST lines named;
+> probe with the FULL wall material and the room stage's real barrier
+> rules, never an approximation; census the rule AS IMPLEMENTED
+> (with/without it on the pipeline's exact inputs); scratch scripts that
+> render pictures do so under `__main__` only; PNG crops go under
+> `docs/w-gate-iter3-checkpoints/` and must never show a street address or
+> planning-portal id (s02's title block carries one — never crop it);
+> commit messages carry no Co-Authored-By or session trailer. End every
+> report with the numbers: lost, returned FPs, new REVIEW lines with your
+> verdicts, net phantom delta, and what is next.

@@ -35,6 +35,7 @@ from gemini.room_label_cache import (
     load_labels,
     save_labels,
 )
+from scale.dimensions import dimension_matches
 from scale.factor import DetectionScale, detection_scale
 from scale.resolver import PageScales, resolve_page_scales, scale_summary_dict
 from scale.store import load_stored
@@ -697,9 +698,15 @@ def run_extract(
             # 2e. Detection scale factor — which scale governs the ink
             # detection sees, from the same regions/page_scales resolved
             # above. Computed unconditionally (even when detection itself
-            # is skipped) so the summary always records the factor.
+            # is skipped) so the summary always records the factor. The
+            # page's ticked dimension strings are matched ONCE here, on the
+            # full page, and shared with the takeoff below: they verify (or
+            # contradict) the resolved scale, which is what lets a
+            # non-standard stored scale — s01's 1:92.2 — drive the gates.
+            dimensions = dimension_matches(page_data.paths, page_data.text_spans)
             det_scale = detection_scale(
-                page_scales, region_result.regions, page_num)
+                page_scales, region_result.regions, page_num,
+                dimensions=dimensions)
 
             # 3. pdfplumber
             step("plumber")
@@ -764,6 +771,7 @@ def run_extract(
                 page_width_px=page_data.width_px,
                 page_height_px=page_data.height_px,
                 page_rotation=doc[idx].rotation,
+                dimension_matches=dimensions,
             )
             attach_takeoff(entities, takeoff_page)
             write_json(str(Path(page_dir) / "takeoff.json"), to_document(takeoff_page))

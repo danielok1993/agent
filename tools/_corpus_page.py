@@ -18,6 +18,7 @@ from detection.doors.detect import detect_doors
 from extraction.extractor import extract_page
 from models import PageData
 from pipeline import resolve_page_regions
+from scale.dimensions import page_dimensions
 from scale.factor import detection_scale
 from scale.resolver import resolve_page_scales
 from scale.store import load_stored
@@ -68,7 +69,10 @@ def load_detection_pages(slug: str, pages: list[int] | None = None) -> list[Dete
             stored=load_stored(pdf, pno + 1), fallback=None, pdf_path=pdf,
             crop_fn=None, allow_prompt=False, suspend_display=None,
         )
-        det = detection_scale(ps, rr.regions, pno + 1)
+        # The full page's dimension strings, as run_extract does it: they
+        # verify s01's stored 1:92.2 and its gates scale (step 12).
+        det = detection_scale(ps, rr.regions, pno + 1,
+                              dimensions=page_dimensions(page_data))
         pd = rr.detection_page_data
         doors = detect_doors(pd.paths, pd.text_spans, None, scale_factor=det.factor)
         out.append(DetectionPage(

@@ -262,6 +262,22 @@ class TestTakeoffPlausibility(unittest.TestCase):
         self.assertEqual((pl["status"], pl["method"], pl["n"]), ("ok", "dimensions", 3))
         self.assertEqual([w["warning_code"] for w in page.warnings], [])
 
+    def test_precomputed_dimension_matches_are_used_verbatim(self):
+        # run_extract matches the page once (for the gates) and passes the
+        # list in; compute_takeoff must use it rather than re-matching —
+        # here there are no paths at all, so a re-match would find nothing.
+        from takeoff.plausibility import DimensionMatch
+        matches = [DimensionMatch(value_mm=3600.0, length_px=525.2,
+                                  implied_denominator=50.0)] * 3
+        room = _room("room_0000", 100, 100, 700, 700)
+        e, c = _swing("door_0000", 120, 100, 0.38 * PX_PER_M_50)
+        e2, c2 = _swing("door_0001", 270, 100, 0.40 * PX_PER_M_50)
+        page = compute_takeoff([room, e, e2], [c, c2], SCALES_TEXT, [REGION], DET50,
+                               HEIGHTS, 1, "", 420, 297, dimension_matches=matches)
+        self.assertIs(page.dimension_matches, matches)
+        pl = page.rooms[0].scale.to_dict()["plausibility"]
+        self.assertEqual((pl["status"], pl["method"], pl["n"]), ("ok", "dimensions", 3))
+
     def test_inconclusive_dimensions_are_not_overruled_by_doors(self):
         # s01 at the user's 1:100: 31 dimensions measure 1:92.2 (7.8% off) —
         # that stays the verdict, with the implied value visible; the coarser

@@ -11,6 +11,13 @@ from typing import Optional
 
 MM_PER_PT = 25.4 / 72  # 0.352777...
 
+# Everything downstream of extraction/extractor.py is 150-DPI pixel space, so
+# a pixel is 25.4/150 mm on paper; a drawing at 1:D puts D real mm in every
+# paper mm. Defined here (takeoff/units.py re-exports it) because the
+# dimension-string measurement in scale/dimensions.py needs it and scale/ must
+# not import takeoff/ — takeoff imports detection.
+MM_PER_PX_AT_1_1 = 25.4 / 150.0   # 0.16933 mm of paper per pixel
+
 # A viewport at 1:1 is the sheet of paper, not a drawing. Ten of the corpus
 # sheets carry one; s03, s04, s08 and s17 span the whole page with it.
 PAPER_SPACE_MAX_DENOMINATOR = 1.5

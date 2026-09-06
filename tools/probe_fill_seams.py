@@ -46,6 +46,7 @@ import detection.walls as W  # noqa: E402
 from detection.geometry import _distance, _line_angle_deg, _line_length  # noqa: E402
 from extraction.extractor import extract_page  # noqa: E402
 from pipeline import resolve_page_regions  # noqa: E402
+from scale.dimensions import page_dimensions  # noqa: E402
 from scale.factor import detection_scale  # noqa: E402
 from scale.resolver import resolve_page_scales  # noqa: E402
 from scale.store import load_stored  # noqa: E402
@@ -114,7 +115,8 @@ def main() -> None:
             stored=load_stored(pdf, pno + 1), fallback=None, pdf_path=pdf,
             crop_fn=None, allow_prompt=False, suspend_display=None,
         )
-        det = detection_scale(ps, rr.regions, pno + 1)
+        det = detection_scale(ps, rr.regions, pno + 1,
+                              dimensions=page_dimensions(page_data))
         gates = W.WallGates.at(det.factor)
         paths = rr.detection_page_data.paths
         by_idx = {p.path_index: p for p in paths}

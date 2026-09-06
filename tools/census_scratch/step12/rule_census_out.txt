@@ -1,0 +1,94 @@
+s01 p1: page strings 31 (measured page 92.22)
+    region_0000: claim user 92.2 | strings inside 24 -> measured 92.21 | gate 92.2 (verified)
+    region_0001: claim user 92.2 | strings inside 7 -> measured 92.23 | gate 92.2 (verified)
+    before: f=1.0000 measured 92.2 ['SCALE_FACTOR_MEASURED_ONLY']
+    after : f=0.5423 floor_plan_regions 92.2 []
+    *** FACTOR CHANGED ***
+s02 p1: page strings 0 (measured page None)
+    region_0000: claim text 50.0 | strings inside 0 -> measured None | gate 50.0 (claim)
+    before: f=1.0000 floor_plan_regions 50.0 []
+    after : f=1.0000 floor_plan_regions 50.0 []
+s03 p1: page strings 0 (measured page None)
+    region_0000: claim viewport 100.0 | strings inside 0 -> measured None | gate 100.0 (claim)
+    region_0001: claim viewport 100.0 | strings inside 0 -> measured None | gate 100.0 (claim)
+    region_0003: claim viewport 50.0 | strings inside 0 -> measured None | gate 50.0 (claim)
+    before: f=1.0000 floor_plan_regions 50.0 ['SCALE_MIXED_FLOOR_PLANS']
+    after : f=1.0000 floor_plan_regions 50.0 ['SCALE_MIXED_FLOOR_PLANS']
+s04 p1: page strings 0 (measured page None)
+    region_0000: claim viewport 50.0 | strings inside 0 -> measured None | gate 50.0 (claim)
+    before: f=1.0000 floor_plan_regions 50.0 []
+    after : f=1.0000 floor_plan_regions 50.0 []
+s05 p1: page strings 0 (measured page None)
+    region_0000: claim viewport 100.0 | strings inside 0 -> measured None | gate 100.0 (claim)
+    before: f=0.5000 floor_plan_regions 100.0 []
+    after : f=0.5000 floor_plan_regions 100.0 []
+s06 p1: page strings 0 (measured page None)
+    region_0004: claim viewport 100.0 | strings inside 0 -> measured None | gate 100.0 (claim)
+    region_0005: claim viewport 100.0 | strings inside 0 -> measured None | gate 100.0 (claim)
+    before: f=0.5000 floor_plan_regions 100.0 []
+    after : f=0.5000 floor_plan_regions 100.0 []
+s07 p1: page strings 0 (measured page None)
+    region_0000: claim viewport 100.0 | strings inside 0 -> measured None | gate 100.0 (claim)
+    before: f=0.5000 floor_plan_regions 100.0 []
+    after : f=0.5000 floor_plan_regions 100.0 []
+s08 p1: page strings 0 (measured page None)
+    region_0000: claim viewport 50.0 | strings inside 0 -> measured None | gate 50.0 (claim)
+    before: f=1.0000 floor_plan_regions 50.0 []
+    after : f=1.0000 floor_plan_regions 50.0 []
+s09 p1: page strings 0 (measured page None)
+    before: f=1.0000 unresolved None []
+    after : f=1.0000 unresolved None []
+s10 p1: page strings 0 (measured page None)
+    region_0002: claim user 50.0 | strings inside 0 -> measured None | gate 50.0 (claim)
+    region_0005: claim user 50.0 | strings inside 0 -> measured None | gate 50.0 (claim)
+    before: f=1.0000 floor_plan_regions 50.0 []
+    after : f=1.0000 floor_plan_regions 50.0 []
+s11 p1: page strings 0 (measured page None)
+    region_0000: claim user 100.0 | strings inside 0 -> measured None | gate 100.0 (claim)
+    region_0002: claim user 100.0 | strings inside 0 -> measured None | gate 100.0 (claim)
+    before: f=0.5000 floor_plan_regions 100.0 []
+    after : f=0.5000 floor_plan_regions 100.0 []
+s12 p1: page strings 0 (measured page None)
+    region_0000: claim viewport 100.0 | strings inside 0 -> measured None | gate 100.0 (claim)
+    region_0007: claim viewport 100.0 | strings inside 0 -> measured None | gate 100.0 (claim)
+    before: f=0.5000 floor_plan_regions 100.0 []
+    after : f=0.5000 floor_plan_regions 100.0 []
+s13 p1: page strings 0 (measured page None)
+    region_0002: claim viewport 136.40428346456693 | strings inside 0 -> measured None | gate 136.40428346456693 (claim)
+    region_0003: claim viewport 136.40428346456693 | strings inside 0 -> measured None | gate 136.40428346456693 (claim)
+    before: f=0.3666 floor_plan_regions 136.40428346456693 []
+    after : f=0.3666 floor_plan_regions 136.40428346456693 []
+s14 p1: page strings 0 (measured page None)
+    region_0002: claim text 50.0 | strings inside 0 -> measured None | gate 50.0 (claim)
+    before: f=1.0000 floor_plan_regions 50.0 []
+    after : f=1.0000 floor_plan_regions 50.0 []
+s15 p1: page strings 0 (measured page None)
+    region_0000: claim viewport 50.0 | strings inside 0 -> measured None | gate 50.0 (claim)
+    before: f=1.0000 floor_plan_regions 50.0 []
+    after : f=1.0000 floor_plan_regions 50.0 []
+s16 p1: page strings 0 (measured page None)
+    region_0000: claim user 100.0 | strings inside 0 -> measured None | gate 100.0 (claim)
+    region_0002: claim user 100.0 | strings inside 0 -> measured None | gate 100.0 (claim)
+    before: f=0.5000 floor_plan_regions 100.0 []
+    after : f=0.5000 floor_plan_regions 100.0 []
+s17 p1: page strings 0 (measured page None)
+    region_0010: claim viewport 100.0 | strings inside 0 -> measured None | gate 100.0 (claim)
+    region_0011: claim viewport 100.0 | strings inside 0 -> measured None | gate 100.0 (claim)
+    region_0016: claim viewport 50.0 | strings inside 0 -> measured None | gate 50.0 (claim)
+    region_0020: claim viewport 50.0 | strings inside 0 -> measured None | gate 50.0 (claim)
+    before: f=1.0000 floor_plan_regions 50.0 ['SCALE_MIXED_FLOOR_PLANS']
+    after : f=1.0000 floor_plan_regions 50.0 ['SCALE_MIXED_FLOOR_PLANS']
+s18 p1: page strings 0 (measured page None)
+    region_0001: claim user 100.0 | strings inside 0 -> measured None | gate 100.0 (claim)
+    region_0003: claim user 100.0 | strings inside 0 -> measured None | gate 100.0 (claim)
+    before: f=0.5000 floor_plan_regions 100.0 []
+    after : f=0.5000 floor_plan_regions 100.0 []
+s19 p1: page strings 0 (measured page None)
+    before: f=1.0000 unresolved None []
+    after : f=1.0000 unresolved None []
+s20 p1: page strings 0 (measured page None)
+    region_0002: claim user 50.0 | strings inside 0 -> measured None | gate 50.0 (claim)
+    region_0004: claim user 50.0 | strings inside 0 -> measured None | gate 50.0 (claim)
+    before: f=1.0000 floor_plan_regions 50.0 []
+    after : f=1.0000 floor_plan_regions 50.0 []
+exit=0

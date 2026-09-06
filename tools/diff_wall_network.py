@@ -51,6 +51,7 @@ from detection.doors.detect import detect_doors
 from detection.geometry import _line_length
 from extraction.extractor import extract_page
 from pipeline import resolve_page_regions
+from scale.dimensions import page_dimensions
 from scale.factor import detection_scale
 from scale.resolver import resolve_page_scales
 from scale.store import load_stored
@@ -65,7 +66,7 @@ ps = resolve_page_scales(page_data=page_data, regions=rr.regions,
                          viewports=viewport_scales(doc, doc[pno - 1]),
                          stored=load_stored(pdf, pno), fallback=None, pdf_path=pdf,
                          crop_fn=None, allow_prompt=False, suspend_display=None)
-det = detection_scale(ps, rr.regions, pno)
+det = detection_scale(ps, rr.regions, pno, dimensions=page_dimensions(page_data))
 pd = rr.detection_page_data
 doors = detect_doors(pd.paths, pd.text_spans, None, scale_factor=det.factor)
 excl = door_open_leaf_path_indices(doors, pd.paths)

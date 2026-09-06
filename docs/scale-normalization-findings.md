@@ -1029,6 +1029,31 @@ short of the jamb and 6.5px does not reach. So the true factor waits on a
 ground-truth decision about s01's stair rooms and on the seal (iteration 3
 steps 5–7), not on another wall rule.
 
+**Step 12 (2026-09-06, `docs/w-gate-iter3-checkpoints/step-12.md`) — the
+rule above is narrowed, not retired.** With the seal at 15, the
+material-seeking tail, the plane-restricted stamp and the doorway veto
+shipped (iteration 3 steps 5–11), s01 at 0.542 keeps 11/11 doors, 4/4
+windows and every non-stair room, and the user retired the three stair
+verdicts. What now admits the measured scale is the drawing itself: the
+dimension-string matcher moved from `takeoff/plausibility.py` into
+`scale/dimensions.py` (re-exported unchanged), `run_extract` matches the
+full page once and hands the list to both `detection_scale` and
+`compute_takeoff`, and `scale/factor.py::_gate_choice` judges each
+floor-plan region by the ≥ 3 strings inside its bbox: agreement within
+`DIM_AGREE_TOL` (5 %) VERIFIES the claim — a verified claim drives the
+gates whatever its number (s01: 31 strings within ±0.5 % of 1:92.2, 24 in
+the ground-floor plan and 7 in the first-floor) — a contradiction past
+`DIM_DISAGREE_TOL` (15 %) sends the gates to the MEASURED scale instead
+(`SCALE_FACTOR_FROM_DIMENSIONS`; the takeoff keeps the claim and flags it
+`SCALE_IMPLAUSIBLE`), and an inconclusive or unmeasurable claim stands or
+abstains exactly as before (`SCALE_FACTOR_MEASURED_ONLY` survives for the
+unverified case). The user's direction: verify a claim from the drawing's
+own numbers whenever they exist, and build the machinery although only
+s01 exercises it today — s01 is the only corpus sheet with any matched
+dimension strings (every other sheet has 0), so the sweep is entity- and
+polygon-identical on 19 sheets and s01 loses exactly the three retired
+verdicts and gains the merged landing as one REVIEW line.
+
 ## 5. Decisions (2026-08-12 brainstorm, user-approved)
 
 1. **Approach: thread a scale factor** into walls/rooms and scale classified

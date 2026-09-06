@@ -19,7 +19,9 @@ from takeoff.heights import Heights
 from takeoff.openings import (
     assign_openings, opening_width_px, opening_width_px_from_evidence,
 )
-from takeoff.plausibility import assess_scale, dimension_matches, leaf_width_px
+from takeoff.plausibility import (
+    assess_scale, dimension_matches as match_dimensions, leaf_width_px,
+)
 from takeoff.scale import (
     RoomScale, is_verified, select_room_scale, sheet_size_tokens, verify_sheet_size,
 )
@@ -166,7 +168,12 @@ def compute_takeoff(entities, candidates, page_scales, regions, det_scale, heigh
                     page_number: int, page_text: str, page_w_mm: float, page_h_mm: float,
                     paths=(), text_spans=(),
                     page_width_px: float = 0.0, page_height_px: float = 0.0,
-                    page_rotation: int = 0) -> TakeoffPage:
+                    page_rotation: int = 0,
+                    dimension_matches: Optional[list] = None) -> TakeoffPage:
+    """`dimension_matches`: the page's ticked-dimension-string matches, when
+    the caller already has them — run_extract matches the full page once for
+    the detection gates (scale/dimensions.py) and passes the list in; left
+    None they are matched here from `paths` / `text_spans`."""
     page = TakeoffPage(page_number=page_number, heights=heights)
     page.page_frame = PageFrame(page_width_px, page_height_px, page_rotation)
     page.scale_block = scale_summary_dict(page_scales, det_scale)
@@ -271,7 +278,8 @@ def compute_takeoff(entities, candidates, page_scales, regions, det_scale, heigh
             w = leaf_width_px(evidence.get(oid, {}))
             if w is not None:
                 bucket.append(w)
-    page.dimension_matches = dimension_matches(list(paths), list(text_spans))
+    page.dimension_matches = (dimension_matches if dimension_matches is not None
+                              else match_dimensions(list(paths), list(text_spans)))
     verdicts = {D: assess_scale(D, leaves, page.dimension_matches)
                 for D, leaves in leaves_by_denom.items()}
     page.verdicts = verdicts

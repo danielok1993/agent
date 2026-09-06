@@ -1,5 +1,8 @@
 """Drawing-scale resolution: read a 1:N scale from the PDF and bind it to a plan."""
 from models import ScaleInfo
+from scale.dimensions import (
+    DimensionMatch, dimension_matches, measured_denominator, page_dimensions,
+)
 from scale.factor import (
     DETECTION_FACTOR_MAX, DETECTION_FACTOR_MIN,
     DETECTION_REFERENCE_DENOMINATOR, DetectionScale, detection_scale,
@@ -24,6 +27,7 @@ __all__ = [
     "DETECTION_FACTOR_MIN",
     "DETECTION_REFERENCE_DENOMINATOR",
     "DetectionScale",
+    "DimensionMatch",
     "MM_PER_PT",
     "PAPER_SPACE_MAX_DENOMINATOR",
     "PageScales",
@@ -34,7 +38,10 @@ __all__ = [
     "cluster_denominators",
     "denominator_from_c",
     "detection_scale",
+    "dimension_matches",
     "format_scale",
+    "measured_denominator",
+    "page_dimensions",
     "resolve_page_scales",
     "scales_in_text",
     "snap_to_standard",

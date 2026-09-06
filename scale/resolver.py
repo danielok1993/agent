@@ -61,10 +61,15 @@ def scale_summary_dict(page_scales: PageScales, det_scale: "DetectionScale | Non
         "page_scale": one(page_scales.page_scale) if page_scales.page_scale else None,
     }
     if det_scale is not None:
+        measured = getattr(det_scale, "measured", None)
         out["detection"] = {
             "factor": round(det_scale.factor, 4),
             "denominator": det_scale.denominator,
             "source": det_scale.source,
+            # The page's dimension-string scale (scale/dimensions.py), which
+            # verified or overrode the claim above — None when the page has
+            # too few matched strings to measure one.
+            "measured_denominator": None if measured is None else round(measured, 1),
         }
     return out
 

@@ -48,11 +48,12 @@ class TestDetectionScale(unittest.TestCase):
         ds = detection_scale(ps, [region("region_0000")], page_number=1)
         self.assertAlmostEqual(ds.factor, 50.0 / 136.4)
 
-    def test_measured_nonstandard_scale_does_not_drive_gates(self):
-        # s01: user-stored 1:92.2 (dimension-measured plot metric, nominal
-        # None, not viewport-declared). The takeoff uses it; the gates must
-        # not — the W constants were calibrated on this very ink at factor
-        # 1.0, and scaling them regressed s01 from 13/13 rooms to 7/13.
+    def test_unverified_nonstandard_scale_does_not_drive_gates(self):
+        # A user-stored 1:92.2 (nominal None, not viewport-declared) with NO
+        # dimension strings to verify it: a measurement of the plot the
+        # takeoff uses but that nothing on the drawing corroborates, so the
+        # gates abstain. With dimensions that agree it drives them — see
+        # TestDimensionsVerifyTheClaim (s01, W-gate iteration 3 step 12).
         ps = PageScales(by_region={
             "region_0000": ScaleInfo(denominator=92.2, source="user",
                                      nominal=None),
@@ -182,6 +183,141 @@ class TestDetectionScale(unittest.TestCase):
                    region("region_0001", path_count=500)]
         ds = detection_scale(ps, regions, page_number=1)
         self.assertEqual(ds.denominator, 50.0)   # tie -> less aggressive scaling
+
+
+def dims(implied, n=3, x=50.0, y=50.0):
+    """n ticked dimension strings measuring 1:implied, drawn around (x, y)."""
+    from scale.dimensions import DimensionMatch
+
+    return [DimensionMatch(value_mm=1000.0,
+                           length_px=1000.0 / (implied * 25.4 / 150),
+                           implied_denominator=implied,
+                           line=((x - 10.0, y), (x + 10.0, y)))
+            for _ in range(n)]
+
+
+class TestDimensionsVerifyTheClaim(unittest.TestCase):
+    """The drawing's ticked dimension strings measure its scale (W-gate
+    iteration 3 step 12). At least DIM_MIN_MATCHES of them inside a plan
+    verify a claimed scale within DIM_AGREE_TOL — and a verified claim drives
+    the gates whatever its number — or contradict it past DIM_DISAGREE_TOL,
+    in which case the measured scale drives the gates instead."""
+
+    def test_dimension_verified_nonstandard_scale_drives_gates(self):
+        # s01: stored 1:92.2, nominal None; 31 dimension strings agree.
+        ps = PageScales(by_region={
+            "region_0000": ScaleInfo(denominator=92.2, source="user",
+                                     nominal=None)})
+        ds = detection_scale(ps, [region("region_0000")], page_number=1,
+                             dimensions=dims(92.2, n=31))
+        self.assertAlmostEqual(ds.factor, 50.0 / 92.2)
+        self.assertEqual(ds.denominator, 92.2)
+        self.assertEqual(ds.source, "floor_plan_regions")
+        self.assertAlmostEqual(ds.measured, 92.2)
+        self.assertEqual(ds.warnings, [])
+
+    def test_fewer_than_three_dimensions_verify_nothing(self):
+        ps = PageScales(by_region={
+            "region_0000": ScaleInfo(denominator=92.2, source="user",
+                                     nominal=None)})
+        ds = detection_scale(ps, [region("region_0000")], page_number=1,
+                             dimensions=dims(92.2, n=2))
+        self.assertEqual(ds.factor, 1.0)
+        self.assertEqual(ds.source, "measured")
+        self.assertIsNone(ds.measured)
+        self.assertEqual(ds.warnings[0]["warning_code"],
+                         "SCALE_FACTOR_MEASURED_ONLY")
+
+    def test_dimensions_contradicting_the_claim_drive_the_gates(self):
+        # A half-size print: the viewport (or caption) says 1:50, the
+        # dimension strings measure 1:100. The gates follow the ink; the
+        # takeoff keeps the claim and flags it SCALE_IMPLAUSIBLE.
+        ps = PageScales(by_region={
+            "region_0000": ScaleInfo(denominator=50.0, source="viewport",
+                                     nominal=50.0)})
+        ds = detection_scale(ps, [region("region_0000")], page_number=4,
+                             dimensions=dims(99.6, n=5))
+        self.assertEqual(ds.factor, 0.5)          # snapped: exact, like nominal
+        self.assertEqual(ds.denominator, 100.0)
+        self.assertEqual(ds.source, "dimensions")
+        self.assertAlmostEqual(ds.measured, 99.6)
+        self.assertEqual([w["warning_code"] for w in ds.warnings],
+                         ["SCALE_FACTOR_FROM_DIMENSIONS"])
+        self.assertEqual(ds.warnings[0]["page_number"], 4)
+        self.assertIn("1:100", ds.warnings[0]["message"])
+        self.assertIn("1:50", ds.warnings[0]["message"])
+
+    def test_inconclusive_dimensions_leave_the_claim_alone(self):
+        # 8 % off: neither agreement nor contradiction. A nominal claim
+        # drives the gates as it always did; an unsnapped one still abstains.
+        ps = PageScales(by_region={
+            "region_0000": ScaleInfo(denominator=50.0, source="viewport",
+                                     nominal=50.0)})
+        ds = detection_scale(ps, [region("region_0000")], page_number=1,
+                             dimensions=dims(54.0))
+        self.assertEqual(ds.factor, 1.0)
+        self.assertEqual(ds.source, "floor_plan_regions")
+        self.assertEqual(ds.warnings, [])
+
+        ps = PageScales(by_region={
+            "region_0000": ScaleInfo(denominator=92.2, source="user",
+                                     nominal=None)})
+        ds = detection_scale(ps, [region("region_0000")], page_number=1,
+                             dimensions=dims(100.0))
+        self.assertEqual(ds.factor, 1.0)
+        self.assertEqual(ds.source, "measured")
+        self.assertEqual(ds.warnings[0]["warning_code"],
+                         "SCALE_FACTOR_MEASURED_ONLY")
+
+    def test_dimensions_are_read_per_plan(self):
+        # A mixed sheet: a 1:100 viewport plan and a stored-1:92.2 plan.
+        # Each plan's own dimension strings judge its own claim, so the
+        # 1:92.2 plan is verified by the strings drawn inside it and votes
+        # (ink-dominant here) — while strings drawn in the OTHER plan, or in
+        # no plan at all, verify nothing for it.
+        a = Region(region_id="a", bbox=(0, 0, 100, 100),
+                   region_type="floor_plan", path_count=100)
+        b = Region(region_id="b", bbox=(200, 0, 300, 100),
+                   region_type="floor_plan", path_count=2000)
+        ps = PageScales(by_region={
+            "a": ScaleInfo(denominator=100.0, source="viewport", nominal=100.0),
+            "b": ScaleInfo(denominator=92.2, source="user", nominal=None)})
+
+        ds = detection_scale(ps, [a, b], page_number=1,
+                             dimensions=dims(100.0, x=50) + dims(92.2, x=250))
+        self.assertEqual(ds.denominator, 92.2)
+        codes = [w["warning_code"] for w in ds.warnings]
+        self.assertEqual(codes, ["SCALE_MIXED_FLOOR_PLANS"])
+
+        for where in (50.0, 150.0):        # inside a / between the plans
+            ds = detection_scale(ps, [a, b], page_number=1,
+                                 dimensions=dims(92.2, x=where))
+            self.assertEqual(ds.denominator, 100.0)
+            self.assertIn("SCALE_FACTOR_MEASURED_ONLY",
+                          [w["warning_code"] for w in ds.warnings])
+
+    def test_page_scale_is_verified_by_the_page_dimensions(self):
+        ps = PageScales(by_region={}, page_scale=ScaleInfo(
+            denominator=92.2, source="text", nominal=None))
+        ds = detection_scale(ps, [], page_number=2, dimensions=dims(92.2))
+        self.assertAlmostEqual(ds.factor, 50.0 / 92.2)
+        self.assertEqual(ds.source, "page")
+        self.assertEqual(ds.warnings, [])
+
+    def test_page_scale_contradicted_by_the_page_dimensions(self):
+        ps = PageScales(by_region={}, page_scale=ScaleInfo(
+            denominator=50.0, source="text", nominal=50.0))
+        ds = detection_scale(ps, [], page_number=2, dimensions=dims(100.0))
+        self.assertEqual(ds.factor, 0.5)
+        self.assertEqual(ds.source, "dimensions")
+        self.assertEqual([w["warning_code"] for w in ds.warnings],
+                         ["SCALE_FACTOR_FROM_DIMENSIONS"])
+
+    def test_no_dimensions_argument_is_the_old_behaviour(self):
+        ps = PageScales(by_region={"region_0000": info(100.0)})
+        ds = detection_scale(ps, [region("region_0000")], page_number=1)
+        self.assertEqual(ds.factor, 0.5)
+        self.assertIsNone(ds.measured)
 
 
 class TestSuppliedScaleDrivesTheGates(unittest.TestCase):
