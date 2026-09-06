@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1788606772.348526,
-    "ast_hash": "e1ed9925834b1f808ac05f287616a0d2",
+    "mtime": 1788613642.7009277,
+    "ast_hash": "03a23eb6812b7a8951b00bb9c1d52001",
     "semantic_hash": ""
   },
   "README.md": {
@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "detection/rooms.py": {
-    "mtime": 1788606794.5596101,
-    "ast_hash": "3e23ded469f8ac3c16948a831d8878e6",
+    "mtime": 1788613657.3356957,
+    "ast_hash": "b7e62d15edd3be80ecda83945d7b96b1",
     "semantic_hash": ""
   },
   "tests/test_cross_validate.py": {
@@ -260,8 +260,8 @@
     "semantic_hash": ""
   },
   "tests/test_room_detection.py": {
-    "mtime": 1788605962.2094717,
-    "ast_hash": "d696b666d7a8b2794d8bfa21b54a9f76",
+    "mtime": 1788612915.6742737,
+    "ast_hash": "9db55d047d952d6d8865ea65245913fd",
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
@@ -1045,8 +1045,8 @@
     "semantic_hash": ""
   },
   "docs/w-gate-recalibration-handoff.md": {
-    "mtime": 1788604603.147599,
-    "ast_hash": "1bb88252c948ea5bcab2e5cd53f214a3",
+    "mtime": 1788613697.2683682,
+    "ast_hash": "d16e2ad6b0494b1e0f1a6af9b0daae59",
     "semantic_hash": ""
   },
   "takeoff/document.py": {
@@ -1867,6 +1867,126 @@
   "docs/w-gate-iter3-checkpoints/step10_s18_room_0002_door_0018_doorway_regained_before_after.png": {
     "mtime": 1788606705.5501974,
     "ast_hash": "518e99b443add5b0bfa7715fab104975",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/crop_step11.py": {
+    "mtime": 1788613558.571869,
+    "ast_hash": "bf409c534b40affbd2a19134801b7d88",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/implemented_census.py": {
+    "mtime": 1788612925.8340678,
+    "ast_hash": "d9efafb918a1a9e21c24f02abc9014e6",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/jamb_pens.json": {
+    "mtime": 1788611270.6180983,
+    "ast_hash": "c1cd3890a7d2300ac22bc6a1352bd167",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/jamb_pens.py": {
+    "mtime": 1788610985.701289,
+    "ast_hash": "a7281e98bde4f0f9e61e9f7864b43f28",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/pen_census.json": {
+    "mtime": 1788610878.4798539,
+    "ast_hash": "47e3682e9d792787741d9e116db43afc",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/pen_census.py": {
+    "mtime": 1788610829.908034,
+    "ast_hash": "846a9d44f39ee4bb4ec9e1369796a94f",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/render_pens.py": {
+    "mtime": 1788611126.7916386,
+    "ast_hash": "e50edd49b158c3a1c50109e7bac38d6d",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/rule_census.json": {
+    "mtime": 1788612467.3198123,
+    "ast_hash": "af8753c8ae41946654f8fa8e0c0fb980",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/rule_census.py": {
+    "mtime": 1788612276.3281376,
+    "ast_hash": "50e53bf86228d48a3e24a5d76b222b95",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/tail_pens.json": {
+    "mtime": 1788611444.369183,
+    "ast_hash": "09d9a65d10f79ccb8197d0a2c4ddc514",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/tail_pens.py": {
+    "mtime": 1788611404.8317933,
+    "ast_hash": "57869623cb14681f90d156433b53ef88",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/tail_pens2.json": {
+    "mtime": 1788611670.6169188,
+    "ast_hash": "cd8dd562a1ae106d18910a8b835d0343",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/tail_pens2.py": {
+    "mtime": 1788611601.9470224,
+    "ast_hash": "d83a6669e3e90eb56f4caaed55d9c408",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step-10.md": {
+    "mtime": 1788606961.2855825,
+    "ast_hash": "6bd225d74f4f9564c0fb0a79677758f7",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step-11.md": {
+    "mtime": 1788613753.442869,
+    "ast_hash": "88a5d01d73d158de111cad8655f8721f",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/README.md": {
+    "mtime": 1788613765.5185895,
+    "ast_hash": "e6e1be239a5da9188aa6da30e453f512",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/implemented_census_out.txt": {
+    "mtime": 1788613182.5533376,
+    "ast_hash": "e45a4683376f2db4f2f93ca05c7eeb17",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/jamb_pens_out.txt": {
+    "mtime": 1788611027.7872036,
+    "ast_hash": "5a2526e303d122aca16855d482b70325",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/pen_census_out.txt": {
+    "mtime": 1788610878.4806843,
+    "ast_hash": "3092a768dce54cd3915658a75e8e0fc4",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/rule_census_out.txt": {
+    "mtime": 1788612467.3254616,
+    "ast_hash": "a3d4e69ec860edfe42e2200716168318",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/tail_pens2_out.txt": {
+    "mtime": 1788611670.6182728,
+    "ast_hash": "784e484719704a24d41d7b8057c53676",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/tail_pens_out.txt": {
+    "mtime": 1788611444.3701785,
+    "ast_hash": "c6b3bd779cc6b93994b160ca879ec2c6",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step11_s01_first_floor_furniture_pen_veto_0542_before_after.png": {
+    "mtime": 1788613579.3493652,
+    "ast_hash": "050a32e60eb0be021aab4d3e112aad15",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step11_s01_ground_floor_furniture_pen_veto_0542_before_after.png": {
+    "mtime": 1788613579.2806652,
+    "ast_hash": "69d235c72e579fbb2265abb1b6b98af4",
     "semantic_hash": ""
   }
 }

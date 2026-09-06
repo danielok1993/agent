@@ -150,8 +150,8 @@
     "semantic_hash": ""
   },
   "pipeline.py": {
-    "mtime": 1788330404.000677,
-    "ast_hash": "65f69670731222daec4e1a6fdab3cb25",
+    "mtime": 1788691401.712851,
+    "ast_hash": "7d59d15b6e12a6211587a5f7fe19eaf5",
     "semantic_hash": ""
   },
   "tests/__init__.py": {
@@ -190,8 +190,8 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1788606772.348526,
-    "ast_hash": "e1ed9925834b1f808ac05f287616a0d2",
+    "mtime": 1788691594.5317826,
+    "ast_hash": "ceeb3462ca81ef7ae88c7c9c128a3a56",
     "semantic_hash": ""
   },
   "README.md": {
@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "detection/rooms.py": {
-    "mtime": 1788606794.5596101,
-    "ast_hash": "3e23ded469f8ac3c16948a831d8878e6",
+    "mtime": 1788613657.3356957,
+    "ast_hash": "b7e62d15edd3be80ecda83945d7b96b1",
     "semantic_hash": ""
   },
   "tests/test_cross_validate.py": {
@@ -260,8 +260,8 @@
     "semantic_hash": ""
   },
   "tests/test_room_detection.py": {
-    "mtime": 1788605962.2094717,
-    "ast_hash": "d696b666d7a8b2794d8bfa21b54a9f76",
+    "mtime": 1788612915.6742737,
+    "ast_hash": "9db55d047d952d6d8865ea65245913fd",
     "semantic_hash": ""
   },
   "tests/test_wall_network.py": {
@@ -620,8 +620,8 @@
     "semantic_hash": ""
   },
   "scale/__init__.py": {
-    "mtime": 1787953295.6383064,
-    "ast_hash": "7de64bf107fa833425e81658005a61cb",
+    "mtime": 1788691401.712995,
+    "ast_hash": "5a916729071f763720200b36efc9c14f",
     "semantic_hash": ""
   },
   "scale/prompt.py": {
@@ -630,8 +630,8 @@
     "semantic_hash": ""
   },
   "scale/resolver.py": {
-    "mtime": 1788330404.0015395,
-    "ast_hash": "6fe9824c2859671a0e084c7a7d9eff42",
+    "mtime": 1788691401.713247,
+    "ast_hash": "f1f05bdf00b0479c0e7f44a82aad6246",
     "semantic_hash": ""
   },
   "scale/store.py": {
@@ -645,8 +645,8 @@
     "semantic_hash": ""
   },
   "scale/units.py": {
-    "mtime": 1788330404.0016758,
-    "ast_hash": "c64df1cd9739e6124f5e8d9e907c2e59",
+    "mtime": 1788691401.713379,
+    "ast_hash": "06e66b2acccf0271a96568d29fc43282",
     "semantic_hash": ""
   },
   "scale/viewport.py": {
@@ -740,8 +740,8 @@
     "semantic_hash": ""
   },
   "tests/test_scale_pipeline.py": {
-    "mtime": 1788330404.0024924,
-    "ast_hash": "8f286de2cd38516d6b00b8e5dfad334c",
+    "mtime": 1788691401.7141747,
+    "ast_hash": "da49302a6076a44446376d7ab21771da",
     "semantic_hash": ""
   },
   "tests/test_scale_prompt.py": {
@@ -785,8 +785,8 @@
     "semantic_hash": ""
   },
   "scale/factor.py": {
-    "mtime": 1787953295.638415,
-    "ast_hash": "eae5044b4cee5952c53b8e0ef99cfac6",
+    "mtime": 1788691456.8236768,
+    "ast_hash": "f5ff0623bd9c1524c712d54db0d2d170",
     "semantic_hash": ""
   },
   "tests/test_scale_corpus.py": {
@@ -795,8 +795,8 @@
     "semantic_hash": ""
   },
   "tests/test_scale_factor.py": {
-    "mtime": 1788330404.002369,
-    "ast_hash": "efe891177b6cb8b4dcf4dc039f73a780",
+    "mtime": 1788691401.7140784,
+    "ast_hash": "bd61cea9207bdd0356600473320d2e95",
     "semantic_hash": ""
   },
   "tests/test_scale_inspector.py": {
@@ -810,8 +810,8 @@
     "semantic_hash": ""
   },
   "docs/scale-normalization-findings.md": {
-    "mtime": 1788606793.734078,
-    "ast_hash": "cc1de077434b94762bfef3e6c2673efa",
+    "mtime": 1788691594.533122,
+    "ast_hash": "4ee0e1f0f759bb56863c6b3bca2a4b49",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-08-12-scale-aware-wall-room-gates.md": {
@@ -945,8 +945,8 @@
     "semantic_hash": ""
   },
   "takeoff/quantities.py": {
-    "mtime": 1787953295.6396248,
-    "ast_hash": "c9647cfc6af1b472e3cc141f15fa1720",
+    "mtime": 1788691401.7137554,
+    "ast_hash": "f84f8e8e1dbeda517285c05dbda00bbb",
     "semantic_hash": ""
   },
   "takeoff/scale.py": {
@@ -955,8 +955,8 @@
     "semantic_hash": ""
   },
   "takeoff/units.py": {
-    "mtime": 1787953295.6397903,
-    "ast_hash": "dfb85b10d85e6ceb960f5f21169e111a",
+    "mtime": 1788691401.7138455,
+    "ast_hash": "db424a31599388c0769e4f275196bfad",
     "semantic_hash": ""
   },
   "tests/test_takeoff_heights.py": {
@@ -970,8 +970,8 @@
     "semantic_hash": ""
   },
   "tests/test_takeoff_pipeline.py": {
-    "mtime": 1787953295.6489081,
-    "ast_hash": "34d8d7b857f94bbcca89555bf107008b",
+    "mtime": 1788691401.7142773,
+    "ast_hash": "c2335b861f4a35d67dc97a5ad10efbd0",
     "semantic_hash": ""
   },
   "tests/test_takeoff_quantities.py": {
@@ -1000,13 +1000,13 @@
     "semantic_hash": ""
   },
   "takeoff/plausibility.py": {
-    "mtime": 1787953295.6394804,
-    "ast_hash": "9e8f4ec7af8df51f0899336aedabeb04",
+    "mtime": 1788691401.7135262,
+    "ast_hash": "fca05adc219cc3b76824b1b8aef62253",
     "semantic_hash": ""
   },
   "tests/test_takeoff_plausibility.py": {
-    "mtime": 1787953295.649052,
-    "ast_hash": "eadd7fa8584b62a81332591172f83803",
+    "mtime": 1788691401.7143798,
+    "ast_hash": "7e724226b146959107593d35afc91531",
     "semantic_hash": ""
   },
   "gemini/room_label_cache.py": {
@@ -1045,8 +1045,8 @@
     "semantic_hash": ""
   },
   "docs/w-gate-recalibration-handoff.md": {
-    "mtime": 1788604603.147599,
-    "ast_hash": "1bb88252c948ea5bcab2e5cd53f214a3",
+    "mtime": 1788691631.8569295,
+    "ast_hash": "69887290bb8a48fc05ea5b5661324276",
     "semantic_hash": ""
   },
   "takeoff/document.py": {
@@ -1230,8 +1230,8 @@
     "semantic_hash": ""
   },
   "tools/probe_pair_taper.py": {
-    "mtime": 1788346571.859096,
-    "ast_hash": "c7a24e03e4310de03ab0173423c0a77b",
+    "mtime": 1788691401.715165,
+    "ast_hash": "b1aed250b5a3d1644b63d2101eb742c5",
     "semantic_hash": ""
   },
   "docs/hatch-cell-chords-handoff.md": {
@@ -1240,8 +1240,8 @@
     "semantic_hash": ""
   },
   "tools/probe_fill_seams.py": {
-    "mtime": 1788355552.6251488,
-    "ast_hash": "6cd137180846b179337c74d40413ae24",
+    "mtime": 1788691401.7149959,
+    "ast_hash": "c634b44b426f5ae143ecd3f56a049c19",
     "semantic_hash": ""
   },
   "tools/room_shape_crop.py": {
@@ -1250,8 +1250,8 @@
     "semantic_hash": ""
   },
   "tools/_corpus_page.py": {
-    "mtime": 1788371250.6844764,
-    "ast_hash": "9f56694ba11c3c8d3c90e3f04bdadcb8",
+    "mtime": 1788691401.7144954,
+    "ast_hash": "3e0a68e551a3b302bca3ec23e902ddc0",
     "semantic_hash": ""
   },
   "tools/diff_room_polygons.py": {
@@ -1260,8 +1260,8 @@
     "semantic_hash": ""
   },
   "tools/diff_wall_network.py": {
-    "mtime": 1788371250.6848369,
-    "ast_hash": "ba17c73a275f31455e5dac5c76846ab5",
+    "mtime": 1788691401.71475,
+    "ast_hash": "fdc24c5e473c918c97b2d18980705880",
     "semantic_hash": ""
   },
   "tools/probe_merge_anchor.py": {
@@ -1867,6 +1867,156 @@
   "docs/w-gate-iter3-checkpoints/step10_s18_room_0002_door_0018_doorway_regained_before_after.png": {
     "mtime": 1788606705.5501974,
     "ast_hash": "518e99b443add5b0bfa7715fab104975",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/crop_step11.py": {
+    "mtime": 1788613558.571869,
+    "ast_hash": "bf409c534b40affbd2a19134801b7d88",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/implemented_census.py": {
+    "mtime": 1788612925.8340678,
+    "ast_hash": "d9efafb918a1a9e21c24f02abc9014e6",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/jamb_pens.json": {
+    "mtime": 1788611270.6180983,
+    "ast_hash": "c1cd3890a7d2300ac22bc6a1352bd167",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/jamb_pens.py": {
+    "mtime": 1788610985.701289,
+    "ast_hash": "a7281e98bde4f0f9e61e9f7864b43f28",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/pen_census.json": {
+    "mtime": 1788610878.4798539,
+    "ast_hash": "47e3682e9d792787741d9e116db43afc",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/pen_census.py": {
+    "mtime": 1788610829.908034,
+    "ast_hash": "846a9d44f39ee4bb4ec9e1369796a94f",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/render_pens.py": {
+    "mtime": 1788611126.7916386,
+    "ast_hash": "e50edd49b158c3a1c50109e7bac38d6d",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/rule_census.json": {
+    "mtime": 1788612467.3198123,
+    "ast_hash": "af8753c8ae41946654f8fa8e0c0fb980",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/rule_census.py": {
+    "mtime": 1788612276.3281376,
+    "ast_hash": "50e53bf86228d48a3e24a5d76b222b95",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/tail_pens.json": {
+    "mtime": 1788611444.369183,
+    "ast_hash": "09d9a65d10f79ccb8197d0a2c4ddc514",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/tail_pens.py": {
+    "mtime": 1788611404.8317933,
+    "ast_hash": "57869623cb14681f90d156433b53ef88",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/tail_pens2.json": {
+    "mtime": 1788611670.6169188,
+    "ast_hash": "cd8dd562a1ae106d18910a8b835d0343",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/tail_pens2.py": {
+    "mtime": 1788611601.9470224,
+    "ast_hash": "d83a6669e3e90eb56f4caaed55d9c408",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step-10.md": {
+    "mtime": 1788606961.2855825,
+    "ast_hash": "6bd225d74f4f9564c0fb0a79677758f7",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step-11.md": {
+    "mtime": 1788613753.442869,
+    "ast_hash": "88a5d01d73d158de111cad8655f8721f",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/README.md": {
+    "mtime": 1788613765.5185895,
+    "ast_hash": "e6e1be239a5da9188aa6da30e453f512",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/implemented_census_out.txt": {
+    "mtime": 1788613182.5533376,
+    "ast_hash": "e45a4683376f2db4f2f93ca05c7eeb17",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/jamb_pens_out.txt": {
+    "mtime": 1788611027.7872036,
+    "ast_hash": "5a2526e303d122aca16855d482b70325",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/pen_census_out.txt": {
+    "mtime": 1788610878.4806843,
+    "ast_hash": "3092a768dce54cd3915658a75e8e0fc4",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/rule_census_out.txt": {
+    "mtime": 1788612467.3254616,
+    "ast_hash": "a3d4e69ec860edfe42e2200716168318",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/tail_pens2_out.txt": {
+    "mtime": 1788611670.6182728,
+    "ast_hash": "784e484719704a24d41d7b8057c53676",
+    "semantic_hash": ""
+  },
+  "tools/census_scratch/step11/tail_pens_out.txt": {
+    "mtime": 1788611444.3701785,
+    "ast_hash": "c6b3bd779cc6b93994b160ca879ec2c6",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step11_s01_first_floor_furniture_pen_veto_0542_before_after.png": {
+    "mtime": 1788613579.3493652,
+    "ast_hash": "050a32e60eb0be021aab4d3e112aad15",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step11_s01_ground_floor_furniture_pen_veto_0542_before_after.png": {
+    "mtime": 1788613579.2806652,
+    "ast_hash": "69d235c72e579fbb2265abb1b6b98af4",
+    "semantic_hash": ""
+  },
+  "scale/dimensions.py": {
+    "mtime": 1788690684.9527905,
+    "ast_hash": "bfb0b36ae0095eff256ea416f6472e02",
+    "semantic_hash": ""
+  },
+  "tests/test_scale_dimensions.py": {
+    "mtime": 1788690559.512872,
+    "ast_hash": "8b2585ce214404201a4d72f3d7872b98",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step-12.md": {
+    "mtime": 1788691699.6712768,
+    "ast_hash": "29a32e63baac9d9a4a34d34fdac4c90c",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step12_s01_hall_cpd_flight_merge_identity_vs_0542.png": {
+    "mtime": 1788691500.719799,
+    "ast_hash": "b1ff6b45525c816189c92df01b063cfa",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step12_s01_merged_landing_identity_vs_0542.png": {
+    "mtime": 1788691500.7227044,
+    "ast_hash": "ceb6805001319fcd3958dca54e5d02bd",
+    "semantic_hash": ""
+  },
+  "docs/w-gate-iter3-checkpoints/step12_s01_true_factor_rooms_added_removed.png": {
+    "mtime": 1788691500.7165816,
+    "ast_hash": "dbd888064cabd8df5d5ae1883caa94f5",
     "semantic_hash": ""
   }
 }
