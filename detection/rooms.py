@@ -437,10 +437,12 @@ ROOM_RECESS_GAP_COVER_MIN   = 0.65    # a door-less, window-less, textless compo
                                       # segments of the band (no opening bbox in
                                       # the gap: a doorway strip is room floor),
                                       # its back edge lies on the band's OUTER
-                                      # line (ROOM_RECESS_BACK_TOL_PX past the
-                                      # barrier standoff) and its depth across the
-                                      # band is at most ROOM_RECESS_DEPTH_RATIO_MAX
-                                      # band thicknesses. Measured on s11/s16: six
+                                      # line (ROOM_RECESS_BACK_COVER_MIN of its
+                                      # own boundary runs at the barrier standoff
+                                      # inside it, ROOM_RECESS_BACK_TOL_PX) and its
+                                      # depth across the band is at most
+                                      # ROOM_RECESS_DEPTH_RATIO_MAX band
+                                      # thicknesses. Measured on s11/s16: six
                                       # breast pockets in the 17.6px external wall
                                       # cover 0.69-0.85 of their gap, back edge at
                                       # exactly the 2px standoff, depth 1.75-2.4x
@@ -454,6 +456,69 @@ ROOM_RECESS_GAP_COVER_MIN   = 0.65    # a door-less, window-less, textless compo
                                       # text inside the component vetoes the rule.
 ROOM_RECESS_BACK_TOL_PX     = 1.5
 ROOM_RECESS_DEPTH_RATIO_MAX = 3.0
+ROOM_RECESS_BACK_COVER_MIN  = 0.65    # the back edge lies on the band's outer line
+                                      # over at least this much of the component's
+                                      # own extent along the gap (_back_edge_cover):
+                                      # the union of its boundary runs parallel to
+                                      # the band lying ROOM_LINE_BARRIER_PX inside
+                                      # the line (a drawn face's standoff, within
+                                      # ROOM_RECESS_BACK_TOL_PX) or ON it where a
+                                      # wall solid's flat END lies on the run
+                                      # (cap_lines, standoff 0 — a perpendicular
+                                      # band's flat-capped solid ending on the
+                                      # line). Read on the RUNS, as
+                                      # _side_wall_covers reads the band-pocket
+                                      # covers, never on the component's extent:
+                                      # until W-gate iteration 3 step 17
+                                      # (2026-09-06) the test was the extreme
+                                      # vertex across the band, min / max over
+                                      # every vertex, and s17's junction — a
+                                      # perpendicular partition whose paired
+                                      # segment ends ON the band's face line over
+                                      # its thickness, the face line drawn from its
+                                      # far flank on, so the component's boundary
+                                      # lies on the segment's flat cap at standoff
+                                      # 0 there and 2px inside the line everywhere
+                                      # else (the step-15 tab) — pinned the extreme
+                                      # ON the line, 0 against the 2 +- 1.5 the test
+                                      # wants, and the tabbed reveal of
+                                      # TestWallRecessTabbedByAPerpendicularBand
+                                      # read "not a recess" while the same reveal
+                                      # with the line drawn through read "recess".
+                                      # Measured on every call the rule receives
+                                      # (72) and every emitted room (236) of all 20
+                                      # sheets at their factors
+                                      # (tools/census_scratch/step17/): the 14
+                                      # calls that reach the back edge — the rule's
+                                      # own population, chimney-breast pockets and
+                                      # piers 0.85-2.94 bands deep in 112-466mm
+                                      # bands on s01/s05/s10/s11/s14/s16/s17/s18,
+                                      # every one dropped today — read the extreme
+                                      # at -2.00 (s10 -2.12) and their runs at 1.00
+                                      # of their own extent, with or without the
+                                      # caps; no emitted room reaches the back edge
+                                      # at all (the gap-cover and depth gates hold
+                                      # the true class out), so the corpus is
+                                      # identical under either reading and the tab
+                                      # is the runs reading's only instance. The
+                                      # family's "mostly" threshold
+                                      # (ROOM_RECESS_GAP_COVER_MIN): a text mask
+                                      # across the outer line interrupts the back
+                                      # run as it interrupts a cover. Over the
+                                      # component's own extent, not the gap's
+                                      # length: the gap-cover gate already asks
+                                      # how much of the gap the component fills,
+                                      # and over the gap the same 14 read
+                                      # 0.74-1.00 (s18's pier at 0.656 gap cover
+                                      # reads 0.739) — the two gates compounded.
+                                      # The caps matter for a SHORT pocket beside
+                                      # a junction: the tab is the partition's
+                                      # thickness less two standoffs (s17: 31.5px)
+                                      # whatever the pocket's length, so without
+                                      # them a 92px reveal beside a 40px partition
+                                      # reads 0.61 on its face alone and a 300px
+                                      # one 0.88 — a length dependence with no
+                                      # drawing meaning (the step-15 argument).
 
 ROOM_ENTRANCE_MIN_CONFIDENCE = ROOM_BBOX_SEAL_MIN_CONFIDENCE
                                       # a door counts as an ENTRANCE — for the
@@ -1793,12 +1858,98 @@ def _contains_text(comp, text_spans) -> bool:
     return False
 
 
-def _is_wall_recess(comp, wall_segments, opening_boxes, text_spans) -> bool:
+def _union_length(intervals) -> float:
+    """Total length of the union of [lo, hi] intervals."""
+    total = 0.0
+    cur_lo = cur_hi = None
+    for lo, hi in sorted(intervals):
+        if cur_hi is None or lo > cur_hi:
+            if cur_hi is not None:
+                total += cur_hi - cur_lo
+            cur_lo, cur_hi = lo, hi
+        elif hi > cur_hi:
+            cur_hi = hi
+    if cur_hi is not None:
+        total += cur_hi - cur_lo
+    return total
+
+
+def _back_edge_cover(comp, inter, origin, axis, normal, th, lo, hi, cap_lines) -> float:
+    """How much of a component's back lies on a wall band's outer line — the
+    back-edge test of _is_wall_recess, see ROOM_RECESS_BACK_COVER_MIN.
+
+    `origin`, `axis` and `normal` frame the band (a segment's p1, its unit
+    direction and unit normal), `th` is its thickness, [lo, hi] the
+    collinear gap along the axis and `inter` the component's intersection
+    with the gap rect (its own extent along the gap is read off it). For
+    each outer line of the band — the flank at +-th/2 — the union of the
+    component's boundary runs parallel to the band lying
+    ROOM_LINE_BARRIER_PX inside that line (within ROOM_RECESS_BACK_TOL_PX,
+    a drawn face's barrier standoff) and of the runs lying ON it where a
+    wall solid's flat end lies on them (`cap_lines`, standoff 0 — a
+    perpendicular band's flat-capped solid ending on the line, exactly as
+    _run_wall_cover admits it for the band-pocket covers), clipped to the
+    gap, over the component's extent along the gap; the larger of the two
+    lines' covers. Read on the runs, not on the extent: a tab where a
+    perpendicular band ends puts the component's extreme ON the line the
+    rest of its back lies 2px inside of.
+    """
+    ox, oy = origin
+    ux, uy = axis
+    nx, ny = normal
+    pieces = [g for g in getattr(inter, "geoms", [inter]) if not g.is_empty]
+    ts = [
+        (p[0] - ox) * ux + (p[1] - oy) * uy
+        for g in pieces
+        for p in (g.exterior.coords if g.geom_type == "Polygon" else g.coords)
+    ]
+    if not ts:
+        return 0.0
+    own_lo, own_hi = max(min(ts), lo), min(max(ts), hi)
+    if own_hi - own_lo <= 1e-6:
+        return 0.0
+    axis_angle = _line_angle_deg(origin, (ox + ux, oy + uy))
+    coords = list(comp.exterior.coords)
+    best = 0.0
+    for s in (-1.0, 1.0):
+        spans: list[tuple[float, float]] = []
+        for p, q in zip(coords, coords[1:]):
+            run_len = _line_length(p, q)
+            if run_len < 1e-6:
+                continue
+            if _angle_diff_mod180(axis_angle, _line_angle_deg(p, q)) > WALL_PARALLEL_ANGLE_TOL:
+                continue
+            mx, my = (p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0
+            w = (mx - ox) * nx + (my - oy) * ny
+            tp = (p[0] - ox) * ux + (p[1] - oy) * uy
+            tq = (q[0] - ox) * ux + (q[1] - oy) * uy
+            t0, t1 = max(min(tp, tq), own_lo), min(max(tp, tq), own_hi)
+            if t1 - t0 <= 1e-6:
+                continue
+            if abs(w - s * (th / 2.0 - ROOM_LINE_BARRIER_PX)) <= ROOM_RECESS_BACK_TOL_PX:
+                spans.append((t0, t1))
+            elif abs(w - s * th / 2.0) <= ROOM_RECESS_BACK_TOL_PX:
+                rux, ruy = (q[0] - p[0]) / run_len, (q[1] - p[1]) / run_len
+                for clo, chi in _run_wall_cover((p, q), (), cap_lines):
+                    ta = (p[0] + rux * clo - ox) * ux + (p[1] + ruy * clo - oy) * uy
+                    tb = (p[0] + rux * chi - ox) * ux + (p[1] + ruy * chi - oy) * uy
+                    c0, c1 = max(min(ta, tb), own_lo), min(max(ta, tb), own_hi)
+                    if c1 - c0 > 1e-6:
+                        spans.append((c0, c1))
+        best = max(best, _union_length(spans) / (own_hi - own_lo))
+    return best
+
+
+def _is_wall_recess(
+    comp, wall_segments, opening_boxes, text_spans, *, cap_lines=(),
+) -> bool:
     """True when comp lies in a wall band's plane — see ROOM_RECESS_GAP_COVER_MIN.
 
     Called only for components with no entrance and no window. Text inside
     the component (a room label, a dimension) marks a named space and vetoes
-    the verdict outright.
+    the verdict outright. The back edge is read on the component's own
+    boundary runs (_back_edge_cover, `cap_lines` for the flat ends of wall
+    solids), never on its extent — see ROOM_RECESS_BACK_COVER_MIN.
     """
     if _contains_text(comp, text_spans):
         return False
@@ -1839,16 +1990,18 @@ def _is_wall_recess(comp, wall_segments, opening_boxes, text_spans) -> bool:
                 continue
             if any(rect.intersects(o) for o in opening_boxes):
                 continue
-            if rect.intersection(comp).area < ROOM_RECESS_GAP_COVER_MIN * rect.area:
+            inter = rect.intersection(comp)
+            if inter.area < ROOM_RECESS_GAP_COVER_MIN * rect.area:
                 continue
             ws = [(p[0] - a.p1[0]) * nx + (p[1] - a.p1[1]) * ny for p in coords]
             depth = max(ws) - min(ws)
             if depth > ROOM_RECESS_DEPTH_RATIO_MAX * th:
                 continue
-            # Back edge on the outer line: the component stops at the
-            # barrier standoff inside one band edge.
-            back = min(-th / 2.0 - min(ws), max(ws) - th / 2.0)
-            if abs(back + ROOM_WALL_DILATE_PX) <= ROOM_RECESS_BACK_TOL_PX:
+            # Back edge on the outer line: the component's back lies at the
+            # barrier standoff inside one band edge, read on its own runs.
+            if _back_edge_cover(
+                comp, inter, a.p1, (ux, uy), (nx, ny), th, lo, hi, cap_lines,
+            ) >= ROOM_RECESS_BACK_COVER_MIN:
                 return True
     return False
 
@@ -1926,21 +2079,7 @@ def _side_wall_covers(comp, axis_edge, centre, face_lines, cap_lines) -> tuple[f
             ta = (a[0] + rux * lo - ax) * ux + (a[1] + ruy * lo - ay) * uy
             tb = (a[0] + rux * hi - ax) * ux + (a[1] + ruy * hi - ay) * uy
             spans[side].append((max(min(ta, tb), 0.0), min(max(ta, tb), long)))
-    covers = []
-    for side in spans:
-        total = 0.0
-        cur_lo = cur_hi = None
-        for lo, hi in sorted(side):
-            if cur_hi is None or lo > cur_hi:
-                if cur_hi is not None:
-                    total += cur_hi - cur_lo
-                cur_lo, cur_hi = lo, hi
-            elif hi > cur_hi:
-                cur_hi = hi
-        if cur_hi is not None:
-            total += cur_hi - cur_lo
-        covers.append(total / long)
-    return (covers[0], covers[1])
+    return (_union_length(spans[0]) / long, _union_length(spans[1]) / long)
 
 
 def _end_closures(comp, end_edge, centre, solids) -> tuple[float, float]:
@@ -1992,21 +2131,7 @@ def _end_closures(comp, end_edge, centre, solids) -> tuple[float, float]:
             ta = (a[0] + rux * lo - ax) * ux + (a[1] + ruy * lo - ay) * uy
             tb = (a[0] + rux * hi - ax) * ux + (a[1] + ruy * hi - ay) * uy
             spans[side].append((max(min(ta, tb), 0.0), min(max(ta, tb), width)))
-    closures = []
-    for side in spans:
-        total = 0.0
-        cur_lo = cur_hi = None
-        for lo, hi in sorted(side):
-            if cur_hi is None or lo > cur_hi:
-                if cur_hi is not None:
-                    total += cur_hi - cur_lo
-                cur_lo, cur_hi = lo, hi
-            elif hi > cur_hi:
-                cur_hi = hi
-        if cur_hi is not None:
-            total += cur_hi - cur_lo
-        closures.append(total / width)
-    return (closures[0], closures[1])
+    return (_union_length(spans[0]) / width, _union_length(spans[1]) / width)
 
 
 def _is_band_pocket(
@@ -2905,7 +3030,9 @@ def detect_rooms(
             # in a band's plane is the wall's own material (chimney breast,
             # pier) — and one lying INSIDE a band's thickness, between two
             # faces at wall spacing, is the band itself (a window reveal).
-            if _is_wall_recess(comp, wall_segments, opening_boxes, text_spans):
+            if _is_wall_recess(
+                comp, wall_segments, opening_boxes, text_spans, cap_lines=cap_lines,
+            ):
                 continue
             if _is_band_pocket(
                 exterior, face_lines, text_spans, cap_lines=cap_lines,

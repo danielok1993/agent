@@ -1,0 +1,10 @@
+  warning: skill is from graphify 0.8.42, package is 0.9.8. Run 'graphify install' to update.
+Re-extracting code files in . (no LLM needed)...
+  AST extraction: 405/405 files (100%) [10 workers]
+  warning: 58 source file(s) produced zero nodes and are absent from the graph: settings.json, evals.json, firebase.json, s01.json, s02.json (+53 more). A re-run will retry them (empties are no longer cached); if it persists, please report the file(s) (#1666).
+[graphify] backed up curated graph (5 files) -> 2026-09-06/
+[graphify watch] Skipped graph.html: Graph has 5425 nodes - too large for HTML viz (limit: 5000). Use --no-viz, raise GRAPHIFY_VIZ_NODE_LIMIT, or reduce input size.
+[graphify watch] Rebuilt: 5425 nodes, 13444 edges, 330 communities
+[graphify watch] graph.json and GRAPH_REPORT.md updated in graphify-out
+Code graph updated. For doc/paper/image changes run /graphify --update in your AI assistant.
+Tip: set GEMINI_API_KEY or GOOGLE_API_KEY to use Gemini for semantic extraction.

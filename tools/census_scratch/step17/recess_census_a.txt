@@ -1,0 +1,72 @@
+s01 p1 f=0.542: recess calls 1 (dropped now 1), rooms 10, base score lost 0 retFP 0 unrev 0
+    CALL [810.5, 979.5, 845.7, 1075.8] area 3393 gt=unmatched text=False cands 1 | extent True face_gap True caps_gap True face_own True caps_own True now_dropped=True
+        cand a [[818.13, 977.5], [818.13, 906.75], 19.25] b [[818.13, 1131.5], [818.13, 1077.75], 19.25] th 19.25 gap [-100.3, 0.0] own [-98.3, -2.0] gap_cover 0.86 depth 1.83x back -2.0 ext_ok True | face_gap 0.96 caps_gap 0.96 face_own 1.0 caps_own 1.0
+            side -1 run [[810.5, 979.5], [810.5, 1075.75]] w -7.62 t [-98.3, -2.0] face=True cap=False
+    AS-IMPLEMENTED face_gap: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_gap: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED face_own: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_own: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+s02 p1 f=1.000: recess calls 0 (dropped now 0), rooms 11, base score lost 12 retFP 0 unrev 0
+    AS-IMPLEMENTED face_gap: identical (score {'lost': 12, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_gap: identical (score {'lost': 12, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED face_own: identical (score {'lost': 12, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_own: identical (score {'lost': 12, 'returned_fps': 0, 'unreviewed': 0})
+s03 p1 f=1.000: recess calls 2 (dropped now 0), rooms 19, base score lost 0 retFP 0 unrev 0
+    AS-IMPLEMENTED face_gap: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_gap: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED face_own: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_own: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+s04 p1 f=1.000: recess calls 0 (dropped now 0), rooms 6, base score lost 0 retFP 2 unrev 0
+    AS-IMPLEMENTED face_gap: identical (score {'lost': 0, 'returned_fps': 2, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_gap: identical (score {'lost': 0, 'returned_fps': 2, 'unreviewed': 0})
+    AS-IMPLEMENTED face_own: identical (score {'lost': 0, 'returned_fps': 2, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_own: identical (score {'lost': 0, 'returned_fps': 2, 'unreviewed': 0})
+s05 p1 f=0.500: recess calls 6 (dropped now 4), rooms 10, base score lost 0 retFP 1 unrev 0
+    CALL [1587.1, 468.5, 1622.3, 551.0] area 2908 gt=unmatched text=False cands 1 | extent True face_gap True caps_gap True face_own True caps_own True now_dropped=True
+        cand a [[1591.08, 466.5], [1591.08, 310.5], 12.0] b [[1591.08, 618.13], [1591.08, 553.0], 12.0] th 12.0 gap [-86.5, 0.0] own [-84.5, -2.0] gap_cover 0.795 depth 2.94x back -2.0 ext_ok True | face_gap 0.954 caps_gap 0.954 face_own 1.0 caps_own 1.0
+            side -1 run [[1587.08, 468.5], [1587.08, 551.0]] w -4.0 t [-84.5, -2.0] face=True cap=False
+    CALL [1569.3, 1263.8, 1592.8, 1293.3] area 693 gt=unmatched text=False cands 1 | extent True face_gap True caps_gap True face_own True caps_own True now_dropped=True
+        cand a [[1581.08, 1128.13], [1581.08, 1263.75], 27.5] b [[1581.08, 1293.25], [1581.08, 1311.0], 27.5] th 27.5 gap [135.6, 165.1] own [135.6, 165.1] gap_cover 0.855 depth 0.85x back -2.0 ext_ok True | face_gap 1.0 caps_gap 1.0 face_own 1.0 caps_own 1.0
+            side -1 run [[1592.83, 1293.25], [1592.83, 1263.75]] w -11.75 t [135.6, 165.1] face=True cap=False
+            side 1 run [[1569.33, 1263.75], [1569.33, 1293.25]] w 11.75 t [135.6, 165.1] face=True cap=False
+    CALL [1569.3, 1311.0, 1592.8, 1340.5] area 693 gt=unmatched text=False cands 1 | extent True face_gap True caps_gap True face_own True caps_own True now_dropped=True
+        cand a [[1581.08, 1340.5], [1581.08, 1435.75], 27.5] b [[1581.08, 1293.25], [1581.08, 1311.0], 27.5] th 27.5 gap [-29.5, 0.0] own [-29.5, 0.0] gap_cover 0.855 depth 0.85x back -2.0 ext_ok True | face_gap 1.0 caps_gap 1.0 face_own 1.0 caps_own 1.0
+            side -1 run [[1592.83, 1340.5], [1592.83, 1311.0]] w -11.75 t [-29.5, 0.0] face=True cap=False
+            side 1 run [[1569.33, 1311.0], [1569.33, 1340.5]] w 11.75 t [-29.5, 0.0] face=True cap=False
+    CALL [1569.3, 1435.8, 1592.8, 1465.3] area 693 gt=unmatched text=False cands 1 | extent True face_gap True caps_gap True face_own True caps_own True now_dropped=True
+        cand a [[1581.08, 1465.25], [1581.08, 1600.25], 27.5] b [[1581.08, 1340.5], [1581.08, 1435.75], 27.5] th 27.5 gap [-29.5, 0.0] own [-29.5, 0.0] gap_cover 0.855 depth 0.85x back -2.0 ext_ok True | face_gap 1.0 caps_gap 1.0 face_own 1.0 caps_own 1.0
+            side -1 run [[1592.83, 1465.25], [1592.83, 1435.75]] w -11.75 t [-29.5, 0.0] face=True cap=False
+            side 1 run [[1569.33, 1435.75], [1569.33, 1465.25]] w 11.75 t [-29.5, 0.0] face=True cap=False
+    AS-IMPLEMENTED face_gap: identical (score {'lost': 0, 'returned_fps': 1, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_gap: identical (score {'lost': 0, 'returned_fps': 1, 'unreviewed': 0})
+    AS-IMPLEMENTED face_own: identical (score {'lost': 0, 'returned_fps': 1, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_own: identical (score {'lost': 0, 'returned_fps': 1, 'unreviewed': 0})
+s06 p1 f=0.500: recess calls 0 (dropped now 0), rooms 9, base score lost 0 retFP 0 unrev 0
+    AS-IMPLEMENTED face_gap: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_gap: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED face_own: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_own: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+s07 p1 f=0.500: recess calls 1 (dropped now 0), rooms 6, base score lost 0 retFP 0 unrev 0
+    AS-IMPLEMENTED face_gap: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_gap: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED face_own: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_own: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+s08 p1 f=1.000: recess calls 1 (dropped now 0), rooms 3, base score lost 0 retFP 1 unrev 0
+    AS-IMPLEMENTED face_gap: identical (score {'lost': 0, 'returned_fps': 1, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_gap: identical (score {'lost': 0, 'returned_fps': 1, 'unreviewed': 0})
+    AS-IMPLEMENTED face_own: identical (score {'lost': 0, 'returned_fps': 1, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_own: identical (score {'lost': 0, 'returned_fps': 1, 'unreviewed': 0})
+s09 p1 f=1.000: recess calls 0 (dropped now 0), rooms 0, base score lost 0 retFP 0 unrev 0
+    AS-IMPLEMENTED face_gap: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_gap: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED face_own: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_own: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+s10 p1 f=1.000: recess calls 1 (dropped now 1), rooms 9, base score lost 0 retFP 0 unrev 0
+    CALL [497.0, 2935.3, 610.6, 3025.7] area 6131 gt=false_positive text=False cands 1 | extent True face_gap True caps_gap True face_own True caps_own True now_dropped=True
+        cand a [[222.62, 3110.05], [510.67, 3012.52], 32.23] b [[606.11, 2980.14], [780.62, 2921.25], 31.94] th 32.23 gap [304.1, 404.9] own [304.1, 404.9] gap_cover 0.93 depth 1.94x back -2.12 ext_ok True | face_gap 1.0 caps_gap 1.0 face_own 1.0 caps_own 1.0
+            side 1 run [[515.14, 3025.72], [610.6, 2993.46]] w 13.97 t [304.1, 404.9] face=True cap=False
+    AS-IMPLEMENTED face_gap: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_gap: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED face_own: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_own: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/tools/census_scratch/step17/recess_census_a.json

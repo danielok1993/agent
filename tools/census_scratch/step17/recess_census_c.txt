@@ -1,0 +1,19 @@
+s18 p1 f=0.500: recess calls 12 (dropped now 1), rooms 24, base score lost 0 retFP 22 unrev 0
+    CALL [2095.5, 2506.5, 2157.0, 2558.2] area 3183 gt=false_positive text=False cands 1 | extent True face_gap True caps_gap True face_own True caps_own True now_dropped=True
+        cand a [[2084.58, 2551.34], [1355.59, 2551.34], 17.75] b [[2504.08, 2551.34], [2167.83, 2551.34], 17.75] th 17.75 gap [-83.2, 0.0] own [-72.4, -10.9] gap_cover 0.656 depth 2.92x back -2.0 ext_ok True | face_gap 0.739 caps_gap 0.739 face_own 1.0 caps_own 1.0
+            side -1 run [[2095.46, 2558.22], [2156.96, 2558.22]] w -6.88 t [-72.4, -10.9] face=True cap=False
+    AS-IMPLEMENTED face_gap: identical (score {'lost': 0, 'returned_fps': 22, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_gap: identical (score {'lost': 0, 'returned_fps': 22, 'unreviewed': 0})
+    AS-IMPLEMENTED face_own: identical (score {'lost': 0, 'returned_fps': 22, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_own: identical (score {'lost': 0, 'returned_fps': 22, 'unreviewed': 0})
+s19 p1 f=1.000: recess calls 0 (dropped now 0), rooms 0, base score lost 0 retFP 0 unrev 0
+    AS-IMPLEMENTED face_gap: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_gap: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED face_own: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_own: identical (score {'lost': 0, 'returned_fps': 0, 'unreviewed': 0})
+s20 p1 f=1.000: recess calls 1 (dropped now 0), rooms 5, base score lost 0 retFP 1 unrev 0
+    AS-IMPLEMENTED face_gap: identical (score {'lost': 0, 'returned_fps': 1, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_gap: identical (score {'lost': 0, 'returned_fps': 1, 'unreviewed': 0})
+    AS-IMPLEMENTED face_own: identical (score {'lost': 0, 'returned_fps': 1, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_own: identical (score {'lost': 0, 'returned_fps': 1, 'unreviewed': 0})
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/tools/census_scratch/step17/recess_census_c.json

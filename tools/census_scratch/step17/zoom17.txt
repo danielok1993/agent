@@ -1,0 +1,6 @@
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/docs/w-gate-iter3-checkpoints/step17_s11_breast_pocket_886_874_recess_both_readings.png (810, 775)
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/docs/w-gate-iter3-checkpoints/step17_s11_breast_pocket_781_1509_recess_both_readings.png (700, 718)
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/docs/w-gate-iter3-checkpoints/step17_s18_pier_2096_2506_gap_cover_0.66_recess_both_readings.png (723, 802)
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/docs/w-gate-iter3-checkpoints/step17_s17_pocket_1548_2766_112mm_band_recess_both_readings.png (700, 818)
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/docs/w-gate-iter3-checkpoints/step17_s10_recess_497_2935_back_minus_2.12.png (735, 783)
+wrote /Users/danielszweda/Documents/GitHub/UD/agent/docs/w-gate-iter3-checkpoints/step17_s17_hollow_wall_strip_0013_no_collinear_gap.png (700, 1034)

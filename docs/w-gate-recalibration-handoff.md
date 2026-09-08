@@ -2696,3 +2696,154 @@ Report `docs/w-gate-iter3-checkpoints/step-16.md` (13 PNGs). Not committed;
 > under `tools/census_scratch/step17/`, PNGs under
 > `docs/w-gate-iter3-checkpoints/` with no address or planning-portal id;
 > no Co-Authored-By or session trailer). End every report with the numbers.
+
+## Outcome — iteration 3, step 17 (2026-09-06, branch `fix/wall-recess-tab-back-edge`, shipped pending the user's decision)
+
+`_is_wall_recess`'s back edge is read on the component's OWN boundary runs
+(`_back_edge_cover`, `ROOM_RECESS_BACK_COVER_MIN` 0.65 — D-class, findings
+§4): for each outer line of the band, the union over the collinear gap of
+the runs parallel to the band lying `ROOM_LINE_BARRIER_PX` ±
+`ROOM_RECESS_BACK_TOL_PX` inside it, or ON it where a wall solid's flat end
+(`cap_lines`, standoff 0) lies on them — exactly as `_run_wall_cover` admits
+a cap for the band-pocket covers — over the component's own extent along
+the gap; the larger of the two lines'. `detect_rooms` passes the `cap_lines`
+it already builds for `_is_band_pocket`; the two step-15/16 interval unions
+are now `_union_length`. No constant moved. Censused first (`recess_census.py`,
+every call and every emitted room of all 20 sheets, the extent and four runs
+variants — face / with caps, over the gap / over the component's own
+extent): **72 calls, 14 reach the back edge** (the rule's own class —
+chimney-breast pockets and piers 0.85–2.94 bands deep in 112–466mm bands on
+s01/s05/s10/s11/s14/s16/s17/s18, every one dropped today) and every one
+reads the extent at −2.00 (s10 −2.12) and its runs at 1.00 of its own
+extent with or without the caps; the other 58 are held out by the intersect
+/ opening / gap-cover / depth gates (s17's hollow-wall strips among them —
+no collinear gap reaches them); **236 emitted rooms, none reaches the back
+edge**. So the corpus cannot separate the readings and the rule as
+implemented is identical under every variant; the reading is built because
+it closes the fixture without moving any room. The tab is its only
+instance: on the step-15 fixture the extent read +0.00 (the tab's vertices
+ON the leaf's inner flank) against the 2 ± 1.5 wanted, and the runs 0.60 of
+the gap on the face alone, 0.756 with the cap, 0.79 / 1.0 of the reveal's
+own extent. Over the component's own extent rather than the gap's length
+because the gap-cover gate already asks how much of the gap is filled (the
+14 read 0.74–1.00 over the gap — compounded). Pinned by
+`TestWallRecessTabbedByAPerpendicularBand` — the step-15 fixture with s17's
+own 35.5px partition beside an 80px reveal in a 19.25px inner leaf (the tab
+31.5 of the 80px back: 0.61 on the face alone, 1.0 with the cap; gap cover
+0.80 / 0.76 without the tab; 2,803 px²) and `_is_band_pocket` taken out of
+the stage with `mock.patch.object`, because on the shipped tree it catches
+the reveal right after the recess rule declines it (2 rooms either way);
+bite proven (the tabbed reveal survives with `rooms_step17.diff` reverted,
+the tab-less control passes on both). Fast tier 1452 OK. Reading-vs-
+implemented check on the shipped tree: the census's own reading and the
+rule's verdict agree on every call. Corpus sweep (four background groups,
+verdicts sorted section-wise): **0 LOST / 60 returned FPs / 0 REVIEW, the 80
+verdict lines byte-identical, `diff_room_polygons.py` all 20 sheets entity-
+and polygon-IDENTICAL** (s01 at 0.542, s02 at 1.0). Report
+`docs/w-gate-iter3-checkpoints/step-17.md` (7 PNGs: the fixture with both
+readings, five corpus recess calls with their gap rect and back runs, s17's
+strip 0013 with no collinear gap). Not committed; `graphify update .` run.
+
+### Prompt for the next agent (iteration 3 step 18 — a fixture-cell rule for the three wrong-reason drops — fresh context)
+
+> Use `/fix-detection` for its discipline. Topic branch from the tree that
+> carries step 17 (`fix/wall-recess-tab-back-edge`; `git log --all
+> --oneline | head`; main is `83a603c`). Re-sweep that tree first in four
+> background groups (s18; s16 s11 s15; s01–s07; the rest) and
+> `compare_sweeps --snapshot` all 20 slugs, never trusting what sits in
+> `outputs/regress/`; verdict reports diffed section-wise (sort before cmp;
+> include the per-sheet count lines); `tools/diff_room_polygons.py` after
+> EVERY sweep; `tools/room_shape_crop.py` for every room whose IoU moved
+> under 0.99; a scratch UNSIMPLIFIED diff whenever any room loses area;
+> harness overrides as MULTIPLIERS (`H.overrides(mult=...)`). Read first, in
+> this order: step-16.md (§"Verdicts on the eight": s12's two unit cells
+> (1842,472)–(1873,494) and (1842,530)–(1873,554) at 0.93 / 0.99× and s18's
+> sofa-back strip (907,810)–(1079,833) at 0.97× the scaled 28px ceiling drop
+> as band pockets for the WRONG reason — free space between a wall and a
+> kitchen unit's / sofa's back, not wall material — while s18's
+> kitchen-corner box (2079,1023)–(2096,1068) is a real hollow junction cell),
+> step-17.md, the CLAUDE.md "Room detection" paragraph's band-pocket block,
+> `_is_band_pocket` / `_side_wall_covers` / `_end_closures` /
+> `_back_edge_cover` in `detection/rooms.py`, `_claims_far_side_pair` and
+> `_furniture_segment` in `detection/walls.py` / `rooms.py` (how the stage
+> already tells a fixture front from a wall face: a wall's material lies on
+> ONE side of each face), `TestBandPocket*` in `tests/test_room_detection.py`,
+> `docs/regression-testing-guide.md` §9 §10 §12 §13. Scratch tooling:
+> `tools/census_scratch/harness.py`; `step16/backing_census.py` (the (b)
+> "solid behind each side" and (e) "resume" readings — on the s12 cells one
+> side has a wall solid behind it and the other a unit line with nothing
+> behind: 0.09 / 1.00 and 0.00 / 1.00; on the sofa strip 0.00 / 0.00);
+> `step16/zoom16.py`; `step17/recess_census.py` and `zoom17.py` (the
+> free-space tap, the crops with a candidate's evidence overlaid); the
+> harness cache is `tools/census_scratch/cache/`.
+>
+> Tree state: the step-17 back-edge reading; corpus 0 LOST / 60 returned FPs
+> / 0 REVIEW; s01 sweeps at 0.542 with 10/10 rooms.
+>
+> This step: a FIXTURE-CELL discriminator for `_is_band_pocket`. The rule's
+> premise — two faces at wall spacing bound wall material — is false for a
+> strip between a wall face and a fixture's back line (a 600mm unit run, a
+> sofa, a bed) drawn in the wall pen at wall-like spacing; today those three
+> drop only because the scaled ceiling happens to exceed them. Measure, on
+> every call the rule receives and every emitted room of all 20 sheets at
+> their factors, what separates a fixture cell from wall material: (a) the
+> (b)-reading of step 16 — a wall solid behind at least ONE side is the
+> band's own material (a reveal has its leaf behind it, a hollow cavity its
+> leaves, the storage its partition) while a fixture cell has a solid behind
+> the wall side only and NOTHING behind the fixture side (s12 0.09 / 1.00,
+> the sofa 0.00 / 0.00 — but the s17 hollow-wall strips read 0.12 / 0.21
+> and 0.08 / 0.11, so "nothing behind either side" does NOT separate the
+> hollow wall from the sofa strip; find what does — the sofa strip's ends
+> (0.00 / 0.72, a door seal at one end), its length (172px = 1.46m against
+> the strips' 157–467px), the fixture's own outline closing beyond the far
+> side (a unit box's other three edges, a sofa's arms) — the far side of a
+> fixture line is a drawn FIXTURE, the far side of a hollow wall's line is a
+> ROOM); (b) whether the fixture line pairs with anything or is a lone face
+> the far-side rule would have demoted had the cap allowed the pair; (c)
+> the pen (s12's 442mm cell mixes pens). A fixture cell is FLOOR (a real
+> room's strip, to be merged back into its room, not emitted alone) — so the
+> right outcome may be that the cell is not dropped but that its fixture
+> line loses barrier rights and the strip rejoins its room; measure what
+> the s12 rooms and s18's living room look like with the unit / sofa line
+> demoted, and whether the recorded-FP cells' rooms are confirmed rooms
+> whose polygons would change (report every polygon move with its
+> unsimplified lost / gained px²). Build only what separates with a margin
+> on both classes; pin it with a synthetic test that bites; sweep. s01 and
+> s02 at their factors must not change.
+>
+> After it (each its own iteration): the s04 staircase (tread 10 detected
+> as a 0.62 window, a returned FP, fences the winder box and the flight into
+> two recorded-FP cells); `_dimension_line_indices` on s15's TEXT-layer
+> "3560"/"1100" lines; the s18 blind-window cap at 1:100 (10k × f² = 2.5k
+> px² while the tree strip is 4.6k); promotion of an under-share wall pen by
+> doorways on pen-independent material (s03's 0.73 grey); the merged
+> landing's stair coverage and top-left notch on s01; same-line tail
+> material for s17 door_0016; phase-invariant plug profiles; the dash-row
+> text-mask join; the fallback in-wall gate on tail-less plugs; the recess
+> class (s11's party-wall box is the neighbour's chimney breast; s16's
+> enclosed partition box at 406mm); Gap D of
+> `docs/hatch-cell-chords-handoff.md`; a jamb-scale floor for lining rings;
+> the lattice knife-edges; interior rings in the exported room polygon;
+> s18's and s14's glyph-outline fill rings.
+>
+> Rules for the whole run: as step 17's (do not commit; no ground-truth or
+> manifest edits without an explicit go for that entry; never revert s01's
+> truth scale; never `git stash` — in zsh an unquoted `$VAR` does not
+> word-split, `echo =====` is a command lookup, quote globs; macOS has no
+> `timeout`; `.venv/bin/python` with ABSOLUTE paths in background commands;
+> never edit a constant while a background job runs — a background job
+> imports the tree at launch and dies when the turn ends, so stay in-turn
+> and poll it; census jobs write JSON per slug so a killed job keeps what it
+> measured; the venv lacks InquirerPy; s02 at f = 1.0 must not change and
+> every s01 change is a decision with its LOST lines named; probe with the
+> full wall material and the stage's real barrier rules; census the rule AS
+> IMPLEMENTED — a synthetic fixture that passes on the unmodified tree does
+> not bite, and when a sibling rule masks the one under test take the
+> sibling out of the stage with `mock.patch.object` and say so in the
+> docstring (step 17); a partition over `WALL_MAX_THICKNESS_PX` never pairs
+> and its hollow interior joins the free space beside it (a 40px one did);
+> pictures under `__main__` only, scratch under
+> `tools/census_scratch/step18/`, PNGs under `docs/w-gate-iter3-checkpoints/`
+> with no address or planning-portal id; no Co-Authored-By or session
+> trailer). End every report with the numbers: lost, returned FPs, new
+> REVIEW lines with your verdicts, net phantom delta, and what is next.

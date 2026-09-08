@@ -1,0 +1,22 @@
+s01: base=2026-09-06_19-29-11 after=2026-09-06_19-52-18 entities 25 -> 25  IDENTICAL
+s02: base=2026-09-06_19-29-17 after=2026-09-06_19-52-23 entities 49 -> 49  IDENTICAL
+s03: base=2026-09-06_19-29-27 after=2026-09-06_19-52-33 entities 49 -> 49  IDENTICAL
+s04: base=2026-09-06_19-29-34 after=2026-09-06_19-52-40 entities 12 -> 12  IDENTICAL
+s05: base=2026-09-06_19-29-36 after=2026-09-06_19-52-42 entities 18 -> 18  IDENTICAL
+s06: base=2026-09-06_19-29-44 after=2026-09-06_19-52-51 entities 27 -> 27  IDENTICAL
+s07: base=2026-09-06_19-29-48 after=2026-09-06_19-52-55 entities 23 -> 23  IDENTICAL
+s08: base=2026-09-06_19-29-11 after=2026-09-06_19-52-18 entities 8 -> 8  IDENTICAL
+s09: base=2026-09-06_19-29-13 after=2026-09-06_19-52-19 entities 0 -> 0  IDENTICAL
+s10: base=2026-09-06_19-29-13 after=2026-09-06_19-52-19 entities 33 -> 33  IDENTICAL
+s11: base=2026-09-06_19-29-53 after=2026-09-06_19-53-01 entities 64 -> 64  IDENTICAL
+s12: base=2026-09-06_19-29-20 after=2026-09-06_19-52-26 entities 20 -> 20  IDENTICAL
+s13: base=2026-09-06_19-29-25 after=2026-09-06_19-52-31 entities 34 -> 34  IDENTICAL
+s14: base=2026-09-06_19-29-29 after=2026-09-06_19-52-35 entities 14 -> 14  IDENTICAL
+s15: base=2026-09-06_19-30-15 after=2026-09-06_19-53-24 entities 33 -> 33  IDENTICAL
+s16: base=2026-09-06_19-29-11 after=2026-09-06_19-52-18 entities 68 -> 68  IDENTICAL
+s17: base=2026-09-06_19-29-42 after=2026-09-06_19-52-48 entities 76 -> 76  IDENTICAL
+s18: base=2026-09-06_19-29-11 after=2026-09-06_19-52-18 entities 60 -> 60  IDENTICAL
+s19: base=2026-09-06_19-29-55 after=2026-09-06_19-53-03 entities 0 -> 0  IDENTICAL
+s20: base=2026-09-06_19-29-55 after=2026-09-06_19-53-03 entities 20 -> 20  IDENTICAL
+
+TOTAL rooms with changed polygon: 0; added 0; removed 0

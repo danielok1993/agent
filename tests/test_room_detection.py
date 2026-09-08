@@ -6,6 +6,7 @@ free-space components between wall solids, so expected bounds sit just inside
 the inner wall faces (inner face + line barrier + wall dilation).
 """
 import unittest
+from unittest import mock
 
 from shapely.geometry import (
     Point as ShapelyPoint, Polygon as ShapelyPolygon, box as shapely_box,
@@ -14,6 +15,7 @@ from shapely.ops import unary_union
 
 from models import Candidate, PathPrimitive, TextSpan
 from detection import detect_wall_network
+import detection.rooms as rooms_mod
 from detection.rooms import (
     ROOM_GAP_CLOSE_PX, ROOM_OPENING_SEAL_PX, ROOM_PLUG_HALF_WIDTH_PX,
     ROOM_PLUG_JAMB_SEEK_PX,
@@ -2106,6 +2108,70 @@ class TestBandPocketTabbedByAPerpendicularBand(unittest.TestCase):
         self.assertEqual(len(rooms), 2, [r.bbox for r in rooms])
         for r in rooms:
             self.assertGreater(r.bbox[1], self.INNER)
+
+
+class TestWallRecessTabbedByAPerpendicularBand(TestBandPocketTabbedByAPerpendicularBand):
+    """`_is_wall_recess` reads its back edge on the component's OWN boundary
+    runs, as `_side_wall_covers` reads the band-pocket covers (W-gate
+    iteration 3 step 17). Its back-edge test — the component stops at the
+    barrier standoff inside the band's outer line — was read off the
+    component's EXTENT, min / max over every vertex across the band, so the
+    parent fixture's tab (a perpendicular partition's flat-capped solid
+    ending ON the band's face line over the partition's thickness, the face
+    line drawn from the partition's far flank on — s17's junction as drawn)
+    pinned the extreme ON the line, standoff 0 against the 2 ± 1.5 the test
+    wants, and the verdict flipped: the same reveal with the face line drawn
+    continuously across the junction is a recess.
+
+    The partition is s17's own 35.5px (300mm; the parent's 32 — a 40px one
+    is over the plain cap, never pairs, and its hollow interior joins the
+    reveal), the inner leaf 19.25px (163mm, a 100 / 160 / 163mm cavity wall;
+    the cavity stays 19px so its strip still dissolves under the 16px
+    opening) and the reveal SHORT — 80px between the partition and the
+    resuming inner leaf — so the tab, the partition's thickness less two
+    standoffs, is 31.5 of the reveal's 80px back: on the face alone the back
+    reads 0.61 of the reveal's extent, under ROOM_RECESS_BACK_COVER_MIN, and
+    only with the partition's flat cap admitted (as _run_wall_cover admits
+    it for the band-pocket covers) does it read 1.0 — the cap is what the
+    test exercises. The inner leaf's near piece stops at 290 (a 94px gap),
+    so the reveal fills 0.80 of the gap rect with the tab and 0.76 without —
+    clear of ROOM_RECESS_GAP_COVER_MIN either way, and only the back edge
+    decides; at 2,803 px² it clears ROOM_MIN_AREA_PX2, and 36.25px across
+    the band it is 1.9 of the leaf's 3 permitted thicknesses deep.
+
+    On the shipped tree `_is_band_pocket` catches this reveal after
+    `_is_wall_recess` has declined it — 2 rooms either way — so the pocket
+    rule is taken out of the stage here to expose the recess verdict alone.
+    That is the recess rule's own population: s11/s16's chimney-breast
+    pockets, 1.75–2.4 bands deep in a 17.6px band at 1:100, lie over the
+    scaled band-pocket ceiling and are decided by this rule alone."""
+
+    INNER = 150.0
+    LEAF_END = 290.0
+    PART0, PART1 = 300.0, 335.5
+    RESUME = 384.0
+
+    def _rooms_without_the_pocket_rule(self, paths):
+        with mock.patch.object(rooms_mod, "_is_band_pocket", return_value=False):
+            return rooms_for(paths)
+
+    def _reveal(self, rooms):
+        return [r for r in rooms if r.bbox[1] < self.INNER]
+
+    def test_tabbed_reveal_is_a_recess(self):
+        rooms = self._rooms_without_the_pocket_rule(self._plan())
+        self.assertEqual(self._reveal(rooms), [], [r.bbox for r in rooms])
+        self.assertEqual(len(rooms), 2, [r.bbox for r in rooms])
+
+    def test_reveal_without_the_tab_is_a_recess(self):
+        # The control: the inner face line drawn continuously across the
+        # junction (from the partition's near face on), no tab — the
+        # extent reading and the runs reading agree.
+        paths = [p for p in self._plan() if p.path_index != 5]
+        paths.append(hline(5, self.PART0, 600.0, self.INNER))
+        rooms = self._rooms_without_the_pocket_rule(paths)
+        self.assertEqual(self._reveal(rooms), [], [r.bbox for r in rooms])
+        self.assertEqual(len(rooms), 2, [r.bbox for r in rooms])
 
 
 class TestBandPocketEnclosedByWallBands(unittest.TestCase):

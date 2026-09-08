@@ -1,0 +1,15 @@
+s11 p1 f=0.500: recess calls 12 (dropped now 3), rooms 24, base score lost 0 retFP 4 unrev 0
+    CALL [781.2, 1508.8, 823.3, 1533.0] area 1016 gt=false_positive text=False cands 1 | extent True face_gap True caps_gap True face_own True caps_own True now_dropped=True
+        cand a [[788.02, 1461.08], [788.02, 1506.83], 17.63] b [[788.02, 1534.96], [788.02, 1578.46], 17.63] th 17.63 gap [45.8, 73.9] own [47.8, 71.9] gap_cover 0.76 depth 2.39x back -2.0 ext_ok True | face_gap 0.858 caps_gap 0.858 face_own 1.0 caps_own 1.0
+            side 1 run [[781.21, 1508.83], [781.21, 1532.96]] w 6.81 t [47.8, 71.9] face=True cap=False
+    CALL [886.2, 874.3, 976.0, 916.8] area 3814 gt=unmatched text=False cands 1 | extent True face_gap True caps_gap True face_own True caps_own True now_dropped=True
+        cand a [[884.21, 881.15], [788.02, 881.15], 17.63] b [[985.83, 881.15], [977.96, 881.15], 17.63] th 17.63 gap [-93.8, 0.0] own [-91.8, -2.0] gap_cover 0.849 depth 2.41x back -2.0 ext_ok True | face_gap 0.957 caps_gap 0.957 face_own 1.0 caps_own 1.0
+            side 1 run [[975.96, 874.33], [886.21, 874.33]] w 6.81 t [-91.8, -2.0] face=True cap=False
+    CALL [1930.2, 868.3, 2001.2, 899.2] area 2192 gt=false_positive text=False cands 1 | extent True face_gap True caps_gap True face_own True caps_own True now_dropped=True
+        cand a [[1928.21, 875.15], [1812.9, 875.15], 17.63] b [[2038.08, 875.15], [2003.21, 875.15], 17.63] th 17.63 gap [-75.0, 0.0] own [-73.0, -2.0] gap_cover 0.839 depth 1.75x back -2.0 ext_ok True | face_gap 0.947 caps_gap 0.947 face_own 1.0 caps_own 1.0
+            side 1 run [[2001.21, 868.33], [1930.21, 868.33]] w 6.81 t [-73.0, -2.0] face=True cap=False
+    AS-IMPLEMENTED face_gap: identical (score {'lost': 0, 'returned_fps': 4, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_gap: identical (score {'lost': 0, 'returned_fps': 4, 'unreviewed': 0})
+    AS-IMPLEMENTED face_own: identical (score {'lost': 0, 'returned_fps': 4, 'unreviewed': 0})
+    AS-IMPLEMENTED caps_own: identical (score {'lost': 0, 'returned_fps': 4, 'unreviewed': 0})
+wrote tools/census_scratch/step17/recess_census_s11.json
