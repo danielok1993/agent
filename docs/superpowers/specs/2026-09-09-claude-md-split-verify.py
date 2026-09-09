@@ -17,7 +17,7 @@ Plus two positional checks that the character proofs cannot make:
   REACHABILITY every target document is still cited BY PATH in the working-tree
                CLAUDE.md -- surviving content nothing routes to is lost content.
 """
-import json, pathlib, re, subprocess, sys
+import collections, json, pathlib, re, subprocess, sys
 
 HERE = pathlib.Path(__file__).resolve().parent
 REPO = HERE.parents[2]
@@ -36,7 +36,61 @@ def norm(s):
     return " ".join(s.split())
 
 
-def invert(text, repairs, src):
+# --- `replace` token guard (mirrored from the generator; the verifier never
+# imports it, so the check is written out in both files) ----------------------
+_NUM = re.compile(r"\d+(?:[.,]\d+)*")
+_TICK = re.compile(r"`[^`]*`")
+
+
+def _tokens(text):
+    """The numbers and backticked tokens of a string, as a multiset."""
+    return (collections.Counter(_NUM.findall(text))
+            + collections.Counter(_TICK.findall(text)))
+
+
+def _strip_refs(text, doc_paths):
+    """Remove the ROUTING REFERENCES a repoint is allowed to add: a target
+    document's backticked path, with the section clause and step number that
+    belong to it. What is left is the prose the repoint must not have touched.
+    """
+    if not doc_paths:
+        return text
+    ref = (r"`(?:" + "|".join(re.escape(p) for p in sorted(doc_paths)) + r")`"
+           r'(?:\s*\u00a7"[^"]*")?(?:,\s*step\s+\d+)?')
+    return re.sub(ref, "", text)
+
+
+def check_replace_tokens(sid, old, new, doc_paths):
+    """A `replace` may only REPOINT a reference -- never restate a measurement.
+
+    `invert` below restores new->old before CONTENT compares, so ANY consistent
+    (map, document) pair passes the character proofs: a `replace` recording
+    "0.65" -> "0.95" ships a falsified constant in the document and still
+    verifies (measured by the reviewer -- VERIFIED, exit 0). COVERAGE, CONTENT,
+    RETAINED and REACHABILITY all read the map as an oracle here, so the map
+    itself is now trusted in a way it was not before this op existed, and the
+    trust has to be bounded by something the map cannot assert about itself.
+
+    The bound: `old` and `new` must carry IDENTICAL MULTISETS of numbers and
+    backticked tokens, once the routing reference the repoint exists to add is
+    stripped out of `new`. A repoint may therefore only ADD a target document's
+    path, its section clause and a step number -- never drop, alter or invent a
+    measurement, constant name, identifier, path or sheet slug in the prose
+    around it. Run from `invert`, so it fires on every `replace` the CONTENT
+    proof exercises -- and a `replace` the proof never reaches is a section
+    whose heading is missing, which CONTENT already fails on.
+
+    Measured against all nine shipped ops: each passes, and 0.65 -> 0.95 fails.
+    """
+    o = _tokens(old)
+    n = _tokens(_strip_refs(new, doc_paths))
+    if o != n:
+        fail(f"{sid}: replace changes the moved prose's numbers/backticked "
+             f"tokens: dropped {dict(o - n)}, added {dict(n - o)} "
+             f"(outside the routing reference)")
+
+
+def invert(text, repairs, src, doc_paths, sid):
     for r in reversed(repairs):
         op = r["op"]
         if op == "append_period":
@@ -49,6 +103,7 @@ def invert(text, repairs, src):
         elif op == "drop_leading_word":
             text = r["word"] + " " + text
         elif op == "replace":
+            check_replace_tokens(sid, r["old"], r["new"], doc_paths)
             # Inverse of the generator's `replace`. The NEW text must occur
             # exactly once, or the document does not carry the repair the map
             # claims: an unrecorded replace leaves `new` absent and the
@@ -127,7 +182,8 @@ def main():
             fail(f"{sec['id']}: heading {sec['heading']!r} not in {sec['doc']}")
             continue
         expect = norm(" ".join(lines[ln - 1][a:b] for ln, a, b in sec["spans"]))
-        actual = norm(invert(norm(written), sec["repairs"], expect))
+        actual = norm(invert(norm(written), sec["repairs"], expect,
+                             spec["docs"], sec["id"]))
         if actual != expect:
             i = next((k for k in range(min(len(actual), len(expect)))
                       if actual[k] != expect[k]), min(len(actual), len(expect)))

@@ -4,7 +4,7 @@
 The prose is SLICED out of CLAUDE.md, never retyped. Re-runnable: it
 rewrites each target document from scratch every time.
 """
-import json, pathlib, re, subprocess, sys, textwrap
+import collections, json, pathlib, re, subprocess, sys, textwrap
 
 HERE = pathlib.Path(__file__).resolve().parent
 REPO = HERE.parents[2]
@@ -56,7 +56,66 @@ def upsert(path, heading, body, after=None):
     f.write_text(text, encoding="utf-8")
 
 
-def apply_repairs(text, repairs):
+# --- `replace` token guard (mirrored in the verifier; the two files stay
+# independent by construction, so the check is written out twice) -------------
+_NUM = re.compile(r"\d+(?:[.,]\d+)*")
+_TICK = re.compile(r"`[^`]*`")
+
+
+def _tokens(text):
+    """The numbers and backticked tokens of a string, as a multiset."""
+    return (collections.Counter(_NUM.findall(text))
+            + collections.Counter(_TICK.findall(text)))
+
+
+def _strip_refs(text, doc_paths):
+    """Remove the ROUTING REFERENCES a repoint is allowed to add: a target
+    document's backticked path, with the section clause and step number that
+    belong to it. What is left is the prose the repoint must not have touched.
+    """
+    if not doc_paths:
+        return text
+    ref = (r"`(?:" + "|".join(re.escape(p) for p in sorted(doc_paths)) + r")`"
+           r'(?:\s*\u00a7"[^"]*")?(?:,\s*step\s+\d+)?')
+    return re.sub(ref, "", text)
+
+
+def check_replace_tokens(old, new, doc_paths):
+    """A `replace` may only REPOINT a reference -- never restate a measurement.
+
+    The verifier's `invert` restores new->old before CONTENT compares, so ANY
+    consistent (map, document) pair passes the character proofs: a `replace`
+    recording "0.65" -> "0.95" ships a falsified constant in the document and
+    still verifies (measured by the reviewer -- VERIFIED, exit 0). The other
+    three ops are structurally constrained (append_period adds one ".",
+    capitalize_first changes one letter's case, drop_leading_word is inverted
+    from the map's own `word`); `replace` is free text on both sides, so it
+    carries trust the map did not have before, and needs its own guard.
+
+    The guard: `old` and `new` must carry IDENTICAL MULTISETS of numbers and
+    backticked tokens, once the routing reference the repoint exists to add is
+    stripped out of `new`. A repoint may therefore only ADD a target document's
+    path, its section clause and a step number -- never drop, alter or invent a
+    measurement, constant name, identifier, path or sheet slug in the prose
+    around it.
+
+    Stripping is what makes equality achievable: two of the nine shipped
+    references carry digits of their own (W1's §"Iteration 1-3 summary, moved
+    from CLAUDE.md (2026-09-09)", step 6; the ninth op's §"4g. The
+    detection-scale factor (moved from CLAUDE.md, 2026-09-09)"), and every one
+    adds a backticked `docs/...md` path. Measured against all nine: each
+    passes, and 0.65 -> 0.95 -- the reviewer's demonstrated hole -- fails.
+    """
+    o = _tokens(old)
+    n = _tokens(_strip_refs(new, doc_paths))
+    if o != n:
+        raise AssertionError(
+            "replace changes the moved prose's numbers/backticked tokens: "
+            f"dropped {dict(o - n)}, added {dict(n - o)} "
+            "(outside the routing reference)")
+
+
+def apply_repairs(text, repairs, doc_paths):
     for r in repairs:
         op = r["op"]
         if op == "drop_leading_word":
@@ -77,6 +136,7 @@ def apply_repairs(text, repairs):
             # occur EXACTLY ONCE in the span: an ambiguous match would make the
             # verifier's inversion non-deterministic.
             o, n = r["old"], r["new"]
+            check_replace_tokens(o, n, doc_paths)
             c = text.count(o)
             assert c == 1, f"replace: {o!r} occurs {c} times in the span, need 1"
             text = text.replace(o, n)
@@ -107,7 +167,8 @@ def main():
         if sec["doc"] is None:
             continue
         parts = [lines[ln - 1][a:b] for ln, a, b in sec["spans"]]
-        body = apply_repairs(" ".join(parts).strip(), sec["repairs"])
+        body = apply_repairs(" ".join(parts).strip(), sec["repairs"],
+                             spec["docs"])
         bydoc.setdefault(sec["doc"], []).append(
             (sec["heading"], body, sec.get("insert_after")))
 
