@@ -190,13 +190,13 @@
     "semantic_hash": "945b5a947f6195b9e3563408a2b50b7c"
   },
   "CLAUDE.md": {
-    "mtime": 1788956177.9321413,
-    "ast_hash": "2c909441570c3e207e95dbcb439bcf08",
+    "mtime": 1788713627.3088973,
+    "ast_hash": "518f2692d32bf60b94eba5329d8c5e73",
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788956412.3429494,
-    "ast_hash": "22a9c5392f7106b74e03ddc943970362",
+    "mtime": 1788129231.8132052,
+    "ast_hash": "54316fdd435bb0969e230f7b1d78fd4d",
     "semantic_hash": ""
   },
   "docs/door-detection-tuning-guide.md": {
@@ -810,8 +810,8 @@
     "semantic_hash": ""
   },
   "docs/scale-normalization-findings.md": {
-    "mtime": 1788955279.85671,
-    "ast_hash": "e65416992b1bf9f430d1d51628df34e3",
+    "mtime": 1788713635.5765903,
+    "ast_hash": "bf5e97ab0775015bc7bf4b6565b7c5e9",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-08-12-scale-aware-wall-room-gates.md": {
@@ -1045,8 +1045,8 @@
     "semantic_hash": ""
   },
   "docs/w-gate-recalibration-handoff.md": {
-    "mtime": 1788956433.7879472,
-    "ast_hash": "c15b13b73cb29de37f4d07b51e3cbb46",
+    "mtime": 1788711300.848475,
+    "ast_hash": "c5825e9e22500b3940bba956870b91d7",
     "semantic_hash": ""
   },
   "takeoff/document.py": {
@@ -1075,18 +1075,18 @@
     "semantic_hash": ""
   },
   ".claude/skills/fix-detection/evals/evals.json": {
-    "mtime": 1788956406.2198596,
-    "ast_hash": "89343405b1c7afced8207aeeda661d7b",
+    "mtime": 1787953295.3945544,
+    "ast_hash": "64520ed2be7dd58adee7883609c51b34",
     "semantic_hash": ""
   },
   ".claude/skills/fix-detection/SKILL.md": {
-    "mtime": 1788957169.0364716,
-    "ast_hash": "2ae21a0755e2b2d3912d4e94eb68d747",
+    "mtime": 1787953295.3943944,
+    "ast_hash": "33a83d19e96fe75f908899df4e01d177",
     "semantic_hash": ""
   },
   ".claude/skills/fix-detection/references/file-map.md": {
-    "mtime": 1788956571.3666973,
-    "ast_hash": "7bc7d0b4b7760d38c0288b14fe2c85c5",
+    "mtime": 1788371250.6559107,
+    "ast_hash": "6aab4fcd675f836ae066b7a9272e956b",
     "semantic_hash": ""
   },
   ".claude/skills/fix-detection/references/report-template.md": {
@@ -2990,8 +2990,8 @@
     "semantic_hash": ""
   },
   "tools/census_scratch/step17/recess_census_after_c.json": {
-    "mtime": 1788713940.073746,
-    "ast_hash": "35d37f74441d3aff8438bd85de7d8e8c",
+    "mtime": 1788713914.446856,
+    "ast_hash": "82ce31772e863137cf7407b943d61161",
     "semantic_hash": ""
   },
   "tools/census_scratch/step17/recess_census_b.json": {
@@ -3015,8 +3015,8 @@
     "semantic_hash": ""
   },
   "tools/census_scratch/step17/zoom17.py": {
-    "mtime": 1788713953.1708555,
-    "ast_hash": "6f776ec931af6762ef2dee8b7326e24a",
+    "mtime": 1788713671.9271972,
+    "ast_hash": "afd961e23a4be42c41cbe74f57ee2038",
     "semantic_hash": ""
   },
   "docs/w-gate-iter3-checkpoints/step-17.md": {
@@ -3050,8 +3050,8 @@
     "semantic_hash": ""
   },
   "tools/census_scratch/step17/graphify_update.txt": {
-    "mtime": 1788713930.669059,
-    "ast_hash": "94325aa5561bb1396703a02a1755ffd3",
+    "mtime": 1788713923.8185394,
+    "ast_hash": "966b9766b1dbc83737cfe661077ae432",
     "semantic_hash": ""
   },
   "tools/census_scratch/step17/recess_census_a.txt": {
@@ -3070,8 +3070,8 @@
     "semantic_hash": ""
   },
   "tools/census_scratch/step17/recess_census_after_c.txt": {
-    "mtime": 1788713940.0746694,
-    "ast_hash": "f4a0c49d467b6998d2e44d0aa6c77347",
+    "mtime": 1788713914.4466422,
+    "ast_hash": "ecc39e688d6f8c59c652dc9853654166",
     "semantic_hash": ""
   },
   "tools/census_scratch/step17/recess_census_b.txt": {
@@ -3160,8 +3160,8 @@
     "semantic_hash": ""
   },
   "tools/census_scratch/step17/zoom17.txt": {
-    "mtime": 1788714039.765105,
-    "ast_hash": "beb1b27220c874bfbbd468b61007b82b",
+    "mtime": 1788713788.559278,
+    "ast_hash": "7470b8316c0345cbe75af1c4ac6e97b8",
     "semantic_hash": ""
   },
   "docs/w-gate-iter3-checkpoints/step16_s12_two_unit_cells_removed_ceiling_56.png": {
@@ -3185,73 +3185,33 @@
     "semantic_hash": ""
   },
   "docs/w-gate-iter3-checkpoints/step17_s10_recess_497_2935_back_minus_2.12.png": {
-    "mtime": 1788714039.626606,
-    "ast_hash": "0d153604758cb23a1ffcb13c72579b8d",
+    "mtime": 1788713788.4613316,
+    "ast_hash": "172810b891d269f3a0d39b32f2423edd",
     "semantic_hash": ""
   },
   "docs/w-gate-iter3-checkpoints/step17_s11_breast_pocket_781_1509_recess_both_readings.png": {
-    "mtime": 1788713966.4697511,
-    "ast_hash": "53bc4ebcf64b2cba2e01a3fbd8e7ae41",
+    "mtime": 1788713712.6514058,
+    "ast_hash": "ccc8b22ac612c5c9482db1a916847fe0",
     "semantic_hash": ""
   },
   "docs/w-gate-iter3-checkpoints/step17_s11_breast_pocket_886_874_recess_both_readings.png": {
-    "mtime": 1788713966.3382614,
-    "ast_hash": "527d383f2032386efede2772b7e6bfe3",
+    "mtime": 1788713712.502723,
+    "ast_hash": "b8537cf8f566161ade5d8734ebe3f67a",
     "semantic_hash": ""
   },
   "docs/w-gate-iter3-checkpoints/step17_s17_hollow_wall_strip_0013_no_collinear_gap.png": {
-    "mtime": 1788714039.7584155,
-    "ast_hash": "82bd0388c7f6d29e7f51e4939101545a",
+    "mtime": 1788713788.5527587,
+    "ast_hash": "d7e248e37782e40bfa3929ede6609c52",
     "semantic_hash": ""
   },
   "docs/w-gate-iter3-checkpoints/step17_s17_pocket_1548_2766_112mm_band_recess_both_readings.png": {
-    "mtime": 1788714038.1149392,
-    "ast_hash": "c2e3a401bc1122013c868877ded29b8b",
+    "mtime": 1788713786.9574485,
+    "ast_hash": "8d97a7f71304f47ada93ee275979b12c",
     "semantic_hash": ""
   },
   "docs/w-gate-iter3-checkpoints/step17_s18_pier_2096_2506_gap_cover_0.66_recess_both_readings.png": {
-    "mtime": 1788714033.3726513,
-    "ast_hash": "52f3693e90351aab28a380107cb67a02",
-    "semantic_hash": ""
-  },
-  "docs/superpowers/specs/2026-09-09-claude-md-split-generate.py": {
-    "mtime": 1788952482.4667175,
-    "ast_hash": "5d665d12a15113d657fe9ff9df725008",
-    "semantic_hash": ""
-  },
-  "docs/superpowers/specs/2026-09-09-claude-md-split-map.json": {
-    "mtime": 1788955000.753103,
-    "ast_hash": "4a1eb856977955604d8ee6512638c073",
-    "semantic_hash": ""
-  },
-  "docs/superpowers/specs/2026-09-09-claude-md-split-verify.py": {
-    "mtime": 1788952489.0285249,
-    "ast_hash": "6f6e4a20abd5908ae23c7ca18cf42ee1",
-    "semantic_hash": ""
-  },
-  "docs/page-segmentation.md": {
-    "mtime": 1788955279.8386211,
-    "ast_hash": "0c07a4398ea9f31e00893a1a828fb19b",
-    "semantic_hash": ""
-  },
-  "docs/room-detection-rules.md": {
-    "mtime": 1788955279.8556461,
-    "ast_hash": "47a3898f4baba9ad0afa6761ad942ade",
-    "semantic_hash": ""
-  },
-  "docs/superpowers/plans/2026-09-09-claude-md-split.md": {
-    "mtime": 1788951714.414586,
-    "ast_hash": "48aeefd74e84f4ea0b15d9378d6a11ac",
-    "semantic_hash": ""
-  },
-  "docs/superpowers/specs/2026-09-09-claude-md-split-design.md": {
-    "mtime": 1788949262.2311096,
-    "ast_hash": "4e4f732460ddefba07f232660ab2fb7c",
-    "semantic_hash": ""
-  },
-  "docs/wall-network-rules.md": {
-    "mtime": 1788955279.847867,
-    "ast_hash": "7f396bc47aee4c0883a771ab2c98569e",
+    "mtime": 1788713782.0772119,
+    "ast_hash": "400e7f7aff09c72b1cb0b5aa39b72baa",
     "semantic_hash": ""
   }
 }
