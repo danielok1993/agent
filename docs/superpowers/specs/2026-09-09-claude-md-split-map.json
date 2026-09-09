@@ -517,6 +517,7 @@
       "repairs": [
         {"op": "replace", "old": "(`_clip_plug_tails`, in the room paragraph above)", "new": "(`_clip_plug_tails`, in `docs/room-detection-rules.md` §\"Tail trim and clip\")"},
         {"op": "replace", "old": "(`_doorway_pens`, in the room paragraph above)", "new": "(`_doorway_pens`, in `docs/wall-network-rules.md` §\"Wall pens and the doorway veto\")"},
+        {"op": "replace", "old": "(`scale/dimensions.py`, the paragraph above)", "new": "(`scale/dimensions.py`, `docs/scale-normalization-findings.md` §\"4g. The detection-scale factor (moved from CLAUDE.md, 2026-09-09)\")"},
         {"op": "replace", "old": "(`_entrance_run`, in the room paragraph above)", "new": "(`_entrance_run`, in `docs/room-detection-rules.md` §\"Entrances\")"},
         {"op": "replace", "old": "`cap_lines` — in the room paragraph above; no constant moved)", "new": "`cap_lines` — in `docs/room-detection-rules.md` §\"The band-pocket drop\"; no constant moved)"},
         {"op": "replace", "old": "0.65 (in the room paragraph above; inert at the 36 ceiling", "new": "0.65 (in `docs/room-detection-rules.md` §\"Band-pocket end closures\"; inert at the 36 ceiling"},

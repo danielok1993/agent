@@ -2976,29 +2976,31 @@ the doorway veto"): corpus byte-identical, s01 at 0.542 in the harness 11 doors
 / 4 windows / 9 of 12 rooms with the merged landing the only unreviewed room
 and the three stair verdicts the only losses. Step 12 (2026-09-06,
 `docs/w-gate-iter3-checkpoints/step-12.md`) let the drawing's dimension strings
-verify a measured scale for the gates (`scale/dimensions.py`, the paragraph
-above): s01 runs at its true factor IN THE SWEEP — 11 doors / 4 windows / 9 of
-12 rooms, the three stair verdicts the only losses and the merged landing the
-only REVIEW line (the user retires the three by hand and records the landing
-through `tools/review.py`; s01's room-label cache then needs a Gemini reseed at
-the new geometry) — and the other 19 sheets are entity- and polygon-identical.
-Step 4 (2026-09-06, `docs/w-gate-iter3-checkpoints/step-4.md`, measurement
-only) ran `WALL_MAX_THICKNESS_PX` 36 → 40 AS IMPLEMENTED on every sheet at its
-factor and did NOT move it: the 40 removes s17's four cavity-wall reveal
-phantoms (a 313mm cavity wall drawn at 36.5–36.75px — the modern 315mm wall
-sits 1.03× over the cap) and s16's pocket (sealed by two stair treads 18px
-apart at 1:100, the wrong reason), but admits s18's site boundary drawn double
-(18.25px over 682px, fencing the tree strip), a 20×15px stub box under s11's
-party wall (which lets the neighbour's chimney-breast box pass the room
-filters), and s15's wardrobe edge paired with the unrecognised "3560" dimension
-line 39.75px below it (the confirmed bedroom −5,135 px²), re-nodes s02 by 3–19
-px², and stops 27 s11/s16 rooms at their plaster lines (correct, 1.1px strips);
-no pairing-stage feature separates the true stretches from the false bands —
-material, parallel linework inside the band over the overlap and over the
-faces' whole extent (the cavity's leaf lines stop exactly where the strips
-form), and openings in the band all read 0 on both classes at the same world
-thickness — while the s17 strips looked like `_is_band_pocket`'s own class held
-out by its `WALL_MAX_THICKNESS_PX` ceiling (35 + 4 > 36). Step 13 (2026-09-06,
+verify a measured scale for the gates (`scale/dimensions.py`,
+`docs/scale-normalization-findings.md` §"4g. The detection-scale factor (moved
+from CLAUDE.md, 2026-09-09)"): s01 runs at its true factor IN THE SWEEP — 11
+doors / 4 windows / 9 of 12 rooms, the three stair verdicts the only losses and
+the merged landing the only REVIEW line (the user retires the three by hand and
+records the landing through `tools/review.py`; s01's room-label cache then
+needs a Gemini reseed at the new geometry) — and the other 19 sheets are
+entity- and polygon-identical. Step 4 (2026-09-06,
+`docs/w-gate-iter3-checkpoints/step-4.md`, measurement only) ran
+`WALL_MAX_THICKNESS_PX` 36 → 40 AS IMPLEMENTED on every sheet at its factor and
+did NOT move it: the 40 removes s17's four cavity-wall reveal phantoms (a 313mm
+cavity wall drawn at 36.5–36.75px — the modern 315mm wall sits 1.03× over the
+cap) and s16's pocket (sealed by two stair treads 18px apart at 1:100, the
+wrong reason), but admits s18's site boundary drawn double (18.25px over 682px,
+fencing the tree strip), a 20×15px stub box under s11's party wall (which lets
+the neighbour's chimney-breast box pass the room filters), and s15's wardrobe
+edge paired with the unrecognised "3560" dimension line 39.75px below it (the
+confirmed bedroom −5,135 px²), re-nodes s02 by 3–19 px², and stops 27 s11/s16
+rooms at their plaster lines (correct, 1.1px strips); no pairing-stage feature
+separates the true stretches from the false bands — material, parallel linework
+inside the band over the overlap and over the faces' whole extent (the cavity's
+leaf lines stop exactly where the strips form), and openings in the band all
+read 0 on both classes at the same world thickness — while the s17 strips
+looked like `_is_band_pocket`'s own class held out by its
+`WALL_MAX_THICKNESS_PX` ceiling (35 + 4 > 36). Step 13 (2026-09-06,
 `docs/w-gate-iter3-checkpoints/step-13.md`, measurement only) ran that ceiling
 at `WALL_THICK_MATERIAL_MAX_PX` AS IMPLEMENTED on every sheet (a tap on every
 call the rule receives, then the chain with/without) and did NOT move it: of 54
