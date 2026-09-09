@@ -50,6 +50,34 @@ The machinery below is not sketched — it was prototyped against the real
   are therefore two sections (W6a, W6b) rather than one two-span section, and
   every section is now a single contiguous span.
 - **Repair count measured:** 7, not the spec's estimated 25–40.
+- **Append-mode `upsert` proven idempotent** in both positions (section last, section followed by another heading), with neighbouring sections untouched, and its output recovered byte-exactly by the verifier's heading parser.
+
+Three further defects were found in code review of this plan and are fixed
+above. All three were verified by running the offending code against the real
+repository, not by inspection:
+
+- **The dedup probe would have destroyed 22,399 characters.** It classified a
+  whole claim as already-present when *any* eight-word window matched. Measured:
+  3 of line 199's 7 claims and 17 of line 201's 33 marked PRESENT, while **zero**
+  complete claims occur in the searched corpora — one accepted claim ran 223
+  words, another 269. Those claims were then to be dropped, after the source
+  line had already been replaced. Lines 199 and 201 are now span-assigned like
+  197 and 245, so the same COVERAGE and CONTENT proof covers them; exact
+  whole-claim matching finds **0** droppable claims, so the dedup premise was
+  wrong — the overlap is at phrase level (shared constant names), not claim
+  level. The number is reported, never acted on.
+- **The verifier covered only two of the four deleted lines.** A direct
+  consequence of the above, and it made the spec's central "every character
+  accounted for" guarantee untrue for 22,399 chars. Now all four lines are
+  covered, and Task 9's arithmetic reconciles against all four rather than
+  expecting an equality that could not hold.
+- **The generator was not reproducibly pinned to the source.** It read the
+  working-tree `CLAUDE.md` while the map recorded `source_ref`, so any re-run
+  after the cut would slice pointers or empty offsets. It now loads
+  `git show {source_ref}:{source_file}`, as the verifier already did.
+
+The cut is also reordered to run last of the content tasks, so no content is
+absent from the working tree even for a single commit.
 
 ---
 
@@ -65,8 +93,8 @@ The machinery below is not sketched — it was prototyped against the real
 | `docs/room-detection-rules.md` | **Create.** `detection/rooms.py` rules. 15 sections, 45,527 chars. |
 | `docs/page-segmentation.md` | **Create.** `layout/` ink map, nested-frame skip, four gutter tiers. 4,279 chars. |
 | `CLAUDE.md` | **Modify.** Lines 197/199/201 replaced by pointers; line 245's movable span replaced by a pointer clause. |
-| `docs/scale-normalization-findings.md` | **Modify.** Absorbs anything in line 199 not already in §4. |
-| `docs/w-gate-recalibration-handoff.md` | **Modify.** Absorbs what the dedup proves is unique to line 201; live step-18 prompt repathed. |
+| `docs/scale-normalization-findings.md` | **Modify.** Append-mode target: receives the whole of line 199 as section `F1`, span-proven. |
+| `docs/w-gate-recalibration-handoff.md` | **Modify.** Append-mode target: receives the whole of line 201 as section `H1`, span-proven; live step-18 prompt repathed. |
 | `.claude/skills/fix-detection/SKILL.md` | **Modify.** 3 repaths, routing table, phase-5 heading rule. |
 | `.claude/skills/fix-detection/references/file-map.md` | **Modify.** Walls/Rooms "Read first" rows, s01/s02 note. |
 | `.claude/skills/fix-detection/evals/evals.json` | **Modify.** 2 grading criteria. |
@@ -78,7 +106,7 @@ The generator, verifier and map live beside the spec they serve rather than in `
 
 ## The Section Map
 
-Derived and verified before this plan was written: all 31 anchors found, in source order, spans contiguous, summing exactly to each source line's length.
+Derived and verified before this plan was written: all 31 line-197 anchors found, in source order, spans contiguous, summing exactly to each source line's length. **34 sections in total** — 15 wall, 16 room, 1 page-segmentation, 2 append-mode — covering all four source lines, 126,362 chars.
 
 ### `docs/wall-network-rules.md` — 15 sections, 54,080 chars
 
@@ -127,6 +155,15 @@ Sections therefore appear in the documents in a chosen order that differs from s
 | R9 | Limitations and scope | [98697, 99607) | 910 |
 
 R1 is 176 chars and stays a section of its own: it is the tier enumeration's premise ("Barriers are ALLOWLISTED wall evidence, not all linework"), and the tier entries cross-reference W6–W9 from it.
+
+### Append-mode targets — 2 sections, 22,399 chars
+
+| id | Document | Heading | Source span | Chars |
+|---|---|---|---|---|
+| F1 | `docs/scale-normalization-findings.md` | The detection-scale factor, moved from CLAUDE.md (2026-09-09) | line 199, [0, 3923) | 3,923 |
+| H1 | `docs/w-gate-recalibration-handoff.md` | Iteration 1–3 summary, moved from CLAUDE.md (2026-09-09) | line 201, [0, 18476) | 18,476 |
+
+These land in **existing** documents, so the generator upserts one section by heading rather than rewriting the file. The verifier's heading parser reads them exactly as it reads a generated document, so they get the same CONTENT proof. Neither needs a repair: both open capitalised and end on terminal punctuation.
 
 ### `docs/page-segmentation.md` — 1 section, 4,279 chars
 
@@ -200,11 +237,45 @@ Create `docs/superpowers/specs/2026-09-09-claude-md-split-generate.py`:
 The prose is SLICED out of CLAUDE.md, never retyped. Re-runnable: it
 rewrites each target document from scratch every time.
 """
-import json, pathlib, re, sys, textwrap
+import json, pathlib, re, subprocess, sys, textwrap
 
 HERE = pathlib.Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 MAP = HERE / "2026-09-09-claude-md-split-map.json"
+
+
+def load_source(spec):
+    """Read CLAUDE.md at the map's PINNED ref, never the working tree.
+
+    LOAD-BEARING: Task 5 shortens the source lines. A generator reading the
+    working tree would slice pointers or empty offsets on any later re-run,
+    so the committed generator would not be reproducible.
+    """
+    out = subprocess.run(
+        ["git", "show", f"{spec['source_ref']}:{spec['source_file']}"],
+        cwd=REPO, capture_output=True, text=True, check=True)
+    return out.stdout.split("\n")
+
+
+def upsert(path, heading, body):
+    """Append-mode: replace this heading's section in an existing document,
+    or append it if absent.
+
+    Idempotent -- the generator is re-run by several tasks, and a non-idempotent
+    upsert accumulated a trailing newline per run. Verified in both positions:
+    section last in the file, and section followed by another heading.
+    """
+    f = REPO / path
+    text = f.read_text(encoding="utf-8")
+    marker = f"\n## {heading}\n"
+    if marker in text:
+        i = text.index(marker)
+        j = text.find("\n## ", i + len(marker))
+        tail = text[j:] if j > 0 else ""
+        text = text[:i] + marker + "\n" + body.rstrip() + "\n" + tail
+    else:
+        text = text.rstrip() + "\n\n## " + heading + "\n\n" + body.rstrip() + "\n"
+    f.write_text(text, encoding="utf-8")
 
 
 def apply_repairs(text, repairs):
@@ -238,7 +309,7 @@ def wrap(text):
 
 def main():
     spec = json.loads(MAP.read_text(encoding="utf-8"))
-    lines = (REPO / spec["source_file"]).read_text(encoding="utf-8").split("\n")
+    lines = load_source(spec)
 
     bydoc = {}
     for sec in spec["sections"]:
@@ -250,6 +321,11 @@ def main():
 
     for path, secs in bydoc.items():
         meta = spec["docs"][path]
+        if meta.get("mode", "create") == "append":
+            for heading, body in secs:
+                upsert(path, heading, wrap(body).rstrip())
+            print(f"upserted {path}: {len(secs)} section(s)")
+            continue
         out = [f"# {meta['title']}", "", wrap(meta["preamble"]).rstrip(), ""]
         for heading, body in secs:
             out += [f"## {heading}", "", wrap(body).rstrip(), ""]
@@ -498,8 +574,8 @@ Append to `"sections"`. Every entry has `"repairs": []` for now; Task 3 fills th
 {"id":"W3","doc":"docs/wall-network-rules.md","heading":"Face collection and the length floor","spans":[[197,7590,9219]],"repairs":[]},
 {"id":"W4","doc":"docs/wall-network-rules.md","heading":"Lattice demotion — striped fields and hatch","spans":[[197,9219,13431]],"repairs":[]},
 {"id":"W5","doc":"docs/wall-network-rules.md","heading":"Stair demotion","spans":[[197,13431,19696]],"repairs":[]},
-{"id":"W6a","doc":"docs/wall-network-rules.md","heading":"Pairing — plain, thick and through tiers","spans":[[197,19872,23537]],"repairs":[{"op":"append_period"}]},
-{"id":"W6b","doc":"docs/wall-network-rules.md","heading":"Pairing — taper, redundancy collapse and the far-side rule","spans":[[197,31568,35945]],"repairs":[{"op":"capitalize_first"},{"op":"append_period"}]},
+{"id":"W6a","doc":"docs/wall-network-rules.md","heading":"Pairing — plain, thick and through tiers","spans":[[197,19872,23537]],"repairs":[]},
+{"id":"W6b","doc":"docs/wall-network-rules.md","heading":"Pairing — taper, redundancy collapse and the far-side rule","spans":[[197,31568,35945]],"repairs":[]},
 {"id":"W7","doc":"docs/wall-network-rules.md","heading":"The weak tier and the material gate","spans":[[197,23537,28026]],"repairs":[]},
 {"id":"W8","doc":"docs/wall-network-rules.md","heading":"Wall pens and the doorway veto","spans":[[197,28026,31568]],"repairs":[]},
 {"id":"W9","doc":"docs/wall-network-rules.md","heading":"Fill rings and class rating","spans":[[197,35945,37571]],"repairs":[]},
@@ -648,7 +724,7 @@ EOF
 
 A repair is needed only when a section **opens** with an orphaned lowercase connective (`and `, `while `, `but `, `so `) or a lowercase word, or **ends** without terminal punctuation.
 
-**Measured during plan validation — exactly 5 of the 15 wall sections need one, and these are they.** Confirm the printed openings match before applying; if any differs, the map's boundaries moved and Task 2 needs revisiting.
+**Measured during plan validation — exactly 7 of the 15 wall sections need one, and these are they.** Confirm the printed openings match before applying; if any differs, the map's boundaries moved and Task 2 needs revisiting.
 
 | id | Opens | Repairs, in order |
 |---|---|---|
@@ -660,7 +736,7 @@ A repair is needed only when a section **opens** with an orphaned lowercase conn
 | W9b | `and fill SEAMS never become faces (\`_fill_seam_i…` | `drop_leading_word` (`and`), `capitalize_first` |
 | W10d | `Known gap, a separate iteration: (b) glyph-outli…` | `append_period` |
 
-(Seven rows: W6a and W6b are both pairing sections.) `(2) wall-fill polygons` and `(3) thin buffers` need no `capitalize_first` — a parenthesised enumerator is a legitimate opening. The other 8 wall sections need nothing.
+`(2) wall-fill polygons` and `(3) thin buffers` need no `capitalize_first` — a parenthesised enumerator is a legitimate opening. The other 8 wall sections need nothing.
 
 - [ ] **Step 4: Record the repairs in the map**
 
@@ -771,7 +847,7 @@ python3 docs/superpowers/specs/2026-09-09-claude-md-split-generate.py
 python3 docs/superpowers/specs/2026-09-09-claude-md-split-verify.py; echo "exit=$?"
 ```
 
-Expected: `exit=0`, with all 31 sections reporting `exact`.
+Expected: `exit=0`, with all 34 sections reporting `exact`.
 
 - [ ] **Step 6: Confirm the cross-references resolve**
 
@@ -801,14 +877,197 @@ stamp and bbox fallback) and the 12,460-char drop cluster R7a-c (wall recess,
 band pocket, end closures), so the largest section an agent must read to
 diagnose one phantom is ~5.5k rather than 100k.
 
-Verifier green on all 31 sections; every docs/*.md cross-reference resolves."
+Verifier green on all 34 sections; every docs/*.md cross-reference resolves."
 ```
 
 ---
 
-## Task 5: Cut `CLAUDE.md` to its pointers
+## Task 5: Move line 199 into `docs/scale-normalization-findings.md` under the span map
 
-The only task that deletes anything from `CLAUDE.md`. The verifier still reads `27b3986`, so it keeps proving the documents against the pre-split original after the cut.
+Lines 199 and 201 are **span-assigned exactly like 197 and 245** — not probed by a heuristic. The eight-word-window dedup this task originally used was measured and rejected: see "Plan validation" above.
+
+**Files:**
+- Modify: `docs/superpowers/specs/2026-09-09-claude-md-split-map.json`
+- Modify: `docs/scale-normalization-findings.md`
+
+**Interfaces:**
+- Consumes: the map schema, generator and verifier from Task 1.
+- Produces: COVERAGE over line 199, closing the verifier's gap.
+
+- [ ] **Step 1: Add the append-mode document and the F1 section to the map**
+
+Add to `"docs"`:
+
+```json
+"docs/scale-normalization-findings.md": {
+  "mode": "append",
+  "title": "(existing document — append mode, title unused)",
+  "preamble": ""
+}
+```
+
+Add to `"sections"`:
+
+```json
+{"id":"F1","doc":"docs/scale-normalization-findings.md",
+ "heading":"The detection-scale factor, moved from CLAUDE.md (2026-09-09)",
+ "spans":[[199,0,3923]],"repairs":[]}
+```
+
+The whole of line 199 moves. CLAUDE.md's replacement is **newly written pointer prose**, not a retained span — the map accounts for where the original characters went, and new summary prose in CLAUDE.md is not claimed as preserved content.
+
+- [ ] **Step 2: Generate and verify**
+
+```bash
+python3 docs/superpowers/specs/2026-09-09-claude-md-split-generate.py
+python3 docs/superpowers/specs/2026-09-09-claude-md-split-verify.py 2>&1 | grep -E "^(COVERAGE line 199|CONTENT F1|FAIL)"
+```
+
+Expected: `COVERAGE line 199: 3923 chars, 1 spans, exact` and `CONTENT F1 … exact`, no `FAIL`.
+
+- [ ] **Step 3: Measure and report the actual overlap with §4 — as a number, not a gate**
+
+```bash
+python3 - <<'EOF'
+import subprocess, re, pathlib
+src=subprocess.run(["git","show","27b3986:CLAUDE.md"],capture_output=True,text=True,check=True).stdout
+line=src.split("\n")[198]
+tgt=" ".join(pathlib.Path("docs/scale-normalization-findings.md").read_text(encoding="utf-8").split())
+claims=re.split(r'(?<=[.;]) (?=[A-Z(`])', line)
+full=sum(1 for c in claims if " ".join(c.split()) in tgt)
+print(f"line 199: {len(claims)} claims, {full} present in §4 as COMPLETE claims")
+EOF
+```
+
+Expected: `0 present`. Measured while planning; record it in the Task 9 report as the evidence that this content was never a duplicate. **Nothing is deleted on the strength of this number** — it is reported, not acted on.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add docs/scale-normalization-findings.md docs/superpowers/specs/2026-09-09-claude-md-split-map.json
+git commit -m "docs(split): move CLAUDE.md's gates paragraph into findings under the span map
+
+Line 199 moves whole, span-assigned exactly like 197 and 245, so COVERAGE and
+CONTENT now prove it -- 3,923 chars that the original plan would have deleted
+under a probe instead.
+
+The eight-word-window dedup is gone. Measured against the real repository it
+marked 3 of line 199's 7 claims PRESENT while ZERO complete claims occur in
+the findings document -- a 223-word claim accepted because one eight-word
+fragment matched -- and those claims would then have been dropped after the
+source line had already been replaced. Exact whole-claim matching finds 0
+droppable claims, so the dedup premise was wrong: the overlap is at phrase
+level (shared constant names), not claim level. The number is now reported in
+the verification report, never acted on."
+```
+
+---
+
+## Task 6: Move line 201 into `docs/w-gate-recalibration-handoff.md` under the span map
+
+Same correction as Task 6, on the larger block. Design-time spot-checking already found phrases in line 201 present nowhere else in the repo; exact whole-claim matching now confirms the stronger result.
+
+**Files:**
+- Modify: `docs/superpowers/specs/2026-09-09-claude-md-split-map.json`
+- Modify: `docs/w-gate-recalibration-handoff.md`
+
+**Interfaces:**
+- Consumes: the map schema, generator and verifier from Task 1.
+- Produces: COVERAGE over line 201, completing exact accounting for all four source lines.
+
+- [ ] **Step 1: Add the append-mode document and the H1 section to the map**
+
+Add to `"docs"`:
+
+```json
+"docs/w-gate-recalibration-handoff.md": {
+  "mode": "append",
+  "title": "(existing document — append mode, title unused)",
+  "preamble": ""
+}
+```
+
+Add to `"sections"`:
+
+```json
+{"id":"H1","doc":"docs/w-gate-recalibration-handoff.md",
+ "heading":"Iteration 1–3 summary, moved from CLAUDE.md (2026-09-09)",
+ "spans":[[201,0,18476]],"repairs":[]}
+```
+
+- [ ] **Step 2: Generate and verify**
+
+```bash
+python3 docs/superpowers/specs/2026-09-09-claude-md-split-generate.py
+python3 docs/superpowers/specs/2026-09-09-claude-md-split-verify.py; echo "exit=$?"
+```
+
+Expected: `exit=0`, **4 COVERAGE lines (197, 199, 201, 245)** and 34 CONTENT lines. This is the first point at which the spec's "exact accounting for lines 197, 199, 201 and 245" is actually true.
+
+- [ ] **Step 3: Measure and report the actual overlap — as a number, not a gate**
+
+```bash
+python3 - <<'EOF'
+import subprocess, re, pathlib, glob
+src=subprocess.run(["git","show","27b3986:CLAUDE.md"],capture_output=True,text=True,check=True).stdout
+line=src.split("\n")[200]
+files=["docs/w-gate-census-2026-09-04.md"]+sorted(glob.glob("docs/w-gate-iter3-checkpoints/*.md"))\
+      +sorted(glob.glob("docs/w-gate-iter2-checkpoints/*.md"))
+corpus=" ".join(" ".join(pathlib.Path(f).read_text(encoding="utf-8").split()) for f in files)
+claims=re.split(r'(?<=[.;]) (?=[A-Z(`])', line)
+full=sum(1 for c in claims if " ".join(c.split()) in corpus)
+print(f"line 201: {len(claims)} claims, {full} present elsewhere as COMPLETE claims")
+EOF
+```
+
+Expected: `0 present` of 33. Record in the Task 9 report. Note the corpus deliberately excludes the handoff itself, which now contains the moved section.
+
+- [ ] **Step 4: Repath the live step-18 prompt only**
+
+```bash
+grep -n "CLAUDE.md" docs/w-gate-recalibration-handoff.md | tail -5
+```
+
+Identify the step-18 prompt (the last one, the live next-step brief). Change its "the CLAUDE.md paragraphs 'Room detection'…" reference to name `docs/wall-network-rules.md` and `docs/room-detection-rules.md`. **Leave every earlier step prompt untouched** — they are records of what past agents were told and stay frozen.
+
+- [ ] **Step 5: Confirm exactly one prompt changed, and that the moved section is intact**
+
+```bash
+git diff docs/w-gate-recalibration-handoff.md | grep -c "^-.*CLAUDE.md"
+python3 docs/superpowers/specs/2026-09-09-claude-md-split-verify.py 2>&1 | grep -E "^(CONTENT H1|FAIL)"
+```
+
+Expected: exactly `1` removed line mentioning CLAUDE.md, and `CONTENT H1 … exact` — the repath must not have disturbed the moved section.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add docs/w-gate-recalibration-handoff.md docs/superpowers/specs/2026-09-09-claude-md-split-map.json
+git commit -m "docs(split): move CLAUDE.md's W-gate log into the handoff under the span map; repath step 18
+
+Line 201 moves whole, span-assigned like the rest, so all four source lines
+are now covered: 18,476 chars that the original plan would have deleted on a
+probe's say-so. With this the spec's 'exact accounting for lines 197, 199, 201
+and 245' is true for the first time -- the previous plan covered only 197 and
+245 and left 22,399 chars to a heuristic.
+
+That heuristic marked 17 of line 201's 33 claims PRESENT while ZERO complete
+claims occur in the census or the checkpoint reports; one accepted claim ran
+269 words. Exact whole-claim matching finds 0 droppable, confirming the
+design-time spot check that found 'Group 1 (2026-09-04)',
+'verdict-identical to main on all 20 sheets' and 'recalibrated tree is
+verdict-identical' nowhere else in the repo.
+
+Only the live step-18 prompt is repathed; the ~40 earlier step prompts stay
+frozen as records of what past agents were told."
+```
+
+---
+
+
+## Task 7: Cut `CLAUDE.md` to its pointers
+
+The only task that deletes anything from `CLAUDE.md`, and it runs **last** of the content tasks: every pointer it writes names a document section that Tasks 1–6 have already created and proven, so the content is never absent from the working tree even for one commit. The verifier reads `27b3986`, so it keeps proving the documents against the pre-split original after the cut.
 
 **Files:**
 - Modify: `CLAUDE.md` lines 197, 199, 201, 245
@@ -895,178 +1154,6 @@ The verifier reads git show 27b3986:CLAUDE.md, not the working copy, so
 cutting the file cannot make it pass vacuously: it still proves all 31
 sections against the pre-split original, which is the point of running it
 here."
-```
-
----
-
-## Task 6: Merge line 199's unique content into `docs/scale-normalization-findings.md`
-
-**Files:**
-- Modify: `docs/scale-normalization-findings.md`
-
-**Interfaces:**
-- Consumes: line 199's source text at `27b3986`.
-- Produces: nothing later tasks depend on.
-
-- [ ] **Step 1: Extract line 199 and split it into claims**
-
-```bash
-python3 - <<'EOF'
-import subprocess, re
-src = subprocess.run(["git","show","27b3986:CLAUDE.md"],capture_output=True,text=True,check=True).stdout
-line = src.split("\n")[198]
-claims = re.split(r'(?<=[.;]) (?=[A-Z(`])', line)
-for i, c in enumerate(claims):
-    print(f"[{i}] {c}\n")
-EOF
-```
-
-- [ ] **Step 2: For each claim, test whether §4 already carries it**
-
-```bash
-python3 - <<'EOF'
-import subprocess, re, pathlib
-src = subprocess.run(["git","show","27b3986:CLAUDE.md"],capture_output=True,text=True,check=True).stdout
-line = src.split("\n")[198]
-target = pathlib.Path("docs/scale-normalization-findings.md").read_text(encoding="utf-8")
-tnorm = " ".join(target.split())
-for i, c in enumerate(re.split(r'(?<=[.;]) (?=[A-Z(`])', line)):
-    # probe on the claim's most distinctive 8-word run
-    words = c.split()
-    hit = any(" ".join(words[j:j+8]) in tnorm for j in range(max(1, len(words)-7)))
-    print(f"[{i}] {'PRESENT in §4' if hit else '** UNIQUE **'}: {c[:110]}")
-EOF
-```
-
-- [ ] **Step 3: Append only the UNIQUE claims to §4**
-
-Add them under a new subsection at the end of §4, verbatim, prefixed:
-
-```markdown
-### From CLAUDE.md's gates paragraph (moved 2026-09-09)
-
-<the unique claims, verbatim, in source order>
-```
-
-Do not reword. If step 2 reports every claim PRESENT, add nothing and say so in the commit message.
-
-- [ ] **Step 4: Re-run step 2 and confirm every claim now reports PRESENT**
-
-```bash
-# same command as step 2
-```
-
-Expected: every claim `PRESENT in §4`. This is the proof that line 199's deletion in Task 5 lost nothing.
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add docs/scale-normalization-findings.md
-git commit -m "docs(split): absorb CLAUDE.md's gates paragraph into findings §4
-
-Line 199 was split into claims and each probed against §4 on its most
-distinctive eight-word runs; only the claims §4 did not already carry were
-appended, verbatim and in source order. Re-probing reports every claim
-PRESENT, which is the proof that Task 5's deletion of line 199 lost nothing.
-
-No claim reworded -- the numbers are the asset."
-```
-
----
-
-## Task 7: Merge line 201's unique content into `docs/w-gate-recalibration-handoff.md`
-
-The riskiest deletion in the plan. Spot-checking at design time found three phrases in line 201 that appear **nowhere else in the repo**, so this block is demonstrably not a duplicate.
-
-**Files:**
-- Modify: `docs/w-gate-recalibration-handoff.md`
-
-**Interfaces:**
-- Consumes: line 201's source text at `27b3986`.
-- Produces: nothing later tasks depend on.
-
-- [ ] **Step 1: Probe every claim against the whole W-gate corpus**
-
-```bash
-python3 - <<'EOF'
-import subprocess, re, pathlib, glob
-src = subprocess.run(["git","show","27b3986:CLAUDE.md"],capture_output=True,text=True,check=True).stdout
-line = src.split("\n")[200]
-corpus = ""
-for p in ["docs/w-gate-recalibration-handoff.md","docs/w-gate-census-2026-09-04.md"] \
-       + sorted(glob.glob("docs/w-gate-iter3-checkpoints/*.md")) \
-       + sorted(glob.glob("docs/w-gate-iter2-checkpoints/*.md")):
-    corpus += " " + pathlib.Path(p).read_text(encoding="utf-8")
-cnorm = " ".join(corpus.split())
-claims = re.split(r'(?<=[.;]) (?=[A-Z(`])', line)
-uniq = []
-for i, c in enumerate(claims):
-    w = c.split()
-    hit = any(" ".join(w[j:j+8]) in cnorm for j in range(max(1, len(w)-7)))
-    print(f"[{i:>2}] {'present' if hit else '** UNIQUE **'}: {c[:105]}")
-    if not hit: uniq.append(c)
-print(f"\n{len(uniq)} of {len(claims)} claims unique to CLAUDE.md")
-EOF
-```
-
-Expected: a mixed result. The design-time spot check found "Group 1 (2026-09-04)", "verdict-identical to main on all 20 sheets" and "recalibrated tree is verdict-identical" unique.
-
-- [ ] **Step 2: Append the unique claims to the handoff's outcome log**
-
-Add at the end of the handoff, verbatim, in source order:
-
-```markdown
-## Iteration summary moved from CLAUDE.md (2026-09-09)
-
-Moved verbatim from `CLAUDE.md` line 201 when that file was split. These are
-the claims that existed only there; the rest of that paragraph is already in
-this handoff, the census, or the checkpoint reports.
-
-<the unique claims, verbatim, in source order>
-```
-
-- [ ] **Step 3: Re-probe and confirm every claim now reports present**
-
-```bash
-# same command as step 1
-```
-
-Expected: `0 of N claims unique to CLAUDE.md`. This is the proof that Task 5's deletion of line 201 lost nothing.
-
-- [ ] **Step 4: Repath the live step-18 prompt only**
-
-```bash
-grep -n "CLAUDE.md" docs/w-gate-recalibration-handoff.md | tail -5
-```
-
-Identify the step-18 prompt (the last one, the live next-step brief). Change its "the CLAUDE.md paragraphs 'Room detection'…" reference to name `docs/wall-network-rules.md` and `docs/room-detection-rules.md`. **Leave every earlier step prompt untouched** — they are records of what past agents were told and stay frozen.
-
-- [ ] **Step 5: Confirm exactly one prompt changed**
-
-```bash
-git diff --stat docs/w-gate-recalibration-handoff.md
-git diff docs/w-gate-recalibration-handoff.md | grep -c "^-.*CLAUDE.md"
-```
-
-Expected: exactly 1 removed line mentioning CLAUDE.md (the step-18 prompt).
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add docs/w-gate-recalibration-handoff.md
-git commit -m "docs(split): absorb CLAUDE.md's W-gate log into the handoff; repath step 18
-
-Line 201 was NOT a duplicate: probing every claim on its most distinctive
-eight-word runs against the handoff, the census and both checkpoint
-directories found claims present only in CLAUDE.md -- among them 'Group 1
-(2026-09-04)', 'verdict-identical to main on all 20 sheets' and 'recalibrated
-tree is verdict-identical'. Those are appended verbatim and in source order,
-and re-probing reports 0 unique claims, which is the proof that Task 5's
-deletion of line 201 lost nothing.
-
-Only the live step-18 prompt is repathed. The ~40 earlier step prompts that
-say 'the CLAUDE.md room paragraph' are records of what past agents were told
-and stay frozen."
 ```
 
 ---
@@ -1232,7 +1319,7 @@ python3 docs/superpowers/specs/2026-09-09-claude-md-split-verify.py \
 cat /tmp/split-verify.txt
 ```
 
-Expected: `exit=0`, 2 COVERAGE lines (197 and 245), 31 CONTENT lines, `VERIFIED`.
+Expected: `exit=0`, 4 COVERAGE lines (197, 199, 201 and 245), 34 CONTENT lines, `VERIFIED`.
 
 - [ ] **Step 2: Independently confirm the arithmetic**
 
@@ -1257,7 +1344,7 @@ EOF
 
 Expected: the per-document totals sum exactly to the source lines' total, and `CLAUDE.md` is ~30,200 chars.
 
-Note: lines 199 and 201 are wholly retained-then-replaced rather than span-assigned to a document — they are handled by Tasks 6 and 7's probe proofs, not by the span verifier. The verifier covers lines 197 and 245.
+All four source lines are span-assigned, so this total must match exactly. If it does not, a span is missing or double-counted and the split is not proven — do not proceed to the report.
 
 - [ ] **Step 3: Run the fast test tier to confirm no code was touched**
 
@@ -1318,11 +1405,14 @@ git commit -m "docs(split): verification report and graph refresh
 
 CLAUDE.md 154,912 -> ~30,200 chars, 80% smaller, still self-sufficient for
 orientation. The proof, reproducible from the committed map, generator and
-verifier: COVERAGE shows every character of lines 197 and 245 belongs to
-exactly one span with no gap or overlap; CONTENT shows all 31 written sections
-identical to their source spans with repairs inverted and non-whitespace
-counts matching. Lines 199 and 201 are proven separately by Tasks 6 and 7's
-re-probes, which report zero claims remaining unique to CLAUDE.md.
+verifier: COVERAGE shows every character of ALL FOUR source lines -- 197, 199,
+201 and 245, 126,362 chars -- belongs to exactly one span with no gap or
+overlap; CONTENT shows all 34 written sections identical to their source spans
+with repairs inverted and non-whitespace counts matching.
+
+Exact whole-claim matching found 0 droppable claims in lines 199 and 201, so
+nothing was deduplicated away; the numbers are reported here as evidence that
+the content was never a duplicate, and were never used as a deletion gate.
 
 Full repair log included. No file under detection/, tests/, tools/, scale/,
 takeoff/, layout/, gemini/ or extraction/ was modified; the fast tier is

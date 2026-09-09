@@ -71,8 +71,8 @@ appended to it. Two consequences follow:
 | `docs/wall-network-rules.md` | — | new, ~55k, 10 headed sections — `detection/walls.py` |
 | `docs/room-detection-rules.md` | — | new, ~45k, 9 headed sections — `detection/rooms.py` |
 | `docs/page-segmentation.md` | — | new, ~4.4k, from line 245 |
-| `docs/w-gate-recalibration-handoff.md` | | gains only what the dedup proves is unique to line 201; live step-18 prompt repathed |
-| `docs/scale-normalization-findings.md` | | gains anything in line 199 not already in §4 |
+| `docs/w-gate-recalibration-handoff.md` | | gains the whole of line 201 as a span-proven section; live step-18 prompt repathed |
+| `docs/scale-normalization-findings.md` | | gains the whole of line 199 as a span-proven section |
 | `.claude/skills/fix-detection/SKILL.md` | | 3 repaths, a symptom→section routing table, a phase-5 heading rule |
 | `.claude/skills/fix-detection/references/file-map.md` | | Walls and Rooms "Read first" rows repathed; s01/s02 note repathed |
 | `.claude/skills/fix-detection/evals/evals.json` | | 2 grading criteria repathed (see Risk 4) |
@@ -133,12 +133,13 @@ entries cross-referencing across. Order is preserved *within* every section.
 
 ### Verification gate
 
-A throwaway script (scratchpad, never committed to the repo) reassembles the
+A committed script (beside this spec, not in `tools/`) reassembles the
 original from the section spans **in source order** and compares byte-for-byte
 against the original `CLAUDE.md` at its pre-split commit. It must report:
 
 - every character of lines 197, 199, 201 and 245 accounted for **exactly once**
-  — no loss, no duplication, no overlap;
+  — no loss, no duplication, no overlap. All four lines are span-assigned; none
+  is left to a heuristic;
 - zero differences except the entries in the repair log.
 
 The section map and the repair log are both committed, as
@@ -196,12 +197,16 @@ Four commits, so any one can be reverted alone.
    is the safe intermediate state.
 2. **Cut.** Reduce `CLAUDE.md` to its pointers. Re-run the verifier against the
    pre-split commit from git history.
-3. **Dedup.** Merge line 201's unique content into
-   `docs/w-gate-recalibration-handoff.md` and line 199's into
-   `docs/scale-normalization-findings.md` §4, with the dedup report attached.
-   This is the only commit containing judgement calls about deletion.
+3. **Move 199 and 201.** Append-mode sections into
+   `docs/scale-normalization-findings.md` and
+   `docs/w-gate-recalibration-handoff.md`, span-assigned and proven exactly as
+   197 and 245 are. Runs *before* the cut, so no content is ever absent.
 4. **Repath.** `SKILL.md`, `file-map.md`, `evals.json`, `README.md`, and the
    live step-18 prompt.
+
+**Superseded during planning:** commit 3 was originally a *dedup* that would
+delete claims already present elsewhere, judged by an eight-word-window probe.
+Code review caught it and measurement condemned it — see Risk 3.
 
 Then `graphify update .`.
 
@@ -240,13 +245,23 @@ reached 156k.
    reason the section map carries source spans rather than being written by
    hand.
 2. **Misfiling.** Mitigated by reviewing the section map before any text moves.
-3. **Line 201 is not a duplicate of the handoff.** Spot-checked: while
-   `CROSS_DOOR_EXPAND_PX` and "short-piece material rule" each appear in four
-   other documents, the phrases "Group 1 (2026-09-04)", "verdict-identical to
-   main on all 20 sheets" and "recalibrated tree is verdict-identical" appear
-   **nowhere else in the repo**. Commit 3 therefore deletes nothing until the
-   dedup diff shows it survives elsewhere; anything unique is appended to the
-   handoff's outcome log.
+3. **Lines 199 and 201 are not duplicates — and the dedup that assumed they
+   might be would have destroyed 22,399 characters.** The original probe
+   classified a whole claim as already-present when *any* eight-word window
+   matched. Measured against the real repository: 3 of line 199's 7 claims and
+   17 of line 201's 33 marked PRESENT, while **zero** complete claims occur in
+   the searched corpora — one accepted claim ran 223 words, another 269. Those
+   claims were then to be dropped, after the source line had already been
+   replaced, and the probe would have reported success while doing it.
+
+   Exact whole-claim matching finds **0** droppable claims in either line, so
+   the dedup premise was simply wrong: the overlap is at phrase level (shared
+   constant names such as `CROSS_DOOR_EXPAND_PX`), not claim level. Both lines
+   are therefore span-assigned and moved whole, under the same COVERAGE and
+   CONTENT proof as lines 197 and 245 — which is also what makes this
+   document's "exact accounting for lines 197, 199, 201 and 245" true rather
+   than aspirational. The overlap figure is still measured and reported, but it
+   is never a deletion gate.
 4. **`evals.json` rot.** Two grading criteria read *"CLAUDE.md room paragraph
    or a `docs/*tuning-guide*.md`"*. `docs/room-detection-rules.md` matches
    neither, so after the split the eval would grade a correct fix as a failure.
