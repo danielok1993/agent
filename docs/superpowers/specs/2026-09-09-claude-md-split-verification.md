@@ -30,7 +30,37 @@ VERIFICATION FAILED — exit 1
 ```
 
 (`docs/page-segmentation.md` and `docs/w-gate-recalibration-handoff.md` stay
-REACHABLE under that attack: they are cited from other lines too.)
+REACHABLE under that attack because their pointer lines are not among the three
+blanked — they are cited from lines 247 and 203 — and NOT because either is
+cited more than once. Measured 2026-09-09: each of the five documents is cited
+on exactly ONE line of the working-tree `CLAUDE.md` — wall and room on 199,
+scale on 201, the handoff on 203, page segmentation on 247 (three of them
+appear twice within that single line, none on a second line).
+
+Blanking all four pointer lines instead of three fails all five REACHABLE
+checks, and RETAINED as well, because line 247 is also the retained source
+line 245:
+
+```
+FAIL: line 245: retained fragments [RET-245-head,RET-245-tail] matched 0 lines, need exactly 1 ...
+FAIL: docs/page-segmentation.md: no reference in the working-tree CLAUDE.md — ...
+FAIL: docs/room-detection-rules.md: no reference ...
+FAIL: docs/scale-normalization-findings.md: no reference ...
+FAIL: docs/w-gate-recalibration-handoff.md: no reference ...
+FAIL: docs/wall-network-rules.md: no reference ...
+VERIFICATION FAILED — exit 1
+```
+
+KNOWN LIMITATION, stated rather than fixed: REACHABILITY tests `path in
+claude_md`, so an incidental mention of a document's path anywhere in
+`CLAUDE.md` satisfies it exactly as a routing sentence does. That is sound
+TODAY — each path occurs on one line and that line is the pointer — but it is
+brittle: a future edit that mentions one of these paths in passing (a commit
+note, an example, a "see also" in an unrelated section) would keep REACHABLE
+green after the real pointer was deleted. Making the check demand a routing
+sentence — a bolded imperative, or a proximity test against the document's own
+title — is the next hardening, and it needs a definition of "routes to" that
+this branch did not have to settle.
 
 ```
 $ python3 docs/superpowers/specs/2026-09-09-claude-md-split-verify.py; echo "exit=$?"
@@ -257,8 +287,9 @@ needed none — they moved as single, uninterrupted spans.
 
 The whole-branch review found three references that the MOVE ITSELF falsified —
 directional wording pointing at a paragraph that is now in another file, or
-nowhere. Move-not-edit exists to protect measured numbers, not to preserve
-pointers the move broke, so the map gained a fourth op:
+nowhere — and a later pass found a ninth (below). Move-not-edit exists to
+protect measured numbers, not to preserve pointers the move broke, so the map
+gained a fourth op:
 
 ```json
 {"op": "replace", "old": "<exact source text>", "new": "<exact replacement>"}
@@ -267,8 +298,9 @@ pointers the move broke, so the map gained a fourth op:
 `apply_repairs` asserts `old` occurs EXACTLY ONCE in the span and substitutes
 it; `invert` asserts `new` occurs exactly once in the written section and
 substitutes back. Ops apply in order and invert in reverse, like the other
-three. 8 ops in 3 sections; no number, constant, path, identifier, sheet slug
-or measurement changes in any of them.
+three. 9 ops in 3 sections; no number, constant, path, identifier, sheet slug
+or measurement changes in any of them — since 2026-09-09 that is ENFORCED, not
+asserted (see "The `replace` token guard" below).
 
 ```
 docs/wall-network-rules.md §Order and exclusion sets  [W1]           1 replace
@@ -279,7 +311,7 @@ docs/room-detection-rules.md §Plane stamp and the bbox fallback  [R5f]  1 repla
     "glyph-outline rings (gap (b) below)"
  -> "glyph-outline rings (gap (b), `docs/wall-network-rules.md` §"Known gap:
      glyph-outline fill rings")"
-docs/w-gate-recalibration-handoff.md §Iteration 1–3 summary…  [H1]   6 replace
+docs/w-gate-recalibration-handoff.md §Iteration 1–3 summary…  [H1]   7 replace
     six occurrences of "in the room paragraph above", each disambiguated by the
     identifier before it, repointed to the section that now holds the rule:
     `_clip_plug_tails`               -> room §"Tail trim and clip"
@@ -288,6 +320,84 @@ docs/w-gate-recalibration-handoff.md §Iteration 1–3 summary…  [H1]   6 repl
     `cap_lines`                      -> room §"The band-pocket drop"
     `ROOM_BAND_POCKET_END_CLOSURE_MIN` -> room §"Band-pocket end closures"
     `ROOM_RECESS_BACK_COVER_MIN`     -> room §"The wall-recess drop"
+    plus the SEVENTH occurrence, which reads only "the paragraph above":
+    `scale/dimensions.py`            -> findings §"4g. The detection-scale
+                                        factor (moved from CLAUDE.md,
+                                        2026-09-09)"
+```
+
+The ninth op, and why the fix wave missed it (2026-09-09). Source line 201
+carries SEVEN occurrences of "paragraph above". The wave above fixed the six
+reading "the room paragraph above" and its `grep -c 'the room paragraph above'`
+legitimately returned 0 — but the PATTERN WAS NARROWER THAN THE DEFECT CLASS.
+The seventh, in the step-12 sentence, reads only "the paragraph above":
+
+```
+…let the drawing's dimension strings verify a measured scale for the gates
+(`scale/dimensions.py`, the paragraph above): s01 runs at its true factor…
+```
+
+Its antecedent is source line 199, now `docs/scale-normalization-findings.md`
+§"4g. The detection-scale factor (moved from CLAUDE.md, 2026-09-09)". Because
+H1 is APPENDED at the end of the handoff, "the paragraph above" resolved
+instead to the step-4 `WALL_MAX_THICKNESS_PX` outcome that now precedes it — a
+plausible-looking wrong rule, which is the worst kind of stale pointer. The
+lesson worth keeping: a grep that returns 0 proves the absence of the PATTERN,
+never the absence of the DEFECT; the count that mattered was the 7 occurrences
+of the general form, against the 6 the narrow pattern caught. Confirmed the
+bare form occurs exactly once in the span before recording it, and "the room
+paragraph above" does not contain "the paragraph above", so the generator's
+single-match assertion holds whichever op runs first.
+
+### The `replace` token guard (2026-09-09)
+
+`invert` restores `new`->`old` before CONTENT compares, so ANY consistent
+(map, document) pair passes the character proofs. The reviewer demonstrated it:
+shipping `ROOM_RECESS_BACK_COVER_MIN` 0.65 -> 0.95 in
+`docs/room-detection-rules.md` with a matching map entry verifies clean, exit
+0. The other three ops are structurally constrained — `append_period` adds one
+".", `capitalize_first` changes one letter's case, `drop_leading_word` is
+inverted from the map's own `word` — but `replace` is free text on both sides,
+so it gave the map a kind of trust it did not have before, and nothing bounded
+it.
+
+The bound, written out in BOTH the generator (`apply_repairs`, an `assert`) and
+the verifier (`invert`, a `fail`; the verifier never imports the generator, so
+the check is duplicated by design): `old` and `new` must carry IDENTICAL
+MULTISETS of numbers and backticked tokens, once the routing reference the
+repoint exists to add is stripped out of `new` (`_strip_refs`: a target
+document's backticked path plus the section clause and step number that belong
+to it). A repoint may therefore only ADD a pointer — never drop, alter or
+invent a measurement, constant name, identifier, path or sheet slug in the
+prose around it.
+
+Stripping is what makes EQUALITY achievable rather than mere preservation: a
+repoint exists to add a `docs/...md` path, and two of the nine references carry
+digits of their own (W1's §"Iteration 1–3 summary, moved from CLAUDE.md
+(2026-09-09)", step 6; the ninth op's §"4g. The detection-scale factor (moved
+from CLAUDE.md, 2026-09-09)"). Outside that reference the two sides must match
+exactly, which is the property this branch's own constraint states.
+
+All nine ops pass, measured op by op — the non-empty token multisets are H1's
+`scale/dimensions.py`, `cap_lines`, `_clip_plug_tails`, `_doorway_pens`,
+`_entrance_run`, `ROOM_RECESS_BACK_COVER_MIN`, and `0.65` + `36` carried
+through the end-closures op unchanged; W1's and R5f's are empty.
+
+Bite-proof on the reviewer's own attack, staged and then reverted:
+```
+(a) guard removed from the verifier, 0.95 shipped in docs/room-detection-rules.md
+    and recorded in the map:
+    VERIFIED: every character accounted for exactly once.        exit 0
+    <- the hole reproduces
+(b) verifier as shipped:
+    FAIL: R7a: replace changes the moved prose's numbers/backticked tokens:
+          dropped {'0.65': 1}, added {'0.95': 1} (outside the routing reference)
+    VERIFICATION FAILED                                          exit 1
+(c) generator as shipped:
+    AssertionError: replace changes the moved prose's numbers/backticked tokens:
+          dropped {'0.65': 1}, added {'0.95': 1} (outside the routing reference)
+                                                                 exit 1
+    <- fires before any document is written
 ```
 
 Two measured corrections to the review's own brief, recorded rather than
