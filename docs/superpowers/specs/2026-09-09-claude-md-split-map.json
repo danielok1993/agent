@@ -144,22 +144,6 @@
       ]
     },
     {
-      "id": "W6b",
-      "doc": "docs/wall-network-rules.md",
-      "heading": "Pairing — taper, redundancy collapse and the far-side rule",
-      "spans": [
-        [
-          197,
-          31568,
-          35945
-        ]
-      ],
-      "repairs": [
-        {"op": "capitalize_first"},
-        {"op": "append_period"}
-      ]
-    },
-    {
       "id": "W7",
       "doc": "docs/wall-network-rules.md",
       "heading": "The weak tier and the material gate",
@@ -188,6 +172,22 @@
       ],
       "repairs": [
         {"op": "drop_leading_word", "word": "and"},
+        {"op": "capitalize_first"},
+        {"op": "append_period"}
+      ]
+    },
+    {
+      "id": "W6b",
+      "doc": "docs/wall-network-rules.md",
+      "heading": "Pairing — taper, redundancy collapse and the far-side rule",
+      "spans": [
+        [
+          197,
+          31568,
+          35945
+        ]
+      ],
+      "repairs": [
         {"op": "capitalize_first"},
         {"op": "append_period"}
       ]

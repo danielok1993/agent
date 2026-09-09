@@ -335,67 +335,6 @@ boundary matters at corners: the run beside the bay return had 21.7px of
 both-face spread over a 44px run against the 22px gate, and its first
 band-width is covered by return-clipped strokes);.
 
-## Pairing — taper, redundancy collapse and the far-side rule
-
-Pairing itself demands ONE THICKNESS ALONG THE OVERLAP
-(`WALL_PAIR_TAPER_MAX_FRAC` 0.5): the spacing `_perpendicular_spacing` reads is
-sampled at the partner's first endpoint, which is the pair's spacing everywhere
-only for truly parallel faces, and inside `WALL_PARALLEL_ANGLE_TOL` a stroke
-crossing the band corner to corner — the single diagonal of a brick-hatch cell
-drawn in the wall pen (s03 `EXISTING_BRICKWORK`, s04/s08 `RR_Wall Hatches`,
-s20; an aspect-15 cell puts it 3.9° off both faces) — reads whatever the
-divergence is at that one point, possibly hundreds of px past the cell
-(measured on s03: the 219px chord against the 992px far-face run whose first
-endpoint lies 650px away read 29px, the centerline landed 14.5px on the ROOM
-side of the chord and its solid fenced a 15–29px strip off the bottom-right
-corner of BEDROOM rooms 0005/0013, on both the 1:50 and the 1:100 plan; the
-far-side rule could not catch it because the phantom band overlapped the wall's
-grey fill by 0.24, past `WALL_FAR_SIDE_FILL_COVER_MAX`), so the partner's
-signed offset is interpolated at both ends of the overlap and a pair whose
-spacing changes by more than half of itself is dropped — a chord's runs from
-the band's full width to zero (ratio 1.0 on all four sheets, at any scale)
-while every surviving real pair on the corpus measures ≤ 0.30, the widest being
-s03's tapering rear boundary wall at 0.24–0.27 (15.4 → 11.7px over 142px),
-which stays; the redundancy collapse that dedups parallel centerlines absorbs a
-shorter "duplicate" only when its thickness stays within
-`WALL_REDUNDANT_THICKNESS_SLACK_PX` (4px) of the kept run — a duplicate
-re-measures the SAME band, while a wall face pairing with ANOTHER wall's face
-across a corridor of wall-like width shares one face with the real run, passes
-the collapse offset gate on its own inflated thickness, and absorbing it used
-to transfer the corridor width onto the entire run (measured on floor-plans:
-the bathroom/landing wall's 7.2px run took th 35.2 from a stair-corridor pair
-over a 41px overlap, and the poisoned solid fenced a 16px strip out of the
-bathroom and 13px off the landing over the whole 165px run); such a pair stays
-a separate segment whose solid is local to its actual overlap; the collinear
-centerline merge that runs BEFORE the collapse applies the same slack (a member
-differing from the run's thickness by more than 4px is not absorbed) because it
-took the max over members — a jamb-scale pier's room-side face pairs with the
-wall's OUTER face into a short thick centerline offset within the 4px collinear
-tolerance of the band's own, and the max stamped the pier's width onto the
-whole run (measured on s03: a 16.5px nib pair at th 13.8 carried onto a 6px
-band over 272px, holding the kitchen outline 6px off its wall; s02 (877,314):
-th 34.9 over 17px onto a 14px/251px run; s01 (818,907): th 29.2 over 12px onto
-a 22px/121px run — while same-band members differ by ≤ 0.3px on all three), so
-the pier now stays its own short segment; and a strong pair is dropped outright
-when it is a wall face paired ACROSS THE ROOM (`_claims_far_side_pair`): a
-kept, meaningfully tighter parallel pair or filled band shares one of its faces
-and lies on the FAR side of that face over ≥ half the run, and the band on this
-side carries no wall material (fill cover under `WALL_FAR_SIDE_FILL_COVER_MAX`
-0.10 and no hatch) — a wall's material lies on exactly one side of each face,
-so the material-less band is the room: kitchen counter fronts, wardrobe fronts
-and corridor-facing walls are drawn in the wall pen at wall-like spacing
-(measured on s03: the worktop outline 35.2px off the kitchen's inner faces,
-just under the 36px cap, paired into phantom bands that fenced the counters out
-of the KITCHEN and the WDR wardrobe out of its bedroom; on s01 the same rule
-stops stringer/wall pairs sealing the stair flights, so the landing, flights
-and hall come out as one room — the stairs-are-furniture verdict), while a
-cavity wall drawn leaf/cavity/leaf keeps its leaves and, when the cavity is
-hatched or filled, the cavity pair too; the dropped pair's PARTNER — paired
-with nothing else — is the fixture front itself and is demoted (stroked=False)
-so it gets no lone-face barrier rights either, because on pen weight alone the
-counter lines re-fenced the same strip as thin barriers (the walkable-area-only
-kitchen);.
-
 ## The weak tier and the material gate
 
 Hairline faces (below `WALL_MIN_STROKE_WIDTH_PX` — the 0.45px joinery/fixture
@@ -507,6 +446,67 @@ needs pen-independent material and is its own iteration). Corpus sweep:
 verdict-identical and every sheet entity- and polygon-IDENTICAL (the veto fires
 nowhere at the sheets' factors); at s01's true factor the harness reads rooms
 9/12 with exactly one unreviewed room, the merged landing, instead of 18;.
+
+## Pairing — taper, redundancy collapse and the far-side rule
+
+Pairing itself demands ONE THICKNESS ALONG THE OVERLAP
+(`WALL_PAIR_TAPER_MAX_FRAC` 0.5): the spacing `_perpendicular_spacing` reads is
+sampled at the partner's first endpoint, which is the pair's spacing everywhere
+only for truly parallel faces, and inside `WALL_PARALLEL_ANGLE_TOL` a stroke
+crossing the band corner to corner — the single diagonal of a brick-hatch cell
+drawn in the wall pen (s03 `EXISTING_BRICKWORK`, s04/s08 `RR_Wall Hatches`,
+s20; an aspect-15 cell puts it 3.9° off both faces) — reads whatever the
+divergence is at that one point, possibly hundreds of px past the cell
+(measured on s03: the 219px chord against the 992px far-face run whose first
+endpoint lies 650px away read 29px, the centerline landed 14.5px on the ROOM
+side of the chord and its solid fenced a 15–29px strip off the bottom-right
+corner of BEDROOM rooms 0005/0013, on both the 1:50 and the 1:100 plan; the
+far-side rule could not catch it because the phantom band overlapped the wall's
+grey fill by 0.24, past `WALL_FAR_SIDE_FILL_COVER_MAX`), so the partner's
+signed offset is interpolated at both ends of the overlap and a pair whose
+spacing changes by more than half of itself is dropped — a chord's runs from
+the band's full width to zero (ratio 1.0 on all four sheets, at any scale)
+while every surviving real pair on the corpus measures ≤ 0.30, the widest being
+s03's tapering rear boundary wall at 0.24–0.27 (15.4 → 11.7px over 142px),
+which stays; the redundancy collapse that dedups parallel centerlines absorbs a
+shorter "duplicate" only when its thickness stays within
+`WALL_REDUNDANT_THICKNESS_SLACK_PX` (4px) of the kept run — a duplicate
+re-measures the SAME band, while a wall face pairing with ANOTHER wall's face
+across a corridor of wall-like width shares one face with the real run, passes
+the collapse offset gate on its own inflated thickness, and absorbing it used
+to transfer the corridor width onto the entire run (measured on floor-plans:
+the bathroom/landing wall's 7.2px run took th 35.2 from a stair-corridor pair
+over a 41px overlap, and the poisoned solid fenced a 16px strip out of the
+bathroom and 13px off the landing over the whole 165px run); such a pair stays
+a separate segment whose solid is local to its actual overlap; the collinear
+centerline merge that runs BEFORE the collapse applies the same slack (a member
+differing from the run's thickness by more than 4px is not absorbed) because it
+took the max over members — a jamb-scale pier's room-side face pairs with the
+wall's OUTER face into a short thick centerline offset within the 4px collinear
+tolerance of the band's own, and the max stamped the pier's width onto the
+whole run (measured on s03: a 16.5px nib pair at th 13.8 carried onto a 6px
+band over 272px, holding the kitchen outline 6px off its wall; s02 (877,314):
+th 34.9 over 17px onto a 14px/251px run; s01 (818,907): th 29.2 over 12px onto
+a 22px/121px run — while same-band members differ by ≤ 0.3px on all three), so
+the pier now stays its own short segment; and a strong pair is dropped outright
+when it is a wall face paired ACROSS THE ROOM (`_claims_far_side_pair`): a
+kept, meaningfully tighter parallel pair or filled band shares one of its faces
+and lies on the FAR side of that face over ≥ half the run, and the band on this
+side carries no wall material (fill cover under `WALL_FAR_SIDE_FILL_COVER_MAX`
+0.10 and no hatch) — a wall's material lies on exactly one side of each face,
+so the material-less band is the room: kitchen counter fronts, wardrobe fronts
+and corridor-facing walls are drawn in the wall pen at wall-like spacing
+(measured on s03: the worktop outline 35.2px off the kitchen's inner faces,
+just under the 36px cap, paired into phantom bands that fenced the counters out
+of the KITCHEN and the WDR wardrobe out of its bedroom; on s01 the same rule
+stops stringer/wall pairs sealing the stair flights, so the landing, flights
+and hall come out as one room — the stairs-are-furniture verdict), while a
+cavity wall drawn leaf/cavity/leaf keeps its leaves and, when the cavity is
+hatched or filled, the cavity pair too; the dropped pair's PARTNER — paired
+with nothing else — is the fixture front itself and is demoted (stroked=False)
+so it gets no lone-face barrier rights either, because on pen weight alone the
+counter lines re-fenced the same strip as thin barriers (the walkable-area-only
+kitchen);.
 
 ## Fill rings and class rating
 
