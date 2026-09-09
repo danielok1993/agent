@@ -87,13 +87,14 @@ Route by symptom — read the section, not the whole document:
 
 | Symptom | Read |
 |---|---|
-| A fixture outline fenced a phantom room (counter, wardrobe, bed, sofa, unit) | wall-network §The weak tier and the material gate, §Wall pens and the doorway veto |
+| A fixture outline fenced a phantom room (counter, wardrobe, bed, sofa, unit) | wall-network §The weak tier and the material gate, §Wall pens and the doorway veto, §Pairing — taper, redundancy collapse and the far-side rule |
 | Paving, tile grid, roof tiles, floorboards or treads fencing | wall-network §Lattice demotion — striped fields and hatch |
 | A stair flight came out as a room, or stair ink fenced | wall-network §Stair demotion |
-| A room edge is notched, slanted, or a few px off its wall | wall-network §The collinear-merge anchor; room-detection §Thin buffers and white rings (tiers 3 and 4) |
+| A room edge is notched, slanted, or a few px off its wall | wall-network §The collinear-merge anchor; room-detection §Thin buffers and white rings (tiers 3 and 4), §Tail trim and clip |
 | A hatch or brick-cell diagonal produced a slanted band | wall-network §Pairing — taper, redundancy collapse and the far-side rule, §Fill seams |
 | A wall band contributed no faces at all | wall-network §Stroked rectangles as weak faces, §Face collection and the length floor |
-| Rooms merged through a doorway, or a swing square left its room | room-detection §Door plugs — qualification and profile |
+| A room outline is notched around a text label, or a dashed line (beam, drain, boundary) split a room into cells | wall-network §Order and exclusion sets |
+| Rooms merged through a doorway, or a swing square left its room | room-detection §Door plugs — qualification and profile, §Plane stamp and the bbox fallback, §Jamb rings and door linings |
 | A narrow strip, reveal or cavity was emitted as a room | room-detection §The band-pocket drop, §Band-pocket end closures |
 | A real room was dropped | room-detection §Free-space components and their filters, §Entrances |
 | A window seal is wrong, or a bay window | room-detection §Window seals |
