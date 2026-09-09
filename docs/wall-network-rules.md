@@ -6,7 +6,11 @@ exists to feed `detection/rooms.py`. Every rule here is a drawing convention
 backed by margins measured on named sheets; the numbers are the asset. See
 `docs/room-detection-rules.md` for what consumes this, and
 `docs/scale-normalization-findings.md` §4 for which constants scale with
-drawing scale.
+drawing scale. The four barrier tiers are split across both documents: tiers
+(1) wall solids and (2) wall-fill polygons are below, under "Pairing — plain,
+thick and through tiers" and "Fill rings and class rating"; tiers (3) thin
+buffers and (4) white rings are in `docs/room-detection-rules.md` under "Thin
+buffers and white rings (tiers 3 and 4)".
 
 ## Order and exclusion sets
 
