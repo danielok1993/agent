@@ -267,34 +267,37 @@ reached 156k.
 - `fix-detection` references resolve: no path in `SKILL.md`, `file-map.md` or
   `evals.json` points at a section of `CLAUDE.md` that no longer exists.
 
-## Branch strategy (a correctness constraint, not a preference)
+## Branch strategy (resolved 2026-09-09)
 
-Measured at design time:
+At design time this was a live correctness constraint: `main`'s `CLAUDE.md` was
+136,554 characters against the detection chain's 156,559, so 20k of W-gate step
+14–17 prose existed only on `fix/wall-recess-tab-back-edge`, and splitting from
+`main` would have silently dropped it — a direct violation of goal 2. Five
+branches carried `CLAUDE.md` edits, all landing on exactly the mega-lines the
+split deletes.
 
-- `main`'s `CLAUDE.md` is 136,554 characters; `fix/wall-recess-tab-back-edge`'s
-  is 156,559. **20k of W-gate step 14–17 prose exists only on the branch.**
-- Five branches carry `CLAUDE.md` edits — `fix/band-pocket-ceiling-storage`,
-  `fix/band-pocket-tab-cover`, `fix/entrance-contact-run`,
-  `recal/wall-max-thickness-40` and `fix/wall-recess-tab-back-edge` — but the
-  first four are **ancestors** of the last. It is one linear chain, not four
-  divergent histories, and its tip is strictly ahead of `main` (13 commits
-  ahead, 0 behind).
+Resolved before implementation. The five branches were one linear chain, not
+four divergent histories, with its tip strictly ahead of `main` (13 commits
+ahead, 0 behind), so `main` was fast-forwarded 83a603c → 27b3986 and all five
+merged branches deleted:
 
-Two consequences:
+```
+fix/band-pocket-ceiling-storage  acd7157
+fix/band-pocket-tab-cover        b052729
+fix/entrance-contact-run         8468ce5
+recal/wall-max-thickness-40      b52384e
+fix/wall-recess-tab-back-edge    27b3986
+```
 
-1. **The split must be based on `fix/wall-recess-tab-back-edge`'s tip, or on a
-   `main` that has already absorbed it.** Splitting from `main` as it stands
-   would silently drop 20k of measured prose — a direct violation of goal 2.
-2. Every `CLAUDE.md` edit on those branches lands on exactly the mega-lines the
-   split deletes. Any detection branch created *before* the split and merged
-   *after* it produces a delete/modify conflict whose resolution is a manual
-   re-file of the prose into the new documents.
+`main` now carries the complete 156,559-character `CLAUDE.md`, and
+`docs/split-claude-md` is based on it. The split therefore captures every
+measured line, and no detection branch is in flight to conflict with it.
 
-Recommended order: land the outstanding detection chain on `main` first, then
-branch `docs/split-claude-md` from `main` and do the split there. If the
-detection chain is not ready to merge, branch the split from
-`fix/wall-recess-tab-back-edge` instead and merge the split *after* it — never
-before.
+Local only — `origin/main` is still at 83a603c and `origin` still holds three
+of the deleted branches. Push when ready.
 
-While the split is in flight, any new detection work should either wait or
-expect to re-file its prose by hand. The window is worth keeping short.
+**Remaining constraint:** any *new* detection branch created before the split
+lands and merged after it will hit a delete/modify conflict on the mega-lines
+and need its prose re-filed by hand into the new documents. Keeping the split's
+in-flight window short is worth more than any other scheduling consideration
+here.
