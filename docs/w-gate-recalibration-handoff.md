@@ -9,7 +9,8 @@ denominators no longer drive detection-gate scaling (identity factor, source
 debt that fix routes around, not a bug in it.
 **Status 2026-09-03:** the recalibration is the NEXT detection iteration, ahead
 of the queue in `docs/hatch-cell-chords-handoff.md` — see "Status 2026-09-03"
-and the fresh-context prompt at the end of this file.
+and the fresh-context prompt in "Prompt for the next agent (iteration 3 step 18
+— a fixture-cell rule for the three wrong-reason drops — fresh context)" below.
 
 ## Read these first (in order)
 
