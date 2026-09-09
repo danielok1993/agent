@@ -1,0 +1,31 @@
+{
+  "source_ref": "27b3986",
+  "source_file": "CLAUDE.md",
+  "docs": {
+    "docs/page-segmentation.md": {
+      "title": "Page segmentation — ink map, frames and gutter tiers",
+      "preamble": "Extracted verbatim from CLAUDE.md's pipeline stage 3. Covers `layout/` — how a sheet is split into its drawings before detection runs. See `CLAUDE.md` §Pipeline architecture for where this sits in the run."
+    }
+  },
+  "sections": [
+    {
+      "id": "RET-245-head",
+      "doc": null,
+      "spans": [[245, 0, 68]],
+      "repairs": []
+    },
+    {
+      "id": "S1",
+      "doc": "docs/page-segmentation.md",
+      "heading": "Ink map, nested frames and the four gutter tiers",
+      "spans": [[245, 68, 4347]],
+      "repairs": []
+    },
+    {
+      "id": "RET-245-tail",
+      "doc": null,
+      "spans": [[245, 4347, 4356]],
+      "repairs": []
+    }
+  ]
+}
