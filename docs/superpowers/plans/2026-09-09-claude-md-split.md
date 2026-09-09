@@ -103,6 +103,26 @@ before fixing:
   later, "Task 5 shortens", "Same correction as Task 6") — all corrected, so
   the intermediate acceptance checks and commit records are accurate.
 
+A third round found the RETAINED check itself was unsound, and it was rebuilt:
+
+- **RETAINED false-passed when the retained tail was deleted.** It tested
+  `frag in text` globally, and the line-245 tail is just `"Detection"`, which
+  occurs **twice** in `CLAUDE.md` — so the check passed on a file whose line-245
+  occurrence had been removed. Measured. It now checks **by position**: a span
+  touching offset 0 must be its line's prefix, one touching the line end must be
+  its suffix, and all of a line's fragments must appear in order on one line,
+  which must be unique.
+
+  The replacement was validated by extracting the block verbatim from this plan
+  and executing it against six states: it PASSES the correct cut and the
+  pre-cut file, and FAILS tail-deleted, head-deleted, head/tail reordered, and
+  fragments split across two lines.
+
+- **The last count leftovers** (room heading 15 vs 16, Task 2's "14 wall
+  sections" and its "Thirty sections / 14 to wall-network-rules.md" commit,
+  Task 4's commit claiming 34 sections when 32 exist, and the final report
+  naming Tasks 6 and 7 for measurements now in Tasks 5 and 6) — all corrected.
+
 ---
 
 ## File Structure
@@ -157,7 +177,7 @@ Derived and verified before this plan was written: all 31 line-197 anchors found
 
 Sections therefore appear in the documents in a chosen order that differs from source order (W6a, W6b, W7, W8 read better than W6a, W7, W8, W6b), which is why the verifier reassembles by source offset rather than by document order.
 
-### `docs/room-detection-rules.md` — 15 sections, 45,527 chars
+### `docs/room-detection-rules.md` — 16 sections, 45,527 chars
 
 | id | Heading | Source span (line 197) | Chars |
 |---|---|---|---|
@@ -493,21 +513,50 @@ def main():
             print(f"CONTENT  {sec['id']:<5} {sec['doc']:<34} {se} chars exact")
 
     # ---- RETAINED ----
-    # Characters that stay in CLAUDE.md get COVERAGE but would otherwise get no
-    # CONTENT proof: after the cut, deleting them would still report VERIFIED.
-    cur = (REPO / spec["source_file"]).read_text(encoding="utf-8")
+    # Characters that stay in CLAUDE.md get COVERAGE but no CONTENT proof, so
+    # they are checked here BY POSITION, never by global substring search: the
+    # line-245 tail is just "Detection", which occurs twice in the file, so
+    # `frag in text` passes even when the line-245 occurrence is deleted
+    # (measured). A retained span touching offset 0 must be its line's PREFIX,
+    # one touching the line end must be its SUFFIX, and all of a line's
+    # fragments must appear in order on ONE line, which must be unique.
+    cur_lines = (REPO / spec["source_file"]).read_text(encoding="utf-8").split("\n")
+    retained = {}
     for sec in spec["sections"]:
         if sec["doc"] is not None:
             continue
         for ln, a, b in sec["spans"]:
-            frag = lines[ln - 1][a:b]
-            if not frag.strip():
+            if lines[ln - 1][a:b].strip():
+                retained.setdefault(ln, []).append((a, b, lines[ln - 1][a:b], sec["id"]))
+
+    for ln, frags in sorted(retained.items()):
+        frags.sort()
+        need_prefix = frags[0][0] == 0
+        need_suffix = frags[-1][1] == len(lines[ln - 1])
+        hits = []
+        for cl in cur_lines:
+            pos, okline = 0, True
+            for _, _, frag, _ in frags:
+                i = cl.find(frag, pos)
+                if i < 0:
+                    okline = False
+                    break
+                pos = i + len(frag)
+            if not okline:
                 continue
-            if frag not in cur:
-                fail(f"{sec['id']}: retained fragment missing from the working-tree "
-                     f"{spec['source_file']}: {frag[:70]!r}")
-            else:
-                print(f"RETAINED {sec['id']:<14} {len(frag)} chars still in {spec['source_file']}")
+            if need_prefix and not cl.startswith(frags[0][2]):
+                continue
+            if need_suffix and not cl.endswith(frags[-1][2]):
+                continue
+            hits.append(cl)
+        ids = ",".join(f[3] for f in frags)
+        if len(hits) == 1:
+            print(f"RETAINED line {ln}: {len(frags)} fragment(s) [{ids}] anchored in order "
+                  f"on one line (prefix={need_prefix}, suffix={need_suffix})")
+        else:
+            fail(f"line {ln}: retained fragments [{ids}] matched {len(hits)} lines, need "
+                 f"exactly 1 (prefix={need_prefix}, suffix={need_suffix}) — a fragment was "
+                 f"deleted, reordered, or moved off its line")
 
     print()
     print("VERIFIED: every character accounted for exactly once." if ok else "VERIFICATION FAILED")
@@ -617,7 +666,7 @@ Add to `"docs"` in the map:
 }
 ```
 
-- [ ] **Step 2: Add the 14 wall-network sections**
+- [ ] **Step 2: Add the 15 wall-network sections**
 
 Append to `"sections"`. Every entry has `"repairs": []` for now; Task 3 fills them in.
 
@@ -709,8 +758,9 @@ EOF
 git add docs/superpowers/specs/2026-09-09-claude-md-split-map.json
 git commit -m "docs(split): complete the section map for CLAUDE.md line 197
 
-Thirty sections over line 197's 99,607 chars -- 14 to wall-network-rules.md
-(54,080) and 16 to room-detection-rules.md (45,527), summing exactly. Every
+Thirty-one sections over line 197's 99,607 chars -- 15 to
+wall-network-rules.md (54,080) and 16 to room-detection-rules.md (45,527),
+summing exactly. Every
 boundary anchored on a located substring, all in source order, spans
 contiguous with no gap or overlap; COVERAGE proves it and bites on a
 one-character gap.
@@ -930,7 +980,7 @@ stamp and bbox fallback) and the 12,460-char drop cluster R7a-c (wall recess,
 band pocket, end closures), so the largest section an agent must read to
 diagnose one phantom is ~5.5k rather than 100k.
 
-Verifier green on all 34 sections; every docs/*.md cross-reference resolves."
+Verifier green on all 32 sections that exist at this point; F1 and H1 arrive in Tasks 5 and 6."
 ```
 
 ---
@@ -1216,8 +1266,9 @@ The verifier reads git show 27b3986:CLAUDE.md, not the working copy, so
 cutting the file cannot make it pass vacuously: it still proves all 34
 sections against the pre-split original, which is the point of running it
 here. The RETAINED check is the other half -- it asserts line 245's 77
-retained characters are still present in the working-tree file, which COVERAGE
-alone would not catch."
+retained characters are still in place, BY POSITION: prefix, suffix and order
+on a single unique line. A global substring test would not do, because the
+tail is just "Detection", which occurs twice in the file."
 ```
 
 ---
@@ -1428,7 +1479,7 @@ Expected: `none — correct`.
 
 - [ ] **Step 5: Write the verification report**
 
-Create `docs/superpowers/specs/2026-09-09-claude-md-split-verification.md` containing: the captured verifier output from step 1, the arithmetic from step 2, the probe results from Tasks 6 and 7, the complete repair log rendered from the map, and the final size. Render the repair log with:
+Create `docs/superpowers/specs/2026-09-09-claude-md-split-verification.md` containing: the captured verifier output from step 1, the arithmetic from step 2, the pre-move overlap measurements from Tasks 5 and 6, the complete repair log rendered from the map, and the final size. Render the repair log with:
 
 ```bash
 python3 - <<'EOF'
