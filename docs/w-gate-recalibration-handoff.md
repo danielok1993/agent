@@ -2905,8 +2905,8 @@ open-headed stair ARROW lines out of the stair zone at 36 (a wall face 28–35px
 away is a wall-spacing partner) so they pair into phantom bands across three
 flights, cutting three confirmed rooms the truth notes already call wrongly
 split, and `ROOM_OPENING_SEAL_PX` at 6.5px not reaching the hall door's 8px =
-125mm jamb gap. Step 5 shipped the plug-tail clip (`_clip_plug_tails`, in the
-room paragraph above). Step 6 (2026-09-05,
+125mm jamb gap. Step 5 shipped the plug-tail clip (`_clip_plug_tails`, in
+`docs/room-detection-rules.md` §"Tail trim and clip"). Step 6 (2026-09-05,
 `docs/w-gate-iter3-checkpoints/step-6.md`) shipped the DASH-ROW rule
 (`_dash_row_indices`, after the user retired the ten chunk verdicts it cost —
 see below): a drawn dash line — a dashed line TYPE the exporter explodes into
@@ -2971,10 +2971,10 @@ plug-less fallback stamp (`_plane_stamp`), step 9 measured `_gate_denominator`
 and did not move it, step 10 shipped the material-seeking plug tail
 (`ROOM_PLUG_JAMB_SEEK_PX`; s01's hall seals at 0.542) and step 11 (2026-09-05,
 `docs/w-gate-iter3-checkpoints/step-11.md`) the doorway veto on the wall-pen
-share gate (`_doorway_pens`, in the room paragraph above): corpus
-byte-identical, s01 at 0.542 in the harness 11 doors / 4 windows / 9 of 12
-rooms with the merged landing the only unreviewed room and the three stair
-verdicts the only losses. Step 12 (2026-09-06,
+share gate (`_doorway_pens`, in `docs/wall-network-rules.md` §"Wall pens and
+the doorway veto"): corpus byte-identical, s01 at 0.542 in the harness 11 doors
+/ 4 windows / 9 of 12 rooms with the merged landing the only unreviewed room
+and the three stair verdicts the only losses. Step 12 (2026-09-06,
 `docs/w-gate-iter3-checkpoints/step-12.md`) let the drawing's dimension strings
 verify a measured scale for the gates (`scale/dimensions.py`, the paragraph
 above): s01 runs at its true factor IN THE SWEEP — 11 doors / 4 windows / 9 of
@@ -3026,71 +3026,73 @@ recorded-FP box's 182mm, a 3.7× margin (per seal, a neighbour's tail grazes
 real rooms at 30–114mm, so the statistic is the room's maximum). Step 14
 (2026-09-06, `docs/w-gate-iter3-checkpoints/step-14.md`) built it as
 `ROOM_ENTRANCE_MIN_RUN_PX` (29.5px = 250mm, W-class) on the run NET of the
-paper contact tolerance (`_entrance_run`, in the room paragraph above): the s17
-strips' runs read 7–10px and s04's box 13.5px against ≥ 59.2px on every
-confirmed entered room at f=1.0 and ≥ 36px at f=0.5; the corpus sweep is
-verdict-identical in counts (0 lost, 68 returned FPs, 0 REVIEW) with 19 sheets
-entity- and polygon-identical, the s17 strips entrance-less and still emitted
-(the tab-pinned covers and the cap, their own steps), and s04 a trade — the box
-drops as a blind-window pocket and the recorded-FP stair flight beyond
+paper contact tolerance (`_entrance_run`, in `docs/room-detection-rules.md`
+§"Entrances"): the s17 strips' runs read 7–10px and s04's box 13.5px against ≥
+59.2px on every confirmed entered room at f=1.0 and ≥ 36px at f=0.5; the corpus
+sweep is verdict-identical in counts (0 lost, 68 returned FPs, 0 REVIEW) with
+19 sheets entity- and polygon-identical, the s17 strips entrance-less and still
+emitted (the tab-pinned covers and the cap, their own steps), and s04 a trade —
+the box drops as a blind-window pocket and the recorded-FP stair flight beyond
 window_0004 returns, no longer the door-less side of a window whose other side
 holds a door-bearing room. Step 15 (2026-09-06,
 `docs/w-gate-iter3-checkpoints/step-15.md`) read the band-pocket cover on the
 component's OWN sides with wall solids' flat ends admitted
-(`_side_wall_covers`, `_run_wall_cover`, `cap_lines` — in the room paragraph
-above; no constant moved): a rectangle is pinned by the component's widest
-point, and the 31.5px tab a perpendicular partition's flat-capped segment
-leaves in each s17 reveal strip put the rectangle's edge ON the face line.
-Censused four ways on every call the rule receives and every emitted room of
-all 20 sheets, then as implemented at ceilings 40/41/44/48/56 for the rule
-alone (`tools/census_scratch/step15/`): the strips read [0.99, 1.0], [1.0,
-1.0], [0.96, 0.99], [1.0, 1.0] and are held out by the 36px ceiling alone — at
-40 three drop (0027 at 40.5px stays), at 41 all four — while s11's confirmed
-368mm storage (1.0/1.0 under every reading, 21.75px at f=0.5) is LOST from 44
-up, s18's recorded-FP kitchen-corner box goes at 44, s16's partition box at 48,
-s12's two unit cells and s18's sofa-back strip (0.14 → 0.90, a notch pinned its
-rectangle) at 56, and nothing else on any sheet moves at any ceiling; the
-corpus sweep at 36 is verdict-, entity- and polygon-identical (0 LOST / 68
-returned FPs / 0 REVIEW). A 41px ceiling would take all four strips and keep
-the storage by 1.06× — a knife-edge, so the ceiling waits for that cupboard to
-be recognised another way. The wall-recess rule read its back edge off the
-component's extent the same way and failed on the same tab (a tab-less version
-of the step-15 fixture is a recess, the tabbed one is not) — step 17, below.
-Step 16 (2026-09-06, `docs/w-gate-iter3-checkpoints/step-16.md`) measured the
-brief's four discriminators on both classes and found the brief's premise wrong
-on the drawing: s11's storage is not between two walls but a cupboard with a
-lone FRONT line (the s02 "coats" class in the wall pen), so "material behind
-both sides" reads 1/2 on it as on the dropped 25.25px reveal, no vector-text
-glyph row lies inside any call on the corpus, and every face is one pen; the
-s17 strips are a 313mm wall drawn HOLLOW (two lines, rooms on both sides, no
-leaf resuming at any reach), not a reveal. What separates them is ENCLOSURE —
-the storage is closed by wall bands at both ends (1.0 / 1.0), the strips by a
-jamb line and a partition's face (≤ 0.345 / ≤ 0.201) — built as `_end_closures`
-+ `ROOM_BAND_POCKET_END_CLOSURE_MIN` 0.65 (in the room paragraph above; inert
-at the 36 ceiling, corpus identical) and, as a separate change, the band-pocket
-ceiling moved to `WALL_THICK_MATERIAL_MAX_PX` (56px = 475mm; `RoomGates`
-carries it): censused as implemented with the exemption on and off at 36 / 40 /
-41 / 44 / 48 / 56 on all 20 sheets and swept — **0 LOST / 60 returned FPs / 0
-REVIEW**, eight recorded-FP rooms removed (s17's four strips, s18's
-kitchen-corner box and sofa-back strip, s12's two unit cells — the last three
-at 0.93–0.99× the scaled ceiling and dropped for the wrong reason, fixture
-cells against a wall), 0 polygons changed, nothing added, s01/s02 identical,
-s16's enclosed partition box kept; without the exemption the storage is LOST
-from 44. The margin is the walls' own thick cap, not a measured midpoint: the
-corpus's other confirmed door-less spaces (s07's cupboard, s20's passage, s15's
-space) are boxes of lone lines at 599–610mm, 1.26–1.29× over 475mm, and no
-ceiling clears 1.5× both ways between the strips' 343mm and their 599mm — a
-missed-door cupboard 305–475mm deep with a single line at one end would now be
-dropped. Step 17 (2026-09-06, `docs/w-gate-iter3-checkpoints/step-17.md`) read
-`_is_wall_recess`'s back edge on the component's own boundary runs
-(`_back_edge_cover`, `ROOM_RECESS_BACK_COVER_MIN` — in the room paragraph
-above; no constant moved): censused with both readings on every recess call
-(72, 14 reaching the back edge) and every emitted room (236, none reaching it)
-of all 20 sheets, then as implemented under four runs variants (face / with
-caps, over the gap / over the component's own extent) — the corpus is identical
-under every one, so the reading closes the tab fixture alone; the sweep is
-verdict-, entity- and polygon-identical (0 LOST / 60 returned FPs / 0 REVIEW),
-s01 at 0.542 and s02 at 1.0 untouched. Pinned by
+(`_side_wall_covers`, `_run_wall_cover`, `cap_lines` — in
+`docs/room-detection-rules.md` §"The band-pocket drop"; no constant moved): a
+rectangle is pinned by the component's widest point, and the 31.5px tab a
+perpendicular partition's flat-capped segment leaves in each s17 reveal strip
+put the rectangle's edge ON the face line. Censused four ways on every call the
+rule receives and every emitted room of all 20 sheets, then as implemented at
+ceilings 40/41/44/48/56 for the rule alone (`tools/census_scratch/step15/`):
+the strips read [0.99, 1.0], [1.0, 1.0], [0.96, 0.99], [1.0, 1.0] and are held
+out by the 36px ceiling alone — at 40 three drop (0027 at 40.5px stays), at 41
+all four — while s11's confirmed 368mm storage (1.0/1.0 under every reading,
+21.75px at f=0.5) is LOST from 44 up, s18's recorded-FP kitchen-corner box goes
+at 44, s16's partition box at 48, s12's two unit cells and s18's sofa-back
+strip (0.14 → 0.90, a notch pinned its rectangle) at 56, and nothing else on
+any sheet moves at any ceiling; the corpus sweep at 36 is verdict-, entity- and
+polygon-identical (0 LOST / 68 returned FPs / 0 REVIEW). A 41px ceiling would
+take all four strips and keep the storage by 1.06× — a knife-edge, so the
+ceiling waits for that cupboard to be recognised another way. The wall-recess
+rule read its back edge off the component's extent the same way and failed on
+the same tab (a tab-less version of the step-15 fixture is a recess, the tabbed
+one is not) — step 17, below. Step 16 (2026-09-06,
+`docs/w-gate-iter3-checkpoints/step-16.md`) measured the brief's four
+discriminators on both classes and found the brief's premise wrong on the
+drawing: s11's storage is not between two walls but a cupboard with a lone
+FRONT line (the s02 "coats" class in the wall pen), so "material behind both
+sides" reads 1/2 on it as on the dropped 25.25px reveal, no vector-text glyph
+row lies inside any call on the corpus, and every face is one pen; the s17
+strips are a 313mm wall drawn HOLLOW (two lines, rooms on both sides, no leaf
+resuming at any reach), not a reveal. What separates them is ENCLOSURE — the
+storage is closed by wall bands at both ends (1.0 / 1.0), the strips by a jamb
+line and a partition's face (≤ 0.345 / ≤ 0.201) — built as `_end_closures` +
+`ROOM_BAND_POCKET_END_CLOSURE_MIN` 0.65 (in `docs/room-detection-rules.md`
+§"Band-pocket end closures"; inert at the 36 ceiling, corpus identical) and, as
+a separate change, the band-pocket ceiling moved to
+`WALL_THICK_MATERIAL_MAX_PX` (56px = 475mm; `RoomGates` carries it): censused
+as implemented with the exemption on and off at 36 / 40 / 41 / 44 / 48 / 56 on
+all 20 sheets and swept — **0 LOST / 60 returned FPs / 0 REVIEW**, eight
+recorded-FP rooms removed (s17's four strips, s18's kitchen-corner box and
+sofa-back strip, s12's two unit cells — the last three at 0.93–0.99× the scaled
+ceiling and dropped for the wrong reason, fixture cells against a wall), 0
+polygons changed, nothing added, s01/s02 identical, s16's enclosed partition
+box kept; without the exemption the storage is LOST from 44. The margin is the
+walls' own thick cap, not a measured midpoint: the corpus's other confirmed
+door-less spaces (s07's cupboard, s20's passage, s15's space) are boxes of lone
+lines at 599–610mm, 1.26–1.29× over 475mm, and no ceiling clears 1.5× both ways
+between the strips' 343mm and their 599mm — a missed-door cupboard 305–475mm
+deep with a single line at one end would now be dropped. Step 17 (2026-09-06,
+`docs/w-gate-iter3-checkpoints/step-17.md`) read `_is_wall_recess`'s back edge
+on the component's own boundary runs (`_back_edge_cover`,
+`ROOM_RECESS_BACK_COVER_MIN` — in `docs/room-detection-rules.md` §"The
+wall-recess drop"; no constant moved): censused with both readings on every
+recess call (72, 14 reaching the back edge) and every emitted room (236, none
+reaching it) of all 20 sheets, then as implemented under four runs variants
+(face / with caps, over the gap / over the component's own extent) — the corpus
+is identical under every one, so the reading closes the tab fixture alone; the
+sweep is verdict-, entity- and polygon-identical (0 LOST / 60 returned FPs / 0
+REVIEW), s01 at 0.542 and s02 at 1.0 untouched. Pinned by
 `TestWallRecessTabbedByAPerpendicularBand` (the band-pocket rule taken out of
 the stage, because on the shipped tree it catches the tabbed reveal after the
 recess rule declines it; the tabbed reveal fails with the detector reverted,

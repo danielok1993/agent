@@ -363,7 +363,8 @@ stamp never picks ONE hinge edge. The stamp is a subset of the old one
 everywhere, so a room can only gain floor; what it can do is let two spaces the
 old stamp's FAR edges happened to separate merge — on s18 a 0.75m strip of
 patio under door_0271's parked bottom leaf, otherwise fenced by the "4200
-Overall Extension projection" glyph-outline rings (gap (b) below), was a
+Overall Extension projection" glyph-outline rings (gap (b),
+`docs/wall-network-rules.md` §"Known gap: glyph-outline fill rings"), was a
 confirmed `partial` room and vanishes, the one LOST line of the step-8 sweep
 and the user's call. The bbox fallback is the one seal with NO evidence of its
 own (every plug profile qualifies against drawn wall material; the stamp is

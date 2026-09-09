@@ -69,6 +69,17 @@ def apply_repairs(text, repairs):
             assert not text.rstrip().endswith("."), \
                 f"append_period on a span that already ends with a period: {text[-40:]!r}"
             text = text.rstrip() + "."
+        elif op == "replace":
+            # Repoint a directional reference the MOVE ITSELF falsified ("the
+            # gates paragraph below" now lives in another file). Never a number,
+            # constant, path, identifier, sheet slug or measurement -- only the
+            # directional wording, and only where the move broke it. `old` must
+            # occur EXACTLY ONCE in the span: an ambiguous match would make the
+            # verifier's inversion non-deterministic.
+            o, n = r["old"], r["new"]
+            c = text.count(o)
+            assert c == 1, f"replace: {o!r} occurs {c} times in the span, need 1"
+            text = text.replace(o, n)
         else:
             raise SystemExit(f"unknown repair op {op!r}")
     return text

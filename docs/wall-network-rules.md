@@ -55,33 +55,34 @@ row that hatch strokes END on from one side (that is a hatched band's face
 drawn dotted, s05) nor a face between touching tick stubs (s17); every piece in
 the wall pen was otherwise a strong lone barrier face, and s15's beam lines and
 drain run fenced its lounge, vestibule, kitchen zone and garage into twelve
-cells — the full rule and its measured margins are in the gates paragraph
-below), then `detect_rooms` extracts rooms as the connected free-space
-components of the page after subtracting barriers. The exclusion set
-(`door_open_leaf_path_indices`) keeps single-swing doors' OPEN-leaf linework
-out of face collection entirely: a swing leaf is drawn standing open in the
-wall pen, parallel to whatever wall it parks beside, and pairing it inflates
-that wall's band across the swing side (measured on floor-plans: door_0000's
-double-line leaf paired with both faces of the 7px hallway wall and the
-collinear merge carried the inflated 18.5px thickness over the whole inter-door
-run, fencing an 8px strip out of the hallway); each excluded path must also lie
-fully inside its door's zone (bbox ± 2px, the rooms-stage convention) because
-the leaf-companion finder serves the opening check and over-collects — a leaf
-parked 1.9px off a jamb claims the jamb's own faces as companions (measured:
-door_0005's companions were the wardrobe end panel's two faces, and excluding
-them dissolved the wardrobe/bedroom split), while real partitions extend past
-the swing zone and leaf ink never does. Merged french pairs are left alone
-(their leaves are drawn closed IN the wall plane — legitimate wall evidence),
-as are sliding/folding panels (they lie in or seal their wall plane by
-construction) — but a GARDEN pair's leaves park OPEN at the outer ends of the
-opening, perpendicular to their wall and parallel to the flanking room walls,
-so the merge preserves both halves' leaf ink (`leaf_path_indices`) and the
-exclusion covers garden doubles too (measured on floor-plans door_0016: each
-parked double-line leaf paired with the bedroom side wall ~30px away into a
-phantom 30.5px band whose solids fenced a 37px-wide strip of bedroom on each
-side of the doorway, and a leaf/jamb pair pinched the doorway tongue to the
-leaf faces); the in-zone gate drops the halves' over-collected jamb companions
-exactly as it does for singles.
+cells — the full rule and its measured margins are in
+`docs/w-gate-recalibration-handoff.md` §"Iteration 1–3 summary, moved from
+CLAUDE.md (2026-09-09)", step 6), then `detect_rooms` extracts rooms as the
+connected free-space components of the page after subtracting barriers. The
+exclusion set (`door_open_leaf_path_indices`) keeps single-swing doors'
+OPEN-leaf linework out of face collection entirely: a swing leaf is drawn
+standing open in the wall pen, parallel to whatever wall it parks beside, and
+pairing it inflates that wall's band across the swing side (measured on
+floor-plans: door_0000's double-line leaf paired with both faces of the 7px
+hallway wall and the collinear merge carried the inflated 18.5px thickness over
+the whole inter-door run, fencing an 8px strip out of the hallway); each
+excluded path must also lie fully inside its door's zone (bbox ± 2px, the
+rooms-stage convention) because the leaf-companion finder serves the opening
+check and over-collects — a leaf parked 1.9px off a jamb claims the jamb's own
+faces as companions (measured: door_0005's companions were the wardrobe end
+panel's two faces, and excluding them dissolved the wardrobe/bedroom split),
+while real partitions extend past the swing zone and leaf ink never does.
+Merged french pairs are left alone (their leaves are drawn closed IN the wall
+plane — legitimate wall evidence), as are sliding/folding panels (they lie in
+or seal their wall plane by construction) — but a GARDEN pair's leaves park
+OPEN at the outer ends of the opening, perpendicular to their wall and parallel
+to the flanking room walls, so the merge preserves both halves' leaf ink
+(`leaf_path_indices`) and the exclusion covers garden doubles too (measured on
+floor-plans door_0016: each parked double-line leaf paired with the bedroom
+side wall ~30px away into a phantom 30.5px band whose solids fenced a 37px-wide
+strip of bedroom on each side of the doorway, and a leaf/jamb pair pinched the
+doorway tongue to the leaf faces); the in-zone gate drops the halves'
+over-collected jamb companions exactly as it does for singles.
 
 ## Stroked rectangles as weak faces
 

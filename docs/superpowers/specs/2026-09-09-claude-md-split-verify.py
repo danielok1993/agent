@@ -42,6 +42,17 @@ def invert(text, repairs, src):
             text = text[0].lower() + text[1:]
         elif op == "drop_leading_word":
             text = r["word"] + " " + text
+        elif op == "replace":
+            # Inverse of the generator's `replace`. The NEW text must occur
+            # exactly once, or the document does not carry the repair the map
+            # claims: an unrecorded replace leaves `new` absent and the
+            # inversion returns text that no longer matches the source, so
+            # CONTENT fails either way (measured with a bogus entry).
+            c = text.count(r["new"])
+            if c != 1:
+                fail(f"replace recorded but {r['new']!r} occurs {c} times, need 1")
+                return text
+            text = text.replace(r["new"], r["old"])
     return text
 
 
