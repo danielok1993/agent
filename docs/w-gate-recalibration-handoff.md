@@ -2762,8 +2762,8 @@ strip 0013 with no collinear gap). Not committed; `graphify update .` run.
 > as band pockets for the WRONG reason — free space between a wall and a
 > kitchen unit's / sofa's back, not wall material — while s18's
 > kitchen-corner box (2079,1023)–(2096,1068) is a real hollow junction cell),
-> step-17.md, the CLAUDE.md "Room detection" paragraph's band-pocket block,
-> `_is_band_pocket` / `_side_wall_covers` / `_end_closures` /
+> step-17.md, `docs/wall-network-rules.md` and `docs/room-detection-rules.md`'s
+> band-pocket block, `_is_band_pocket` / `_side_wall_covers` / `_end_closures` /
 > `_back_edge_cover` in `detection/rooms.py`, `_claims_far_side_pair` and
 > `_furniture_segment` in `detection/walls.py` / `rooms.py` (how the stage
 > already tells a fixture front from a wall face: a wall's material lies on
@@ -2847,3 +2847,250 @@ strip 0013 with no collinear gap). Not committed; `graphify update .` run.
 > with no address or planning-portal id; no Co-Authored-By or session
 > trailer). End every report with the numbers: lost, returned FPs, new
 > REVIEW lines with your verdicts, net phantom delta, and what is next.
+
+## Iteration 1–3 summary, moved from CLAUDE.md (2026-09-09)
+
+The W references are being re-derived at the sheets' TRUE scales
+(`docs/w-gate-census-2026-09-04.md` — the census of every scaled field, both
+sides of each gate's discrimination in world mm, s01 at 1:92.2;
+`docs/w-gate-recalibration-handoff.md` — the outcome log). Iteration 2 moves
+them in groups, each pinned by a synthetic test that fails at the old value and
+swept against main's snapshots (zero lost confirmed entities, the 71
+pre-existing returned FPs unchanged, every new REVIEW line given a verdict from
+the pictures, net phantom delta ≥ 0). Group 1 (2026-09-04):
+`WINDOW_MIN_WIDTH_PX` 14 → 12 (102mm — the narrowest confirmed openings are s02
+174mm, s16 196mm, s03 17.2px; width separates nothing on the false side, s18's
+FP windows start at the width of its real ones), `DOOR_FOLD_JAMB_ANCHOR_TOL_PX`
+6 → 10 (85mm — its defining s01 measurement, 3.4/3.6px, is 53–56mm at 1:92.2,
+so the old 51mm sat under its own feature; s01 door_0012's bbox top now extends
+7px along the jamb, metrics and rooms unchanged), `WALL_THROUGH_HATCH_MAX_PX`
+64 → 72 (610mm — s05's 475mm through-hatched wall at 1.28×, s01's first
+through-hatched fixture at 81.5px = 1.13× over), and `CROSS_DOOR_EXPAND_PX` 20
+→ 16 (135mm), NOT the census's 10: the corpus sweep at 10 uncovered a false
+class the one-field ablation could not see — a 100mm DOOR LINING box touching
+the door's hinge corner (s18, 6×49px at f=0.5) is covered only diagonally by
+the dilation and needs 10.3px at 1:50 to reach `CROSS_DOOR_MIN_WINDOW_COVER`,
+so at 10 it came out as a 0.75 window; 16 sits 1.55× over it and 1.56× under
+s03's real window lost at 25px, and the hinge-jamb wall-run exemption decides
+three corpus windows again (s10/s17/s18) where at 10 it decided none. Group 2
+(thin-margin moves): `WALL_WEAK_MATERIAL_PER_100PX` 3.0 → 2.2 and
+`CROSS_WALL_EXPAND_PX` 20 → 24 shipped (both inert on the corpus at entity and
+polygon level); `WALL_MAX_THICKNESS_PX` 40, `WALL_FACE_MIN_LEN_PX` 9 and
+`ROOM_OPENING_SEAL_PX` 15 were each tried on the full corpus and reverted with
+the false class they admitted measured in the constant's comment — every census
+row flagged ⚠ ("discriminator, not number") broke the moment its number moved,
+always by admitting a drawn fixture the one-field ablation could not see
+because another gate had been holding it out (s02's WC basin edge over two
+corner X symbols at 38.25px — cleared by iteration 3's far-side density rule,
+s01's 38.5px kitchen units, the 9.9px hatch of 7px bands, a hinge-less door's
+swing-side edge within SEAL + 5px of two walls). Group 3 (class fixes): the
+material-mark cap is per band (`_mark_len_cap`, marks collected once at the
+through diagonal; a mark over the page-wide 48px counts only as through-hatch)
+and `WALL_THICK_MATERIAL_MAX_PX` moved 48 → 56 with it (475mm; s05's wall pairs
+in the thick tier at f=0.5); `COLLINEAR_OFFSET_TOL` was measured as
+paper-true-class with a world ceiling of 5.5×f (s18's 47mm partitions fuse at
+2.75px at f=0.5) and stays numerically 4×f; `ROOM_PLUG_HALF_WIDTH_PX` is
+floored at the 2px line-barrier standoff. The recalibrated tree is
+verdict-identical to main on all 20 sheets (71 returned FPs, 0 lost, 5
+unreviewed) with two sub-1% outline improvements (s11 porch, s13 bedroom),
+s13's plugs 0.16px wider, and s01 door_0012's bbox 7px longer. Iteration 3
+(`docs/w-gate-iter3-checkpoints/`): step 1 shipped the far-side density rule
+(`_claims_far_side_sparse`), step 2 the corner door lining (`_is_door_lining`'s
+far strip), and step 3 was measurement only — the "short-piece material rule"
+it was to build has no instance on the corpus (0 failing thick pairs collinear
+with a hatched band across an opening on s01 at 0.542 or on s01/s02/s03/s05);
+what holds s01 at its true factor is `WALL_MAX_THICKNESS_PX` anchoring s01's
+open-headed stair ARROW lines out of the stair zone at 36 (a wall face 28–35px
+away is a wall-spacing partner) so they pair into phantom bands across three
+flights, cutting three confirmed rooms the truth notes already call wrongly
+split, and `ROOM_OPENING_SEAL_PX` at 6.5px not reaching the hall door's 8px =
+125mm jamb gap. Step 5 shipped the plug-tail clip (`_clip_plug_tails`, in the
+room paragraph above). Step 6 (2026-09-05,
+`docs/w-gate-iter3-checkpoints/step-6.md`) shipped the DASH-ROW rule
+(`_dash_row_indices`, after the user retired the ten chunk verdicts it cost —
+see below): a drawn dash line — a dashed line TYPE the exporter explodes into
+one solid `l` piece per dash (beam-over, boundary, section, drain and
+demolition lines, dashed rooflight and unit boxes) — is a periodic row of
+same-pen pieces, each linked to the nearest piece following it at an equal,
+short gap (≤ 18px = 3mm paper, P-class: 3.7–15px across the corpus at 1:50 and
+1:100 alike; touching pieces are one solid line, s06's walls), plain (one
+interior piece length) or chain (two strictly alternating, s15's 74/14.8 "steel
+ridge beam"), its clipped end dashes never longer than one period, no piece
+class over 8 gaps (every standard line type keeps the longest dash within ~5; a
+wall face between 2px-gapped tick stubs is 100+ — s17's 348px face read as a
+chain until the nearest-piece link and the ratio cap), and never a row that
+hatch strokes END on from one side at the weak-tier density (s05's 475mm
+external wall has its inner face drawn as a 6/6 dotted row on which its 104
+through-hatch strokes end; the first cut merged Bed 1 and Bed 2 through the
+band) — whereas wall linework is never periodic: a face broken by openings has
+THREE pieces at world opening widths on every sheet (s05 [165, 27, 165] at
+49px, s07 [106, 99, 106] at 21, s11 [35, 71, 34] at 35, s15 [212, 198, 212] at
+42.5), a text mask leaves unequal gaps. Members leave face collection with the
+dimension chains and glyph strokes, so they neither fence nor vote in the
+collinear anchor. Measured with `tools/census_scratch/dash_rows.py` (every
+collinear same-pen row at gaps on all 20 sheets, both classes) and swept:
+s01/s02 and fourteen other sheets byte-identical, s15 −4 recorded phantoms and
+its room_0016 dash-fenced pocket gone, s17/s18 +2.9k px² of outline regained,
+no room loses free space outside s15's recorded-FP hall (−261 px², a 35px pair
+the removed beam-flange pair had suppressed) — but the rule LOSES 10 confirmed
+rooms: nine on s15, every one a cell fenced by a beam line (the ridge beam
+splitting the lounge 88|500px and the hall 88|77, the "steel beam 2" row and
+the "existing steel beam" symbol cutting the kitchen zone into five), a drain
+run (the page-long 2.0px row at x=263 cutting the garage into three) or a
+dashed unit box, plus s07's closet, closed by a dashed double line 8px apart.
+The user judged the merged rooms right ("the split cells were confirmed as
+chunks of one room") and retired the ten `confirmed` entries by hand (a 61-line
+deletion in `tests/ground_truth/s15.json` / `s07.json`, 2026-09-05); against
+the edited truth the sweep reads 0 LOST, 67 returned FPs, 6 REVIEW (the garage
+as a new real room, and a 160×77px slice of s15's hall that a 3-piece chain
+fragment — n < `WALL_DASH_MIN_PIECES` — still fences, a phantom; a text-mask
+join for such fragments is its own iteration). Step 7 (2026-09-05,
+`docs/w-gate-iter3-checkpoints/step-7.md`) moved `ROOM_OPENING_SEAL_PX` 12 → 15
+(127mm at 1:50, 7.5px = 150mm at 1:100; s01's hall door needs 125mm of reach at
+its true scale, s17's 135mm, s05/s07's 102mm was exactly the old scaled tail):
+the corpus sweep is verdict-identical (0 lost, 68 returned FPs, 0 REVIEW, no
+door or window changes) and 48 room polygons on 13 sheets move by sub-1% strips
+in three measured classes — (a) the plug-less dilated-bbox FALLBACK stamps SEAL
+in every direction, so each such door bites 3px more into the room on its plane
+side (s01 door_0015's double swing −447 px² on the living room, s04 door_0003's
+slider −539 on each flanking room, s17 door_0001 −547 on the confirmed SH/WC
+whose recorded outline IS that stamp's edge, s16/s18 at f=0.5 by 1.5px; ≈ −2.9k
+px² in all — the stamp's across-plane growth is pure cost, and
+plane-restricting the fallback is its own iteration), (b) a tail on continuing
+material, or on a parallel band inside the 5px touch half-width, is 3px longer
+and notches an adjacent room's corner by 3 × the plug width (s17 door_0016's
+doorway plug into rooms 0001/0002, s15, s10, s20; ≈ −1.0k), and (c)
+sampling-phase knife-edges both ways (s03 door_0008's leaf-side phantom plug
+drops, 1/6 → 2/7 mid cover, and room_0009 swallows a wall stub as an island,
++715; s02 door_0005's cross-section fit falls to the full envelope, −276; s17
+door_0001's bottom plug qualifies at 14 only, where the SH/WC regains its swing
+square, +9.0k; ≈ +0.8k). s01 (−304 px², 2 rooms) and s02 (−53, 8 rooms) move at
+f=1.0 — reported as a decision. Step 8 (2026-09-05) plane-restricted the
+plug-less fallback stamp (`_plane_stamp`), step 9 measured `_gate_denominator`
+and did not move it, step 10 shipped the material-seeking plug tail
+(`ROOM_PLUG_JAMB_SEEK_PX`; s01's hall seals at 0.542) and step 11 (2026-09-05,
+`docs/w-gate-iter3-checkpoints/step-11.md`) the doorway veto on the wall-pen
+share gate (`_doorway_pens`, in the room paragraph above): corpus
+byte-identical, s01 at 0.542 in the harness 11 doors / 4 windows / 9 of 12
+rooms with the merged landing the only unreviewed room and the three stair
+verdicts the only losses. Step 12 (2026-09-06,
+`docs/w-gate-iter3-checkpoints/step-12.md`) let the drawing's dimension strings
+verify a measured scale for the gates (`scale/dimensions.py`, the paragraph
+above): s01 runs at its true factor IN THE SWEEP — 11 doors / 4 windows / 9 of
+12 rooms, the three stair verdicts the only losses and the merged landing the
+only REVIEW line (the user retires the three by hand and records the landing
+through `tools/review.py`; s01's room-label cache then needs a Gemini reseed at
+the new geometry) — and the other 19 sheets are entity- and polygon-identical.
+Step 4 (2026-09-06, `docs/w-gate-iter3-checkpoints/step-4.md`, measurement
+only) ran `WALL_MAX_THICKNESS_PX` 36 → 40 AS IMPLEMENTED on every sheet at its
+factor and did NOT move it: the 40 removes s17's four cavity-wall reveal
+phantoms (a 313mm cavity wall drawn at 36.5–36.75px — the modern 315mm wall
+sits 1.03× over the cap) and s16's pocket (sealed by two stair treads 18px
+apart at 1:100, the wrong reason), but admits s18's site boundary drawn double
+(18.25px over 682px, fencing the tree strip), a 20×15px stub box under s11's
+party wall (which lets the neighbour's chimney-breast box pass the room
+filters), and s15's wardrobe edge paired with the unrecognised "3560" dimension
+line 39.75px below it (the confirmed bedroom −5,135 px²), re-nodes s02 by 3–19
+px², and stops 27 s11/s16 rooms at their plaster lines (correct, 1.1px strips);
+no pairing-stage feature separates the true stretches from the false bands —
+material, parallel linework inside the band over the overlap and over the
+faces' whole extent (the cavity's leaf lines stop exactly where the strips
+form), and openings in the band all read 0 on both classes at the same world
+thickness — while the s17 strips looked like `_is_band_pocket`'s own class held
+out by its `WALL_MAX_THICKNESS_PX` ceiling (35 + 4 > 36). Step 13 (2026-09-06,
+`docs/w-gate-iter3-checkpoints/step-13.md`, measurement only) ran that ceiling
+at `WALL_THICK_MATERIAL_MAX_PX` AS IMPLEMENTED on every sheet (a tap on every
+call the rule receives, then the chain with/without) and did NOT move it: of 54
+entrance-less, window-less components corpus-wide, 5 would drop — four
+recorded-FP cells at 360–470mm (s18's kitchen-corner box, s16's partition box,
+s12's two unit cells, the second at 0.99× the ceiling) and s11's CONFIRMED
+"storage in utility" at 368mm, a real 300 × 1800mm cupboard drawn without a
+door of its own (`door_0009` is the utility's door — its interrupted plug is on
+the bbox's bottom edge, 8.8px from the storage, so the room stage reads
+`door_count` 0 and the rule IS called on it today), so the true class's
+narrowest member sits inside the false class's range and the next real
+door-less spaces between two faces are 599–631mm on s20/s15/s07/s17/s08
+(1.26–1.33× over the 475mm ceiling); and s17's four reveal strips never reach
+the rule at all — each ends at a doorway cut through the cavity wall whose 0.95
+plug touches the strip over 15–18px (an entrance under the 4px contact test),
+and the 31.5px tab where the perpendicular 35.5px band's flat-capped solid ends
+pins the strip's minimum rotated rectangle ON the face line so one or both
+`_edge_face_cover`s read 0 (0013 [0.0, 1.0], 0014 [0.0, 0.04], 0027 [0.0,
+0.0]); their spacing, 38.75–40.5px = 328–343mm, is the least of the three.
+Measured for the next iteration, not built: an ENTRANCE is a seal running ALONG
+the space's boundary — the largest entrance contact of every confirmed entered
+room on 17 sheets is ≥ 569mm (67.2px at 1:50, s03; 745mm at 1:100, s18; medians
+775–1482mm) while the s17 strips' only contact is 127–152mm and s04's
+recorded-FP box's 182mm, a 3.7× margin (per seal, a neighbour's tail grazes
+real rooms at 30–114mm, so the statistic is the room's maximum). Step 14
+(2026-09-06, `docs/w-gate-iter3-checkpoints/step-14.md`) built it as
+`ROOM_ENTRANCE_MIN_RUN_PX` (29.5px = 250mm, W-class) on the run NET of the
+paper contact tolerance (`_entrance_run`, in the room paragraph above): the s17
+strips' runs read 7–10px and s04's box 13.5px against ≥ 59.2px on every
+confirmed entered room at f=1.0 and ≥ 36px at f=0.5; the corpus sweep is
+verdict-identical in counts (0 lost, 68 returned FPs, 0 REVIEW) with 19 sheets
+entity- and polygon-identical, the s17 strips entrance-less and still emitted
+(the tab-pinned covers and the cap, their own steps), and s04 a trade — the box
+drops as a blind-window pocket and the recorded-FP stair flight beyond
+window_0004 returns, no longer the door-less side of a window whose other side
+holds a door-bearing room. Step 15 (2026-09-06,
+`docs/w-gate-iter3-checkpoints/step-15.md`) read the band-pocket cover on the
+component's OWN sides with wall solids' flat ends admitted
+(`_side_wall_covers`, `_run_wall_cover`, `cap_lines` — in the room paragraph
+above; no constant moved): a rectangle is pinned by the component's widest
+point, and the 31.5px tab a perpendicular partition's flat-capped segment
+leaves in each s17 reveal strip put the rectangle's edge ON the face line.
+Censused four ways on every call the rule receives and every emitted room of
+all 20 sheets, then as implemented at ceilings 40/41/44/48/56 for the rule
+alone (`tools/census_scratch/step15/`): the strips read [0.99, 1.0], [1.0,
+1.0], [0.96, 0.99], [1.0, 1.0] and are held out by the 36px ceiling alone — at
+40 three drop (0027 at 40.5px stays), at 41 all four — while s11's confirmed
+368mm storage (1.0/1.0 under every reading, 21.75px at f=0.5) is LOST from 44
+up, s18's recorded-FP kitchen-corner box goes at 44, s16's partition box at 48,
+s12's two unit cells and s18's sofa-back strip (0.14 → 0.90, a notch pinned its
+rectangle) at 56, and nothing else on any sheet moves at any ceiling; the
+corpus sweep at 36 is verdict-, entity- and polygon-identical (0 LOST / 68
+returned FPs / 0 REVIEW). A 41px ceiling would take all four strips and keep
+the storage by 1.06× — a knife-edge, so the ceiling waits for that cupboard to
+be recognised another way. The wall-recess rule read its back edge off the
+component's extent the same way and failed on the same tab (a tab-less version
+of the step-15 fixture is a recess, the tabbed one is not) — step 17, below.
+Step 16 (2026-09-06, `docs/w-gate-iter3-checkpoints/step-16.md`) measured the
+brief's four discriminators on both classes and found the brief's premise wrong
+on the drawing: s11's storage is not between two walls but a cupboard with a
+lone FRONT line (the s02 "coats" class in the wall pen), so "material behind
+both sides" reads 1/2 on it as on the dropped 25.25px reveal, no vector-text
+glyph row lies inside any call on the corpus, and every face is one pen; the
+s17 strips are a 313mm wall drawn HOLLOW (two lines, rooms on both sides, no
+leaf resuming at any reach), not a reveal. What separates them is ENCLOSURE —
+the storage is closed by wall bands at both ends (1.0 / 1.0), the strips by a
+jamb line and a partition's face (≤ 0.345 / ≤ 0.201) — built as `_end_closures`
++ `ROOM_BAND_POCKET_END_CLOSURE_MIN` 0.65 (in the room paragraph above; inert
+at the 36 ceiling, corpus identical) and, as a separate change, the band-pocket
+ceiling moved to `WALL_THICK_MATERIAL_MAX_PX` (56px = 475mm; `RoomGates`
+carries it): censused as implemented with the exemption on and off at 36 / 40 /
+41 / 44 / 48 / 56 on all 20 sheets and swept — **0 LOST / 60 returned FPs / 0
+REVIEW**, eight recorded-FP rooms removed (s17's four strips, s18's
+kitchen-corner box and sofa-back strip, s12's two unit cells — the last three
+at 0.93–0.99× the scaled ceiling and dropped for the wrong reason, fixture
+cells against a wall), 0 polygons changed, nothing added, s01/s02 identical,
+s16's enclosed partition box kept; without the exemption the storage is LOST
+from 44. The margin is the walls' own thick cap, not a measured midpoint: the
+corpus's other confirmed door-less spaces (s07's cupboard, s20's passage, s15's
+space) are boxes of lone lines at 599–610mm, 1.26–1.29× over 475mm, and no
+ceiling clears 1.5× both ways between the strips' 343mm and their 599mm — a
+missed-door cupboard 305–475mm deep with a single line at one end would now be
+dropped. Step 17 (2026-09-06, `docs/w-gate-iter3-checkpoints/step-17.md`) read
+`_is_wall_recess`'s back edge on the component's own boundary runs
+(`_back_edge_cover`, `ROOM_RECESS_BACK_COVER_MIN` — in the room paragraph
+above; no constant moved): censused with both readings on every recess call
+(72, 14 reaching the back edge) and every emitted room (236, none reaching it)
+of all 20 sheets, then as implemented under four runs variants (face / with
+caps, over the gap / over the component's own extent) — the corpus is identical
+under every one, so the reading closes the tab fixture alone; the sweep is
+verdict-, entity- and polygon-identical (0 LOST / 60 returned FPs / 0 REVIEW),
+s01 at 0.542 and s02 at 1.0 untouched. Pinned by
+`TestWallRecessTabbedByAPerpendicularBand` (the band-pocket rule taken out of
+the stage, because on the shipped tree it catches the tabbed reveal after the
+recess rule declines it; the tabbed reveal fails with the detector reverted,
+the tab-less control passes on both).

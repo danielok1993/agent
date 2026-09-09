@@ -18,6 +18,11 @@
       "mode": "append",
       "title": "(existing document — append mode, title unused)",
       "preamble": ""
+    },
+    "docs/w-gate-recalibration-handoff.md": {
+      "mode": "append",
+      "title": "(existing document — append mode, title unused)",
+      "preamble": ""
     }
   },
   "sections": [
@@ -490,6 +495,19 @@
           199,
           0,
           3923
+        ]
+      ],
+      "repairs": []
+    },
+    {
+      "id": "H1",
+      "doc": "docs/w-gate-recalibration-handoff.md",
+      "heading": "Iteration 1–3 summary, moved from CLAUDE.md (2026-09-09)",
+      "spans": [
+        [
+          201,
+          0,
+          18476
         ]
       ],
       "repairs": []
