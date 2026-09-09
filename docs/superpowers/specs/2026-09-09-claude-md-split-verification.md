@@ -580,6 +580,14 @@ ahead of the installed skill, and the 59 zero-node files are data/config JSON
 (`s01.json` and its ground-truth siblings, `evals.json`, the split map itself)
 that the AST extractor has nothing to extract from. Neither is new here.
 
+Re-run once more after FIX-1 — the content-based divergence guard above —
+landed, since it adds `render_create_doc`, `characterise`, `_excerpt` and a
+re-signatured `headings_of` to the generator: `414/414 files`, `5559 nodes,
+13593 edges, 338 communities`, same two warnings. That is the committed graph
+(`python3 -c "import json; g=json.load(open('graphify-out/graph.json'));
+print(len(g['nodes']), len(g['links']))"` prints `5559 13593`), and it
+supersedes the `5553 / 13583` figures recorded above.
+
 ### Retrieval check
 
 The plan's premise was that a single 100k-character line is a poor
