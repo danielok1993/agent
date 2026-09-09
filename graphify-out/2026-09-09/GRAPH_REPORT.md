@@ -1,7 +1,7 @@
 # Graph Report - agent  (2026-09-09)
 
 ## Corpus Check
-- 414 files · ~1,559,392 words
+- 414 files · ~1,559,453 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -905,7 +905,7 @@ Nodes (14): Floor and ceiling, Geometry, Heights, Module layout, Openings and wa
 
 ### Community 196 - "Handoff: W-gate recalibration (the proper fix behind `fix/measured-scale-detection-factor`)"
 Cohesion: 0.18
-Nodes (10): Evidence: what broke at f = 50/92.2 = 0.542 (all measured on the real PDF), Handoff: W-gate recalibration (the proper fix behind `fix/measured-scale-detection-factor`), How the ablation was done (reproduce in ~30 min), Iteration 1–3 summary, moved from CLAUDE.md (2026-09-09), Outcome — iteration 3, step 12 (2026-09-06, branch `recal/gate-denominator-stored-scale`, shipped pending the user's decision), Prompt for the next agent (iteration 3, step 4 — `WALL_MAX_THICKNESS_PX` 36 → 40 — fresh context), Read these first (in order), The problem in one paragraph (+2 more)
+Nodes (10): Evidence: what broke at f = 50/92.2 = 0.542 (all measured on the real PDF), Handoff: W-gate recalibration (the proper fix behind `fix/measured-scale-detection-factor`), How the ablation was done (reproduce in ~30 min), Iteration 1–3 summary, moved from CLAUDE.md (2026-09-09), Outcome — iteration 3, step 10 (2026-09-05, branch `fix/material-seeking-plug-tail`, shipped pending the user's decision), Prompt for the next agent (iteration 3, step 11 — the wall-pen discriminator — fresh context), Read these first (in order), The problem in one paragraph (+2 more)
 
 ### Community 198 - "fill_ring"
 Cohesion: 0.33

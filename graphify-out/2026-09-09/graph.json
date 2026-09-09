@@ -51518,7 +51518,7 @@
       "label": "Retrieval check",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/2026-09-09-claude-md-split-verification.md",
-      "source_location": "L536",
+      "source_location": "L543",
       "_origin": "ast",
       "id": "docs_superpowers_specs_2026_09_09_claude_md_split_verification_retrieval_check",
       "community": 209,
@@ -51528,7 +51528,7 @@
       "label": "Deferred minors (for the whole-branch review to triage)",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/2026-09-09-claude-md-split-verification.md",
-      "source_location": "L582",
+      "source_location": "L589",
       "_origin": "ast",
       "id": "docs_superpowers_specs_2026_09_09_claude_md_split_verification_deferred_minors_for_the_whole_branch_review_to_triage",
       "community": 209,
@@ -51538,7 +51538,7 @@
       "label": "Summary",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/2026-09-09-claude-md-split-verification.md",
-      "source_location": "L614",
+      "source_location": "L621",
       "_origin": "ast",
       "id": "docs_superpowers_specs_2026_09_09_claude_md_split_verification_summary",
       "community": 209,
@@ -54031,7 +54031,7 @@
       "source_location": "L1668",
       "_origin": "ast",
       "id": "docs_w_gate_recalibration_handoff_outcome_iteration_3_step_10_2026_09_05_branch_fix_material_seeking_plug_tail_shipped_pending_the_user_s_decision",
-      "community": 272,
+      "community": 196,
       "norm_label": "outcome \u2014 iteration 3, step 10 (2026-09-05, branch `fix/material-seeking-plug-tail`, shipped pending the user's decision)"
     },
     {
@@ -54041,7 +54041,7 @@
       "source_location": "L1695",
       "_origin": "ast",
       "id": "docs_w_gate_recalibration_handoff_prompt_for_the_next_agent_iteration_3_step_11_the_wall_pen_discriminator_fresh_context",
-      "community": 272,
+      "community": 196,
       "norm_label": "prompt for the next agent (iteration 3, step 11 \u2014 the wall-pen discriminator \u2014 fresh context)"
     },
     {
@@ -54071,7 +54071,7 @@
       "source_location": "L1911",
       "_origin": "ast",
       "id": "docs_w_gate_recalibration_handoff_outcome_iteration_3_step_12_2026_09_06_branch_recal_gate_denominator_stored_scale_shipped_pending_the_user_s_decision",
-      "community": 196,
+      "community": 272,
       "norm_label": "outcome \u2014 iteration 3, step 12 (2026-09-06, branch `recal/gate-denominator-stored-scale`, shipped pending the user's decision)"
     },
     {
@@ -54081,7 +54081,7 @@
       "source_location": "L1969",
       "_origin": "ast",
       "id": "docs_w_gate_recalibration_handoff_prompt_for_the_next_agent_iteration_3_step_4_wall_max_thickness_px_36_40_fresh_context",
-      "community": 196,
+      "community": 272,
       "norm_label": "prompt for the next agent (iteration 3, step 4 \u2014 `wall_max_thickness_px` 36 \u2192 40 \u2014 fresh context)"
     },
     {
@@ -195964,7 +195964,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/superpowers/specs/2026-09-09-claude-md-split-verification.md",
-      "source_location": "L582",
+      "source_location": "L589",
       "weight": 1.0,
       "source": "docs_superpowers_specs_2026_09_09_claude_md_split_verification_claude_md_split_final_verification",
       "target": "docs_superpowers_specs_2026_09_09_claude_md_split_verification_deferred_minors_for_the_whole_branch_review_to_triage",
@@ -196034,7 +196034,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/superpowers/specs/2026-09-09-claude-md-split-verification.md",
-      "source_location": "L614",
+      "source_location": "L621",
       "weight": 1.0,
       "source": "docs_superpowers_specs_2026_09_09_claude_md_split_verification_claude_md_split_final_verification",
       "target": "docs_superpowers_specs_2026_09_09_claude_md_split_verification_summary",
@@ -196074,7 +196074,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/superpowers/specs/2026-09-09-claude-md-split-verification.md",
-      "source_location": "L536",
+      "source_location": "L543",
       "weight": 1.0,
       "source": "docs_superpowers_specs_2026_09_09_claude_md_split_verification_knowledge_graph_refresh",
       "target": "docs_superpowers_specs_2026_09_09_claude_md_split_verification_retrieval_check",

@@ -810,7 +810,7 @@
     "semantic_hash": ""
   },
   "docs/scale-normalization-findings.md": {
-    "mtime": 1788993637.7810352,
+    "mtime": 1788994376.3249433,
     "ast_hash": "e65416992b1bf9f430d1d51628df34e3",
     "semantic_hash": ""
   },
@@ -1045,7 +1045,7 @@
     "semantic_hash": ""
   },
   "docs/w-gate-recalibration-handoff.md": {
-    "mtime": 1788993637.783968,
+    "mtime": 1788994376.3283548,
     "ast_hash": "af02ed200e34dde0ff28dc9dec91abc0",
     "semantic_hash": ""
   },
@@ -3215,8 +3215,8 @@
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-09-09-claude-md-split-generate.py": {
-    "mtime": 1788993643.7540026,
-    "ast_hash": "1af3a607aaefe24b718f5f1018a7d81f",
+    "mtime": 1788994276.8504655,
+    "ast_hash": "f1ba320c010c969bc9023b12912bb573",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-09-09-claude-md-split-map.json": {
@@ -3230,12 +3230,12 @@
     "semantic_hash": ""
   },
   "docs/page-segmentation.md": {
-    "mtime": 1788993637.7666278,
+    "mtime": 1788994376.3229668,
     "ast_hash": "0c07a4398ea9f31e00893a1a828fb19b",
     "semantic_hash": ""
   },
   "docs/room-detection-rules.md": {
-    "mtime": 1788993637.7802203,
+    "mtime": 1788994376.323786,
     "ast_hash": "1a97976f5bc6427c34a35343d6cc4da0",
     "semantic_hash": ""
   },
@@ -3250,13 +3250,13 @@
     "semantic_hash": ""
   },
   "docs/wall-network-rules.md": {
-    "mtime": 1788993660.0748265,
+    "mtime": 1788994376.3231237,
     "ast_hash": "e394ccc012051fbeae327a1d901e5d17",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-09-09-claude-md-split-verification.md": {
-    "mtime": 1788993900.36218,
-    "ast_hash": "50e1f795fa8a5db85eb765aa814476a3",
+    "mtime": 1788994371.1973426,
+    "ast_hash": "9018b2eb4185be8711a8b4bdb2ebda31",
     "semantic_hash": ""
   }
 }
