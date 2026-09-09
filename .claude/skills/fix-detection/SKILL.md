@@ -34,8 +34,9 @@ reference sheets, the tightest real striped field is 11.4px"). Match that:
   numbers and which sheets they came from (read a few `WALL_*` /
   `DOOR_*` comments for the house style).
 
-Read the CLAUDE.md "Room detection" paragraph and the relevant tuning guide
-before diagnosing — most fixture classes (paving, hatch, tile grids, stairs,
+Read `docs/wall-network-rules.md` / `docs/room-detection-rules.md` (the
+section your symptom routes to, below) and the relevant tuning guide before
+diagnosing — most fixture classes (paving, hatch, tile grids, stairs,
 counters, wardrobes, pillows, radiators, leader arrows) already have a rule,
 and the correct fix is often that an existing rule has a gap, not a new rule.
 
@@ -75,11 +76,28 @@ In this order, and actually read them (they encode a year of shipped bugs):
    loop), §12 (invariants), §13 (gotchas).
 2. The tuning material for the entity type (see file-map): doors → the door
    guide incl. §8 debug playbook; windows → the window guide; rooms/walls →
-   the CLAUDE.md "Room detection" paragraph + `detection/walls.py` /
-   `detection/rooms.py` module docstrings.
+   docs/wall-network-rules.md and docs/room-detection-rules.md — the section
+   the routing table below names — plus the module docstrings of
+   detection/walls.py / detection/rooms.py.
 3. `graphify query "<your question>"` to orient in the code (CLAUDE.md
    requires this before grepping when `graphify-out/` exists).
 4. `git log --oneline -15` — recent fixes often touched the same rule.
+
+Route by symptom — read the section, not the whole document:
+
+| Symptom | Read |
+|---|---|
+| A fixture outline fenced a phantom room (counter, wardrobe, bed, sofa, unit) | wall-network §The weak tier and the material gate, §Wall pens and the doorway veto |
+| Paving, tile grid, roof tiles, floorboards or treads fencing | wall-network §Lattice demotion — striped fields and hatch |
+| A stair flight came out as a room, or stair ink fenced | wall-network §Stair demotion |
+| A room edge is notched, slanted, or a few px off its wall | wall-network §The collinear-merge anchor; room-detection §Thin buffers and white rings (tiers 3 and 4) |
+| A hatch or brick-cell diagonal produced a slanted band | wall-network §Pairing — taper, redundancy collapse and the far-side rule, §Fill seams |
+| A wall band contributed no faces at all | wall-network §Stroked rectangles as weak faces, §Face collection and the length floor |
+| Rooms merged through a doorway, or a swing square left its room | room-detection §Door plugs — qualification and profile |
+| A narrow strip, reveal or cavity was emitted as a room | room-detection §The band-pocket drop, §Band-pocket end closures |
+| A real room was dropped | room-detection §Free-space components and their filters, §Entrances |
+| A window seal is wrong, or a bay window | room-detection §Window seals |
+| The constant may need to scale with drawing scale | `docs/scale-normalization-findings.md` §4 (the W/P/D table) and §4g (how the factor is resolved and threaded) |
 
 ### 3. Baseline and locate
 
@@ -142,10 +160,15 @@ Never present estimates as measurements. If you didn't run it, say so.
    fail, restore (regression guide §13).
 4. `python -m unittest discover tests` — the fast tier stays green and must
    never touch the real pipeline or a PDF.
-5. Update the prose: the tuning guide section (or the CLAUDE.md room
-   paragraph for walls/rooms) gets the rule, the measured numbers and the
-   sheet they came from, in the existing style. Future agents read the prose,
-   not the diff.
+5. Update the prose: the tuning guide section (or docs/wall-network-rules.md
+   / docs/room-detection-rules.md for walls/rooms) gets the rule, the
+   measured numbers and the sheet they came from, in the existing style.
+   Future agents read the prose, not the diff.
+
+   A **new** rule gets its **own** `##` heading in the document for its
+   stage; an extension to an existing rule goes under that rule's heading.
+   These documents exist because a single 100k paragraph could not be
+   anchored, edited or reviewed — do not rebuild one.
 
 One fix per iteration. If you discover a second, unrelated cause, note it for
 the report; do not bundle it — bundled REVIEW deltas are unattributable.
