@@ -36,7 +36,7 @@ The machinery below is not sketched — it was prototyped against the real
 - **COVERAGE proven:** line 197's 31 spans and line 245's 3 spans are
   contiguous, gapless and overlap-free, summing to 99,607 and 4,356 chars
   exactly.
-- **Round-trip proven:** all 32 sections slice → repair → wrap → invert →
+- **Round-trip proven:** all 34 sections slice → repair → wrap → invert →
   normalise back to text identical to their source spans.
 - **One real bug found and fixed:** `textwrap.wrap`'s default
   `break_on_hyphens=True` split `already-slanted` across lines, and re-joining
@@ -79,6 +79,30 @@ repository, not by inspection:
 The cut is also reordered to run last of the content tasks, so no content is
 absent from the working tree even for a single commit.
 
+A second review round found four more, all reproduced against the repository
+before fixing:
+
+- **The preserved line-199 content was not routed to anyone.** F1 appended at
+  the end of the findings document lands after §7, while every pointer and the
+  skill's routing table aim at §4 — content preserved but undiscoverable. The
+  generator now supports `insert_after`, F1 lands as **§4g between §4f and §5**,
+  and both the CLAUDE.md pointer and the routing row name it. Verified: correct
+  position, idempotent insert, all 12 pre-existing sections byte-identical.
+- **The overlap measurement could only ever report 7/7.** It generated F1 into
+  the findings document and then searched that same document for the source
+  claims. Measured both ways: **0 of 7** against the pre-move document, **7 of
+  7** against the post-move one. Both measurements now read every file at
+  `27b3986`.
+- **Retained spans had COVERAGE but no CONTENT proof.** The verifier skips
+  `doc: null` sections, so after the cut, deleting line 245's 77 retained
+  characters would still have printed `VERIFIED`. The verifier now has a
+  RETAINED check asserting each retained fragment is still present in the
+  working-tree `CLAUDE.md`.
+- **Stale counts and reordered-task leftovers** (32 vs 34 sections, room 15 vs
+  16, 30 vs 31 line-197 spans, Task 4 expecting sections that arrive two tasks
+  later, "Task 5 shortens", "Same correction as Task 6") — all corrected, so
+  the intermediate acceptance checks and commit records are accurate.
+
 ---
 
 ## File Structure
@@ -90,7 +114,7 @@ absent from the working tree even for a single commit.
 | `docs/superpowers/specs/2026-09-09-claude-md-split-verify.py` | **Create.** Independent verifier. Reads only the written documents and `git show 27b3986:CLAUDE.md`. Never imports the generator. |
 | `docs/superpowers/specs/2026-09-09-claude-md-split-verification.md` | **Create.** Committed verifier output — the no-data-loss proof, reproducible. |
 | `docs/wall-network-rules.md` | **Create.** `detection/walls.py` rules. 15 sections, 54,080 chars. |
-| `docs/room-detection-rules.md` | **Create.** `detection/rooms.py` rules. 15 sections, 45,527 chars. |
+| `docs/room-detection-rules.md` | **Create.** `detection/rooms.py` rules. 16 sections, 45,527 chars. |
 | `docs/page-segmentation.md` | **Create.** `layout/` ink map, nested-frame skip, four gutter tiers. 4,279 chars. |
 | `CLAUDE.md` | **Modify.** Lines 197/199/201 replaced by pointers; line 245's movable span replaced by a pointer clause. |
 | `docs/scale-normalization-findings.md` | **Modify.** Append-mode target: receives the whole of line 199 as section `F1`, span-proven. |
@@ -160,10 +184,10 @@ R1 is 176 chars and stays a section of its own: it is the tier enumeration's pre
 
 | id | Document | Heading | Source span | Chars |
 |---|---|---|---|---|
-| F1 | `docs/scale-normalization-findings.md` | The detection-scale factor, moved from CLAUDE.md (2026-09-09) | line 199, [0, 3923) | 3,923 |
+| F1 | `docs/scale-normalization-findings.md` | **4g.** The detection-scale factor (moved from CLAUDE.md, 2026-09-09) — inserted after §4f, *not* appended | line 199, [0, 3923) | 3,923 |
 | H1 | `docs/w-gate-recalibration-handoff.md` | Iteration 1–3 summary, moved from CLAUDE.md (2026-09-09) | line 201, [0, 18476) | 18,476 |
 
-These land in **existing** documents, so the generator upserts one section by heading rather than rewriting the file. The verifier's heading parser reads them exactly as it reads a generated document, so they get the same CONTENT proof. Neither needs a repair: both open capitalised and end on terminal punctuation.
+These land in **existing** documents, so the generator upserts one section by heading rather than rewriting the file. F1 carries `insert_after` so it lands as **§4g inside the findings document's §4 sequence**, between §4f and §5 — appending it past §7 would have preserved the content while routing no reader to it, since every pointer and the skill's routing table aim at §4. Verified: it lands between §4f and §5, the insert is idempotent, and all 12 pre-existing sections stay byte-identical. The verifier's heading parser reads them exactly as it reads a generated document, so they get the same CONTENT proof. Neither needs a repair: both open capitalised and end on terminal punctuation.
 
 ### `docs/page-segmentation.md` — 1 section, 4,279 chars
 
@@ -247,7 +271,7 @@ MAP = HERE / "2026-09-09-claude-md-split-map.json"
 def load_source(spec):
     """Read CLAUDE.md at the map's PINNED ref, never the working tree.
 
-    LOAD-BEARING: Task 5 shortens the source lines. A generator reading the
+    LOAD-BEARING: the cut task shortens the source lines. A generator reading the
     working tree would slice pointers or empty offsets on any later re-run,
     so the committed generator would not be reproducible.
     """
@@ -257,24 +281,35 @@ def load_source(spec):
     return out.stdout.split("\n")
 
 
-def upsert(path, heading, body):
+def upsert(path, heading, body, after=None):
     """Append-mode: replace this heading's section in an existing document,
-    or append it if absent.
+    insert it after the `after` heading, or append it if neither applies.
 
-    Idempotent -- the generator is re-run by several tasks, and a non-idempotent
-    upsert accumulated a trailing newline per run. Verified in both positions:
-    section last in the file, and section followed by another heading.
+    `after` is LOAD-BEARING for discoverability: a section appended past the
+    end of a long document is content nothing routes to. F1 belongs inside the
+    findings document's §4 sequence, which is where every pointer aims.
+
+    Idempotent -- the generator is re-run by several tasks, and a
+    non-idempotent upsert accumulated a trailing newline per run. Verified in
+    all three positions: section last, section followed by another heading, and
+    inserted mid-document after an anchor.
     """
     f = REPO / path
     text = f.read_text(encoding="utf-8")
     marker = f"\n## {heading}\n"
-    if marker in text:
+    block = f"## {heading}\n\n{body.rstrip()}\n"
+    if marker in text:                       # already present: replace in place
         i = text.index(marker)
         j = text.find("\n## ", i + len(marker))
         tail = text[j:] if j > 0 else ""
         text = text[:i] + marker + "\n" + body.rstrip() + "\n" + tail
+    elif after is not None:                  # insert after the anchor heading
+        a = text.index(f"\n## {after}\n")
+        j = text.find("\n## ", a + 1)
+        text = (text.rstrip() + "\n\n" + block) if j < 0 else \
+               (text[:j + 1] + block + "\n" + text[j + 1:])
     else:
-        text = text.rstrip() + "\n\n## " + heading + "\n\n" + body.rstrip() + "\n"
+        text = text.rstrip() + "\n\n" + block
     f.write_text(text, encoding="utf-8")
 
 
@@ -317,17 +352,18 @@ def main():
             continue
         parts = [lines[ln - 1][a:b] for ln, a, b in sec["spans"]]
         body = apply_repairs(" ".join(parts).strip(), sec["repairs"])
-        bydoc.setdefault(sec["doc"], []).append((sec["heading"], body))
+        bydoc.setdefault(sec["doc"], []).append(
+            (sec["heading"], body, sec.get("insert_after")))
 
     for path, secs in bydoc.items():
         meta = spec["docs"][path]
         if meta.get("mode", "create") == "append":
-            for heading, body in secs:
-                upsert(path, heading, wrap(body).rstrip())
+            for heading, body, after in secs:
+                upsert(path, heading, wrap(body).rstrip(), after)
             print(f"upserted {path}: {len(secs)} section(s)")
             continue
         out = [f"# {meta['title']}", "", wrap(meta["preamble"]).rstrip(), ""]
-        for heading, body in secs:
+        for heading, body, _ in secs:
             out += [f"## {heading}", "", wrap(body).rstrip(), ""]
         (REPO / path).write_text("\n".join(out).rstrip() + "\n", encoding="utf-8")
         print(f"wrote {path}: {len(secs)} sections")
@@ -456,6 +492,23 @@ def main():
         else:
             print(f"CONTENT  {sec['id']:<5} {sec['doc']:<34} {se} chars exact")
 
+    # ---- RETAINED ----
+    # Characters that stay in CLAUDE.md get COVERAGE but would otherwise get no
+    # CONTENT proof: after the cut, deleting them would still report VERIFIED.
+    cur = (REPO / spec["source_file"]).read_text(encoding="utf-8")
+    for sec in spec["sections"]:
+        if sec["doc"] is not None:
+            continue
+        for ln, a, b in sec["spans"]:
+            frag = lines[ln - 1][a:b]
+            if not frag.strip():
+                continue
+            if frag not in cur:
+                fail(f"{sec['id']}: retained fragment missing from the working-tree "
+                     f"{spec['source_file']}: {frag[:70]!r}")
+            else:
+                print(f"RETAINED {sec['id']:<14} {len(frag)} chars still in {spec['source_file']}")
+
     print()
     print("VERIFIED: every character accounted for exactly once." if ok else "VERIFICATION FAILED")
     return 0 if ok else 1
@@ -540,7 +593,7 @@ document exists, and fails again on a single 16px -> 17px corruption."
 
 ## Task 2: Complete the section map for line 197 — the review gate
 
-Add all 30 line-197 sections. No prose moves in this task; the coverage proof runs against a map whose documents do not yet exist, so a boundary error is caught before it can misfile 100k of prose.
+Add all 31 line-197 sections. No prose moves in this task; the coverage proof runs against a map whose documents do not yet exist, so a boundary error is caught before it can misfile 100k of prose.
 
 **Files:**
 - Modify: `docs/superpowers/specs/2026-09-09-claude-md-split-map.json`
@@ -613,7 +666,7 @@ Append to `"sections"`. Every entry has `"repairs": []` for now; Task 3 fills th
 python3 docs/superpowers/specs/2026-09-09-claude-md-split-verify.py 2>&1 | grep -E "^(COVERAGE|FAIL)"
 ```
 
-Expected: `COVERAGE line 197: 99607 chars, 30 spans, exact` and `COVERAGE line 245: 4356 chars, 3 spans, exact`, with no `FAIL` on coverage. CONTENT failures for W*/R* are expected here — their documents do not exist yet.
+Expected: `COVERAGE line 197: 99607 chars, 31 spans, exact` and `COVERAGE line 245: 4356 chars, 3 spans, exact`, with no `FAIL` on coverage. CONTENT failures for W*/R* are expected here — their documents do not exist yet.
 
 - [ ] **Step 5: Prove the coverage check bites — introduce a one-character gap**
 
@@ -847,7 +900,7 @@ python3 docs/superpowers/specs/2026-09-09-claude-md-split-generate.py
 python3 docs/superpowers/specs/2026-09-09-claude-md-split-verify.py; echo "exit=$?"
 ```
 
-Expected: `exit=0`, with all 34 sections reporting `exact`.
+Expected: `exit=0`, with all 32 sections reporting `exact` (F1 and H1 arrive in Tasks 5 and 6).
 
 - [ ] **Step 6: Confirm the cross-references resolve**
 
@@ -910,7 +963,8 @@ Add to `"sections"`:
 
 ```json
 {"id":"F1","doc":"docs/scale-normalization-findings.md",
- "heading":"The detection-scale factor, moved from CLAUDE.md (2026-09-09)",
+ "heading":"4g. The detection-scale factor (moved from CLAUDE.md, 2026-09-09)",
+ "insert_after":"4f. Measured scales do not drive the gates (2026-08-19)",
  "spans":[[199,0,3923]],"repairs":[]}
 ```
 
@@ -927,19 +981,22 @@ Expected: `COVERAGE line 199: 3923 chars, 1 spans, exact` and `CONTENT F1 … ex
 
 - [ ] **Step 3: Measure and report the actual overlap with §4 — as a number, not a gate**
 
+The target document must be read at `27b3986` — **before** F1 was inserted into it. Reading the working tree after step 2 searches a document that now contains the whole source line and necessarily reports every claim present:
+
 ```bash
 python3 - <<'EOF'
-import subprocess, re, pathlib
-src=subprocess.run(["git","show","27b3986:CLAUDE.md"],capture_output=True,text=True,check=True).stdout
-line=src.split("\n")[198]
-tgt=" ".join(pathlib.Path("docs/scale-normalization-findings.md").read_text(encoding="utf-8").split())
-claims=re.split(r'(?<=[.;]) (?=[A-Z(`])', line)
-full=sum(1 for c in claims if " ".join(c.split()) in tgt)
-print(f"line 199: {len(claims)} claims, {full} present in §4 as COMPLETE claims")
+import subprocess, re
+def show(ref_path):
+    return subprocess.run(["git","show",ref_path],capture_output=True,text=True,check=True).stdout
+line = show("27b3986:CLAUDE.md").split("\n")[198]
+tgt  = " ".join(show("27b3986:docs/scale-normalization-findings.md").split())
+claims = re.split(r'(?<=[.;]) (?=[A-Z(`])', line)
+full = sum(1 for c in claims if " ".join(c.split()) in tgt)
+print(f"line 199: {len(claims)} claims, {full} present in the PRE-MOVE findings doc as COMPLETE claims")
 EOF
 ```
 
-Expected: `0 present`. Measured while planning; record it in the Task 9 report as the evidence that this content was never a duplicate. **Nothing is deleted on the strength of this number** — it is reported, not acted on.
+Expected: `7 claims, 0 present`. Measured while planning, both ways: 0 of 7 against the pre-move document, 7 of 7 against the post-move one — which is why the ref is pinned rather than reading the working tree. Record the pre-move number in the Task 9 report as the evidence that this content was never a duplicate. **Nothing is deleted on the strength of it** — it is reported, not acted on.
 
 - [ ] **Step 4: Commit**
 
@@ -965,7 +1022,7 @@ the verification report, never acted on."
 
 ## Task 6: Move line 201 into `docs/w-gate-recalibration-handoff.md` under the span map
 
-Same correction as Task 6, on the larger block. Design-time spot-checking already found phrases in line 201 present nowhere else in the repo; exact whole-claim matching now confirms the stronger result.
+Same correction as Task 5, on the larger block. Design-time spot-checking already found phrases in line 201 present nowhere else in the repo; exact whole-claim matching now confirms the stronger result.
 
 **Files:**
 - Modify: `docs/superpowers/specs/2026-09-09-claude-md-split-map.json`
@@ -1006,21 +1063,26 @@ Expected: `exit=0`, **4 COVERAGE lines (197, 199, 201, 245)** and 34 CONTENT lin
 
 - [ ] **Step 3: Measure and report the actual overlap — as a number, not a gate**
 
+Every file is read at `27b3986`, for the same reason as Task 5 — including the handoff, which now contains the moved section:
+
 ```bash
 python3 - <<'EOF'
-import subprocess, re, pathlib, glob
-src=subprocess.run(["git","show","27b3986:CLAUDE.md"],capture_output=True,text=True,check=True).stdout
-line=src.split("\n")[200]
-files=["docs/w-gate-census-2026-09-04.md"]+sorted(glob.glob("docs/w-gate-iter3-checkpoints/*.md"))\
-      +sorted(glob.glob("docs/w-gate-iter2-checkpoints/*.md"))
-corpus=" ".join(" ".join(pathlib.Path(f).read_text(encoding="utf-8").split()) for f in files)
-claims=re.split(r'(?<=[.;]) (?=[A-Z(`])', line)
-full=sum(1 for c in claims if " ".join(c.split()) in corpus)
-print(f"line 201: {len(claims)} claims, {full} present elsewhere as COMPLETE claims")
+import subprocess, re
+def show(p):
+    return subprocess.run(["git","show",f"27b3986:{p}"],capture_output=True,text=True,check=True).stdout
+files = subprocess.run(["git","ls-tree","-r","--name-only","27b3986","docs/"],
+                       capture_output=True,text=True,check=True).stdout.split()
+files = [f for f in files if "w-gate" in f and f.endswith(".md")]
+corpus = " ".join(" ".join(show(f).split()) for f in files)
+line = show("CLAUDE.md").split("\n")[200]
+claims = re.split(r'(?<=[.;]) (?=[A-Z(`])', line)
+full = sum(1 for c in claims if " ".join(c.split()) in corpus)
+print(f"line 201: {len(claims)} claims, {full} present in the PRE-MOVE W-gate docs as COMPLETE claims")
+print(f"  corpus: {len(files)} files")
 EOF
 ```
 
-Expected: `0 present` of 33. Record in the Task 9 report. Note the corpus deliberately excludes the handoff itself, which now contains the moved section.
+Expected: `33 claims, 0 present`. Record in the Task 9 report.
 
 - [ ] **Step 4: Repath the live step-18 prompt only**
 
@@ -1089,13 +1151,13 @@ Room detection: order matters — doors/windows detect first, then `detect_wall_
 - [ ] **Step 2: Replace line 199 with its pointer**
 
 ```markdown
-Wall/room world-space gates (the `W`-classed constants in `docs/scale-normalization-findings.md` §4) scale via a per-page factor threaded from `scale.factor.detection_scale(page_scales, regions, page_number)` into `detect_wall_network` / `detect_rooms` as `scale_factor`: `f = 50 / nominal_denominator`, so f=1.0 (identity, unchanged behavior) at 1:50 and on unresolved-scale pages, f=0.5 at 1:100. Paper-space (`P`) and dimensionless (`D`) constants are left unscaled. **Before touching any gate constant, read `docs/scale-normalization-findings.md` §4** — its table says whether that gate scales with drawing scale, and §4f records why feeding a measured scale straight to the gates regressed s01.
+Wall/room world-space gates (the `W`-classed constants in `docs/scale-normalization-findings.md` §4) scale via a per-page factor threaded from `scale.factor.detection_scale(page_scales, regions, page_number)` into `detect_wall_network` / `detect_rooms` as `scale_factor`: `f = 50 / nominal_denominator`, so f=1.0 (identity, unchanged behavior) at 1:50 and on unresolved-scale pages, f=0.5 at 1:100. Paper-space (`P`) and dimensionless (`D`) constants are left unscaled. **Before touching any gate constant, read `docs/scale-normalization-findings.md` §4** — its table says whether that gate scales with drawing scale, **§4g** carries the full rules for how the factor is resolved and threaded (dimension-string verification, mixed-scale sheets, the warning codes), and §4f records why feeding a measured scale straight to the gates regressed s01.
 ```
 
 - [ ] **Step 3: Replace line 201 with its pointer**
 
 ```markdown
-The W references were re-derived at the sheets' TRUE scales over iterations 1–3. **The census, the per-constant outcomes and the step-by-step log live in `docs/w-gate-census-2026-09-04.md`, `docs/w-gate-recalibration-handoff.md` and `docs/w-gate-iter3-checkpoints/`.** Read the handoff's outcome sections before moving any W-classed constant: every census row flagged ⚠ ("discriminator, not number") broke the moment its number moved, always by admitting a drawn fixture another gate had been holding out.
+The W references were re-derived at the sheets' TRUE scales over iterations 1–3. **The census, the per-constant outcomes and the step-by-step log live in `docs/w-gate-census-2026-09-04.md`, `docs/w-gate-recalibration-handoff.md` (start at "Iteration 1–3 summary, moved from CLAUDE.md") and `docs/w-gate-iter3-checkpoints/`.** Read the handoff's outcome sections before moving any W-classed constant: every census row flagged ⚠ ("discriminator, not number") broke the moment its number moved, always by admitting a drawn fixture another gate had been holding out.
 ```
 
 - [ ] **Step 4: Replace line 245's movable span with its pointer**
@@ -1151,9 +1213,11 @@ premise, the four tier names, rooms being heuristic-only, and the scale
 factor's definition -- and names the document carrying the rules.
 
 The verifier reads git show 27b3986:CLAUDE.md, not the working copy, so
-cutting the file cannot make it pass vacuously: it still proves all 31
+cutting the file cannot make it pass vacuously: it still proves all 34
 sections against the pre-split original, which is the point of running it
-here."
+here. The RETAINED check is the other half -- it asserts line 245's 77
+retained characters are still present in the working-tree file, which COVERAGE
+alone would not catch."
 ```
 
 ---
@@ -1201,7 +1265,7 @@ Route by symptom — read the section, not the whole document:
 | A narrow strip, reveal or cavity was emitted as a room | room-detection §The band-pocket drop, §Band-pocket end closures |
 | A real room was dropped | room-detection §Free-space components and their filters, §Entrances |
 | A window seal is wrong, or a bay window | room-detection §Window seals |
-| The constant may need to scale with drawing scale | `docs/scale-normalization-findings.md` §4 |
+| The constant may need to scale with drawing scale | `docs/scale-normalization-findings.md` §4 (the W/P/D table) and §4g (how the factor is resolved and threaded) |
 ```
 
 - [ ] **Step 3: Add the phase-5 heading rule to SKILL.md**
