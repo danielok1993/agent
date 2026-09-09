@@ -436,7 +436,7 @@ applied but unrecorded (DIAGONAL -> BOGUSDIAGONAL edited into the document):
 ## The generator divergence guard, and UNMAPPED (2026-09-09)
 
 The scenario first, because it is the lesson. `.claude/skills/fix-detection/
-SKILL.md:164` instructs every future agent: **"A new rule gets its own `##`
+SKILL.md:168` instructs every future agent: **"A new rule gets its own `##`
 heading in the document for its stage."** The generator rebuilds every
 create-mode document from the pinned source and writes it with `write_text`
 (`generate.py`, `main`). Those two facts compose into silent data loss, and
@@ -457,18 +457,36 @@ re-runnable generator plus an instruction to hand-edit its outputs is a
 data-loss trap. That is precisely the failure class this branch exists to
 prevent, arriving through the tooling instead of through the move.
 
+The skill's instruction has a second clause, and the first version of this
+guard missed it. `SKILL.md:168` reads in full: **"A new rule gets its own
+`##` heading in the document for its stage; an extension to an existing rule
+goes under that rule's heading."** The guard shipped in `14c70cb` compared
+`## ` headings only, so it caught the first clause and passed the second in
+silence — add prose under `## Stair demotion`, run the generator, exit 0, the
+extension gone, no warning. The same hole swallowed a `### ` sub-heading and
+trailing unheaded prose (three shapes measured in all). The guard is now
+CONTENT-based and covers every one of them.
+
 The two halves that reconcile them:
 
-**Generator — refuse to rewrite a diverged create-mode target**
-(`check_divergence`, run before ANY document is written, so a refusal never
-leaves half the set rebuilt). It compares each create-mode target's `## `
-headings against the map's headings for that document; any heading the map
-does not carry aborts the run with exit 2, naming the document and each
-unmapped heading, and stating the operator's two ways out — add the section
-to the map so the proof covers it, or re-run with `--force`. `--force`
-rebuilds from the map and prints every section it discards, by name, before
-writing. Append-mode targets are exempt by construction: `upsert` edits one
-heading in place and never touches the rest of an existing document.
+**Generator — refuse to overwrite a create-mode target that DIFFERS from the
+rebuild** (`check_divergence`, run before ANY document is written, so a
+refusal never leaves half the set rebuilt). The would-be output for each
+create-mode document is built in memory first (`render_create_doc`, the one
+renderer both the guard and the write path use) and compared to the file on
+disk byte for byte. Any difference at all aborts the run with exit 2, naming
+the document and characterising the divergence — unmapped `## ` headings by
+name where headings *are* the divergence, since that is the most actionable
+message and names the operator's fix; otherwise the first differing line
+number with a short excerpt of both sides. This is strictly simpler and
+strictly more complete than the heading comparison it replaces, and it
+subsumes it, so there is ONE mechanism here rather than two. The operator's
+two ways out are unchanged and both explicit: fold the edit into the map so
+the proofs cover it, or re-run with `--force`, which prints what it discards
+(by heading name for an unmapped section, by differing line otherwise) before
+writing. Append-mode targets are exempt by construction and never reach the
+check: `upsert` edits one heading in place and never touches the rest of an
+existing document.
 
 **Verifier — report UNMAPPED rather than ignore it.** A rule legitimately
 added after the split is not an error, so it does not fail the run; it *is*
@@ -476,31 +494,53 @@ outside every proof, so it must be visible in the output an operator reads.
 One line per unmapped `## ` section of a create-mode document,
 `UNMAPPED <path> §<heading> — not covered by the proof`, printed between
 CONTENT and RETAINED. `VERIFIED` and exit 0 are unchanged while everything
-mapped is intact.
+mapped is intact. (This report covers the first clause only, by construction —
+it reads headings. The generator's content check is what covers the rest, and
+it is the half that destroys data if it is wrong.)
 
-Bite-proof, on the reviewer's own reproduction (a `## The nib-shadow rule`
-section appended to `docs/wall-network-rules.md`, then `git checkout --`):
+Bite-proof, all four cases, each restored with `git checkout --` and
+`git status` confirmed clean afterwards:
 
 ```
-(a) verifier, section present:
-    UNMAPPED docs/wall-network-rules.md §The nib-shadow rule (measured 2026-09-10) — not covered by the proof
-    VERIFIED: every character accounted for exactly once.                      exit 0
-(b) generator, section present:
+(1) a new "## " section appended to docs/room-detection-rules.md:
     REFUSING TO WRITE: create-mode document(s) have diverged from the section map.
-        docs/wall-network-rules.md §The nib-shadow rule (measured 2026-09-10) — not in the map, would be DESTROYED
-    A rebuild would overwrite these sections and print nothing.
-    Either add each section to the map, so the verifier's proofs cover it:
+        docs/room-detection-rules.md §A brand new rule (2026-09-09) — not in the map, would be DESTROYED
+    A rebuild would overwrite these edits and print nothing.
+    Either fold each edit into the section map, so the verifier's proofs cover it:
         docs/superpowers/specs/2026-09-09-claude-md-split-map.json
     or re-run with --force to rebuild from the map and discard them.           exit 2
-(c) the section is still on disk after the refusal (grep -c = 1)
-(d) generator --force:
-    --force: DISCARDING 1 unmapped section(s) from docs/wall-network-rules.md:
-        discarding §The nib-shadow rule (measured 2026-09-10)
-    wrote docs/wall-network-rules.md: 15 sections                              exit 0
-    (section now gone — deliberately, and said so before doing it)
-(e) clean tree, file restored: generator writes all five documents, exit 0,
-    `git status --short` shows no document modified; verifier prints
-    0 UNMAPPED lines, VERIFIED, exit 0.
+
+(2) prose added under the existing "## Stair demotion" heading of
+    docs/wall-network-rules.md — the case that passed SILENTLY before this fix:
+    REFUSING TO WRITE: create-mode document(s) have diverged from the section map.
+        docs/wall-network-rules.md line 292 differs:
+                on disk: 'Extension (2026-09-10): a same-pen face at the newel is stair in…'
+                rebuild: '## Pairing — plain, thick and through tiers'         exit 2
+
+(3) a "### " sub-heading added under an existing "## " heading of
+    docs/room-detection-rules.md:
+        docs/room-detection-rules.md line 20 differs:
+                on disk: '### Sub-case: the tabbed reveal'
+                rebuild: '## Thin buffers and white rings (tiers 3 and 4)'     exit 2
+
+(4) --force, with (1) and (2) both present at once:
+    --force: DISCARDING 1 unmapped section(s) from docs/room-detection-rules.md:
+        discarding §A brand new rule (2026-09-09)
+    --force: DISCARDING on-disk edits to docs/wall-network-rules.md:
+        line 292 differs:
+                on disk: 'Extension (2026-09-10): a same-pen face at the newel is stair in…'
+                rebuild: '## Pairing — plain, thick and through tiers'
+    wrote docs/page-segmentation.md: 1 sections
+    wrote docs/wall-network-rules.md: 15 sections
+    wrote docs/room-detection-rules.md: 16 sections
+    upserted docs/scale-normalization-findings.md: 1 section(s)
+    upserted docs/w-gate-recalibration-handoff.md: 1 section(s)                exit 0
+    (both edits gone — deliberately, and said so before doing it)
+
+(5) clean tree: the generator writes all five documents, exit 0, and
+    `git status --porcelain` shows NO document modified; the verifier prints
+    4 COVERAGE, 34 CONTENT, RETAINED, 5 REACHABLE, 0 UNMAPPED lines,
+    VERIFIED, exit 0.
 ```
 
 ## Knowledge graph refresh

@@ -3,9 +3,9 @@
 
 The prose is SLICED out of CLAUDE.md, never retyped. Re-runnable: it
 rewrites each target document from scratch every time -- which is exactly why
-it REFUSES to rewrite a create-mode document that has DIVERGED from the map
-(see `check_divergence`). Pass `--force` to rebuild anyway; it prints every
-section it discards.
+it REFUSES to overwrite a create-mode document whose CONTENT differs, in ANY
+way, from what the map rebuilds (see `check_divergence`). Pass `--force` to
+rebuild anyway; it prints what it discards.
 """
 import collections, json, pathlib, re, subprocess, sys, textwrap
 
@@ -148,17 +148,47 @@ def apply_repairs(text, repairs, doc_paths):
     return text
 
 
-def headings_of(path):
-    """The '## ' headings of an existing document, in order. [] if absent."""
-    f = REPO / path
-    if not f.exists():
-        return []
-    return [ln[3:].strip() for ln in f.read_text(encoding="utf-8").split("\n")
-            if ln.startswith("## ")]
+def headings_of(text):
+    """The '## ' headings of a document's text, in order."""
+    return [ln[3:].strip() for ln in text.split("\n") if ln.startswith("## ")]
 
 
-def check_divergence(bydoc, spec, force):
-    """Refuse to rebuild a create-mode document that carries UNMAPPED sections.
+def _excerpt(line, width=64):
+    """One differing line, safely quoted, for the refusal message."""
+    if line is None:
+        return "(end of file)"
+    line = line.strip()
+    return repr(line if len(line) <= width else line[:width] + "…")
+
+
+def characterise(on_disk, would_write):
+    """How the document on disk diverges from the rebuild, most useful first.
+
+    Unmapped `## ` headings by NAME when there are any -- that is the
+    actionable message, and it names the operator's fix (add the section to the
+    map). Otherwise the first differing LINE with both sides, which is what
+    catches every other shape of hand-edit: prose added under an existing
+    heading, a `### ` sub-heading, trailing unheaded prose, a reworded
+    sentence.
+    """
+    mapped = set(headings_of(would_write))
+    unmapped = [h for h in headings_of(on_disk) if h not in mapped]
+    if unmapped:
+        return unmapped, [f"§{h} — not in the map, would be DESTROYED"
+                          for h in unmapped]
+    a, b = on_disk.split("\n"), would_write.split("\n")
+    for i in range(max(len(a), len(b))):
+        x = a[i] if i < len(a) else None
+        y = b[i] if i < len(b) else None
+        if x != y:
+            return [], [f"line {i + 1} differs:",
+                        f"        on disk: {_excerpt(x)}",
+                        f"        rebuild: {_excerpt(y)}"]
+    return [], []          # identical: never reached, the caller filters first
+
+
+def check_divergence(built, force):
+    """Refuse to overwrite a create-mode document that DIFFERS from the rebuild.
 
     LOAD-BEARING, and the reason is the whole point of this branch. A
     create-mode document is rebuilt from the pinned source on every run and
@@ -166,50 +196,80 @@ def check_divergence(bydoc, spec, force):
     destroyed -- silently, since the run prints the same "wrote ... N sections"
     line either way. Meanwhile `.claude/skills/fix-detection/SKILL.md` tells
     every future agent that "a NEW rule gets its OWN `##` heading in the
-    document for its stage", and the verifier's proofs (COVERAGE, CONTENT,
-    RETAINED, REACHABILITY) all read the map as their oracle and ignore
-    anything outside it -- so the appended rule verifies green, then vanishes
-    on the next re-run with no signal anywhere. Reproduced by the reviewer:
-    append a `## ` section, verify (exit 0), generate, section gone.
+    document for its stage; an EXTENSION to an existing rule goes under that
+    rule's heading", and the verifier's proofs (COVERAGE, CONTENT, RETAINED,
+    REACHABILITY) all read the map as their oracle and ignore anything outside
+    it -- so the hand-edit verifies green, then vanishes on the next re-run
+    with no signal anywhere. Reproduced by the reviewer both ways: append a
+    `## ` section, and add prose under an existing heading; verify (exit 0),
+    generate, edit gone.
+
+    The check is on CONTENT, not on headings: the would-be output is built in
+    memory and compared to the file byte for byte, so it covers BOTH clauses of
+    the skill's instruction and every other hand-edit besides -- a `### `
+    sub-heading, trailing unheaded prose, a reworded sentence, a re-flowed
+    paragraph. A heading comparison saw only the first clause (measured: the
+    three other shapes were silently overwritten at exit 0), and content
+    subsumes it, so there is ONE mechanism here, not two; `characterise` keeps
+    the heading-specific wording for the case where headings ARE the
+    divergence.
 
     A re-runnable generator plus an instruction to hand-edit its outputs is a
     data-loss trap; this guard is what reconciles them. The operator's two
-    ways out are both explicit: add the section to the map so the proof covers
+    ways out are both explicit: fold the edit into the map so the proofs cover
     it, or re-run with `--force`, which prints what it discards.
 
-    Append-mode targets are exempt: `upsert` edits one heading in place and
-    leaves the rest of an existing document untouched by construction.
+    Append-mode targets are exempt and never reach here: `upsert` edits one
+    heading in place and leaves the rest of an existing document untouched by
+    construction.
     """
     diverged = []
-    for path in sorted(bydoc):
-        if spec["docs"][path].get("mode", "create") == "append":
+    for path in sorted(built):
+        f = REPO / path
+        if not f.exists() or f.read_text(encoding="utf-8") == built[path]:
             continue
-        mapped = {h for h, _, _ in bydoc[path]}
-        unmapped = [h for h in headings_of(path) if h not in mapped]
-        if unmapped:
-            diverged.append((path, unmapped))
+        diverged.append((path,) + characterise(f.read_text(encoding="utf-8"),
+                                               built[path]))
     if not diverged:
         return
     if force:
-        for path, unmapped in diverged:
-            print(f"--force: DISCARDING {len(unmapped)} unmapped section(s) "
-                  f"from {path}:")
-            for h in unmapped:
-                print(f"    discarding §{h}")
+        for path, unmapped, desc in diverged:
+            if unmapped:
+                print(f"--force: DISCARDING {len(unmapped)} unmapped "
+                      f"section(s) from {path}:")
+                for h in unmapped:
+                    print(f"    discarding §{h}")
+            else:
+                print(f"--force: DISCARDING on-disk edits to {path}:")
+                for line in desc:
+                    print(f"    {line}")
         return
     print("REFUSING TO WRITE: create-mode document(s) have diverged from the "
           "section map.", file=sys.stderr)
-    for path, unmapped in diverged:
-        for h in unmapped:
-            print(f"    {path} §{h} — not in the map, would be DESTROYED",
-                  file=sys.stderr)
-    print("\nA rebuild would overwrite these sections and print nothing.\n"
-          "Either add each section to the map, so the verifier's proofs cover "
-          "it:\n"
+    for path, _unmapped, desc in diverged:
+        for line in desc:
+            print(f"    {path} {line}" if not line.startswith(" ")
+                  else f"    {line}", file=sys.stderr)
+    print("\nA rebuild would overwrite these edits and print nothing.\n"
+          "Either fold each edit into the section map, so the verifier's "
+          "proofs cover it:\n"
           f"    {MAP.relative_to(REPO)}\n"
           "or re-run with --force to rebuild from the map and discard them.",
           file=sys.stderr)
     raise SystemExit(2)
+
+
+def render_create_doc(meta, secs):
+    """The exact bytes a create-mode rebuild would write for one document.
+
+    Split out of `main` so the guard can compare the rebuild to the file
+    WITHOUT writing it -- the content check has to see the output it is about
+    to produce, and there must be exactly one renderer producing it.
+    """
+    out = [f"# {meta['title']}", "", wrap(meta["preamble"]).rstrip(), ""]
+    for heading, body, _ in secs:
+        out += [f"## {heading}", "", wrap(body).rstrip(), ""]
+    return "\n".join(out).rstrip() + "\n"
 
 
 def wrap(text):
@@ -239,9 +299,13 @@ def main():
         bydoc.setdefault(sec["doc"], []).append(
             (sec["heading"], body, sec.get("insert_after")))
 
+    built = {path: render_create_doc(spec["docs"][path], secs)
+             for path, secs in bydoc.items()
+             if spec["docs"][path].get("mode", "create") != "append"}
+
     # Before ANY write: a diverged create-mode target aborts the whole run, so
     # a refusal never leaves half the documents rebuilt.
-    check_divergence(bydoc, spec, "--force" in sys.argv[1:])
+    check_divergence(built, "--force" in sys.argv[1:])
 
     for path, secs in bydoc.items():
         meta = spec["docs"][path]
@@ -250,10 +314,7 @@ def main():
                 upsert(path, heading, wrap(body).rstrip(), after)
             print(f"upserted {path}: {len(secs)} section(s)")
             continue
-        out = [f"# {meta['title']}", "", wrap(meta["preamble"]).rstrip(), ""]
-        for heading, body, _ in secs:
-            out += [f"## {heading}", "", wrap(body).rstrip(), ""]
-        (REPO / path).write_text("\n".join(out).rstrip() + "\n", encoding="utf-8")
+        (REPO / path).write_text(built[path], encoding="utf-8")
         print(f"wrote {path}: {len(secs)} sections")
 
 
