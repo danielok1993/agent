@@ -2,7 +2,10 @@
 """Generate the split documents from the section map.
 
 The prose is SLICED out of CLAUDE.md, never retyped. Re-runnable: it
-rewrites each target document from scratch every time.
+rewrites each target document from scratch every time -- which is exactly why
+it REFUSES to rewrite a create-mode document that has DIVERGED from the map
+(see `check_divergence`). Pass `--force` to rebuild anyway; it prints every
+section it discards.
 """
 import collections, json, pathlib, re, subprocess, sys, textwrap
 
@@ -145,6 +148,70 @@ def apply_repairs(text, repairs, doc_paths):
     return text
 
 
+def headings_of(path):
+    """The '## ' headings of an existing document, in order. [] if absent."""
+    f = REPO / path
+    if not f.exists():
+        return []
+    return [ln[3:].strip() for ln in f.read_text(encoding="utf-8").split("\n")
+            if ln.startswith("## ")]
+
+
+def check_divergence(bydoc, spec, force):
+    """Refuse to rebuild a create-mode document that carries UNMAPPED sections.
+
+    LOAD-BEARING, and the reason is the whole point of this branch. A
+    create-mode document is rebuilt from the pinned source on every run and
+    written with `write_text`, so anything the map does not describe is
+    destroyed -- silently, since the run prints the same "wrote ... N sections"
+    line either way. Meanwhile `.claude/skills/fix-detection/SKILL.md` tells
+    every future agent that "a NEW rule gets its OWN `##` heading in the
+    document for its stage", and the verifier's proofs (COVERAGE, CONTENT,
+    RETAINED, REACHABILITY) all read the map as their oracle and ignore
+    anything outside it -- so the appended rule verifies green, then vanishes
+    on the next re-run with no signal anywhere. Reproduced by the reviewer:
+    append a `## ` section, verify (exit 0), generate, section gone.
+
+    A re-runnable generator plus an instruction to hand-edit its outputs is a
+    data-loss trap; this guard is what reconciles them. The operator's two
+    ways out are both explicit: add the section to the map so the proof covers
+    it, or re-run with `--force`, which prints what it discards.
+
+    Append-mode targets are exempt: `upsert` edits one heading in place and
+    leaves the rest of an existing document untouched by construction.
+    """
+    diverged = []
+    for path in sorted(bydoc):
+        if spec["docs"][path].get("mode", "create") == "append":
+            continue
+        mapped = {h for h, _, _ in bydoc[path]}
+        unmapped = [h for h in headings_of(path) if h not in mapped]
+        if unmapped:
+            diverged.append((path, unmapped))
+    if not diverged:
+        return
+    if force:
+        for path, unmapped in diverged:
+            print(f"--force: DISCARDING {len(unmapped)} unmapped section(s) "
+                  f"from {path}:")
+            for h in unmapped:
+                print(f"    discarding §{h}")
+        return
+    print("REFUSING TO WRITE: create-mode document(s) have diverged from the "
+          "section map.", file=sys.stderr)
+    for path, unmapped in diverged:
+        for h in unmapped:
+            print(f"    {path} §{h} — not in the map, would be DESTROYED",
+                  file=sys.stderr)
+    print("\nA rebuild would overwrite these sections and print nothing.\n"
+          "Either add each section to the map, so the verifier's proofs cover "
+          "it:\n"
+          f"    {MAP.relative_to(REPO)}\n"
+          "or re-run with --force to rebuild from the map and discard them.",
+          file=sys.stderr)
+    raise SystemExit(2)
+
+
 def wrap(text):
     """Re-flow one long line into 79-column paragraphs. Whitespace only.
 
@@ -171,6 +238,10 @@ def main():
                              spec["docs"])
         bydoc.setdefault(sec["doc"], []).append(
             (sec["heading"], body, sec.get("insert_after")))
+
+    # Before ANY write: a diverged create-mode target aborts the whole run, so
+    # a refusal never leaves half the documents rebuilt.
+    check_divergence(bydoc, spec, "--force" in sys.argv[1:])
 
     for path, secs in bydoc.items():
         meta = spec["docs"][path]

@@ -16,6 +16,13 @@ Plus two positional checks that the character proofs cannot make:
                order, at the right end of it.
   REACHABILITY every target document is still cited BY PATH in the working-tree
                CLAUDE.md -- surviving content nothing routes to is lost content.
+
+Plus one REPORT, which never fails the run:
+  UNMAPPED  a '## ' section in a create-mode document that the map does not
+            describe. Legitimate -- the fix-detection skill tells agents to add
+            a new rule as its own '## ' heading -- but outside every proof
+            above, and destroyed by a plain generator re-run unless it is added
+            to the map (the generator now refuses; see its `check_divergence`).
 """
 import collections, json, pathlib, re, subprocess, sys
 
@@ -197,6 +204,29 @@ def main():
             fail(f"{sec['id']}: non-whitespace count {sa} != {se}")
         else:
             print(f"CONTENT  {sec['id']:<5} {sec['doc']:<34} {se} chars exact")
+
+    # ---- UNMAPPED (report only, never a failure) ----
+    # A section added to a create-mode document after the split -- what
+    # `.claude/skills/fix-detection/SKILL.md` instructs an agent to do for a new
+    # rule -- is real, wanted content that NO proof above touches: COVERAGE,
+    # CONTENT, RETAINED and REACHABILITY all read the map as their oracle, so an
+    # appended rule verified green and was then silently destroyed by the next
+    # generator run (reproduced). It is not an error, so it must not fail the
+    # run; it IS unproven, so it must be visible in the output an operator
+    # reads. Append-mode targets are exempt -- an existing document's own
+    # sections were never in the map and `upsert` does not touch them.
+    for path in sorted(spec["docs"]):
+        if spec["docs"][path].get("mode", "create") == "append":
+            continue
+        mapped = {s["heading"] for s in spec["sections"] if s["doc"] == path}
+        try:
+            text = (REPO / path).read_text(encoding="utf-8")
+        except FileNotFoundError:
+            continue                      # already failed in CONTENT
+        for line in text.split("\n"):
+            if line.startswith("## ") and line[3:].strip() not in mapped:
+                print(f"UNMAPPED {path} §{line[3:].strip()} — not covered by "
+                      f"the proof")
 
     # ---- RETAINED ----
     # Characters that stay in CLAUDE.md get COVERAGE but no CONTENT proof, so
