@@ -10,6 +10,12 @@ Two independent proofs:
   CONTENT   each written section, with its repairs inverted and whitespace
             normalised, is byte-identical to its source span; and its
             non-whitespace character count matches exactly.
+
+Plus two positional checks that the character proofs cannot make:
+  RETAINED     the fragments that stay in CLAUDE.md are still on one line, in
+               order, at the right end of it.
+  REACHABILITY every target document is still cited BY PATH in the working-tree
+               CLAUDE.md -- surviving content nothing routes to is lost content.
 """
 import json, pathlib, re, subprocess, sys
 
@@ -181,6 +187,22 @@ def main():
             fail(f"line {ln}: retained fragments [{ids}] matched {len(hits)} lines, need "
                  f"exactly 1 (prefix={need_prefix}, suffix={need_suffix}) — a fragment was "
                  f"deleted, reordered, or moved off its line")
+
+    # ---- REACHABILITY ----
+    # COVERAGE + CONTENT + RETAINED prove the characters SURVIVE; none of them
+    # proves they are still REACHABLE. Lines 197/199/201 have no retained
+    # fragment, so blanking CLAUDE.md's pointer to a document leaves every
+    # proof above green while 126,362 characters sit on disk with nothing in
+    # the auto-loaded file routing to them -- measured: VERIFIED, exit 0.
+    # That is this split's actual failure mode, so every target document's
+    # path must appear in the WORKING-TREE CLAUDE.md.
+    claude = "\n".join(cur_lines)
+    for path in sorted(spec["docs"]):
+        if path in claude:
+            print(f"REACHABLE {path}: cited in {spec['source_file']}")
+        else:
+            fail(f"{path}: no reference in the working-tree {spec['source_file']} — "
+                 f"the content survives but nothing auto-loaded routes to it")
 
     print()
     print("VERIFIED: every character accounted for exactly once." if ok else "VERIFICATION FAILED")
