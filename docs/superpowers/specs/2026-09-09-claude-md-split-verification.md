@@ -12,6 +12,26 @@ paraphrased, and that no project code was touched in the process.
 
 ## Step 1 — verifier output
 
+Re-run after the post-review fix wave (2026-09-09): the wall document's sections
+are now in source-offset order (W6b moved after W8, a map reordering with zero
+prose edits), three sections carry `replace` repairs, and the verifier adds a
+REACHABILITY check — every target document must still be cited BY PATH in the
+working-tree `CLAUDE.md`. COVERAGE, CONTENT and RETAINED prove the characters
+survive; only REACHABILITY proves anything auto-loaded still routes to them.
+Measured before it existed: blanking lines 197/199/201 of `CLAUDE.md` left the
+proof green (`VERIFIED`, exit 0) with all 126,362 characters unreachable. With
+it, that attack reads:
+
+```
+FAIL: docs/room-detection-rules.md: no reference in the working-tree CLAUDE.md — the content survives but nothing auto-loaded routes to it
+FAIL: docs/scale-normalization-findings.md: no reference ...
+FAIL: docs/wall-network-rules.md: no reference ...
+VERIFICATION FAILED — exit 1
+```
+
+(`docs/page-segmentation.md` and `docs/w-gate-recalibration-handoff.md` stay
+REACHABLE under that attack: they are cited from other lines too.)
+
 ```
 $ python3 docs/superpowers/specs/2026-09-09-claude-md-split-verify.py; echo "exit=$?"
 COVERAGE line 197: 99607 chars, 31 spans, exact
@@ -25,9 +45,9 @@ CONTENT  W3    docs/wall-network-rules.md         1362 chars exact
 CONTENT  W4    docs/wall-network-rules.md         3514 chars exact
 CONTENT  W5    docs/wall-network-rules.md         5218 chars exact
 CONTENT  W6a   docs/wall-network-rules.md         3041 chars exact
-CONTENT  W6b   docs/wall-network-rules.md         3643 chars exact
 CONTENT  W7    docs/wall-network-rules.md         3788 chars exact
 CONTENT  W8    docs/wall-network-rules.md         2933 chars exact
+CONTENT  W6b   docs/wall-network-rules.md         3643 chars exact
 CONTENT  W9    docs/wall-network-rules.md         1392 chars exact
 CONTENT  W9b   docs/wall-network-rules.md         6918 chars exact
 CONTENT  W10a  docs/wall-network-rules.md         1655 chars exact
@@ -53,13 +73,19 @@ CONTENT  R9    docs/room-detection-rules.md       779 chars exact
 CONTENT  F1    docs/scale-normalization-findings.md 3328 chars exact
 CONTENT  H1    docs/w-gate-recalibration-handoff.md 15482 chars exact
 RETAINED line 245: 2 fragment(s) [RET-245-head,RET-245-tail] anchored in order on one line (prefix=True, suffix=True)
+REACHABLE docs/page-segmentation.md: cited in CLAUDE.md
+REACHABLE docs/room-detection-rules.md: cited in CLAUDE.md
+REACHABLE docs/scale-normalization-findings.md: cited in CLAUDE.md
+REACHABLE docs/w-gate-recalibration-handoff.md: cited in CLAUDE.md
+REACHABLE docs/wall-network-rules.md: cited in CLAUDE.md
 
 VERIFIED: every character accounted for exactly once.
 exit=0
 ```
 
-4 COVERAGE lines (197, 199, 201, 245), 34 CONTENT lines, 1 RETAINED line,
-`VERIFIED`, `exit=0` — matching the plan's expectation exactly.
+4 COVERAGE lines (197, 199, 201, 245), 34 CONTENT lines, 1 RETAINED line and
+5 REACHABLE lines, `VERIFIED`, `exit=0` — matching the plan's expectation
+exactly, plus the REACHABILITY check added in the post-review fix wave.
 
 ## Step 2 — independent arithmetic
 
@@ -108,16 +134,31 @@ FAILED (failures=1)
 ```
 
 1452 tests, 1 failure: `test_takeoff_fn_equivalence` disagreeing on a
-`TAKEOFF_REGIONS_UNCLASSIFIED` warning (a region-classification cache/state
-flake — reproducible in isolation, re-running the single test in isolation
-reproduces the same diff). This is the pre-existing "room-label/region-cache
-equivalence flake" already on record in project memory
+`TAKEOFF_REGIONS_UNCLASSIFIED` warning. **Measured at the branch base**, not
+deduced (this project's rule is that a deduction is not a measurement):
+
+```
+$ git worktree add /tmp/base27 27b3986
+$ ln -s <repo>/fixtures/sheets /tmp/base27/fixtures/sheets
+$ cd /tmp/base27 && <repo>/.venv/bin/python -m unittest tests.test_takeoff_fn_equivalence
+FAIL: test_the_function_and_the_cli_agree_field_for_field (field='warnings')
+AssertionError: Lists differ: ... First list contains 1 additional elements.
+First extra element 2:
+{'warning_code': 'TAKEOFF_REGIONS_UNCLASSIFIED', 'severity': 'warning',
+ 'message': 'Page 1: no region was classified, so the whole page was measured
+ without floor-plan filtering', 'page_number': 1}
+Ran 2 tests in 9.023s — FAILED (failures=1)
+```
+
+The same two tests at HEAD fail identically (same field, same extra element,
+8.916s), so the failure is deterministic at BOTH ends and identical at both:
+the branch neither introduced it nor changed it. It is the pre-existing
+"room-label/region-cache equivalence flake" already on record in project memory
 (`project-sweep-tooling-gotchas.md`, `project-w-gate-iter3-step12.md`: "the
 equivalence test flakes on label cache" / "during concurrent reseed") and is
-environmental, not a code regression — this branch touches no file under
-`detection/`, `tests/`, `tools/`, `scale/`, `takeoff/`, `layout/`, `gemini/`,
-or `extraction/` (see Step 4), so there is no code path this branch could
-have changed to produce it. Named explicitly per the brief's allowance.
+environmental — consistent with Step 4, which shows this branch touches no file
+under `detection/`, `tests/`, `tools/`, `scale/`, `takeoff/`, `layout/`,
+`gemini/`, or `extraction/`.
 
 ## Step 4 — no project code modified
 
@@ -175,11 +216,12 @@ COVERAGE/CONTENT above prove it landed intact.
 
 ## Complete repair log
 
-Three sections' worth of source text needed light grammatical repair where a
+Seven sections' worth of source text needed light grammatical repair where a
 sentence was extracted mid-flow (dropping a leading conjunction that made
 sense inline but not as a document opener, capitalizing the new sentence
-start, or closing a sentence the original left open into the next span). The
-verifier inverts every repair before comparing against the source, so a
+start, or closing a sentence the original left open into the next span), and
+three more carry `replace` repairs added in the post-review fix wave (below).
+The verifier inverts every repair before comparing against the source, so a
 repaired section still proves byte-identical to its source span once
 un-repaired.
 
@@ -204,12 +246,68 @@ docs/wall-network-rules.md §Fill seams  [W9b]
 docs/wall-network-rules.md §Known gap: glyph-outline fill rings  [W10d]
     append_period
 
-7 sections carry repairs; all inverted by the verifier before comparison.
+7 sections carry grammatical repairs; all inverted by the verifier before comparison.
 ```
 
-All seven repaired sections belong to line 197's 31-span breakup (the "Room
-detection" paragraph's wall-network half); lines 199, 201, and 245 needed no
-repairs — they moved as single, uninterrupted spans.
+All seven grammatically repaired sections belong to line 197's 31-span breakup
+(the "Room detection" paragraph's wall-network half); lines 199, 201, and 245
+needed none — they moved as single, uninterrupted spans.
+
+### `replace` repairs (post-review fix wave, 2026-09-09)
+
+The whole-branch review found three references that the MOVE ITSELF falsified —
+directional wording pointing at a paragraph that is now in another file, or
+nowhere. Move-not-edit exists to protect measured numbers, not to preserve
+pointers the move broke, so the map gained a fourth op:
+
+```json
+{"op": "replace", "old": "<exact source text>", "new": "<exact replacement>"}
+```
+
+`apply_repairs` asserts `old` occurs EXACTLY ONCE in the span and substitutes
+it; `invert` asserts `new` occurs exactly once in the written section and
+substitutes back. Ops apply in order and invert in reverse, like the other
+three. 8 ops in 3 sections; no number, constant, path, identifier, sheet slug
+or measurement changes in any of them.
+
+```
+docs/wall-network-rules.md §Order and exclusion sets  [W1]           1 replace
+    "…are in the gates paragraph below"
+ -> "…are in `docs/w-gate-recalibration-handoff.md` §"Iteration 1–3 summary,
+     moved from CLAUDE.md (2026-09-09)", step 6"
+docs/room-detection-rules.md §Plane stamp and the bbox fallback  [R5f]  1 replace
+    "glyph-outline rings (gap (b) below)"
+ -> "glyph-outline rings (gap (b), `docs/wall-network-rules.md` §"Known gap:
+     glyph-outline fill rings")"
+docs/w-gate-recalibration-handoff.md §Iteration 1–3 summary…  [H1]   6 replace
+    six occurrences of "in the room paragraph above", each disambiguated by the
+    identifier before it, repointed to the section that now holds the rule:
+    `_clip_plug_tails`               -> room §"Tail trim and clip"
+    `_doorway_pens`                  -> wall §"Wall pens and the doorway veto"
+    `_entrance_run`                  -> room §"Entrances"
+    `cap_lines`                      -> room §"The band-pocket drop"
+    `ROOM_BAND_POCKET_END_CLOSURE_MIN` -> room §"Band-pocket end closures"
+    `ROOM_RECESS_BACK_COVER_MIN`     -> room §"The wall-recess drop"
+```
+
+Two measured corrections to the review's own brief, recorded rather than
+assumed: the handoff carries **six** occurrences of "in the room paragraph
+above", not four (all six repointed; `grep -c` now returns 0); and W1's "gates
+paragraph below" points at the handoff's iteration summary, not
+`docs/scale-normalization-findings.md` §4g — measured on the pinned source,
+line 199 (which became §4g) contains the string "dash" zero times while line
+201 (which became the iteration summary) carries the dash-row rule in full,
+with its 18px = 3mm margin, under step 6.
+
+Bite-proofs, both directions:
+```
+recorded but unapplied (bogus replace on R4, document not regenerated):
+  FAIL: replace recorded but 'A BOGUS DIAGONAL window' occurs 0 times, need 1
+  VERIFICATION FAILED, exit 1
+applied but unrecorded (DIAGONAL -> BOGUSDIAGONAL edited into the document):
+  FAIL: R4: diverges at 70
+  VERIFICATION FAILED, exit 1
+```
 
 ## Knowledge graph refresh
 
@@ -263,17 +361,31 @@ data-loss check.
 
 ## Deferred minors (for the whole-branch review to triage)
 
-1. `docs/hatch-cell-chords-handoff.md:62` phrases its CLAUDE.md reference as
+1. **RESOLVED in the post-review fix wave.**
+   `docs/hatch-cell-chords-handoff.md:62` phrased its CLAUDE.md reference as
    a live instruction ("1. CLAUDE.md 'Room detection' paragraph — the
-   sentence beginning…"). That handoff's work shipped 2026-09-02, so it
-   reads as historical, but an agent resuming it would follow a dead
-   pointer. Left untouched by standing ruling: it is a frozen historical
-   record.
-2. Twelve stale `CLAUDE.md "Room detection"` references remain across four
-   files, all deliberately excluded from repathing: the two frozen
-   historical records (this one, and `docs/w-gate-recalibration-handoff.md`'s
-   earlier step prompts) plus this project's own plan and spec, which must
-   quote the pre-split text verbatim to explain what was moved and why.
+   sentence beginning…") and was left untouched here by the standing
+   "frozen historical record" ruling. The whole-branch review overturned that
+   ruling for this line and for `docs/backlog/step-3-s15-false-positive-
+   diagnosis.md:23`/`:45`: both are LIVE — item 1 is reached by the step-18
+   prompt's "Gap D of `docs/hatch-cell-chords-handoff.md`" pointer, and the
+   backlog document is unstarted work whose whole method is reading that
+   catalog. Both now name `docs/wall-network-rules.md` /
+   `docs/room-detection-rules.md`.
+2. Stale `CLAUDE.md "Room detection"` references that remain, deliberately.
+   Measured after the fix wave with
+   `grep -rn 'CLAUDE\.md' docs/ .claude/ README.md | grep -vi 'claude-md-split'
+   | grep -iE 'room detection|room paragraph|room section'`: **18 hits in four
+   files** — `docs/w-gate-recalibration-handoff.md` (14, every one inside a
+   `>` blockquoted dated step prompt), `docs/hatch-cell-chords-handoff.md` (2,
+   both blockquoted, lines 260 and 326), `docs/w-gate-iter3-checkpoints/
+   step-8.md` (1) and `docs/w-gate-iter3-checkpoints/step-9-review-prompt.md`
+   (1). All are records of what a past agent was told or reported; rewriting
+   them falsifies the record. This project's own plan and spec are a separate
+   population — they must quote the pre-split text verbatim to explain what
+   moved — and are excluded from the pattern above. (The earlier "twelve
+   across four files" in this report conflated the two populations and used a
+   narrower pattern; the number above is the measured one.)
 3. `CLAUDE.md` is 2 characters over the plan's `≤32,000` guard — the blank
    line between the line-197 pointer's two paragraphs, kept because the
    replacement blocks are verbatim and the blank line matches existing house
@@ -285,9 +397,9 @@ data-loss check.
 |---|---|---|
 | `CLAUDE.md` | 154,912 chars | 32,002 chars (−79.3%) |
 | Room-detection/wall-network content | 1 undifferentiated 100k-char line | 35 addressable sections across 2 documents |
-| Verifier | n/a | `VERIFIED`, exit 0, 4 COVERAGE + 34 CONTENT + 1 RETAINED |
+| Verifier | n/a | `VERIFIED`, exit 0, 4 COVERAGE + 34 CONTENT + 1 RETAINED + 5 REACHABLE |
 | Arithmetic identity | n/a | 126,362 = 126,362, exact |
-| Fast test tier | 1452 tests | 1452 tests, 1 pre-existing environmental flake, 0 code touched |
+| Fast test tier | 1452 tests | 1452 tests, 1 failure measured IDENTICAL at base 27b3986, 0 code touched |
 | Knowledge graph | 1 node for the whole block | 35 addressable heading nodes, concept lookup resolves directly |
 
 No file under `detection/`, `tests/`, `tools/`, `scale/`, `takeoff/`,
