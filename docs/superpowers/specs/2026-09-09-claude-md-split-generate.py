@@ -66,6 +66,8 @@ def apply_repairs(text, repairs):
         elif op == "capitalize_first":
             text = text[0].upper() + text[1:]
         elif op == "append_period":
+            assert not text.rstrip().endswith("."), \
+                f"append_period on a span that already ends with a period: {text[-40:]!r}"
             text = text.rstrip() + "."
         else:
             raise SystemExit(f"unknown repair op {op!r}")

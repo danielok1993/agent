@@ -87,13 +87,16 @@ def main():
         got = sorted(spans[ln])
         n = len(lines[ln - 1])
         cursor = 0
+        line_ok = True
         for a, b, sid in got:
             if a != cursor:
                 fail(f"line {ln}: {'gap' if a > cursor else 'overlap'} at {cursor}..{a} (before {sid})")
+                line_ok = False
             cursor = b
         if cursor != n:
             fail(f"line {ln}: covered {cursor} of {n} chars")
-        else:
+            line_ok = False
+        if line_ok:
             print(f"COVERAGE line {ln}: {n} chars, {len(got)} spans, exact")
 
     # ---- CONTENT ----
