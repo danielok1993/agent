@@ -129,7 +129,9 @@
           23537
         ]
       ],
-      "repairs": []
+      "repairs": [
+        {"op": "append_period"}
+      ]
     },
     {
       "id": "W6b",
@@ -142,7 +144,10 @@
           35945
         ]
       ],
-      "repairs": []
+      "repairs": [
+        {"op": "capitalize_first"},
+        {"op": "append_period"}
+      ]
     },
     {
       "id": "W7",
@@ -155,7 +160,10 @@
           28026
         ]
       ],
-      "repairs": []
+      "repairs": [
+        {"op": "capitalize_first"},
+        {"op": "append_period"}
+      ]
     },
     {
       "id": "W8",
@@ -168,7 +176,11 @@
           31568
         ]
       ],
-      "repairs": []
+      "repairs": [
+        {"op": "drop_leading_word", "word": "and"},
+        {"op": "capitalize_first"},
+        {"op": "append_period"}
+      ]
     },
     {
       "id": "W9",
@@ -181,7 +193,9 @@
           37571
         ]
       ],
-      "repairs": []
+      "repairs": [
+        {"op": "append_period"}
+      ]
     },
     {
       "id": "W9b",
@@ -194,7 +208,10 @@
           45879
         ]
       ],
-      "repairs": []
+      "repairs": [
+        {"op": "drop_leading_word", "word": "and"},
+        {"op": "capitalize_first"}
+      ]
     },
     {
       "id": "W10a",
@@ -246,7 +263,9 @@
           54256
         ]
       ],
-      "repairs": []
+      "repairs": [
+        {"op": "append_period"}
+      ]
     },
     {
       "id": "R1",
