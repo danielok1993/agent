@@ -153,8 +153,10 @@ docs/wall-network-rules.md §Fill rings and seams
   words added: 0   words removed: 1 ("and")
 ```
 
-Expect 25–40 entries. If the verifier does not come back clean, the move does
-not land. The script's output is pasted into the checkpoint report.
+Measured while planning, against the real file: **7 entries**, all in the wall
+document. The 16 room sections and the page-segmentation section need none. If
+the verifier does not come back clean, the move does not land. The script's
+output is committed as the verification report.
 
 ## Section map (proposed; finalised and reviewed in implementation step 1)
 
