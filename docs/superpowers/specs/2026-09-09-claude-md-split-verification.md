@@ -197,15 +197,20 @@ $ git diff --stat main --name-only | grep -E "^(detection|tests|tools|scale|take
   none — correct
 ```
 
-Full list of files changed vs `main` (14 files, all documentation, specs, or
-the `fix-detection` skill):
+Full list of files changed vs `main` (regenerated 2026-09-09, after the
+backlog/handoff repaths, the second fix wave, the `replace` token guard, this
+report itself and the generator/verifier divergence guard all landed — the
+earlier "14 files" and its 15-entry list predated them):
 
 ```
+$ git diff --name-only 27b3986..HEAD -- . ':(exclude)graphify-out'
 .claude/skills/fix-detection/SKILL.md
 .claude/skills/fix-detection/evals/evals.json
 .claude/skills/fix-detection/references/file-map.md
 CLAUDE.md
 README.md
+docs/backlog/step-3-s15-false-positive-diagnosis.md
+docs/hatch-cell-chords-handoff.md
 docs/page-segmentation.md
 docs/room-detection-rules.md
 docs/scale-normalization-findings.md
@@ -213,10 +218,19 @@ docs/superpowers/plans/2026-09-09-claude-md-split.md
 docs/superpowers/specs/2026-09-09-claude-md-split-design.md
 docs/superpowers/specs/2026-09-09-claude-md-split-generate.py
 docs/superpowers/specs/2026-09-09-claude-md-split-map.json
+docs/superpowers/specs/2026-09-09-claude-md-split-verification.md
 docs/superpowers/specs/2026-09-09-claude-md-split-verify.py
 docs/w-gate-recalibration-handoff.md
 docs/wall-network-rules.md
+$ git diff --name-only 27b3986..HEAD -- . ':(exclude)graphify-out' | wc -l
+      18
 ```
+
+18 files, all documentation, specs, or the `fix-detection` skill.
+`graphify-out/` is excluded as generated output (its refresh is recorded under
+"Knowledge graph refresh" below); `main` is at `27b3986`, the map's own pinned
+source ref, so the two diff bases are the same commit (`git merge-base main
+HEAD` = `27b3986cb802ba45e358099b225ca30ed65154b1`).
 
 ## Pre-move overlap measurements (reported, never acted on)
 
@@ -419,14 +433,112 @@ applied but unrecorded (DIAGONAL -> BOGUSDIAGONAL edited into the document):
   VERIFICATION FAILED, exit 1
 ```
 
+## The generator divergence guard, and UNMAPPED (2026-09-09)
+
+The scenario first, because it is the lesson. `.claude/skills/fix-detection/
+SKILL.md:164` instructs every future agent: **"A new rule gets its own `##`
+heading in the document for its stage."** The generator rebuilds every
+create-mode document from the pinned source and writes it with `write_text`
+(`generate.py`, `main`). Those two facts compose into silent data loss, and
+the reviewer reproduced it end to end on this branch:
+
+```
+1. append a new "## " section to docs/wall-network-rules.md   (what the skill says to do)
+2. python3 ...-verify.py    -> VERIFIED, exit 0                (the section is invisible to it)
+3. python3 ...-generate.py  -> wrote docs/wall-network-rules.md: 15 sections
+4. grep the new section     -> gone. No warning, no signal anywhere.
+```
+
+Every proof this branch ships — COVERAGE, CONTENT, RETAINED, REACHABILITY —
+reads the map as its oracle, so a section the map does not describe is not
+merely unproven, it is *unseen*: the verifier passes it, and the next
+generator run destroys it while printing the same success line. A
+re-runnable generator plus an instruction to hand-edit its outputs is a
+data-loss trap. That is precisely the failure class this branch exists to
+prevent, arriving through the tooling instead of through the move.
+
+The two halves that reconcile them:
+
+**Generator — refuse to rewrite a diverged create-mode target**
+(`check_divergence`, run before ANY document is written, so a refusal never
+leaves half the set rebuilt). It compares each create-mode target's `## `
+headings against the map's headings for that document; any heading the map
+does not carry aborts the run with exit 2, naming the document and each
+unmapped heading, and stating the operator's two ways out — add the section
+to the map so the proof covers it, or re-run with `--force`. `--force`
+rebuilds from the map and prints every section it discards, by name, before
+writing. Append-mode targets are exempt by construction: `upsert` edits one
+heading in place and never touches the rest of an existing document.
+
+**Verifier — report UNMAPPED rather than ignore it.** A rule legitimately
+added after the split is not an error, so it does not fail the run; it *is*
+outside every proof, so it must be visible in the output an operator reads.
+One line per unmapped `## ` section of a create-mode document,
+`UNMAPPED <path> §<heading> — not covered by the proof`, printed between
+CONTENT and RETAINED. `VERIFIED` and exit 0 are unchanged while everything
+mapped is intact.
+
+Bite-proof, on the reviewer's own reproduction (a `## The nib-shadow rule`
+section appended to `docs/wall-network-rules.md`, then `git checkout --`):
+
+```
+(a) verifier, section present:
+    UNMAPPED docs/wall-network-rules.md §The nib-shadow rule (measured 2026-09-10) — not covered by the proof
+    VERIFIED: every character accounted for exactly once.                      exit 0
+(b) generator, section present:
+    REFUSING TO WRITE: create-mode document(s) have diverged from the section map.
+        docs/wall-network-rules.md §The nib-shadow rule (measured 2026-09-10) — not in the map, would be DESTROYED
+    A rebuild would overwrite these sections and print nothing.
+    Either add each section to the map, so the verifier's proofs cover it:
+        docs/superpowers/specs/2026-09-09-claude-md-split-map.json
+    or re-run with --force to rebuild from the map and discard them.           exit 2
+(c) the section is still on disk after the refusal (grep -c = 1)
+(d) generator --force:
+    --force: DISCARDING 1 unmapped section(s) from docs/wall-network-rules.md:
+        discarding §The nib-shadow rule (measured 2026-09-10)
+    wrote docs/wall-network-rules.md: 15 sections                              exit 0
+    (section now gone — deliberately, and said so before doing it)
+(e) clean tree, file restored: generator writes all five documents, exit 0,
+    `git status --short` shows no document modified; verifier prints
+    0 UNMAPPED lines, VERIFIED, exit 0.
+```
+
 ## Knowledge graph refresh
+
+Re-run 2026-09-09 after the last document edit on this branch (`graphify` is
+NOT on the default PATH — invoke it by full path). The earlier record in this
+report, `413/413 files` and `5522 nodes, 13544 edges, 330 communities`, predated
+the backlog/handoff repaths, the second fix wave, the `replace` token guard, the
+generator/verifier divergence guard and this report's own sections; the
+committed graph is the run below.
 
 ```
 $ ~/.local/bin/graphify update .
-AST extraction: 413/413 files (100%) [10 workers]
-[graphify watch] backed up curated graph (5 files) -> 2026-09-09/
-[graphify watch] Rebuilt: 5522 nodes, 13544 edges, 330 communities
+  warning: skill is from graphify 0.8.42, package is 0.9.8. Run 'graphify install' to update.
+Re-extracting code files in . (no LLM needed)...
+  AST extraction: 414/414 files (100%) [10 workers]
+  warning: 59 source file(s) produced zero nodes and are absent from the graph: settings.json, evals.json, 2026-09-09-claude-md-split-map.json, firebase.json, s01.json (+54 more). A re-run will retry them (empties are no longer cached); if it persists, please report the file(s) (#1666).
+[graphify] backed up curated graph (5 files) -> 2026-09-09/
+[graphify watch] Skipped graph.html: Graph has 5553 nodes - too large for HTML viz (limit: 5000). Use --no-viz, raise GRAPHIFY_VIZ_NODE_LIMIT, or reduce input size.
+[graphify watch] Rebuilt: 5553 nodes, 13583 edges, 338 communities
+[graphify watch] graph.json and GRAPH_REPORT.md updated in graphify-out
+Code graph updated. For doc/paper/image changes run /graphify --update in your AI assistant.
+
+$ python3 -c "import json; print(len(json.load(open('graphify-out/graph.json'))['nodes']))"
+5553
 ```
+
+Re-run immediately afterwards (after this section itself was written) to
+confirm the recorded figures describe the committed graph: `414/414 files`,
+`5553 nodes, 13583 edges` — identical — and `337 communities` rather than 338.
+The community count is the one non-deterministic figure in that line (Leiden
+partitioning); node and edge counts are stable, and the committed
+`graphify-out/graph.json` holds 5,553 nodes either way.
+
+The two warnings are the tool's own, not this branch's: the CLI is a version
+ahead of the installed skill, and the 59 zero-node files are data/config JSON
+(`s01.json` and its ground-truth siblings, `evals.json`, the split map itself)
+that the AST extractor has nothing to extract from. Neither is new here.
 
 ### Retrieval check
 
@@ -440,10 +552,12 @@ room-detection/wall-network prose: `Module layout` (`CLAUDE.md` L135–L203).
 No node in that graph carries a label like "band pocket," "band-pocket end
 closures," or any of the other ~18 rule clusters the paragraph held — they
 were all inside one node's text, unaddressable individually. The refreshed
-graph has 18 separate heading nodes for `docs/room-detection-rules.md` and
-17 for `docs/wall-network-rules.md`, including
+graph has 18 nodes for `docs/room-detection-rules.md` and 17 for
+`docs/wall-network-rules.md` (file node + title node + the document's `## `
+rule headings — 16 and 15 of them respectively; `grep -c '^## '`), including
 `docs_room_detection_rules_band_pocket_end_closures`
-(`docs/room-detection-rules.md` L517).
+(`docs/room-detection-rules.md` L518 — L517 before the R5f repoint lengthened
+the wrapped section above it).
 
 **Query-level.** `graphify query` (BFS from keyword-matched seed nodes)
 seeded on code identifiers for "why is a band pocket not a room" (`room()`
@@ -455,11 +569,14 @@ solely to the intended target:
 ```
 $ ~/.local/bin/graphify explain "band pocket"
 Node: Band-pocket end closures
-  Source:    docs/room-detection-rules.md L517
+  ID:        docs_room_detection_rules_band_pocket_end_closures
+  Source:    docs/room-detection-rules.md L518
   Type:      document
   Community: 182
-  Connections (1):
-    <-- Room detection rules [contains] [EXTRACTED]
+  Degree:    1
+
+Connections (1):
+  <-- Room detection rules [contains] [EXTRACTED]
 ```
 
 Before the split this same lookup had no node to resolve to short of the
@@ -506,11 +623,13 @@ data-loss check.
 | | Before | After |
 |---|---|---|
 | `CLAUDE.md` | 154,912 chars | 32,002 chars (−79.3%) |
-| Room-detection/wall-network content | 1 undifferentiated 100k-char line | 35 addressable sections across 2 documents |
+| Room-detection/wall-network content | 1 undifferentiated 100k-char line | 31 addressable `## ` sections across 2 documents (16 + 15, `grep -c '^## '`) |
 | Verifier | n/a | `VERIFIED`, exit 0, 4 COVERAGE + 34 CONTENT + 1 RETAINED + 5 REACHABLE |
 | Arithmetic identity | n/a | 126,362 = 126,362, exact |
 | Fast test tier | 1452 tests | 1452 tests, 1 failure measured IDENTICAL at base 27b3986, 0 code touched |
-| Knowledge graph | 1 node for the whole block | 35 addressable heading nodes, concept lookup resolves directly |
+| Files changed vs `main` (= `27b3986`) | n/a | 18, excluding generated `graphify-out/` |
+| Generator re-run safety | overwrote unmapped sections silently | refuses (exit 2) and names them; `--force` discards them out loud; verifier prints `UNMAPPED` |
+| Knowledge graph | 1 node for the whole block | 35 nodes across the two documents (31 `## ` headings + 2 file + 2 title), concept lookup resolves directly |
 
 No file under `detection/`, `tests/`, `tools/`, `scale/`, `takeoff/`,
 `layout/`, `gemini/`, or `extraction/` was modified by this branch.
