@@ -59,8 +59,10 @@ the anchor iteration".
 
 ## Read these first (in order)
 
-1. CLAUDE.md "Room detection" paragraph — the sentence beginning "pairing
-   itself demands ONE THICKNESS ALONG THE OVERLAP" (`WALL_PAIR_TAPER_MAX_FRAC`).
+1. `docs/wall-network-rules.md` §"Pairing — taper, redundancy collapse and
+   the far-side rule" — the sentence beginning "Pairing itself demands ONE
+   THICKNESS ALONG THE OVERLAP" (`WALL_PAIR_TAPER_MAX_FRAC`). It was moved
+   verbatim out of CLAUDE.md's room-detection paragraph on 2026-09-09.
 2. `detection/walls.py:91` (the constant, with every measured number) and
    `_pair_faces_to_centerlines` around line 2567 (the gate).
 3. `tests/test_wall_network.py::TestCenterlines::test_brick_cell_diagonal_does_not_pair_into_the_room`

@@ -20,11 +20,13 @@ real one.
 
 ## What to do
 
-1. **Read first:** `CLAUDE.md` in full — especially the very long room
-   detection section, which catalogs every phantom-room mechanism already
-   fixed (striped-field lattice demotion, hatch-tier pairs, weak-pair
-   material gates, annotation/furniture pens, white-ring bridging, plug
-   tails, paving pockets...). Your job is largely to determine whether s15's
+1. **Read first:** `docs/room-detection-rules.md` and
+   `docs/wall-network-rules.md` in full — between them they catalog every
+   phantom-room mechanism already fixed (striped-field lattice demotion,
+   hatch-tier pairs, weak-pair material gates, annotation/furniture pens in
+   the wall document; white-ring bridging, plug tails, paving pockets in the
+   room document). Both were moved verbatim out of `CLAUDE.md` on 2026-09-09.
+   Your job is largely to determine whether s15's
    phantoms match a KNOWN mechanism that mis-fires on this sheet's drafting
    style, or a new one. Also `docs/regression-testing-guide.md` (reading the
    sweep + review artifacts).
@@ -42,8 +44,9 @@ real one.
    mechanisms with counts. Do the same lightly for the 9 window FPs (check
    whether they are the span-overshoot family step-2 targets — measure their
    overshoots) and the 1 door FP.
-4. **Cross-check against the known-mechanism catalog** (CLAUDE.md room
-   section + the memory of past branches recorded there): for each mechanism
+4. **Cross-check against the known-mechanism catalog**
+   (`docs/room-detection-rules.md` + `docs/wall-network-rules.md`, plus the
+   memory of past branches recorded there): for each mechanism
    found, name the closest already-shipped fix and why it does not fire here.
 5. **Write up:** a new doc (e.g.
    `docs/s15-false-positive-diagnosis.md`) with: per-mechanism counts, one

@@ -6,7 +6,9 @@ pipeline; Gemini (Vertex AI) is used once per page, to say which parts of the
 sheet are floor plans so detection can be run on those and not on the
 elevations, site plans and title blocks beside them.
 
-See `CLAUDE.md` for architecture details and `project.md` for the original spec.
+See `CLAUDE.md` for architecture details — with the detection rules in
+`docs/wall-network-rules.md` and `docs/room-detection-rules.md` — and
+`project.md` for the original spec.
 
 ## Requirements
 

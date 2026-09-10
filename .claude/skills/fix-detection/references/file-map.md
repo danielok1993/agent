@@ -8,8 +8,8 @@ Paths are repo-relative. Read the "Read first" column before diagnosing.
 |---|---|---|---|---|
 | Doors (swing / sliding / folding) | `detection/doors/` (acyclic: `constants` ← `arcs`/`leaves`/`shape`/`sliding` ← `folding` ← `assembly` ← `detect`) | `detection/doors/constants.py` (`DOOR_*`, ~100) | `docs/door-detection-tuning-guide.md` — §3 topologies, §4 constants table, §5 known FP patterns, **§8 debug playbook**, §7 test-coordinate gotcha | `tests/test_door_assembly.py`, `test_polyline_arc_pruning.py`, `test_chained_curve_arcs.py`, `test_curve_arc_garden_doors.py`, `test_folding_doors.py`, `test_bezier_arc_aspect.py` |
 | Windows | `detection/windows.py` | `WINDOW_*` in the same file | `docs/window-detection-tuning-guide.md` — §1 signature, §4 constants, §6 limitations, §7 how to verify | `tests/test_window_detection.py` |
-| Walls (internal network, never emitted) | `detection/walls.py` — `detect_wall_network`, `_demote_lattice_faces`, `_demote_stair_faces`, `_band_has_wall_material`, `_claims_interior_pair`, `_claims_far_side_pair`, `_rate_fill_classes` | `WALL_*` in `detection/walls.py` (~70) | CLAUDE.md "Room detection" paragraph (the rules + every measured number); module docstring of `walls.py` | `tests/test_wall_network.py` (`wall_band_h/v`, `rect_room`, `hline/vline`, `path`) |
-| Rooms | `detection/rooms.py` — `detect_rooms`, `_free_space_components`, `_door_plugs`, `_window_seal`, `_accept_white_walls`, `_bridge_white_runs`, `_drop_window_exterior_sides` | `ROOM_*` in `detection/rooms.py` (~40) | same as walls, plus `docs/superpowers/specs/2026-08-18-room-takeoff-design.md` if quantities are involved | `tests/test_room_detection.py` (`rooms_for`, `door_candidate`, `text_span`, plus the wall helpers) |
+| Walls (internal network, never emitted) | `detection/walls.py` — `detect_wall_network`, `_demote_lattice_faces`, `_demote_stair_faces`, `_band_has_wall_material`, `_claims_interior_pair`, `_claims_far_side_pair`, `_rate_fill_classes` | `WALL_*` in `detection/walls.py` (~70) | `docs/wall-network-rules.md` (the rules + every measured number); module docstring of `walls.py` | `tests/test_wall_network.py` (`wall_band_h/v`, `rect_room`, `hline/vline`, `path`) |
+| Rooms | `detection/rooms.py` — `detect_rooms`, `_free_space_components`, `_door_plugs`, `_window_seal`, `_accept_white_walls`, `_bridge_white_runs`, `_drop_window_exterior_sides` | `ROOM_*` in `detection/rooms.py` (~40) | `docs/room-detection-rules.md`; `docs/wall-network-rules.md` for the network it consumes, plus `docs/superpowers/specs/2026-08-18-room-takeoff-design.md` if quantities are involved | `tests/test_room_detection.py` (`rooms_for`, `door_candidate`, `text_span`, plus the wall helpers) |
 | Labels / schedules | `detection/labels.py`, `detection/schedules.py` | `LABEL_*`, `SCHEDULE_*` in place | `docs/superpowers/specs/2026-08-06-detection-review-tooling-design.md`; schedule bboxes come from pdfplumber `find_tables()` | `tests/test_schedule_detection.py` |
 | Cross-validation / confidence floors | `detection/postprocess.py` (`CROSS_*`), `pipeline.py::OFFLINE_MIN_CONFIDENCE` (line ~90), `pipeline.finalize_candidates` | | door guide §4.10–4.11 | `tests/test_cross_validate.py`, `test_merge_offline.py` |
 | Scale-dependent gates | `scale/factor.py` (`detection_scale`), `WallGates`/`RoomGates` | classified in `docs/scale-normalization-findings.md` §4 (W = world, scales; P = paper; D = dimensionless) | that §4 table before touching any constant — it says whether a gate scales with drawing scale | `tests/test_scale_gates.py`, `test_scale_door_gates.py`, `test_scale_window_gates.py` |
@@ -38,8 +38,9 @@ Orchestration order (doors → windows → wall network → rooms):
 | Single-PDF run with trace | `python app.py extract <pdf> --no-gemini --debug [--disable-windows] [--svg]` → `outputs/<ts>/pages/page_NN/debug_trace.json` + `debug_viewer.html` |
 
 Sheet notes: s01 (`floor-plans`) and s02 (WD03) are the reference tier — every
-rule in CLAUDE.md was measured on them, so measure your discriminator there
-too. s01 is colour-coded (walls black/magenta, dims blue, furniture red, all
+rule in docs/wall-network-rules.md and docs/room-detection-rules.md was
+measured on them, so measure your discriminator there too. s01 is
+colour-coded (walls black/magenta, dims blue, furniture red, all
 ~1.5px) and its typed 1:50 is really 1:92.2, so it runs detection at identity
 scale. s09/s19 detect nothing (unexplained, unlabeled).
 

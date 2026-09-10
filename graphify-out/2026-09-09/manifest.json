@@ -810,7 +810,7 @@
     "semantic_hash": ""
   },
   "docs/scale-normalization-findings.md": {
-    "mtime": 1788994498.6095307,
+    "mtime": 1788993637.7810352,
     "ast_hash": "e65416992b1bf9f430d1d51628df34e3",
     "semantic_hash": ""
   },
@@ -1045,7 +1045,7 @@
     "semantic_hash": ""
   },
   "docs/w-gate-recalibration-handoff.md": {
-    "mtime": 1788994498.61276,
+    "mtime": 1788993637.783968,
     "ast_hash": "af02ed200e34dde0ff28dc9dec91abc0",
     "semantic_hash": ""
   },
@@ -1080,8 +1080,8 @@
     "semantic_hash": ""
   },
   ".claude/skills/fix-detection/SKILL.md": {
-    "mtime": 1789030600.6147344,
-    "ast_hash": "53e568570d70a884a2b892ac08f54733",
+    "mtime": 1788957169.0364716,
+    "ast_hash": "2ae21a0755e2b2d3912d4e94eb68d747",
     "semantic_hash": ""
   },
   ".claude/skills/fix-detection/references/file-map.md": {
@@ -3214,13 +3214,28 @@
     "ast_hash": "52f3693e90351aab28a380107cb67a02",
     "semantic_hash": ""
   },
+  "docs/superpowers/specs/2026-09-09-claude-md-split-generate.py": {
+    "mtime": 1788993643.7540026,
+    "ast_hash": "1af3a607aaefe24b718f5f1018a7d81f",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/specs/2026-09-09-claude-md-split-map.json": {
+    "mtime": 1788960498.86573,
+    "ast_hash": "707c85e7cee89ef681571f03bd1fe60b",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/specs/2026-09-09-claude-md-split-verify.py": {
+    "mtime": 1788993619.6800666,
+    "ast_hash": "c0e7cd73160dab8d3bd583842daa9507",
+    "semantic_hash": ""
+  },
   "docs/page-segmentation.md": {
-    "mtime": 1788994498.6080632,
+    "mtime": 1788993637.7666278,
     "ast_hash": "0c07a4398ea9f31e00893a1a828fb19b",
     "semantic_hash": ""
   },
   "docs/room-detection-rules.md": {
-    "mtime": 1788994498.6084085,
+    "mtime": 1788993637.7802203,
     "ast_hash": "1a97976f5bc6427c34a35343d6cc4da0",
     "semantic_hash": ""
   },
@@ -3235,13 +3250,13 @@
     "semantic_hash": ""
   },
   "docs/wall-network-rules.md": {
-    "mtime": 1788994498.6082609,
+    "mtime": 1788993660.0748265,
     "ast_hash": "e394ccc012051fbeae327a1d901e5d17",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-09-09-claude-md-split-verification.md": {
-    "mtime": 1789030616.3104677,
-    "ast_hash": "f1d3fd73b70dda4de32c675c7e44650e",
+    "mtime": 1788993900.36218,
+    "ast_hash": "50e1f795fa8a5db85eb765aa814476a3",
     "semantic_hash": ""
   }
 }

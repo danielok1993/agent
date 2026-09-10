@@ -1058,6 +1058,62 @@ dimension strings (every other sheet has 0), so the sweep is entity- and
 polygon-identical on 19 sheets and s01 loses exactly the three retired
 verdicts and gains the merged landing as one REVIEW line.
 
+## 4g. The detection-scale factor (moved from CLAUDE.md, 2026-09-09)
+
+Wall/room world-space gates (the `W`-classed constants in
+`docs/scale-normalization-findings.md` §4) scale via a per-page factor threaded
+from `scale.factor.detection_scale(page_scales, regions, page_number)` into
+`detect_wall_network`/`detect_rooms` as `scale_factor`: `f = 50 /
+nominal_denominator`, so f=1.0 (identity, unchanged behavior) at 1:50 and on
+unresolved-scale pages, f=0.5 at 1:100, etc. Paper-space (`P`) and
+dimensionless (`D`) constants are left unscaled — see that doc's §4 table for
+the full per-constant classification and rationale. Only a DRAFTING scale
+drives the factor — a nominal (standard) denominator from any source, or a raw
+viewport value (s13's CAD-declared 1:136.4). A non-standard denominator from
+any other source (user-stored, text) is a MEASUREMENT of the plot and drives
+the gates only when the drawing's own ticked dimension strings VERIFY it
+(`scale/dimensions.py`, W-gate iteration 3 step 12, 2026-09-06):
+`dimension_matches` runs once per page in `run_extract` on the FULL page — the
+takeoff reuses the list — and `detection_scale` judges each floor-plan region
+by the ≥ 3 strings drawn inside its bbox (`measured_denominator`, the median
+implied denominator, never the mean; a mixed-scale sheet's plans each carry
+their own), the page-level fallback by all of them (`_gate_choice`): a claim
+the strings agree with within 5 % (`DIM_AGREE_TOL`, the same three bands the
+takeoff's `verified` reads) drives the gates whatever its number — s01's stored
+1:92.2, 31 strings within ±0.5 % (24 in the ground-floor plan, 7 in the
+first-floor), so s01 now detects at f = 0.542 with `measured_denominator` 92.2
+in its summary and no scale warning; a claim they contradict past 15 %
+(`DIM_DISAGREE_TOL`) is replaced by the measured scale (snapped to a standard
+one when within 2 % so it computes exactly, source `dimensions`, warning
+`SCALE_FACTOR_FROM_DIMENSIONS`; the takeoff keeps the claim and flags it
+`SCALE_IMPLAUSIBLE` — numbers are never swapped), and an inconclusive or
+unmeasurable one stands or abstains as before — a non-nominal claim with fewer
+than 3 strings still runs identity with `SCALE_FACTOR_MEASURED_ONLY`. The
+strings are drawn by the same hand at the same world scale as the walls, so
+they measure exactly the density the gates were calibrated on, while a caption
+or a stored value is a statement ABOUT the drawing. Measured as implemented on
+all 20 sheets: s01 is the only one with any matched strings (every other sheet
+has 0 — its plausibility verdict comes from door leaves — and its factor is
+unchanged), so the corpus sweep is entity- and polygon-identical on 19 sheets
+and s01 loses exactly the three stair verdicts the user retired
+((1090,699)–(1142,876), (466,920)–(521,1056), (1033,925)–(1142,1134): the
+flights open at 0.542 because the 19.5px cap no longer anchors the open-headed
+stair arrows out of the stair zone, and stairs are furniture) and gains the
+merged landing (1032,697)–(1142,1136) as one REVIEW room, keeping 11/11 doors,
+4/4 windows and the hall (which absorbs the CPD cupboard and the flight below
+it, +10.9k px², IoU 0.75 against its verdict); over all matched rooms 143 px²
+of sub-pen slivers are lost against 12.6k px² gained (unsimplified), and
+door_0012's folding bbox is 8px shorter along its jamb
+(`DOOR_FOLD_JAMB_ANCHOR_TOL_PX` 10 → 5.4px at 0.542, IoU 0.89 against its
+verdict). History: feeding the stored 1:92.2 straight to the gates on
+2026-08-19 regressed s01 to 7/13 rooms with 17 phantoms, because the W
+constants were calibrated at f=1.0 on ink spanning both reference sheets' true
+world densities (s01's paper conventions are standard — wall pen 1.5px, hatch
+pitch 4.05px, same as s02 — while its world ink measures 1:92.2, so 50/92.2
+pushed s01's own calibration features just outside them — findings doc §4f);
+iterations 2–3 re-derived the references at true scales, which is what made the
+verified measurement admissible.
+
 ## 5. Decisions (2026-08-12 brainstorm, user-approved)
 
 1. **Approach: thread a scale factor** into walls/rooms and scale classified
