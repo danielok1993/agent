@@ -681,3 +681,23 @@ data-loss check.
 
 No file under `detection/`, `tests/`, `tools/`, `scale/`, `takeoff/`,
 `layout/`, `gemini/`, or `extraction/` was modified by this branch.
+
+## The migration tooling was removed after the split (2026-09-10)
+
+The section map, generator and verifier this report cites were one-shot
+migration aids. They were deleted once the move was proven, because they had a
+short shelf life by design: the moment a new rule is added to either rule
+document — which `fix-detection` phase 5 instructs — the generator refuses and
+the verifier's CONTENT check fails for the edited section.
+
+They remain in git history at `002cc29`:
+
+```
+git show 002cc29:docs/superpowers/specs/2026-09-09-claude-md-split-map.json
+git show 002cc29:docs/superpowers/specs/2026-09-09-claude-md-split-generate.py
+git show 002cc29:docs/superpowers/specs/2026-09-09-claude-md-split-verify.py
+```
+
+Restoring all three and running the verifier re-proves this report against
+`27b3986` unchanged, provided the rule documents have not been edited since.
+The evidence recorded above was produced while they were live.

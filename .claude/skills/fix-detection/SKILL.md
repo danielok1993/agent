@@ -171,6 +171,15 @@ Never present estimates as measurements. If you didn't run it, say so.
    These documents exist because a single 100k paragraph could not be
    anchored, edited or reviewed — do not rebuild one.
 
+   **A detection rule never goes in `CLAUDE.md`.** That file carries a short
+   summary and a pointer to each document; the rule, its measured numbers and
+   the sheets they came from go in the document. Older handoffs and step
+   prompts say "update the CLAUDE.md room paragraph" — they predate the
+   2026-09-09 split and are frozen records of what past agents were told, not
+   instructions to follow. (CLAUDE.md remains the right home for everything
+   else it holds: commands, module layout, the pipeline stages, the output
+   contract, warning codes.)
+
 One fix per iteration. If you discover a second, unrelated cause, note it for
 the report; do not bundle it — bundled REVIEW deltas are unattributable.
 
