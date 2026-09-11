@@ -325,8 +325,8 @@ class TestOrchestratorForwardsFactor(unittest.TestCase):
         pd = PageData(page_number=1, width_px=350.0, height_px=300.0,
                       page_type="vector-rich", paths=paths, text_spans=[],
                       images=[])
-        scaled = run_heuristics(pd, [], scale_factor=0.5)
-        blind = run_heuristics(pd, [])
+        scaled = run_heuristics(pd, [], scale_factor=0.5).candidates
+        blind = run_heuristics(pd, []).candidates
         rooms_scaled = [c for c in scaled if c.entity_type == "room"]
         rooms_blind = [c for c in blind if c.entity_type == "room"]
         self.assertEqual(len(rooms_scaled), 1)

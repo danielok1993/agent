@@ -111,7 +111,7 @@ class TestRunExtractWiring(unittest.TestCase):
                              heights, page_number, page_text, w_mm, h_mm,
                              paths=(), text_spans=(),
                              page_width_px=0.0, page_height_px=0.0, page_rotation=0,
-                             dimension_matches=None):
+                             dimension_matches=None, wall_network=None):
                 calls.append((page_number, heights, round(w_mm), round(h_mm),
                               round(page_width_px), round(page_height_px), page_rotation))
                 self.assertIsInstance(list(paths), list)     # primitives reach the takeoff
@@ -162,7 +162,7 @@ class TestRunExtractWiring(unittest.TestCase):
                              heights, page_number, page_text, w_mm, h_mm,
                              paths=(), text_spans=(),
                              page_width_px=0.0, page_height_px=0.0, page_rotation=0,
-                             dimension_matches=None):
+                             dimension_matches=None, wall_network=None):
                 calls.append((round(page_width_px), round(page_height_px), page_rotation))
                 return self._canned(page_number, floor=1.0)
 
@@ -191,10 +191,10 @@ class TestRunExtractWiring(unittest.TestCase):
 
             d = json.loads((Path(out_dir) / "pages" / "page_01" / "takeoff.json").read_text())
 
-        self.assertEqual(d["schema_version"], 1)
+        self.assertEqual(d["schema_version"], 2)
         self.assertEqual(set(d), {
             "schema_version", "page_number", "page_frame", "scale", "heights",
-            "rooms", "openings", "totals", "warnings"})
+            "rooms", "openings", "totals", "warnings", "line_work"})
         self.assertEqual(d["page_frame"]["dpi"], 150)
         self.assertEqual(d["page_frame"]["width_px"], 1239.6)
         self.assertEqual(d["rooms"][0]["quantities"]["floor_m2"], 7.5)

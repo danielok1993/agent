@@ -2,12 +2,13 @@ from __future__ import annotations
 import logging
 import time
 from contextlib import contextmanager
+from dataclasses import dataclass
 
 from models import Candidate, PageData, TextSpan
 from debug.trace import DebugTraceCollector
 from detection.doors.assembly import door_open_leaf_path_indices
 from detection.doors.detect import detect_doors
-from detection.walls import detect_wall_network
+from detection.walls import WallNetwork, detect_wall_network
 from detection.rooms import detect_rooms
 from detection.windows import detect_windows
 from detection.labels import detect_labels
@@ -29,6 +30,25 @@ def _stage(name: str):
     logger.info("%s: %.2fs", name, time.monotonic() - t0)
 
 
+@dataclass
+class DetectionResult:
+    """What one page's heuristics produced.
+
+    The wall network is not a candidate and never was — it feeds room
+    polygonization and door/window cross-validation. It rides out alongside
+    the candidates because takeoff.json publishes it as line work: the review
+    screen snaps a user's drawing onto the sheet's own lines, and that must
+    not depend on which of those lines the detector managed to pair into a
+    wall.
+
+    `network` is None when rooms are disabled, and also when pipeline.py
+    skips detection for the page entirely (its skip_detection path never
+    calls run_heuristics).
+    """
+    candidates: list[Candidate]
+    network: WallNetwork | None
+
+
 def run_heuristics(
     page_data: PageData,
     plumber_tables: list[dict],
@@ -38,7 +58,7 @@ def run_heuristics(
     disable_rooms: bool = False,
     schedule_text_spans: list[TextSpan] | None = None,
     scale_factor: float = 1.0,
-) -> list[Candidate]:
+) -> DetectionResult:
     disable_rooms = disable_rooms or disable_walls
 
     with _stage("doors"):
@@ -107,4 +127,7 @@ def run_heuristics(
             plumber_tables,
         )
 
-    return _suppress(all_geo + labels + schedules) + rooms
+    return DetectionResult(
+        candidates=_suppress(all_geo + labels + schedules) + rooms,
+        network=network,
+    )

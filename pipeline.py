@@ -727,14 +727,17 @@ def run_extract(
             collector = DebugTraceCollector(page_num) if debug else None
             if region_result.skip_detection:
                 candidates = []
+                wall_network = None
             else:
-                candidates = run_heuristics(
+                detection_result = run_heuristics(
                     region_result.detection_page_data, plumber_page.get("tables", []),
                     disable_rooms=disable_rooms, disable_windows=disable_windows,
                     collector=collector,
                     schedule_text_spans=region_result.schedule_spans,
                     scale_factor=det_scale.factor,
                 )
+                candidates = detection_result.candidates
+                wall_network = detection_result.network
             total_candidates += len(candidates)
             write_json(
                 str(Path(page_dir) / "candidates.json"),
@@ -772,6 +775,7 @@ def run_extract(
                 page_height_px=page_data.height_px,
                 page_rotation=doc[idx].rotation,
                 dimension_matches=dimensions,
+                wall_network=wall_network,
             )
             attach_takeoff(entities, takeoff_page)
             write_json(str(Path(page_dir) / "takeoff.json"), to_document(takeoff_page))

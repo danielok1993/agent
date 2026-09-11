@@ -778,7 +778,7 @@ class TestFloorPlansRegression(unittest.TestCase):
 
         doc = fitz.open(self.pdf)
         page_data = extract_page(doc, 0)
-        cands = run_heuristics(page_data, [], disable_walls=True)
+        cands = run_heuristics(page_data, [], disable_walls=True).candidates
         wins = [c for c in cands if c.entity_type == "window"]
 
         self.assertEqual(len(wins), 4, f"expected 4 windows, got {len(wins)}: "

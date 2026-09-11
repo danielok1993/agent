@@ -169,15 +169,15 @@ class TestOrchestratorWiring(unittest.TestCase):
         # into detect_doors — the exact wiring this test pins.
         paths = swing_door(0, 100, 100, 15, leaf_sep=2.5)
         got = run_heuristics(page(paths), [], disable_windows=True,
-                             disable_rooms=True, scale_factor=0.5)
+                             disable_rooms=True, scale_factor=0.5).candidates
         self.assertTrue(any(c.entity_type == "door" and c.confidence >= 0.55
                             for c in got))
 
     def test_run_heuristics_identity_at_one(self):
         paths = swing_door(0, 200, 200, 50)
-        a = run_heuristics(page(paths), [], disable_windows=True, disable_rooms=True)
+        a = run_heuristics(page(paths), [], disable_windows=True, disable_rooms=True).candidates
         b = run_heuristics(page(paths), [], disable_windows=True,
-                           disable_rooms=True, scale_factor=1.0)
+                           disable_rooms=True, scale_factor=1.0).candidates
         self.assertEqual(
             [(c.bbox, c.confidence) for c in a], [(c.bbox, c.confidence) for c in b],
         )

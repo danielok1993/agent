@@ -1347,7 +1347,13 @@ class WallFace:
 
 @dataclass
 class WallNetwork:
-    """Connected wall-centerline network (internal-only, never serialized)."""
+    """Connected wall-centerline network.
+
+    Serialized: takeoff/document.py's line_work_dict publishes `segments` and
+    `faces` (capped, longest-first) as takeoff.json's line_work, for the
+    review screen's snapping. `faces` is not free to restructure without
+    checking that.
+    """
     segments: list[WallSegment]
     merged: object | None = None        # shapely geometry: snapped + noded centerlines
     # Merged wall FACE lines (pre-pairing). Face merging bridges only tiny

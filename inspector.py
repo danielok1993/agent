@@ -196,7 +196,7 @@ def inspect_pdf(pdf_path: str, page_indices: list[int]) -> None:
         pymupdf_counts = build_pymupdf_counts(page_data)
         plumber_counts = build_plumber_counts(plumber_page)
         comparison = compare_counts(pymupdf_counts, plumber_counts)
-        candidates = run_heuristics(page_data, plumber_page.get("tables", []))
+        candidates = run_heuristics(page_data, plumber_page.get("tables", [])).candidates
         scale_lines = unbound_scale_lines(
             viewport_scales(doc, doc[idx]), text_scales(page_data))
         print_page_summary(page_data, plumber_page, comparison, candidates, scale_lines)

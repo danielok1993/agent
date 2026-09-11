@@ -10,6 +10,8 @@ outputs/
 
 .DS_Store
 
+.temp/
+
 # The corpus sheets are NDA-covered and never committed. Only the manifest is
 # tracked; fixtures/sheets/ is populated by manual download —
 # see tools/fetch_fixtures.py and docs/superpowers/specs/2026-08-06-regression-corpus-design.md

@@ -124,6 +124,13 @@ class TakeoffPage:
     verdicts: dict = field(default_factory=dict)            # denominator → Verdict
     page_frame: Optional[PageFrame] = None
     scale_block: dict = field(default_factory=dict)
+    # The page's wall network, verbatim. Typed `object` rather than
+    # WallNetwork so takeoff/ does not import detection/ for a field it only
+    # stores — takeoff/document.py serialises it, quantities does no maths
+    # with it. None when detection ran with rooms disabled, and also when
+    # pipeline.py skips detection for the page entirely (its skip_detection
+    # path never calls run_heuristics).
+    wall_network: object | None = None
 
     def totals(self) -> dict:
         measured = [r for r in self.rooms if r.measured]
@@ -169,7 +176,8 @@ def compute_takeoff(entities, candidates, page_scales, regions, det_scale, heigh
                     paths=(), text_spans=(),
                     page_width_px: float = 0.0, page_height_px: float = 0.0,
                     page_rotation: int = 0,
-                    dimension_matches: Optional[list] = None) -> TakeoffPage:
+                    dimension_matches: Optional[list] = None,
+                    wall_network: object | None = None) -> TakeoffPage:
     """`dimension_matches`: the page's ticked-dimension-string matches, when
     the caller already has them — run_extract matches the full page once for
     the detection gates (scale/dimensions.py) and passes the list in; left
@@ -177,6 +185,7 @@ def compute_takeoff(entities, candidates, page_scales, regions, det_scale, heigh
     page = TakeoffPage(page_number=page_number, heights=heights)
     page.page_frame = PageFrame(page_width_px, page_height_px, page_rotation)
     page.scale_block = scale_summary_dict(page_scales, det_scale)
+    page.wall_network = wall_network
     evidence = {c.candidate_id: c.evidence for c in candidates}
 
     tokens = sheet_size_tokens(page_text)

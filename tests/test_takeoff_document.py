@@ -29,10 +29,11 @@ def _door(did, bbox, evidence=None):
                       confidence=0.8, evidence=evidence or {}))
 
 
-def _page(entities, candidates=()):
+def _page(entities, candidates=(), wall_network=None):
     return compute_takeoff(entities, list(candidates), SCALES, [REGION], DET50,
                            HEIGHTS, 1, "", 420.0, 297.0,
-                           page_width_px=2480.3, page_height_px=1753.9, page_rotation=0)
+                           page_width_px=2480.3, page_height_px=1753.9,
+                           page_rotation=0, wall_network=wall_network)
 
 
 class TestDocumentShape(unittest.TestCase):
@@ -40,7 +41,7 @@ class TestDocumentShape(unittest.TestCase):
         d = to_document(_page([_room("room_a", 100, 100, 500, 500)]))
         self.assertEqual(set(d), {
             "schema_version", "page_number", "page_frame", "scale", "heights",
-            "rooms", "openings", "totals", "warnings"})
+            "rooms", "openings", "totals", "warnings", "line_work"})
         self.assertEqual(d["schema_version"], SCHEMA_VERSION)
 
     def test_page_frame_records_the_pixel_space(self):
@@ -136,6 +137,27 @@ class TestReferentialIntegrity(unittest.TestCase):
         ids = [o["opening_id"] for o in d["openings"]]
         self.assertEqual(len(ids), len(set(ids)))
         self.assertEqual(len(ids), 1)
+
+
+class TestLineWorkReachesTheDocument(unittest.TestCase):
+    def test_a_page_with_no_network_still_carries_the_key(self):
+        d = to_document(_page([_room("room_a", 100, 100, 500, 500)]))
+        self.assertEqual(d["line_work"], {"walls": [], "lines": []})
+
+    def test_the_network_the_page_was_built_with_is_the_one_emitted(self):
+        from detection.walls import WallFace, WallNetwork, WallSegment
+        net = WallNetwork(
+            segments=[WallSegment(p1=(0, 6), p2=(100, 6), thickness_px=12.5,
+                                  source="face_pair", layer=None,
+                                  layer_hint=False, face_path_indices=[1])],
+            faces=[WallFace(p1=(0, 0), p2=(100, 0), stroked=True,
+                            stroke_width=1.0, wall_fill=False,
+                            layer_hint=False, indices=frozenset([1]))],
+        )
+        d = to_document(_page([_room("room_a", 100, 100, 500, 500)],
+                              wall_network=net))
+        self.assertEqual(len(d["line_work"]["walls"]), 1)
+        self.assertEqual(d["line_work"]["lines"][0]["kind"], "wall_face")
 
 
 if __name__ == "__main__":
